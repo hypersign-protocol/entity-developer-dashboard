@@ -670,7 +670,7 @@ export default {
           description: this.appModel.description,
           logoUrl: this.appModel.logoUrl,
         });
-        if (t) {
+        if (t && t.apiSecretKey && t.tenantUrl) {
           this.apiKeySecret = t.apiSecretKey;
           this.appModel.tenantUrl = t.tenantUrl;
           // Object.assign(this.appModel, { ...t })
@@ -679,16 +679,16 @@ export default {
           this.$root.$emit("bv::show::modal", "entity-secretKey-popup");
           this.notifySuccess(messages.APPLICATION.APP_CREATE_SUCCESS);
         } else {
-          throw new Error("Something went wrong");
+          throw new Error("App creation error: something went wrong");
         }
       } catch (e) {
         if (Array.isArray(e.message)) {
           e.message.forEach((m) => {
             this.notifyErr(m);
           });
-          return;
+        } else {
+          this.notifyErr(e.message);
         }
-        this.notifyErr(e.message);
       } finally {
         this.isLoading = false;
       }

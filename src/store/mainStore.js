@@ -86,11 +86,11 @@ const mainStore = {
                 })
                     .then(response => response.json())
                     .then(json => {
-
-                        if (json.error) {
+                        if (json.statusCode != (200 || 201)) {
+                            reject(json.message)
+                        } else if (json.error) {
                             reject(json)
-                        }
-                        else {
+                        } else {
                             commit('insertAnApp', json);
                             resolve(json)
                         }
