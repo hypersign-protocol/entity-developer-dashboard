@@ -83,10 +83,18 @@
       </b-navbar-brand>
       <b-collapse id="nav-collapse" is-nav style="width: 30%">
         <b-navbar-nav class="ml-auto">
-          <!-- <a class="mr-4" href="#" @click.prevent="route('playgroundDashboard')"
-          style="color:grey; margin-top:0.8em;" title="SSI Playground" v-if="selectedDashboard === $config.DashboardTypes.DeveloperDashboard">
-          <i class="fa fa-gamepad" style="font-size:36px;"></i>
-        </a> -->
+          <a
+            class="mr-4"
+            href="https://entity-studio.hypersign.id"
+            target="_blank"
+            style="color: grey; margin-top: 0.8em"
+            title="Navigate to SSI Playground"
+            v-if="
+              selectedDashboard === $config.DashboardTypes.DeveloperDashboard
+            "
+          >
+            <i class="fa fa-gamepad" style="font-size: 36px"></i>
+          </a>
 
           <a
             class="mr-4"

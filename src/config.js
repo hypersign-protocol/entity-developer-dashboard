@@ -1,12 +1,12 @@
 import EnvProvider from 'jvjr-docker-env'
-
+import { sanitizeUrl } from './utils/common'
 const hsdk = require('lds-sdk')
 const config = {
     studioServer: {
         SCHEMA_SSE: `${process.env.VUE_APP_SSE}api/v1/schema/sse/`,
         CRED_SSE: `${process.env.VUE_APP_SSE}api/v1/credential/sse/`,
         ORG_SSE: `${process.env.VUE_APP_SSE}api/v1/org/sse/`,
-        BASE_URL: process.env.VUE_APP_STUDIO_SERVER_BASE_URL, // EnvProvider.value('STUDIO_SERVER_BASE_URL'),
+        BASE_URL: sanitizeUrl(process.env.VUE_APP_STUDIO_SERVER_BASE_URL, true),
         ACCPCT_CRED_EP: process.env.VUE_APP_ACCPCT_CRED_EP || "api/v1/credential/send",
         SAVE_SCHEMA_EP: process.env.VUE_APP_STUDIO_SERVER_SAVE_SCHEMA || "api/v1/schema",
         CRED_LIST_EP: process.env.VUE_APP_STUDIO_SERVER_CRED_LIST_EP || "api/v1/credential/org",
@@ -38,7 +38,7 @@ const config = {
         buttonTextColor: process.env.VUE_APP_BTN_TXT_COLOR || "black",
     },
     apiServer: {
-        host: process.env.VUE_APP_STUDIO_SERVER_BASE_URL || 'http://localhost:3001',
+        host: sanitizeUrl(process.env.VUE_APP_STUDIO_SERVER_BASE_URL || 'http://localhost:3001', false),
         basePath: '/api/v1',
     }
 
