@@ -1,0 +1,84 @@
+#app {
+    text-align: left;
+    background-color: #fff;
+    font-size: 13px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 1.42857142857143;
+    text-decoration-skip-ink: auto;
+    color: #636363;
+}
+
+.button-theme{
+    background-color: #905ab0;
+    border-collapse: #905ab0;
+    color: #fff;
+    border: 0;
+}
+
+.event-card {
+    /* border: 0; */
+    border-radius: 10px;
+    -webkit-box-shadow: 2px 0 10px rgb(0 0 0 / 10%);
+    box-shadow: 2px 0 10px rgb(0 0 0 / 10%);
+    width: 100%;
+}
+
+.tile-number {
+    color: rgb(46, 46, 46);
+    font-size: xxx-large;
+}
+
+.card-head {
+    font-size: 1.1em;
+    border-radius: 0px 0px 0px 5px;
+    color: #212529;
+    background:#905ab029;
+    border:0;
+}
+.form-control:focus {
+    border-color:rgba(46, 102, 93, 1) !important;
+}
+.custom-select:focus {
+    border-color: rgba(46, 102, 93, 1) !important;
+}
+.home{
+    margin-left: auto;
+    margin-right: auto;
+    width: 100em;
+}
+.homeShift{
+    margin-left: auto;
+    margin-right: auto;
+    width: 85em;
+    }
+body{
+    color: #636363;
+    
+}
+
+a {
+    color: #636363;
+}
+
+
+a:hover {
+    color: #212529 ;
+    text-decoration: underline ;
+}
+.bg-gradient-primary {
+    /* background-image: linear-gradient(310deg, #5e72e4, #825ee4); */
+}
+:root {
+    --primary: #905ab0 !important;
+    --button-bg-color: #905ab0 !important;
+}
+.btn-outline-primary {
+    color: rgba(76, 105, 100, 1);
+    border-color: rgba(76, 105, 100, 1);
+}
+.btn-outline-primary:hover {
+    color: #fff;
+    background-color: rgba(76, 105, 100, 1);
+    border-color: rgba(76, 105, 100, 1);
+}

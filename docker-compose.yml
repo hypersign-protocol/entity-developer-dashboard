@@ -1,0 +1,27 @@
+version: '3'
+
+services:
+  studio-ui:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - VUE_APP_TITLE=Entity Developer Dashboard
+        - VUE_APP_DESC=A dashboard for developers to manage their tenants and API keys
+        - VUE_APP_VERSION=v1.0.0 
+        - VUE_APP_STUDIO_SERVER_BASE_URL=http://localhost:3002/
+        - VUE_APP_STUDIO_SERVER_BASE_WS=ws://localhost:3002/
+        - VUE_APP_NODE_SERVER_BASE_URL=https://rpc.jagrat.hypersign.id/
+        - VUE_APP_NODE_SERVER_BASE_URL_REST=https://api.jagrat.hypersign.id/
+        - VUE_APP_SCHEMA_GET_EP_REST=hypersign-protocol/hidnode/ssi/schema/
+        - VUE_APP_ACCPCT_CRED_EP=api/v1/credential/send
+        - VUE_APP_EXPLORER_BASE_URL=https://explorer.hypersign.id/
+        - VUE_APP_STUDIO_SERVER_SAVE_SCHEMA=api/v1/schema
+        - VUE_APP_SCHEMA_LIST_EP=api/v1/schema
+        - VUE_APP_STUDIO_SERVER_CRED_LIST_EP=api/v1/credential/org
+        - VUE_APP_STUDIO_SERVER_CRED_ISSUE_EP=api/v1/credential
+        - VUE_APP_WEB_WALLET_ADDRESS=https://wallet-jagrat.hypersign.id
+        - VUE_APP_PRESENTATION_TEMPLATE_EP=api/v1/presentation/template
+        - VUE_APP_SSE=http://localhost:9000/
+    ports:
+      - "9001:80"
