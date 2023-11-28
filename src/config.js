@@ -31,9 +31,9 @@ const config = {
         NEW_DID_EP: EnvProvider.value('EXPLORER_NEW_DID_EP') || "newdid"
     },
     app: {
-        name: EnvProvider.value('TITLE') || "Hypersign Studio",
-        decription: EnvProvider.value('DESC'),
-        version: EnvProvider.value('VERSION') || "v1.0.0",
+        name: process.env.VUE_APP_TITLE || "Hypersign Studio",
+        decription: process.env.VUE_APP_DESC || '',
+        version: process.env.VUE_APP_VERSION || "v1.0.0",
         buttonBgColor: process.env.VUE_APP_BTN_BACKGROUND || "#f1b319",
         buttonTextColor: process.env.VUE_APP_BTN_TXT_COLOR || "black",
     },
