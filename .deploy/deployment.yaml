@@ -9,7 +9,7 @@ spec:
   template:
     metadata:
       labels:
-        app: myapp
+        app: entity-developer-dashbord-ui
     spec:
       containers:
         - name: entity-developer-dashbord-ui
