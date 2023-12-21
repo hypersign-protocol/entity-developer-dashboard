@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: entity-developer-dashbord-ui
+  namespace: hypermine-development
 spec:
   selector:
     matchLabels:
@@ -44,6 +45,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: entity-developer-dashbord-ui-svc
+  namespace: hypermine-development
 
 spec:
   type: NodePort
