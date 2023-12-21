@@ -1,41 +1,17 @@
 FROM node:14 as build-stage
 
-RUN apt-get update && apt-get install -y git
-RUN git clone https://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@github.com/hypersign-protocol/entity-developer-dashboard.git /app
+# RUN apt-get update && apt-get install -y git
+# RUN git clone https://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@github.com/hypersign-protocol/entity-developer-dashboard.git /app
 
 WORKDIR /app
+COPY ./package.json .
+RUN yarn
 
-RUN npm install
+COPY . .
 
-# Build the Vue.js app for production
-ARG VUE_APP_TITLE
-ENV VUE_APP_TITLE=${VUE_APP_TITLE}
 
-ARG VUE_APP_DESC
-ENV VUE_APP_DESC=${VUE_APP_DESC}
 
-ARG VUE_APP_VERSION
-ENV VUE_APP_VERSION=${VUE_APP_VERSION}
-
-ARG VUE_APP_STUDIO_SERVER_BASE_URL
-ENV VUE_APP_STUDIO_SERVER_BASE_URL=${VUE_APP_STUDIO_SERVER_BASE_URL}
-
-ARG VUE_APP_STUDIO_SERVER_BASE_WS
-ENV VUE_APP_STUDIO_SERVER_BASE_WS=${VUE_APP_STUDIO_SERVER_BASE_WS}
-
-ARG VUE_APP_NODE_SERVER_BASE_URL
-ENV VUE_APP_NODE_SERVER_BASE_URL=${VUE_APP_NODE_SERVER_BASE_URL}
-
-ARG VUE_APP_NODE_SERVER_BASE_URL_REST
-ENV VUE_APP_NODE_SERVER_BASE_URL_REST=${VUE_APP_NODE_SERVER_BASE_URL_REST}
-
-ARG VUE_APP_EXPLORER_BASE_URL
-ENV VUE_APP_EXPLORER_BASE_URL=${VUE_APP_EXPLORER_BASE_URL}
-
-ARG VUE_APP_WEB_WALLET_ADDRESS
-ENV VUE_APP_WEB_WALLET_ADDRESS=${VUE_APP_WEB_WALLET_ADDRESS}
-
-RUN npm run build
+CMD [  "npm" ,"run" ,"build"]
 
 
 FROM nginx:latest as production-stage
@@ -45,3 +21,4 @@ COPY --from=build-stage /app/dist /usr/share/nginx/html
 
 EXPOSE 80
 
+CMD ["nginx", "-g", "daemon off;"]

@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: entity-developer-dashbord-ui
+spec:
+  selector:
+    matchLabels:
+      app: entity-developer-dashbord-ui
+  template:
+    metadata:
+      labels:
+        app: myapp
+    spec:
+      containers:
+        - name: entity-developer-dashbord-ui
+          image: __GOOGLE_ARTIFACT_URL__/__GOOGLE_PROJECT_ID__/__GOOGLE_ARTIFACT_REPO__/entity-developer-dashbord:latest
+          resources:
+            limits:
+              memory: "128Mi"
+              cpu: "500m"
+          ports:
+            - containerPort: 8080
+          env:
+            - name: NODE_ENV
+              value: __NODE_ENV__
+            - name: VUE_APP_DESC
+              value: __VUE_APP_DESC__
+            - name: VUE_APP_EXPLORER_BASE_URL
+              value: __VUE_APP_EXPLORER_BASE_URL__
+            - name: VUE_APP_NODE_SERVER_BASE_URL_REST
+              value: __VUE_APP_NODE_SERVER_BASE_URL_REST__
+            - name: VUE_APP_STUDIO_SERVER_BASE_URL
+              value: __VUE_APP_STUDIO_SERVER_BASE_URL__
+            - name: VUE_APP_STUDIO_SERVER_BASE_WS
+              value: __VUE_APP_STUDIO_SERVER_BASE_WS__
+            - name: VUE_APP_TITLE
+              value: __VUE_APP_TITLE__
+            - name: VUE_APP_VERSION
+              value: __VUE_APP_VERSION__
+            - name: VUE_APP_WEB_WALLET_ADDRESS
+              value: __VUE_APP_WEB_WALLET_ADDRESS__
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: entity-developer-dashbord-ui-svc
+
+spec:
+  type: NodePort
+  selector:
+    app: entity-developer-dashbord-ui
+  ports:
+    - port: 8080
+      targetPort: 80
