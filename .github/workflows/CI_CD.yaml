@@ -45,6 +45,41 @@ jobs:
           VUE_APP_EXPLORER_BASE_URL: ${{ vars.VUE_APP_EXPLORER_BASE_URL }}
           VUE_APP_WEB_WALLET_ADDRESS: ${{ vars.VUE_APP_WEB_WALLET_ADDRESS }}
         run:
+          find Dockerfile -type f -exec sed  -i -e "s#__NODE_ENV__#${{ vars.NODE_ENV }}#" {} \;
+
+
+
+          find Dockerfile -type f -exec sed  -i -e "s#__VUE_APP_DESC__#${{ vars.VUE_APP_DESC }}#" {} \;
+
+
+
+          find Dockerfile -type f -exec sed  -i -e "s#__VUE_APP_EXPLORER_BASE_URL__#${{ vars.VUE_APP_EXPLORER_BASE_URL }}#" {} \;
+
+
+
+          find Dockerfile -type f -exec sed  -i -e "s#__VUE_APP_NODE_SERVER_BASE_URL_REST__#${{ vars.VUE_APP_NODE_SERVER_BASE_URL_REST }}#" {} \;
+
+
+
+          find Dockerfile -type f -exec sed  -i -e "s#__VUE_APP_STUDIO_SERVER_BASE_URL__#${{ vars.VUE_APP_STUDIO_SERVER_BASE_URL }}#" {} \;
+
+
+
+          find Dockerfile -type f -exec sed  -i -e "s#__VUE_APP_STUDIO_SERVER_BASE_WS__#${{ vars.VUE_APP_STUDIO_SERVER_BASE_WS }}#" {} \;
+
+
+
+          find Dockerfile -type f -exec sed  -i -e "s#__VUE_APP_TITLE__#${{ vars.VUE_APP_TITLE }}#" {} \;
+
+
+
+          find Dockerfile -type f -exec sed  -i -e "s#__VUE_APP_VERSION__#${{ vars.VUE_APP_VERSION }}#" {} \;
+
+
+
+          find Dockerfile -type f -exec sed  -i -e "s#__VUE_APP_WEB_WALLET_ADDRESS__#${{ vars.VUE_APP_WEB_WALLET_ADDRESS }}#" {} \;
+
+
           docker build -t $GOOGLE_ARTIFACT_URL/$GOOGLE_PROJECT_ID/$GOOGLE_ARTIFACT_REPO/entity-developer-dashbord:latest  .
 
           docker push $GOOGLE_ARTIFACT_URL/$GOOGLE_PROJECT_ID/$GOOGLE_ARTIFACT_REPO/entity-developer-dashbord:latest
@@ -74,23 +109,5 @@ jobs:
         run: find .deploy/deployment.yaml -type f -exec sed  -i ''s/__GOOGLE_ARTIFACT_REPO__/${{ secrets.GOOGLE_ARTIFACT_REPO }}/g'' {} \;
       - name: "Replace secrets"
         run: find .deploy/deployment.yaml -type f -exec sed  -i ''s/__GOOGLE_PROJECT_ID__/${{ secrets.GOOGLE_PROJECT_ID }}/g'' {} \;
-      - name: "Replace Secrets"
-        run: find .deploy/deployment.yaml -type f -exec sed  -i -e "s#__NODE_ENV__#${{ vars.NODE_ENV }}#" {} \;
-      - name: "Replace Secrets"
-        run: find .deploy/deployment.yaml -type f -exec sed  -i -e "s#__VUE_APP_DESC__#${{ vars.VUE_APP_DESC }}#" {} \;
-      - name: "Replace Secrets"
-        run: find .deploy/deployment.yaml -type f -exec sed  -i -e "s#__VUE_APP_EXPLORER_BASE_URL__#${{ vars.VUE_APP_EXPLORER_BASE_URL }}#" {} \;
-      - name: "Replace Secrets"
-        run: find .deploy/deployment.yaml -type f -exec sed  -i -e "s#__VUE_APP_NODE_SERVER_BASE_URL_REST__#${{ vars.VUE_APP_NODE_SERVER_BASE_URL_REST }}#" {} \;
-      - name: "Replace Secrets"
-        run: find .deploy/deployment.yaml -type f -exec sed  -i -e "s#__VUE_APP_STUDIO_SERVER_BASE_URL__#${{ vars.VUE_APP_STUDIO_SERVER_BASE_URL }}#" {} \;
-      - name: "Replace Secrets"
-        run: find .deploy/deployment.yaml -type f -exec sed  -i -e "s#__VUE_APP_STUDIO_SERVER_BASE_WS__#${{ vars.VUE_APP_STUDIO_SERVER_BASE_WS }}#" {} \;
-      - name: "Replace Secrets"
-        run: find .deploy/deployment.yaml -type f -exec sed  -i -e "s#__VUE_APP_TITLE__#${{ vars.VUE_APP_TITLE }}#" {} \;
-      - name: "Replace Secrets"
-        run: find .deploy/deployment.yaml -type f -exec sed  -i -e "s#__VUE_APP_VERSION__#${{ vars.VUE_APP_VERSION }}#" {} \;
-      - name: "Replace Secrets"
-        run: find .deploy/deployment.yaml -type f -exec sed  -i -e "s#__VUE_APP_WEB_WALLET_ADDRESS__#${{ vars.VUE_APP_WEB_WALLET_ADDRESS }}#" {} \;
       - name: "Deploy to GKE"
         run: kubectl apply -f .deploy/deployment.yaml
