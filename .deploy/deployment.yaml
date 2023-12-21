@@ -15,6 +15,7 @@ spec:
       containers:
         - name: entity-developer-dashbord-ui
           image: __GOOGLE_ARTIFACT_URL__/__GOOGLE_PROJECT_ID__/__GOOGLE_ARTIFACT_REPO__/entity-developer-dashbord:latest
+          imagePullPolicy: Always
           resources:
             limits:
               memory: "128Mi"
