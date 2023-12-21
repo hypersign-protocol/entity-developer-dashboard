@@ -11,7 +11,7 @@ COPY . .
 
 
 
-RUN npm run build
+RUN yarn  build
 
 FROM nginx:latest as production-stage
 COPY --from=build-stage /app/dist /usr/share/nginx/html
