@@ -36,6 +36,7 @@ jobs:
           GOOGLE_ARTIFACT_REPO: ${{secrets.GOOGLE_ARTIFACT_REPO}}
         run:
           docker build -t $GOOGLE_ARTIFACT_URL/$GOOGLE_PROJECT_ID/$GOOGLE_ARTIFACT_REPO/entity-developer-dashbord:latest .
+
           docker push $GOOGLE_ARTIFACT_URL/$GOOGLE_PROJECT_ID/$GOOGLE_ARTIFACT_REPO/entity-developer-dashbord:latest
   Deploy-Pipeline:
     needs: [Build-Pipeline]
