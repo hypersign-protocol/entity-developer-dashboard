@@ -13,9 +13,8 @@ jobs:
       - name: code checkout
         uses: actions/checkout@v3
 
-      - name: Get tag
-        id: get-tag
-        run: echo ::set-output name=short_ref::${GITHUB_REF#refs/*/}
+      - name: Set Latest Tag
+        run: echo "LATEST_RELEASE_TAG=$(git describe --tags --abbrev=0)" >> $GITHUB_ENV
       - id: "auth"
         uses: "google-github-actions/auth@v1"
         with:
@@ -84,9 +83,9 @@ jobs:
           find Dockerfile -type f -exec sed  -i -e "s#__VUE_APP_WEB_WALLET_ADDRESS__#${{ vars.VUE_APP_WEB_WALLET_ADDRESS }}#" {} \;
 
 
-          docker build -t $GOOGLE_ARTIFACT_URL/$GOOGLE_PROJECT_ID/$GOOGLE_ARTIFACT_REPO/entity-developer-dashbord:${{ steps.get-tag.outputs.short_ref }}  .
+          docker build -t $GOOGLE_ARTIFACT_URL/$GOOGLE_PROJECT_ID/$GOOGLE_ARTIFACT_REPO/entity-developer-dashbord:${{ env.LATEST_RELEASE_TAG }}  .
 
-          docker push $GOOGLE_ARTIFACT_URL/$GOOGLE_PROJECT_ID/$GOOGLE_ARTIFACT_REPO/entity-developer-dashbord:${{ steps.get-tag.outputs.short_ref }}
+          docker push $GOOGLE_ARTIFACT_URL/$GOOGLE_PROJECT_ID/$GOOGLE_ARTIFACT_REPO/entity-developer-dashbord:${{ env.LATEST_RELEASE_TAG }}
   Deploy-Pipeline:
     needs: [Build-Pipeline]
     runs-on: ubuntu-latest
@@ -94,10 +93,8 @@ jobs:
     steps:
       - name: code checkout
         uses: actions/checkout@v3
-      - name: Get tag
-        id: get-tag
-        run: echo ::set-output name=short_ref::${GITHUB_REF#refs/*/}
-
+      - name: Set Latest Tag
+        run: echo "LATEST_RELEASE_TAG=$(git describe --tags --abbrev=0)" >> $GITHUB_ENV
       - id: "auth"
         uses: "google-github-actions/auth@v1"
         with:
@@ -113,7 +110,7 @@ jobs:
       - name: "Configure kubectl"
         run: gcloud container clusters get-credentials hypermine-gke --region=asia-south1
       - name: Replace tags
-        run: find .deploy/deployment.yaml -type f -exec sed  -i -e "#s__LATEST_RELEASE_TAG__#${{ steps.get-tag.outputs.short_ref }}#" {} \;
+        run: find .deploy/deployment.yaml -type f -exec sed  -i -e "#s__LATEST_RELEASE_TAG__#${{ env.LATEST_RELEASE_TAG }}#" {} \;
 
       - name: "Replace secrets"
         run: find .deploy/deployment.yaml -type f -exec sed  -i ''s/__GOOGLE_ARTIFACT_URL__/${{ secrets.GOOGLE_ARTIFACT_URL }}/g'' {} \;
