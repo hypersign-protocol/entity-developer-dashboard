@@ -85,28 +85,13 @@
         <b-navbar-nav class="ml-auto">
           <a
             class="mr-4"
-            href="https://entity-studio.hypersign.id"
+            href="https://api.entity.dashboard.hypersign.id/"
             target="_blank"
             style="color: grey; margin-top: 0.8em"
-            title="Navigate to SSI Playground"
-            v-if="
-              selectedDashboard === $config.DashboardTypes.DeveloperDashboard
-            "
-          >
-            <i class="fa fa-gamepad" style="font-size: 36px"></i>
-          </a>
-
-          <a
-            class="mr-4"
-            href="#"
-            @click.prevent="route('dashboard')"
-            style="color: grey; margin-top: 0.8em"
-            title="Developer Dashboard"
-            v-if="selectedDashboard === $config.DashboardTypes.SSIPlayground"
+            title="Developer Dashboard API"
           >
             <i class="fa fa-code" style="font-size: 36px"></i>
           </a>
-
           <a
             class="mr-3"
             href="https://docs.hypersign.id/entity-studio/developer-dashboard"
