@@ -15,11 +15,18 @@ const mainStore = {
         appList: [],
         totalAppCount: 0,
         showMainSideNavBar: true,
+        serviceList: [],
     },
     getters: {
         getAppByAppId: (state) => (appId) => {
             return state.appList.find(x => x.appId === appId);
         },
+        getAllServices: (state) => {
+            return state.serviceList;
+        },
+        getServiceById: (state) => (serviceId) => {
+            return state.serviceList.find(x => x.id === serviceId)
+        }
     },
     mutations: {
         setMainSideNavBar: (state, payload) => {
@@ -31,6 +38,9 @@ const mainStore = {
         insertAllApps(state, payload) {
             state.appList = payload.data;
             state.totalAppCount = payload.totalCount;
+        },
+        insertAllServices(state, payload) {
+            state.serviceList = payload;
         },
         insertAnApp(state, payload) {
             if (!state.appList.find(x => x.appId === payload.appId)) {
@@ -86,7 +96,7 @@ const mainStore = {
                 })
                     .then(response => response.json())
                     .then(json => {
-                        if (json.statusCode != (200 || 201)) {
+                        if (json.statusCode && (json.statusCode != (200 || 201))) {
                             reject(json.message)
                         } else if (json.error) {
                             reject(json)
@@ -143,6 +153,24 @@ const mainStore = {
                     reject(json)
                 }
                 commit('insertAllApps', json);
+            }).catch((e) => {
+                console.error(`Error while fetching apps ` + e.message);
+            })
+        },
+
+        fetchServicesList: ({ commit }) => {
+            // TODO: Get list of orgs 
+            const url = `${apiServerBaseUrl}/services`;
+            // TODO: // use proper authToken
+            const headers = UtilsMixin.methods.getHeader(localStorage.getItem('authToken'));
+            fetch(url, {
+                headers
+            }).then(response => response.json()).then(json => {
+                if (json.error) {
+                    reject(json)
+                }
+                console.log(json)
+                commit('insertAllServices', json);
             }).catch((e) => {
                 console.error(`Error while fetching apps ` + e.message);
             })
