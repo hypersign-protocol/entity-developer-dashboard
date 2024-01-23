@@ -85,7 +85,7 @@
         <b-navbar-nav class="ml-auto">
           <a
             class="mr-4"
-            href="https://api.entity.dashboard.hypersign.id/"
+            :href="$config.studioServer.BASE_URL"
             target="_blank"
             style="color: grey; margin-top: 0.8em"
             title="Developer Dashboard API"

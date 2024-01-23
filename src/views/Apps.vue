@@ -558,13 +558,13 @@ export default {
       }
     },
     swaggerAPIdoc(){
-      if(this.getServiceById(this.selectedServiceId)){
-        const swallerAPIdocPath = this.getServiceById(this.selectedServiceId).swaggerAPIDocPath
-        if(swallerAPIdocPath){
-          return sanitizeUrl(this.appModel.tenantUrl) + swallerAPIdocPath
-        } 
-      } else {
-        return sanitizeUrl(this.appModel.tenantUrl)
+
+      const service = this.appModel.services[0]
+
+      if(service){
+        if(service.swaggerAPIDocPath){
+          return sanitizeUrl(this.appModel.tenantUrl) + service.swaggerAPIDocPath
+        }
       }
       return sanitizeUrl(this.appModel.tenantUrl)
     },
