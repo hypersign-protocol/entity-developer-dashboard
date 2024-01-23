@@ -158,7 +158,7 @@
         <div class="form-group" v-if="edit === true">
           <tool-tip infoMessage="Your tenant URL"></tool-tip>
           <label for="tenant"><strong>Tenant URL: </strong></label>
-          <div class="input-group mb-3">
+          <div class="input-group mb-1">
             <input
               type="text"
               class="form-control"
@@ -177,14 +177,13 @@
               </span>
             </div>
           </div>
-
-          <!-- <small
+          <small
             ><a
-              :href="`https://explorer.hypersign.id/hypersign-testnet/account/${appModel.walletAddress}`"
+              :href="`${swaggerAPIdoc}`"
               target="_blank"
-              >Click here to see wallet balance</a
+              >Open API Doc (Swagger)</a
             ></small
-          > -->
+          >
         </div>
 
         <div class="form-group" v-if="edit === true">
@@ -217,6 +216,15 @@
             ></small
           >
         </div>
+
+        <div class="form-group" v-if="edit === false">
+          <tool-tip infoMessage="Select a service you want to associate with this app"></tool-tip>
+          <label for="selectService"><strong>Select Service<span style="color: red">*</span>: </strong></label>
+          <select class="custom-select"  id="selectService" v-model="selectedServiceId">
+            <option :value="eachService.id" v-for="eachService in selectServicesOptions">{{eachService.name}}</option>
+          </select>
+          <small>{{ serviceDescrition }}</small>
+        </div> 
 
         <div class="form-group">
           <tool-tip
@@ -309,6 +317,21 @@
                   </b-card-text>
                 </div>
               </div>
+              <div class="row" v-if="eachOrg.tenantUrl">
+                <div class="col">
+                  <b-card-text>
+                    <small class="card-field-label">Tenant Url:</small>
+                    <div
+                      class="apiKeySecret"
+                      @click="copyToClip(eachOrg.tenantUrl, 'Tenant Url')"
+                      title="Copy Tenant Url"
+                    >
+                      {{ truncate(eachOrg.tenantUrl, 42) }}
+                      <i class="far fa-copy" style="float: right"></i>
+                    </div>
+                  </b-card-text>
+                </div>
+              </div>
               <div class="row mt-2">
                 <div class="col">
                   <span class=" " style="float: right">
@@ -321,7 +344,7 @@
                       style="cursor: pointer"
                     >
                       <i class="fa fa-key"></i>
-                      Api</b-badge
+                      Secret</b-badge
                     >
                     <b-badge
                       pill
@@ -513,15 +536,37 @@ import ToolTip from "../components/element/ToolTip.vue";
 import messages from "../mixins/messages";
 import { mapGetters, mapState, mapActions, mapMutations } from "vuex";
 import HfFlashNotification from "../components/element/HfFlashNotification.vue";
+import { sanitizeUrl } from '../utils/common'
 export default {
   computed: {
     ...mapState({
       appList: (state) => state.mainStore.appList,
       totalAppCount: (state) => state.mainStore.totalAppCount,
     }),
-    ...mapGetters("mainStore", ["getAppByAppId"]),
+    ...mapGetters("mainStore", ["getAppByAppId", "getAllServices", "getServiceById"]),
     pages() {
       return Math.ceil(parseInt(this.totalAppCount) / 10);
+    },
+    selectServicesOptions() {
+      return this.getAllServices
+    },
+    serviceDescrition(){ 
+      if(this.getServiceById(this.selectedServiceId)){
+        return this.getServiceById(this.selectedServiceId).description
+      }else {
+        return ""
+      }
+    },
+    swaggerAPIdoc(){
+      if(this.getServiceById(this.selectedServiceId)){
+        const swallerAPIdocPath = this.getServiceById(this.selectedServiceId).swaggerAPIDocPath
+        if(swallerAPIdocPath){
+          return sanitizeUrl(this.appModel.tenantUrl) + swallerAPIdocPath
+        } 
+      } else {
+        return sanitizeUrl(this.appModel.tenantUrl)
+      }
+      return sanitizeUrl(this.appModel.tenantUrl)
     },
   },
   mounted() {
@@ -529,6 +574,7 @@ export default {
   },
   data() {
     return {
+      selectedServiceId: "SSI_API",
       edit: false,
       flash: null,
       isAdd: true,
@@ -568,6 +614,13 @@ export default {
       "updateAnAppOnServer",
       "generateAPISecretKey",
     ]),
+    onServicesSelected(){
+      console.log('ononServicesSelected() got calledsuccessfully')
+
+      if(this.selectedServicesInMultiSelect.length > 0){
+        console.log('Added')
+      }
+    },
     formattedAppName(appName) {
       if (appName == "" || appName == undefined) appName = "No app name";
       return this.truncate(appName, 25);
@@ -647,6 +700,8 @@ export default {
     },
     async createAnApp() {
       try {
+
+
         const errorMessages = this.validateFields();
         if (errorMessages && errorMessages.message.length > 0) {
           throw errorMessages;
@@ -669,6 +724,7 @@ export default {
           whitelistedCors: whitelistCors,
           description: this.appModel.description,
           logoUrl: this.appModel.logoUrl,
+          serviceIds: [this.selectedServiceId]
         });
         if (t && t.apiSecretKey && t.tenantUrl) {
           this.apiKeySecret = t.apiSecretKey;

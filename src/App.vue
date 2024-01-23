@@ -347,7 +347,7 @@ export default {
     this.initializeStore();
   },
   methods: {
-    ...mapActions("mainStore", ["fetchAppsListFromServer"]),
+    ...mapActions("mainStore", ["fetchAppsListFromServer", "fetchServicesList"]),
     ...mapMutations("mainStore", ["resetMainStore"]),
     ...mapActions("playgroundStore", [
       "insertAschema",
@@ -401,6 +401,7 @@ export default {
         this.fetchAllOrgs();
 
         this.fetchAppsListFromServer();
+        this.fetchServicesList()
       } else {
         console.log("else");
       }
