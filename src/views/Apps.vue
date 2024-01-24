@@ -558,15 +558,17 @@ export default {
       }
     },
     swaggerAPIdoc(){
-
-      const service = this.appModel.services[0]
-
-      if(service){
-        if(service.swaggerAPIDocPath){
-          return sanitizeUrl(this.appModel.tenantUrl) + service.swaggerAPIDocPath
-        }
+      if(this.appModel.tenantUrl){
+          if(this.appModel.services){
+            const service = this.appModel.services[0]
+            if(service){
+              if(service.swaggerAPIDocPath){
+                return sanitizeUrl(this.appModel.tenantUrl) + service.swaggerAPIDocPath
+              }
+            }
+          }
+        return sanitizeUrl(this.appModel.tenantUrl)
       }
-      return sanitizeUrl(this.appModel.tenantUrl)
     },
   },
   mounted() {
@@ -596,6 +598,7 @@ export default {
         whitelistedCors: "",
         logoUrl: "",
         tenantUrl: "",
+        services: []
       },
     };
   },
