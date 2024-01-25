@@ -398,7 +398,7 @@ export default {
       if (this.authToken) {
         this.showIcon = true;
         // TODO: This should only execute when playground is selected, otherwise not...
-        this.fetchAllOrgs();
+        //this.fetchAllOrgs();
 
         this.fetchAppsListFromServer();
         this.fetchServicesList()
@@ -514,7 +514,7 @@ export default {
       localStorage.removeItem("selectedOrg");
       this.resetStore();
       this.resetMainStore();
-    },
+    },  
   },
   mixins: [UtilsMixin],
 };

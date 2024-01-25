@@ -5,7 +5,7 @@ import config from './config'
 import store from './store'
 
 import PKIIdLogin from './views/PKIIdLogin.vue'
-
+import Home from './views/Home.vue'
 import MainDashboard from './views/Dashboard.vue'
 
 import Credential from './views/playground/Credential.vue'
@@ -35,6 +35,15 @@ const router = new Router({
     {
       path: '/login',
       redirect: '/studio/login'
+    },
+    {
+      path: '/home',
+      redirect: '/studio/home'
+    },
+    {
+      path: '/studio/home',
+      name: 'Home',
+      component: Home
     },
     {
       path: '/studio/login',
@@ -85,7 +94,7 @@ router.beforeEach((to, from, next) => {
     document.title = to.meta.title
     const authToken = localStorage.getItem('authToken')
     if (authToken) {
-      const url = `${config.studioServer.BASE_URL}api/v2/protected`
+      const url = `${config.studioServer.BASE_URL}api/v1/auth`
       fetch(url, {
         headers: {
           Authorization: `Bearer ${authToken}`,
