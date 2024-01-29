@@ -32,7 +32,7 @@ export default {
     },
     methods: {
         login() {
-          const socialLoginAPI = `${this.$config.studioServer.BASE_URL}api/v1/login`;
+          const socialLoginAPI = `${this.$config.studioServer.BASE_URL}api/v1/login?provider=google`;
           fetch(socialLoginAPI).then((response)=>{
                 if(response.ok){
                     return response.json()
