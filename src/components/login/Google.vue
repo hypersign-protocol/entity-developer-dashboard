@@ -24,8 +24,6 @@ export default {
     name: "GoogleLogin",
     mounted() {
         const  authorizationToken = this.$route.query.token
-        console.log(this.$route.query)
-        console.log(authorizationToken)
         if(authorizationToken){
             localStorage.setItem("authToken", authorizationToken);
             EventBus.$emit("initializeStore", "login");
@@ -34,9 +32,20 @@ export default {
     },
     methods: {
         login() {
-            const socialLoginAPI = `${this.$config.studioServer.BASE_URL}api/v1/login`;
-            window.location.href = socialLoginAPI
-        },
+          const socialLoginAPI = `${this.$config.studioServer.BASE_URL}api/v1/login`;
+          fetch(socialLoginAPI).then((response)=>{
+                if(response.ok){
+                    return response.json()
+                }else{
+                    console.log(response.statusText)
+                }
+                })
+            .then((json) =>{
+                window.location.href = json.authUrl
+            })
+            .catch((e)=>{
+                throw new Error(`${e.message}`)})
+                    },
     }
 }
 
