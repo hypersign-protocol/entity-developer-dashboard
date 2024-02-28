@@ -334,6 +334,7 @@
               </div>
               <div class="row mt-2">
                 <div class="col">
+                  <span class=" " style="cursor: pointer" @click="switchOrg(eachOrg.appId)"><i class="fa fa-id-card" aria-hidden="true"></i></span>
                   <span class=" " style="float: right">
                     <b-badge
                       pill
@@ -617,6 +618,16 @@ export default {
       "updateAnAppOnServer",
       "generateAPISecretKey",
     ]),
+
+    ...mapMutations("playgroundStore", [
+      "shiftContainer",
+    ]),
+
+    async switchOrg(appId) {
+      this.$router.push({ name: "playgroundCredential" , params: { appId } });
+      this.shiftContainer(false);
+    },
+
     onServicesSelected(){
       console.log('ononServicesSelected() got calledsuccessfully')
 

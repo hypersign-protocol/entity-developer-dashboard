@@ -7,17 +7,10 @@ import store from './store'
 import PKIIdLogin from './views/PKIIdLogin.vue'
 import Home from './views/Home.vue'
 import MainDashboard from './views/Dashboard.vue'
-
 import Credential from './views/playground/Credential.vue'
-import Presentation from './views/playground/Presentation.vue'
-import Dashboard from './views/playground/Dashboard.vue'
-import Schema from './views/playground/Schema.vue'
-import Org from './views/playground/Org.vue'
-import VerifyPresentation from './views/playground/VerifyPresentation.vue'
+import CredentialDetails from './views/playground/CredentialDetails.vue'
 
 Vue.use(Router)
-
-console.log(config.app)
 
 const router = new Router({
   mode: 'hash',
@@ -57,6 +50,24 @@ const router = new Router({
       meta: {
         requiresAuth: true,
         title: `${config.app.name} - Dashboard`
+      }
+    },
+    {
+      path: '/studio/credential/:appId',
+      name: 'playgroundCredential',
+      component: Credential,
+      meta: {
+        requiresAuth: true,
+        title: `${config.app.name} - Credential`
+      }
+    },
+    {
+      path: '/studio/credential/:appId/:sessionId',
+      name: 'sessionDetails',
+      component: CredentialDetails,
+      meta: {
+        requiresAuth: true,
+        title: `${config.app.name} - Session Details`
       }
     },
     {

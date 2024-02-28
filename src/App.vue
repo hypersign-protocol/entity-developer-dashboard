@@ -410,29 +410,14 @@ export default {
     getSideMenu() {
       const menu = [
         {
-          href: "/studio/playground/dashboard",
+          href: "/studio/dashboard",
           title: "Dashboard",
           icon: "fas fa-tachometer-alt",
         },
         {
-          href: "/studio/playground/schema",
-          title: "Schema",
-          icon: "fa fa-table",
-        },
-        {
-          href: "/studio/playground/credential",
+          href: "/studio/credential",
           title: "Credentials",
           icon: "fa fa-id-card",
-        },
-        {
-          href: "/studio/playground/presentation",
-          title: "Presentation",
-          icon: "fa fa-desktop",
-        },
-        {
-          href: "/studio/playground/presentation/verify",
-          title: "Verification",
-          icon: "fa fa-check",
         },
       ];
       return menu;
