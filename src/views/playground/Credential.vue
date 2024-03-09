@@ -160,8 +160,25 @@ h5 span {
                         stroke-linejoin="round" stroke-width="16"></line>
                       <path d="M40,168c64-48,112,48,176,0V48C152,96,104,0,40,48" fill="none" stroke="currentColor"
                         stroke-linecap="round" stroke-linejoin="round" stroke-width="16"></path>
+                    </svg>
+                  </div>
+                </span>
+                <span class="stepSpan" title="Selfi">
+                  <div :class="{ 'step-finished': row.step_liveliness == 1, 'step-notStarted': row.step_liveliness == 0 }"
+                    class="step UI--c-dhzjXW UI--c-dhzjXW-iexswVt-css UI--c-kbgiPT UI--c-kbgiPT-ihMjrWH-css "><svg
+                      xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 256 256"
+                      style="min-width: 1.8rem;">
+                      <rect width="256" height="256" fill="none"></rect>
+                      <circle cx="128" cy="128" r="96" fill="none" stroke="currentColor" stroke-linecap="round"
+                        stroke-linejoin="round" stroke-width="16"></circle>
+                      <circle cx="128" cy="120" r="40" fill="none" stroke="currentColor" stroke-linecap="round"
+                        stroke-linejoin="round" stroke-width="16"></circle>
+                      <path d="M63.8,199.4a72,72,0,0,1,128.4,0" fill="none" stroke="currentColor" stroke-linecap="round"
+                        stroke-linejoin="round" stroke-width="16"></path>
                     </svg></div>
                 </span>
+
+
                 <span class="stepSpan" title="ID Document">
                   <div
                     :class="{ 'step-finished': row.step_ocrIdVerification == 1, 'step-notStarted': row.step_ocrIdVerification == 0 }"
@@ -179,20 +196,7 @@ h5 span {
                         stroke-linecap="round" stroke-linejoin="round" stroke-width="16"></polyline>
                     </svg></div>
                 </span>
-                <span class="stepSpan" title="Selfi">
-                  <div :class="{ 'step-finished': row.step_liveliness == 1, 'step-notStarted': row.step_liveliness == 0 }"
-                    class="step UI--c-dhzjXW UI--c-dhzjXW-iexswVt-css UI--c-kbgiPT UI--c-kbgiPT-ihMjrWH-css "><svg
-                      xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 256 256"
-                      style="min-width: 1.8rem;">
-                      <rect width="256" height="256" fill="none"></rect>
-                      <circle cx="128" cy="128" r="96" fill="none" stroke="currentColor" stroke-linecap="round"
-                        stroke-linejoin="round" stroke-width="16"></circle>
-                      <circle cx="128" cy="120" r="40" fill="none" stroke="currentColor" stroke-linecap="round"
-                        stroke-linejoin="round" stroke-width="16"></circle>
-                      <path d="M63.8,199.4a72,72,0,0,1,128.4,0" fill="none" stroke="currentColor" stroke-linecap="round"
-                        stroke-linejoin="round" stroke-width="16"></path>
-                    </svg></div>
-                </span>
+
                 <span class="stepSpan" title="Finished">
                   <div :class="{ 'step-finished': row.step_finish == 1, 'step-notStarted': row.step_finish == 0 }"
                     class="step UI--c-dhzjXW UI--c-dhzjXW-iexswVt-css UI--c-kbgiPT UI--c-kbgiPT-ijmsATZ-css "><svg
