@@ -25,6 +25,12 @@ const mainStore = {
         getAllServices: (state) => {
             return state.serviceList;
         },
+        getAppsWithSSIServices: (state) => {
+            return state.appList.filter(x => x.services[0].id === config.SERVICE_TYPES.SSI_API)
+        },
+        getAppsWithKYCServices: (state) => {
+            return state.appList.filter(x => x.services[0].id === config.SERVICE_TYPES.CAVACH_API)
+        },
         getServiceById: (state) => (serviceId) => {
             return state.serviceList.find(x => x.id === serviceId)
         },

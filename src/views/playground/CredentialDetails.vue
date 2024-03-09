@@ -310,12 +310,12 @@ ul.timeline>li:before {
                   <li v-if="idDocDataFound">
                     <a target="_blank"><strong>Step Change: ID Document uploaded</strong></a>
                     <a href="#" class="float-right">{{ session ? formatDate(session.ocriddocsDetails.createdAt) : "-"
-                    }}</a>
+                      }}</a>
                   </li>
                   <li v-if="selfiDataFound && idDocDataFound">
                     <a target="_blank"><strong>Step Change: Finished</strong></a>
                     <a href="#" class="float-right">{{ session ? formatDate(session.ocriddocsDetails.createdAt) : "-"
-                    }}</a>
+                      }}</a>
                   </li>
                 </ul>
               </div>
@@ -457,5 +457,3 @@ export default {
 
 };
 </script>
-
-

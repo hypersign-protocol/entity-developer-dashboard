@@ -1,13 +1,13 @@
 <template>
   <div class="">
-    <div class="row">
+    <!-- <div class="row">
       <div class="col-md-12">
         <h2 class="mb-6 text-2xl">
           Hi {{ user.name ? user.name.split(" ")[0] : "" }}, Welcome to
           Developer Dashboard!
         </h2>
       </div>
-    </div>
+    </div> -->
     <!-- <div class="row">
        <div class="col-md-4">
            <div class="card" >
