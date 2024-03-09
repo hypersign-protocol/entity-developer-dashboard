@@ -1,10 +1,6 @@
 <template>
   <div>
-    <loading
-      :active.sync="isLoading"
-      :can-cancel="true"
-      :is-full-page="fullPage"
-    ></loading>
+    <loading :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loading>
     <div style="display: flex" class="">
       <h3 v-if="appList.length > 0" class="mt-4" style="text-align: left">
         <i class="fa fa-rocket mr-2" aria-hidden="true"></i>Your Applications
@@ -13,38 +9,21 @@
         Create your first application!
       </h4>
 
-      <hf-buttons
-        name="+ Create"
-        style="text-align: right"
-        class="ml-auto mt-4"
-        @executeAction="openSlider()"
-      >
+      <hf-buttons name="+ Create" style="text-align: right" class="ml-auto mt-4" @executeAction="openSlider()">
       </hf-buttons>
     </div>
 
-    <hf-pop-up
-      id="entity-secret-confirmation-popup"
-      Header="API Secret Key Confirmation"
-    >
+    <hf-pop-up id="entity-secret-confirmation-popup" Header="API Secret Key Confirmation">
       <div>
         <p style="color: #ff5400de">
           Warning: You are regenerating a new API Secret Key. The old key will
           no longer be valid.
         </p>
-        <input
-          type="text"
-          class="form-control"
-          id="appId"
-          v-model="appIdToGenerateSecret"
-          aria-describedby="selected App Id"
-          placeholder="Enter Application Id"
-        />
+        <input type="text" class="form-control" id="appId" v-model="appIdToGenerateSecret"
+          aria-describedby="selected App Id" placeholder="Enter Application Id" />
         <div class="text-center mt-3">
-          <hf-buttons
-            name="Continue"
-            class="btn btn-primary text-center"
-            @executeAction="reGenerateSecretKey"
-          ></hf-buttons>
+          <hf-buttons name="Continue" class="btn btn-primary text-center"
+            @executeAction="reGenerateSecretKey"></hf-buttons>
         </div>
       </div>
     </hf-pop-up>
@@ -56,46 +35,26 @@
         </p>
         <p>
           Use this key to authenticate your server. See '<a
-            href="https://docs.hypersign.id/entity-studio/api-doc/authentication"
-            target="_blank"
-            >API reference</a
-          >' documentation for more.
+            href="https://docs.hypersign.id/entity-studio/api-doc/authentication" target="_blank">API reference</a>'
+          documentation for more.
         </p>
-        <HfFlashNotification
-          class="mt-2"
-          v-if="apiKeySecret != ''"
-          :text="`${apiKeySecret}`"
-          type="API Secret Key"
-          description="Your API Secret Key"
-          @click="onHfFlashClick()"
-        ></HfFlashNotification>
+        <HfFlashNotification class="mt-2" v-if="apiKeySecret != ''" :text="`${apiKeySecret}`" type="API Secret Key"
+          description="Your API Secret Key" @click="onHfFlashClick()"></HfFlashNotification>
       </div>
     </hf-pop-up>
     <StudioSideBar :title="edit ? 'Edit Application' : 'Add Application'">
       <div class="container">
         <div class="form-group" v-if="edit === true">
           <tool-tip infoMessage="Your Application Id"></tool-tip>
-          <label for="orgDid"
-            ><strong
-              >Application Id<span style="color: red">*</span>:
-            </strong></label
-          >
+          <label for="orgDid"><strong>Application Id<span style="color: red">*</span>:
+            </strong></label>
 
           <div class="input-group mb-3">
-            <input
-              type="text"
-              class="form-control"
-              id="orgDid"
-              v-model="appModel.appId"
-              aria-describedby="orgNameHelp"
-              disabled
-            />
+            <input type="text" class="form-control" id="orgDid" v-model="appModel.appId" aria-describedby="orgNameHelp"
+              disabled />
             <div class="input-group-append">
               <span class="input-group-text" id="basic-addon2">
-                <i
-                  class="far fa-copy mt-1"
-                  @click="copyToClip(appModel.appId, 'Application Id')"
-                >
+                <i class="far fa-copy mt-1" @click="copyToClip(appModel.appId, 'Application Id')">
                 </i>
               </span>
             </div>
@@ -103,32 +62,17 @@
         </div>
 
         <div class="form-group">
-          <tool-tip
-            infoMessage="Name of the application, upto 20 chars"
-          ></tool-tip>
-          <label for="orgName"
-            ><strong>Name<span style="color: red">*</span>:</strong></label
-          >
-          <input
-            type="text"
-            class="form-control"
-            id="orgName"
-            v-model="appModel.appName"
-            placeholder="Enter name of your app"
-          />
+          <tool-tip infoMessage="Name of the application, upto 20 chars"></tool-tip>
+          <label for="orgName"><strong>Name<span style="color: red">*</span>:</strong></label>
+          <input type="text" class="form-control" id="orgName" v-model="appModel.appName"
+            placeholder="Enter name of your app" />
         </div>
 
         <div class="form-group">
-          <tool-tip
-            infoMessage="Give a description for application, upto 100 chars"
-          ></tool-tip>
+          <tool-tip infoMessage="Give a description for application, upto 100 chars"></tool-tip>
           <label for="orgName"><strong>Description:</strong></label>
-          <textarea
-            class="form-control"
-            v-model="appModel.description"
-            rows="3"
-            placeholder="Enter meaningful description for your app, max 100 chars"
-          ></textarea>
+          <textarea class="form-control" v-model="appModel.description" rows="3"
+            placeholder="Enter meaningful description for your app, max 100 chars"></textarea>
         </div>
 
         <!-- <div class="form-group">
@@ -145,98 +89,58 @@
         <div class="form-group" v-if="edit === true">
           <tool-tip infoMessage="Your Encrypted Data Vault id"></tool-tip>
           <label for="orgDid"><strong>Encrypted Data Vault Id: </strong></label>
-          <input
-            type="text"
-            class="form-control"
-            id="orgDid"
-            v-model="appModel.edvId"
-            aria-describedby="orgNameHelp"
-            disabled
-          />
+          <input type="text" class="form-control" id="orgDid" v-model="appModel.edvId" aria-describedby="orgNameHelp"
+            disabled />
         </div>
 
         <div class="form-group" v-if="edit === true">
           <tool-tip infoMessage="Your tenant URL"></tool-tip>
           <label for="tenant"><strong>Tenant URL: </strong></label>
           <div class="input-group mb-1">
-            <input
-              type="text"
-              class="form-control"
-              id="tenant"
-              v-model="appModel.tenantUrl"
-              aria-describedby="orgNameHelp"
-              disabled
-            />
+            <input type="text" class="form-control" id="tenant" v-model="appModel.tenantUrl"
+              aria-describedby="orgNameHelp" disabled />
             <div class="input-group-append">
               <span class="input-group-text" id="basic-addon2">
-                <i
-                  class="far fa-copy mt-1"
-                  @click="copyToClip(appModel.tenantUrl, 'Tenant URL')"
-                >
+                <i class="far fa-copy mt-1" @click="copyToClip(appModel.tenantUrl, 'Tenant URL')">
                 </i>
               </span>
             </div>
           </div>
-          <small
-            ><a
-              :href="`${swaggerAPIdoc}`"
-              target="_blank"
-              >Open API Doc (Swagger)</a
-            ></small
-          >
+          <small><a :href="`${swaggerAPIdoc}`" target="_blank">Open API Doc (Swagger)</a></small>
         </div>
 
         <div class="form-group" v-if="edit === true">
           <tool-tip infoMessage="Your wallet address"></tool-tip>
           <label for="orgDid"><strong>Wallet Address: </strong></label>
           <div class="input-group mb-1">
-            <input
-              type="text"
-              class="form-control"
-              id="orgDid"
-              v-model="appModel.walletAddress"
-              aria-describedby="orgNameHelp"
-              disabled
-            />
+            <input type="text" class="form-control" id="orgDid" v-model="appModel.walletAddress"
+              aria-describedby="orgNameHelp" disabled />
             <div class="input-group-append">
               <span class="input-group-text" id="basic-addon2">
-                <i
-                  class="far fa-copy mt-1"
-                  @click="copyToClip(appModel.walletAddress, 'Wallet address')"
-                >
+                <i class="far fa-copy mt-1" @click="copyToClip(appModel.walletAddress, 'Wallet address')">
                 </i>
               </span>
             </div>
           </div>
-          <small
-            ><a
-              :href="`https://explorer.hypersign.id/hypersign-testnet/account/${appModel.walletAddress}`"
-              target="_blank"
-              >Click here to view wallet balance</a
-            ></small
-          >
+          <small><a :href="`https://explorer.hypersign.id/hypersign-testnet/account/${appModel.walletAddress}`"
+              target="_blank">Click here to view wallet balance</a></small>
         </div>
 
         <div class="form-group" v-if="edit === false">
           <tool-tip infoMessage="Select a service you want to associate with this app"></tool-tip>
           <label for="selectService"><strong>Select Service<span style="color: red">*</span>: </strong></label>
-          <select class="custom-select"  id="selectService" v-model="selectedServiceId">
-            <option :value="eachService.id" v-for="eachService in selectServicesOptions">{{eachService.name}}</option>
+          <select class="custom-select" id="selectService" v-model="selectedServiceId">
+            <option :value="eachService.id" v-for="eachService in selectServicesOptions">{{ eachService.name }}</option>
           </select>
           <small>{{ serviceDescrition }}</small>
-        </div> 
+        </div>
 
         <div class="form-group">
           <tool-tip
-            infoMessage="Listed origins allowed to make CORS requests. Enter comman seperated URLs to whitelist"
-          ></tool-tip>
+            infoMessage="Listed origins allowed to make CORS requests. Enter comman seperated URLs to whitelist"></tool-tip>
           <label for="orgName"><strong>Allowed Origins (CORS):</strong></label>
-          <textarea
-            class="form-control"
-            v-model="appModel.whitelistedCors"
-            rows="3"
-            placeholder="*, http://your-domain.com, http://test.com"
-          ></textarea>
+          <textarea class="form-control" v-model="appModel.whitelistedCors" rows="3"
+            placeholder="*, http://your-domain.com, http://test.com"></textarea>
         </div>
 
         <!-- <div class="form-group" v-if="(edit === true) && appModel.apiKeySecret !=''">
@@ -251,11 +155,7 @@
         </div> -->
 
         <div class="form-group" v-if="edit">
-          <hf-buttons
-            name="Update"
-            class="btn btn-primary"
-            @executeAction="updateAnAppAPIServer()"
-          ></hf-buttons>
+          <hf-buttons name="Update" class="btn btn-primary" @executeAction="updateAnAppAPIServer()"></hf-buttons>
         </div>
         <div class="form-group" v-else>
           <hf-buttons name="Save" @executeAction="createAnApp()"></hf-buttons>
@@ -265,11 +165,7 @@
 
     <div v-if="appList.length > 0">
       <div class="scroll row">
-        <div
-          class="col-md-4 mb-4"
-          v-for="eachOrg in appList"
-          :key="eachOrg.appId"
-        >
+        <div class="col-md-4 mb-4" v-for="eachOrg in appList" :key="eachOrg.appId">
           <div class="card bg-gradient-primary">
             <div class="card-body">
               <div class="row">
@@ -281,36 +177,26 @@
               </div>
               <div class="row mt-2">
                 <div class="col-md-8">
-                  <span class="card-text"
-                    >{{
-                      truncate(
-                        eachOrg.description || "No description for this app..",
-                        41
-                      )
-                    }}
+                  <span class="card-text">{{
+      truncate(
+        eachOrg.description || "No description for this app..",
+        41
+      )
+    }}
                   </span>
                 </div>
                 <div class="col-md-4">
-                  <b-card-img
-                    :src="
-                      eachOrg.logoUrl ||
-                      getProfileIcon(formattedAppName(eachOrg.appId))
-                    "
-                    alt="logoImg"
-                    class="rounded-0"
-                    style="max-height: 60px; min-height: 60px"
-                  ></b-card-img>
+                  <b-card-img :src="eachOrg.logoUrl ||
+      getProfileIcon(formattedAppName(eachOrg.appId))
+      " alt="logoImg" class="rounded-0" style="max-height: 60px; min-height: 60px"></b-card-img>
                 </div>
               </div>
               <div class="row">
                 <div class="col">
                   <b-card-text>
                     <small class="card-field-label">Application Id:</small>
-                    <div
-                      class="apiKeySecret"
-                      @click="copyToClip(eachOrg.appId, 'Application Id')"
-                      title="Copy Application Id"
-                    >
+                    <div class="apiKeySecret" @click="copyToClip(eachOrg.appId, 'Application Id')"
+                      title="Copy Application Id">
                       {{ truncate(eachOrg.appId, 35) }}
                       <i class="far fa-copy" style="float: right"></i>
                     </div>
@@ -321,11 +207,8 @@
                 <div class="col">
                   <b-card-text>
                     <small class="card-field-label">Tenant Url:</small>
-                    <div
-                      class="apiKeySecret"
-                      @click="copyToClip(eachOrg.tenantUrl, 'Tenant Url')"
-                      title="Copy Tenant Url"
-                    >
+                    <div class="apiKeySecret" @click="copyToClip(eachOrg.tenantUrl, 'Tenant Url')"
+                      title="Copy Tenant Url">
                       {{ truncate(eachOrg.tenantUrl, 42) }}
                       <i class="far fa-copy" style="float: right"></i>
                     </div>
@@ -334,29 +217,16 @@
               </div>
               <div class="row mt-2">
                 <div class="col">
-                  <span class=" " style="cursor: pointer" @click="switchOrg(eachOrg.appId)"><i class="fa fa-id-card" aria-hidden="true"></i></span>
+                  <!-- <span class=" " style="cursor: pointer" @click="switchOrg(eachOrg.appId)"><i class="fa fa-id-card" aria-hidden="true"></i></span> -->
                   <span class=" " style="float: right">
-                    <b-badge
-                      pill
-                      variant="danger"
-                      @click="openSecretkeyPopUp(eachOrg.appId)"
-                      title="Click to generate a new API Secret Key"
-                      class="mr-2"
-                      style="cursor: pointer"
-                    >
+                    <b-badge pill variant="danger" @click="openSecretkeyPopUp(eachOrg.appId)"
+                      title="Click to generate a new API Secret Key" class="mr-2" style="cursor: pointer">
                       <i class="fa fa-key"></i>
-                      Secret</b-badge
-                    >
-                    <b-badge
-                      pill
-                      variant="info"
-                      @click="editOrg(eachOrg.appId)"
-                      title="Click to edit the app"
-                      style="cursor: pointer"
-                    >
+                      Secret</b-badge>
+                    <b-badge pill variant="info" @click="editOrg(eachOrg.appId)" title="Click to edit the app"
+                      style="cursor: pointer">
                       <i class="fas fa-pencil-alt"></i>
-                      Edit</b-badge
-                    >
+                      Edit</b-badge>
                   </span>
                 </div>
               </div>
@@ -401,10 +271,7 @@
       </div>
 
       <div style="padding: 5px">
-        <nav
-          aria-label="Page navigation example"
-          style="margin: 0 auto; width: 50px"
-        >
+        <nav aria-label="Page navigation example" style="margin: 0 auto; width: 50px">
           <ul class="pagination">
             <li class="page-item">
               <a class="page-link" href="#" aria-label="Previous">
@@ -437,6 +304,7 @@
 .card {
   box-shadow: 0 0 2rem 0 rgb(136 152 170 / 15%);
 }
+
 .icons {
   cursor: pointer;
   padding: 4px;
@@ -445,16 +313,19 @@
 .icons.danger {
   color: rgba(255, 0, 0, 0.589);
 }
+
 .icons:hover {
   border-radius: 10px;
   font-weight: bold;
   background-color: rgb(155, 153, 153);
   color: white;
 }
+
 .card-field-label {
   color: grey;
   font-weight: bold;
 }
+
 .bcard {
   min-height: 210px;
   max-height: 200px;
@@ -468,21 +339,25 @@
   box-shadow: 0 0 2px 5px rgba(251, 161, 82, 0.268);
   cursor: pointer;
 }
+
 .logoImg {
   width: 60px;
   height: 60px;
 }
+
 .center {
   display: flex;
   align-items: center;
   justify-content: center;
 }
+
 .appCard {
   max-width: 30rem;
   margin-top: 10px;
   height: 13rem;
   min-height: 100px;
 }
+
 .apiKeySecret {
   cursor: pointer;
   padding: 5px;
@@ -492,11 +367,13 @@
   border: 1px solid #99caff;
   padding-right: 10px;
 }
+
 .apiKeySecret:hover {
   font-weight: bolder;
   background: #f1f1f1;
   border: 1px solid #007bff;
 }
+
 .far {
   cursor: pointer;
   color: grey;
@@ -551,23 +428,23 @@ export default {
     selectServicesOptions() {
       return this.getAllServices
     },
-    serviceDescrition(){ 
-      if(this.getServiceById(this.selectedServiceId)){
+    serviceDescrition() {
+      if (this.getServiceById(this.selectedServiceId)) {
         return this.getServiceById(this.selectedServiceId).description
-      }else {
+      } else {
         return ""
       }
     },
-    swaggerAPIdoc(){
-      if(this.appModel.tenantUrl){
-          if(this.appModel.services){
-            const service = this.appModel.services[0]
-            if(service){
-              if(service.swaggerAPIDocPath){
-                return sanitizeUrl(this.appModel.tenantUrl) + service.swaggerAPIDocPath
-              }
+    swaggerAPIdoc() {
+      if (this.appModel.tenantUrl) {
+        if (this.appModel.services) {
+          const service = this.appModel.services[0]
+          if (service) {
+            if (service.swaggerAPIDocPath) {
+              return sanitizeUrl(this.appModel.tenantUrl) + service.swaggerAPIDocPath
             }
           }
+        }
         return sanitizeUrl(this.appModel.tenantUrl)
       }
     },
@@ -624,14 +501,14 @@ export default {
     ]),
 
     async switchOrg(appId) {
-      this.$router.push({ name: "playgroundCredential" , params: { appId } });
+      this.$router.push({ name: "playgroundCredential", params: { appId } });
       this.shiftContainer(false);
     },
 
-    onServicesSelected(){
+    onServicesSelected() {
       console.log('ononServicesSelected() got calledsuccessfully')
 
-      if(this.selectedServicesInMultiSelect.length > 0){
+      if (this.selectedServicesInMultiSelect.length > 0) {
         console.log('Added')
       }
     },
@@ -640,7 +517,7 @@ export default {
       return this.truncate(appName, 25);
     },
     getProfileIcon(name) {
-      return "https://api.dicebear.com/7.x/identicon/svg?seed="+name;
+      return "https://api.dicebear.com/7.x/identicon/svg?seed=" + name;
     },
     onHfFlashClick() {
       this.apiKeySecret = "";
