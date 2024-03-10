@@ -2,25 +2,23 @@
   <div>
     <loading :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loading>
     <div style="display: flex" class="">
-      <div v-if="appList.length > 0" clas="row">
+      <div v-if="appList.length > 0" class="row" style="width: 100%">
         <div class="col-md-6">
-          <h3 class="mt-4" style="text-align: left">
+          <h3 class="">
             <i class="fa fa-cogs mr-2" aria-hidden="true"></i>Your Services
           </h3>
         </div>
-        <div class="col-md-6" style="align-items: right;">
-          <hf-buttons name="+ Create" style="text-align: right" class="ml-auto " @executeAction="openSlider('SSI_API')">
+        <div class="col-md-6">
+          <hf-buttons name="+ Create" class="ml-auto " @executeAction="openSlider('SSI_API')" style="float: right;">
           </hf-buttons>
         </div>
 
       </div>
 
       <div v-else>
-        <h4 class="mt-4" style="text-align: left">
+        <h3 class="" style="text-align: left">
           Spin up your first service!
-        </h4>
-
-
+        </h3>
         <div>
           <div class="card" style="width:19rem; float: left;border-radius:20px; margin:10px">
             <img class="card-img-top card-image" src="../assets/ssi.png" alt="Card image cap">
@@ -220,7 +218,7 @@
       </div>
     </StudioSideBar>
 
-    <div v-if="appList.length > 0" style="margin-top: 1%;">
+    <div v-if="appList.length > 0" class="mt-2">
       <b-tabs content-class="mt-3">
         <b-tab :title="'SSI (' + getAppsWithSSIServices.length + ')'" active v-if="getAppsWithSSIServices.length > 0">
           <div class="scroll row">
