@@ -13,6 +13,8 @@ const playgroundStore = {
         didList: [],
         selectedOrgDid: "",
         showSideNavbar: false,
+        ssiAccessToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6ImI3OWYwZTliZjFkMmZiNGRiM2M0N2Y5YmY2NGZjYTg5NmYzYiIsInVzZXJJZCI6IjFlZDM2NzQ4LTFkZTgtNGQxZi04N2U0LTVhYzk1NGFhYjNjNSIsImdyYW50VHlwZSI6ImNsaWVudF9jcmVkZW50aWFscyIsImttc0lkIjoiaHM6ZG9jOjZkN3psM2NvZnNraDhsY2pyZ3FqdGZhb2NwYW5yY3kzYWlkOHJpOWF0bm0iLCJ3aGl0ZWxpc3RlZENvcnMiOlsiKiJdLCJzdWJkb21haW4iOiJlbnQtM2ZjYmNhNSIsImVkdklkIjoiaHM6ZGV2ZWxvcGVyLWRhc2hib2FyZDphcHA6Yjc5ZjBlOWJmMWQyZmI0ZGIzYzQ3ZjliZjY0ZmNhODk2ZjNiIiwiaWF0IjoxNzEwMTM2NjE2LCJleHAiOjE3MTAxNTEwMTZ9.AGAHJ0K6af9s8no7w4aTbzMTCkVy8IkQvrJVitJQqDo',
+        ssiAPIBaseUrl: 'http://ent-3fcbca5.localhost:3003',
         userProfile: {
             details: {
                 name: '',
@@ -374,15 +376,14 @@ const playgroundStore = {
         fetchDIDsForAService({ commit, getters, state, dispatch }) {
             return new Promise(function (resolve, reject) {
                 state.authToken = localStorage.getItem('authToken');
-                const ssiAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6ImI3OWYwZTliZjFkMmZiNGRiM2M0N2Y5YmY2NGZjYTg5NmYzYiIsInVzZXJJZCI6IjFlZDM2NzQ4LTFkZTgtNGQxZi04N2U0LTVhYzk1NGFhYjNjNSIsImdyYW50VHlwZSI6ImNsaWVudF9jcmVkZW50aWFscyIsImttc0lkIjoiaHM6ZG9jOjZkN3psM2NvZnNraDhsY2pyZ3FqdGZhb2NwYW5yY3kzYWlkOHJpOWF0bm0iLCJ3aGl0ZWxpc3RlZENvcnMiOlsiKiJdLCJzdWJkb21haW4iOiJlbnQtM2ZjYmNhNSIsImVkdklkIjoiaHM6ZGV2ZWxvcGVyLWRhc2hib2FyZDphcHA6Yjc5ZjBlOWJmMWQyZmI0ZGIzYzQ3ZjliZjY0ZmNhODk2ZjNiIiwiaWF0IjoxNzEwMTIxOTIyLCJleHAiOjE3MTAxMzYzMjJ9.hthX2qrK04G3u80riAIucApRkonx_mX-bRMk4xapQMI'
                 //fetct all dids
                 {
-                    const url = `http://ent-3fcbca5.localhost:3003/api/v1/did?page=1&limit=10`;
+                    const url = `${state.ssiAPIBaseUrl}/api/v1/did?page=1&limit=10`;
                     const options = {
                         method: "GET",
                         headers: {
                             "Content-Type": "application/json",
-                            "Authorization": `Bearer ${ssiAccessToken}`,
+                            "Authorization": `Bearer ${state.ssiAccessToken}`,
                             "Origin": '*'
                         }
                     }
@@ -421,15 +422,14 @@ const playgroundStore = {
         resolveDIDForAService({ commit, getters, state, dispatch }, payload) {
             return new Promise(function (resolve, reject) {
                 // state.authToken = localStorage.getItem('authToken');
-                const ssiAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6ImI3OWYwZTliZjFkMmZiNGRiM2M0N2Y5YmY2NGZjYTg5NmYzYiIsInVzZXJJZCI6IjFlZDM2NzQ4LTFkZTgtNGQxZi04N2U0LTVhYzk1NGFhYjNjNSIsImdyYW50VHlwZSI6ImNsaWVudF9jcmVkZW50aWFscyIsImttc0lkIjoiaHM6ZG9jOjZkN3psM2NvZnNraDhsY2pyZ3FqdGZhb2NwYW5yY3kzYWlkOHJpOWF0bm0iLCJ3aGl0ZWxpc3RlZENvcnMiOlsiKiJdLCJzdWJkb21haW4iOiJlbnQtM2ZjYmNhNSIsImVkdklkIjoiaHM6ZGV2ZWxvcGVyLWRhc2hib2FyZDphcHA6Yjc5ZjBlOWJmMWQyZmI0ZGIzYzQ3ZjliZjY0ZmNhODk2ZjNiIiwiaWF0IjoxNzEwMTIxOTIyLCJleHAiOjE3MTAxMzYzMjJ9.hthX2qrK04G3u80riAIucApRkonx_mX-bRMk4xapQMI'
                 //fetct all dids
                 {
-                    const url = `http://ent-3fcbca5.localhost:3003/api/v1/did/resolve/${payload}`;
+                    const url = `${state.ssiAPIBaseUrl}/api/v1/did/resolve/${payload}`;
                     const options = {
                         method: "GET",
                         headers: {
                             "Content-Type": "application/json",
-                            "Authorization": `Bearer ${ssiAccessToken}`,
+                            "Authorization": `Bearer ${state.ssiAccessToken}`,
                             "Origin": '*'
                         }
                     }
@@ -461,16 +461,15 @@ const playgroundStore = {
         createDIDsForAService({ commit, getters, state, dispatch }, payload) {
             return new Promise(function (resolve, reject) {
                 state.authToken = localStorage.getItem('authToken');
-                const ssiAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6ImI3OWYwZTliZjFkMmZiNGRiM2M0N2Y5YmY2NGZjYTg5NmYzYiIsInVzZXJJZCI6IjFlZDM2NzQ4LTFkZTgtNGQxZi04N2U0LTVhYzk1NGFhYjNjNSIsImdyYW50VHlwZSI6ImNsaWVudF9jcmVkZW50aWFscyIsImttc0lkIjoiaHM6ZG9jOjZkN3psM2NvZnNraDhsY2pyZ3FqdGZhb2NwYW5yY3kzYWlkOHJpOWF0bm0iLCJ3aGl0ZWxpc3RlZENvcnMiOlsiKiJdLCJzdWJkb21haW4iOiJlbnQtM2ZjYmNhNSIsImVkdklkIjoiaHM6ZGV2ZWxvcGVyLWRhc2hib2FyZDphcHA6Yjc5ZjBlOWJmMWQyZmI0ZGIzYzQ3ZjliZjY0ZmNhODk2ZjNiIiwiaWF0IjoxNzEwMTIxOTIyLCJleHAiOjE3MTAxMzYzMjJ9.hthX2qrK04G3u80riAIucApRkonx_mX-bRMk4xapQMI'
                 //fetct all dids
                 {
-                    const url = `http://ent-3fcbca5.localhost:3003/api/v1/did/create`;
+                    const url = `${state.ssiAPIBaseUrl}/api/v1/did/create`;
                     const options = {
                         method: "POST",
                         body: JSON.stringify(payload),
                         headers: {
                             "Content-Type": "application/json",
-                            "Authorization": `Bearer ${ssiAccessToken}`,
+                            "Authorization": `Bearer ${state.ssiAccessToken}`,
                             "Origin": '*'
                         }
                     }
@@ -505,7 +504,6 @@ const playgroundStore = {
         registerDIDsForAService({ commit, getters, state, dispatch }, payload) {
             return new Promise(function (resolve, reject) {
                 state.authToken = localStorage.getItem('authToken');
-                const ssiAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6ImI3OWYwZTliZjFkMmZiNGRiM2M0N2Y5YmY2NGZjYTg5NmYzYiIsInVzZXJJZCI6IjFlZDM2NzQ4LTFkZTgtNGQxZi04N2U0LTVhYzk1NGFhYjNjNSIsImdyYW50VHlwZSI6ImNsaWVudF9jcmVkZW50aWFscyIsImttc0lkIjoiaHM6ZG9jOjZkN3psM2NvZnNraDhsY2pyZ3FqdGZhb2NwYW5yY3kzYWlkOHJpOWF0bm0iLCJ3aGl0ZWxpc3RlZENvcnMiOlsiKiJdLCJzdWJkb21haW4iOiJlbnQtM2ZjYmNhNSIsImVkdklkIjoiaHM6ZGV2ZWxvcGVyLWRhc2hib2FyZDphcHA6Yjc5ZjBlOWJmMWQyZmI0ZGIzYzQ3ZjliZjY0ZmNhODk2ZjNiIiwiaWF0IjoxNzEwMTIxOTIyLCJleHAiOjE3MTAxMzYzMjJ9.hthX2qrK04G3u80riAIucApRkonx_mX-bRMk4xapQMI'
 
                 const body = {
                     "didDocument": payload.didDocument,
@@ -513,13 +511,13 @@ const playgroundStore = {
                 }
                 //fetct all dids
                 {
-                    const url = `http://ent-3fcbca5.localhost:3003/api/v1/did/register`;
+                    const url = `${state.ssiAPIBaseUrl}/api/v1/did/register`;
                     const options = {
                         method: "POST",
                         body: JSON.stringify(body),
                         headers: {
                             "Content-Type": "application/json",
-                            "Authorization": `Bearer ${ssiAccessToken}`,
+                            "Authorization": `Bearer ${state.ssiAccessToken}`,
                             "Origin": '*'
                         }
                     }

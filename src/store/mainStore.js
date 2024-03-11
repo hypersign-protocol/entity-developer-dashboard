@@ -17,6 +17,7 @@ const mainStore = {
         showMainSideNavBar: true,
         serviceList: [],
         sessionList: [],
+        selectedServiceId: "",
     },
     getters: {
         getAppByAppId: (state) => (appId) => {
@@ -36,7 +37,10 @@ const mainStore = {
         },
         getSessionDetailsBySessionId: (state) => (sessionId) => {
             return state.sessionList.find(x => x.sessionId === sessionId)
-        }
+        },
+        getSelectedService: (state) => {
+            return state.appList.find(x => x.appId === state.selectedServiceId)
+        },
     },
     mutations: {
         setMainSideNavBar: (state, payload) => {
