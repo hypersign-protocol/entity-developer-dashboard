@@ -326,14 +326,20 @@ export default {
     }
   },
   async created() {
-    const usrStr = localStorage.getItem("user");
-    this.user = JSON.parse(usrStr);
-    this.updateSideNavStatus(true)
+    try {
+      const usrStr = localStorage.getItem("user");
+      this.user = JSON.parse(usrStr);
+      this.updateSideNavStatus(true)
 
-    // appId
-    this.isLoading = true
-    await this.fetchDIDsForAService()
-    this.isLoading = false
+      // appId
+      this.isLoading = true
+      await this.fetchDIDsForAService()
+      this.isLoading = false
+    } catch (e) {
+      console.error(e)
+      this.isLoading = false
+
+    }
   },
   beforeRouteEnter(to, from, next) {
     next((vm) => {
