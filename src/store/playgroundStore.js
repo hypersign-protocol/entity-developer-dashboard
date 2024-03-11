@@ -10,11 +10,8 @@ const playgroundStore = {
         vcList: [],
         templateList: [],
         orgList: [],
-        didList: [],
         selectedOrgDid: "",
         showSideNavbar: false,
-        ssiAccessToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6ImI3OWYwZTliZjFkMmZiNGRiM2M0N2Y5YmY2NGZjYTg5NmYzYiIsInVzZXJJZCI6IjFlZDM2NzQ4LTFkZTgtNGQxZi04N2U0LTVhYzk1NGFhYjNjNSIsImdyYW50VHlwZSI6ImNsaWVudF9jcmVkZW50aWFscyIsImttc0lkIjoiaHM6ZG9jOjZkN3psM2NvZnNraDhsY2pyZ3FqdGZhb2NwYW5yY3kzYWlkOHJpOWF0bm0iLCJ3aGl0ZWxpc3RlZENvcnMiOlsiKiJdLCJzdWJkb21haW4iOiJlbnQtM2ZjYmNhNSIsImVkdklkIjoiaHM6ZGV2ZWxvcGVyLWRhc2hib2FyZDphcHA6Yjc5ZjBlOWJmMWQyZmI0ZGIzYzQ3ZjliZjY0ZmNhODk2ZjNiIiwiaWF0IjoxNzEwMTM2NjE2LCJleHAiOjE3MTAxNTEwMTZ9.AGAHJ0K6af9s8no7w4aTbzMTCkVy8IkQvrJVitJQqDo',
-        ssiAPIBaseUrl: 'http://ent-3fcbca5.localhost:3003',
         userProfile: {
             details: {
                 name: '',
@@ -213,20 +210,6 @@ const playgroundStore = {
                 console.log('template not found in tempList' + payload);
             }
         },
-        setDIDList(state, payload) {
-            state.didList = payload;
-        },
-        insertDIDList(state, payload) {
-            state.didList.push(payload);
-        },
-        updateADID(state, payload) {
-            let index = state.didList.findIndex(x => x.did === payload.did);
-            if (index >= 0) {
-                Object.assign(state.didList[index], { ...payload });
-            } else {
-                state.didList.push(payload);
-            }
-        },
     },
     actions: {
         upsertAschemaAction({ commit }, payload) {
@@ -372,173 +355,6 @@ const playgroundStore = {
             dispatch('fetchCredentialsForOrg')
             dispatch('fetchTemplatesForOrg')
         },
-
-        fetchDIDsForAService({ commit, getters, state, dispatch }) {
-            return new Promise(function (resolve, reject) {
-                state.authToken = localStorage.getItem('authToken');
-                //fetct all dids
-                {
-                    const url = `${state.ssiAPIBaseUrl}/api/v1/did?page=1&limit=10`;
-                    const options = {
-                        method: "GET",
-                        headers: {
-                            "Content-Type": "application/json",
-                            "Authorization": `Bearer ${state.ssiAccessToken}`,
-                            "Origin": '*'
-                        }
-                    }
-                    fetch(url, {
-                        headers: options.headers
-                    })
-                        .then(response => response.json())
-                        .then(json => {
-                            if (json && json.totalCount !== 0) {
-                                const payload = json.data.map(x => {
-                                    return {
-                                        did: x,
-                                        didDocument: {},
-                                        status: ""
-                                    }
-                                })
-
-                                json.data.map(x => {
-                                    return dispatch('resolveDIDForAService', x)
-                                })
-                                commit('setDIDList', payload)
-                                // allPromises();
-                                resolve()
-                            } else {
-                                reject(new Error('Could not fetch DID for this service'))
-                            }
-
-                        }).catch(e => {
-                            reject(e)
-                        })
-                }
-            })
-
-        },
-
-        resolveDIDForAService({ commit, getters, state, dispatch }, payload) {
-            return new Promise(function (resolve, reject) {
-                // state.authToken = localStorage.getItem('authToken');
-                //fetct all dids
-                {
-                    const url = `${state.ssiAPIBaseUrl}/api/v1/did/resolve/${payload}`;
-                    const options = {
-                        method: "GET",
-                        headers: {
-                            "Content-Type": "application/json",
-                            "Authorization": `Bearer ${state.ssiAccessToken}`,
-                            "Origin": '*'
-                        }
-                    }
-                    fetch(url, {
-                        headers: options.headers
-                    })
-                        .then(response => response.json())
-                        .then(json => {
-                            if (json) {
-                                const data = {
-                                    did: payload,
-                                    didDocument: json.didDocument,
-                                    status: Object.keys(json.didDocumentMetadata).length > 0 ? 'Registered' : 'Created'
-                                }
-                                commit('updateADID', data);
-                                resolve()
-                            } else {
-                                reject(new Error('Could not fetch DID for this service'))
-                            }
-
-                        }).catch(e => {
-                            reject(e)
-                        })
-                }
-            })
-
-        },
-
-        createDIDsForAService({ commit, getters, state, dispatch }, payload) {
-            return new Promise(function (resolve, reject) {
-                state.authToken = localStorage.getItem('authToken');
-                //fetct all dids
-                {
-                    const url = `${state.ssiAPIBaseUrl}/api/v1/did/create`;
-                    const options = {
-                        method: "POST",
-                        body: JSON.stringify(payload),
-                        headers: {
-                            "Content-Type": "application/json",
-                            "Authorization": `Bearer ${state.ssiAccessToken}`,
-                            "Origin": '*'
-                        }
-                    }
-                    fetch(url, {
-                        ...options
-                    })
-                        .then(response => response.json())
-                        .then(async json => {
-                            if (json && json.did) {
-                                commit('insertDIDList', {
-                                    did: json.did,
-                                    didDocument: {},
-                                    status: 'Created'
-                                })
-                                const payload = {
-                                    didDocument: json.metaData.didDocument,
-                                    verificationMethodId: json.metaData.didDocument.verificationMethod[0].id
-                                }
-                                await dispatch('registerDIDsForAService', payload)
-                                resolve()
-                            } else {
-                                reject(new Error('Could not create DID for this service'))
-                            }
-                        }).catch(e => {
-                            reject(e)
-                        })
-                }
-            })
-
-        },
-
-        registerDIDsForAService({ commit, getters, state, dispatch }, payload) {
-            return new Promise(function (resolve, reject) {
-                state.authToken = localStorage.getItem('authToken');
-
-                const body = {
-                    "didDocument": payload.didDocument,
-                    "verificationMethodId": payload.verificationMethodId
-                }
-                //fetct all dids
-                {
-                    const url = `${state.ssiAPIBaseUrl}/api/v1/did/register`;
-                    const options = {
-                        method: "POST",
-                        body: JSON.stringify(body),
-                        headers: {
-                            "Content-Type": "application/json",
-                            "Authorization": `Bearer ${state.ssiAccessToken}`,
-                            "Origin": '*'
-                        }
-                    }
-                    fetch(url, {
-                        ...options
-                    })
-                        .then(response => response.json())
-                        .then(json => {
-                            if (json) {
-                                dispatch('resolveDIDForAService', json.did)
-                                resolve()
-                            } else {
-                                reject(new Error('Could not register DID for this service'))
-                            }
-                        }).catch(e => {
-                            reject(e)
-                        })
-                }
-            })
-
-        }
     }
 }
 
