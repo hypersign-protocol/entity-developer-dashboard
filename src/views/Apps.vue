@@ -625,8 +625,23 @@ export default {
     ]),
 
     async switchOrg(appId, serviceType = 'SSI_API') {
-      this.$router.push({ name: "playgroundCredential", params: { appId } });
+      console.log(serviceType)
+      switch (serviceType) {
+        case 'SSI_API': {
+          this.$router.push({ name: "DIDs", params: { appId } });
+          break;
+        }
+        case 'CAVACH_API': {
+          this.$router.push({ name: "playgroundCredential", params: { appId } });
+          break;
+        }
+        default: {
+          this.$router.push({ name: "playgroundCredential", params: { appId } });
+        }
+      }
+
       this.shiftContainer(false);
+
     },
 
     onServicesSelected() {

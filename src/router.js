@@ -9,7 +9,7 @@ import Home from './views/Home.vue'
 import MainDashboard from './views/Dashboard.vue'
 import Credential from './views/playground/Credential.vue'
 import CredentialDetails from './views/playground/CredentialDetails.vue'
-
+import DIDs from './views/playground/DID.vue'
 Vue.use(Router)
 
 const router = new Router({
@@ -59,6 +59,15 @@ const router = new Router({
       meta: {
         requiresAuth: true,
         title: `${config.app.name} - Credential`
+      }
+    },
+    {
+      path: '/studio/did/:appId',
+      name: 'DIDs',
+      component: DIDs,
+      meta: {
+        requiresAuth: true,
+        title: `${config.app.name} - DIDs`
       }
     },
     {

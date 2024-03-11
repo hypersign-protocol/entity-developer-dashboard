@@ -3,26 +3,27 @@ import UtilsMixin from '../mixins/utils.js'
 
 const playgroundStore = {
     namespaced: true,
-    mixin:[UtilsMixin],
+    mixin: [UtilsMixin],
     state: {
-        containerShift:false,
+        containerShift: false,
         schemaList: [],
         vcList: [],
         templateList: [],
         orgList: [],
+        didList: [],
         selectedOrgDid: "",
-        showSideNavbar:false,
-        userProfile:{
-            details:{
-              name: '',
-              email: '',
-              did: '',
+        showSideNavbar: false,
+        userProfile: {
+            details: {
+                name: '',
+                email: '',
+                did: '',
             },
             count: {
-                credentialsCount:0,
-                orgsCount:0,
-                schemasCount:0,
-                templatesCount:0,
+                credentialsCount: 0,
+                orgsCount: 0,
+                schemasCount: 0,
+                templatesCount: 0,
             }
         }
     },
@@ -67,7 +68,7 @@ const playgroundStore = {
             let schemaIdnames = state.schemaList.map(x => {
                 if (x.schemaId && x.schemaId !== undefined && x.status === 'Registered') {
                     return {
-                        text: x.schemaDetails.name + ' '+ `{${UtilsMixin.methods.truncate(x.schemaId,60)}}`,
+                        text: x.schemaDetails.name + ' ' + `{${UtilsMixin.methods.truncate(x.schemaId, 60)}}`,
                         value: x.schemaId
                     }
                 } else {
@@ -81,69 +82,69 @@ const playgroundStore = {
         },
         listOfPresentationTemplateOptions(state) {
             let schemaIdnames = state.templateList.map(x => {
-                return { value: x._id, text: `${x.name} (${x._id})`  }
+                return { value: x._id, text: `${x.name} (${x._id})` }
             })
             schemaIdnames.unshift({ value: null, text: "Please select a Presentation Template" })
             return schemaIdnames;
         }
     },
     mutations: {
-        resetStore(state){
-            state.orgList=[]
-            state.schemaList=[]
-            state.vcList=[]
-            state.templateList=[]
-            state.selectedOrgDid=""
-            state.showSideNavbar=false
+        resetStore(state) {
+            state.orgList = []
+            state.schemaList = []
+            state.vcList = []
+            state.templateList = []
+            state.selectedOrgDid = ""
+            state.showSideNavbar = false
             state.userProfile = {
-                details:{
-                  name: '',
-                  email: '',
-                  did: '',
+                details: {
+                    name: '',
+                    email: '',
+                    did: '',
                 },
                 count: {
-                    credentialsCount:0,
-                    orgsCount:0,
-                    schemasCount:0,
-                    templatesCount:0,
+                    credentialsCount: 0,
+                    orgsCount: 0,
+                    schemasCount: 0,
+                    templatesCount: 0,
                 }
             }
         },
-        increaseOrgDataCount(state,payload) {            
-            state.orgList.find((x)=>{
-                if(x._id === state.selectedOrgDid){                    
-                    x[payload] += 1                    
+        increaseOrgDataCount(state, payload) {
+            state.orgList.find((x) => {
+                if (x._id === state.selectedOrgDid) {
+                    x[payload] += 1
                 }
             })
         },
-        DecreaseOrgTemplateCount(state,payload) {
-            state.orgList.find((x)=>{
-                if(x._id === state.selectedOrgDid){
-                    if(x[payload]!==0){
-                    x[payload] -= 1
-                    }            
-                                 
+        DecreaseOrgTemplateCount(state, payload) {
+            state.orgList.find((x) => {
+                if (x._id === state.selectedOrgDid) {
+                    if (x[payload] !== 0) {
+                        x[payload] -= 1
+                    }
+
                 }
             })
         },
-        shiftContainer(state,payload) {
+        shiftContainer(state, payload) {
             state.containerShift = payload
         },
         increaseOrgCount(state) {
-            state.userProfile.count.orgsCount +=1;
+            state.userProfile.count.orgsCount += 1;
         },
-        addUserDetailsToProfile(state,payload) {
+        addUserDetailsToProfile(state, payload) {
             state.userProfile.details.name = payload.name;
             state.userProfile.details.email = payload.email;
             state.userProfile.details.did = payload.id
         },
-        addCountDataToProfile(state,payload) {
+        addCountDataToProfile(state, payload) {
             state.userProfile.count = { ...payload }
         },
         selectAnOrg(state, orgDid) {
             state.selectedOrgDid = orgDid;
         },
-        updateSideNavStatus(state,payload) {
+        updateSideNavStatus(state, payload) {
             state.showSideNavbar = payload
         },
         insertAschema(state, payload) {
@@ -156,20 +157,20 @@ const playgroundStore = {
         insertAnOrg(state, payload) {
             if (!state.orgList.find(x => x._id === payload._id)) {
                 state.orgList.push(payload);
-            } 
+            }
         },
         updateAschema(state, payload) {
             let index = state.schemaList.findIndex(x => x._id === payload._id);
-            if(index >= 0){
-                Object.assign(state.schemaList[index], {...payload});
+            if (index >= 0) {
+                Object.assign(state.schemaList[index], { ...payload });
             } else {
                 state.schemaList.push(payload);
             }
         },
         updateAnOrg(state, payload) {
             const orgToUpdateIndex = state.orgList.findIndex(x => x._id === payload._id);
-            if(orgToUpdateIndex >= 0){
-                Object.assign(state.orgList[orgToUpdateIndex], {...payload});
+            if (orgToUpdateIndex >= 0) {
+                Object.assign(state.orgList[orgToUpdateIndex], { ...payload });
             } else {
                 state.orgList.push(payload);
             }
@@ -182,9 +183,9 @@ const playgroundStore = {
                 this.commit('updateTemplate', payload);
             }
         },
-        updateTemplate(state,payload) {
+        updateTemplate(state, payload) {
             const tempToUpdateIndex = state.templateList.findIndex(x => x._id === payload._id);
-            Object.assign(state.templateList[tempToUpdateIndex], {...payload});
+            Object.assign(state.templateList[tempToUpdateIndex], { ...payload });
         },
         insertAcredential(state, payload) {
             if (!state.vcList.find(x => x._id === payload._id)) {
@@ -193,29 +194,43 @@ const playgroundStore = {
         },
         updateAcredential(state, payload) {
             let index = state.vcList.findIndex(x => x._id === payload._id);
-            if(index >= 0){
-                Object.assign(state.vcList[index], {...payload});
+            if (index >= 0) {
+                Object.assign(state.vcList[index], { ...payload });
             } else {
                 state.vcList.push(payload);
             }
         },
-        updateSidebarStatus(state,payload) {
+        updateSidebarStatus(state, payload) {
             state.showSideNavbar = payload
         },
-        deleteTemplate(state,payload) {
+        deleteTemplate(state, payload) {
             let index = state.templateList.findIndex(x => x._id === payload)
-            if(index > -1) {
-                state.templateList.splice(index,1)
+            if (index > -1) {
+                state.templateList.splice(index, 1)
             } else {
                 console.log('template not found in tempList' + payload);
             }
-        }
+        },
+        setDIDList(state, payload) {
+            state.didList = payload;
+        },
+        insertDIDList(state, payload) {
+            state.didList.push(payload);
+        },
+        updateADID(state, payload) {
+            let index = state.didList.findIndex(x => x.did === payload.did);
+            if (index >= 0) {
+                Object.assign(state.didList[index], { ...payload });
+            } else {
+                state.didList.push(payload);
+            }
+        },
     },
     actions: {
         upsertAschemaAction({ commit }, payload) {
             const { schemaId } = payload;
             if (schemaId) {
-                               
+
                 const url = `${config.nodeServer.BASE_URL_REST}${config.nodeServer.SCHEMA_GET_REST}${schemaId}:`
                 fetch(url).then(response => response.json()).then(json => {
                     const shcemaDetial = json.schema[0];
@@ -231,7 +246,7 @@ const playgroundStore = {
                 commit('insertAschema', payload);
             }
         },
-        
+
         upsertAcredentialAction({ commit }, payload) {
             const { vc_id } = payload;
             if (vc_id) {
@@ -244,8 +259,9 @@ const playgroundStore = {
             }
         },
 
-        fetchAllOrgsAction({commit}){
-            const authToken =  localStorage.getItem('authToken');
+
+        fetchAllOrgsAction({ commit }) {
+            const authToken = localStorage.getItem('authToken');
             const url = `${config.studioServer.BASE_URL}api/v1/org`
             const headers = {
                 "Content-Type": "application/json",
@@ -263,9 +279,9 @@ const playgroundStore = {
             })
         },
 
-        fetchSchemasForOrg({commit, getters, state, dispatch}){
+        fetchSchemasForOrg({ commit, getters, state, dispatch }) {
             state.authToken = localStorage.getItem('authToken');
-             // fetch all schemas
+            // fetch all schemas
             {
                 const url = `${config.studioServer.BASE_URL}${config.studioServer.SCHEMA_LIST_EP}/${state.selectedOrgDid}/?page=1&limit=10`
 
@@ -278,8 +294,8 @@ const playgroundStore = {
                 }
                 fetch(url, {
                     headers: options.headers
-                }).then(response => response.json()).then(json => {       
-                    if (json && json.data.schemaList.length!==0) {
+                }).then(response => response.json()).then(json => {
+                    if (json && json.data.schemaList.length !== 0) {
                         state.schemaList = []
                         json.data.schemaList.forEach(schema => {
                             dispatch('upsertAschemaAction', schema)
@@ -293,7 +309,7 @@ const playgroundStore = {
             }
         },
 
-        fetchCredentialsForOrg({commit, getters, state, dispatch}){
+        fetchCredentialsForOrg({ commit, getters, state, dispatch }) {
             state.authToken = localStorage.getItem('authToken');
             //fetct all credentials
             {
@@ -308,22 +324,22 @@ const playgroundStore = {
                 fetch(url, {
                     headers: options.headers
                 }).then(response => response.json()).then(json => {
-                    if (json && json.data.credList.length!==0) {
+                    if (json && json.data.credList.length !== 0) {
                         state.vcList = []
                         json.data.credList.forEach(credential => {
                             dispatch('upsertAcredentialAction', credential)
                         })
-                    }else{
+                    } else {
                         state.vcList = []
                     }
-                    
+
                 })
 
 
             }
         },
 
-        fetchTemplatesForOrg({commit, getters, state, dispatch}){
+        fetchTemplatesForOrg({ commit, getters, state, dispatch }) {
             state.authToken = localStorage.getItem('authToken');
             // fetch all templete   
             {
@@ -336,23 +352,194 @@ const playgroundStore = {
                 fetch(url, {
                     headers
                 }).then(response => response.json()).then(json => {
-                    
-                    if (json.data.length!==0) {
-                        state.templateList=[]
+
+                    if (json.data.length !== 0) {
+                        state.templateList = []
                         json.data.forEach(template => {
                             commit('insertApresentationTemplate', template)
                         })
-                    }else{
-                        state.templateList=[]
+                    } else {
+                        state.templateList = []
                     }
                 })
             }
         },
 
-        fetchAllOrgDataOnOrgSelect({ dispatch }) {        
+        fetchAllOrgDataOnOrgSelect({ dispatch }) {
             dispatch('fetchSchemasForOrg')
             dispatch('fetchCredentialsForOrg')
             dispatch('fetchTemplatesForOrg')
+        },
+
+        fetchDIDsForAService({ commit, getters, state, dispatch }) {
+            return new Promise(function (resolve, reject) {
+                state.authToken = localStorage.getItem('authToken');
+                const ssiAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6ImI3OWYwZTliZjFkMmZiNGRiM2M0N2Y5YmY2NGZjYTg5NmYzYiIsInVzZXJJZCI6IjFlZDM2NzQ4LTFkZTgtNGQxZi04N2U0LTVhYzk1NGFhYjNjNSIsImdyYW50VHlwZSI6ImNsaWVudF9jcmVkZW50aWFscyIsImttc0lkIjoiaHM6ZG9jOjZkN3psM2NvZnNraDhsY2pyZ3FqdGZhb2NwYW5yY3kzYWlkOHJpOWF0bm0iLCJ3aGl0ZWxpc3RlZENvcnMiOlsiKiJdLCJzdWJkb21haW4iOiJlbnQtM2ZjYmNhNSIsImVkdklkIjoiaHM6ZGV2ZWxvcGVyLWRhc2hib2FyZDphcHA6Yjc5ZjBlOWJmMWQyZmI0ZGIzYzQ3ZjliZjY0ZmNhODk2ZjNiIiwiaWF0IjoxNzEwMTIxOTIyLCJleHAiOjE3MTAxMzYzMjJ9.hthX2qrK04G3u80riAIucApRkonx_mX-bRMk4xapQMI'
+                //fetct all dids
+                {
+                    const url = `http://ent-3fcbca5.localhost:3003/api/v1/did?page=1&limit=10`;
+                    const options = {
+                        method: "GET",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": `Bearer ${ssiAccessToken}`,
+                            "Origin": '*'
+                        }
+                    }
+                    fetch(url, {
+                        headers: options.headers
+                    })
+                        .then(response => response.json())
+                        .then(json => {
+                            if (json && json.totalCount !== 0) {
+                                const payload = json.data.map(x => {
+                                    return {
+                                        did: x,
+                                        didDocument: {},
+                                        status: ""
+                                    }
+                                })
+
+                                json.data.map(x => {
+                                    return dispatch('resolveDIDForAService', x)
+                                })
+                                commit('setDIDList', payload)
+                                // allPromises();
+                                resolve()
+                            } else {
+                                reject(new Error('Could not fetch DID for this service'))
+                            }
+
+                        }).catch(e => {
+                            reject(e)
+                        })
+                }
+            })
+
+        },
+
+        resolveDIDForAService({ commit, getters, state, dispatch }, payload) {
+            return new Promise(function (resolve, reject) {
+                // state.authToken = localStorage.getItem('authToken');
+                const ssiAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6ImI3OWYwZTliZjFkMmZiNGRiM2M0N2Y5YmY2NGZjYTg5NmYzYiIsInVzZXJJZCI6IjFlZDM2NzQ4LTFkZTgtNGQxZi04N2U0LTVhYzk1NGFhYjNjNSIsImdyYW50VHlwZSI6ImNsaWVudF9jcmVkZW50aWFscyIsImttc0lkIjoiaHM6ZG9jOjZkN3psM2NvZnNraDhsY2pyZ3FqdGZhb2NwYW5yY3kzYWlkOHJpOWF0bm0iLCJ3aGl0ZWxpc3RlZENvcnMiOlsiKiJdLCJzdWJkb21haW4iOiJlbnQtM2ZjYmNhNSIsImVkdklkIjoiaHM6ZGV2ZWxvcGVyLWRhc2hib2FyZDphcHA6Yjc5ZjBlOWJmMWQyZmI0ZGIzYzQ3ZjliZjY0ZmNhODk2ZjNiIiwiaWF0IjoxNzEwMTIxOTIyLCJleHAiOjE3MTAxMzYzMjJ9.hthX2qrK04G3u80riAIucApRkonx_mX-bRMk4xapQMI'
+                //fetct all dids
+                {
+                    const url = `http://ent-3fcbca5.localhost:3003/api/v1/did/resolve/${payload}`;
+                    const options = {
+                        method: "GET",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": `Bearer ${ssiAccessToken}`,
+                            "Origin": '*'
+                        }
+                    }
+                    fetch(url, {
+                        headers: options.headers
+                    })
+                        .then(response => response.json())
+                        .then(json => {
+                            if (json) {
+                                const data = {
+                                    did: payload,
+                                    didDocument: json.didDocument,
+                                    status: Object.keys(json.didDocumentMetadata).length > 0 ? 'Registered' : 'Created'
+                                }
+                                commit('updateADID', data);
+                                resolve()
+                            } else {
+                                reject(new Error('Could not fetch DID for this service'))
+                            }
+
+                        }).catch(e => {
+                            reject(e)
+                        })
+                }
+            })
+
+        },
+
+        createDIDsForAService({ commit, getters, state, dispatch }, payload) {
+            return new Promise(function (resolve, reject) {
+                state.authToken = localStorage.getItem('authToken');
+                const ssiAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6ImI3OWYwZTliZjFkMmZiNGRiM2M0N2Y5YmY2NGZjYTg5NmYzYiIsInVzZXJJZCI6IjFlZDM2NzQ4LTFkZTgtNGQxZi04N2U0LTVhYzk1NGFhYjNjNSIsImdyYW50VHlwZSI6ImNsaWVudF9jcmVkZW50aWFscyIsImttc0lkIjoiaHM6ZG9jOjZkN3psM2NvZnNraDhsY2pyZ3FqdGZhb2NwYW5yY3kzYWlkOHJpOWF0bm0iLCJ3aGl0ZWxpc3RlZENvcnMiOlsiKiJdLCJzdWJkb21haW4iOiJlbnQtM2ZjYmNhNSIsImVkdklkIjoiaHM6ZGV2ZWxvcGVyLWRhc2hib2FyZDphcHA6Yjc5ZjBlOWJmMWQyZmI0ZGIzYzQ3ZjliZjY0ZmNhODk2ZjNiIiwiaWF0IjoxNzEwMTIxOTIyLCJleHAiOjE3MTAxMzYzMjJ9.hthX2qrK04G3u80riAIucApRkonx_mX-bRMk4xapQMI'
+                //fetct all dids
+                {
+                    const url = `http://ent-3fcbca5.localhost:3003/api/v1/did/create`;
+                    const options = {
+                        method: "POST",
+                        body: JSON.stringify(payload),
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": `Bearer ${ssiAccessToken}`,
+                            "Origin": '*'
+                        }
+                    }
+                    fetch(url, {
+                        ...options
+                    })
+                        .then(response => response.json())
+                        .then(async json => {
+                            if (json && json.did) {
+                                commit('insertDIDList', {
+                                    did: json.did,
+                                    didDocument: {},
+                                    status: 'Created'
+                                })
+                                const payload = {
+                                    didDocument: json.metaData.didDocument,
+                                    verificationMethodId: json.metaData.didDocument.verificationMethod[0].id
+                                }
+                                await dispatch('registerDIDsForAService', payload)
+                                resolve()
+                            } else {
+                                reject(new Error('Could not create DID for this service'))
+                            }
+                        }).catch(e => {
+                            reject(e)
+                        })
+                }
+            })
+
+        },
+
+        registerDIDsForAService({ commit, getters, state, dispatch }, payload) {
+            return new Promise(function (resolve, reject) {
+                state.authToken = localStorage.getItem('authToken');
+                const ssiAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6ImI3OWYwZTliZjFkMmZiNGRiM2M0N2Y5YmY2NGZjYTg5NmYzYiIsInVzZXJJZCI6IjFlZDM2NzQ4LTFkZTgtNGQxZi04N2U0LTVhYzk1NGFhYjNjNSIsImdyYW50VHlwZSI6ImNsaWVudF9jcmVkZW50aWFscyIsImttc0lkIjoiaHM6ZG9jOjZkN3psM2NvZnNraDhsY2pyZ3FqdGZhb2NwYW5yY3kzYWlkOHJpOWF0bm0iLCJ3aGl0ZWxpc3RlZENvcnMiOlsiKiJdLCJzdWJkb21haW4iOiJlbnQtM2ZjYmNhNSIsImVkdklkIjoiaHM6ZGV2ZWxvcGVyLWRhc2hib2FyZDphcHA6Yjc5ZjBlOWJmMWQyZmI0ZGIzYzQ3ZjliZjY0ZmNhODk2ZjNiIiwiaWF0IjoxNzEwMTIxOTIyLCJleHAiOjE3MTAxMzYzMjJ9.hthX2qrK04G3u80riAIucApRkonx_mX-bRMk4xapQMI'
+
+                const body = {
+                    "didDocument": payload.didDocument,
+                    "verificationMethodId": payload.verificationMethodId
+                }
+                //fetct all dids
+                {
+                    const url = `http://ent-3fcbca5.localhost:3003/api/v1/did/register`;
+                    const options = {
+                        method: "POST",
+                        body: JSON.stringify(body),
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": `Bearer ${ssiAccessToken}`,
+                            "Origin": '*'
+                        }
+                    }
+                    fetch(url, {
+                        ...options
+                    })
+                        .then(response => response.json())
+                        .then(json => {
+                            if (json) {
+                                dispatch('resolveDIDForAService', json.did)
+                                resolve()
+                            } else {
+                                reject(new Error('Could not register DID for this service'))
+                            }
+                        }).catch(e => {
+                            reject(e)
+                        })
+                }
+            })
+
         }
     }
 }
