@@ -280,7 +280,7 @@ export default {
   computed: {
     ...mapGetters('mainStore', ['sessionList']),
     ...mapState({
-      didList: state => state.playgroundStore.didList,
+      didList: state => state.mainStore.didList,
       containerShift: state => state.playgroundStore.containerShift,
     }),
     isContainerShift() {
@@ -341,7 +341,7 @@ export default {
     });
   },
   methods: {
-    ...mapActions('playgroundStore', ['fetchDIDsForAService', 'createDIDsForAService', 'registerDIDsForAService']),
+    ...mapActions('mainStore', ['fetchDIDsForAService', 'createDIDsForAService', 'registerDIDsForAService']),
     ...mapMutations('playgroundStore', ['updateSideNavStatus', 'shiftContainer']),
 
     async viewSessionDetails(sessionId) {

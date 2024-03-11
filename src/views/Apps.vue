@@ -560,7 +560,7 @@ export default {
     swaggerAPIdoc() {
       if (this.appModel.tenantUrl) {
         if (this.appModel.services) {
-          const service = this.appModel.services[0]
+          const service = this.appModel.services.length > 0 ? this.appModel.services[0] : null
           if (service) {
             if (service.swaggerAPIDocPath) {
               return sanitizeUrl(this.appModel.tenantUrl) + service.swaggerAPIDocPath
@@ -614,6 +614,7 @@ export default {
   },
   methods: {
     ...mapMutations("mainStore", ["updateAnApp", "setMainSideNavBar"]),
+    ...mapMutations("mainStore", ["setSelectedAppId"]),
     ...mapActions("mainStore", [
       "saveAnAppOnServer",
       "updateAnAppOnServer",
@@ -625,7 +626,8 @@ export default {
     ]),
 
     async switchOrg(appId, serviceType = 'SSI_API') {
-      console.log(serviceType)
+      // 
+      this.setSelectedAppId(appId)
       switch (serviceType) {
         case 'SSI_API': {
           this.$router.push({ name: "DIDs", params: { appId } });

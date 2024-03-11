@@ -266,6 +266,7 @@ export default {
     ...mapState({
       showMainSideNavBar: (state) => state.mainStore.showMainSideNavBar,
       selectedDashboard: (state) => state.globalStore.selectedDashboard,
+      appList: (state) => state.mainStore.appList,
     }),
     selectedOrg() {
       return this.getSelectedOrg;

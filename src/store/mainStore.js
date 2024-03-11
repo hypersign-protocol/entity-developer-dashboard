@@ -8,6 +8,11 @@ const { apiServer } = config;
 const apiServerBaseUrl = sanitizeUrl(apiServer.host) + apiServer.basePath;
 Vue.use(Vuex)
 
+const GRANT_TYPES_ENUM = Object.freeze({
+    'SSI_API': 'access_service_ssi',
+    'CAVACH_API': 'access_service_kyc'
+})
+
 const mainStore = {
     namespaced: true,
     mixin: [UtilsMixin],
@@ -18,6 +23,7 @@ const mainStore = {
         serviceList: [],
         sessionList: [],
         selectedServiceId: "",
+        didList: [],
     },
     getters: {
         getAppByAppId: (state) => (appId) => {
@@ -81,9 +87,26 @@ const mainStore = {
             } else {
                 state.sessionList.unshift(payload)
             }
-        }
+        },
+        setSelectedAppId: (state, payload) => {
+            console.log('inside setSelectedAppId ' + payload);
+            state.selectedServiceId = payload;
+        },
 
-
+        setDIDList(state, payload) {
+            state.didList = payload;
+        },
+        insertDIDList(state, payload) {
+            state.didList.push(payload);
+        },
+        updateADID(state, payload) {
+            let index = state.didList.findIndex(x => x.did === payload.did);
+            if (index >= 0) {
+                Object.assign(state.didList[index], { ...payload });
+            } else {
+                state.didList.push(payload);
+            }
+        },
     },
     actions: {
 
@@ -172,7 +195,7 @@ const mainStore = {
             })
 
         },
-        fetchAppsListFromServer: ({ commit }) => {
+        fetchAppsListFromServer: ({ commit, dispatch }) => {
             // TODO: Get list of orgs 
             const url = `${apiServerBaseUrl}/app`;
             // TODO: // use proper authToken
@@ -184,8 +207,42 @@ const mainStore = {
                     reject(json)
                 }
                 commit('insertAllApps', json);
+                json.data.map(x => {
+                    return dispatch('keepAccessTokenReadyForApp', {
+                        serviceId: x.appId,
+                        grant_type: GRANT_TYPES_ENUM[x.services[0].id]
+                    })
+                })
             }).catch((e) => {
                 console.error(`Error while fetching apps ` + e.message);
+            })
+        },
+
+        keepAccessTokenReadyForApp: ({ commit, getters }, payload) => {
+            return new Promise((resolve, reject) => {
+                const { serviceId, grant_type } = payload
+                const url = `${apiServerBaseUrl}/app/access-control/token?serviceId=${serviceId}&grant_type=${grant_type}`;
+
+                const headers = UtilsMixin.methods.getHeader(localStorage.getItem('authToken'));
+                fetch(url, {
+                    method: 'GET',
+                    headers,
+                })
+                    .then(response => response.json())
+                    .then(json => {
+
+                        if (json.access_token) {
+                            const app = getters.getAppByAppId(serviceId)
+                            app['access_token'] = json.access_token
+                            commit('insertAnApp', app);
+                            resolve()
+                        } else {
+                            reject(new Error(`Could not fetch accesstoken for service   ${serviceId}`))
+                        }
+
+                    }).catch((e) => {
+                        reject(new Error(`while updating an app  ${e}`))
+                    })
             })
         },
 
@@ -275,6 +332,166 @@ const mainStore = {
                 })
             })
         },
+
+        // --- SSI
+        fetchDIDsForAService({ commit, getters, state, dispatch }) {
+            return new Promise(function (resolve, reject) {
+                {
+                    const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/did?page=1&limit=10`;
+                    const options = {
+                        method: "GET",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": `Bearer ${getters.getSelectedService.access_token}`,
+                            "Origin": '*'
+                        }
+                    }
+                    fetch(url, {
+                        headers: options.headers
+                    })
+                        .then(response => response.json())
+                        .then(json => {
+                            if (json && json.totalCount !== 0) {
+                                const payload = json.data.map(x => {
+                                    return {
+                                        did: x,
+                                        didDocument: {},
+                                        status: ""
+                                    }
+                                })
+
+                                json.data.map(x => {
+                                    return dispatch('resolveDIDForAService', x)
+                                })
+                                commit('setDIDList', payload)
+                                // allPromises();
+                                resolve()
+                            } else {
+                                reject(new Error('Could not fetch DID for this service'))
+                            }
+
+                        }).catch(e => {
+                            reject(e)
+                        })
+                }
+            })
+
+        },
+
+        resolveDIDForAService({ commit, getters, state, dispatch }, payload) {
+            return new Promise(function (resolve, reject) {
+                {
+                    const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/did/resolve/${payload}`;
+                    const options = {
+                        method: "GET",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": `Bearer ${getters.getSelectedService.access_token}`,
+                            "Origin": '*'
+                        }
+                    }
+                    fetch(url, {
+                        headers: options.headers
+                    })
+                        .then(response => response.json())
+                        .then(json => {
+                            if (json) {
+                                const data = {
+                                    did: payload,
+                                    didDocument: json.didDocument,
+                                    status: Object.keys(json.didDocumentMetadata).length > 0 ? 'Registered' : 'Created'
+                                }
+                                commit('updateADID', data);
+                                resolve()
+                            } else {
+                                reject(new Error('Could not fetch DID for this service'))
+                            }
+
+                        }).catch(e => {
+                            reject(e)
+                        })
+                }
+            })
+
+        },
+
+        createDIDsForAService({ commit, getters, state, dispatch }, payload) {
+            return new Promise(function (resolve, reject) {
+                {
+                    const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/did/create`;
+                    const options = {
+                        method: "POST",
+                        body: JSON.stringify(payload),
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": `Bearer ${getters.getSelectedService.access_token}`,
+                            "Origin": '*'
+                        }
+                    }
+                    fetch(url, {
+                        ...options
+                    })
+                        .then(response => response.json())
+                        .then(async json => {
+                            if (json && json.did) {
+                                commit('insertDIDList', {
+                                    did: json.did,
+                                    didDocument: {},
+                                    status: 'Created'
+                                })
+                                const payload = {
+                                    didDocument: json.metaData.didDocument,
+                                    verificationMethodId: json.metaData.didDocument.verificationMethod[0].id
+                                }
+                                await dispatch('registerDIDsForAService', payload)
+                                resolve()
+                            } else {
+                                reject(new Error('Could not create DID for this service'))
+                            }
+                        }).catch(e => {
+                            reject(e)
+                        })
+                }
+            })
+
+        },
+
+        registerDIDsForAService({ commit, getters, state, dispatch }, payload) {
+            return new Promise(function (resolve, reject) {
+                const body = {
+                    "didDocument": payload.didDocument,
+                    "verificationMethodId": payload.verificationMethodId
+                }
+                //fetct all dids
+                {
+                    const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/did/register`;
+                    const options = {
+                        method: "POST",
+                        body: JSON.stringify(body),
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": `Bearer ${getters.getSelectedService.access_token}`,
+                            "Origin": '*'
+                        }
+                    }
+                    fetch(url, {
+                        ...options
+                    })
+                        .then(response => response.json())
+                        .then(json => {
+                            if (json) {
+                                dispatch('resolveDIDForAService', json.did)
+                                resolve()
+                            } else {
+                                reject(new Error('Could not register DID for this service'))
+                            }
+                        }).catch(e => {
+                            reject(e)
+                        })
+                }
+            })
+
+        }
     }
 }
 
