@@ -94,13 +94,14 @@
                 {{ shorten(userDetails.email) }}
                 <i class="far fa-copy mt-1" @click="copyToClip(userDetails.email, 'Email')"></i>
               </div>
+
               <hr />
 
-              <div class="hov" style="display: flex" :title="userDetails.did">
+              <div class="hov" style="display: flex" :title="userDetails.did" v-if="userDetails.did">
                 {{ shorten(userDetails.did) }}
                 <i class="far fa-copy" @click="copyToClip(userDetails.did, 'DID')"></i>
               </div>
-              <hr />
+
               <div class="hov" @click="logoutAll()" title="Logout">
                 Logout
                 <i class="fas fa-sign-out-alt" style="cursor: pointer; font-size: 1.3rem"></i>

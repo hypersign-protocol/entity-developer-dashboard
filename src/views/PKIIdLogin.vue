@@ -5,6 +5,7 @@
   box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
   cursor: pointer;
 }
+
 .align-center {
   margin-left: auto;
   margin-right: auto;
@@ -34,27 +35,23 @@
 }
 </style>
 <template>
-  <div style="justify-content: center; padding-top: 3%">
-      <img
-        class="align-center"
-        style="margin-bottom: 20px"
-        height="60px"
-        src="../assets/Entity_full.png"
-      />
+  <div style="justify-content: center; padding-top: 10%">
+    <img class="align-center" style="margin-bottom: 20px" height="60px" src="../assets/Entity_full.png" />
+    <GoogleLogin class="align-center" style="margin-top: 4%"></GoogleLogin>
 
-      <div class="row" style="justify-content: center">
-        <div class="col-md-4" style="padding: 10px;     border-right: 2px solid #80808059;">
-          <b-card no-body class="loginContent event-card" >  
-      <HypersignLogin></HypersignLogin>  
-    </b-card>
+    <!-- <div class="row" style="justify-content: center">
+      <div class="col-md-4" style="padding: 10px;     border-right: 2px solid #80808059;">
+        <b-card no-body class="loginContent event-card">
+          <HypersignLogin></HypersignLogin>
+        </b-card>
+      </div>
 
-        </div>
-        <div class="col-md-4" style="justify-content: left; padding: 20px">
-          <div style="margin-top: 45%;">
-            <GoogleLogin></GoogleLogin>
-          </div>
+      <div class="col-md-12" style="justify-content: left; padding: 20px">
+        <div style="margin-top: 45%;">
+          <GoogleLogin></GoogleLogin>
         </div>
       </div>
+    </div> -->
   </div>
 </template>
 

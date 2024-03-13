@@ -404,6 +404,14 @@
 </template>
 
 <style scoped>
+.nav-tabs {
+  width: 150px;
+}
+
+.nav-tabs .nav-link.active {
+  border-radius: 0px 20px 0px 0px;
+}
+
 .overlay {
   background: rgba(0, 0, 0, 0.323);
   position: absolute;
@@ -425,6 +433,7 @@
 
 .card {
   box-shadow: 0 0 2rem 0 rgb(136 152 170 / 15%);
+  border-radius: 20px;
 }
 
 .icons {

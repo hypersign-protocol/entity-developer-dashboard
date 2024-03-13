@@ -1,51 +1,58 @@
-
 <style>
-.btn-hypersign {
-    background-color: #3c82f7;
-  border-color: #0f69ff;
-  padding: 7px;
-  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.16), 0 2px 10px 0 rgba(0, 0, 0, 0.12);
-  min-width: 300px;
+.button-theme:hover {
+    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.16), 0 2px 10px 0 rgba(0, 0, 0, 0.12);
+    background: aliceblue !important;
+    border: 1px solid #905ab0 !important;
+    color: #905ab0 !important;
 }
 </style>
 <template>
-        <button
-            @click="login"
-            class="btn btn-primary btn-hypersign"
-        >
-         <i class="fab fa-google"></i> Continue with google
-        </button>
+
+    <button @click="login" class="btn  button-theme" style="width: 340px;">
+        <i class="fab fa-google"></i> Sign In with Google
+    </button>
+
+    <!-- <hf-buttons :name="getButtonText()" @executeAction="login" class="btn btn-primary btn-hypersign"></hf-buttons> -->
 </template>
 
 
-<script> 
+<script>
 import EventBus from "../../eventbus";
+import HfButtons from "../element/HfButtons.vue";
+
 export default {
     name: "GoogleLogin",
+    components: {
+        HfButtons
+    },
     mounted() {
-        const  authorizationToken = this.$route.query.token
-        if(authorizationToken){
+        const authorizationToken = this.$route.query.token
+        if (authorizationToken) {
             localStorage.setItem("authToken", authorizationToken);
             EventBus.$emit("initializeStore", "login");
             this.$router.push("dashboard");
         }
     },
     methods: {
+        getButtonText() {
+            return `<i class="fab fa-google"></i> Continue with Google`
+        },
         login() {
-          const socialLoginAPI = `${this.$config.studioServer.BASE_URL}api/v1/login?provider=google`;
-          fetch(socialLoginAPI).then((response)=>{
-                if(response.ok){
+            const socialLoginAPI = `${this.$config.studioServer.BASE_URL}api/v1/login?provider=google`;
+            fetch(socialLoginAPI).then((response) => {
+                if (response.ok) {
                     return response.json()
-                }else{
+                } else {
                     console.log(response.statusText)
                 }
-                })
-            .then((json) =>{
-                window.location.href = json.authUrl
             })
-            .catch((e)=>{
-                throw new Error(`${e.message}`)})
-                    },
+                .then((json) => {
+                    window.location.href = json.authUrl
+                })
+                .catch((e) => {
+                    throw new Error(`${e.message}`)
+                })
+        },
     }
 }
 

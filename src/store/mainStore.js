@@ -292,20 +292,23 @@ const mainStore = {
         },
 
         fetchAppsUsersSessions: ({ commit, getters }, payload) => {
-            const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/session`;
-            const authToken = getters.getSelectedService.access_token //'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6IjA3ZjE4Zjg2MTk0MmRmNzM2NDQzZmM0MDg1MDUwMTliMDYwMSIsInVzZXJJZCI6ImI2ZDQyMWNkLThkNGQtNDhmZC05ZTQ4LTA0NjQ0MWM0M2RhNCIsImdyYW50VHlwZSI6ImNsaWVudF9jcmVkZW50aWFscyIsImttc0lkIjoiaHM6ZG9jOmpuZm05ZzV6bzNmLXhqN3hiN3c4cGNybHFrN2lhZWpxem52N2NkbnpiZm8iLCJ3aGl0ZWxpc3RlZENvcnMiOlsiKiJdLCJzdWJkb21haW4iOiJlbnQtMGIyMmRiOSIsImVkdklkIjoiaHM6ZGV2ZWxvcGVyLWRhc2hib2FyZDphcHA6MDdmMThmODYxOTQyZGY3MzY0NDNmYzQwODUwNTAxOWIwNjAxIiwiaWF0IjoxNzA2ODQ5ODUyLCJleHAiOjE3NjY4NjQyNzJ9.4hhaA9UP3nZ2bI4TiRXrjLqXYZVeqKvJG9BUHWH515g'
-            const headers = UtilsMixin.methods.getHeader(authToken);
-            fetch(url, {
-                method: 'GET',
-                headers
-            }).then(response => response.json()).then(json => {
-                if (json.error) {
-                    reject(json)
-                }
-                commit('insertSessions', json.sessionDetails);
-            }).catch((e) => {
-                console.error(`Error while fetching apps ` + e.message);
+            return new Promise((resolve, reject) => {
+                const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/session`;
+                const authToken = getters.getSelectedService.access_token //'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6IjA3ZjE4Zjg2MTk0MmRmNzM2NDQzZmM0MDg1MDUwMTliMDYwMSIsInVzZXJJZCI6ImI2ZDQyMWNkLThkNGQtNDhmZC05ZTQ4LTA0NjQ0MWM0M2RhNCIsImdyYW50VHlwZSI6ImNsaWVudF9jcmVkZW50aWFscyIsImttc0lkIjoiaHM6ZG9jOmpuZm05ZzV6bzNmLXhqN3hiN3c4cGNybHFrN2lhZWpxem52N2NkbnpiZm8iLCJ3aGl0ZWxpc3RlZENvcnMiOlsiKiJdLCJzdWJkb21haW4iOiJlbnQtMGIyMmRiOSIsImVkdklkIjoiaHM6ZGV2ZWxvcGVyLWRhc2hib2FyZDphcHA6MDdmMThmODYxOTQyZGY3MzY0NDNmYzQwODUwNTAxOWIwNjAxIiwiaWF0IjoxNzA2ODQ5ODUyLCJleHAiOjE3NjY4NjQyNzJ9.4hhaA9UP3nZ2bI4TiRXrjLqXYZVeqKvJG9BUHWH515g'
+                const headers = UtilsMixin.methods.getHeader(authToken);
+                fetch(url, {
+                    method: 'GET',
+                    headers
+                }).then(response => response.json()).then(json => {
+                    if (json.error) {
+                        return reject(json)
+                    }
+                    commit('insertSessions', json.sessionDetails);
+                }).catch((e) => {
+                    return reject(`Error while fetching apps ` + e.message);
+                })
             })
+
         },
 
         fetchSessionsDetailsById: ({ commit, getters }, payload) => {
