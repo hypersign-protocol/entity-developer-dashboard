@@ -296,8 +296,13 @@
         <b-tab :title="'KYC (' + getAppsWithKYCServices.length + ')'" v-if="getAppsWithKYCServices.length > 0">
           <div class="scroll row">
             <div class="col-md-4 mb-4" v-for="eachOrg in getAppsWithKYCServices" :key="eachOrg.appId">
-              <div class="card bg-gradient-primary" @click="switchOrg(eachOrg.appId, 'CAVACH_API')"
+              <!-- <div class="card bg-gradient-primary" 
+                @click="switchOrg(eachOrg.appId, 'CAVACH_API')"
                 style="cursor: grab">
+                 -->
+
+              <div class="card bg-gradient-primary" style="cursor: grab">
+
                 <div class="card-body">
                   <div class="row">
                     <div class="col">
