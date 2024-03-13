@@ -716,6 +716,17 @@ export default {
       if (!isAppDescriptionEmpty && this.appModel.description.length > 100) {
         m.push(messages.APPLICATION.CHAR_EXCEED_APP_DES);
       }
+
+      console.log(this.selectedServiceId)
+      if (this.selectedServiceId === 'CAVACH_API') {
+        console.log(this.selectedAssociatedSSIAppId)
+        if (this.selectedAssociatedSSIAppId === "") {
+          console.log('this.selectedAssociatedSSIAppId is empty')
+          m.push(messages.APPLICATION.SSI_SERVICE_NOT_SELECTED)
+        }
+      }
+
+
       if (!isEmpty(this.appModel.whitelistedCors)) {
         const newArray = this.appModel.whitelistedCors
           .split(",")
@@ -753,6 +764,7 @@ export default {
             throw new Error(messages.APPLICATION.DUPLICATE_ORIGIN_VALUES);
           }
         }
+
         const t = await this.saveAnAppOnServer({
           appName: this.appModel.appName,
           whitelistedCors: whitelistCors,
