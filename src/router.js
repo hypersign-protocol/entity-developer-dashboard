@@ -7,8 +7,8 @@ import store from './store'
 import PKIIdLogin from './views/PKIIdLogin.vue'
 import Home from './views/Home.vue'
 import MainDashboard from './views/Dashboard.vue'
-import Credential from './views/playground/Credential.vue'
-import CredentialDetails from './views/playground/CredentialDetails.vue'
+import Credential from './views/playground/Sessions.vue'
+import CredentialDetails from './views/playground/SessionsDetails.vue'
 import DIDs from './views/playground/DID.vue'
 Vue.use(Router)
 
@@ -53,12 +53,12 @@ const router = new Router({
       }
     },
     {
-      path: '/studio/credential/:appId',
+      path: '/studio/sessions/:appId',
       name: 'playgroundCredential',
       component: Credential,
       meta: {
         requiresAuth: true,
-        title: `${config.app.name} - Credential`
+        title: `${config.app.name} - Sessions`
       }
     },
     {
@@ -71,7 +71,7 @@ const router = new Router({
       }
     },
     {
-      path: '/studio/credential/:appId/:sessionId',
+      path: '/studio/sessions/:appId/:sessionId',
       name: 'sessionDetails',
       component: CredentialDetails,
       meta: {

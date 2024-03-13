@@ -164,10 +164,11 @@ h5 span {
                   </div>
                 </span>
                 <span class="stepSpan" title="Selfi">
-                  <div :class="{ 'step-finished': row.step_liveliness == 1, 'step-notStarted': row.step_liveliness == 0 }"
+                  <div
+                    :class="{ 'step-finished': row.step_liveliness == 1, 'step-notStarted': row.step_liveliness == 0 }"
                     class="step UI--c-dhzjXW UI--c-dhzjXW-iexswVt-css UI--c-kbgiPT UI--c-kbgiPT-ihMjrWH-css "><svg
-                      xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 256 256"
-                      style="min-width: 1.8rem;">
+                      xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor"
+                      viewBox="0 0 256 256" style="min-width: 1.8rem;">
                       <rect width="256" height="256" fill="none"></rect>
                       <circle cx="128" cy="128" r="96" fill="none" stroke="currentColor" stroke-linecap="round"
                         stroke-linejoin="round" stroke-width="16"></circle>
@@ -183,8 +184,8 @@ h5 span {
                   <div
                     :class="{ 'step-finished': row.step_ocrIdVerification == 1, 'step-notStarted': row.step_ocrIdVerification == 0 }"
                     class="step UI--c-dhzjXW UI--c-dhzjXW-iexswVt-css UI--c-kbgiPT UI--c-kbgiPT-ihMjrWH-css "><svg
-                      xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 256 256"
-                      style="min-width: 1.8rem;">
+                      xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor"
+                      viewBox="0 0 256 256" style="min-width: 1.8rem;">
                       <rect width="256" height="256" fill="none"></rect>
                       <circle cx="104" cy="144" r="32" fill="none" stroke="currentColor" stroke-linecap="round"
                         stroke-linejoin="round" stroke-width="16"></circle>
@@ -200,15 +201,15 @@ h5 span {
                 <span class="stepSpan" title="Finished">
                   <div :class="{ 'step-finished': row.step_finish == 1, 'step-notStarted': row.step_finish == 0 }"
                     class="step UI--c-dhzjXW UI--c-dhzjXW-iexswVt-css UI--c-kbgiPT UI--c-kbgiPT-ijmsATZ-css "><svg
-                      xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 256 256"
-                      style="min-width: 1.8rem;">
+                      xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor"
+                      viewBox="0 0 256 256" style="min-width: 1.8rem;">
                       <rect width="256" height="256" fill="none"></rect>
                       <path
                         d="M40,114.7V56a8,8,0,0,1,8-8H208a8,8,0,0,1,8,8v58.7c0,84-71.3,111.8-85.5,116.5a7.2,7.2,0,0,1-5,0C111.3,226.5,40,198.7,40,114.7Z"
                         fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
                         stroke-width="16"></path>
-                      <polyline points="172 104 113.3 160 84 132" fill="none" stroke="currentColor" stroke-linecap="round"
-                        stroke-linejoin="round" stroke-width="16"></polyline>
+                      <polyline points="172 104 113.3 160 84 132" fill="none" stroke="currentColor"
+                        stroke-linecap="round" stroke-linejoin="round" stroke-width="16"></polyline>
                     </svg></div>
                 </span>
               </td>
@@ -246,7 +247,7 @@ import Datepicker from 'vuejs-datetimepicker'
 import VueQr from "vue-qr"
 import { mapState, mapGetters, mapActions, mapMutations } from "vuex";
 export default {
-  name: "Credential",
+  name: "Sessions",
   components: { HfPopUp, Loading, StudioSideBar, HfButtons, HfSelectDropDown, ToolTip, Datepicker, VueQr },
   computed: {
     ...mapGetters('mainStore', ['sessionList']),
@@ -294,5 +295,3 @@ export default {
 
 };
 </script>
-
-

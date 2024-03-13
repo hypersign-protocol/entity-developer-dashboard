@@ -263,6 +263,7 @@ export default {
   components: { HfButtons },
   computed: {
     ...mapGetters("playgroundStore", ["userDetails", "getSelectedOrg"]),
+    ...mapGetters("mainStore", ["getSelectedService"]),
     ...mapState({
       showMainSideNavBar: (state) => state.mainStore.showMainSideNavBar,
       selectedDashboard: (state) => state.globalStore.selectedDashboard,
@@ -374,24 +375,35 @@ export default {
     },
 
     getSideMenu() {
+
       const menu = [
         {
           href: "/studio/dashboard",
           title: "Dashboard",
           icon: "fas fa-tachometer-alt",
         },
-        {
-          href: "/studio/did",
-          title: "DIDs",
-          icon: "fa fa-id-badge",
-        },
-        {
-          href: "/studio/credential",
-          title: "Credentials",
-          icon: "fa fa-id-card",
-        },
-
       ];
+
+      if (this.getSelectedService) {
+        console.log(this.getSelectedService)
+        if (this.getSelectedService.services.length > 0) {
+          const id = this.getSelectedService.services[0].id
+          if (id == 'CAVACH_API') {
+            menu.push({
+              href: "/studio/sessions/" + this.getSelectedService.appId,
+              title: "Credentials",
+              icon: "fa fa-id-card",
+            })
+          } else if (id == 'SSI_API') {
+            menu.push({
+              href: "/studio/did/" + this.getSelectedService.appId,
+              title: "DIDs",
+              icon: "fa fa-id-badge",
+            },
+            )
+          }
+        }
+      }
       return menu;
     },
 

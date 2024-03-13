@@ -223,7 +223,7 @@
         <b-tab :title="'SSI (' + getAppsWithSSIServices.length + ')'" active v-if="getAppsWithSSIServices.length > 0">
           <div class="scroll row">
             <div class="col-md-4 mb-4" v-for="eachOrg in getAppsWithSSIServices" :key="eachOrg.appId">
-              <div class="card bg-gradient-primary">
+              <div class="card bg-gradient-primary" @click="switchOrg(eachOrg.appId, 'SSI_API')" style="cursor: grab">
                 <div class="card-body">
                   <div class="row">
                     <div class="col">
@@ -252,7 +252,7 @@
                     <div class="col">
                       <b-card-text>
                         <small class="card-field-label">Service Id:</small>
-                        <div class="apiKeySecret" @click="copyToClip(eachOrg.appId, 'Service Id')"
+                        <div class="apiKeySecret" @click.stop="copyToClip(eachOrg.appId, 'Service Id')"
                           title="Copy Service Id">
                           {{ truncate(eachOrg.appId, 35) }}
                           <i class="far fa-copy" style="float: right"></i>
@@ -264,7 +264,7 @@
                     <div class="col">
                       <b-card-text>
                         <small class="card-field-label">Tenant Url:</small>
-                        <div class="apiKeySecret" @click="copyToClip(eachOrg.tenantUrl, 'Tenant Url')"
+                        <div class="apiKeySecret" @click.stop="copyToClip(eachOrg.tenantUrl, 'Tenant Url')"
                           title="Copy Tenant Url">
                           {{ truncate(eachOrg.tenantUrl, 42) }}
                           <i class="far fa-copy" style="float: right"></i>
@@ -274,14 +274,14 @@
                   </div>
                   <div class="row mt-2">
                     <div class="col">
-                      <span class=" " style="cursor: pointer" @click="switchOrg(eachOrg.appId, 'SSI_API')"><i
-                          class="fa fa-id-card" aria-hidden="true"></i></span>
+                      <!-- <span class=" " style="cursor: pointer" @click="switchOrg(eachOrg.appId, 'SSI_API')"><i
+                          class="fas fa-tachometer-alt" aria-hidden="true"></i></span> -->
                       <span class=" " style="float: right">
-                        <b-badge pill variant="danger" @click="openSecretkeyPopUp(eachOrg.appId)"
+                        <b-badge pill variant="danger" @click.stop="openSecretkeyPopUp(eachOrg.appId)"
                           title="Click to generate a new API Secret Key" class="mr-2" style="cursor: pointer">
                           <i class="fa fa-key"></i>
                           Secret</b-badge>
-                        <b-badge pill variant="info" @click="editOrg(eachOrg.appId)" title="Click to edit the app"
+                        <b-badge pill variant="info" @click.stop="editOrg(eachOrg.appId)" title="Click to edit the app"
                           style="cursor: pointer">
                           <i class="fas fa-pencil-alt"></i>
                           Edit</b-badge>
@@ -296,7 +296,8 @@
         <b-tab :title="'KYC (' + getAppsWithKYCServices.length + ')'" v-if="getAppsWithKYCServices.length > 0">
           <div class="scroll row">
             <div class="col-md-4 mb-4" v-for="eachOrg in getAppsWithKYCServices" :key="eachOrg.appId">
-              <div class="card bg-gradient-primary">
+              <div class="card bg-gradient-primary" @click="switchOrg(eachOrg.appId, 'CAVACH_API')"
+                style="cursor: grab">
                 <div class="card-body">
                   <div class="row">
                     <div class="col">
@@ -325,7 +326,7 @@
                     <div class="col">
                       <b-card-text>
                         <small class="card-field-label">Service Id:</small>
-                        <div class="apiKeySecret" @click="copyToClip(eachOrg.appId, 'Service Id')"
+                        <div class="apiKeySecret" @click.stop="copyToClip(eachOrg.appId, 'Service Id')"
                           title="Copy Service Id">
                           {{ truncate(eachOrg.appId, 35) }}
                           <i class="far fa-copy" style="float: right"></i>
@@ -337,7 +338,7 @@
                     <div class="col">
                       <b-card-text>
                         <small class="card-field-label">Tenant Url:</small>
-                        <div class="apiKeySecret" @click="copyToClip(eachOrg.tenantUrl, 'Tenant Url')"
+                        <div class="apiKeySecret" @click.stop="copyToClip(eachOrg.tenantUrl, 'Tenant Url')"
                           title="Copy Tenant Url">
                           {{ truncate(eachOrg.tenantUrl, 42) }}
                           <i class="far fa-copy" style="float: right"></i>
@@ -347,14 +348,14 @@
                   </div>
                   <div class="row mt-2">
                     <div class="col">
-                      <!-- <span class=" " style="cursor: pointer" @click="switchOrg(eachOrg.appId)"><i class="fa fa-id-card"
-                          aria-hidden="true"></i></span> -->
+                      <!-- <span class=" " style="cursor: pointer" @click.stop="switchOrg(eachOrg.appId,  'CAVACH_API')"><i
+                          class="fas fa-tachometer-alt" aria-hidden="true"></i></span> -->
                       <span class=" " style="float: right">
-                        <b-badge pill variant="danger" @click="openSecretkeyPopUp(eachOrg.appId)"
+                        <b-badge pill variant="danger" @click.stop="openSecretkeyPopUp(eachOrg.appId)"
                           title="Click to generate a new API Secret Key" class="mr-2" style="cursor: pointer">
                           <i class="fa fa-key"></i>
                           Secret</b-badge>
-                        <b-badge pill variant="info" @click="editOrg(eachOrg.appId)" title="Click to edit the app"
+                        <b-badge pill variant="info" @click.stop="editOrg(eachOrg.appId)" title="Click to edit the app"
                           style="cursor: pointer">
                           <i class="fas fa-pencil-alt"></i>
                           Edit</b-badge>
