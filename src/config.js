@@ -61,4 +61,9 @@ const DashboardTypes = Object.freeze({
 })
 
 config['DashboardTypes'] = DashboardTypes
+config['SERVICE_TYPES'] = Object.freeze({
+    SSI_API: 'SSI_API',
+    CAVACH_API: 'CAVACH_API',
+})
+
 export default config

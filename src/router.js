@@ -5,19 +5,12 @@ import config from './config'
 import store from './store'
 
 import PKIIdLogin from './views/PKIIdLogin.vue'
-
+import Home from './views/Home.vue'
 import MainDashboard from './views/Dashboard.vue'
-
-import Credential from './views/playground/Credential.vue'
-import Presentation from './views/playground/Presentation.vue'
-import Dashboard from './views/playground/Dashboard.vue'
-import Schema from './views/playground/Schema.vue'
-import Org from './views/playground/Org.vue'
-import VerifyPresentation from './views/playground/VerifyPresentation.vue'
-
+import Credential from './views/playground/Sessions.vue'
+import CredentialDetails from './views/playground/SessionsDetails.vue'
+import DIDs from './views/playground/DID.vue'
 Vue.use(Router)
-
-console.log(config.app)
 
 const router = new Router({
   mode: 'hash',
@@ -37,6 +30,15 @@ const router = new Router({
       redirect: '/studio/login'
     },
     {
+      path: '/home',
+      redirect: '/studio/home'
+    },
+    {
+      path: '/studio/home',
+      name: 'Home',
+      component: Home
+    },
+    {
       path: '/studio/login',
       name: 'PKIIdLogin',
       component: PKIIdLogin
@@ -48,6 +50,33 @@ const router = new Router({
       meta: {
         requiresAuth: true,
         title: `${config.app.name} - Dashboard`
+      }
+    },
+    {
+      path: '/studio/sessions/:appId',
+      name: 'playgroundCredential',
+      component: Credential,
+      meta: {
+        requiresAuth: true,
+        title: `${config.app.name} - Sessions`
+      }
+    },
+    {
+      path: '/studio/did/:appId',
+      name: 'DIDs',
+      component: DIDs,
+      meta: {
+        requiresAuth: true,
+        title: `${config.app.name} - DIDs`
+      }
+    },
+    {
+      path: '/studio/sessions/:appId/:sessionId',
+      name: 'sessionDetails',
+      component: CredentialDetails,
+      meta: {
+        requiresAuth: true,
+        title: `${config.app.name} - Session Details`
       }
     },
     {
@@ -85,7 +114,7 @@ router.beforeEach((to, from, next) => {
     document.title = to.meta.title
     const authToken = localStorage.getItem('authToken')
     if (authToken) {
-      const url = `${config.studioServer.BASE_URL}api/v2/protected`
+      const url = `${config.studioServer.BASE_URL}api/v1/auth`
       fetch(url, {
         headers: {
           Authorization: `Bearer ${authToken}`,

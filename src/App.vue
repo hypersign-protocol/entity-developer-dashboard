@@ -9,6 +9,7 @@
   border-bottom: 1px solid #8080809e;
   font-weight: bold;
 }
+
 .row .nav-style {
   position: absolute;
   z-index: 0;
@@ -36,24 +37,29 @@
   min-height: 100vh;
   background: #f6f6f687;
 }
+
 .subtitle {
   padding-left: 10px;
   color: gray;
   /* font-size: larger; */
   margin-top: auto;
 }
+
 .container-collapsed {
   margin-left: 15em;
 }
+
 .far {
   cursor: pointer;
   color: grey;
   display: inline;
   padding-left: 5px;
 }
+
 .hov {
   padding: 0 1.5em 0 1.5em;
 }
+
 .hov:hover {
   background-color: #dee2e6;
   cursor: pointer;
@@ -61,79 +67,44 @@
 </style>
 <template>
   <div id="app">
-    <b-navbar
-      toggleable="lg"
-      type="dark"
-      variant="white"
-      class="navStyle"
-      v-if="showIcon"
-      sticky
-    >
-      <b-navbar-brand
-        href="#"
-        style="display: flex; width: 80%; margin-left: 0.2em"
-      >
+    <b-navbar toggleable="lg" type="dark" variant="white" class="navStyle" v-if="showIcon" sticky>
+      <b-navbar-brand href="#" style="display: flex; width: 80%; margin-left: 0.2em">
         <a href="#" @click.prevent="route('dashboard')">
-          <img
-            src="./assets/Entity_full.png"
-            alt=""
-            style="height: 5vh; opacity: 80%"
-          />
+          <img src="./assets/Entity_full.png" alt="" style="height: 5vh; opacity: 80%" />
         </a>
       </b-navbar-brand>
       <b-collapse id="nav-collapse" is-nav style="width: 30%">
         <b-navbar-nav class="ml-auto">
-          <a
-            class="mr-4"
-            :href="$config.studioServer.BASE_URL"
-            target="_blank"
-            style="color: grey; margin-top: 0.8em"
-            title="Developer Dashboard API"
-          >
+          <a class="mr-4" :href="$config.studioServer.BASE_URL" target="_blank" style="color: grey; margin-top: 0.8em"
+            title="Developer Dashboard API">
             <i class="fa fa-code" style="font-size: 36px"></i>
           </a>
-          <a
-            class="mr-3"
-            href="https://docs.hypersign.id/entity-studio/developer-dashboard"
-            target="blank"
-            style="color: grey; margin-top: 0.8em"
-            title="Documentation"
-          >
+          <a class="mr-3" href="https://docs.hypersign.id/entity-studio/developer-dashboard" target="blank"
+            style="color: grey; margin-top: 0.8em" title="Documentation">
             <i class="fas fa-book-open" style="font-size: 36px"></i>
           </a>
 
           <b-nav-item-dropdown right v-if="showIcon" title="Profile">
             <template #button-content>
-              <i
-                class="fas fa-user-circle"
-                style="font-size: 40px; color: grey"
-              ></i>
+              <i class="fas fa-user-circle" style="font-size: 40px; color: grey"></i>
             </template>
 
             <div style="display: inline">
               <div class="hov" style="display: flex" :title="userDetails.email">
                 {{ shorten(userDetails.email) }}
-                <i
-                  class="far fa-copy mt-1"
-                  @click="copyToClip(userDetails.email, 'Email')"
-                ></i>
+                <i class="far fa-copy mt-1" @click="copyToClip(userDetails.email, 'Email')"></i>
               </div>
+
               <hr />
 
-              <div class="hov" style="display: flex" :title="userDetails.did">
+              <div class="hov" style="display: flex" :title="userDetails.did" v-if="userDetails.did">
                 {{ shorten(userDetails.did) }}
-                <i
-                  class="far fa-copy"
-                  @click="copyToClip(userDetails.did, 'DID')"
-                ></i>
+                <i class="far fa-copy" @click="copyToClip(userDetails.did, 'DID')"></i>
               </div>
-              <hr />
+
               <div class="hov" @click="logoutAll()" title="Logout">
                 Logout
-                <i
-                  class="fas fa-sign-out-alt"
-                  style="cursor: pointer; font-size: 1.3rem"
-                ></i>
+                <i class="fas fa-sign-out-alt" style="cursor: pointer; font-size: 1.3rem"></i>
               </div>
             </div>
           </b-nav-item-dropdown>
@@ -141,48 +112,31 @@
       </b-collapse>
     </b-navbar>
 
-    <div
-      :class="[
-        isSidebarCollapsed ? 'container-collapsed-not' : 'container-collapsed',
-      ]"
-    >
+    <div :class="[
+      isSidebarCollapsed ? 'container-collapsed-not' : 'container-collapsed',
+    ]">
       <router-view class="container containerData" />
     </div>
     <notifications group="foo" />
-    <sidebar-menu
-      class="sidebar-wrapper"
-      v-if="showSideNavbar"
-      @toggle-collapse="onToggleCollapse"
-      :collapsed="isSidebarCollapsed"
-      :theme="'white-theme'"
-      width="220px"
-      :menu="getSideMenu()"
-    >
+    <sidebar-menu class="sidebar-wrapper" v-if="showSideNavbar" @toggle-collapse="onToggleCollapse"
+      :collapsed="isSidebarCollapsed" :theme="'white-theme'" width="220px" :menu="getSideMenu()">
       <div slot="header" style="background: #363740">
         <div class="mt-3">
           <div>
             <center>
-              <img
-                v-if="!isSidebarCollapsed"
-                :src="`${getProfileIcon(selectedOrg ? selectedOrg.name : '')}`"
-                alt="avatar"
-                width="130px"
-                style=""
-              />
+              <img v-if="!isSidebarCollapsed"
+                :src="`${getProfileIcon(getSelectedService ? getSelectedService.appName : '')}`" alt="avatar"
+                width="130px" style="" />
             </center>
             <center>
-              <img
-                v-if="isSidebarCollapsed"
-                :src="`${getProfileIcon(selectedOrg ? selectedOrg.name : '')}`"
-                class="mr-1"
-                alt="center"
-                width="35px"
-              />
+              <img v-if="isSidebarCollapsed"
+                :src="`${getProfileIcon(getSelectedService ? getSelectedService.appName : '')}`" class="mr-1"
+                alt="center" width="35px" />
             </center>
           </div>
           <center>
             <p class="mt-3 orgNameCss">
-              {{ selectedOrg ? selectedOrg.name : "" }}
+              {{ getSelectedService ? getSelectedService.appName : "" }}
             </p>
           </center>
         </div>
@@ -196,13 +150,16 @@
   font-size: 16px;
   width: 40px !important;
 }
+
 .dropdown-menu.show {
   text-align: center;
   box-shadow: 2px 0 10px rgb(0 0 0 / 47%);
 }
+
 .navbar {
   padding: 0px !important;
 }
+
 .navStyle {
   background: #ffffff;
   margin-bottom: 1%;
@@ -212,6 +169,7 @@
   box-shadow: rgba(0, 0, 0, 0.1) 0px 2px 2px 0px,
     rgba(0, 0, 0, 0.02) 0px 3px 1px -2px, rgba(0, 0, 0, 0.01) 0px 1px 5px 0px;
 }
+
 .orgNameCss {
   overflow-wrap: break-word;
   color: white;
@@ -252,37 +210,47 @@
 .marginRight {
   margin-right: 12%;
 }
+
 #view.collapsed {
   padding-left: 50px;
 }
+
 #view {
   padding-left: 350px;
 }
+
 .sidebar-wrapper {
   min-width: 70px;
   margin-top: 65px;
   box-shadow: 0 0 15px 0 rgba(34, 41, 47, 0.05);
 }
+
 .v-sidebar-menu.vsm_white-theme .vsm--mobile-bg {
   background: #905ab0;
 }
+
 .vsm--mobile-bg {
   background: #905ab098 !important;
 }
+
 .v-sidebar-menu.vsm_white-theme {
   background-color: white !important;
   color: #000 !important;
 }
+
 .v-sidebar-menu.vsm_white-theme .vsm--header {
   color: #000 !important;
 }
+
 .v-sidebar-menu.vsm_white-theme .vsm--link {
   color: #000 !important;
 }
+
 .v-sidebar-menu.vsm_white-theme .vsm--link_level-1 .vsm--link:hover {
   color: #000 !important;
   background: #905ab0 !important;
 }
+
 .v-sidebar-menu.vsm_white-theme .vsm--link_level-1 .vsm--icon {
   background-color: transparent !important;
   color: #000 !important;
@@ -298,9 +266,11 @@ export default {
   components: { HfButtons },
   computed: {
     ...mapGetters("playgroundStore", ["userDetails", "getSelectedOrg"]),
+    ...mapGetters("mainStore", ["getSelectedService"]),
     ...mapState({
       showMainSideNavBar: (state) => state.mainStore.showMainSideNavBar,
       selectedDashboard: (state) => state.globalStore.selectedDashboard,
+      appList: (state) => state.mainStore.appList,
     }),
     selectedOrg() {
       return this.getSelectedOrg;
@@ -377,7 +347,7 @@ export default {
       }
     },
     getProfileIcon(name) {
-      return "https://api.dicebear.com/7.x/identicon/svg?seed="+name;
+      return "https://api.dicebear.com/7.x/identicon/svg?seed=" + name;
     },
     logoutAll() {
       this.showIcon = false;
@@ -398,7 +368,7 @@ export default {
       if (this.authToken) {
         this.showIcon = true;
         // TODO: This should only execute when playground is selected, otherwise not...
-        this.fetchAllOrgs();
+        //this.fetchAllOrgs();
 
         this.fetchAppsListFromServer();
         this.fetchServicesList()
@@ -408,33 +378,35 @@ export default {
     },
 
     getSideMenu() {
+
       const menu = [
         {
-          href: "/studio/playground/dashboard",
+          href: "/studio/dashboard",
           title: "Dashboard",
           icon: "fas fa-tachometer-alt",
         },
-        {
-          href: "/studio/playground/schema",
-          title: "Schema",
-          icon: "fa fa-table",
-        },
-        {
-          href: "/studio/playground/credential",
-          title: "Credentials",
-          icon: "fa fa-id-card",
-        },
-        {
-          href: "/studio/playground/presentation",
-          title: "Presentation",
-          icon: "fa fa-desktop",
-        },
-        {
-          href: "/studio/playground/presentation/verify",
-          title: "Verification",
-          icon: "fa fa-check",
-        },
       ];
+
+      if (this.getSelectedService) {
+        console.log(this.getSelectedService)
+        if (this.getSelectedService.services.length > 0) {
+          const id = this.getSelectedService.services[0].id
+          if (id == 'CAVACH_API') {
+            menu.push({
+              href: "/studio/sessions/" + this.getSelectedService.appId,
+              title: "Credentials",
+              icon: "fa fa-id-card",
+            })
+          } else if (id == 'SSI_API') {
+            menu.push({
+              href: "/studio/did/" + this.getSelectedService.appId,
+              title: "DIDs",
+              icon: "fa fa-id-badge",
+            },
+            )
+          }
+        }
+      }
       return menu;
     },
 

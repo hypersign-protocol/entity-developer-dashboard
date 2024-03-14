@@ -1,9 +1,9 @@
 <template>
-   <div class="home">
-     <h2>Hi {{ user.name ? user.name.split(' ')[0]: ""}}, Welcome to SSI Playground !</h2>
-     <Metrics/>
-     <org-sidebar/>
-   </div>
+  <div class="home">
+    <h2>Hi {{ user.name ? user.name.split(' ')[0] : "" }}, Welcome to SSI Playground !</h2>
+    <Metrics />
+    <org-sidebar />
+  </div>
 </template>
 
 
@@ -15,7 +15,7 @@ import EventBus from '../../eventbus';
 import { mapMutations } from 'vuex';
 export default {
   name: "playgroundDashboard",
-  components: { 
+  components: {
     Dashboard,
     Metrics,
     OrgSidebar,
@@ -29,7 +29,7 @@ export default {
     };
   },
   created() {
-   this.setSelectedDashboard(this.$config.DashboardTypes.SSIPlayground)
+    this.setSelectedDashboard(this.$config.DashboardTypes.SSIPlayground)
     const usrStr = localStorage.getItem('user')
     this.user = JSON.parse(usrStr);
     this.updateSideNavStatus(false)
@@ -43,17 +43,17 @@ export default {
     gotosubpage(id) {
       this.$router.push(`${id}`);
     },
-    logout(){
+    logout() {
       localStorage.removeItem('authToken')
       localStorage.removeItem('user')
       localStorage.removeItem("credentials")
       localStorage.removeItem("userData")
-      
-      if(this.$route.params.nextUrl != null){
-                    this.$router.push(this.$route.params.nextUrl)
-                }else{
+
+      if (this.$route.params.nextUrl != null) {
+        this.$router.push(this.$route.params.nextUrl)
+      } else {
         this.$router.push('/login')
-                }
+      }
     },
   },
 };
