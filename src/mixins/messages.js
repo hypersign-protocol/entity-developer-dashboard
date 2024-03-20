@@ -6,7 +6,7 @@ const ORGANIZATION = {
 }
 
 const APPLICATION = {
-    INVALID_APP_NAME: "Please enter a valid application name",
+    INVALID_APP_NAME: "Please enter a valid Service name",
     APP_CREATE_SUCCESS: "App created successfully",
     APP_UPDATE_SUCCESS: "App updated successfully",
     APP_NEW_SECRET_KEY_SUCCESS: "API secret key is generated successfully",
@@ -14,8 +14,8 @@ const APPLICATION = {
     CHAR_LESS_APP_NAME: "App name cannot be less than 5 characters",
     CHAR_EXCEED_APP_DES: "Description cannot be greater than 100 characters",
     CHAR_LESS_APP_DES: "Description can not be less than 20 characters",
-    VALID_ID: "Enter Valid Application Id",
-    ENTER_APP_ID: "Enter Application Id",
+    VALID_ID: "Enter Valid Service Id",
+    ENTER_APP_ID: "Enter Service Id",
     INVALID_CORS: "Invalid origins values, use valid url or *",
     DUPLICATE_ORIGIN_VALUES: "Duplicate origin values are not allowed",
     SSI_SERVICE_NOT_SELECTED: "Kindly select a SSI service to create KYC service"

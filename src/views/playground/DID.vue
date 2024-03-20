@@ -141,7 +141,7 @@ h5 span {
             <div class="form-group">
               <tool-tip infoMessage="Name of the schema"></tool-tip>
               <label for="schemaName"><strong>Name<span style="color: red">*</span>:</strong></label>
-              <input type="text" class="form-control" id="schemaName" v-model="did.name"
+              <input type="text" class="form-control" id="schemaName" v-model="did.options.name"
                 aria-describedby="schemaNameHelp" placeholder="Enter a name for this did">
             </div>
 
@@ -213,6 +213,7 @@ h5 span {
             <tr>
               <!-- <th class="sticky-header">Name</th> -->
               <th class="sticky-header">DID Id</th>
+              <th class="sticky-header">Name</th>
               <th class="sticky-header">Linked Keys</th>
               <th class="sticky-header">Status</th>
               <th class="sticky-header">Action</th>
@@ -222,6 +223,7 @@ h5 span {
             <tr v-for="row in didList" :key="row">
               <!-- <td>Comdex Issuer Id</td> -->
               <td>{{ row.did }}</td>
+              <td>{{ row.name }}</td>
               <td>
                 <div>
                   <span style="float:left" class="badge badge-info"
@@ -320,7 +322,8 @@ export default {
           verificationRelationships: [
             { text: "assertionMethod", value: "assertionMethod" },
             { text: "authentication", value: "authentication" },
-          ]
+          ],
+          name: ""
         }
       },
     }

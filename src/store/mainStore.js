@@ -398,7 +398,8 @@ const mainStore = {
                                 const data = {
                                     did: payload,
                                     didDocument: json.didDocument,
-                                    status: Object.keys(json.didDocumentMetadata).length > 0 ? 'Registered' : 'Created'
+                                    status: Object.keys(json.didDocumentMetadata).length > 0 ? 'Registered' : 'Created',
+                                    name: json.name
                                 }
                                 commit('updateADID', data);
                                 resolve()

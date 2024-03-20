@@ -71,7 +71,7 @@
           no longer be valid.
         </p>
         <input type="text" class="form-control" id="appId" v-model="appIdToGenerateSecret"
-          aria-describedby="selected App Id" placeholder="Enter Application Id" />
+          aria-describedby="selected App Id" placeholder="Enter Service Id" />
         <div class="text-center mt-3">
           <hf-buttons name="Continue" class="btn btn-primary text-center"
             @executeAction="reGenerateSecretKey"></hf-buttons>
