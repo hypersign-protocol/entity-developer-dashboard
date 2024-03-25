@@ -266,11 +266,15 @@ const mainStore = {
             })
         },
 
-        generateAPISecretKey: (payload) => {
+
+
+
+        // eslint-disable-next-line 
+        generateAPISecretKey: ({ commit }, payload) => {
             return new Promise((resolve, reject) => {
                 const { appId } = payload;
                 if (!appId) {
-                    reject(new Error(`appId is not specified`))
+                    return reject(new Error(`appId is not specified`))
                 }
                 const url = `${apiServerBaseUrl}/app/${appId}/secret/new`;
 
@@ -284,11 +288,11 @@ const mainStore = {
                     .then(json => {
 
                         if (json.error) {
-                            reject(json)
+                            return reject(json)
                         }
                         resolve(json)
                     }).catch((e) => {
-                        reject(new Error(`while generating new secret key app  ${e}`))
+                        return reject(new Error(`while generating new secret key app  ${e}`))
                     })
             })
         },

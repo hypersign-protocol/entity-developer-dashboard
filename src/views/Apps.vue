@@ -216,6 +216,7 @@
           <hf-buttons name="Save" @executeAction="createAnApp()"></hf-buttons>
         </div>
       </div>
+
     </StudioSideBar>
 
     <div v-if="appList.length > 0" class="mt-2">
@@ -296,10 +297,10 @@
         <b-tab :title="'KYC (' + getAppsWithKYCServices.length + ')'" v-if="getAppsWithKYCServices.length > 0">
           <div class="scroll row">
             <div class="col-md-4 mb-4" v-for="eachOrg in getAppsWithKYCServices" :key="eachOrg.appId">
-              <!-- <div class="card bg-gradient-primary" 
+              <div class="card bg-gradient-primary" 
                 @click="switchOrg(eachOrg.appId, 'CAVACH_API')"
                 style="cursor: grab">
-                 -->
+                
 
               <div class="card bg-gradient-primary" style="cursor: grab">
 
@@ -314,11 +315,11 @@
                   <div class="row mt-2">
                     <div class="col-md-8">
                       <span class="card-text">{{
-      truncate(
-        eachOrg.description || "No description for this app..",
-        41
-      )
-    }}
+                    truncate(
+                      eachOrg.description || "No description for this app..",
+                      41
+                    )
+                  }}
                       </span>
                     </div>
                     <div class="col-md-4">
@@ -368,6 +369,7 @@
                     </div>
                   </div>
                 </div>
+              </div>
               </div>
             </div>
           </div>
@@ -859,7 +861,6 @@ export default {
     },
     openSecretkeyPopUp(appId) {
       this.appIdToGenerateSecret = "";
-      this.selectedAppId = "";
       this.apiKeySecret = "";
       this.selectedAppId = appId;
       this.$root.$emit("bv::show::modal", "entity-secret-confirmation-popup");
@@ -868,6 +869,7 @@ export default {
       if (this.appIdToGenerateSecret === "") {
         return this.notifyErr(messages.APPLICATION.ENTER_APP_ID);
       }
+
       if (this.appIdToGenerateSecret !== this.selectedAppId) {
         return this.notifyErr(messages.APPLICATION.VALID_ID);
       }

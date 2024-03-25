@@ -404,7 +404,7 @@ export default {
     },
 
 
-    checkIfDomainIsVerified(didDocument)
+    checkIfDomainIsVerified(didDocument){
       if(didDocument){
         if(didDocument.service.length > 0){
           const linkedDomainServices = didDocument.service.filter(service => service.type == "LinkedDomains")
