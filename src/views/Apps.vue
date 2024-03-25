@@ -172,7 +172,7 @@
           <tool-tip infoMessage="Select a service you want to associate with this app"></tool-tip>
           <label for="selectService"><strong>Select Service<span style="color: red">*</span>: </strong></label>
           <select class="custom-select" id="selectService" v-model="selectedServiceId">
-            <option :value="eachService.id" v-for="eachService in selectServicesOptions">{{ eachService.name }}</option>
+            <option :value="eachService.id" v-for="eachService in selectServicesOptions" v-bind:key="eachService.id">{{ eachService.name }}</option>
           </select>
           <small>{{ serviceDescrition }}</small>
         </div>
@@ -184,7 +184,7 @@
             <option value="" disabled>
               Select a service
             </option>
-            <option :value="eachSSIApp.appId" v-for="eachSSIApp in getAppsWithSSIServices">
+            <option :value="eachSSIApp.appId" v-for="eachSSIApp in getAppsWithSSIServices"  v-bind:key="eachSSIApp.appId">
               <div>{{ eachSSIApp.appName }} ( {{ eachSSIApp.appId }} ) </div>
             </option>
           </select>
@@ -552,6 +552,7 @@ import { mapGetters, mapState, mapActions, mapMutations } from "vuex";
 import HfFlashNotification from "../components/element/HfFlashNotification.vue";
 import { sanitizeUrl } from '../utils/common'
 export default {
+  name: "AppList",
   computed: {
     ...mapState({
       appList: (state) => state.mainStore.appList,
@@ -583,6 +584,8 @@ export default {
           }
         }
         return sanitizeUrl(this.appModel.tenantUrl)
+      } else {
+        return ""
       }
     },
   },

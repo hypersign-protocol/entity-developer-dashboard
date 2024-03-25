@@ -105,7 +105,7 @@
                       ></hf-select-drop-down> -->
 
 
-                      <multiselect
+                      <multiSelect
                         v-model="selectedSchemIdsInMultiSelect"
                         placeholder="Search or select schema (s)"
                         label="text"

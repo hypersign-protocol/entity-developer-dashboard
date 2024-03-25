@@ -57,7 +57,7 @@ import Apps from "./Apps.vue";
 import { mapMutations } from "vuex";
 
 export default {
-  name: "dashboard",
+  name: "DashBoard",
   components: {
     Apps,
   },

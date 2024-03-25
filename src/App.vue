@@ -260,10 +260,8 @@
 <script>
 import UtilsMixin from "./mixins/utils";
 import EventBus from "./eventbus";
-import HfButtons from "./components/element/HfButtons.vue";
 import { mapActions, mapMutations, mapGetters, mapState } from "vuex";
 export default {
-  components: { HfButtons },
   computed: {
     ...mapGetters("playgroundStore", ["userDetails", "getSelectedOrg"]),
     ...mapGetters("mainStore", ["getSelectedService"]),
