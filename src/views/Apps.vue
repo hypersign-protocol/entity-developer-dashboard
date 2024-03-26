@@ -654,7 +654,10 @@ export default {
           break;
         }
         case 'CAVACH_API': {
-          this.$router.push({ name: "playgroundCredential", params: { appId } });
+          // Remo this once  this feature is complet
+          this.notifyErr('Feature coming soon..')
+          //this.$router.push({ name: "playgroundCredential", params: { appId } });
+
           break;
         }
         default: {

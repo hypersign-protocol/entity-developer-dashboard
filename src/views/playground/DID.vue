@@ -242,14 +242,6 @@ h5 span {
                 <span><i class="fa fa-eye" aria-hidden="true"></i></span>
                 
                 <span v-if="!checkIfDomainIsVerified(row.didDocument)" @click="linkDomain(row)" class="ml-2" style="cursor:grab"><i class="fa fa-link"></i></span>
-
-
-                <!-- <button v-if="!(row.status == 'Registered')" class="badge badge-info"
-                  @click="registerDidDoc(row.didDocument, row.didDocument.verificationMethod[0].id)"
-                  style="margin-left: 5px; cursor: grab;">
-                  <span><i class="fa fa-check" aria-hidden="true"></i></span>
-                </button> -->
-
               </td>
             </tr>
           </tbody>
@@ -398,9 +390,12 @@ export default {
     ...mapMutations('playgroundStore', ['updateSideNavStatus', 'shiftContainer']),
 
     linkDomain(row) {
+      // remove this once this feature is complete
+      this.notifyErr("Feature coming soon");
+    
       this.domainDID = row.did;
       this.domainDIDDocument = row.didDocument
-      this.$root.$emit("bv::show::modal", "link-domain");
+      // this.$root.$emit("bv::show::modal", "link-domain");
     },
 
 
