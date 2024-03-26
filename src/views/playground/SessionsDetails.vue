@@ -125,14 +125,26 @@ ul.timeline>li:before {
   height: 20px;
   z-index: 400;
 }
+
+.container {
+    max-width: 1446px;
+}
+
 </style>
 <template>
   <div :class="isContainerShift ? 'homeShift' : 'home'">
     <loading :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loading>
 
+  
     <div class="row">
-      <h4>Session > {{ sessionId }}</h4>
+      <div class="col-md-12" style="text-align: left">
+        <div class="form-group" style="display:flex">
+          <h3 class="mt-4" style="text-align: left;">
+            <a href="#">Verifications</a> <i class="fa fa-angle-double-right" aria-hidden="true"></i> {{sessionId }} </h3>
+        </div>
+      </div>
     </div>
+
 
     <div class="row">
       <div class="col-md-12">
@@ -157,7 +169,7 @@ ul.timeline>li:before {
     </div>
 
 
-    <div class="row">
+    <div class="row"  v-if="session.selfiDetails && Object.keys(session.selfiDetails).length > 0">
       <div class="col-md-12">
 
         <!-- Face Verification -->
@@ -166,7 +178,7 @@ ul.timeline>li:before {
           <div class="card-header" style="padding: 10px">
             <h4>Face Verification</h4>
           </div>
-          <div class="card-body" v-if="session.selfiDetails && Object.keys(session.selfiDetails).length > 0">
+          <div class="card-body">
             <div class="row">
               <div class="col-md-5 centered-container" style="">
                 <span class=""><img style="height:100px;" :src="session.selfiDetails.tokenSelfiImage" /></span>
@@ -191,9 +203,6 @@ ul.timeline>li:before {
                 </div>
               </div>
             </div>
-          </div>
-          <div class="card-body" v-else>
-            <h4>No record found</h4>
           </div>
         </div>
 

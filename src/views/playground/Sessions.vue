@@ -5,7 +5,7 @@
 }
 
 .container {
-  max-width: 1240px;
+  max-width: 1446px;
 }
 
 .UI--c-kbgiPT-iehgGlf-css {
@@ -124,6 +124,17 @@ h5 span {
 <template>
   <div :class="isContainerShift ? 'homeShift' : 'home'">
     <loading :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loading>
+
+    <div class="row">
+      <div class="col-md-12" style="text-align: left">
+        <div class="form-group" style="display:flex">
+          <h3 v-if="sessionList.length > 0" class="mt-4" style="text-align: left;">
+            Verifications</h3>
+          <h3 v-else class="mt-4" style="text-align: left;">No verification found!</h3>
+        </div>
+      </div>
+    </div>
+
 
     <div class="row scrollit" style="margin-top: 2%;" v-if="sessionList.length > 0">
       <div class="col-md-12">
