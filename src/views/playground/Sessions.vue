@@ -150,7 +150,7 @@ h5 span {
             </tr>
           </thead>
           <tbody>
-            <tr v-for="row in sessionList" :key="row._id">
+            <tr v-for="row in sessionList" :key="row._id"  @click="viewSessionDetails(row.sessionId)" style="cursor: pointer">
               <td>
                 {{ row.createdAt ? new Date(row.createdAt).toLocaleString('en-us') : "-" }}
               </td>

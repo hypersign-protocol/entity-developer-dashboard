@@ -140,7 +140,8 @@ ul.timeline>li:before {
       <div class="col-md-12" style="text-align: left">
         <div class="form-group" style="display:flex">
           <h3 class="mt-4" style="text-align: left;">
-            <a href="#">Verifications</a> <i class="fa fa-angle-double-right" aria-hidden="true"></i> {{sessionId }} </h3>
+            
+            <a @click="$router.go(-1)" href="#">Verifications</a> <i class="fa fa-angle-double-right" aria-hidden="true"></i> {{sessionId }} </h3>
         </div>
       </div>
     </div>
