@@ -47,6 +47,11 @@
 
 .container-collapsed {
   margin-left: 15em;
+
+}
+
+.container{
+  max-width: 1446px
 }
 
 .far {
@@ -392,8 +397,8 @@ export default {
           if (id == 'CAVACH_API') {
             menu.push({
               href: "/studio/sessions/" + this.getSelectedService.appId,
-              title: "Credentials",
-              icon: "fa fa-id-card",
+              title: "Verifications",
+              icon: "fa fa-check",
             })
           } else if (id == 'SSI_API') {
             menu.push({

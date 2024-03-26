@@ -150,7 +150,7 @@ h5 span {
             </tr>
           </thead>
           <tbody>
-            <tr v-for="row in sessionList" :key="row._id"  @click="viewSessionDetails(row.sessionId)" style="cursor: pointer">
+            <tr v-for="row in sessionList" v-bind:key="row._id"  @click="viewSessionDetails(row.sessionId)" style="cursor: pointer">
               <td>
                 {{ row.createdAt ? new Date(row.createdAt).toLocaleString('en-us') : "-" }}
               </td>
@@ -267,14 +267,20 @@ export default {
       isLoading: false,
     }
   },
-  created() {
-    const usrStr = localStorage.getItem("user");
-    this.user = JSON.parse(usrStr);
-    this.updateSideNavStatus(true)
+  async created() {
+    try{
+      const usrStr = localStorage.getItem("user");
+      this.user = JSON.parse(usrStr);
+      this.updateSideNavStatus(true)
 
-    console.log(this.$route.params.appId)
-    // appId
-    this.fetchAppsUsersSessions({ appId: "" })
+      // appId
+      this.isLoading = true
+      await this.fetchAppsUsersSessions({ appId: "" })
+      this.isLoading = false
+    }catch(e){
+      this.isLoading = false
+      this.notifyErr(e)
+    }
   },
   beforeRouteEnter(to, from, next) {
     next((vm) => {

@@ -9,7 +9,7 @@
           </h3>
         </div>
         <div class="col-md-6">
-          <hf-buttons name="+ Create" class="ml-auto " @executeAction="openSlider('SSI_API')" style="float: right;">
+          <hf-buttons name=" Create" iconClass="fa fa-plus" class="ml-auto " @executeAction="openSlider('SSI_API')" style="float: right;">
           </hf-buttons>
         </div>
 
@@ -27,7 +27,7 @@
               <p class="card-text">Spin up your self-sovereign identity and establish your issuer node. Take charge of
                 your digital presence, ensuring privacy and security while managing and sharing your identity
                 credentials. </p>
-              <hf-buttons name="+ Create" style="text-align: right" class="ml-auto "
+              <hf-buttons name=" Create" iconClass="fa fa-plus" style="text-align: right" class="ml-auto "
                 @executeAction="openSlider('SSI_API')">
               </hf-buttons>
             </div>
@@ -40,7 +40,7 @@
               <p class="card-text">Take the hassle out of onboarding
                 while prioritizing data integrity and user control. Welcome to the next level of KYC with self-sovereign
                 identity.</p>
-              <hf-buttons name="+ Create" style="text-align: right" class="ml-auto mt-4"
+              <hf-buttons name=" Create" iconClass="fa fa-plus" style="text-align: right" class="ml-auto mt-4"
                 @executeAction="openSlider('CAVACH_API')">
               </hf-buttons>
             </div>
@@ -54,7 +54,7 @@
               <h5 class="card-title">EDV Service</h5>
               <p class="card-text">Easily spin up your encrypted data vault, leveraging the strength of decentralized
                 identity to safeguard your sensitive information. </p>
-              <hf-buttons name="+ Create" style="text-align: right" class="ml-auto mt-4"
+              <hf-buttons name=" Create" iconClass="fa fa-plus" style="text-align: right" class="ml-auto mt-4"
                 @executeAction="openSlider('EDV_API')" disabled>
               </hf-buttons>
             </div>
@@ -210,10 +210,10 @@
 
 
         <div class="form-group" v-if="edit">
-          <hf-buttons name="Update" class="btn btn-primary" @executeAction="updateAnAppAPIServer()"></hf-buttons>
+          <hf-buttons name="Update"  iconClass="fa fa-bookmark" class="btn btn-primary" @executeAction="updateAnAppAPIServer()"></hf-buttons>
         </div>
         <div class="form-group" v-else>
-          <hf-buttons name="Save" @executeAction="createAnApp()"></hf-buttons>
+          <hf-buttons name="Save" iconClass="fa fa-bookmark" @executeAction="createAnApp()"></hf-buttons>
         </div>
       </div>
 
@@ -560,7 +560,7 @@ export default {
       appList: (state) => state.mainStore.appList,
       totalAppCount: (state) => state.mainStore.totalAppCount,
     }),
-    ...mapGetters("mainStore", ["getAppByAppId", "getAllServices", "getServiceById", 'getAppsWithSSIServices', 'getAppsWithKYCServices']),
+    ...mapGetters("mainStore", ["getAppByAppId", "getAllServices", "getServiceById", 'getAppsWithSSIServices', 'getAppsWithKYCServices', 'getUserAccessList']),
 
     pages() {
       return Math.ceil(parseInt(this.totalAppCount) / 10);
@@ -654,10 +654,22 @@ export default {
           break;
         }
         case 'CAVACH_API': {
-          // Remo this once  this feature is complet
-          this.notifyErr('Feature coming soon..')
-          //this.$router.push({ name: "playgroundCredential", params: { appId } });
-
+          // // Remo this once  this feature is complet
+          // this.notifyErr('Feature coming soon..')
+          const accessList = this.getUserAccessList('CAVACH_API')
+          if(accessList && accessList.length > 0) {
+            const allAccess = accessList.find(x => x.access == 'ALL')
+            if(!allAccess){
+              // Check if he has dashboard access
+              const readSessionAccess = accessList.find(x => x.access == 'READ_SESSION')
+              if(!readSessionAccess){
+                return this.notifyErr('You do not have access to KYC dashboard, kindly contact the admin 2')
+              }
+            }
+            this.$router.push({ name: "playgroundCredential", params: { appId } });
+          } else {
+            return this.notifyErr('You do not have access to KYC dashboard, kindly contact the admin 1')
+          }
           break;
         }
         default: {

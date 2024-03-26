@@ -47,6 +47,16 @@ const mainStore = {
         getSelectedService: (state) => {
             return state.appList.find(x => x.appId === state.selectedServiceId)
         },
+
+        // eslint-disable-next-line 
+        getUserAccessList: (state) => (service) => {
+            const user = localStorage.getItem('user')
+            if (user) {
+                const userParse = JSON.parse(user)
+                const { userAccessList } = userParse;
+                return userAccessList ? userAccessList.filter(access => access.serviceType === service) : []
+            }
+        }
     },
     mutations: {
         setMainSideNavBar: (state, payload) => {
@@ -80,9 +90,7 @@ const mainStore = {
 
         updateSessionDetails(state, payload) {
             const sessionIndexToUpdate = state.sessionList.findIndex(x => x.sessionId = payload.sessionId)
-            console.log({ sessionIndexToUpdate });
             if (sessionIndexToUpdate > -1) {
-                console.log('updating sessionList')
                 state.sessionList[sessionIndexToUpdate] = payload
             } else {
                 state.sessionList.unshift(payload)
@@ -310,6 +318,7 @@ const mainStore = {
                         return reject(json)
                     }
                     commit('insertSessions', json.sessionDetails);
+                    resolve()
                 }).catch((e) => {
                     return reject(`Error while fetching apps ` + e.message);
                 })
