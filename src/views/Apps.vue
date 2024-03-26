@@ -71,7 +71,7 @@
           no longer be valid.
         </p>
         <input type="text" class="form-control" id="appId" v-model="appIdToGenerateSecret"
-          aria-describedby="selected App Id" placeholder="Enter Application Id" />
+          aria-describedby="selected App Id" placeholder="Enter Service Id" />
         <div class="text-center mt-3">
           <hf-buttons name="Continue" class="btn btn-primary text-center"
             @executeAction="reGenerateSecretKey"></hf-buttons>
@@ -172,7 +172,7 @@
           <tool-tip infoMessage="Select a service you want to associate with this app"></tool-tip>
           <label for="selectService"><strong>Select Service<span style="color: red">*</span>: </strong></label>
           <select class="custom-select" id="selectService" v-model="selectedServiceId">
-            <option :value="eachService.id" v-for="eachService in selectServicesOptions">{{ eachService.name }}</option>
+            <option :value="eachService.id" v-for="eachService in selectServicesOptions" v-bind:key="eachService.id">{{ eachService.name }}</option>
           </select>
           <small>{{ serviceDescrition }}</small>
         </div>
@@ -184,7 +184,7 @@
             <option value="" disabled>
               Select a service
             </option>
-            <option :value="eachSSIApp.appId" v-for="eachSSIApp in getAppsWithSSIServices">
+            <option :value="eachSSIApp.appId" v-for="eachSSIApp in getAppsWithSSIServices"  v-bind:key="eachSSIApp.appId">
               <div>{{ eachSSIApp.appName }} ( {{ eachSSIApp.appId }} ) </div>
             </option>
           </select>
@@ -216,6 +216,7 @@
           <hf-buttons name="Save" @executeAction="createAnApp()"></hf-buttons>
         </div>
       </div>
+
     </StudioSideBar>
 
     <div v-if="appList.length > 0" class="mt-2">
@@ -296,10 +297,10 @@
         <b-tab :title="'KYC (' + getAppsWithKYCServices.length + ')'" v-if="getAppsWithKYCServices.length > 0">
           <div class="scroll row">
             <div class="col-md-4 mb-4" v-for="eachOrg in getAppsWithKYCServices" :key="eachOrg.appId">
-              <!-- <div class="card bg-gradient-primary" 
+              <div class="card bg-gradient-primary" 
                 @click="switchOrg(eachOrg.appId, 'CAVACH_API')"
                 style="cursor: grab">
-                 -->
+                
 
               <div class="card bg-gradient-primary" style="cursor: grab">
 
@@ -314,11 +315,11 @@
                   <div class="row mt-2">
                     <div class="col-md-8">
                       <span class="card-text">{{
-      truncate(
-        eachOrg.description || "No description for this app..",
-        41
-      )
-    }}
+                    truncate(
+                      eachOrg.description || "No description for this app..",
+                      41
+                    )
+                  }}
                       </span>
                     </div>
                     <div class="col-md-4">
@@ -368,6 +369,7 @@
                     </div>
                   </div>
                 </div>
+              </div>
               </div>
             </div>
           </div>
@@ -552,6 +554,7 @@ import { mapGetters, mapState, mapActions, mapMutations } from "vuex";
 import HfFlashNotification from "../components/element/HfFlashNotification.vue";
 import { sanitizeUrl } from '../utils/common'
 export default {
+  name: "AppList",
   computed: {
     ...mapState({
       appList: (state) => state.mainStore.appList,
@@ -583,6 +586,8 @@ export default {
           }
         }
         return sanitizeUrl(this.appModel.tenantUrl)
+      } else {
+        return ""
       }
     },
   },
@@ -649,7 +654,10 @@ export default {
           break;
         }
         case 'CAVACH_API': {
-          this.$router.push({ name: "playgroundCredential", params: { appId } });
+          // Remo this once  this feature is complet
+          this.notifyErr('Feature coming soon..')
+          //this.$router.push({ name: "playgroundCredential", params: { appId } });
+
           break;
         }
         default: {
@@ -856,7 +864,6 @@ export default {
     },
     openSecretkeyPopUp(appId) {
       this.appIdToGenerateSecret = "";
-      this.selectedAppId = "";
       this.apiKeySecret = "";
       this.selectedAppId = appId;
       this.$root.$emit("bv::show::modal", "entity-secret-confirmation-popup");
@@ -865,6 +872,7 @@ export default {
       if (this.appIdToGenerateSecret === "") {
         return this.notifyErr(messages.APPLICATION.ENTER_APP_ID);
       }
+
       if (this.appIdToGenerateSecret !== this.selectedAppId) {
         return this.notifyErr(messages.APPLICATION.VALID_ID);
       }

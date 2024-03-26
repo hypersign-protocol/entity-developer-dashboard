@@ -110,7 +110,7 @@ const mainStore = {
     },
     actions: {
 
-        login: ({ commit }, payload) => {
+        login: () => {
             console.log('Inside action login')
             return new Promise((resolve, reject) => {
                 const url = `${apiServerBaseUrl}/sa/login`;
@@ -196,15 +196,16 @@ const mainStore = {
 
         },
         fetchAppsListFromServer: ({ commit, dispatch }) => {
+
             // TODO: Get list of orgs 
             const url = `${apiServerBaseUrl}/app`;
             // TODO: // use proper authToken
             const headers = UtilsMixin.methods.getHeader(localStorage.getItem('authToken'));
-            fetch(url, {
+            return fetch(url, {
                 headers
             }).then(response => response.json()).then(json => {
                 if (json.error) {
-                    reject(json)
+                    throw new Error(json)
                 }
                 commit('insertAllApps', json);
                 json.data.map(x => {
@@ -216,6 +217,7 @@ const mainStore = {
             }).catch((e) => {
                 console.error(`Error while fetching apps ` + e.message);
             })
+
         },
 
         keepAccessTokenReadyForApp: ({ commit, getters }, payload) => {
@@ -255,7 +257,7 @@ const mainStore = {
                 headers
             }).then(response => response.json()).then(json => {
                 if (json.error) {
-                    reject(json)
+                    throw new Error(json)
                 }
                 console.log(json)
                 commit('insertAllServices', json);
@@ -264,11 +266,15 @@ const mainStore = {
             })
         },
 
+
+
+
+        // eslint-disable-next-line 
         generateAPISecretKey: ({ commit }, payload) => {
             return new Promise((resolve, reject) => {
                 const { appId } = payload;
                 if (!appId) {
-                    reject(new Error(`appId is not specified`))
+                    return reject(new Error(`appId is not specified`))
                 }
                 const url = `${apiServerBaseUrl}/app/${appId}/secret/new`;
 
@@ -282,16 +288,16 @@ const mainStore = {
                     .then(json => {
 
                         if (json.error) {
-                            reject(json)
+                            return reject(json)
                         }
                         resolve(json)
                     }).catch((e) => {
-                        reject(new Error(`while generating new secret key app  ${e}`))
+                        return reject(new Error(`while generating new secret key app  ${e}`))
                     })
             })
         },
 
-        fetchAppsUsersSessions: ({ commit, getters }, payload) => {
+        fetchAppsUsersSessions: ({ commit, getters }) => {
             return new Promise((resolve, reject) => {
                 const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/session`;
                 const authToken = getters.getSelectedService.access_token //'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHBJZCI6IjA3ZjE4Zjg2MTk0MmRmNzM2NDQzZmM0MDg1MDUwMTliMDYwMSIsInVzZXJJZCI6ImI2ZDQyMWNkLThkNGQtNDhmZC05ZTQ4LTA0NjQ0MWM0M2RhNCIsImdyYW50VHlwZSI6ImNsaWVudF9jcmVkZW50aWFscyIsImttc0lkIjoiaHM6ZG9jOmpuZm05ZzV6bzNmLXhqN3hiN3c4cGNybHFrN2lhZWpxem52N2NkbnpiZm8iLCJ3aGl0ZWxpc3RlZENvcnMiOlsiKiJdLCJzdWJkb21haW4iOiJlbnQtMGIyMmRiOSIsImVkdklkIjoiaHM6ZGV2ZWxvcGVyLWRhc2hib2FyZDphcHA6MDdmMThmODYxOTQyZGY3MzY0NDNmYzQwODUwNTAxOWIwNjAxIiwiaWF0IjoxNzA2ODQ5ODUyLCJleHAiOjE3NjY4NjQyNzJ9.4hhaA9UP3nZ2bI4TiRXrjLqXYZVeqKvJG9BUHWH515g'
@@ -333,7 +339,7 @@ const mainStore = {
         },
 
         // --- SSI
-        fetchDIDsForAService({ commit, getters, state, dispatch }) {
+        fetchDIDsForAService({ commit, getters, dispatch }) {
             return new Promise(function (resolve, reject) {
                 {
                     const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/did?page=1&limit=10`;
@@ -377,7 +383,7 @@ const mainStore = {
 
         },
 
-        resolveDIDForAService({ commit, getters, state, dispatch }, payload) {
+        resolveDIDForAService({ commit, getters, }, payload) {
             return new Promise(function (resolve, reject) {
                 {
                     const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/did/resolve/${payload}`;
@@ -398,7 +404,8 @@ const mainStore = {
                                 const data = {
                                     did: payload,
                                     didDocument: json.didDocument,
-                                    status: Object.keys(json.didDocumentMetadata).length > 0 ? 'Registered' : 'Created'
+                                    status: Object.keys(json.didDocumentMetadata).length > 0 ? 'Registered' : 'Created',
+                                    name: json.name
                                 }
                                 commit('updateADID', data);
                                 resolve()
@@ -414,7 +421,7 @@ const mainStore = {
 
         },
 
-        createDIDsForAService({ commit, getters, state, dispatch }, payload) {
+        createDIDsForAService({ commit, getters, dispatch }, payload) {
             return new Promise(function (resolve, reject) {
                 {
                     const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/did/create`;
@@ -455,7 +462,7 @@ const mainStore = {
 
         },
 
-        registerDIDsForAService({ commit, getters, state, dispatch }, payload) {
+        registerDIDsForAService({ getters, dispatch }, payload) {
             return new Promise(function (resolve, reject) {
                 const body = {
                     "didDocument": payload.didDocument,
@@ -480,6 +487,44 @@ const mainStore = {
                         .then(json => {
                             if (json) {
                                 dispatch('resolveDIDForAService', json.did)
+                                resolve()
+                            } else {
+                                reject(new Error('Could not register DID for this service'))
+                            }
+                        }).catch(e => {
+                            reject(e)
+                        })
+                }
+            })
+
+        },
+
+        updateDIDsForAService({ getters, }, payload) {
+            return new Promise(function (resolve, reject) {
+                const body = {
+                    "didDocument": payload.didDocument,
+                    "verificationMethodId": payload.verificationMethodId,
+                    "deactivate": payload.deactivate
+                }
+                //fetct all dids
+                {
+                    const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/did/`;
+                    const options = {
+                        method: "PATCH",
+                        body: JSON.stringify(body),
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": `Bearer ${getters.getSelectedService.access_token}`,
+                            "Origin": '*'
+                        }
+                    }
+                    fetch(url, {
+                        ...options
+                    })
+                        .then(response => response.json())
+                        .then(json => {
+                            if (json) {
+                                //dispatch('resolveDIDForAService', json.did)
                                 resolve()
                             } else {
                                 reject(new Error('Could not register DID for this service'))

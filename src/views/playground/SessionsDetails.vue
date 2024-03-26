@@ -371,23 +371,13 @@ ul.timeline>li:before {
 </template>
 
 <script>
-import fetch from "node-fetch";
+
 import UtilsMixin from '../../mixins/utils';
-import HfPopUp from "../../components/element/hfPopup.vue";
 import Loading from "vue-loading-overlay";
-import StudioSideBar from "../../components/element/StudioSideBar.vue";
-import HfButtons from "../../components/element/HfButtons.vue"
-import HfSelectDropDown from "../../components/element/HfSelectDropDown.vue"
-import EventBus from "../../eventbus"
-import ToolTip from "../../components/element/ToolTip.vue"
-import { isEmpty, isValidDid, isValidURL, isFloat } from '../../mixins/fieldValidation'
-import message from '../../mixins/messages'
-import Datepicker from 'vuejs-datetimepicker'
-import VueQr from "vue-qr"
-import { mapState, mapGetters, mapActions, mapMutations } from "vuex";
+import { mapState, mapGetters, mapActions } from "vuex";
 export default {
   name: "sessionDetails",
-  components: { HfPopUp, Loading, StudioSideBar, HfButtons, HfSelectDropDown, ToolTip, Datepicker, VueQr },
+  components: { Loading},
   computed: {
     ...mapGetters('mainStore', ['getSessionDetailsBySessionId']),
     ...mapState({

@@ -104,7 +104,6 @@ h5 span {
 </template>
 
 <script>
-import QrcodeVue from "qrcode.vue";
 import VueQr from "vue-qr";
 import Loading from "vue-loading-overlay";
 import "vue-loading-overlay/dist/vue-loading.css";
@@ -113,7 +112,6 @@ import EventBus from "../../eventbus";
 export default {
   name: "HypersignLogin",
   components: {
-    QrcodeVue,
     Loading,
     VueQr,
   },

@@ -13,7 +13,7 @@ export default {
                 }
             }
         },
-        copyToClip(textToCopy, contentType, isapiKeySecret = false) {
+        copyToClip(textToCopy, contentType) {
             if (textToCopy) {
                 navigator.clipboard
                     .writeText(textToCopy)

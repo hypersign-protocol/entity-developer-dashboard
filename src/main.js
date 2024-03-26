@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import App from './App.vue'
 import router from './router'
-import { BootstrapVue, BootstrapVueIcons} from 'bootstrap-vue'
+import { BootstrapVue, BootstrapVueIcons } from 'bootstrap-vue'
 import Notifications from 'vue-notification'
 import config from './config'
 import VueSidebarMenu from 'vue-sidebar-menu'
@@ -22,7 +22,7 @@ Vue.use(BootstrapVueIcons);
 Vue.use(Notifications)
 Vue.config.devtools = true;
 Vue.prototype.$config = config
-Vue.component("multiselect", Multiselect);
+Vue.component("multiSelect", Multiselect);
 
 new Vue({
   router,

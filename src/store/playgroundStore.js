@@ -264,7 +264,7 @@ const playgroundStore = {
             })
         },
 
-        fetchSchemasForOrg({ commit, getters, state, dispatch }) {
+        fetchSchemasForOrg({ state, dispatch }) {
             state.authToken = localStorage.getItem('authToken');
             // fetch all schemas
             {
@@ -294,7 +294,7 @@ const playgroundStore = {
             }
         },
 
-        fetchCredentialsForOrg({ commit, getters, state, dispatch }) {
+        fetchCredentialsForOrg({ state, dispatch }) {
             state.authToken = localStorage.getItem('authToken');
             //fetct all credentials
             {
@@ -324,7 +324,7 @@ const playgroundStore = {
             }
         },
 
-        fetchTemplatesForOrg({ commit, getters, state, dispatch }) {
+        fetchTemplatesForOrg({ commit, state }) {
             state.authToken = localStorage.getItem('authToken');
             // fetch all templete   
             {

@@ -18,13 +18,10 @@
 
 <script>
 import EventBus from "../../eventbus";
-import HfButtons from "../element/HfButtons.vue";
 
 export default {
     name: "GoogleLogin",
-    components: {
-        HfButtons
-    },
+    
     mounted() {
         const authorizationToken = this.$route.query.token
         if (authorizationToken) {
