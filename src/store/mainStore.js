@@ -307,6 +307,9 @@ const mainStore = {
 
         fetchAppsUsersSessions: ({ commit, getters }) => {
             return new Promise((resolve, reject) => {
+                if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
+                    return reject(new Error('Tenant url is null or empty, service is not selected'))
+                }
                 const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/session`;
                 const authToken = getters.getSelectedService.access_token
                 const headers = UtilsMixin.methods.getHeader(authToken);
@@ -329,6 +332,9 @@ const mainStore = {
         fetchSessionsDetailsById: ({ commit, getters }, payload) => {
             return new Promise((resolve, reject) => {
                 const { sessionId } = payload
+                if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
+                    return reject(new Error('Tenant url is null or empty, service is not selected'))
+                }
                 const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/session/${sessionId}`;
                 const authToken = getters.getSelectedService.access_token
                 const headers = UtilsMixin.methods.getHeader(authToken);
@@ -351,6 +357,9 @@ const mainStore = {
         fetchDIDsForAService({ commit, getters, dispatch }) {
             return new Promise(function (resolve, reject) {
                 {
+                    if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
+                        return reject(new Error('Tenant url is null or empty, service is not selected'))
+                    }
                     const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/did?page=1&limit=10`;
                     const options = {
                         method: "GET",
@@ -395,6 +404,10 @@ const mainStore = {
         resolveDIDForAService({ commit, getters, }, payload) {
             return new Promise(function (resolve, reject) {
                 {
+
+                    if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
+                        return reject(new Error('Tenant url is null or empty, service is not selected'))
+                    }
                     const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/did/resolve/${payload}`;
                     const options = {
                         method: "GET",
@@ -433,6 +446,9 @@ const mainStore = {
         createDIDsForAService({ commit, getters, dispatch }, payload) {
             return new Promise(function (resolve, reject) {
                 {
+                    if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
+                        return reject(new Error('Tenant url is null or empty, service is not selected'))
+                    }
                     const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/did/create`;
                     const options = {
                         method: "POST",
@@ -479,6 +495,9 @@ const mainStore = {
                 }
                 //fetct all dids
                 {
+                    if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
+                        return reject(new Error('Tenant url is null or empty, service is not selected'))
+                    }
                     const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/did/register`;
                     const options = {
                         method: "POST",
@@ -517,6 +536,9 @@ const mainStore = {
                 }
                 //fetct all dids
                 {
+                    if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
+                        return reject(new Error('Tenant url is null or empty, service is not selected'))
+                    }
                     const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/did/`;
                     const options = {
                         method: "PATCH",

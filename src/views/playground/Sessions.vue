@@ -318,9 +318,11 @@ export default {
       this.isLoading = true
       await this.fetchAppsUsersSessions({ appId: "" })
       this.isLoading = false
+      
     }catch(e){
       this.isLoading = false
       this.notifyErr(e)
+      this.$router.push({path: '/studio/dashboard'});
     }
   },
   beforeRouteEnter(to, from, next) {

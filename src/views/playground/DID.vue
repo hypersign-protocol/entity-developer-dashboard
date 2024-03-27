@@ -375,9 +375,9 @@ export default {
       await this.fetchDIDsForAService()
       this.isLoading = false
     } catch (e) {
-      console.error(e)
       this.isLoading = false
-
+      this.notifyErr(e.message)
+      this.$router.push({path: '/studio/dashboard'});
     }
   },
   beforeRouteEnter(to, from, next) {
