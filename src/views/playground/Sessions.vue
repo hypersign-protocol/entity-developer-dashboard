@@ -5,7 +5,7 @@
 }
 
 .container {
-  max-width: 1446px;
+  max-width: 1346px;
 }
 
 .UI--c-kbgiPT-iehgGlf-css {
@@ -266,9 +266,10 @@ h5 span {
                 </span>
               </td>
               <td>
-                <span style="color:green" v-if="row.step_finish == 1"><i class="fa fa-thumbs-up" aria-hidden="true"></i>
-                  Success</span>
-                <span style="color:red" v-else><i class="fa fa-thumbs-down" aria-hidden="true"></i>Expired</span>
+                <span v-html="getStatus(row)"></span>
+                
+                <!-- <span style="color:green" v-if="row.step_finish == 1"><i class="fa fa-thumbs-up" aria-hidden="true"></i>Success</span>
+                <span style="color:red" v-else><i class="fa fa-thumbs-down" aria-hidden="true"></i>Expired</span> -->
               </td>
               <td>
                 <span style="cursor: pointer;" @click="viewSessionDetails(row.sessionId)" title="View"><i
@@ -333,6 +334,36 @@ export default {
   methods: {
     ...mapActions('mainStore', ['fetchAppsUsersSessions']),
     ...mapMutations('playgroundStore', ['updateSideNavStatus', 'shiftContainer']),
+
+    getStatus(sessionDetails){
+      // Sucess, Expired, Pending
+      const { expiresAt, step_finish} = sessionDetails
+      
+      if(step_finish == 1){
+        return '<span class="badge badge-pill badge-success">Success</span>'
+      }
+
+      if(!expiresAt){
+        // Fall back for those record where expiry data not present
+        return '<span class="badge badge-pill badge-danger">Expired<span>'
+      }
+
+      const now = Date.now()
+      const expireDateTime = (new Date(expiresAt)).getTime()
+      let hasExpired = false
+      if(now > expireDateTime) {
+        hasExpired = true;
+      }
+
+      if((step_finish == 0) && hasExpired){
+        return '<span class="badge badge-pill badge-danger">Expired<span>'
+      }
+
+      if((step_finish == 0) && !hasExpired){
+        return '<span class="badge badge-pill badge-warning">Pending<span>'
+      }
+
+    },
 
     async viewSessionDetails(sessionId) {
       console.log(sessionId)
