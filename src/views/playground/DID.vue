@@ -133,7 +133,7 @@ h5 span {
           <h3 v-if="didList.length > 0" class="mt-4" style="text-align: left;">
             Decentralised Identifier</h3>
           <h3 v-else class="mt-4" style="text-align: left;">Create your first decentralised identifier!</h3>
-          <hf-buttons name="+ Create" style="text-align: right;" class="ml-auto mt-4"
+          <hf-buttons name="Create" iconClass="fa fa-plus" style="text-align: right;" class="ml-auto mt-4"
             @executeAction="openSlider()"></hf-buttons>
         </div>
         <StudioSideBar title="Create DID">
