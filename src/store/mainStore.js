@@ -320,7 +320,7 @@ const mainStore = {
                     if (json.error) {
                         return reject(json)
                     }
-                    commit('insertSessions', json.sessionDetails);
+                    commit('insertSessions', json.sessionDetails.reverse());
                     resolve()
                 }).catch((e) => {
                     return reject(`Error while fetching apps ` + e.message);

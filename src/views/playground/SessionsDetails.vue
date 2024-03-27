@@ -127,7 +127,7 @@ ul.timeline>li:before {
 }
 
 .container {
-  max-width: 1346px;
+  width: 80vw;
 }
 
 </style>
