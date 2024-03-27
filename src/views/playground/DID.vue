@@ -5,7 +5,7 @@
 }
 
 .container {
-  max-width: 1446px;
+  width: 80vw;
 }
 
 .UI--c-kbgiPT-iehgGlf-css {
