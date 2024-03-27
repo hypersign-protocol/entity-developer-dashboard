@@ -88,6 +88,35 @@ export default {
         },
         formatDate(dateString) {
             return new Date(dateString).toLocaleString('en-us')
+        },
+        getStatus(sessionDetails) {
+            // Sucess, Expired, Pending
+            const { expiresAt, step_finish } = sessionDetails
+
+            if (step_finish == 1) {
+                return '<span class="badge badge-pill badge-success">Success</span>'
+            }
+
+            if (!expiresAt) {
+                // Fall back for those record where expiry data not present
+                return '<span class="badge badge-pill badge-danger">Expired<span>'
+            }
+
+            const now = Date.now()
+            const expireDateTime = (new Date(expiresAt)).getTime()
+            let hasExpired = false
+            if (now > expireDateTime) {
+                hasExpired = true;
+            }
+
+            if ((step_finish == 0) && hasExpired) {
+                return '<span class="badge badge-pill badge-danger">Expired<span>'
+            }
+
+            if ((step_finish == 0) && !hasExpired) {
+                return '<span class="badge badge-pill badge-warning">Pending<span>'
+            }
+
         }
     }
 }

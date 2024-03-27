@@ -136,7 +136,7 @@ h5 span {
     </div>
 
 
-    <div class="row scrollit" style="margin-top: 2%;" v-if="sessionList.length > 0">
+    <div class="row scrollit" v-if="sessionList.length > 0">
       <div class="col-md-12">
         <table class="table table-hover event-card" style="background:#FFFF">
           <thead class="thead-light">
@@ -146,7 +146,6 @@ h5 span {
               <th class="sticky-header">User Id</th>
               <th class="sticky-header">Steps</th>
               <th class="sticky-header">Status</th>
-              <th class="sticky-header">Action</th>
             </tr>
           </thead>
           <tbody>
@@ -267,13 +266,6 @@ h5 span {
               </td>
               <td>
                 <span v-html="getStatus(row)"></span>
-                
-                <!-- <span style="color:green" v-if="row.step_finish == 1"><i class="fa fa-thumbs-up" aria-hidden="true"></i>Success</span>
-                <span style="color:red" v-else><i class="fa fa-thumbs-down" aria-hidden="true"></i>Expired</span> -->
-              </td>
-              <td>
-                <span style="cursor: pointer;" @click="viewSessionDetails(row.sessionId)" title="View"><i
-                    class="fa fa-eye" aria-hidden="true"></i></span>
               </td>
 
             </tr>
@@ -334,36 +326,6 @@ export default {
   methods: {
     ...mapActions('mainStore', ['fetchAppsUsersSessions']),
     ...mapMutations('playgroundStore', ['updateSideNavStatus', 'shiftContainer']),
-
-    getStatus(sessionDetails){
-      // Sucess, Expired, Pending
-      const { expiresAt, step_finish} = sessionDetails
-      
-      if(step_finish == 1){
-        return '<span class="badge badge-pill badge-success">Success</span>'
-      }
-
-      if(!expiresAt){
-        // Fall back for those record where expiry data not present
-        return '<span class="badge badge-pill badge-danger">Expired<span>'
-      }
-
-      const now = Date.now()
-      const expireDateTime = (new Date(expiresAt)).getTime()
-      let hasExpired = false
-      if(now > expireDateTime) {
-        hasExpired = true;
-      }
-
-      if((step_finish == 0) && hasExpired){
-        return '<span class="badge badge-pill badge-danger">Expired<span>'
-      }
-
-      if((step_finish == 0) && !hasExpired){
-        return '<span class="badge badge-pill badge-warning">Pending<span>'
-      }
-
-    },
 
     async viewSessionDetails(sessionId) {
       console.log(sessionId)

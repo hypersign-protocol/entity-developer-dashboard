@@ -127,7 +127,7 @@ ul.timeline>li:before {
 }
 
 .container {
-    max-width: 1446px;
+  max-width: 1346px;
 }
 
 </style>
@@ -159,9 +159,7 @@ ul.timeline>li:before {
                 <label><strong>UserId:</strong> {{ session ? session.appUserId : "-" }}</label>
               </div>
               <div class="col-md-4" style="text-align: right;">
-                <span style="color:green" v-if="session.step_finish == 1"><i class="fa fa-thumbs-up"
-                    aria-hidden="true"></i> Success</span>
-                <span style="color:red" v-else><i class="fa fa-thumbs-down" aria-hidden="true"></i>Expired</span>
+                <span v-html="getStatus(session)"></span>
               </div>
             </div>
           </div>
@@ -422,7 +420,6 @@ export default {
   async created() {
     this.appId = this.$route.params.appId
     this.sessionId = this.$route.params.sessionId
-    console.log(this.sessionId)
     // this.session = this.getSessionDetailsBySessionId(this.sessionId);
     this.session = await this.fetchSessionsDetailsById({ sessionId: this.sessionId })
   },
