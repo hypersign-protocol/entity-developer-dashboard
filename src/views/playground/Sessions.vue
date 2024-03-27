@@ -17,7 +17,7 @@
 }
 
 .step-finished {
-  background-color: #9cb5f9;
+  background-color: #673ab76e;
 }
 
 
