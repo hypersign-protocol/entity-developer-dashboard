@@ -406,15 +406,15 @@
                             <tbody>
                                 <tr>
                                     <td class="greyFont">Country</td>
-                                    <td style="text-align: right;">{{  this.locationDetails.country }}  <span v-if="this.locationDetails.countryCode"><country-flag :country="this.locationDetails.countryCode" size='normal'/></span></td>
+                                    <td style="text-align: right;">{{  this.locationDetails.country_name }}  <span v-if="this.locationDetails.country_code"><country-flag :country="this.locationDetails.country_code" size='normal'/></span></td>
                                 </tr>
                                 <tr>
                                     <td class="greyFont">Time Zone</td>
-                                    <td style="text-align: right;">{{  this.locationDetails.timezone }}</td>
+                                    <td style="text-align: right;">{{  this.locationDetails.timezones[0] }}</td>
                                 </tr>
                                 <tr>
                                     <td class="greyFont">Region</td>
-                                    <td style="text-align: right;">{{  this.locationDetails.regionName }}</td>
+                                    <td style="text-align: right;">{{  this.locationDetails.region_name }}</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -590,12 +590,12 @@
                 }
 
                 console.log('Before getting location details for ip')
-                const url = 'http://ip-api.com/json/' + ip
+                const url = 'https://api.apilayer.com/ip_to_location/' + ip
                     const resp = await fetch(url, {
                         methods: 'GET',
-                        // headers: {
-                        //     'apikey': 'BiLxYABdIfUL6qwMgBerrLzp9ptXNH8i'
-                        // }
+                        headers: {
+                            'apikey': 'BiLxYABdIfUL6qwMgBerrLzp9ptXNH8i'
+                        }
                     })
                     const json = await resp.json()
 
