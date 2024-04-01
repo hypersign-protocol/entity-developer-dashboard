@@ -346,7 +346,7 @@ const mainStore = {
                         return reject(json)
                     }
                     commit('updateSessionDetails', json);
-                    resolve(json)
+                    return resolve(json)
                 }).catch((e) => {
                     console.error(`Error while fetching apps ` + e.message);
                 })
