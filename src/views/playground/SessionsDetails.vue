@@ -590,7 +590,7 @@
                 }
 
                 console.log('Before getting location details for ip')
-                const url = 'https://api.apilayer.com/ip_to_location/' + ip
+                const url = 'https://api.apilayer.com/ip_to_location/' + ip //
                     const resp = await fetch(url, {
                         methods: 'GET',
                         headers: {
