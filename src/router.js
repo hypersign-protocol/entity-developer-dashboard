@@ -10,6 +10,7 @@ import MainDashboard from './views/Dashboard.vue'
 import Credential from './views/playground/Sessions.vue'
 import CredentialDetails from './views/playground/SessionsDetails.vue'
 import DIDs from './views/playground/DID.vue'
+import UsageS from './views/playground/Usage.vue';
 Vue.use(Router)
 
 const router = new Router({
@@ -68,6 +69,15 @@ const router = new Router({
       meta: {
         requiresAuth: true,
         title: `${config.app.name} - DIDs`
+      }
+    },
+    {
+      path: '/studio/usage/:appId',
+      name: 'UsageS',
+      component: UsageS,
+      meta: {
+        requiresAuth: true,
+        title: `${config.app.name} - Usages`
       }
     },
     {

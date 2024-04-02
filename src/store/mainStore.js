@@ -146,6 +146,7 @@ const mainStore = {
                     })
             })
         },
+
         saveAnAppOnServer: ({ commit }, payload) => {
             return new Promise((resolve, reject) => {
                 const url = `${apiServerBaseUrl}/app`;
@@ -203,6 +204,7 @@ const mainStore = {
             })
 
         },
+
         fetchAppsListFromServer: ({ commit, dispatch }) => {
 
             // TODO: Get list of orgs 
@@ -273,9 +275,6 @@ const mainStore = {
                 console.error(`Error while fetching apps ` + e.message);
             })
         },
-
-
-
 
         // eslint-disable-next-line 
         generateAPISecretKey: ({ commit }, payload) => {
@@ -351,6 +350,24 @@ const mainStore = {
                     console.error(`Error while fetching apps ` + e.message);
                 })
             })
+        },
+
+        async fetchUsageForAService({ getters }, payload) {
+            const { startDate, endDate } = payload
+            if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
+                throw new Error('Tenant url is null or empty, service is not selected')
+            }
+            const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/usage?serviceId=${getters.getSelectedService.appId}&startDate=${startDate}&endDate=${endDate}`;
+            const authToken = getters.getSelectedService.access_token
+            const headers = UtilsMixin.methods.getHeader(authToken);
+            const resp = await fetch(url, {
+                method: 'GET',
+                headers
+            })
+
+            console.log(resp)
+            const json = await resp.json()
+            return json
         },
 
         // --- SSI

@@ -400,6 +400,12 @@ export default {
               title: "Verifications",
               icon: "fa fa-check",
             })
+
+            menu.push({
+              href: "/studio/usage/" + this.getSelectedService.appId,
+              title: "Usages",
+              icon: "fa fa-chart-bar",
+            })
           } else if (id == 'SSI_API') {
             menu.push({
               href: "/studio/did/" + this.getSelectedService.appId,
