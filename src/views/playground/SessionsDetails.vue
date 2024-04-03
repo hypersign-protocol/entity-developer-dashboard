@@ -133,6 +133,10 @@
     .container {
         width: 80vw;
     }
+
+    .dataCard {
+        margin-top: 1%; margin-right: 1%; float: left; padding: 5px;
+    }
 </style>
 <template>
     <div :class="isContainerShift ? 'homeShift' : 'home'">
@@ -157,15 +161,21 @@
                 <div class="card" style="margin-top: 1%;">
                     <div class="card-body">
                         <div class="row">
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                                 <label><strong>Date:</strong> {{ session ? formatDate(session.createdAt) : "-"
                                     }}</label>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                                 <label><strong>UserId:</strong> {{ session ? session.appUserId : "-" }}</label>
                             </div>
-                            <div class="col-md-4" style="text-align: right;">
+                            <div class="col-md-3" style="text-align: right;">
+                                <label><strong>Verified In:</strong> <span class="badge badge-info"> {{ startFinishDiffInSeconds }}m</span></label>
+                            </div>
+                            <div class="col-md-3" style="text-align: right;">
                                 <span v-html="getStatus(session)"></span>
+                                <span class="fa-stack fa-sm" title="Download report" style="cursor: grab">
+                                    <i class="fa fa-download"></i>
+                                </span>
                             </div>
                         </div>
                     </div>
@@ -176,10 +186,45 @@
 
         <div class="row">
             <div class="col-md-12">
+                <!-- Personal Information -->
+                <div class="card dataCard" style="height: 439px">
+                    <div class="card-header" style="padding: 10px">
+                        <h4>Personal Information</h4>
+                    </div>
+                    <div class="card-body">
+                        <table class="table">
+                            <tbody>
+                                <tr>
+                                    <td>Name</td>
+                                    <td style="text-align: right;">VISHWAS ANAND BHUSHAN</td>
+                                </tr>
+                                <tr>
+                                    <td>Wallet Address</td>
+                                    <td style="text-align: right;">0X12X12312312312312312</td>
+                                </tr>
+                                <tr>
+                                    <td>Country</td>
+                                    <td style="text-align: right;">IND</td>
+                                </tr>
+                                <tr>
+                                    <td>Country</td>
+                                    <td style="text-align: right;">IND</td>
+                                </tr>
+                                <tr>
+                                    <td>Country</td>
+                                    <td style="text-align: right;"> IND</td>
+                                </tr>
+
+
+                            </tbody>
+
+                        </table>
+                    </div>
+                </div>
 
                 <!-- Face Verification -->
-                <div class="card"
-                    style="margin-top: 1%; border: 1px solid rgb(81, 137, 81); margin-right:1%; float: left;padding: 10px"
+                <div class="card dataCard"
+                    style="border: 1px solid rgb(81, 137, 81);"
                     v-if="session.selfiDetails && Object.keys(session.selfiDetails).length > 0"
                     >
                     <div class="card-header" style="padding: 10px">
@@ -216,44 +261,8 @@
                     </div>
                 </div>
 
-                <!-- Personal Information -->
-                <div class="card" style="margin-top: 1%; margin-right: 1%; float: left; padding: 10px; height: 439px">
-                    <div class="card-header" style="padding: 10px">
-                        <h4>Personal Information</h4>
-                    </div>
-                    <div class="card-body">
-                        <table class="table">
-                            <tbody>
-                                <tr>
-                                    <td>Name</td>
-                                    <td style="text-align: right;">VISHWAS ANAND BHUSHAN</td>
-                                </tr>
-                                <tr>
-                                    <td>Wallet Address</td>
-                                    <td style="text-align: right;">0X12X12312312312312312</td>
-                                </tr>
-                                <tr>
-                                    <td>Country</td>
-                                    <td style="text-align: right;">IND</td>
-                                </tr>
-                                <tr>
-                                    <td>Country</td>
-                                    <td style="text-align: right;">IND</td>
-                                </tr>
-                                <tr>
-                                    <td>Country</td>
-                                    <td style="text-align: right;"> IND</td>
-                                </tr>
-
-
-                            </tbody>
-
-                        </table>
-                    </div>
-                </div>
-
                 <!-- Images / Documentation -->
-                <div class="card" style="margin-top: 1%; margin-right:1%; float: left; padding: 10px">
+                <div class="card dataCard"  v-if="selfiDataFound || idDocDataFound">
                     <div class="card-header" style="padding: 10px">
                         <h4>Images / Documents</h4>
                     </div>
@@ -292,65 +301,14 @@
                             </div>
                         </div>
                     </div>
-                    <div class="card-body" v-else>
+                    <!-- <div class="card-body" v-else>
                         <h4>No record found</h4>
-                    </div>
+                    </div> -->
                 </div>
 
-                <!-- Report -->
-                <div class="card" style="margin-top: 1%; margin-right: 1%; float: left;padding: 10px">
-                    <div class="card-header" style="padding: 10px">
-                        <h4>Report</h4>
-                    </div>
-                    <div class="card-body">
-                        <button type="button" class="btn btn-secondary btn-sm"><i class="fa fa-download"
-                                aria-hidden="true" disabled></i>
-                            Download Pdf
-                        </button>
-
-                    </div>
-                </div>
-
-                <!-- Timelines -->
-                <div class="card" style="margin-top: 1%; margin-right: 1%; float: left;padding: 10px">
-                    <div class="card-header" style="padding: 10px">
-                        <h4>Timelines</h4>
-                    </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-12">
-                                <ul class="timeline">
-                                    <li>
-                                        <a target="_blank"><strong>Step Change: Start</strong></a>
-                                        <a href="#" class="float-right">{{ session ? formatDate(session.createdAt) : "-"
-                                            }}</a>
-                                    </li>
-                                    <li v-if="selfiDataFound">
-                                        <a target="_blank"><strong>Step Change: Selfie uploaded</strong></a>
-                                        <a href="#" class="float-right">{{ session ?
-                                            formatDate(session.selfiDetails.createdAt) : "-" }}</a>
-                                    </li>
-                                    <li v-if="idDocDataFound">
-                                        <a target="_blank"><strong>Step Change: ID Document uploaded</strong></a>
-                                        <a href="#" class="float-right">{{ session ?
-                                            formatDate(session.ocriddocsDetails.createdAt) : "-"
-                                            }}</a>
-                                    </li>
-                                    <li v-if="selfiDataFound && idDocDataFound">
-                                        <a target="_blank"><strong>Step Change: Finished</strong></a>
-                                        <a href="#" class="float-right">{{ session ?
-                                            formatDate(session.ocriddocsDetails.createdAt) : "-"
-                                            }}</a>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
-
+                
                 <!-- Device Information -->
-                <div class="card" style="margin-top: 1%; margin-right: 1%; float: left;padding: 10px"
+                <div class="card dataCard"
                 v-if="deviceDetails && Object.keys(deviceDetails).length > 0"
                 >
                     <div class="card-header" style="padding: 10px">
@@ -381,11 +339,11 @@
                                     <td style="text-align: right;">{{  this.deviceDetails.device }}</td>
                                 </tr>
 
-                                <tr>
+                                <!-- <tr>
                                     <td class="greyFont">CPU</td>
                                     <td style="text-align: right;">{{  this.deviceDetails.cpu }}</td>
                                 </tr>
-                                
+                                 -->
                             </tbody>
 
                         </table>
@@ -395,7 +353,7 @@
 
 
                 <!-- Location Information -->
-                <div class="card" style="margin-top: 1%; margin-right: 1%; float: left;padding: 10px"
+                <div class="card dataCard"
                 v-if="locationDetails && Object.keys(locationDetails).length > 0"
                 >
                     <div class="card-header" style="padding: 10px">
@@ -421,20 +379,47 @@
                     </div> 
                 </div>
 
-                <!-- Location Information -->
-                <!-- <div class="card" style="margin-top: 1%; margin-right: 1%; float: left;padding: 10px">
+                <!-- Timelines -->
+                <div class="card dataCard">
                     <div class="card-header" style="padding: 10px">
-                        <h4>Location</h4>
+                        <h4>Timelines</h4>
                     </div>
                     <div class="card-body">
-                        <template>
-  <l-map style="height: 300px" :zoom="locationMap.zoom" :center="locationMap.center">
-    <l-tile-layer :url="locationMap.url" :attribution="locationMap.attribution"></l-tile-layer>
-    <l-marker :lat-lng="locationMap.markerLatLng"></l-marker>
-  </l-map>
-</template>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <ul class="timeline">
+                                    <li>
+                                        <a target="_blank"><strong>Start</strong></a>
+                                        <a href="#" class="float-right">{{ session ? formatDate(session.createdAt) : "-"
+                                            }}</a>
+                                    </li>
+                                    <li v-if="selfiDataFound">
+                                        <a target="_blank"><strong>Selfie uploaded</strong></a>
+                                        <a href="#" class="float-right">{{ session ?
+                                            formatDate(session.selfiDetails.createdAt) : "-" }}</a>
+                                    </li>
+                                    <li v-if="idDocDataFound">
+                                        <a target="_blank"><strong>ID Document uploaded</strong></a>
+                                        <a href="#" class="float-right">{{ session ? formatDate(session.ocriddocsDetails.createdAt) : "-" }}</a>
+                                    </li>
+                                    <li v-if="userConsentDataFound">
+                                        <a target="_blank"><strong>User Consent provided</strong></a>
+                                        <a href="#" class="float-right">{{ session ?
+                                            formatDate(session.userConsentDetails.createdAt) : "-"
+                                            }}</a>
+                                    </li>
+                                    <li v-if="userConsentDataFound">
+                                        <a target="_blank"><strong>Finished</strong></a>
+                                        <a href="#" class="float-right">{{ session ?
+                                            formatDate(session.userConsentDetails.createdAt) : "-"
+                                            }}</a>
+                                    </li>
+
+                                </ul>
+                            </div>
+                        </div>
                     </div>
-                </div> -->
+                </div>
             </div>
         </div>
 
@@ -481,6 +466,23 @@
             idDocDataFound() {
                 return (this.session.ocriddocsDetails && Object.keys(this.session.ocriddocsDetails).length > 0)
             },
+            userConsentDataFound() {
+                return (this.session.userConsentDetails && Object.keys(this.session.userConsentDetails).length > 0)
+            },
+            startFinishDiffInSeconds() {
+                if(this.userConsentDataFound){
+                    const startDate = new Date(this.session.createdAt)
+                    const endDate = new Date(this.session.userConsentDetails.createdAt)
+
+                    const startEpoch = startDate.getTime()
+                    const endEpoch = endDate.getTime()
+
+                    return parseFloat(((endEpoch - startEpoch) / 1000)/60).toFixed(2)
+                } else {
+                    return 0
+                }
+                
+            }
         },
         data() {
             return {
@@ -519,13 +521,10 @@
             try{
 
                 this.isLoading = true
-            console.log('Before calling this. fetchSessionsDetailsById')
+
             this.session = await this.fetchSessionsDetailsById({ sessionId: this.sessionId })
-            console.log('after calling this. fetchSessionsDetailsById')
+
             this.isLoading = false
-            console.log(this.session)
-
-
             
             if(this.session.deviceDetails){
                 const userAgentString = this.session.deviceDetails.userAgent
@@ -550,9 +549,6 @@
                     device: uaparser.getDevice().model,
                     cpu: uaparser.getCPU().architecture
                   }
-
-                  console.log(details)
-
                   Object.assign(this.deviceDetails, {...details})
                 }
             }
