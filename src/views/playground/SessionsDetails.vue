@@ -149,7 +149,7 @@
                     <h3 class="mt-4" style="text-align: left;">
 
                         <a @click="$router.go(-1)" href="#">Verifications</a> <i class="fa fa-angle-double-right"
-                            aria-hidden="true"></i> {{sessionId }}
+                            aria-hidden="true" style="color: #8080808f;"></i> {{sessionId }}
                     </h3>
                 </div>
             </div>
@@ -186,8 +186,51 @@
 
         <div class="row">
             <div class="col-md-12">
+
+                <!-- Timelines -->
+                <div class="card dataCard">
+                    <div class="card-header" style="padding: 10px">
+                        <h4>Timelines</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <ul class="timeline">
+                                    <li>
+                                        <a target="_blank"><strong>Start</strong></a>
+                                        <a href="#" class="float-right greyFont">{{ session ? formatDate(session.createdAt) : "-"
+                                            }}</a>
+                                    </li>
+                                    <li v-if="selfiDataFound">
+                                        <a target="_blank"><strong>Selfie uploaded</strong></a>
+                                        <a href="#" class="float-right greyFont" >{{ session ?
+                                            formatDate(session.selfiDetails.createdAt) : "-" }}</a>
+                                    </li>
+                                    <li v-if="idDocDataFound">
+                                        <a target="_blank"><strong>ID Document uploaded</strong></a>
+                                        <a href="#" class="float-right greyFont">{{ session ? formatDate(session.ocriddocsDetails.createdAt) : "-" }}</a>
+                                    </li>
+                                    <li v-if="userConsentDataFound">
+                                        <a target="_blank"><strong>User Consent provided</strong></a>
+                                        <a href="#" class="float-right greyFont">{{ session ?
+                                            formatDate(session.userConsentDetails.createdAt) : "-"
+                                            }}</a>
+                                    </li>
+                                    <li v-if="userConsentDataFound">
+                                        <a target="_blank"><strong>Finished</strong></a>
+                                        <a href="#" class="float-right greyFont">{{ session ?
+                                            formatDate(session.userConsentDetails.createdAt) : "-"
+                                            }}</a>
+                                    </li>
+
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Personal Information -->
-                <div class="card dataCard" style="height: 439px">
+                <div class="card dataCard" style="height: 439px" v-if="userPersonalDataFromUserConsent && Object.keys(userPersonalDataFromUserConsent).length > 0">
                     <div class="card-header" style="padding: 10px">
                         <h4>Personal Information</h4>
                     </div>
@@ -195,32 +238,86 @@
                         <table class="table">
                             <tbody>
                                 <tr>
-                                    <td>Name</td>
-                                    <td style="text-align: right;">VISHWAS ANAND BHUSHAN</td>
+                                    <td class="greyFont">Name</td>
+                                    <td style="text-align: right;">{{ userPersonalDataFromUserConsent.name }}</td>
                                 </tr>
                                 <tr>
-                                    <td>Wallet Address</td>
-                                    <td style="text-align: right;">0X12X12312312312312312</td>
+                                    <td class="greyFont">Country</td>
+                                    <td style="text-align: right;">{{ userPersonalDataFromUserConsent.nationality }} <country-flag :country="userPersonalDataFromUserConsent.nationality" size='normal'/></td>
                                 </tr>
                                 <tr>
-                                    <td>Country</td>
-                                    <td style="text-align: right;">IND</td>
+                                    <td class="greyFont">Sex</td>
+                                    <td style="text-align: right;">{{ userPersonalDataFromUserConsent.sex }}</td>
                                 </tr>
                                 <tr>
-                                    <td>Country</td>
-                                    <td style="text-align: right;">IND</td>
-                                </tr>
-                                <tr>
-                                    <td>Country</td>
-                                    <td style="text-align: right;"> IND</td>
+                                    <td class="greyFont">Date Of Birth</td>
+                                    <td style="text-align: right;">{{ userPersonalDataFromUserConsent.dateOfBirth }}</td>
                                 </tr>
 
-
+                                <tr>
+                                    <td class="greyFont">Document Id</td>
+                                    <td style="text-align: right;">{{ userPersonalDataFromUserConsent.idNo }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="greyFont">Issued At</td>
+                                    <td style="text-align: right;">{{ userPersonalDataFromUserConsent.idIssueDate }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="greyFont">Expiry Date</td>
+                                    <td style="text-align: right;">{{ userPersonalDataFromUserConsent.idExpireDate }}</td>
+                                </tr>
                             </tbody>
 
                         </table>
                     </div>
                 </div>
+                
+
+
+                <!-- Device Information -->
+                <div class="card dataCard"
+                v-if="deviceDetails && Object.keys(deviceDetails).length > 0"
+                >
+                    <div class="card-header" style="padding: 10px">
+                        <h4>Device Information</h4>
+                    </div>
+                    <div class="card-body">
+                        <table class="table">
+                            <tbody>
+                                <tr>
+                                    <td class="greyFont">IP</td>
+                                    <td style="text-align: right;">{{ this.deviceDetails.ip }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="greyFont">Operating system</td>
+                                    <td style="text-align: right;">{{  this.deviceDetails.os }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="greyFont">OS Version</td>
+                                    <td style="text-align: right;">{{  this.deviceDetails.osVer }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="greyFont">Browser</td>
+                                    <td style="text-align: right;">{{  this.deviceDetails.browser }}</td>
+                                </tr>
+
+                                <tr>
+                                    <td class="greyFont">Device</td>
+                                    <td style="text-align: right;">{{  this.deviceDetails.device }}</td>
+                                </tr>
+
+                                <!-- <tr>
+                                    <td class="greyFont">CPU</td>
+                                    <td style="text-align: right;">{{  this.deviceDetails.cpu }}</td>
+                                </tr>
+                                 -->
+                            </tbody>
+
+                        </table>
+
+                    </div>
+                </div>
+
 
                 <!-- Face Verification -->
                 <div class="card dataCard"
@@ -259,6 +356,35 @@
                             </div>
                         </div>
                     </div>
+                </div>
+            
+
+
+                <!-- Location Information -->
+                <div class="card dataCard"
+                v-if="locationDetails && Object.keys(locationDetails).length > 0"
+                >
+                    <div class="card-header" style="padding: 10px">
+                        <h4>Location Information </h4>  
+                    </div>
+                    <div class="card-body">
+                        <table class="table">
+                            <tbody>
+                                <tr>
+                                    <td class="greyFont">Country</td>
+                                    <td style="text-align: right;">{{  this.locationDetails.country_name }}  <span v-if="this.locationDetails.country_code"><country-flag :country="this.locationDetails.country_code" size='normal'/></span></td>
+                                </tr>
+                                <tr>
+                                    <td class="greyFont">Time Zone</td>
+                                    <td style="text-align: right;">{{  this.locationDetails.timezones[0] }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="greyFont">Region</td>
+                                    <td style="text-align: right;">{{  this.locationDetails.region_name }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div> 
                 </div>
 
                 <!-- Images / Documentation -->
@@ -307,119 +433,9 @@
                 </div>
 
                 
-                <!-- Device Information -->
-                <div class="card dataCard"
-                v-if="deviceDetails && Object.keys(deviceDetails).length > 0"
-                >
-                    <div class="card-header" style="padding: 10px">
-                        <h4>Device Information</h4>
-                    </div>
-                    <div class="card-body">
-                        <table class="table">
-                            <tbody>
-                                <tr>
-                                    <td class="greyFont">IP</td>
-                                    <td style="text-align: right;">{{ this.deviceDetails.ip }}</td>
-                                </tr>
-                                <tr>
-                                    <td class="greyFont">Operating system</td>
-                                    <td style="text-align: right;">{{  this.deviceDetails.os }}</td>
-                                </tr>
-                                <tr>
-                                    <td class="greyFont">OS Version</td>
-                                    <td style="text-align: right;">{{  this.deviceDetails.osVer }}</td>
-                                </tr>
-                                <tr>
-                                    <td class="greyFont">Browser</td>
-                                    <td style="text-align: right;">{{  this.deviceDetails.browser }}</td>
-                                </tr>
-
-                                <tr>
-                                    <td class="greyFont">Device</td>
-                                    <td style="text-align: right;">{{  this.deviceDetails.device }}</td>
-                                </tr>
-
-                                <!-- <tr>
-                                    <td class="greyFont">CPU</td>
-                                    <td style="text-align: right;">{{  this.deviceDetails.cpu }}</td>
-                                </tr>
-                                 -->
-                            </tbody>
-
-                        </table>
-
-                    </div>
-                </div>
 
 
-                <!-- Location Information -->
-                <div class="card dataCard"
-                v-if="locationDetails && Object.keys(locationDetails).length > 0"
-                >
-                    <div class="card-header" style="padding: 10px">
-                        <h4>Location Information </h4>  
-                    </div>
-                    <div class="card-body">
-                        <table class="table">
-                            <tbody>
-                                <tr>
-                                    <td class="greyFont">Country</td>
-                                    <td style="text-align: right;">{{  this.locationDetails.country_name }}  <span v-if="this.locationDetails.country_code"><country-flag :country="this.locationDetails.country_code" size='normal'/></span></td>
-                                </tr>
-                                <tr>
-                                    <td class="greyFont">Time Zone</td>
-                                    <td style="text-align: right;">{{  this.locationDetails.timezones[0] }}</td>
-                                </tr>
-                                <tr>
-                                    <td class="greyFont">Region</td>
-                                    <td style="text-align: right;">{{  this.locationDetails.region_name }}</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div> 
-                </div>
-
-                <!-- Timelines -->
-                <div class="card dataCard">
-                    <div class="card-header" style="padding: 10px">
-                        <h4>Timelines</h4>
-                    </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-12">
-                                <ul class="timeline">
-                                    <li>
-                                        <a target="_blank"><strong>Start</strong></a>
-                                        <a href="#" class="float-right">{{ session ? formatDate(session.createdAt) : "-"
-                                            }}</a>
-                                    </li>
-                                    <li v-if="selfiDataFound">
-                                        <a target="_blank"><strong>Selfie uploaded</strong></a>
-                                        <a href="#" class="float-right">{{ session ?
-                                            formatDate(session.selfiDetails.createdAt) : "-" }}</a>
-                                    </li>
-                                    <li v-if="idDocDataFound">
-                                        <a target="_blank"><strong>ID Document uploaded</strong></a>
-                                        <a href="#" class="float-right">{{ session ? formatDate(session.ocriddocsDetails.createdAt) : "-" }}</a>
-                                    </li>
-                                    <li v-if="userConsentDataFound">
-                                        <a target="_blank"><strong>User Consent provided</strong></a>
-                                        <a href="#" class="float-right">{{ session ?
-                                            formatDate(session.userConsentDetails.createdAt) : "-"
-                                            }}</a>
-                                    </li>
-                                    <li v-if="userConsentDataFound">
-                                        <a target="_blank"><strong>Finished</strong></a>
-                                        <a href="#" class="float-right">{{ session ?
-                                            formatDate(session.userConsentDetails.createdAt) : "-"
-                                            }}</a>
-                                    </li>
-
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                
             </div>
         </div>
 
@@ -482,6 +498,25 @@
                     return 0
                 }
                 
+            },
+            userPersonalDataFromUserConsent(){
+                if(this.userConsentDataFound){
+                    const presentationStr = this.session.userConsentDetails.presentation
+                    console.log(presentationStr)
+                    if(presentationStr){
+                        const presentation = JSON.parse(presentationStr)
+                        if(presentation && Object.keys(presentation).length > 0){
+                            console.log(presentation)
+                            // const credentialData = presentation.verifiableCredential.map(x => x.credentialSubject)
+                            // console.log(credentialData)
+                            const passportCredential = presentation.verifiableCredential.filter(x => x.type.includes("PassportCredential"))[0]
+                            console.log(passportCredential)
+                            return passportCredential.credentialSubject
+                        }
+                    }
+                }
+
+                return {}
             }
         },
         data() {
