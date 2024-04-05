@@ -136,6 +136,7 @@
 
     .dataCard {
         margin-top: 1%; margin-right: 1%; float: left; padding: 5px;
+        min-height: 49vh;
     }
 </style>
 <template>
@@ -159,7 +160,7 @@
         <div class="row">
             <div class="col-md-12">
                 <div class="card" style="margin-top: 1%;">
-                    <div class="card-body">
+                    <div class="card-body" style="font-size: smaller;">
                         <div class="row">
                             <div class="col-md-3">
                                 <label><strong>Date:</strong> {{ session ? formatDate(session.createdAt) : "-"
