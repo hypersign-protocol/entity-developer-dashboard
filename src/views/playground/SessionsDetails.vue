@@ -191,7 +191,7 @@
                 <!-- Timelines -->
                 <div class="card dataCard">
                     <div class="card-header" style="padding: 10px">
-                        <h4>Timelines</h4>
+                         <h4><i class="fa fa-hourglass-end"  aria-hidden="true"></i> Timelines</h4>
                     </div>
                     <div class="card-body">
                         <div class="row">
@@ -233,7 +233,7 @@
                 <!-- Personal Information -->
                 <div class="card dataCard" style="height: 439px" v-if="userPersonalDataFromUserConsent && Object.keys(userPersonalDataFromUserConsent).length > 0">
                     <div class="card-header" style="padding: 10px">
-                        <h4>Personal Information</h4>
+                        <h4> <i class="fa fa-id-badge" aria-hidden="true"></i> Personal Information</h4>
                     </div>
                     <div class="card-body">
                         <table class="table">
@@ -280,7 +280,7 @@
                 v-if="deviceDetails && Object.keys(deviceDetails).length > 0"
                 >
                     <div class="card-header" style="padding: 10px">
-                        <h4>Device Information</h4>
+                        <h4><i class="fa fa-laptop" aria-hidden="true"></i> Device Information</h4>
                     </div>
                     <div class="card-body">
                         <table class="table">
@@ -326,7 +326,7 @@
                     v-if="session.selfiDetails && Object.keys(session.selfiDetails).length > 0"
                     >
                     <div class="card-header" style="padding: 10px">
-                        <h4>Face Verification</h4>
+                        <h4><i class="fa fa-smile" aria-hidden="true"></i> Face Verification</h4>
                     </div>
                     <div class="card-body">
                         <div class="row">
@@ -366,7 +366,7 @@
                 v-if="locationDetails && Object.keys(locationDetails).length > 0"
                 >
                     <div class="card-header" style="padding: 10px">
-                        <h4>Location Information </h4>  
+                        <h4><i class="fa fa-map-marker" aria-hidden="true"></i> Location Information </h4>  
                     </div>
                     <div class="card-body">
                         <table class="table">
@@ -391,7 +391,7 @@
                 <!-- Images / Documentation -->
                 <div class="card dataCard"  v-if="selfiDataFound || idDocDataFound">
                     <div class="card-header" style="padding: 10px">
-                        <h4>Images / Documents</h4>
+                        <h4><i class="fa fa-file" aria-hidden="true"></i> Images / Documents</h4>
                     </div>
                     <div class="card-body" v-if="selfiDataFound || idDocDataFound">
                         <div class="card-body"
