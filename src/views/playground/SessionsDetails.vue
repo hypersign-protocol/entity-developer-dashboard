@@ -1,143 +1,163 @@
 <style scoped>
-    .card-header {
-        background: aliceblue;
-        padding: 0px;
-    }
-
-    .card {
-        border-radius: 10px;
-    }
-
-    .goschema {
-        color: #339af0;
-    }
-
-    .goschema:hover {
-        text-decoration: underline;
-        cursor: pointer;
-    }
-
-    .far {
-        color: gray;
-        font-size: 1.5em;
-        display: inline;
-        cursor: pointer;
-    }
-
-    h5 {
-        width: 100%;
-        text-align: center;
-        border-bottom: 1px solid #80808045;
-        line-height: 0.1em;
-        margin: 10px 0 20px;
-    }
-
-    h5 span {
-        background: #fff;
-        padding: 0 10px;
-    }
-
-    .scrollit {
-        overflow: hidden;
-        height: 600px;
-    }
-
-    .scrollit:hover {
-        overflow-y: auto;
-    }
-
-    /* 
-.kqPHSp {
-    position: relative;
-    border-left: 2px solid var(--UI--colors-grey200);
-    height: 100%;
-    padding-left: 2.4rem;
-    
+.card-header {
+    background: aliceblue;
+    padding: 0px;
 }
 
-.UI--c-cdWBIM-ijlIiKl-css {
-    cursor: inherit;
-    color: var(--UI--colors-grey700);
-    font-size: 1.2rem;
-    line-height: 1.6rem;
+.card {
+    border-radius: 10px;
 }
 
-.UI--c-cdWBIM {
-    font-weight: 400;
+.goschema {
+    color: #339af0;
 }
 
-.kgLKAh {
-    margin: 0.4rem 0px 1rem;
+.goschema:hover {
+    text-decoration: underline;
+    cursor: pointer;
 }
 
-.UI--c-cdWBIM-ijgnCPX-css {
-    cursor: inherit;
-    color: var(--UI--colors-grey700);
-    font-size: 1rem;
-    line-height: 1.4rem;
+.far {
+    color: gray;
+    font-size: 1.5em;
+    display: inline;
+    cursor: pointer;
 }
 
+h5 {
+    width: 100%;
+    text-align: center;
+    border-bottom: 1px solid #80808045;
+    line-height: 0.1em;
+    margin: 10px 0 20px;
+}
 
-.UI--c-cdWBIM-GgrlW-semibold-true {
-    font-weight: 600;
-} */
+h5 span {
+    background: #fff;
+    padding: 0 10px;
+}
+
+.scrollit {
+    overflow: hidden;
+    height: 600px;
+}
+
+.scrollit:hover {
+    overflow-y: auto;
+}
+
 
 .greyFont {
     color: grey
 }
 
 
-    .centered-container {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        height: 300px;
-        /* Set a height to make it full height, adjust as needed */
+.centered-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 300px;
+    /* Set a height to make it full height, adjust as needed */
+}
+
+ul.timeline {
+    list-style-type: none;
+    position: relative;
+}
+
+ul.timeline:before {
+    content: ' ';
+    background: #d4d9df;
+    display: inline-block;
+    position: absolute;
+    left: 29px;
+    width: 2px;
+    height: 100%;
+    z-index: 400;
+}
+
+ul.timeline>li {
+    margin: 20px 0;
+    padding-left: 20px;
+}
+
+ul.timeline>li:before {
+    content: ' ';
+    background: white;
+    display: inline-block;
+    position: absolute;
+    border-radius: 50%;
+    border: 3px solid #22c0e8;
+    background-color: #339af0;
+    left: 20px;
+    width: 20px;
+    height: 20px;
+    z-index: 400;
+}
+
+.container {
+    width: 80vw;
+}
+
+.dataCard {
+    float: left;
+    margin-top: 1%;
+    margin-right: 1%;
+    padding: 5px;
+    min-height: 49vh;
+}
+
+.f-sm {
+    font-size: smaller;
+}
+
+.text-align-right {
+    text-align: right
+}
+
+
+h3 {
+    font-size: 1rem;
+}
+
+/*1rem = 16px*/
+@media (min-width: 544px) {
+    h3 {
+        font-size: 1rem;
     }
 
-    ul.timeline {
-        list-style-type: none;
-        position: relative;
+    /*1rem = 16px*/
+}
+
+@media (min-width: 768px) {
+    h3 {
+        font-size: 1rem;
     }
 
-    ul.timeline:before {
-        content: ' ';
-        background: #d4d9df;
-        display: inline-block;
-        position: absolute;
-        left: 29px;
-        width: 2px;
-        height: 100%;
-        z-index: 400;
+    /*1rem = 16px*/
+}
+
+@media (min-width: 992px) {
+    h3 {
+        font-size: 1rem;
     }
 
-    ul.timeline>li {
-        margin: 20px 0;
-        padding-left: 20px;
+    /*1rem = 16px*/
+}
+
+@media (min-width: 950px) and (max-width:1100px) {
+    h3 {
+        font-size: 1.5rem;
+    }
+}
+
+@media (min-width: 1200px) {
+    h3 {
+        font-size: 2rem;
     }
 
-    ul.timeline>li:before {
-        content: ' ';
-        background: white;
-        display: inline-block;
-        position: absolute;
-        border-radius: 50%;
-        border: 3px solid #22c0e8;
-        background-color: #339af0;
-        left: 20px;
-        width: 20px;
-        height: 20px;
-        z-index: 400;
-    }
-
-    .container {
-        width: 80vw;
-    }
-
-    .dataCard {
-        margin-top: 1%; margin-right: 1%; float: left; padding: 5px;
-        min-height: 49vh;
-    }
+    /*1rem = 16px*/
+}
 </style>
 <template>
     <div :class="isContainerShift ? 'homeShift' : 'home'">
@@ -145,12 +165,11 @@
 
 
         <div class="row">
-            <div class="col-md-12" style="text-align: left">
-                <div class="form-group" style="display:flex">
-                    <h3 class="mt-4" style="text-align: left;">
-
+            <div class="col-md-12">
+                <div class="form-group">
+                    <h3 class="mt-4">
                         <a @click="$router.go(-1)" href="#">Verifications</a> <i class="fa fa-angle-double-right"
-                            aria-hidden="true" style="color: #8080808f;"></i> {{sessionId }}
+                            aria-hidden="true" style="color: #8080808f;"></i> {{ sessionId }}
                     </h3>
                 </div>
             </div>
@@ -159,24 +178,29 @@
 
         <div class="row">
             <div class="col-md-12">
-                <div class="card" style="margin-top: 1%;">
-                    <div class="card-body" style="font-size: smaller;">
+                <div class="card">
+                    <div class="card-body f-sm">
                         <div class="row">
-                            <div class="col-md-3">
+                            <div class="col-md-4 ">
                                 <label><strong>Date:</strong> {{ session ? formatDate(session.createdAt) : "-"
                                     }}</label>
                             </div>
-                            <div class="col-md-3">
+                            <div class="col-md-4 ">
                                 <label><strong>UserId:</strong> {{ session ? session.appUserId : "-" }}</label>
                             </div>
-                            <div class="col-md-3" style="text-align: right;">
-                                <label><strong>Verified In:</strong> <span class="badge badge-info"> {{ startFinishDiffInSeconds }}m</span></label>
-                            </div>
-                            <div class="col-md-3" style="text-align: right;">
-                                <span v-html="getStatus(session)"></span>
-                                <span class="fa-stack fa-sm" title="Download report" style="cursor: grab">
-                                    <i class="fa fa-download"></i>
-                                </span>
+                            <div class="col-md-4  ">
+                                <div class="row">
+                                    <div class="col">
+                                        <label><strong>Verified In:</strong> <span class="badge badge-info"> {{
+                                            startFinishDiffInSeconds }}m</span></label>
+                                    </div>
+                                    <div class="col text-align-right">
+                                        <span v-html="getStatus(session)"></span>
+                                        <span class="fa-stack fa-sm" title="Download report" style="cursor: grab">
+                                            <i class="fa fa-download"></i>
+                                        </span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -189,9 +213,9 @@
             <div class="col-md-12">
 
                 <!-- Timelines -->
-                <div class="card dataCard">
+                <div class="card dataCard float-md-end">
                     <div class="card-header" style="padding: 10px">
-                         <h4><i class="fa fa-hourglass-end"  aria-hidden="true"></i> Timelines</h4>
+                        <h4><i class="fa fa-hourglass-end" aria-hidden="true"></i> Timelines</h4>
                     </div>
                     <div class="card-body">
                         <div class="row">
@@ -199,17 +223,19 @@
                                 <ul class="timeline">
                                     <li>
                                         <a target="_blank"><strong>Start</strong></a>
-                                        <a href="#" class="float-right greyFont">{{ session ? formatDate(session.createdAt) : "-"
+                                        <a href="#" class="float-right greyFont">{{ session ?
+                                            formatDate(session.createdAt) : "-"
                                             }}</a>
                                     </li>
                                     <li v-if="selfiDataFound">
                                         <a target="_blank"><strong>Selfie uploaded</strong></a>
-                                        <a href="#" class="float-right greyFont" >{{ session ?
+                                        <a href="#" class="float-right greyFont">{{ session ?
                                             formatDate(session.selfiDetails.createdAt) : "-" }}</a>
                                     </li>
                                     <li v-if="idDocDataFound">
                                         <a target="_blank"><strong>ID Document uploaded</strong></a>
-                                        <a href="#" class="float-right greyFont">{{ session ? formatDate(session.ocriddocsDetails.createdAt) : "-" }}</a>
+                                        <a href="#" class="float-right greyFont">{{ session ?
+                                            formatDate(session.ocriddocsDetails.createdAt) : "-" }}</a>
                                     </li>
                                     <li v-if="userConsentDataFound">
                                         <a target="_blank"><strong>User Consent provided</strong></a>
@@ -231,7 +257,8 @@
                 </div>
 
                 <!-- Personal Information -->
-                <div class="card dataCard" style="height: 439px" v-if="userPersonalDataFromUserConsent && Object.keys(userPersonalDataFromUserConsent).length > 0">
+                <div class="card dataCard float-" style="height: 439px"
+                    v-if="userPersonalDataFromUserConsent && Object.keys(userPersonalDataFromUserConsent).length > 0">
                     <div class="card-header" style="padding: 10px">
                         <h4> <i class="fa fa-id-badge" aria-hidden="true"></i> Personal Information</h4>
                     </div>
@@ -244,7 +271,10 @@
                                 </tr>
                                 <tr>
                                     <td class="greyFont">Country</td>
-                                    <td style="text-align: right;">{{ userPersonalDataFromUserConsent.nationality }} <country-flag :country="userPersonalDataFromUserConsent.nationality" size='normal'/></td>
+                                    <td style="text-align: right;">{{ userPersonalDataFromUserConsent.nationality }}
+                                        <country-flag :country="userPersonalDataFromUserConsent.nationality"
+                                            size='normal' />
+                                    </td>
                                 </tr>
                                 <tr>
                                     <td class="greyFont">Sex</td>
@@ -252,7 +282,8 @@
                                 </tr>
                                 <tr>
                                     <td class="greyFont">Date Of Birth</td>
-                                    <td style="text-align: right;">{{ userPersonalDataFromUserConsent.dateOfBirth }}</td>
+                                    <td style="text-align: right;">{{ userPersonalDataFromUserConsent.dateOfBirth }}
+                                    </td>
                                 </tr>
 
                                 <tr>
@@ -261,24 +292,24 @@
                                 </tr>
                                 <tr>
                                     <td class="greyFont">Issued At</td>
-                                    <td style="text-align: right;">{{ userPersonalDataFromUserConsent.idIssueDate }}</td>
+                                    <td style="text-align: right;">{{ userPersonalDataFromUserConsent.idIssueDate }}
+                                    </td>
                                 </tr>
                                 <tr>
                                     <td class="greyFont">Expiry Date</td>
-                                    <td style="text-align: right;">{{ userPersonalDataFromUserConsent.idExpireDate }}</td>
+                                    <td style="text-align: right;">{{ userPersonalDataFromUserConsent.idExpireDate }}
+                                    </td>
                                 </tr>
                             </tbody>
 
                         </table>
                     </div>
                 </div>
-                
+
 
 
                 <!-- Device Information -->
-                <div class="card dataCard"
-                v-if="deviceDetails && Object.keys(deviceDetails).length > 0"
-                >
+                <div class="card dataCard float-" v-if="deviceDetails && Object.keys(deviceDetails).length > 0">
                     <div class="card-header" style="padding: 10px">
                         <h4><i class="fa fa-laptop" aria-hidden="true"></i> Device Information</h4>
                     </div>
@@ -291,20 +322,20 @@
                                 </tr>
                                 <tr>
                                     <td class="greyFont">Operating system</td>
-                                    <td style="text-align: right;">{{  this.deviceDetails.os }}</td>
+                                    <td style="text-align: right;">{{ this.deviceDetails.os }}</td>
                                 </tr>
                                 <tr>
                                     <td class="greyFont">OS Version</td>
-                                    <td style="text-align: right;">{{  this.deviceDetails.osVer }}</td>
+                                    <td style="text-align: right;">{{ this.deviceDetails.osVer }}</td>
                                 </tr>
                                 <tr>
                                     <td class="greyFont">Browser</td>
-                                    <td style="text-align: right;">{{  this.deviceDetails.browser }}</td>
+                                    <td style="text-align: right;">{{ this.deviceDetails.browser }}</td>
                                 </tr>
 
                                 <tr>
                                     <td class="greyFont">Device</td>
-                                    <td style="text-align: right;">{{  this.deviceDetails.device }}</td>
+                                    <td style="text-align: right;">{{ this.deviceDetails.device }}</td>
                                 </tr>
 
                                 <!-- <tr>
@@ -321,10 +352,8 @@
 
 
                 <!-- Face Verification -->
-                <div class="card dataCard"
-                    style="border: 1px solid rgb(81, 137, 81);"
-                    v-if="session.selfiDetails && Object.keys(session.selfiDetails).length > 0"
-                    >
+                <div class="card dataCard float-" style="border: 1px solid rgb(81, 137, 81);"
+                    v-if="session.selfiDetails && Object.keys(session.selfiDetails).length > 0">
                     <div class="card-header" style="padding: 10px">
                         <h4><i class="fa fa-smile" aria-hidden="true"></i> Face Verification</h4>
                     </div>
@@ -358,38 +387,39 @@
                         </div>
                     </div>
                 </div>
-            
+
 
 
                 <!-- Location Information -->
-                <div class="card dataCard"
-                v-if="locationDetails && Object.keys(locationDetails).length > 0"
-                >
+                <div class="card dataCard float-" v-if="locationDetails && Object.keys(locationDetails).length > 0">
                     <div class="card-header" style="padding: 10px">
-                        <h4><i class="fa fa-map-marker" aria-hidden="true"></i> Location Information </h4>  
+                        <h4><i class="fa fa-map-marker" aria-hidden="true"></i> Location Information </h4>
                     </div>
                     <div class="card-body">
                         <table class="table">
                             <tbody>
                                 <tr>
                                     <td class="greyFont">Country</td>
-                                    <td style="text-align: right;">{{  this.locationDetails.country_name }}  <span v-if="this.locationDetails.country_code"><country-flag :country="this.locationDetails.country_code" size='normal'/></span></td>
+                                    <td style="text-align: right;">{{ this.locationDetails.country_name }} <span
+                                            v-if="this.locationDetails.country_code"><country-flag
+                                                :country="this.locationDetails.country_code" size='normal' /></span>
+                                    </td>
                                 </tr>
                                 <tr>
                                     <td class="greyFont">Time Zone</td>
-                                    <td style="text-align: right;">{{  this.locationDetails.timezones[0] }}</td>
+                                    <td style="text-align: right;">{{ this.locationDetails.timezones[0] }}</td>
                                 </tr>
                                 <tr>
                                     <td class="greyFont">Region</td>
-                                    <td style="text-align: right;">{{  this.locationDetails.region_name }}</td>
+                                    <td style="text-align: right;">{{ this.locationDetails.region_name }}</td>
                                 </tr>
                             </tbody>
                         </table>
-                    </div> 
+                    </div>
                 </div>
 
                 <!-- Images / Documentation -->
-                <div class="card dataCard"  v-if="selfiDataFound || idDocDataFound">
+                <div class="card dataCard float-" v-if="selfiDataFound || idDocDataFound">
                     <div class="card-header" style="padding: 10px">
                         <h4><i class="fa fa-file" aria-hidden="true"></i> Images / Documents</h4>
                     </div>
@@ -433,10 +463,10 @@
                     </div> -->
                 </div>
 
-                
 
 
-                
+
+
             </div>
         </div>
 
@@ -453,193 +483,194 @@
 
 <script>
 
-    import UtilsMixin from '../../mixins/utils';
-    import Loading from "vue-loading-overlay";
-    import { mapState, mapGetters, mapActions } from "vuex";
-    import UAParser from 'ua-parser-js'
-    import CountryFlag from 'vue-country-flag'
-    // import { LMap, LTileLayer, LMarker } from 'vue2-leaflet';
+import UtilsMixin from '../../mixins/utils';
+import Loading from "vue-loading-overlay";
+import { mapState, mapGetters, mapActions } from "vuex";
+import UAParser from 'ua-parser-js'
+import CountryFlag from 'vue-country-flag'
+// import { LMap, LTileLayer, LMarker } from 'vue2-leaflet';
 
 
-    export default {
-        name: "sessionDetails",
-        components: { Loading, CountryFlag,  
-    //         LMap,
-    // LTileLayer,
-    // LMarker 
-},
-        computed: {
-            ...mapGetters('mainStore', ['getSessionDetailsBySessionId']),
-            ...mapState({
-                sessionList: state => state.mainStore.sessionList,
-                containerShift: state => state.playgroundStore.containerShift,
-            }),
-            isContainerShift() {
-                return this.containerShift
-            },
-            selfiDataFound() {
-                return (this.session.selfiDetails && Object.keys(this.session.selfiDetails).length > 0)
-            },
-            idDocDataFound() {
-                return (this.session.ocriddocsDetails && Object.keys(this.session.ocriddocsDetails).length > 0)
-            },
-            userConsentDataFound() {
-                return (this.session.userConsentDetails && Object.keys(this.session.userConsentDetails).length > 0)
-            },
-            startFinishDiffInSeconds() {
-                if(this.userConsentDataFound){
-                    const startDate = new Date(this.session.createdAt)
-                    const endDate = new Date(this.session.userConsentDetails.createdAt)
+export default {
+    name: "sessionDetails",
+    components: {
+        Loading, CountryFlag,
+        //         LMap,
+        // LTileLayer,
+        // LMarker 
+    },
+    computed: {
+        ...mapGetters('mainStore', ['getSessionDetailsBySessionId']),
+        ...mapState({
+            sessionList: state => state.mainStore.sessionList,
+            containerShift: state => state.playgroundStore.containerShift,
+        }),
+        isContainerShift() {
+            return this.containerShift
+        },
+        selfiDataFound() {
+            return (this.session.selfiDetails && Object.keys(this.session.selfiDetails).length > 0)
+        },
+        idDocDataFound() {
+            return (this.session.ocriddocsDetails && Object.keys(this.session.ocriddocsDetails).length > 0)
+        },
+        userConsentDataFound() {
+            return (this.session.userConsentDetails && Object.keys(this.session.userConsentDetails).length > 0)
+        },
+        startFinishDiffInSeconds() {
+            if (this.userConsentDataFound) {
+                const startDate = new Date(this.session.createdAt)
+                const endDate = new Date(this.session.userConsentDetails.createdAt)
 
-                    const startEpoch = startDate.getTime()
-                    const endEpoch = endDate.getTime()
+                const startEpoch = startDate.getTime()
+                const endEpoch = endDate.getTime()
 
-                    return parseFloat(((endEpoch - startEpoch) / 1000)/60).toFixed(2)
-                } else {
-                    return 0
-                }
-                
-            },
-            userPersonalDataFromUserConsent(){
-                if(this.userConsentDataFound){
-                    const presentationStr = this.session.userConsentDetails.presentation
-                    console.log(presentationStr)
-                    if(presentationStr){
-                        const presentation = JSON.parse(presentationStr)
-                        if(presentation && Object.keys(presentation).length > 0){
-                            console.log(presentation)
-                            // const credentialData = presentation.verifiableCredential.map(x => x.credentialSubject)
-                            // console.log(credentialData)
-                            const passportCredential = presentation.verifiableCredential.filter(x => x.type.includes("PassportCredential"))[0]
-                            console.log(passportCredential)
-                            return passportCredential.credentialSubject
-                        }
+                return parseFloat(((endEpoch - startEpoch) / 1000) / 60).toFixed(2)
+            } else {
+                return 0
+            }
+
+        },
+        userPersonalDataFromUserConsent() {
+            if (this.userConsentDataFound) {
+                const presentationStr = this.session.userConsentDetails.presentation
+                console.log(presentationStr)
+                if (presentationStr) {
+                    const presentation = JSON.parse(presentationStr)
+                    if (presentation && Object.keys(presentation).length > 0) {
+                        console.log(presentation)
+                        // const credentialData = presentation.verifiableCredential.map(x => x.credentialSubject)
+                        // console.log(credentialData)
+                        const passportCredential = presentation.verifiableCredential.filter(x => x.type.includes("PassportCredential"))[0]
+                        console.log(passportCredential)
+                        return passportCredential.credentialSubject
                     }
                 }
-
-                return {}
             }
-        },
-        data() {
-            return {
-                fullPage: true,
-                isLoading: false,
-                appId: "",
-                sessionId: "",
-                session: {},
-                popupHeader: "",
-                popupImage: "",
-                deviceDetails: {
-                    ip: '',
-                    os: '',
-                    osVer: '',
-                    brower: '',
-                    device: '',
-                    cpu: ''
-                },
-                locationDetails: {},
-                locationMap: {
-                    url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-                    attribution:
-                        '&copy; <a target="_blank" href="http://osm.org/copyright">OpenStreetMap</a> contributors',
-                    zoom: 15,
-                    center: [51.505, -0.159],
-                    markerLatLng: [51.504, -0.159]
-                }
-            };
-        },
 
-        async created() {
-            this.appId = this.$route.params.appId
-            this.sessionId = this.$route.params.sessionId
-            // this.session = this.getSessionDetailsBySessionId(this.sessionId);
+            return {}
+        }
+    },
+    data() {
+        return {
+            fullPage: true,
+            isLoading: false,
+            appId: "",
+            sessionId: "",
+            session: {},
+            popupHeader: "",
+            popupImage: "",
+            deviceDetails: {
+                ip: '',
+                os: '',
+                osVer: '',
+                brower: '',
+                device: '',
+                cpu: ''
+            },
+            locationDetails: {},
+            locationMap: {
+                url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                attribution:
+                    '&copy; <a target="_blank" href="http://osm.org/copyright">OpenStreetMap</a> contributors',
+                zoom: 15,
+                center: [51.505, -0.159],
+                markerLatLng: [51.504, -0.159]
+            }
+        };
+    },
 
-            try{
+    async created() {
+        this.appId = this.$route.params.appId
+        this.sessionId = this.$route.params.sessionId
+        // this.session = this.getSessionDetailsBySessionId(this.sessionId);
 
-                this.isLoading = true
+        try {
+
+            this.isLoading = true
 
             this.session = await this.fetchSessionsDetailsById({ sessionId: this.sessionId })
 
             this.isLoading = false
-            
-            if(this.session.deviceDetails){
+
+            if (this.session.deviceDetails) {
                 const userAgentString = this.session.deviceDetails.userAgent
                 console.log(userAgentString)
-                if(userAgentString){
-                    let ip =  this.session.deviceDetails.ip
-                    if(this.session.deviceDetails.ip){
+                if (userAgentString) {
+                    let ip = this.session.deviceDetails.ip
+                    if (this.session.deviceDetails.ip) {
                         const ips = this.session.deviceDetails.ip.split(',')
-                        if(ips.length > 0){
+                        if (ips.length > 0) {
                             ip = ips[0]
                         }
                     }
                     await this.getLocationFromIp(ip)
-                  const uaparser = new UAParser()
-                  uaparser.setUA(userAgentString)
+                    const uaparser = new UAParser()
+                    uaparser.setUA(userAgentString)
 
-                  const details = {
-                    ip,
-                    os: uaparser.getOS().name,
-                    osVer: uaparser.getOS().version,
-                    browser: uaparser.getBrowser().name,
-                    device: uaparser.getDevice().model,
-                    cpu: uaparser.getCPU().architecture
-                  }
-                  Object.assign(this.deviceDetails, {...details})
+                    const details = {
+                        ip,
+                        os: uaparser.getOS().name,
+                        osVer: uaparser.getOS().version,
+                        browser: uaparser.getBrowser().name,
+                        device: uaparser.getDevice().model,
+                        cpu: uaparser.getCPU().architecture
+                    }
+                    Object.assign(this.deviceDetails, { ...details })
                 }
             }
 
-            }catch(e){
-                this.notifyErr(e.message)
-                this.isLoading = false
-            }
-        },
-        beforeRouteEnter(to, from, next) {
-            next((vm) => {
-                vm.prevRoute = from;
-            });
-        },
-        methods: {
-            ...mapActions('mainStore', ['fetchSessionsDetailsById']),
-            zoom(place) {
-                this.popupHeader = place
-                switch (place) {
-                    case 'Document Front': {
-                        this.popupImage = this.session.ocriddocsDetails.tokenFrontDocumentImage
-                        break
-                    }
-                    case 'Selfie': {
-                        this.popupImage = this.session.selfiDetails.tokenSelfiImage
-                        break;
-                    }
+        } catch (e) {
+            this.notifyErr(e.message)
+            this.isLoading = false
+        }
+    },
+    beforeRouteEnter(to, from, next) {
+        next((vm) => {
+            vm.prevRoute = from;
+        });
+    },
+    methods: {
+        ...mapActions('mainStore', ['fetchSessionsDetailsById']),
+        zoom(place) {
+            this.popupHeader = place
+            switch (place) {
+                case 'Document Front': {
+                    this.popupImage = this.session.ocriddocsDetails.tokenFrontDocumentImage
+                    break
                 }
-                this.$root.$emit('modal-show');
-            },
-            async getLocationFromIp(ip){
-                try{
-                    if(!ip){
+                case 'Selfie': {
+                    this.popupImage = this.session.selfiDetails.tokenSelfiImage
+                    break;
+                }
+            }
+            this.$root.$emit('modal-show');
+        },
+        async getLocationFromIp(ip) {
+            try {
+                if (!ip) {
                     throw new Error('Ip is required')
                 }
 
                 console.log('Before getting location details for ip')
                 const url = 'https://api.apilayer.com/ip_to_location/' + ip //
-                    const resp = await fetch(url, {
-                        methods: 'GET',
-                        headers: {
-                            'apikey': 'BiLxYABdIfUL6qwMgBerrLzp9ptXNH8i'
-                        }
-                    })
-                    const json = await resp.json()
+                const resp = await fetch(url, {
+                    methods: 'GET',
+                    headers: {
+                        'apikey': 'BiLxYABdIfUL6qwMgBerrLzp9ptXNH8i'
+                    }
+                })
+                const json = await resp.json()
 
-                    console.log(json)
+                console.log(json)
 
-                    Object.assign(this.locationDetails, { ...json })
-                }catch(e){
-                    this.notifyErr(e.message)
-                }
+                Object.assign(this.locationDetails, { ...json })
+            } catch (e) {
+                this.notifyErr(e.message)
             }
-        },
-        mixins: [UtilsMixin],
+        }
+    },
+    mixins: [UtilsMixin],
 
-    };
+};
 </script>
