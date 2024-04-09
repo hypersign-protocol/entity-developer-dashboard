@@ -1,19 +1,16 @@
 <template>
   <div>
     <loading :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loading>
-    <div style="display: flex" class="">
-      <div v-if="appList.length > 0" class="row" style="width: 100%">
-        <div class="col-md-6">
-          <h3 class="">
+    <div>
+      <div v-if="appList.length > 0" class="row">
+        <div class="col-md-12 mt-1">
+          <h3 style="float: left;">
             <i class="fa fa-cogs mr-2" aria-hidden="true"></i>Your Services
           </h3>
-        </div>
-        <div class="col-md-6">
           <hf-buttons name=" Create" iconClass="fa fa-plus" class="ml-auto " @executeAction="openSlider('SSI_API')"
             style="float: right;">
           </hf-buttons>
         </div>
-
       </div>
 
       <div v-else>
@@ -79,6 +76,7 @@
         </div>
       </div>
     </hf-pop-up>
+
     <hf-pop-up id="entity-secretKey-popup" Header="API Secret Key">
       <div class="mt-2" v-if="apiKeySecret != ''">
         <p>
@@ -94,6 +92,7 @@
           description="Your API Secret Key" @click="onHfFlashClick()"></HfFlashNotification>
       </div>
     </hf-pop-up>
+
     <StudioSideBar :title="edit ? 'Edit Service' : 'Add Service'">
       <div class="container">
         <div class="form-group" v-if="edit === true">
@@ -224,9 +223,10 @@
     </StudioSideBar>
 
     <div v-if="appList.length > 0" class="mt-2">
-      <b-tabs content-class="mt-3">
-        <b-tab :title="'SSI (' + getAppsWithSSIServices.length + ')'" active v-if="getAppsWithSSIServices.length > 0">
-          <div class="scroll row">
+      <b-tabs content-class="mt-0">
+        <b-tab :title="'SSI (' + getAppsWithSSIServices.length + ')'" active v-if="getAppsWithSSIServices.length > 0"
+          class="bg-white p-3 ">
+          <div class="row">
             <div class="col-md-4 mb-4" v-for="eachOrg in getAppsWithSSIServices" :key="eachOrg.appId">
               <div class="card" @click="switchOrg(eachOrg.appId, 'SSI_API')" style="cursor: grab">
                 <div class="card-body">
@@ -300,13 +300,11 @@
             </div>
           </div>
         </b-tab>
-        <b-tab :title="'KYC (' + getAppsWithKYCServices.length + ')'" v-if="getAppsWithKYCServices.length > 0">
-          <div class="scroll row">
+        <b-tab :title="'KYC (' + getAppsWithKYCServices.length + ')'" v-if="getAppsWithKYCServices.length > 0"
+          class="bg-white p-3">
+          <div class="row">
             <div class="col-md-4 mb-4" v-for="eachOrg in getAppsWithKYCServices" :key="eachOrg.appId">
-              <div class="card bg-gradient-primary" @click="switchOrg(eachOrg.appId, 'CAVACH_API')"
-                style="cursor: grab">
-
-
+              <div class="card" @click="switchOrg(eachOrg.appId, 'CAVACH_API')" style="cursor: grab">
                 <div class="card" style="cursor: grab">
                   <div class="card-body">
                     <div class="row">
@@ -384,9 +382,6 @@
           </div>
         </b-tab>
       </b-tabs>
-
-
-
       <!-- <div style="padding: 5px">
         <nav aria-label="Page navigation example" style="margin: 0 auto; width: 50px">
           <ul class="pagination">
@@ -413,20 +408,16 @@
           </ul>
         </nav>
       </div> -->
-
-
     </div>
   </div>
 </template>
 
 <style scoped>
-.nav-tabs {
-  width: 150px;
-}
-
 .nav-tabs .nav-link.active {
   border-radius: 0px 20px 0px 0px;
+  border-bottom: 1px solid white;
 }
+
 
 .overlay {
   background: rgba(0, 0, 0, 0.323);
