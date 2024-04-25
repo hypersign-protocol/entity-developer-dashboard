@@ -284,14 +284,18 @@
                   <div class="row mt-2">
                     <div class="col">
                       <span class=" " style="float: right">
-                        <b-badge pill variant="danger" @click.stop="openSecretkeyPopUp(eachOrg.appId)"
-                          title="Click to generate a new API Secret Key" class="mr-2" style="cursor: pointer">
-                          <i class="fa fa-key"></i>
-                          Secret</b-badge>
-                        <b-badge pill variant="info" @click.stop="editOrg(eachOrg.appId)" title="Click to edit the app"
+                        <span class="badge rounded-pill bg-danger mx-1" title="Click to generate a new API Secret Key"
                           style="cursor: pointer">
+                          <i class="fa fa-key"></i> Secret
+                        </span>
+                        <!-- <b-badge pill variant="danger" @click.stop="openSecretkeyPopUp(eachOrg.appId)"
+                        title="Click to generate a new API Secret Key"  class="mr-2" style="cursor: pointer">
+                          <i class="fa fa-key"></i>
+                          Secret</b-badge> -->
+                        <span class="badge rounded-pill bg-info mx-1" @click.stop="editOrg(eachOrg.appId)"
+                          title="Click to edit the app" style="cursor: pointer">
                           <i class="fas fa-pencil-alt"></i>
-                          Edit</b-badge>
+                          Edit</span>
                       </span>
                     </div>
                   </div>
@@ -364,14 +368,24 @@
                         <!-- <span class=" " style="cursor: pointer" @click.stop="switchOrg(eachOrg.appId,  'CAVACH_API')"><i
                           class="fas fa-tachometer-alt" aria-hidden="true"></i></span> -->
                         <span class=" " style="float: right">
-                          <b-badge pill variant="danger" @click.stop="openSecretkeyPopUp(eachOrg.appId)"
-                            title="Click to generate a new API Secret Key" class="mr-2" style="cursor: pointer">
+                          <span class="badge rounded-pill bg-warning mx-1"
+                            @click.stop="openOnChainDeployPopup(eachOrg.appId)"
+                            title="Click to generate a new API Secret Key" data-bs-toggle="modal"
+                            data-bs-target="#onchain-kyc-deploy" style="cursor: pointer">
                             <i class="fa fa-key"></i>
-                            Secret</b-badge>
-                          <b-badge pill variant="info" @click.stop="editOrg(eachOrg.appId)"
+                            Deploy</span>
+
+                          <span class="badge rounded-pill bg-danger mx-1"
+                            @click.stop="openSecretkeyPopUp(eachOrg.appId)"
+                            title="Click to generate a new API Secret Key" style="cursor: pointer">
+                            <i class="fa fa-key"></i>
+                            Secret</span>
+
+                          <span class="badge rounded-pill bg-info mx-1" @click.stop="editOrg(eachOrg.appId)"
                             title="Click to edit the app" style="cursor: pointer">
                             <i class="fas fa-pencil-alt"></i>
-                            Edit</b-badge>
+                            Edit
+                          </span>
                         </span>
                       </div>
                     </div>
@@ -382,33 +396,13 @@
           </div>
         </b-tab>
       </b-tabs>
-      <!-- <div style="padding: 5px">
-        <nav aria-label="Page navigation example" style="margin: 0 auto; width: 50px">
-          <ul class="pagination">
-            <li class="page-item">
-              <a class="page-link" href="#" aria-label="Previous">
-                <span aria-hidden="true">&laquo;</span>
-                <span class="sr-only">Previous</span>
-              </a>
-            </li>
 
-            <li class="page-item" v-if="pages > 1">
-              <a class="page-link" href="#">1</a>
-            </li>
-            <li class="page-item" v-if="pages > 2">
-              <a class="page-link" href="#">2</a>
-            </li>
-
-            <li class="page-item">
-              <a class="page-link" href="#" aria-label="Next">
-                <span aria-hidden="true">&raquo;</span>
-                <span class="sr-only">Next</span>
-              </a>
-            </li>
-          </ul>
-        </nav>
-      </div> -->
     </div>
+
+
+    <hf-pop-up id="onchain-kyc-deploy" Header="Deploy Your OnChain KYC">
+      <DeployOnChainKYC />
+    </hf-pop-up>
   </div>
 </template>
 
@@ -553,6 +547,7 @@ import messages from "../mixins/messages";
 import { mapGetters, mapState, mapActions, mapMutations } from "vuex";
 import HfFlashNotification from "../components/element/HfFlashNotification.vue";
 import { sanitizeUrl } from '../utils/common'
+import DeployOnChainKYC from "../components/deploy-onchain-kyc-popup/deploy.vue";
 export default {
   name: "AppList",
   computed: {
@@ -631,6 +626,7 @@ export default {
     HfButtons,
     ToolTip,
     HfFlashNotification,
+    DeployOnChainKYC
   },
   methods: {
     ...mapMutations("mainStore", ["updateAnApp", "setMainSideNavBar"]),
@@ -879,6 +875,11 @@ export default {
       this.apiKeySecret = "";
       this.selectedAppId = appId;
       this.$root.$emit("bv::show::modal", "entity-secret-confirmation-popup");
+    },
+
+    openOnChainDeployPopup(appId) {
+      console.log('Inside openOnChainDeployPopup() appId' + appId)
+      this.$root.$emit("bv::show::modal", "onchain-kyc-deploy");
     },
     async reGenerateSecretKey() {
       if (this.appIdToGenerateSecret === "") {

@@ -14,6 +14,7 @@ import './assets/css/gblStyle.css';
 import store from './store';
 import Multiselect from "vue-multiselect";
 import "vue-multiselect/dist/vue-multiselect.min.css";
+import Loading from "vue-loading-overlay";
 
 Vue.config.productionTip = false
 Vue.use(VueSidebarMenu);
@@ -23,6 +24,7 @@ Vue.use(Notifications)
 Vue.config.devtools = true;
 Vue.prototype.$config = config
 Vue.component("multiSelect", Multiselect);
+Vue.component("load-ing", Loading);
 
 new Vue({
   router,
