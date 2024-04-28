@@ -18,15 +18,19 @@ export function constructOnBoardIssuer(issuer_did, issuer_kyc_code_id) {
     }
 }
 
-export function constructGetRegistredIssuerMsg() {
+export function constructGetRegistredIssuerMsg(issuer_did) {
     return {
-        "get_registered_issuer": {}
+        "get_registered_issuer": {
+            issuer_did
+        }
     }
 }
 
 export function constructGetRegistredSBTContractAddressMsg() {
     return {
-        "s_b_t_contract_address": {}
+        "s_b_t_contract_address": {
+
+        }
     }
 }
 

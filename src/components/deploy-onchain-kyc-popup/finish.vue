@@ -20,10 +20,12 @@
         </div>
 
 
-        <div class="row">
+
+
+        <div class="row mt-2">
             <div class="col">
                 <div class="center">
-                    <button type="button" class="btn btn-link" @click="close()">Done</button>
+                    <hf-buttons name="Done" class="btn btn-primary" @executeAction="close()"></hf-buttons>
                 </div>
             </div>
         </div>
@@ -49,15 +51,18 @@
 </style>
 
 <script>
-import { mapMutations } from "vuex";
+import { mapMutations, mapActions } from "vuex";
 
 export default {
     name: 'FinishOnchainKyc',
     methods: {
         ...mapMutations('walletStore', ['resetAll', 'nextStep']),
+        ...mapActions('mainStore', ['fetchAppsOnChainConfigs']),
         close() {
             this.resetAll();
             this.$root.$emit('modal-close')
+            this.fetchAppsOnChainConfigs();
+            this.$root.$emit("bv::toggle::collapse", "sidebar-right");
         }
     }
 }

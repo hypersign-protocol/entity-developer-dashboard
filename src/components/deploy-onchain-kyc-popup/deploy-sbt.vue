@@ -11,9 +11,17 @@
                         disabled />
                 </div>
             </div>
+            <div class="col-md-12" v-if="Object.keys(getBlockchainUser).length > 0">
+                <div class="form-group">
+                    <!-- <tool-tip infoMessage="SSI Service Id"></tool-tip> -->
+                    <label for=""><strong>Your Wallet Address: </strong></label>
+                    <input type="text" class="form-control" id="" v-model="getBlockchainUser.walletAddress"
+                        aria-describedby="orgNameHelp" disabled />
+                </div>
+            </div>
 
 
-            <div class="col-md-12" v-if="onChainIssuer.issuer.sbt_contract_address != ''">
+            <div class="col-md-12" v-if="onChainIssuer.issuer.sbt_contract_address">
                 <div class="form-group">
                     <label for=""><strong>SBT Contract Address: </strong></label>
                     <input type="text" class="form-control" id="" v-model="onChainIssuer.issuer.sbt_contract_address"
@@ -21,21 +29,29 @@
                 </div>
             </div>
 
+
             <div class="col-md-12"
-                v-if="onChainIssuer.issuer.kyc_contract_address && (onChainIssuer.issuer.sbt_contract_address == '')">
+                v-if="onChainIssuer.issuer.kyc_contract_address && (!onChainIssuer.issuer.sbt_contract_address)">
                 <div>
-                    <button class="btn btn-primary btn-md" style="width:100%"
-                        v-on:click="initSBTcontract()">Deploy</button>
+
+                    <ConnectWalletButton :ecosystem="selectedBlockchain.ecosystem"
+                        :blockchain="selectedBlockchain.blockchain" :chainId="selectedBlockchain.chainId"
+                        @authEvent="myEventListener" style="width:100%" v-if="showConnectWallet" />
+
+
+                    <button class="btn btn-outline-dark btn-md" style="width:100%" v-on:click="initSBTcontract()"
+                        v-if="!showConnectWallet && getBlockchainUser.walletAddress">Deploy SBT Contract</button>
                 </div>
             </div>
 
         </div>
 
-        <div class="row">
+        <div class="row mt-2">
             <div class="col">
                 <div class="center">
                     <button type="button" class="btn btn-link" @click="previousStep()">Previous</button>
-                    <button type="button" class="btn btn-link" @click="nextStep()">Next</button>
+                    <hf-buttons name="Next" class="btn btn-primary" @executeAction="nextStep()"
+                        v-if="onChainIssuer.issuer.sbt_contract_address"></hf-buttons>
                 </div>
             </div>
         </div>
@@ -46,16 +62,22 @@
 <script>
 
 
-import { mapGetters, mapMutations } from "vuex";
+import { mapGetters, mapMutations, mapActions } from "vuex";
 import { smartContractExecuteRPC } from '../../blockchains-metadata/cosmos/contract/execute'
 import { smartContractQueryRPC } from '../../blockchains-metadata/cosmos/contract/query'
 import { constructInitSbtMsg, constructGetRegistredSBTContractAddressMsg } from '../../blockchains-metadata/cosmos/contract/msg';
 import { getCosmosChainConfig } from '../../blockchains-metadata/cosmos/wallet/cosmos-wallet-utils'
 import UtilsMixin from '../../mixins/utils'
+import ConnectWalletButton from "../element/authButtons/ConnectWalletButton.vue";
+
 export default {
     name: 'DeploySbt',
+    components: {
+        ConnectWalletButton,
+    },
     computed: {
         ...mapGetters("walletStore", ['getBlockchainUser', 'getCosmosConnection', 'getOnChainIssuerData']),
+        ...mapGetters("mainStore", ['getOnChainConfig']),
         selectedBlockchain() {
             if (this.selectedChainId) {
                 const splits = this.selectedChainId.split(':')
@@ -68,12 +90,19 @@ export default {
                 return null
             }
         },
+
+        showConnectWallet() {
+            if (this.getBlockchainUser && Object.keys(this.getBlockchainUser).length > 0) {
+                return false
+            } else return true
+        },
+        onChainIssuer() {
+            // const t = this.getOnChainIssuerData
+            // t['issuer']['sbt_contract_address'] = ""
+            return this.getOnChainIssuerData
+        }
     },
     async mounted() {
-
-        this.onChainIssuer = this.getOnChainIssuerData
-        this.onChainIssuer['issuer']['sbt_contract_address'] = ""
-
         if (await this.checkIfalreadyDeployed()) {
             return;
         }
@@ -82,24 +111,34 @@ export default {
         return {
             isLoading: false,
             fullPage: true,
-            onChainIssuer: {
-                issuer: {
-                    kyc_contract_address: "",
-                    sbt_contract_address: ""
+            // onChainIssuer: {
+            //     issuer: {
+            //         kyc_contract_address: "",
+            //         sbt_contract_address: ""
 
-                }
-            },
+            //     }
+            // },
             selectedChainId: "cosmos:nibi:nibiru-localnet-0",
 
         }
     },
     methods: {
-        ...mapMutations('walletStore', ['nextStep', 'previousStep']),
+        ...mapMutations('walletStore', ['nextStep', 'previousStep', 'setOnChainIssuerData']),
+        ...mapActions("mainStore", [
+            "updateAnAppOnServer",
+            "updateAppsOnChainConfig"
+        ]),
         async queryContract(msg, contractAddress) {
             const result = await smartContractQueryRPC(
-                this.getCosmosConnection.signingClient,
+                this.getCosmosConnection.nonSigningClient,
                 contractAddress, msg);
-            this.onChainIssuer.issuer['sbt_contract_address'] = result.sbt_contract_address
+
+            console.log(result)
+            this.onChainIssuer.issuer['sbt_contract_address'] = result.sbt_contract_address;
+            console.log(this.onChainIssuer)
+            this.setOnChainIssuerData({
+                ...this.onChainIssuer,
+            })
         },
         async checkIfalreadyDeployed() {
             try {
@@ -113,19 +152,26 @@ export default {
                     return false
                 }
             } catch (e) {
-                this.notifyErr("Error ", e.message);
+                console.log(e.message);
                 this.isLoading = false;
             }
+        },
+        async myEventListener(data) {
+            console.log('Inside myEventListener')
+            console.log(data)
+            // this.nft.metadata = await this.getContractMetadata(this.getOnChainIssuerConfig.contractAddress)
+
+
         },
         async initSBTcontract() {
             try {
 
-                if (await this.checkIfalreadyDeployed()) {
-                    // setTimeout(() => {
-                    //     this.nextStep()
-                    // }, 2000)
-                    return;
-                }
+                // if (await this.checkIfalreadyDeployed()) {
+                //     // setTimeout(() => {
+                //     //     this.nextStep()
+                //     // }, 2000)
+                //     return;
+                // }
 
                 this.isLoading = true
                 const { SBT_TOKEN_CODE_ID } = await import(`../../blockchains-metadata/${this.selectedBlockchain.ecosystem}/contract/${this.selectedBlockchain.blockchain}/config`)
@@ -146,12 +192,20 @@ export default {
                 if (result) {
                     console.log(result)
                     this.notifySuccess('Successfully minted your identity')
+
+
                     this.isLoading = false
+
+                    const msg = constructGetRegistredSBTContractAddressMsg()
+                    await this.queryContract(msg, this.onChainIssuer.issuer.kyc_contract_address)
+
+                    ///update the db
+                    this.updateAppsOnChainConfig({
+                        ...this.getOnChainConfig,
+                        sbtContractAddress: this.onChainIssuer.issuer.sbt_contract_address,
+                        sbtContractTxHash: result.transactionHash
+                    })
                 }
-
-
-                const msg = constructGetRegistredSBTContractAddressMsg()
-                this.queryContract(msg, this.onChainIssuer.issuer.kyc_contract_address)
 
             } catch (e) {
                 console.error(e.message)

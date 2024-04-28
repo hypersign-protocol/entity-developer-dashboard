@@ -3,7 +3,7 @@
     <loading :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loading>
     <div>
       <div v-if="appList.length > 0" class="row">
-        <div class="col-md-12 mt-1">
+        <div class="col mt-1">
           <h3 style="float: left;">
             <i class="fa fa-cogs mr-2" aria-hidden="true"></i>Your Services
           </h3>
@@ -151,7 +151,8 @@
           <small><a :href="`${swaggerAPIdoc}`" target="_blank">Open API Doc (Swagger)</a></small>
         </div>
 
-        <div class="form-group" v-if="edit === true && appModel.services[0].id == 'SSI_API'">
+        <div class="form-group"
+          v-if="edit === true && ((appModel.services && appModel.services.length) > 0 && (appModel.services[0].id == 'SSI_API'))">
           <tool-tip infoMessage=" Your wallet address"></tool-tip>
           <label for="orgDid"><strong>Wallet Address: </strong></label>
           <div class="input-group mb-1">
@@ -193,7 +194,8 @@
           <!-- <small>{{ serviceDescrition }}</small> -->
         </div>
 
-        <div class="form-group" v-if="edit === true && appModel.services[0].id == 'CAVACH_API'">
+        <div class="form-group"
+          v-if="edit === true && (appModel.services && appModel.services.length > 0 && (appModel.services[0].id == 'CAVACH_API'))">
           <tool-tip infoMessage="SSI Service Id"></tool-tip>
           <label for="orgDid"><strong>SSI Service Id: </strong></label>
           <input type="text" class="form-control" id="orgDid" v-model="appModel.dependentServices[0]"
@@ -368,12 +370,12 @@
                         <!-- <span class=" " style="cursor: pointer" @click.stop="switchOrg(eachOrg.appId,  'CAVACH_API')"><i
                           class="fas fa-tachometer-alt" aria-hidden="true"></i></span> -->
                         <span class=" " style="float: right">
-                          <span class="badge rounded-pill bg-warning mx-1"
+                          <!-- <span class="badge rounded-pill bg-warning mx-1"
                             @click.stop="openOnChainDeployPopup(eachOrg.appId)"
                             title="Click to generate a new API Secret Key" data-bs-toggle="modal"
                             data-bs-target="#onchain-kyc-deploy" style="cursor: pointer">
                             <i class="fa fa-key"></i>
-                            Deploy</span>
+                            Deploy</span> -->
 
                           <span class="badge rounded-pill bg-danger mx-1"
                             @click.stop="openSecretkeyPopUp(eachOrg.appId)"
@@ -400,9 +402,9 @@
     </div>
 
 
-    <hf-pop-up id="onchain-kyc-deploy" Header="Deploy Your OnChain KYC">
+    <!-- <hf-pop-up id="onchain-kyc-deploy" Header="Deploy Your OnChain KYC">
       <DeployOnChainKYC />
-    </hf-pop-up>
+    </hf-pop-up> -->
   </div>
 </template>
 
@@ -547,7 +549,7 @@ import messages from "../mixins/messages";
 import { mapGetters, mapState, mapActions, mapMutations } from "vuex";
 import HfFlashNotification from "../components/element/HfFlashNotification.vue";
 import { sanitizeUrl } from '../utils/common'
-import DeployOnChainKYC from "../components/deploy-onchain-kyc-popup/deploy.vue";
+// import DeployOnChainKYC from "../components/deploy-onchain-kyc-popup/deploy.vue";
 export default {
   name: "AppList",
   computed: {
@@ -615,7 +617,8 @@ export default {
         logoUrl: "",
         tenantUrl: "",
         services: [],
-        dependentServices: []
+        dependentServices: [],
+
       },
     };
   },
@@ -626,7 +629,7 @@ export default {
     HfButtons,
     ToolTip,
     HfFlashNotification,
-    DeployOnChainKYC
+    // DeployOnChainKYC
   },
   methods: {
     ...mapMutations("mainStore", ["updateAnApp", "setMainSideNavBar"]),
@@ -855,16 +858,21 @@ export default {
         if (t) {
           this.closeSlider();
           this.notifySuccess(messages.APPLICATION.APP_UPDATE_SUCCESS);
+          this.isLoading = true;
+
         } else {
           throw new Error("Something went wrong");
         }
       } catch (e) {
+        console.log(e.message)
         if (Array.isArray(e.message)) {
           e.message.forEach((m) => {
             this.notifyErr(m);
           });
           return;
         }
+        this.isLoading = true;
+
         this.notifyErr(e.message);
       } finally {
         this.isLoading = false;
@@ -877,10 +885,10 @@ export default {
       this.$root.$emit("bv::show::modal", "entity-secret-confirmation-popup");
     },
 
-    openOnChainDeployPopup(appId) {
-      console.log('Inside openOnChainDeployPopup() appId' + appId)
-      this.$root.$emit("bv::show::modal", "onchain-kyc-deploy");
-    },
+    // openOnChainDeployPopup(appId) {
+    //   console.log('Inside openOnChainDeployPopup() appId' + appId)
+    //   this.$root.$emit("bv::show::modal", "onchain-kyc-deploy");
+    // },
     async reGenerateSecretKey() {
       if (this.appIdToGenerateSecret === "") {
         return this.notifyErr(messages.APPLICATION.ENTER_APP_ID);

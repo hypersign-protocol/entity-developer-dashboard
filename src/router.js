@@ -11,6 +11,7 @@ import Credential from './views/playground/Sessions.vue'
 import CredentialDetails from './views/playground/SessionsDetails.vue'
 import DIDs from './views/playground/DID.vue'
 import UsageS from './views/playground/Usage.vue';
+import OnChainKycSystems from './views/playground/OnChainKycSystems.vue';
 Vue.use(Router)
 
 const router = new Router({
@@ -78,6 +79,15 @@ const router = new Router({
       meta: {
         requiresAuth: true,
         title: `${config.app.name} - Usages`
+      }
+    },
+    {
+      path: '/studio/onchainkyc/:appId',
+      name: 'OnChainKycSystems',
+      component: OnChainKycSystems,
+      meta: {
+        requiresAuth: true,
+        title: `${config.app.name} - OnChainKycSystems`
       }
     },
     {

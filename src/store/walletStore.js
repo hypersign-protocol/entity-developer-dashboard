@@ -53,12 +53,6 @@ const walletStore = {
         },
         getOnChainIssuerConfig: (state) => {
             return state.onChainIssuerConfig
-            // const t = localStorage.getItem("onChainIssuerConfig")
-            // if (t) {
-            //     return JSON.parse(t)
-            // } else {
-            //     return null
-            // }
         },
 
         getOnChainIssuerData: (state) => {

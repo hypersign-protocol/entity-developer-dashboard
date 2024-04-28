@@ -24,6 +24,8 @@ const mainStore = {
         sessionList: [],
         selectedServiceId: "",
         didList: [],
+        onchainconfigs: [],
+        onChainConfig: {}
     },
     getters: {
         getAppByAppId: (state) => (appId) => {
@@ -56,9 +58,16 @@ const mainStore = {
                 const { userAccessList } = userParse;
                 return userAccessList ? userAccessList.filter(access => access.serviceType === service) : []
             }
+        },
+
+        getOnChainConfig: (state) => {
+            return state.onChainConfig
         }
     },
     mutations: {
+        setOnChainConfig: (state, payload) => {
+            state.onChainConfig = { ...payload }
+        },
         setMainSideNavBar: (state, payload) => {
             state.showMainSideNavBar = payload ? payload : false;
         },
@@ -86,6 +95,10 @@ const mainStore = {
 
         insertSessions(state, payload) {
             state.sessionList = payload
+        },
+
+        insertAppsOnChainConfigs(state, payload) {
+            state.onchainconfigs = payload
         },
 
         updateSessionDetails(state, payload) {
@@ -326,6 +339,81 @@ const mainStore = {
                 })
             })
 
+        },
+
+        fetchAppsOnChainConfigs: ({ commit, getters }) => {
+            return new Promise((resolve, reject) => {
+                if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
+                    return reject(new Error('Tenant url is null or empty, service is not selected'))
+                }
+                // const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/onchainkyc-config`;
+                const url = `http://localhost:3001/api/v1/e-kyc/verification/onchainkyc-config`
+                const authToken = getters.getSelectedService.access_token
+                const headers = UtilsMixin.methods.getHeader(authToken);
+                fetch(url, {
+                    method: 'GET',
+                    headers
+                }).then(response => response.json()).then(json => {
+                    if (json.error) {
+                        return reject(json)
+                    }
+                    commit('insertAppsOnChainConfigs', json.reverse());
+                    resolve()
+                }).catch((e) => {
+                    return reject(`Error while fetching apps ` + e.message);
+                })
+            })
+        },
+
+        createAppsOnChainConfig: ({ commit, getters }, payload) => {
+            return new Promise((resolve, reject) => {
+                if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
+                    return reject(new Error('Tenant url is null or empty, service is not selected'))
+                }
+                // const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/onchainkyc-config`;
+                const url = `http://localhost:3001/api/v1/e-kyc/verification/onchainkyc-config`
+                const authToken = getters.getSelectedService.access_token
+                const headers = UtilsMixin.methods.getHeader(authToken);
+                fetch(url, {
+                    method: 'POST',
+                    headers,
+                    body: JSON.stringify(payload),
+                }).then(response => response.json()).then(json => {
+                    if (json.error) {
+                        return reject(json)
+                    }
+                    commit('setOnChainConfig', json);
+                    resolve(json)
+                }).catch((e) => {
+                    return reject(`Error while fetching apps ` + e.message);
+                })
+            })
+        },
+
+        updateAppsOnChainConfig: ({ commit, getters }, payload) => {
+            return new Promise((resolve, reject) => {
+                if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
+                    return reject(new Error('Tenant url is null or empty, service is not selected'))
+                }
+                // const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/onchainkyc-config`;
+                const url = `http://localhost:3001/api/v1/e-kyc/verification/onchainkyc-config`
+                const authToken = getters.getSelectedService.access_token
+                const headers = UtilsMixin.methods.getHeader(authToken);
+                fetch(url, {
+                    method: 'PATCH',
+                    headers,
+                    body: JSON.stringify(payload),
+                }).then(response => response.json()).then(json => {
+                    if (json.error) {
+                        return reject(json)
+                    }
+                    // restting
+                    commit('setOnChainConfig', {});
+                    resolve(json)
+                }).catch((e) => {
+                    return reject(`Error while fetching apps ` + e.message);
+                })
+            })
         },
 
         fetchSessionsDetailsById: ({ commit, getters }, payload) => {

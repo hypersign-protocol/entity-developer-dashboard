@@ -404,10 +404,18 @@ export default {
             })
 
             menu.push({
+              href: "/studio/onchainkyc/" + this.getSelectedService.appId,
+              title: "OnChainKyc",
+              icon: "fas fa-network-wired",
+            })
+
+            menu.push({
               href: "/studio/usage/" + this.getSelectedService.appId,
               title: "Usages",
               icon: "fa fa-chart-bar",
             })
+
+
           } else if (id == 'SSI_API') {
             menu.push({
               href: "/studio/did/" + this.getSelectedService.appId,
