@@ -90,7 +90,7 @@
 import ConnectWalletButton from "../element/authButtons/ConnectWalletButton.vue";
 import { mapGetters, mapMutations, mapActions } from "vuex";
 import { getCosmosBlockchainLabel, getCosmosChainConfig } from '../../blockchains-metadata/cosmos/wallet/cosmos-wallet-utils'
-import { getSupportedChains, } from '../../blockchains-metadata/wallet'
+import { getSupportedChains } from '../../blockchains-metadata/wallet'
 import { smartContractExecuteRPC } from '../../blockchains-metadata/cosmos/contract/execute'
 import { smartContractQueryRPC } from '../../blockchains-metadata/cosmos/contract/query'
 import UtilsMixin from '../../mixins/utils'

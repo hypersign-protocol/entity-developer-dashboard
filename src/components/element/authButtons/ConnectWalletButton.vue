@@ -83,7 +83,6 @@ export default {
                 const signingClient = await createClient(chainRPC, offlineSigner);
                 const nonSigningClient = await createNonSigningClient(chainRPC);
 
-                console.log('Storing all essential objects in store')
                 this.setCosmosConnection({
                     signingClient,
                     nonSigningClient,
