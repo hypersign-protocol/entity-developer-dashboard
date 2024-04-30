@@ -465,6 +465,56 @@ h3 {
 
 
 
+                <!-- SBT Minting -->
+                <div class="card dataCard float-"
+                    v-if="userSbtMintDataFromUserConsent && Object.keys(userSbtMintDataFromUserConsent).length > 0">
+                    <div class="card-header" style="padding: 10px">
+                        <h4><i class="fa fa-address-book" aria-hidden="true"></i> Soul Bound Token Information</h4>
+                    </div>
+                    <div class="card-body">
+                        <table class="table">
+                            <tbody>
+                                <tr>
+                                    <td class="greyFont">Blockchain</td>
+                                    <td style="text-align: right;">
+                                        <span><img
+                                                :src="getChainDetail(this.userSbtMintDataFromUserConsent.blockchainLabel).logoUrl"
+                                                width="20" height="20"></span>
+                                        {{ getChainDetail(this.userSbtMintDataFromUserConsent.blockchainLabel).chainName
+                                        }}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="greyFont">User's Wallet Address</td>
+                                    <td @click="copyToClip(userSbtMintDataFromUserConsent.ownerWalletAddress, 'Wallet Address')"
+                                        style="text-align: right;cursor: pointer;">{{
+                                            stringShortner(this.userSbtMintDataFromUserConsent.ownerWalletAddress, 15) }}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="greyFont">User's DID</td>
+                                    <td @click="copyToClip(userSbtMintDataFromUserConsent.id, 'User Id')"
+                                        style="text-align: right;cursor: pointer;">{{
+                                            stringShortner(this.userSbtMintDataFromUserConsent.id, 15) }} </td>
+                                </tr>
+                                <tr>
+                                    <td class="greyFont">Token Id</td>
+                                    <td style="text-align: right;">{{
+                                        this.userSbtMintDataFromUserConsent.tokenId }} </td>
+                                </tr>
+                                <tr>
+                                    <td class="greyFont">TransactionHash</td>
+                                    <td @click="copyToClip(userSbtMintDataFromUserConsent.transactionHash, 'Transaction hash')"
+                                        style="text-align: right;cursor: pointer;">{{
+                                            stringShortner(this.userSbtMintDataFromUserConsent.transactionHash, 15) }} </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div>
+
+
 
 
             </div>
@@ -488,16 +538,13 @@ import Loading from "vue-loading-overlay";
 import { mapState, mapGetters, mapActions } from "vuex";
 import UAParser from 'ua-parser-js'
 import CountryFlag from 'vue-country-flag'
-// import { LMap, LTileLayer, LMarker } from 'vue2-leaflet';
+import { getCosmosChainConfig } from '../../blockchains-metadata/cosmos/wallet/cosmos-wallet-utils'
 
 
 export default {
     name: "sessionDetails",
     components: {
         Loading, CountryFlag,
-        //         LMap,
-        // LTileLayer,
-        // LMarker 
     },
     computed: {
         ...mapGetters('mainStore', ['getSessionDetailsBySessionId']),
@@ -529,26 +576,14 @@ export default {
             } else {
                 return 0
             }
-
         },
         userPersonalDataFromUserConsent() {
-            if (this.userConsentDataFound) {
-                const presentationStr = this.session.userConsentDetails.presentation
-                console.log(presentationStr)
-                if (presentationStr) {
-                    const presentation = JSON.parse(presentationStr)
-                    if (presentation && Object.keys(presentation).length > 0) {
-                        console.log(presentation)
-                        // const credentialData = presentation.verifiableCredential.map(x => x.credentialSubject)
-                        // console.log(credentialData)
-                        const passportCredential = presentation.verifiableCredential.filter(x => x.type.includes("PassportCredential"))[0]
-                        console.log(passportCredential)
-                        return passportCredential.credentialSubject
-                    }
-                }
-            }
-
-            return {}
+            return this.getCredentialSubjectByType("PassportCredential")
+        },
+        userSbtMintDataFromUserConsent() {
+            const t = this.getCredentialSubjectByType("SBTCredential")
+            console.log(t)
+            return t
         }
     },
     data() {
@@ -632,6 +667,39 @@ export default {
     },
     methods: {
         ...mapActions('mainStore', ['fetchSessionsDetailsById']),
+        getChainDetail(blockchainlabel = 'cosmos:comdex:test') {
+            console.log('Inside get chain details.... ' + JSON.stringify(blockchainlabel))
+            const config = getCosmosChainConfig(blockchainlabel)
+            return {
+                chainName: config.chainName,
+                chainId: config.chainId,
+                logoUrl: config.stakeCurrency.coinImageUrl,
+                tx_explorer: config.txExplorer.txUrl
+            }
+        },
+        getCredentialSubjectByType(type = "PassportCredential") {
+            if (this.userConsentDataFound) {
+                const presentationStr = this.session.userConsentDetails.presentation
+                if (presentationStr) {
+                    const presentation = JSON.parse(presentationStr)
+                    if (presentation && Object.keys(presentation).length > 0) {
+                        const passportCredential = presentation.verifiableCredential.filter(x => x.type.includes(type))[0]
+                        if (passportCredential) {
+                            return passportCredential.credentialSubject
+                        } else {
+                            return {}
+                        }
+
+                    } else {
+                        return {}
+                    }
+                } else {
+                    return {}
+                }
+            } else {
+                return {}
+            }
+        },
         zoom(place) {
             this.popupHeader = place
             switch (place) {

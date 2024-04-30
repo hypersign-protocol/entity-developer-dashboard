@@ -33,6 +33,9 @@ export function getCosmosBlockchainLabel(chain) {
 }
 
 export function getCosmosChainConfig(blockchainLabel) {
+    if (!blockchainLabel) {
+        throw new Error('blockchainLabel must be passed')
+    }
     const splits = blockchainLabel.split(':')
     const bech32PrefixAccAddr = splits[1];
     const chainId = splits[2];
