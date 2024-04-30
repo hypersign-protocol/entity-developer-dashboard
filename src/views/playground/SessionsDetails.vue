@@ -163,7 +163,6 @@ h3 {
     <div :class="isContainerShift ? 'homeShift' : 'home'">
         <loading :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loading>
 
-
         <div class="row">
             <div class="col-md-12">
                 <div class="form-group">
@@ -174,7 +173,6 @@ h3 {
                 </div>
             </div>
         </div>
-
 
         <div class="row">
             <div class="col-md-12">
@@ -208,10 +206,8 @@ h3 {
             </div>
         </div>
 
-
         <div class="row">
             <div class="col-md-12">
-
                 <!-- Timelines -->
                 <div class="card dataCard float-md-end">
                     <div class="card-header" style="padding: 10px">
@@ -306,8 +302,6 @@ h3 {
                     </div>
                 </div>
 
-
-
                 <!-- Device Information -->
                 <div class="card dataCard float-" v-if="deviceDetails && Object.keys(deviceDetails).length > 0">
                     <div class="card-header" style="padding: 10px">
@@ -350,7 +344,6 @@ h3 {
                     </div>
                 </div>
 
-
                 <!-- Face Verification -->
                 <div class="card dataCard float-" style="border: 1px solid rgb(81, 137, 81);"
                     v-if="session.selfiDetails && Object.keys(session.selfiDetails).length > 0">
@@ -387,8 +380,6 @@ h3 {
                         </div>
                     </div>
                 </div>
-
-
 
                 <!-- Location Information -->
                 <div class="card dataCard float-" v-if="locationDetails && Object.keys(locationDetails).length > 0">
@@ -463,8 +454,6 @@ h3 {
                     </div> -->
                 </div>
 
-
-
                 <!-- SBT Minting -->
                 <div class="card dataCard float-"
                     v-if="userSbtMintDataFromUserConsent && Object.keys(userSbtMintDataFromUserConsent).length > 0">
@@ -511,23 +500,9 @@ h3 {
                             </tbody>
                         </table>
                     </div>
-
                 </div>
-
-
-
-
             </div>
         </div>
-
-        <!-- <hf-pop-up :Header="popupHeader" id="user-img">
-            <div class="card" style="">
-                <div class="card-body centered-container" style="height: 500px; width: 500px;">
-                    <img style="height:350px; width:350px;" :src="popupImage" />
-                </div>
-            </div>
-        </hf-pop-up> -->
-
     </div>
 </template>
 
