@@ -25,7 +25,10 @@ const mainStore = {
         selectedServiceId: "",
         didList: [],
         onchainconfigs: [],
-        onChainConfig: {}
+        onChainConfig: {},
+        widgetConfig: {
+
+        }
     },
     getters: {
         getAppByAppId: (state) => (appId) => {
@@ -62,11 +65,17 @@ const mainStore = {
 
         getOnChainConfig: (state) => {
             return state.onChainConfig
+        },
+        getWidgetnConfig: (state) => {
+            return state.widgetConfig
         }
     },
     mutations: {
         setOnChainConfig: (state, payload) => {
             state.onChainConfig = { ...payload }
+        },
+        setWidgetConfig: (state, payload) => {
+            state.widgetConfig = { ...payload }
         },
         setMainSideNavBar: (state, payload) => {
             state.showMainSideNavBar = payload ? payload : false;
@@ -322,7 +331,8 @@ const mainStore = {
                 if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
                     return reject(new Error('Tenant url is null or empty, service is not selected'))
                 }
-                const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/session`;
+                // const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/session`;
+                const url = 'http://localhost:3001/api/v1/e-kyc/verification/session'
                 const authToken = getters.getSelectedService.access_token
                 const headers = UtilsMixin.methods.getHeader(authToken);
                 fetch(url, {
@@ -341,6 +351,7 @@ const mainStore = {
 
         },
 
+        // Onchain config --------------------------------
         fetchAppsOnChainConfigs: ({ commit, getters }) => {
             return new Promise((resolve, reject) => {
                 if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
@@ -416,13 +427,95 @@ const mainStore = {
             })
         },
 
+        // Widget Config --------------------------------
+        createAppsWidgetConfig: ({ commit, getters }) => {
+            return new Promise((resolve, reject) => {
+                if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
+                    return reject(new Error('Tenant url is null or empty, service is not selected'))
+                }
+                // const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/widget-config`;
+                const url = `http://localhost:3001/api/v1/e-kyc/verification/widget-config`
+                const authToken = getters.getSelectedService.access_token
+                const headers = UtilsMixin.methods.getHeader(authToken);
+                const data = getters.getWidgetnConfig;
+                data['issuerVerificationMethodId'] = getters.getWidgetnConfig.issuerDID + '#key-1';
+                fetch(url, {
+                    method: 'POST',
+                    headers,
+                    body: JSON.stringify(data),
+                }).then(response => response.json()).then(json => {
+                    if (json.error) {
+                        return reject(json)
+                    }
+                    commit('setWidgetConfig', json);
+                    resolve(json)
+                }).catch((e) => {
+                    return reject(`Error while fetching apps ` + e.message);
+                })
+            })
+        },
+
+        fetchAppsWidgetConfig: ({ commit, getters }) => {
+            return new Promise((resolve, reject) => {
+                if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
+                    return reject(new Error('Tenant url is null or empty, service is not selected'))
+                }
+                // const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/onchainkyc-config`;
+                const url = `http://localhost:3001/api/v1/e-kyc/verification/widget-config/`
+                const authToken = getters.getSelectedService.access_token
+                const headers = UtilsMixin.methods.getHeader(authToken);
+                fetch(url, {
+                    method: 'GET',
+                    headers
+                }).then(response => response.json()).then(json => {
+                    if (json.error) {
+                        return reject(json)
+                    }
+                    commit('setWidgetConfig', json);
+                    resolve()
+                }).catch((e) => {
+                    return reject(`Error while fetching apps ` + e.message);
+                })
+            })
+        },
+
+        updateAppsWidgetConfig: ({ commit, getters }) => {
+            return new Promise((resolve, reject) => {
+                if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
+                    return reject(new Error('Tenant url is null or empty, service is not selected'))
+                }
+                // const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/onchainkyc-config`;
+                const url = `http://localhost:3001/api/v1/e-kyc/verification/widget-config`
+                const authToken = getters.getSelectedService.access_token
+                const headers = UtilsMixin.methods.getHeader(authToken);
+                const data = getters.getWidgetnConfig;
+                data['issuerVerificationMethodId'] = getters.getWidgetnConfig.issuerDID + '#key-1';
+                fetch(url, {
+                    method: 'PATCH',
+                    headers,
+                    body: JSON.stringify(data),
+                }).then(response => response.json()).then(json => {
+                    if (json.error) {
+                        return reject(json)
+                    }
+                    // restting
+                    commit('setWidgetConfig', json);
+                    resolve(json)
+                }).catch((e) => {
+                    return reject(`Error while fetching apps ` + e.message);
+                })
+            })
+        },
+
+
         fetchSessionsDetailsById: ({ commit, getters }, payload) => {
             return new Promise((resolve, reject) => {
                 const { sessionId } = payload
                 if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
                     return reject(new Error('Tenant url is null or empty, service is not selected'))
                 }
-                const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/session/${sessionId}`;
+                // const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/session/${sessionId}`;
+                const url = `http://localhost:3001/api/v1/e-kyc/verification/session/${sessionId}`;
                 const authToken = getters.getSelectedService.access_token
                 const headers = UtilsMixin.methods.getHeader(authToken);
                 fetch(url, {

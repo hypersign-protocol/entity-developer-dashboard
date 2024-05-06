@@ -125,11 +125,11 @@ h5 span {
   <div :class="isContainerShift ? 'homeShift' : 'home'">
     <loading :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loading>
 
-    <div class="row mt-4">
+    <div class="row">
       <div class="col-6" style="text-align: left">
         <div class="form-group" style="display:flex">
           <h3 v-if="onchainconfigs.length > 0" style="text-align: left;">
-            OnChain KYC </h3>
+            OnChain KYC Configuration</h3>
           <h3 v-else style="text-align: left;">No onchain kyc configuration found!</h3>
         </div>
       </div>
@@ -140,7 +140,7 @@ h5 span {
       </div>
     </div>
 
-    <div class="row scrollit mt-2" v-if="onchainconfigs.length > 0">
+    <div class="row scrollit" v-if="onchainconfigs.length > 0">
       <div class="col-md-12">
         <table class="table table-hover event-card" style="background:#FFFF">
           <thead class="thead-light">

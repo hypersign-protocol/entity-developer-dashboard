@@ -399,14 +399,20 @@ export default {
           if (id == 'CAVACH_API') {
             menu.push({
               href: "/studio/sessions/" + this.getSelectedService.appId,
-              title: "Verifications",
+              title: "Sessions",
               icon: "fa fa-check",
             })
 
             menu.push({
               href: "/studio/onchainkyc/" + this.getSelectedService.appId,
-              title: "OnChainKyc",
+              title: "OnChain KYC",
               icon: "fas fa-network-wired",
+            })
+
+            menu.push({
+              href: "/studio/widget-config/" + this.getSelectedService.appId,
+              title: "Widget",
+              icon: "fa fa-cogs",
             })
 
             menu.push({
