@@ -136,6 +136,12 @@ ul {
             Widget Configuration </h3>
         </div>
       </div>
+      <div class="col-6">
+        <HfButtons name="Save Configuration" @executeAction="saveConfiguration()" v-if="!this.widgetConfigTemp._id"
+          style="float:right"></HfButtons>
+        <HfButtons name="Update Configuration" @executeAction="updateConfiguration()" style="float:right" v-else>
+        </HfButtons>
+      </div>
     </div>
 
     <div class="row">
@@ -261,13 +267,13 @@ ul {
             </li>
           </ul>
         </div>
-        <div class="row container mt-3">
+        <!-- <div class="row container mt-3">
           <div class="col center">
             <HfButtons name="Save Configuration" @executeAction="saveConfiguration()" v-if="!this.widgetConfigTemp._id">
             </HfButtons>
             <HfButtons name="Update Configuration" @executeAction="updateConfiguration()" v-else></HfButtons>
           </div>
-        </div>
+        </div> -->
       </div>
     </div>
 

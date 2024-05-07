@@ -66,7 +66,7 @@ import { mapGetters, mapMutations, mapActions } from "vuex";
 import { smartContractExecuteRPC } from '../../blockchains-metadata/cosmos/contract/execute'
 import { smartContractQueryRPC } from '../../blockchains-metadata/cosmos/contract/query'
 import { constructInitSbtMsg, constructGetRegistredSBTContractAddressMsg } from '../../blockchains-metadata/cosmos/contract/msg';
-import { getCosmosChainConfig } from '../../blockchains-metadata/cosmos/wallet/cosmos-wallet-utils'
+import { getCosmosChainConfig, createNonSigningClient } from '../../blockchains-metadata/cosmos/wallet/cosmos-wallet-utils'
 import UtilsMixin from '../../mixins/utils'
 import ConnectWalletButton from "../element/authButtons/ConnectWalletButton.vue";
 
@@ -119,6 +119,7 @@ export default {
             //     }
             // },
             selectedChainId: "cosmos:nibi:nibiru-localnet-0",
+            nonSigningClient: null
 
         }
     },
@@ -130,7 +131,7 @@ export default {
         ]),
         async queryContract(msg, contractAddress) {
             const result = await smartContractQueryRPC(
-                this.getCosmosConnection.nonSigningClient,
+                this.getCosmosConnection.nonSigningClient || this.nonSigningClient,
                 contractAddress, msg);
 
             console.log(result)
@@ -142,6 +143,9 @@ export default {
         },
         async checkIfalreadyDeployed() {
             try {
+                const chainConfig = getCosmosChainConfig(this.selectedChainId)
+                this.nonSigningClient = await createNonSigningClient(chainConfig["rpc"]);
+
                 this.isLoading = true;
                 const msg = constructGetRegistredSBTContractAddressMsg()
                 await this.queryContract(msg, this.onChainIssuer.issuer.kyc_contract_address)

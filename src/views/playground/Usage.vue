@@ -168,8 +168,8 @@ h5 span {
           <tbody>
             <tr v-for="row in usageDetails.serviceDetails" :key="row">
               <td>{{ row.apiPath }}</td>
-              <td>{{ usageDetails.startDate }}</td>
-              <td>{{ usageDetails.endDate }}</td>
+              <td>{{ toDateTime(usageDetails.startDate) }}</td>
+              <td>{{ toDateTime(usageDetails.endDate) }}</td>
               <td>{{ row.quantity }}</td>
             </tr>
           </tbody>

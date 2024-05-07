@@ -218,7 +218,7 @@ h5 span {
                   <i class="fa fa-check fa-stack-1x fa-inverse" aria-hidden="true"></i>
                 </span>
               </td>
-              <td>{{ row.did }}</td>
+              <td @click="copyToClip(row.did, 'DID')" style="cursor: pointer;">{{ row.did }}</td>
               <td>{{ row.name }}</td>
               <td>
                 <div>

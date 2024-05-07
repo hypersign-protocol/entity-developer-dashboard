@@ -89,7 +89,7 @@
 <script>
 import ConnectWalletButton from "../element/authButtons/ConnectWalletButton.vue";
 import { mapGetters, mapMutations, mapActions } from "vuex";
-import { getCosmosBlockchainLabel, getCosmosChainConfig } from '../../blockchains-metadata/cosmos/wallet/cosmos-wallet-utils'
+import { getCosmosBlockchainLabel, getCosmosChainConfig, createNonSigningClient } from '../../blockchains-metadata/cosmos/wallet/cosmos-wallet-utils'
 import { getSupportedChains } from '../../blockchains-metadata/wallet'
 import { smartContractExecuteRPC } from '../../blockchains-metadata/cosmos/contract/execute'
 import { smartContractQueryRPC } from '../../blockchains-metadata/cosmos/contract/query'
@@ -103,7 +103,9 @@ export default {
     },
     watch: {
         async selectedIssuerDID() {
+            console.log('Inside  selectedIssuerDID()')
             const r = await this.checkIfIssuerHasAlreadyDeployed()
+            console.log(r)
             if (r) {
                 this.notifySuccess('Successfully fetched KYC contract for this issuer')
             } else {
@@ -158,7 +160,6 @@ export default {
                 options: interchainOptions
             })
         }
-
         // this.bootstrap()
     },
 
@@ -181,7 +182,8 @@ export default {
 
             onChainIssuer: {
                 issuer: {}
-            }
+            },
+            nonSigningClient: null,
         }
     },
     methods: {
@@ -215,7 +217,9 @@ export default {
                     return
                 }
                 const msg = constructGetRegistredIssuerMsg(this.selectedIssuerDID)
-                await this.queryContract(msg, HYPERSIGN_KYC_FACTORY_CONTRACT_ADDRESS)
+                console.log('checkIfIssuerHasAlreadyDeployed:: Before querying kyc contract address = ' + HYPERSIGN_KYC_FACTORY_CONTRACT_ADDRESS)
+                const resp = await this.queryContract(msg, HYPERSIGN_KYC_FACTORY_CONTRACT_ADDRESS)
+                console.log('checkIfIssuerHasAlreadyDeployed:: After querying kyc contract address = ' + JSON.stringify(resp))
 
                 // TODO
                 // const onchainConfig = this.onchainconfigs.find(x => x.kycContractAddress === this.onChainIssuer.issuer.kyc_contract_address)
@@ -239,7 +243,7 @@ export default {
 
         },
 
-        changeNetwork() {
+        async changeNetwork() {
             try {
                 if (!this.selectedChainId) {
                     this.reset()
@@ -249,17 +253,17 @@ export default {
                 this.chainConfig = getCosmosChainConfig(this.selectedChainId)
                 this.onChainIssuer.issuer = {}
                 this.setBlockchainUser({})
+                this.nonSigningClient = await createNonSigningClient(this.chainConfig["rpc"]);
             } catch (e) {
                 this.notifyErr("Error ", e.message);
             }
         },
         async queryContract(msg, contractAddress) {
-            console.log('queryContract.....')
+            console.log('queryContract:: Before calling  smartContractQueryRPC(), contractAddress ' + contractAddress)
             const result = await smartContractQueryRPC(
-                this.getCosmosConnection.nonSigningClient,
+                this.getCosmosConnection.nonSigningClient || this.nonSigningClient,
                 contractAddress, msg);
-
-            console.log(result)
+            console.log('queryContract:: After calling  smartContractQueryRPC(), contractAddress ' + contractAddress)
             this.onChainIssuer = result;
             this.setOnChainIssuerData(this.onChainIssuer)
             this.selectedIssuerDID = this.onChainIssuer.issuer.did
