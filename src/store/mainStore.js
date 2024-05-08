@@ -168,7 +168,7 @@ const mainStore = {
             })
         },
 
-        saveAnAppOnServer: ({ commit }, payload) => {
+        saveAnAppOnServer: ({ commit, dispatch }, payload) => {
             return new Promise((resolve, reject) => {
                 const url = `${apiServerBaseUrl}/app`;
 
@@ -186,6 +186,12 @@ const mainStore = {
                             reject(json)
                         } else {
                             commit('insertAnApp', json);
+
+                            dispatch('keepAccessTokenReadyForApp', {
+                                serviceId: json.appId,
+                                grant_type: GRANT_TYPES_ENUM[json.services[0].id]
+                            })
+
                             resolve(json)
                         }
                     }).catch((e) => {
