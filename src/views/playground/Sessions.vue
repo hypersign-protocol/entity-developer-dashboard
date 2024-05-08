@@ -130,7 +130,7 @@ h5 span {
         <div class="form-group" style="display:flex">
           <h3 v-if="sessionList.length > 0" style="text-align: left;">
             Sessions</h3>
-          <h3 v-else style="text-align: left;">No verification found!</h3>
+          <h3 v-else style="text-align: left;">No session found!</h3>
         </div>
       </div>
     </div>

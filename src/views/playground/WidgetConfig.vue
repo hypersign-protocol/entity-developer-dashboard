@@ -342,9 +342,10 @@ export default {
 
     } catch (e) {
       this.isLoading = false
-      this.notifyErr(e.message)
-      console.log(e.message
-      )
+      console.log(e)
+      if (e.message) {
+        this.notifyErr(e.message)
+      }
       // this.$router.push({ path: '/studio/dashboard' });
     }
   },

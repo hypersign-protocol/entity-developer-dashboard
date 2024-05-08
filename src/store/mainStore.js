@@ -90,6 +90,10 @@ const mainStore = {
         insertAllServices(state, payload) {
             state.serviceList = payload;
         },
+        updateAnApp(state, payload) {
+            const tempToUpdateIndex = state.appList.findIndex(x => x.appId === payload.appId);
+            Object.assign(state.appList[tempToUpdateIndex], { ...payload });
+        },
         insertAnApp(state, payload) {
             if (!state.appList.find(x => x.appId === payload.appId)) {
                 state.appList.unshift(payload);
@@ -97,11 +101,6 @@ const mainStore = {
                 this.commit('updateAnApp', payload);
             }
         },
-        updateAnApp(state, payload) {
-            const tempToUpdateIndex = state.appList.findIndex(x => x.appId === payload.appId);
-            Object.assign(state.appList[tempToUpdateIndex], { ...payload });
-        },
-
         insertSessions(state, payload) {
             state.sessionList = payload
         },
@@ -334,6 +333,9 @@ const mainStore = {
                 // const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/session`;
                 const url = 'http://localhost:3001/api/v1/e-kyc/verification/session'
                 const authToken = getters.getSelectedService.access_token
+                if (!authToken) {
+                    return reject(new Error('authToken is invalid, service is not selected'))
+                }
                 const headers = UtilsMixin.methods.getHeader(authToken);
                 fetch(url, {
                     method: 'GET',
@@ -464,17 +466,24 @@ const mainStore = {
                 const url = `http://localhost:3001/api/v1/e-kyc/verification/widget-config/`
                 const authToken = getters.getSelectedService.access_token
                 const headers = UtilsMixin.methods.getHeader(authToken);
-                fetch(url, {
+                return fetch(url, {
                     method: 'GET',
                     headers
                 }).then(response => response.json()).then(json => {
-                    if (json.error) {
-                        return reject(json)
+                    if (json) {
+                        if (json.error) {
+                            console.log(json.error)
+                            return reject(json.error)
+                        } else {
+                            commit('setWidgetConfig', json);
+                            return resolve()
+                        }
+                    } else {
+                        return resolve()
                     }
-                    commit('setWidgetConfig', json);
-                    resolve()
+
                 }).catch((e) => {
-                    return reject(`Error while fetching apps ` + e.message);
+                    return reject(`Error while fetching widget configuration ` + e.message);
                 })
             })
         },
@@ -572,21 +581,25 @@ const mainStore = {
                     })
                         .then(response => response.json())
                         .then(json => {
-                            if (json && json.totalCount !== 0) {
-                                const payload = json.data.map(x => {
-                                    return {
-                                        did: x,
-                                        didDocument: {},
-                                        status: ""
-                                    }
-                                })
+                            if (json) {
+                                if (json.data.length > 0) {
+                                    const payload = json.data.map(x => {
+                                        return {
+                                            did: x,
+                                            didDocument: {},
+                                            status: ""
+                                        }
+                                    })
 
-                                json.data.map(x => {
-                                    return dispatch('resolveDIDForAService', x)
-                                })
-                                commit('setDIDList', payload)
-                                // allPromises();
-                                resolve()
+                                    json.data.map(x => {
+                                        return dispatch('resolveDIDForAService', x)
+                                    })
+                                    commit('setDIDList', payload)
+                                    // allPromises();
+                                    resolve()
+                                } else {
+                                    resolve()
+                                }
                             } else {
                                 reject(new Error('Could not fetch DID for this service'))
                             }
