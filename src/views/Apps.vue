@@ -287,7 +287,7 @@
                     <div class="col">
                       <span class=" " style="float: right">
                         <span class="badge rounded-pill bg-danger mx-1" title="Click to generate a new API Secret Key"
-                          style="cursor: pointer">
+                          style="cursor: pointer; color: white" @click.stop="openSecretkeyPopUp(eachOrg.appId)">
                           <i class="fa fa-key"></i> Secret
                         </span>
                         <!-- <b-badge pill variant="danger" @click.stop="openSecretkeyPopUp(eachOrg.appId)"
@@ -295,7 +295,7 @@
                           <i class="fa fa-key"></i>
                           Secret</b-badge> -->
                         <span class="badge rounded-pill bg-info mx-1" @click.stop="editOrg(eachOrg.appId)"
-                          title="Click to edit the app" style="cursor: pointer">
+                          title="Click to edit the app" style="cursor: pointer; color: white">
                           <i class="fas fa-pencil-alt"></i>
                           Edit</span>
                       </span>
@@ -379,12 +379,12 @@
 
                           <span class="badge rounded-pill bg-danger mx-1"
                             @click.stop="openSecretkeyPopUp(eachOrg.appId)"
-                            title="Click to generate a new API Secret Key" style="cursor: pointer">
+                            title="Click to generate a new API Secret Key" style="cursor: pointer; color:white">
                             <i class="fa fa-key"></i>
                             Secret</span>
 
                           <span class="badge rounded-pill bg-info mx-1" @click.stop="editOrg(eachOrg.appId)"
-                            title="Click to edit the app" style="cursor: pointer">
+                            title="Click to edit the app" style="cursor: pointer; color:white">
                             <i class="fas fa-pencil-alt"></i>
                             Edit
                           </span>
