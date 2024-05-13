@@ -137,7 +137,7 @@ h5 span {
             @executeAction="openSlider()"></hf-buttons>
         </div>
         <StudioSideBar title="Create DID">
-          <div class="container">
+          <div class="container" style="width: 100%;">
             <div class="form-group">
               <tool-tip infoMessage="Name of the schema"></tool-tip>
               <label for="schemaName"><strong>Name<span style="color: red">*</span>:</strong></label>
