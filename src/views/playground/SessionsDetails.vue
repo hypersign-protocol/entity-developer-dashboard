@@ -492,6 +492,13 @@ h3 {
                                         this.userSbtMintDataFromUserConsent.tokenId }} </td>
                                 </tr>
                                 <tr>
+                                    <td class="greyFont">Contract Address</td>
+                                    <td @click="copyToClip(userSbtMintDataFromUserConsent.sbtContractAddress, 'SBT Contract Address')"
+                                        style="text-align: right;cursor: pointer;">{{
+                                            stringShortner(this.userSbtMintDataFromUserConsent.sbtContractAddress, 15) }}
+                                    </td>
+                                </tr>
+                                <tr>
                                     <td class="greyFont">TransactionHash</td>
                                     <td @click="copyToClip(userSbtMintDataFromUserConsent.transactionHash, 'Transaction hash')"
                                         style="text-align: right;cursor: pointer;">{{
