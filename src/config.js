@@ -66,4 +66,9 @@ config['SERVICE_TYPES'] = Object.freeze({
     CAVACH_API: 'CAVACH_API',
 })
 
+config['GRANT_TYPES_ENUM'] = Object.freeze({
+    'SSI_API': 'access_service_ssi',
+    'CAVACH_API': 'access_service_kyc'
+})
+
 export default config

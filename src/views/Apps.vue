@@ -553,6 +553,7 @@ import messages from "../mixins/messages";
 import { mapGetters, mapState, mapActions, mapMutations } from "vuex";
 import HfFlashNotification from "../components/element/HfFlashNotification.vue";
 import { sanitizeUrl } from '../utils/common'
+import config from '../config';
 export default {
   name: "AppList",
   computed: {
@@ -639,6 +640,7 @@ export default {
       "saveAnAppOnServer",
       "updateAnAppOnServer",
       "generateAPISecretKey",
+      "keepAccessTokenReadyForApp"
     ]),
 
     ...mapMutations("playgroundStore", [
@@ -663,7 +665,7 @@ export default {
               // Check if he has dashboard access
               const readSessionAccess = accessList.find(x => x.access == 'READ_SESSION')
               if (!readSessionAccess) {
-                return this.notifyErr('You do not have access to KYC dashboard, kindly contact the admin 2')
+                return this.notifyErr('You do not have access to KYC dashboard, kindly contact the Hypersign Team')
               }
             }
             this.$router.push({ name: "playgroundCredential", params: { appId } });
@@ -779,8 +781,6 @@ export default {
     },
     async createAnApp() {
       try {
-
-
         const errorMessages = this.validateFields();
         if (errorMessages && errorMessages.message.length > 0) {
           throw errorMessages;
@@ -807,7 +807,16 @@ export default {
           serviceIds: [this.selectedServiceId],
           dependentServices: [this.selectedAssociatedSSIAppId]
         });
+
+
+
         if (t && t.apiSecretKey && t.tenantUrl) {
+
+          this.keepAccessTokenReadyForApp({
+            serviceId: t.appId,
+            grant_type: config.GRANT_TYPES_ENUM[t.services[0].id]
+          })
+
           this.apiKeySecret = t.apiSecretKey;
           this.appModel.tenantUrl = t.tenantUrl;
           // Object.assign(this.appModel, { ...t })
