@@ -10,6 +10,7 @@ import MainDashboard from './views/Dashboard.vue'
 import Credential from './views/playground/Sessions.vue'
 import CredentialDetails from './views/playground/SessionsDetails.vue'
 import DIDs from './views/playground/DID.vue'
+import UsageS from './views/playground/Usage.vue';
 Vue.use(Router)
 
 const router = new Router({
@@ -71,6 +72,15 @@ const router = new Router({
       }
     },
     {
+      path: '/studio/usage/:appId',
+      name: 'UsageS',
+      component: UsageS,
+      meta: {
+        requiresAuth: true,
+        title: `${config.app.name} - Usages`
+      }
+    },
+    {
       path: '/studio/sessions/:appId/:sessionId',
       name: 'sessionDetails',
       component: CredentialDetails,
@@ -91,20 +101,8 @@ const router = new Router({
     },
   ]
 })
-function guardRouteIfOrgNotSelected(to, from, next) {
-  let isOrgSelected = false;
-  if (localStorage.getItem('selectedOrg'))
-    isOrgSelected = true;
-  else
-    isOrgSelected = false; if (isOrgSelected) {
-      next();
-    }
-  else {
-    next({ name: 'dashboard' });
-  }
-}
 
-router.beforeEach((to, from, next) => {
+router.beforeEach(async (to, from, next) => {
   if (to.matched.length < 1) {
     document.title = to.meta.title;
     next(false)
@@ -115,32 +113,37 @@ router.beforeEach((to, from, next) => {
     const authToken = localStorage.getItem('authToken')
     if (authToken) {
       const url = `${config.studioServer.BASE_URL}api/v1/auth`
-      fetch(url, {
-        headers: {
-          Authorization: `Bearer ${authToken}`,
-        },
-        method: "POST",
-      }).then(res => res.json())
-        .then(json => {
-          if (json.status == 403) {
-            next({
-              path: '/studio/login',
-              params: { nextUrl: to.fullPath }
-            })
-          } else {
-            localStorage.setItem("user", JSON.stringify(json.message));
-            store.commit('playgroundStore/addUserDetailsToProfile', json.message)
-            next()
-          }
+      try {
+
+        const response = await fetch(url, {
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+          },
+          method: "POST",
         })
-        .catch((e) => {
-          console.log(e);
-          store.commit('mainStore/setMainSideNavBar', false)
-          next({
-            path: '/studio/login',
-            params: { nextUrl: to.fullPath }
-          })
+
+
+        const json = await response.json()
+        console.log(json)
+        if (json.statusCode == 403 || json.statusCode == 401) {
+          console.log('Unauthenticated....')
+          throw new Error(json.error)
+        } else if (json.status === 200) {
+          localStorage.setItem("user", JSON.stringify(json.message));
+          store.commit('playgroundStore/addUserDetailsToProfile', json.message)
+          next()
+        }
+
+      } catch (e) {
+        console.log(e)
+        store.commit('mainStore/setMainSideNavBar', false)
+        next({
+          path: '/studio/login',
+          params: { nextUrl: to.fullPath }
         })
+
+      }
+
     } else {
       next({
         path: '/studio/login',

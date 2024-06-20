@@ -5,7 +5,7 @@
 }
 
 .container {
-  max-width: 1240px;
+  width: 80vw;
 }
 
 .UI--c-kbgiPT-iehgGlf-css {
@@ -17,7 +17,7 @@
 }
 
 .step-finished {
-  background-color: #9cb5f9;
+  background-color: #673ab76e;
 }
 
 
@@ -125,7 +125,18 @@ h5 span {
   <div :class="isContainerShift ? 'homeShift' : 'home'">
     <loading :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loading>
 
-    <div class="row scrollit" style="margin-top: 2%;" v-if="sessionList.length > 0">
+    <div class="row">
+      <div class="col-md-12" style="text-align: left">
+        <div class="form-group" style="display:flex">
+          <h3 v-if="sessionList.length > 0" class="mt-4" style="text-align: left;">
+            Verifications</h3>
+          <h3 v-else class="mt-4" style="text-align: left;">No verification found!</h3>
+        </div>
+      </div>
+    </div>
+
+
+    <div class="row scrollit" v-if="sessionList.length > 0">
       <div class="col-md-12">
         <table class="table table-hover event-card" style="background:#FFFF">
           <thead class="thead-light">
@@ -135,11 +146,10 @@ h5 span {
               <th class="sticky-header">User Id</th>
               <th class="sticky-header">Steps</th>
               <th class="sticky-header">Status</th>
-              <th class="sticky-header">Action</th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="row in sessionList" :key="row._id">
+            <tr v-for="row in sessionList" v-bind:key="row._id"  @click="viewSessionDetails(row.sessionId)" style="cursor: pointer">
               <td>
                 {{ row.createdAt ? new Date(row.createdAt).toLocaleString('en-us') : "-" }}
               </td>
@@ -153,20 +163,27 @@ h5 span {
                 <span class="stepSpan" title="Start">
                   <div :class="{ 'step-finished': row.step_start == 1, 'step-notStarted': row.step_start == 0 }"
                     class="step UI--c-dhzjXW UI--c-dhzjXW-iexswVt-css UI--c-kbgiPT UI--c-kbgiPT-bUORwj-isFirst-true UI--c-kbgiPT-iehgGlf-css step">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor"
+                    <!-- <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor"
                       viewBox="0 0 256 256" style="min-width: 1.8rem;">
                       <rect width="256" height="256" fill="none"></rect>
                       <line x1="40" y1="216" x2="40" y2="48" fill="none" stroke="currentColor" stroke-linecap="round"
                         stroke-linejoin="round" stroke-width="16"></line>
                       <path d="M40,168c64-48,112,48,176,0V48C152,96,104,0,40,48" fill="none" stroke="currentColor"
                         stroke-linecap="round" stroke-linejoin="round" stroke-width="16"></path>
-                    </svg>
+                    </svg> -->
+
+                    <span class="fa-stack fa-sm">
+                      <i class="fa fa-circle fa-stack-2x fa-inverse" style="color: #f4f3f39c;"></i>
+                      <i class="fa fa-flag fa-stack-1x"></i>
+                    </span>
                   </div>
                 </span>
-                <span class="stepSpan" title="Selfi">
+                <span class="stepSpan" title="Selfi" v-if="row.step_liveliness != null">
                   <div
                     :class="{ 'step-finished': row.step_liveliness == 1, 'step-notStarted': row.step_liveliness == 0 }"
-                    class="step UI--c-dhzjXW UI--c-dhzjXW-iexswVt-css UI--c-kbgiPT UI--c-kbgiPT-ihMjrWH-css "><svg
+                    class="step UI--c-dhzjXW UI--c-dhzjXW-iexswVt-css UI--c-kbgiPT UI--c-kbgiPT-ihMjrWH-css ">
+                    
+                    <!-- <svg
                       xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor"
                       viewBox="0 0 256 256" style="min-width: 1.8rem;">
                       <rect width="256" height="256" fill="none"></rect>
@@ -176,14 +193,22 @@ h5 span {
                         stroke-linejoin="round" stroke-width="16"></circle>
                       <path d="M63.8,199.4a72,72,0,0,1,128.4,0" fill="none" stroke="currentColor" stroke-linecap="round"
                         stroke-linejoin="round" stroke-width="16"></path>
-                    </svg></div>
+                    </svg> -->
+                    <span class="fa-stack fa-sm">
+                      <i class="fa fa-circle fa-stack-2x fa-inverse" style="color: #f4f3f39c;"></i>
+                      <i class="fa fa-user fa-stack-1x"></i>
+                    </span>
+                  
+                  </div>
+
+                    
                 </span>
-
-
-                <span class="stepSpan" title="ID Document">
+                <span class="stepSpan" title="ID Document" v-if="row.step_ocrIdVerification != null">
                   <div
                     :class="{ 'step-finished': row.step_ocrIdVerification == 1, 'step-notStarted': row.step_ocrIdVerification == 0 }"
-                    class="step UI--c-dhzjXW UI--c-dhzjXW-iexswVt-css UI--c-kbgiPT UI--c-kbgiPT-ihMjrWH-css "><svg
+                    class="step UI--c-dhzjXW UI--c-dhzjXW-iexswVt-css UI--c-kbgiPT UI--c-kbgiPT-ihMjrWH-css "
+                    >
+                    <!-- <svg
                       xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor"
                       viewBox="0 0 256 256" style="min-width: 1.8rem;">
                       <rect width="256" height="256" fill="none"></rect>
@@ -195,12 +220,31 @@ h5 span {
                         stroke-width="16"></path>
                       <polyline points="176 176 192 176 192 80 64 80 64 96" fill="none" stroke="currentColor"
                         stroke-linecap="round" stroke-linejoin="round" stroke-width="16"></polyline>
-                    </svg></div>
+                    </svg>
+                   -->
+
+                   <span class="fa-stack fa-sm">
+                      <i class="fa fa-circle fa-stack-2x fa-inverse" style="color: #f4f3f39c;"></i>
+                      <i class="fa fa-address-card fa-stack-1x"></i>
+                    </span>
+                  </div>
+                </span>
+
+                <span class="stepSpan" title="User Consent">
+                  <div :class="{ 'step-finished': row.step_userConsent == 1, 'step-notStarted': (row.step_userConsent == 0 || row.step_userConsent == null) }"
+                    class="step UI--c-dhzjXW UI--c-dhzjXW-iexswVt-css UI--c-kbgiPT UI--c-kbgiPT-ijmsATZ-css ">                    
+                    <span class="fa-stack fa-sm">
+                      <i class="fa fa-circle fa-stack-2x fa-inverse" style="color: #f4f3f39c;"></i>
+                      <i class="fa fa-thumbs-up fa-stack-1x"></i>
+                    </span>
+                  </div>
                 </span>
 
                 <span class="stepSpan" title="Finished">
                   <div :class="{ 'step-finished': row.step_finish == 1, 'step-notStarted': row.step_finish == 0 }"
-                    class="step UI--c-dhzjXW UI--c-dhzjXW-iexswVt-css UI--c-kbgiPT UI--c-kbgiPT-ijmsATZ-css "><svg
+                    class="step UI--c-dhzjXW UI--c-dhzjXW-iexswVt-css UI--c-kbgiPT UI--c-kbgiPT-ijmsATZ-css ">
+                    
+                    <!-- <svg
                       xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor"
                       viewBox="0 0 256 256" style="min-width: 1.8rem;">
                       <rect width="256" height="256" fill="none"></rect>
@@ -210,17 +254,18 @@ h5 span {
                         stroke-width="16"></path>
                       <polyline points="172 104 113.3 160 84 132" fill="none" stroke="currentColor"
                         stroke-linecap="round" stroke-linejoin="round" stroke-width="16"></polyline>
-                    </svg></div>
+                    </svg> -->
+                  
+                    <span class="fa-stack fa-sm">
+                      <i class="fa fa-circle fa-stack-2x fa-inverse" style="color: #f4f3f39c;"></i>
+                      <i class="fa fa-check fa-stack-1x"></i>
+                    </span>
+                  
+                  </div>
                 </span>
               </td>
               <td>
-                <span style="color:green" v-if="row.step_finish == 1"><i class="fa fa-thumbs-up" aria-hidden="true"></i>
-                  Success</span>
-                <span style="color:red" v-else><i class="fa fa-thumbs-down" aria-hidden="true"></i>Expired</span>
-              </td>
-              <td>
-                <span style="cursor: pointer;" @click="viewSessionDetails(row.sessionId)" title="View"><i
-                    class="fa fa-eye" aria-hidden="true"></i></span>
+                <span v-html="getStatus(row)"></span>
               </td>
 
             </tr>
@@ -232,23 +277,12 @@ h5 span {
 </template>
 
 <script>
-import fetch from "node-fetch";
 import UtilsMixin from '../../mixins/utils';
-import HfPopUp from "../../components/element/hfPopup.vue";
 import Loading from "vue-loading-overlay";
-import StudioSideBar from "../../components/element/StudioSideBar.vue";
-import HfButtons from "../../components/element/HfButtons.vue"
-import HfSelectDropDown from "../../components/element/HfSelectDropDown.vue"
-import EventBus from "../../eventbus"
-import ToolTip from "../../components/element/ToolTip.vue"
-import { isEmpty, isValidDid, isValidURL, isFloat } from '../../mixins/fieldValidation'
-import message from '../../mixins/messages'
-import Datepicker from 'vuejs-datetimepicker'
-import VueQr from "vue-qr"
 import { mapState, mapGetters, mapActions, mapMutations } from "vuex";
 export default {
-  name: "Sessions",
-  components: { HfPopUp, Loading, StudioSideBar, HfButtons, HfSelectDropDown, ToolTip, Datepicker, VueQr },
+  name: "SessionsPage",
+  components: { Loading },
   computed: {
     ...mapGetters('mainStore', ['sessionList']),
     ...mapState({
@@ -267,14 +301,22 @@ export default {
       isLoading: false,
     }
   },
-  created() {
-    const usrStr = localStorage.getItem("user");
-    this.user = JSON.parse(usrStr);
-    this.updateSideNavStatus(true)
+  async created() {
+    try{
+      const usrStr = localStorage.getItem("user");
+      this.user = JSON.parse(usrStr);
+      this.updateSideNavStatus(true)
 
-    console.log(this.$route.params.appId)
-    // appId
-    this.fetchAppsUsersSessions({ appId: "" })
+      // appId
+      this.isLoading = true
+      await this.fetchAppsUsersSessions({ appId: "" })
+      this.isLoading = false
+      
+    }catch(e){
+      this.isLoading = false
+      this.notifyErr(e)
+      this.$router.push({path: '/studio/dashboard'});
+    }
   },
   beforeRouteEnter(to, from, next) {
     next((vm) => {

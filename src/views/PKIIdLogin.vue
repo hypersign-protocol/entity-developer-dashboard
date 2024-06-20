@@ -56,12 +56,10 @@
 </template>
 
 <script type="text/javascript">
-import HypersignLogin from "../components/login/Hypersign.vue";
 import GoogleLogin from "../components/login/Google.vue"
 export default {
-  name: "Login",
+  name: "LoginPage",
   components: {
-    HypersignLogin,
     GoogleLogin
   }
 

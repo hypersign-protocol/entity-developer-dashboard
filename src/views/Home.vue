@@ -1,10 +1,12 @@
-<template></template>
+<template>
+    <div></div>
+</template>
 
 
 <script> 
 import EventBus from "../eventbus";
 export default {
-    name: "Home",
+    name: "HomePage",
     created() {
         const  authorizationToken = this.$route.query.token
         if(authorizationToken){

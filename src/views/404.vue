@@ -7,6 +7,7 @@
 <script>
 import config from "../config"
 export default {
+    name: 'FourOfour',
     created() {
         document.title = `${config.app.name} - 404`;
     }
