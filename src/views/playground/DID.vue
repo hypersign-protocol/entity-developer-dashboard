@@ -138,21 +138,21 @@ h5 span {
         </div>
         <StudioSideBar title="Create DID">
           <div class="container">
-            <div class="form-group">
+            <div class="form-group" style="width: 550px;">
               <tool-tip infoMessage="Name of the schema"></tool-tip>
               <label for="schemaName"><strong>Name<span style="color: red">*</span>:</strong></label>
               <input type="text" class="form-control" id="schemaName" v-model="did.options.name"
                 aria-describedby="schemaNameHelp" placeholder="Enter a name for this did">
             </div>
 
-            <div class="form-group">
+            <div class="form-group" style="width: 550px;">
               <tool-tip infoMessage="Name of the schema"></tool-tip>
               <label for="schemaName"><strong>Namespace<span style="color: red">*</span>:</strong></label>
               <hf-select-drop-down :options="namespaceOptions"
                 @selected="e => (did.namespace = e)"></hf-select-drop-down>
             </div>
 
-            <div class="form-group">
+            <div class="form-group" style="width: 550px;">
               <tool-tip infoMessage="Method specific id for a did"></tool-tip>
               <label for="schemaName"><strong>Method Specific Id<span style="color: red">*</span>:</strong></label>
               <div class="input-group">
@@ -165,7 +165,7 @@ h5 span {
               </div>
             </div>
 
-            <div class="form-group">
+            <div class="form-group" style="width: 550px;">
               <tool-tip infoMessage="Name of the schema"></tool-tip>
               <label for="schemaName"><strong>Key Type<span style="color: red">*</span>:</strong></label>
               <hf-select-drop-down :options="keyTypeOptions"
@@ -173,7 +173,7 @@ h5 span {
             </div>
 
 
-            <div class="form-group">
+            <div class="form-group" style="width: 550px;">
               <tool-tip infoMessage="Name of the schema"></tool-tip>
               <label for="schemaName"><strong>Verification Relationships<span
                     style="color: red">*</span>:</strong></label>
@@ -185,7 +185,7 @@ h5 span {
             </div>
 
 
-            <div class="form-group row">
+            <div class="form-group row " style="width: 550px;">
               <div class="col-md-12">
                 <hr />
                 <hf-buttons name="Save" @executeAction="createDID()"></hf-buttons>
@@ -215,7 +215,7 @@ h5 span {
               <td>
                 <span class="fa-stack fa-sm" v-if="checkIfDomainIsVerified(row.didDocument)" style="font-size:8px">
                   <i class="fa fa-certificate fa-stack-2x" aria-hidden="true" style="color:#651d65"></i>
-                  <i class="fa fa-check fa-stack-1x fa-inverse" aria-hidden="true" ></i>
+                  <i class="fa fa-check fa-stack-1x fa-inverse" aria-hidden="true"></i>
                 </span>
               </td>
               <td>{{ row.did }}</td>
@@ -225,7 +225,7 @@ h5 span {
                   <span style="float:left" class="badge badge-info"
                     v-for="eachKey in row.didDocument.verificationMethod" v-bind:key="eachKey.id">
                     {{ eachKey.type }}
-                    
+
                   </span>
                 </div>
 
@@ -240,8 +240,9 @@ h5 span {
               </td>
               <td>
                 <span><i class="fa fa-eye" aria-hidden="true"></i></span>
-                
-                <span v-if="!checkIfDomainIsVerified(row.didDocument)" @click="linkDomain(row)" class="ml-2" style="cursor:grab"><i class="fa fa-link"></i></span>
+
+                <span v-if="!checkIfDomainIsVerified(row.didDocument)" @click="linkDomain(row)" class="ml-2"
+                  style="cursor:grab"><i class="fa fa-link"></i></span>
               </td>
             </tr>
           </tbody>
@@ -254,39 +255,41 @@ h5 span {
 
 
       <div class="form-group">
-              <label for="schemaName"><strong>Domain Name<span style="color: red">*</span></strong>:</label>
-              <div class="input-group">
-                <input type="text" class="form-control" id="schemaName" v-model="domain"
-                  aria-describedby="schemaNameHelp" placeholder="Enter Your Domain Name (e.g https://example.com)">
-              </div>
+        <label for="schemaName"><strong>Domain Name<span style="color: red">*</span></strong>:</label>
+        <div class="input-group">
+          <input type="text" class="form-control" id="schemaName" v-model="domain" aria-describedby="schemaNameHelp"
+            placeholder="Enter Your Domain Name (e.g https://example.com)">
+        </div>
       </div>
 
       <div class="form-group" v-if="domain != ''">
-              <label for="schemaName"><strong>TXT Record</strong>:</label>
-              <div class="input-group">
-                <input type="text" class="form-control"  :value="domainDidLinkTxtRecordText" disabled>
-                <div class="input-group-append">
-                  <button class="input-group-text btn btn-secondary" id="basic-addon1"
-                    @click="copyToClip(domainDidLinkTxtRecordText, 'TXT Record')"><i class="fa fa-clone" aria-hidden="true"></i></button>
-                </div>
-              </div>
-              <small style="color:grey">Please add the TXT record in your DNS for DNS-01 validation</small>
+        <label for="schemaName"><strong>TXT Record</strong>:</label>
+        <div class="input-group">
+          <input type="text" class="form-control" :value="domainDidLinkTxtRecordText" disabled>
+          <div class="input-group-append">
+            <button class="input-group-text btn btn-secondary" id="basic-addon1"
+              @click="copyToClip(domainDidLinkTxtRecordText, 'TXT Record')"><i class="fa fa-clone"
+                aria-hidden="true"></i></button>
+          </div>
+        </div>
+        <small style="color:grey">Please add the TXT record in your DNS for DNS-01 validation</small>
       </div>
 
-      
+
 
 
       <div class="form-group">
         <label for="orgDid"><strong>Logo Url</strong> (optional): </label>
-        <input type="text" class="form-control" id="appId" v-model="domainLogoUrl" placeholder="Enter logo url (e.g https://example.com/logo.png)" />
+        <input type="text" class="form-control" id="appId" v-model="domainLogoUrl"
+          placeholder="Enter logo url (e.g https://example.com/logo.png)" />
       </div>
 
-          <div class="text-center mt-3">
-            <!-- <hf-buttons :name="verifyButtonText" class="btn btn-primary text-center"
+      <div class="text-center mt-3">
+        <!-- <hf-buttons :name="verifyButtonText" class="btn btn-primary text-center"
               @executeAction="verifyDNS01AndUpdateDID()">
             </hf-buttons> -->
-            <button @click="verifyDNS01AndUpdateDID()" class="btn btn-primary">{{verifyButtonText}}</button>
-          </div>
+        <button @click="verifyDNS01AndUpdateDID()" class="btn btn-primary">{{ verifyButtonText }}</button>
+      </div>
     </hf-pop-up>
   </div>
 </template>
@@ -377,7 +380,7 @@ export default {
     } catch (e) {
       this.isLoading = false
       this.notifyErr(e.message)
-      this.$router.push({path: '/studio/dashboard'});
+      this.$router.push({ path: '/studio/dashboard' });
     }
   },
   beforeRouteEnter(to, from, next) {
@@ -392,58 +395,58 @@ export default {
     linkDomain(row) {
       // remove this once this feature is complete
       this.notifyErr("Feature coming soon");
-    
+
       this.domainDID = row.did;
       this.domainDIDDocument = row.didDocument
       // this.$root.$emit("bv::show::modal", "link-domain");
     },
 
 
-    checkIfDomainIsVerified(didDocument){
-      if(didDocument){
-        if(didDocument.service.length > 0){
+    checkIfDomainIsVerified(didDocument) {
+      if (didDocument) {
+        if (didDocument.service.length > 0) {
           const linkedDomainServices = didDocument.service.filter(service => service.type == "LinkedDomains")
-          if(linkedDomainServices.length > 0){
+          if (linkedDomainServices.length > 0) {
             return true
           }
         } else {
           return false;
         }
-      }else  {
+      } else {
         return false;
       }
     },
-    async verifyDNS01AndUpdateDID(){
-      try{  
+    async verifyDNS01AndUpdateDID() {
+      try {
         this.isLoading = true;
         // TODO
         // Step 1: DNS01 validation
         this.verifyButtonText = 'Verify DNS01...'
         const domainLinkage = new DomainLinkage(this.domain)
         const params = {
-          domain: this.domain.includes('http') ? this.domain : new URL('https://' + this.domain), 
+          domain: this.domain.includes('http') ? this.domain : new URL('https://' + this.domain),
           txtRecord: "google-site-verification=sDjFsne7lhpJSjnq86xe-SakwbtwdqhRjJ1fCHcTP2E"//this.domainDidLinkTxtRecordText
         }
 
         console.log(params)
         const dns01Result = await domainLinkage.verifyDnsTxtRecord(params.domain, params.txtRecord)
         console.log(dns01Result)
-        if(dns01Result && dns01Result.verified){
+        if (dns01Result && dns01Result.verified) {
           // 
           this.verifyButtonText = 'DNS01 verified'
-          
+
           this.verifyButtonText = 'Updating DID...'
-          
+
           // Step 2: Update the DID
-          if(Object.keys(this.domainDIDDocument).length > 0){
-            if(this.domainDIDDocument.service){
+          if (Object.keys(this.domainDIDDocument).length > 0) {
+            if (this.domainDIDDocument.service) {
               this.domainDIDDocument.service.push({
-                  id: this.domainDID+"#linkedDomain",
-                  type: "LinkedDomains",
-                  serviceEndpoint: this.domain
+                id: this.domainDID + "#linkedDomain",
+                type: "LinkedDomains",
+                serviceEndpoint: this.domain
               })
 
-              if(this.domainLogoUrl != ""){
+              if (this.domainLogoUrl != "") {
                 // TODO: validate if its a valid URL
                 // this.domainDIDDocument.service.push({
                 //   id: this.domainDID+"#logo",
@@ -455,7 +458,7 @@ export default {
               const payload = {
                 didDocument: this.domainDIDDocument,
                 verificationMethodId: this.domainDIDDocument.verificationMethod[0].id,
-                deactivate:  false
+                deactivate: false
               }
 
               console.log('Callling before updateDIDsForAService')
@@ -471,19 +474,19 @@ export default {
           }
         } else {
           throw new Error('Could not verify your DNS, if you have already added TXT record, try after sometime')
-         }
+        }
         this.isLoading = false;
-      
 
 
-      }catch(e){
+
+      } catch (e) {
         console.error(e.message)
         this.isLoading = false;
         this.verifyButtonText = "Verify"
       }
-                
 
-      
+
+
     },
 
     async viewSessionDetails(sessionId) {
