@@ -3,7 +3,7 @@
     <loading :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loading>
     <div>
       <div v-if="appList.length > 0" class="row">
-        <div class="col-md-12 mt-1">
+        <div class="col mt-1">
           <h3 style="float: left;">
             <i class="fa fa-cogs mr-2" aria-hidden="true"></i>Your Services
           </h3>
@@ -151,7 +151,8 @@
           <small><a :href="`${swaggerAPIdoc}`" target="_blank">Open API Doc (Swagger)</a></small>
         </div>
 
-        <div class="form-group" v-if="edit === true && appModel.services[0].id == 'SSI_API'">
+        <div class="form-group"
+          v-if="edit === true && ((appModel.services && appModel.services.length) > 0 && (appModel.services[0].id == 'SSI_API'))">
           <tool-tip infoMessage=" Your wallet address"></tool-tip>
           <label for="orgDid"><strong>Wallet Address: </strong></label>
           <div class="input-group mb-1">
@@ -164,8 +165,9 @@
               </span>
             </div>
           </div>
-          <small><a :href="`https://explorer.hypersign.id/hypersign-testnet/account/${appModel.walletAddress}`"
-              target="_blank">Click here to view wallet balance</a></small>
+          <small><a :href="`${$config.explorer.BASE_URL}/account/${appModel.walletAddress}`" target="_blank">Click here
+              to view wallet
+              balance</a></small>
         </div>
 
         <div class="form-group" v-if="edit === false">
@@ -193,7 +195,8 @@
           <!-- <small>{{ serviceDescrition }}</small> -->
         </div>
 
-        <div class="form-group" v-if="edit === true && appModel.services[0].id == 'CAVACH_API'">
+        <div class="form-group"
+          v-if="edit === true && (appModel.services && appModel.services.length > 0 && (appModel.services[0].id == 'CAVACH_API'))">
           <tool-tip infoMessage="SSI Service Id"></tool-tip>
           <label for="orgDid"><strong>SSI Service Id: </strong></label>
           <input type="text" class="form-control" id="orgDid" v-model="appModel.dependentServices[0]"
@@ -284,14 +287,18 @@
                   <div class="row mt-2">
                     <div class="col">
                       <span class=" " style="float: right">
-                        <b-badge pill variant="danger" @click.stop="openSecretkeyPopUp(eachOrg.appId)"
-                          title="Click to generate a new API Secret Key" class="mr-2" style="cursor: pointer">
+                        <span class="badge rounded-pill bg-danger mx-1" title="Click to generate a new API Secret Key"
+                          style="cursor: pointer; color: white" @click.stop="openSecretkeyPopUp(eachOrg.appId)">
+                          <i class="fa fa-key"></i> Secret
+                        </span>
+                        <!-- <b-badge pill variant="danger" @click.stop="openSecretkeyPopUp(eachOrg.appId)"
+                        title="Click to generate a new API Secret Key"  class="mr-2" style="cursor: pointer">
                           <i class="fa fa-key"></i>
-                          Secret</b-badge>
-                        <b-badge pill variant="info" @click.stop="editOrg(eachOrg.appId)" title="Click to edit the app"
-                          style="cursor: pointer">
+                          Secret</b-badge> -->
+                        <span class="badge rounded-pill bg-info mx-1" @click.stop="editOrg(eachOrg.appId)"
+                          title="Click to edit the app" style="cursor: pointer; color: white">
                           <i class="fas fa-pencil-alt"></i>
-                          Edit</b-badge>
+                          Edit</span>
                       </span>
                     </div>
                   </div>
@@ -364,14 +371,24 @@
                         <!-- <span class=" " style="cursor: pointer" @click.stop="switchOrg(eachOrg.appId,  'CAVACH_API')"><i
                           class="fas fa-tachometer-alt" aria-hidden="true"></i></span> -->
                         <span class=" " style="float: right">
-                          <b-badge pill variant="danger" @click.stop="openSecretkeyPopUp(eachOrg.appId)"
-                            title="Click to generate a new API Secret Key" class="mr-2" style="cursor: pointer">
+                          <!-- <span class="badge rounded-pill bg-warning mx-1"
+                            @click.stop="openOnChainDeployPopup(eachOrg.appId)"
+                            title="Click to generate a new API Secret Key" data-bs-toggle="modal"
+                            data-bs-target="#onchain-kyc-deploy" style="cursor: pointer">
                             <i class="fa fa-key"></i>
-                            Secret</b-badge>
-                          <b-badge pill variant="info" @click.stop="editOrg(eachOrg.appId)"
-                            title="Click to edit the app" style="cursor: pointer">
+                            Deploy</span> -->
+
+                          <span class="badge rounded-pill bg-danger mx-1"
+                            @click.stop="openSecretkeyPopUp(eachOrg.appId)"
+                            title="Click to generate a new API Secret Key" style="cursor: pointer; color:white">
+                            <i class="fa fa-key"></i>
+                            Secret</span>
+
+                          <span class="badge rounded-pill bg-info mx-1" @click.stop="editOrg(eachOrg.appId)"
+                            title="Click to edit the app" style="cursor: pointer; color:white">
                             <i class="fas fa-pencil-alt"></i>
-                            Edit</b-badge>
+                            Edit
+                          </span>
                         </span>
                       </div>
                     </div>
@@ -382,33 +399,13 @@
           </div>
         </b-tab>
       </b-tabs>
-      <!-- <div style="padding: 5px">
-        <nav aria-label="Page navigation example" style="margin: 0 auto; width: 50px">
-          <ul class="pagination">
-            <li class="page-item">
-              <a class="page-link" href="#" aria-label="Previous">
-                <span aria-hidden="true">&laquo;</span>
-                <span class="sr-only">Previous</span>
-              </a>
-            </li>
 
-            <li class="page-item" v-if="pages > 1">
-              <a class="page-link" href="#">1</a>
-            </li>
-            <li class="page-item" v-if="pages > 2">
-              <a class="page-link" href="#">2</a>
-            </li>
-
-            <li class="page-item">
-              <a class="page-link" href="#" aria-label="Next">
-                <span aria-hidden="true">&raquo;</span>
-                <span class="sr-only">Next</span>
-              </a>
-            </li>
-          </ul>
-        </nav>
-      </div> -->
     </div>
+
+
+    <!-- <hf-pop-up id="onchain-kyc-deploy" Header="Deploy Your OnChain KYC">
+      <DeployOnChainKYC />
+    </hf-pop-up> -->
   </div>
 </template>
 
@@ -553,6 +550,7 @@ import messages from "../mixins/messages";
 import { mapGetters, mapState, mapActions, mapMutations } from "vuex";
 import HfFlashNotification from "../components/element/HfFlashNotification.vue";
 import { sanitizeUrl } from '../utils/common'
+// import DeployOnChainKYC from "../components/deploy-onchain-kyc-popup/deploy.vue";
 import config from '../config';
 export default {
   name: "AppList",
@@ -621,7 +619,8 @@ export default {
         logoUrl: "",
         tenantUrl: "",
         services: [],
-        dependentServices: []
+        dependentServices: [],
+
       },
     };
   },
@@ -632,6 +631,7 @@ export default {
     HfButtons,
     ToolTip,
     HfFlashNotification,
+    // DeployOnChainKYC
   },
   methods: {
     ...mapMutations("mainStore", ["updateAnApp", "setMainSideNavBar"]),
@@ -868,16 +868,21 @@ export default {
         if (t) {
           this.closeSlider();
           this.notifySuccess(messages.APPLICATION.APP_UPDATE_SUCCESS);
+          this.isLoading = true;
+
         } else {
           throw new Error("Something went wrong");
         }
       } catch (e) {
+        console.log(e.message)
         if (Array.isArray(e.message)) {
           e.message.forEach((m) => {
             this.notifyErr(m);
           });
           return;
         }
+        this.isLoading = true;
+
         this.notifyErr(e.message);
       } finally {
         this.isLoading = false;
@@ -889,6 +894,11 @@ export default {
       this.selectedAppId = appId;
       this.$root.$emit("bv::show::modal", "entity-secret-confirmation-popup");
     },
+
+    // openOnChainDeployPopup(appId) {
+    //   console.log('Inside openOnChainDeployPopup() appId' + appId)
+    //   this.$root.$emit("bv::show::modal", "onchain-kyc-deploy");
+    // },
     async reGenerateSecretKey() {
       if (this.appIdToGenerateSecret === "") {
         return this.notifyErr(messages.APPLICATION.ENTER_APP_ID);

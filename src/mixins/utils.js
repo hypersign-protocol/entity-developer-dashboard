@@ -1,5 +1,13 @@
 export default {
     methods: {
+        toDateTime(d) {
+            const newDate = new Date(d)
+            const date = newDate.toDateString()
+            const hh = newDate.getHours()
+            const mm = newDate.getMinutes()
+            const ss = newDate.getSeconds()
+            return date + ' ' + hh + ':' + mm + ':' + ss
+        },
         getHeader(authToken = '') {
             if (authToken != '') {
                 // TODO: Remove this userId later
@@ -12,6 +20,23 @@ export default {
                     "Content-Type": "application/json",
                 }
             }
+        },
+        stringShortner(str, size) {
+            if (!str) {
+                return "-"
+            }
+            const l = str.length
+
+
+            if (l > size) {
+                const f = str.substr(0, Math.floor(size / 2))
+                const m = '...'
+                const last = str.substr(l - ((f).length), l)
+                return f + m + last;
+            } else {
+                return str;
+            }
+
         },
         copyToClip(textToCopy, contentType) {
             if (textToCopy) {

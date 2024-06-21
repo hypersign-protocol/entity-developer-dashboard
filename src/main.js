@@ -14,7 +14,8 @@ import './assets/css/gblStyle.css';
 import store from './store';
 import Multiselect from "vue-multiselect";
 import "vue-multiselect/dist/vue-multiselect.min.css";
-
+import Loading from "vue-loading-overlay";
+import HfButtons from './components/element/HfButtons.vue'
 Vue.config.productionTip = false
 Vue.use(VueSidebarMenu);
 Vue.use(BootstrapVue);
@@ -23,7 +24,8 @@ Vue.use(Notifications)
 Vue.config.devtools = true;
 Vue.prototype.$config = config
 Vue.component("multiSelect", Multiselect);
-
+Vue.component("load-ing", Loading);
+Vue.component("hf-buttons", HfButtons);
 new Vue({
   router,
   store,
