@@ -165,8 +165,9 @@
               </span>
             </div>
           </div>
-          <small><a :href="`https://explorer.hypersign.id/hypersign-testnet/account/${appModel.walletAddress}`"
-              target="_blank">Click here to view wallet balance</a></small>
+          <small><a :href="`${$config.explorer.BASE_URL}/account/${appModel.walletAddress}`" target="_blank">Click here
+              to view wallet
+              balance</a></small>
         </div>
 
         <div class="form-group" v-if="edit === false">

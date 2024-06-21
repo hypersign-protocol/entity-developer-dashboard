@@ -392,8 +392,6 @@ export default {
         throw new Error('Issuer DID is required')
       }
 
-
-
       if (!this.widgetConfigTemp.idOcr.enabled) {
         this.widgetConfigTemp.idOcr.documentType = null
       } else {
