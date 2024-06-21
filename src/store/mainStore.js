@@ -189,7 +189,7 @@ const mainStore = {
 
                             dispatch('keepAccessTokenReadyForApp', {
                                 serviceId: json.appId,
-                                grant_type: GRANT_TYPES_ENUM[json.services[0].id]
+                                grant_type: config.GRANT_TYPES_ENUM[json.services[0].id]
                             })
 
                             resolve(json)
