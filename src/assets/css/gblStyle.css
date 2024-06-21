@@ -59,6 +59,7 @@ body{
 
 a {
     color: #636363;
+    text-decoration-line: underline;
 }
 
 
@@ -81,4 +82,12 @@ a:hover {
     color: #fff;
     background-color: rgba(76, 105, 100, 1);
     border-color: rgba(76, 105, 100, 1);
+}
+
+.center {
+    /* d-flex align-items-center justify-content-center */
+    align-items: center !important;
+    justify-content: center !important;
+    display: flex !important;
+
 }

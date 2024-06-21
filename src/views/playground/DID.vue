@@ -130,15 +130,15 @@ h5 span {
       <div class="col-md-12" style="text-align: left">
         <!-- <Info :message="description" /> -->
         <div class="form-group" style="display:flex">
-          <h3 v-if="didList.length > 0" class="mt-4" style="text-align: left;">
+          <h3 v-if="didList.length > 0" style="text-align: left;">
             Decentralised Identifier</h3>
-          <h3 v-else class="mt-4" style="text-align: left;">Create your first decentralised identifier!</h3>
-          <hf-buttons name="Create" iconClass="fa fa-plus" style="text-align: right;" class="ml-auto mt-4"
+          <h3 v-else style="text-align: left;">Create your first decentralised identifier!</h3>
+          <hf-buttons name="Create" iconClass="fa fa-plus" style="text-align: right;" class="ml-auto"
             @executeAction="openSlider()"></hf-buttons>
         </div>
         <StudioSideBar title="Create DID">
-          <div class="container">
-            <div class="form-group" style="width: 550px;">
+          <div class="container" style="width: 100%;">
+            <div class="form-group">
               <tool-tip infoMessage="Name of the schema"></tool-tip>
               <label for="schemaName"><strong>Name<span style="color: red">*</span>:</strong></label>
               <input type="text" class="form-control" id="schemaName" v-model="did.options.name"
@@ -196,7 +196,7 @@ h5 span {
         </StudioSideBar>
       </div>
     </div>
-    <div class="row scrollit" style="margin-top: 2%;" v-if="didList.length > 0">
+    <div class="row scrollit" v-if="didList.length > 0">
       <div class="col-md-12">
         <table class="table table-hover event-card" style="background:#FFFF">
           <thead class="thead-light">
@@ -218,7 +218,7 @@ h5 span {
                   <i class="fa fa-check fa-stack-1x fa-inverse" aria-hidden="true"></i>
                 </span>
               </td>
-              <td>{{ row.did }}</td>
+              <td @click="copyToClip(row.did, 'DID')" style="cursor: pointer;">{{ row.did }}</td>
               <td>{{ row.name }}</td>
               <td>
                 <div>

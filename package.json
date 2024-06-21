@@ -14,6 +14,8 @@
     "deploy": "gh-pages -d dist"
   },
   "dependencies": {
+    "@cosmjs/cosmwasm-stargate": "^0.32.3",
+    "@cosmjs/crypto": "^0.32.2",
     "@cosmjs/proto-signing": "^0.31.0",
     "@digitalbazaar/ed25519-signature-2020": "^5.2.0",
     "@digitalbazaar/ed25519-verification-key-2020": "^4.1.0",
@@ -25,8 +27,10 @@
     "axios": "^1.4.0",
     "babel-eslint": "^10.1.0",
     "bip39": "^3.1.0",
+    "bootstrap": "^4.6.2",
     "bootstrap-vue": "^2.23.1",
     "core-js": "^3.8.3",
+    "crypto-browserify": "^3.12.0",
     "dotenv": "^16.0.1",
     "fs": "^0.0.1-security",
     "gh-pages": "^1.2.0",
@@ -50,7 +54,8 @@
     "vue-sidebar-menu": "^4.7.4",
     "vue2-leaflet": "^2.7.1",
     "vuejs-datetimepicker": "^1.1.13",
-    "vuex": "^3.4.0"
+    "vuex": "^3.4.0",
+    "webpack": "^5.90.3"
   },
   "devDependencies": {
     "@babel/core": "^7.12.16",

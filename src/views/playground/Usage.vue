@@ -130,9 +130,9 @@ h5 span {
       <div class="col-md-12" style="text-align: left">
         <!-- <Info :message="description" /> -->
         <div class="form-group" style="display:flex">
-          <h3 v-if="usageDetails.serviceDetails.length > 0" class="mt-4" style="text-align: left;">
-           Usage </h3>
-          <h3 v-else class="mt-4" style="text-align: left;">No usage found!</h3>
+          <h3 v-if="usageDetails.serviceDetails.length > 0" style="text-align: left;">
+            Usage </h3>
+          <h3 v-else style="text-align: left;">No usage found!</h3>
         </div>
       </div>
     </div>
@@ -146,8 +146,9 @@ h5 span {
           <div class="col">
             End Date: <input type="datetime-local" class="form-control" placeholder="End Date" v-model="endDate">
           </div>
-          <div class="col" >
-            <hf-buttons name="Search"  class="form-control" iconClass="fa fa-search" @executeAction="search()" style="margin-top:15px"></hf-buttons>
+          <div class="col">
+            <hf-buttons name="Search" class="form-control" iconClass="fa fa-search" @executeAction="search()"
+              style="margin-top:15px"></hf-buttons>
           </div>
         </div>
       </div>
@@ -167,8 +168,8 @@ h5 span {
           <tbody>
             <tr v-for="row in usageDetails.serviceDetails" :key="row">
               <td>{{ row.apiPath }}</td>
-              <td>{{ usageDetails.startDate }}</td>
-              <td>{{ usageDetails.endDate }}</td>
+              <td>{{ toDateTime(usageDetails.startDate) }}</td>
+              <td>{{ toDateTime(usageDetails.endDate) }}</td>
               <td>{{ row.quantity }}</td>
             </tr>
           </tbody>
@@ -189,7 +190,7 @@ import { mapState, mapActions, mapMutations } from "vuex";
 
 export default {
   name: "UsageS",
-  components: { Loading,HfButtons },
+  components: { Loading, HfButtons },
   computed: {
     ...mapState({
       containerShift: state => state.playgroundStore.containerShift,
@@ -200,37 +201,37 @@ export default {
   },
   data() {
     return {
-      
+
       authToken: localStorage.getItem('authToken'),
       user: {},
       fullPage: true,
       isLoading: false,
-      
-      startDate: "" ,
+
+      startDate: "",
       endDate: "",
       usageDetails: {
-  "serviceId": "13f70faf7f5c5d03520b71181136b595f7c6",
-  "startDate": "2024-01-01T18:30:00.000Z",
-  "endDate": "2024-04-02T10:07:53.757Z",
-  "serviceDetails": [
-    {
-      "apiPath": "/api/v1/e-kyc/verification/user-consent",
-      "quantity": 4
-    },
-    {
-      "apiPath": "/api/v1/e-kyc/verification/session",
-      "quantity": 19
-    },
-    {
-      "apiPath": "/api/v1/e-kyc/verification/passive-liveliness",
-      "quantity": 17
-    },
-    {
-      "apiPath": "/api/v1/e-kyc/verification/doc-ocr",
-      "quantity": 3
-    }
-  ]
-}
+        "serviceId": "13f70faf7f5c5d03520b71181136b595f7c6",
+        "startDate": "2024-01-01T18:30:00.000Z",
+        "endDate": "2024-04-02T10:07:53.757Z",
+        "serviceDetails": [
+          {
+            "apiPath": "/api/v1/e-kyc/verification/user-consent",
+            "quantity": 4
+          },
+          {
+            "apiPath": "/api/v1/e-kyc/verification/session",
+            "quantity": 19
+          },
+          {
+            "apiPath": "/api/v1/e-kyc/verification/passive-liveliness",
+            "quantity": 17
+          },
+          {
+            "apiPath": "/api/v1/e-kyc/verification/doc-ocr",
+            "quantity": 3
+          }
+        ]
+      }
     }
   },
   async created() {
@@ -242,18 +243,18 @@ export default {
       // appId
       this.isLoading = true
 
-      
-      
 
-      
+
+
+
       this.setDate()
-      this.usageDetails = await this.fetchUsageForAService({ startDate: this.startDate, endDate: this.endDate})
+      this.usageDetails = await this.fetchUsageForAService({ startDate: this.startDate, endDate: this.endDate })
       this.isLoading = false
-    
+
     } catch (e) {
       this.isLoading = false
       this.notifyErr(e.message)
-      this.$router.push({path: '/studio/dashboard'});
+      this.$router.push({ path: '/studio/dashboard' });
     }
   },
   beforeRouteEnter(to, from, next) {
@@ -264,7 +265,7 @@ export default {
   methods: {
     ...mapActions('mainStore', ['fetchUsageForAService']),
     ...mapMutations('playgroundStore', ['updateSideNavStatus', 'shiftContainer']),
-   
+
 
     copyToClip(textToCopy, contentType) {
       if (textToCopy) {
@@ -284,18 +285,18 @@ export default {
       const day = 1;
       const month = today.getMonth();
       const year = today.getFullYear();
-      
+
       this.startDate = (new Date(year, month, day));
       this.endDate = today;
     },
 
-    async search(){
+    async search() {
       try {
-        if(!this.startDate) {
+        if (!this.startDate) {
           throw new Error("Start date is not set")
         }
 
-        if(!this.endDate) {
+        if (!this.endDate) {
           this.endDate = (new Date());
         }
 
@@ -303,9 +304,9 @@ export default {
         this.endDate = (new Date(this.endDate));
 
         this.isLoading = true
-        this.usageDetails = await this.fetchUsageForAService({ startDate: this.startDate, endDate: this.endDate})
+        this.usageDetails = await this.fetchUsageForAService({ startDate: this.startDate, endDate: this.endDate })
         this.isLoading = false
-      }catch(e){
+      } catch (e) {
         this.isLoading = false
         this.notifyErr(e.message)
       }

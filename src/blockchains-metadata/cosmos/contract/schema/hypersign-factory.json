@@ -1,0 +1,113 @@
+{
+  "contract_name": "hypersign-factory",
+  "contract_version": "0.1.0",
+  "idl_version": "1.0.0",
+  "instantiate": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "InstantiateMsg",
+    "type": "object",
+    "properties": {
+      "counter": {
+        "default": 0,
+        "type": "integer",
+        "format": "uint64",
+        "minimum": 0.0
+      }
+    },
+    "additionalProperties": false
+  },
+  "execute": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "ExecuteMsg",
+    "oneOf": [
+      {
+        "type": "object",
+        "required": [
+          "onboard_issuer"
+        ],
+        "properties": {
+          "onboard_issuer": {
+            "type": "object",
+            "required": [
+              "issuer_did",
+              "issuer_kyc_code_id"
+            ],
+            "properties": {
+              "issuer_did": {
+                "type": "string"
+              },
+              "issuer_kyc_code_id": {
+                "type": "integer",
+                "format": "uint64",
+                "minimum": 0.0
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "additionalProperties": false
+      }
+    ]
+  },
+  "query": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "QueryMsg",
+    "oneOf": [
+      {
+        "type": "object",
+        "required": [
+          "get_registered_issuer"
+        ],
+        "properties": {
+          "get_registered_issuer": {
+            "type": "object",
+            "additionalProperties": false
+          }
+        },
+        "additionalProperties": false
+      }
+    ]
+  },
+  "migrate": null,
+  "sudo": null,
+  "responses": {
+    "get_registered_issuer": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "RegistredIssuerResp",
+      "type": "object",
+      "required": [
+        "issuer"
+      ],
+      "properties": {
+        "issuer": {
+          "$ref": "#/definitions/Issuer"
+        }
+      },
+      "additionalProperties": false,
+      "definitions": {
+        "Issuer": {
+          "type": "object",
+          "required": [
+            "did",
+            "id"
+          ],
+          "properties": {
+            "did": {
+              "type": "string"
+            },
+            "id": {
+              "type": "string"
+            },
+            "kyc_contract_address": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          "additionalProperties": false
+        }
+      }
+    }
+  }
+}
