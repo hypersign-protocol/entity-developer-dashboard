@@ -403,11 +403,11 @@ export default {
               icon: "fa fa-check",
             })
 
-            menu.push({
-              href: "/studio/onchainkyc/" + this.getSelectedService.appId,
-              title: "OnChain KYC",
-              icon: "fas fa-network-wired",
-            })
+            // menu.push({
+            //   href: "/studio/onchainkyc/" + this.getSelectedService.appId,
+            //   title: "OnChain KYC",
+            //   icon: "fas fa-network-wired",
+            // })
 
             menu.push({
               href: "/studio/widget-config/" + this.getSelectedService.appId,

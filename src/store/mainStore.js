@@ -336,8 +336,8 @@ const mainStore = {
                 if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
                     return reject(new Error('Tenant url is null or empty, service is not selected'))
                 }
-                // const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/session`;
-                const url = 'http://localhost:3001/api/v1/e-kyc/verification/session'
+                const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/session`;
+                // const url = 'http://localhost:3001/api/v1/e-kyc/verification/session'
                 const authToken = getters.getSelectedService.access_token
                 if (!authToken) {
                     return reject(new Error('authToken is invalid, service is not selected'))
@@ -365,8 +365,8 @@ const mainStore = {
                 if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
                     return reject(new Error('Tenant url is null or empty, service is not selected'))
                 }
-                // const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/onchainkyc-config`;
-                const url = `http://localhost:3001/api/v1/e-kyc/verification/onchainkyc-config`
+                const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/onchainkyc-config`;
+                // const url = `http://localhost:3001/api/v1/e-kyc/verification/onchainkyc-config`
                 const authToken = getters.getSelectedService.access_token
                 const headers = UtilsMixin.methods.getHeader(authToken);
                 fetch(url, {
@@ -389,8 +389,8 @@ const mainStore = {
                 if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
                     return reject(new Error('Tenant url is null or empty, service is not selected'))
                 }
-                // const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/onchainkyc-config`;
-                const url = `http://localhost:3001/api/v1/e-kyc/verification/onchainkyc-config`
+                const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/onchainkyc-config`;
+                // const url = `http://localhost:3001/api/v1/e-kyc/verification/onchainkyc-config`
                 const authToken = getters.getSelectedService.access_token
                 const headers = UtilsMixin.methods.getHeader(authToken);
                 fetch(url, {
@@ -414,8 +414,8 @@ const mainStore = {
                 if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
                     return reject(new Error('Tenant url is null or empty, service is not selected'))
                 }
-                // const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/onchainkyc-config`;
-                const url = `http://localhost:3001/api/v1/e-kyc/verification/onchainkyc-config`
+                const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/onchainkyc-config`;
+                // const url = `http://localhost:3001/api/v1/e-kyc/verification/onchainkyc-config`
                 const authToken = getters.getSelectedService.access_token
                 const headers = UtilsMixin.methods.getHeader(authToken);
                 fetch(url, {
@@ -441,8 +441,8 @@ const mainStore = {
                 if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
                     return reject(new Error('Tenant url is null or empty, service is not selected'))
                 }
-                // const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/widget-config`;
-                const url = `http://localhost:3001/api/v1/e-kyc/verification/widget-config`
+                const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/widget-config`;
+                // const url = `http://localhost:3001/api/v1/e-kyc/verification/widget-config`
                 const authToken = getters.getSelectedService.access_token
                 const headers = UtilsMixin.methods.getHeader(authToken);
                 const data = getters.getWidgetnConfig;
@@ -468,8 +468,8 @@ const mainStore = {
                 if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
                     return reject(new Error('Tenant url is null or empty, service is not selected'))
                 }
-                // const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/onchainkyc-config`;
-                const url = `http://localhost:3001/api/v1/e-kyc/verification/widget-config/`
+                const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/onchainkyc-config`;
+                // const url = `http://localhost:3001/api/v1/e-kyc/verification/widget-config/`
                 const authToken = getters.getSelectedService.access_token
                 const headers = UtilsMixin.methods.getHeader(authToken);
                 return fetch(url, {
@@ -499,8 +499,8 @@ const mainStore = {
                 if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
                     return reject(new Error('Tenant url is null or empty, service is not selected'))
                 }
-                // const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/onchainkyc-config`;
-                const url = `http://localhost:3001/api/v1/e-kyc/verification/widget-config`
+                const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/onchainkyc-config`;
+                // const url = `http://localhost:3001/api/v1/e-kyc/verification/widget-config`
                 const authToken = getters.getSelectedService.access_token
                 const headers = UtilsMixin.methods.getHeader(authToken);
                 const data = getters.getWidgetnConfig;
@@ -529,8 +529,8 @@ const mainStore = {
                 if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
                     return reject(new Error('Tenant url is null or empty, service is not selected'))
                 }
-                // const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/session/${sessionId}`;
-                const url = `http://localhost:3001/api/v1/e-kyc/verification/session/${sessionId}`;
+                const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/session/${sessionId}`;
+                // const url = `http://localhost:3001/api/v1/e-kyc/verification/session/${sessionId}`;
                 const authToken = getters.getSelectedService.access_token
                 const headers = UtilsMixin.methods.getHeader(authToken);
                 fetch(url, {

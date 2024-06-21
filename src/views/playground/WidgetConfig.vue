@@ -151,14 +151,14 @@ ul {
             <li class="list-group-item">
               <b-form-checkbox switch size="lg" v-model="widgetConfigTemp.faceRecog" disabled>Enable Facial
                 Recoginition</b-form-checkbox>
-              <small>Enables your users to do facial Recoginition</small>
+              <small>Enable users verify if they are human and generate Personhood Credential</small>
             </li>
             <li class="list-group-item">
               <div class="row">
                 <div class="col">
                   <b-form-checkbox switch size="lg" v-model="widgetConfigTemp.idOcr.enabled">Enable ID Document
                     Verification</b-form-checkbox>
-                  <small>Lorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsum</small>
+                  <small>Enable users verify their ID Document and generate their ID Credential</small>
                 </div>
                 <div class="col" v-if="widgetConfigTemp.idOcr.enabled && documentTypeOptions.length > 0">
                   <div class="">
@@ -169,7 +169,7 @@ ul {
                 </div>
               </div>
             </li>
-            <li class="list-group-item">
+            <!-- <li class="list-group-item">
               <div class="row">
                 <div class="col">
                   <b-form-checkbox switch size="lg" v-model="widgetConfigTemp.onChainId.enabled">Enable Onchain
@@ -184,11 +184,6 @@ ul {
                   </div>
                 </div>
               </div>
-            </li>
-            <!-- <li class="list-group-item">
-              <b-form-checkbox switch size="lg" v-model="widgetConfigTemp.userConsent.enabled" disabled>Enable User
-                Consent</b-form-checkbox>
-              <small>Lorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsum</small>
             </li> -->
             <li class="list-group-item" v-if="widgetConfigTemp.userConsent.enabled">
               <div class="row">
@@ -198,7 +193,7 @@ ul {
                       <b-form-checkbox switch size="lg" v-model="widgetConfigTemp.userConsent.enabled" disabled>Enable
                         User
                         Consent</b-form-checkbox>
-                      <small>Lorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsum</small>
+                      <small></small>
                     </div>
                     <div class="row mt-2">
                       <div class="col-md-3">
