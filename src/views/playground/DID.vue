@@ -145,14 +145,14 @@ h5 span {
                 aria-describedby="schemaNameHelp" placeholder="Enter a name for this did">
             </div>
 
-            <div class="form-group">
+            <div class="form-group" style="width: 550px;">
               <tool-tip infoMessage="Name of the schema"></tool-tip>
               <label for="schemaName"><strong>Namespace<span style="color: red">*</span>:</strong></label>
               <hf-select-drop-down :options="namespaceOptions"
                 @selected="e => (did.namespace = e)"></hf-select-drop-down>
             </div>
 
-            <div class="form-group">
+            <div class="form-group" style="width: 550px;">
               <tool-tip infoMessage="Method specific id for a did"></tool-tip>
               <label for="schemaName"><strong>Method Specific Id<span style="color: red">*</span>:</strong></label>
               <div class="input-group">
@@ -165,7 +165,7 @@ h5 span {
               </div>
             </div>
 
-            <div class="form-group">
+            <div class="form-group" style="width: 550px;">
               <tool-tip infoMessage="Name of the schema"></tool-tip>
               <label for="schemaName"><strong>Key Type<span style="color: red">*</span>:</strong></label>
               <hf-select-drop-down :options="keyTypeOptions"
@@ -173,7 +173,7 @@ h5 span {
             </div>
 
 
-            <div class="form-group">
+            <div class="form-group" style="width: 550px;">
               <tool-tip infoMessage="Name of the schema"></tool-tip>
               <label for="schemaName"><strong>Verification Relationships<span
                     style="color: red">*</span>:</strong></label>
@@ -185,7 +185,7 @@ h5 span {
             </div>
 
 
-            <div class="form-group row">
+            <div class="form-group row " style="width: 550px;">
               <div class="col-md-12">
                 <hr />
                 <hf-buttons name="Save" @executeAction="createDID()"></hf-buttons>

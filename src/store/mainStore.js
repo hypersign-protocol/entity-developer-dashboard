@@ -8,10 +8,10 @@ const { apiServer } = config;
 const apiServerBaseUrl = sanitizeUrl(apiServer.host) + apiServer.basePath;
 Vue.use(Vuex)
 
-const GRANT_TYPES_ENUM = Object.freeze({
-    'SSI_API': 'access_service_ssi',
-    'CAVACH_API': 'access_service_kyc'
-})
+// const GRANT_TYPES_ENUM = Object.freeze({
+//     'SSI_API': 'access_service_ssi',
+//     'CAVACH_API': 'access_service_kyc'
+// })
 
 const mainStore = {
     namespaced: true,
@@ -248,7 +248,7 @@ const mainStore = {
                 json.data.map(x => {
                     return dispatch('keepAccessTokenReadyForApp', {
                         serviceId: x.appId,
-                        grant_type: GRANT_TYPES_ENUM[x.services[0].id]
+                        grant_type: config.GRANT_TYPES_ENUM[x.services[0].id]
                     })
                 })
             }).catch((e) => {
