@@ -116,15 +116,26 @@ export default {
         },
         getStatus(sessionDetails) {
             // Sucess, Expired, Pending
-            const { expiresAt, step_finish } = sessionDetails
+            const { expiresAt, step_finish, ocriddocsDetails, selfiDetails } = sessionDetails
 
             if (step_finish == 1) {
                 return '<span class="badge badge-pill badge-success">Success</span>'
             }
 
+
+            if (selfiDetails && Object.keys(selfiDetails).length > 0 && selfiDetails.serviceLivenessResult != 3) {
+                // Fall back for those record where expiry data not present
+                return '<span class="badge badge-pill badge-danger">Failed<span>'
+            }
+
+            if (ocriddocsDetails && Object.keys(ocriddocsDetails).length > 0 && ocriddocsDetails.serviceFacialAuthenticationResult != 3) {
+                // Fall back for those record where expiry data not present
+                return '<span class="badge badge-pill badge-danger">Failed<span>'
+            }
+
             if (!expiresAt) {
                 // Fall back for those record where expiry data not present
-                return '<span class="badge badge-pill badge-danger">Expired<span>'
+                return '<span class="badge badge-pill badge-secondary">Expired<span>'
             }
 
             const now = Date.now()
@@ -135,7 +146,7 @@ export default {
             }
 
             if ((step_finish == 0) && hasExpired) {
-                return '<span class="badge badge-pill badge-danger">Expired<span>'
+                return '<span class="badge badge-pill badge-secondary">Expired<span>'
             }
 
             if ((step_finish == 0) && !hasExpired) {
