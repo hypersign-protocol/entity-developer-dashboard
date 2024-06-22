@@ -345,7 +345,7 @@ h3 {
                 </div>
 
                 <!-- Face Verification -->
-                <div class="card dataCard float-" style="border: 1px solid rgb(81, 137, 81);"
+                <div class="card dataCard float-" :style="{ 'border': getStatusColor }"
                     v-if="session.selfiDetails && Object.keys(session.selfiDetails).length > 0">
                     <div class="card-header" style="padding: 10px">
                         <h4><i class="fa fa-smile" aria-hidden="true"></i> Face Verification</h4>
@@ -356,14 +356,18 @@ h3 {
                                 <span class=""><img style="height:100px;"
                                         :src="session.selfiDetails.tokenSelfiImage" /></span>
                             </div>
-                            <div class="col-md-2 centered-container" style="" v-if="selfiDataFound && idDocDataFound">
+                            <div class="col-md-2 centered-container" style="" v-if="isFacialAuthenticationSuccess">
                                 <span class="" style="font-size: 50px; color: green;"><i class="fa fa-check-circle"
                                         aria-hidden="true"></i></span>
                             </div>
                             <div class="col-md-2 centered-container" style="" v-else>
+                                <span class="" style="font-size: 50px; color: red;"><i class="fa fa-times-circle"
+                                        aria-hidden="true"></i></span>
+                            </div>
+                            <!-- <div class="col-md-2 centered-container" style="" v-else>
                                 <span class="" style="font-size: 50px; color: orange;"><i
                                         class="fa fa-exclamation-triangle" aria-hidden="true"></i></span>
-                            </div>
+                            </div> -->
 
                             <div class="col-md-5 centered-container" style="">
                                 <span class=""><img style="height:100px;"
@@ -372,9 +376,15 @@ h3 {
                         </div>
                         <div class="row">
                             <div class="col-md-12">
-                                <div class="alert alert-success" role="alert">
-                                    <span><i class="fa fa-info-circle" aria-hidden="true"></i></span> Passive liveness
-                                    Success
+                                <div class="alert alert-success" role="alert" v-if="isFacialAuthenticationSuccess">
+                                    <span><i class="fa fa-info-circle" aria-hidden="true"></i></span> Facial
+                                    Authentication
+                                    Passed
+                                </div>
+                                <div class="alert alert-danger" role="alert" v-else>
+                                    <span><i class="fa fa-info-circle" aria-hidden="true"></i></span> Facial
+                                    Authentication
+                                    Failed
                                 </div>
                             </div>
                         </div>
@@ -534,6 +544,16 @@ export default {
             sessionList: state => state.mainStore.sessionList,
             containerShift: state => state.playgroundStore.containerShift,
         }),
+        isFacialAuthenticationSuccess() {
+            return this.selfiDataFound && this.idDocDataFound && this.session.ocriddocsDetails.serviceFacialAuthenticationResult == 3
+        },
+        getStatusColor() {
+            if (this.isFacialAuthenticationSuccess) {
+                return '1px solid rgb(81, 137, 81)'
+            } else {
+                return '1px solid red'
+            }
+        },
         isContainerShift() {
             return this.containerShift
         },
