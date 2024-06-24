@@ -346,7 +346,7 @@ h3 {
 
                 <!-- Face Verification -->
                 <div class="card dataCard float-" :style="{ 'border': getStatusColor }"
-                    v-if="session.selfiDetails && Object.keys(session.selfiDetails).length > 0">
+                    v-if="session.selfiDetails && Object.keys(session.selfiDetails).length > 0 && session.ocriddocsDetails.tokenFaceImage">
                     <div class="card-header" style="padding: 10px">
                         <h4><i class="fa fa-smile" aria-hidden="true"></i> Face Verification</h4>
                     </div>
@@ -385,6 +385,34 @@ h3 {
                                     <span><i class="fa fa-info-circle" aria-hidden="true"></i></span> Facial
                                     Authentication
                                     Failed
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Liveliness Check -->
+                <div class="card dataCard float-" :style="{ 'border': passiveLivelinessData.borderColor }"
+                    v-if="session.selfiDetails && Object.keys(session.selfiDetails).length > 0">
+                    <div class="card-header" style="padding: 10px">
+                        <h4><i class="fa fa-heartbeat" aria-hidden="true"></i> Liveliness Check</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-12 centered-container" style="">
+                                <span class=""><img style="height:200px; width: 200px;"
+                                        :src="session.selfiDetails.tokenSelfiImage" /></span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="alert alert-success" role="alert" v-if="passiveLivelinessData.success">
+                                    <span><i class="fa fa-info-circle" aria-hidden="true"></i></span> Liveliness Check
+                                    Passed
+                                </div>
+                                <div class="alert alert-danger" role="alert" v-else>
+                                    <span><i class="fa fa-info-circle" aria-hidden="true"></i></span>
+                                    {{ passiveLivelinessData.result }}
                                 </div>
                             </div>
                         </div>
@@ -533,6 +561,29 @@ import CountryFlag from 'vue-country-flag'
 import { getCosmosChainConfig } from '../../blockchains-metadata/cosmos/wallet/cosmos-wallet-utils'
 
 
+const ServiceLivenessResultEnum = {
+    0: "None",
+    1: "Spoof",
+    2: "Uncertain",
+    3: "Live",
+    4: "Bad quality image",
+    5: "Face very close",
+    6: "Face not found",
+    7: "Face too small",
+    8: "Face too large",
+    9: "Invalid image format",
+    10: "Internal server error",
+    11: "Image processing error",
+    12: "Too many faces",
+    13: "Face too close to edge",
+    14: "Face was cropped",
+    15: "License error",
+    16: "Face is obstructed",
+    17: "No life detected",
+    18: "Eyes closed",
+}
+
+
 export default {
     name: "sessionDetails",
     components: {
@@ -546,6 +597,14 @@ export default {
         }),
         isFacialAuthenticationSuccess() {
             return this.selfiDataFound && this.idDocDataFound && this.session.ocriddocsDetails.serviceFacialAuthenticationResult == 3
+        },
+        passiveLivelinessData() {
+            const status = this.selfiDataFound && this.session.selfiDetails.serviceLivenessResult == 3
+            return {
+                success: status,
+                result: ServiceLivenessResultEnum[this.session.selfiDetails.serviceLivenessResult],
+                borderColor: status ? '1px solid rgb(81, 137, 81)' : '1px solid red'
+            }
         },
         getStatusColor() {
             if (this.isFacialAuthenticationSuccess) {
