@@ -331,12 +331,19 @@ const mainStore = {
             })
         },
 
-        fetchAppsUsersSessions: ({ commit, getters }) => {
+        fetchAppsUsersSessions: ({ commit, getters }, payload) => {
             return new Promise((resolve, reject) => {
                 if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
                     return reject(new Error('Tenant url is null or empty, service is not selected'))
                 }
-                const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/session`;
+
+                let url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/session`;
+
+                // page
+                url = url + '?page=' + (payload.page ? payload.page : 1)
+                // limit
+                url = url + '&limit=' + (payload.limit ? payload.limit : 20)
+
                 // const url = 'http://localhost:3001/api/v1/e-kyc/verification/session'
                 const authToken = getters.getSelectedService.access_token
                 if (!authToken) {

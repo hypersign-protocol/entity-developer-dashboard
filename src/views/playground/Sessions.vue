@@ -249,6 +249,12 @@ h5 span {
         </table>
       </div>
     </div>
+
+    <div class="row mt-2" v-if="sessionList.length > 0">
+      <div class="col-md-12 d-flex justify-content-center align-items-center">
+        <PagiNation pagesCount="5" @event-page-number="handleGetPageNumberEvent" />
+      </div>
+    </div>
   </div>
 </template>
 
@@ -256,9 +262,10 @@ h5 span {
 import UtilsMixin from '../../mixins/utils';
 import Loading from "vue-loading-overlay";
 import { mapState, mapGetters, mapActions, mapMutations } from "vuex";
+import PagiNation from '../../components/Pagination.vue';
 export default {
   name: "SessionsPage",
-  components: { Loading },
+  components: { Loading, PagiNation },
   computed: {
     ...mapGetters('mainStore', ['sessionList']),
     ...mapState({
@@ -303,6 +310,18 @@ export default {
   methods: {
     ...mapActions('mainStore', ['fetchAppsUsersSessions']),
     ...mapMutations('playgroundStore', ['updateSideNavStatus', 'shiftContainer']),
+
+    async handleGetPageNumberEvent(pageNumber) {
+      console.log(pageNumber)
+      try {
+        this.isLoading = true
+        await this.fetchAppsUsersSessions({ appId: "", page: pageNumber })
+        this.isLoading = false
+      } catch (e) {
+        this.isLoading = false
+        this.notifyErr(e)
+      }
+    },
 
     async viewSessionDetails(sessionId) {
       if (!sessionId) {
