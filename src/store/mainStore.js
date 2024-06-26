@@ -348,9 +348,9 @@ const mainStore = {
                     headers
                 }).then(response => response.json()).then(json => {
                     if (json.error) {
-                        return reject(json)
+                        return reject(new Error(json.error.join(' ')))
                     }
-                    commit('insertSessions', json.sessionDetails);
+                    commit('insertSessions', json.data.sessionDetails);
                     resolve()
                 }).catch((e) => {
                     return reject(`Error while fetching apps ` + e.message);
@@ -376,7 +376,7 @@ const mainStore = {
                     if (json.error) {
                         return reject(json)
                     }
-                    commit('insertAppsOnChainConfigs', json.reverse());
+                    commit('insertAppsOnChainConfigs', json.data.reverse());
                     resolve()
                 }).catch((e) => {
                     return reject(`Error while fetching apps ` + e.message);
@@ -399,10 +399,10 @@ const mainStore = {
                     body: JSON.stringify(payload),
                 }).then(response => response.json()).then(json => {
                     if (json.error) {
-                        return reject(json)
+                        return reject(new Error(json.error.join(' ')))
                     }
-                    commit('setOnChainConfig', json);
-                    resolve(json)
+                    commit('setOnChainConfig', json.data);
+                    resolve(json.data)
                 }).catch((e) => {
                     return reject(`Error while fetching apps ` + e.message);
                 })
@@ -424,11 +424,11 @@ const mainStore = {
                     body: JSON.stringify(payload),
                 }).then(response => response.json()).then(json => {
                     if (json.error) {
-                        return reject(json)
+                        return reject(new Error(json.error.join(' ')))
                     }
                     // restting
                     commit('setOnChainConfig', {});
-                    resolve(json)
+                    resolve(json.data)
                 }).catch((e) => {
                     return reject(`Error while fetching apps ` + e.message);
                 })
@@ -453,10 +453,10 @@ const mainStore = {
                     body: JSON.stringify(data),
                 }).then(response => response.json()).then(json => {
                     if (json.error) {
-                        return reject(json)
+                        return reject(new Error(json.error.join(' ')))
                     }
-                    commit('setWidgetConfig', json);
-                    resolve(json)
+                    commit('setWidgetConfig', json.data);
+                    resolve(json.data)
                 }).catch((e) => {
                     return reject(`Error while fetching apps ` + e.message);
                 })
@@ -478,10 +478,9 @@ const mainStore = {
                 }).then(response => response.json()).then(json => {
                     if (json) {
                         if (json.error) {
-                            console.log(json.error)
-                            return reject(json.error)
+                            return reject(new Error(json.error.join(' ')))
                         } else {
-                            commit('setWidgetConfig', json);
+                            commit('setWidgetConfig', json.data);
                             return resolve()
                         }
                     } else {
@@ -511,10 +510,10 @@ const mainStore = {
                     body: JSON.stringify(data),
                 }).then(response => response.json()).then(json => {
                     if (json.error) {
-                        return reject(json)
+                        return reject(new Error(json.error.join(' ')))
                     }
                     // restting
-                    commit('setWidgetConfig', json);
+                    commit('setWidgetConfig', json.data);
                     resolve(json)
                 }).catch((e) => {
                     return reject(`Error while fetching apps ` + e.message);
@@ -538,10 +537,10 @@ const mainStore = {
                     headers
                 }).then(response => response.json()).then(json => {
                     if (json.error) {
-                        return reject(json)
+                        return reject(new Error(json.error.join(' ')))
                     }
-                    commit('updateSessionDetails', json);
-                    return resolve(json)
+                    commit('updateSessionDetails', json.data);
+                    return resolve(json.data)
                 }).catch((e) => {
                     console.error(`Error while fetching apps ` + e.message);
                 })
@@ -560,10 +559,8 @@ const mainStore = {
                 method: 'GET',
                 headers
             })
-
-            console.log(resp)
             const json = await resp.json()
-            return json
+            return json?.data
         },
 
         // --- SSI
