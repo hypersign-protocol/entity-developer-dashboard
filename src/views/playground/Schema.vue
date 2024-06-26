@@ -135,7 +135,7 @@
             Schemas</h3>
             <h3 v-else class="mt-4" style="text-align: left;">Create your first schema!</h3>      
             <hf-buttons 
-              name="+ Create"
+              name="Create" iconClass="fa fa-plus"
               style="text-align: right;"
               class="ml-auto mt-4"
               @executeAction="openSlider()"

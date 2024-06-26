@@ -1,5 +1,13 @@
 export default {
     methods: {
+        toDateTime(d) {
+            const newDate = new Date(d)
+            const date = newDate.toDateString()
+            const hh = newDate.getHours()
+            const mm = newDate.getMinutes()
+            const ss = newDate.getSeconds()
+            return date + ' ' + hh + ':' + mm + ':' + ss
+        },
         getHeader(authToken = '') {
             if (authToken != '') {
                 // TODO: Remove this userId later
@@ -12,6 +20,23 @@ export default {
                     "Content-Type": "application/json",
                 }
             }
+        },
+        stringShortner(str, size) {
+            if (!str) {
+                return "-"
+            }
+            const l = str.length
+
+
+            if (l > size) {
+                const f = str.substr(0, Math.floor(size / 2))
+                const m = '...'
+                const last = str.substr(l - ((f).length), l)
+                return f + m + last;
+            } else {
+                return str;
+            }
+
         },
         copyToClip(textToCopy, contentType) {
             if (textToCopy) {
@@ -88,6 +113,46 @@ export default {
         },
         formatDate(dateString) {
             return new Date(dateString).toLocaleString('en-us')
+        },
+        getStatus(sessionDetails) {
+            // Sucess, Expired, Pending
+            const { expiresAt, step_finish, ocriddocsDetails, selfiDetails } = sessionDetails
+
+            if (step_finish == 1) {
+                return '<span class="badge badge-pill badge-success">Success</span>'
+            }
+
+
+            if (selfiDetails && Object.keys(selfiDetails).length > 0 && selfiDetails.serviceLivenessResult != 3) {
+                // Fall back for those record where expiry data not present
+                return '<span class="badge badge-pill badge-danger">Failed<span>'
+            }
+
+            if (ocriddocsDetails && Object.keys(ocriddocsDetails).length > 0 && ocriddocsDetails.serviceFacialAuthenticationResult != 3) {
+                // Fall back for those record where expiry data not present
+                return '<span class="badge badge-pill badge-danger">Failed<span>'
+            }
+
+            if (!expiresAt) {
+                // Fall back for those record where expiry data not present
+                return '<span class="badge badge-pill badge-secondary">Expired<span>'
+            }
+
+            const now = Date.now()
+            const expireDateTime = (new Date(expiresAt)).getTime()
+            let hasExpired = false
+            if (now > expireDateTime) {
+                hasExpired = true;
+            }
+
+            if ((step_finish == 0) && hasExpired) {
+                return '<span class="badge badge-pill badge-secondary">Expired<span>'
+            }
+
+            if ((step_finish == 0) && !hasExpired) {
+                return '<span class="badge badge-pill badge-warning">Pending<span>'
+            }
+
         }
     }
 }

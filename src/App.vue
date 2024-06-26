@@ -47,6 +47,11 @@
 
 .container-collapsed {
   margin-left: 15em;
+
+}
+
+.container {
+  max-width: 1446px
 }
 
 .far {
@@ -64,29 +69,31 @@
   background-color: #dee2e6;
   cursor: pointer;
 }
+
+.f-36 {
+  font-size: 36px;
+}
 </style>
 <template>
   <div id="app">
     <b-navbar toggleable="lg" type="dark" variant="white" class="navStyle" v-if="showIcon" sticky>
-      <b-navbar-brand href="#" style="display: flex; width: 80%; margin-left: 0.2em">
+      <b-navbar-brand href="#">
         <a href="#" @click.prevent="route('dashboard')">
           <img src="./assets/Entity_full.png" alt="" style="height: 5vh; opacity: 80%" />
         </a>
       </b-navbar-brand>
-      <b-collapse id="nav-collapse" is-nav style="width: 30%">
+      <b-collapse id="nav-collapse" is-nav>
         <b-navbar-nav class="ml-auto">
-          <a class="mr-4" :href="$config.studioServer.BASE_URL" target="_blank" style="color: grey; margin-top: 0.8em"
-            title="Developer Dashboard API">
-            <i class="fa fa-code" style="font-size: 36px"></i>
-          </a>
-          <a class="mr-3" href="https://docs.hypersign.id/entity-studio/developer-dashboard" target="blank"
-            style="color: grey; margin-top: 0.8em" title="Documentation">
-            <i class="fas fa-book-open" style="font-size: 36px"></i>
-          </a>
+          <b-nav-item :href="$config.studioServer.BASE_URL" target="_blank" title="Developer Dashboard API">
+            <i class="fa fa-code f-36" style=" color: grey"></i></b-nav-item>
+          <b-nav-item href="https://docs.hypersign.id/entity-studio/developer-dashboard" target="_blank"
+            title="Documentation">
+            <i class="fas fa-book-open f-36" style=" color: grey"></i>
+          </b-nav-item>
 
           <b-nav-item-dropdown right v-if="showIcon" title="Profile">
             <template #button-content>
-              <i class="fas fa-user-circle" style="font-size: 40px; color: grey"></i>
+              <i class="fas fa-user-circle f-36" style="color: grey"></i>
             </template>
 
             <div style="display: inline">
@@ -118,20 +125,22 @@
       <router-view class="container containerData" />
     </div>
     <notifications group="foo" />
+
+
     <sidebar-menu class="sidebar-wrapper" v-if="showSideNavbar" @toggle-collapse="onToggleCollapse"
       :collapsed="isSidebarCollapsed" :theme="'white-theme'" width="220px" :menu="getSideMenu()">
-      <div slot="header" style="background: #363740">
+      <div slot="header" class="border">
         <div class="mt-3">
           <div>
             <center>
               <img v-if="!isSidebarCollapsed"
                 :src="`${getProfileIcon(getSelectedService ? getSelectedService.appName : '')}`" alt="avatar"
-                width="130px" style="" />
+                width="100px" style="" />
             </center>
             <center>
               <img v-if="isSidebarCollapsed"
                 :src="`${getProfileIcon(getSelectedService ? getSelectedService.appName : '')}`" class="mr-1"
-                alt="center" width="35px" />
+                alt="center" width="30px" />
             </center>
           </div>
           <center>
@@ -172,8 +181,10 @@
 
 .orgNameCss {
   overflow-wrap: break-word;
-  color: white;
+  color: grey;
   font-weight: bold;
+  font-size: smaller;
+  padding: 5px
 }
 
 #nav {
@@ -264,7 +275,7 @@ import { mapActions, mapMutations, mapGetters, mapState } from "vuex";
 export default {
   computed: {
     ...mapGetters("playgroundStore", ["userDetails", "getSelectedOrg"]),
-    ...mapGetters("mainStore", ["getSelectedService"]),
+    ...mapGetters("mainStore", ["getSelectedService", "getAllServices"]),
     ...mapState({
       showMainSideNavBar: (state) => state.mainStore.showMainSideNavBar,
       selectedDashboard: (state) => state.globalStore.selectedDashboard,
@@ -365,9 +376,6 @@ export default {
       this.authToken = localStorage.getItem("authToken");
       if (this.authToken) {
         this.showIcon = true;
-        // TODO: This should only execute when playground is selected, otherwise not...
-        //this.fetchAllOrgs();
-
         this.fetchAppsListFromServer();
         this.fetchServicesList()
       } else {
@@ -381,20 +389,39 @@ export default {
         {
           href: "/studio/dashboard",
           title: "Dashboard",
-          icon: "fas fa-tachometer-alt",
+          icon: "fa fa-home",
         },
       ];
 
       if (this.getSelectedService) {
-        console.log(this.getSelectedService)
         if (this.getSelectedService.services.length > 0) {
           const id = this.getSelectedService.services[0].id
           if (id == 'CAVACH_API') {
             menu.push({
               href: "/studio/sessions/" + this.getSelectedService.appId,
-              title: "Credentials",
-              icon: "fa fa-id-card",
+              title: "Sessions",
+              icon: "fa fa-check",
             })
+
+            // menu.push({
+            //   href: "/studio/onchainkyc/" + this.getSelectedService.appId,
+            //   title: "OnChain KYC",
+            //   icon: "fas fa-network-wired",
+            // })
+
+            menu.push({
+              href: "/studio/widget-config/" + this.getSelectedService.appId,
+              title: "Widget",
+              icon: "fa fa-cogs",
+            })
+
+            menu.push({
+              href: "/studio/usage/" + this.getSelectedService.appId,
+              title: "Usages",
+              icon: "fa fa-chart-bar",
+            })
+
+
           } else if (id == 'SSI_API') {
             menu.push({
               href: "/studio/did/" + this.getSelectedService.appId,

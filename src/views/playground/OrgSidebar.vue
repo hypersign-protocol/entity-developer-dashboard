@@ -6,7 +6,7 @@
       </h3>
       <h4 v-else class="mt-4" style="text-align: left;">Create your first organization!</h4>
 
-      <hf-buttons name="+ Create" style="text-align: right;" class="ml-auto mt-4" @executeAction="openSlider()">
+      <hf-buttons name="Create" iconClass="fa fa-plus" style="text-align: right;" class="ml-auto mt-4" @executeAction="openSlider()">
       </hf-buttons>
     </div>
     <StudioSideBar :title="edit ? 'Edit Organization' : 'Add Organization'">

@@ -1,18 +1,16 @@
 <template>
   <div>
     <loading :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loading>
-    <div style="display: flex" class="">
-      <div v-if="appList.length > 0" class="row" style="width: 100%">
-        <div class="col-md-6">
-          <h3 class="">
+    <div>
+      <div v-if="appList.length > 0" class="row">
+        <div class="col mt-1">
+          <h3 style="float: left;">
             <i class="fa fa-cogs mr-2" aria-hidden="true"></i>Your Services
           </h3>
-        </div>
-        <div class="col-md-6">
-          <hf-buttons name="+ Create" class="ml-auto " @executeAction="openSlider('SSI_API')" style="float: right;">
+          <hf-buttons name=" Create" iconClass="fa fa-plus" class="ml-auto " @executeAction="openSlider('SSI_API')"
+            style="float: right;">
           </hf-buttons>
         </div>
-
       </div>
 
       <div v-else>
@@ -27,7 +25,7 @@
               <p class="card-text">Spin up your self-sovereign identity and establish your issuer node. Take charge of
                 your digital presence, ensuring privacy and security while managing and sharing your identity
                 credentials. </p>
-              <hf-buttons name="+ Create" style="text-align: right" class="ml-auto "
+              <hf-buttons name=" Create" iconClass="fa fa-plus" style="text-align: right" class="ml-auto "
                 @executeAction="openSlider('SSI_API')">
               </hf-buttons>
             </div>
@@ -40,7 +38,7 @@
               <p class="card-text">Take the hassle out of onboarding
                 while prioritizing data integrity and user control. Welcome to the next level of KYC with self-sovereign
                 identity.</p>
-              <hf-buttons name="+ Create" style="text-align: right" class="ml-auto mt-4"
+              <hf-buttons name=" Create" iconClass="fa fa-plus" style="text-align: right" class="ml-auto mt-4"
                 @executeAction="openSlider('CAVACH_API')">
               </hf-buttons>
             </div>
@@ -54,7 +52,7 @@
               <h5 class="card-title">EDV Service</h5>
               <p class="card-text">Easily spin up your encrypted data vault, leveraging the strength of decentralized
                 identity to safeguard your sensitive information. </p>
-              <hf-buttons name="+ Create" style="text-align: right" class="ml-auto mt-4"
+              <hf-buttons name=" Create" iconClass="fa fa-plus" style="text-align: right" class="ml-auto mt-4"
                 @executeAction="openSlider('EDV_API')" disabled>
               </hf-buttons>
             </div>
@@ -78,6 +76,7 @@
         </div>
       </div>
     </hf-pop-up>
+
     <hf-pop-up id="entity-secretKey-popup" Header="API Secret Key">
       <div class="mt-2" v-if="apiKeySecret != ''">
         <p>
@@ -93,6 +92,7 @@
           description="Your API Secret Key" @click="onHfFlashClick()"></HfFlashNotification>
       </div>
     </hf-pop-up>
+
     <StudioSideBar :title="edit ? 'Edit Service' : 'Add Service'">
       <div class="container">
         <div class="form-group" v-if="edit === true">
@@ -151,7 +151,8 @@
           <small><a :href="`${swaggerAPIdoc}`" target="_blank">Open API Doc (Swagger)</a></small>
         </div>
 
-        <div class="form-group" v-if="edit === true && appModel.services[0].id == 'SSI_API'">
+        <div class="form-group"
+          v-if="edit === true && ((appModel.services && appModel.services.length) > 0 && (appModel.services[0].id == 'SSI_API'))">
           <tool-tip infoMessage=" Your wallet address"></tool-tip>
           <label for="orgDid"><strong>Wallet Address: </strong></label>
           <div class="input-group mb-1">
@@ -164,15 +165,17 @@
               </span>
             </div>
           </div>
-          <small><a :href="`https://explorer.hypersign.id/hypersign-testnet/account/${appModel.walletAddress}`"
-              target="_blank">Click here to view wallet balance</a></small>
+          <small><a :href="`${$config.explorer.BASE_URL}/account/${appModel.walletAddress}`" target="_blank">Click here
+              to view wallet
+              balance</a></small>
         </div>
 
         <div class="form-group" v-if="edit === false">
           <tool-tip infoMessage="Select a service you want to associate with this app"></tool-tip>
           <label for="selectService"><strong>Select Service<span style="color: red">*</span>: </strong></label>
           <select class="custom-select" id="selectService" v-model="selectedServiceId">
-            <option :value="eachService.id" v-for="eachService in selectServicesOptions" v-bind:key="eachService.id">{{ eachService.name }}</option>
+            <option :value="eachService.id" v-for="eachService in selectServicesOptions" v-bind:key="eachService.id">{{
+              eachService.name }}</option>
           </select>
           <small>{{ serviceDescrition }}</small>
         </div>
@@ -184,14 +187,16 @@
             <option value="" disabled>
               Select a service
             </option>
-            <option :value="eachSSIApp.appId" v-for="eachSSIApp in getAppsWithSSIServices"  v-bind:key="eachSSIApp.appId">
+            <option :value="eachSSIApp.appId" v-for="eachSSIApp in getAppsWithSSIServices"
+              v-bind:key="eachSSIApp.appId">
               <div>{{ eachSSIApp.appName }} ( {{ eachSSIApp.appId }} ) </div>
             </option>
           </select>
           <!-- <small>{{ serviceDescrition }}</small> -->
         </div>
 
-        <div class="form-group" v-if="edit === true && appModel.services[0].id == 'CAVACH_API'">
+        <div class="form-group"
+          v-if="edit === true && (appModel.services && appModel.services.length > 0 && (appModel.services[0].id == 'CAVACH_API'))">
           <tool-tip infoMessage="SSI Service Id"></tool-tip>
           <label for="orgDid"><strong>SSI Service Id: </strong></label>
           <input type="text" class="form-control" id="orgDid" v-model="appModel.dependentServices[0]"
@@ -210,43 +215,49 @@
 
 
         <div class="form-group" v-if="edit">
-          <hf-buttons name="Update" class="btn btn-primary" @executeAction="updateAnAppAPIServer()"></hf-buttons>
+          <hf-buttons name="Update" iconClass="fa fa-bookmark" class="btn btn-primary"
+            @executeAction="updateAnAppAPIServer()"></hf-buttons>
         </div>
         <div class="form-group" v-else>
-          <hf-buttons name="Save" @executeAction="createAnApp()"></hf-buttons>
+          <hf-buttons name="Save" iconClass="fa fa-bookmark" @executeAction="createAnApp()"></hf-buttons>
         </div>
       </div>
 
     </StudioSideBar>
 
     <div v-if="appList.length > 0" class="mt-2">
-      <b-tabs content-class="mt-3">
-        <b-tab :title="'SSI (' + getAppsWithSSIServices.length + ')'" active v-if="getAppsWithSSIServices.length > 0">
-          <div class="scroll row">
+      <b-tabs content-class="mt-0">
+        <b-tab :title="'SSI (' + getAppsWithSSIServices.length + ')'" active v-if="getAppsWithSSIServices.length > 0"
+          class="bg-white p-3 ">
+          <div class="row">
             <div class="col-md-4 mb-4" v-for="eachOrg in getAppsWithSSIServices" :key="eachOrg.appId">
-              <div class="card bg-gradient-primary" @click="switchOrg(eachOrg.appId, 'SSI_API')" style="cursor: grab">
+              <div class="card" @click="switchOrg(eachOrg.appId, 'SSI_API')" style="cursor: grab">
                 <div class="card-body">
                   <div class="row">
-                    <div class="col">
-                      <h5 class="card-title text-uppercase text-muted mb-0">
-                        {{ formattedAppName(eachOrg.appName) }}
-                      </h5>
+                    <div class="col-9">
+                      <div class="row">
+                        <div class="col-12">
+                          <h5 class="card-title text-uppercase text-muted mb-0">
+                            {{ formattedAppName(eachOrg.appName) }}
+                          </h5>
+                        </div>
+                      </div>
+                      <div class="row">
+                        <div class="col-12 mt-1">
+                          {{ truncate(
+                            eachOrg.description || "No description for this app..",
+                            70
+                          ) }}
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                  <div class="row mt-2">
-                    <div class="col-md-8">
-                      <span class="card-text">{{
-      truncate(
-        eachOrg.description || "No description for this app..",
-        41
-      )
-    }}
-                      </span>
-                    </div>
-                    <div class="col-md-4">
-                      <b-card-img :src="eachOrg.logoUrl ||
-      getProfileIcon(formattedAppName(eachOrg.appId))
-      " alt="logoImg" class="rounded-0" style="max-height: 60px; min-height: 60px"></b-card-img>
+                    <div class="col-3">
+                      <div class="p-2">
+                        <b-card-img :src="eachOrg.logoUrl ||
+                          getProfileIcon(formattedAppName(eachOrg.appId))
+                          " alt="logoImg" class="rounded-0" style="max-height: 60px; min-height: 60px">
+                        </b-card-img>
+                      </div>
                     </div>
                   </div>
                   <div class="row">
@@ -262,7 +273,7 @@
                     </div>
                   </div>
                   <div class="row" v-if="eachOrg.tenantUrl">
-                    <div class="col">
+                    <div class="col mt-2">
                       <b-card-text>
                         <small class="card-field-label">Tenant Url:</small>
                         <div class="apiKeySecret" @click.stop="copyToClip(eachOrg.tenantUrl, 'Tenant Url')"
@@ -275,17 +286,19 @@
                   </div>
                   <div class="row mt-2">
                     <div class="col">
-                      <!-- <span class=" " style="cursor: pointer" @click="switchOrg(eachOrg.appId, 'SSI_API')"><i
-                          class="fas fa-tachometer-alt" aria-hidden="true"></i></span> -->
                       <span class=" " style="float: right">
-                        <b-badge pill variant="danger" @click.stop="openSecretkeyPopUp(eachOrg.appId)"
-                          title="Click to generate a new API Secret Key" class="mr-2" style="cursor: pointer">
+                        <span class="badge rounded-pill bg-danger mx-1" title="Click to generate a new API Secret Key"
+                          style="cursor: pointer; color: white" @click.stop="openSecretkeyPopUp(eachOrg.appId)">
+                          <i class="fa fa-key"></i> Secret
+                        </span>
+                        <!-- <b-badge pill variant="danger" @click.stop="openSecretkeyPopUp(eachOrg.appId)"
+                        title="Click to generate a new API Secret Key"  class="mr-2" style="cursor: pointer">
                           <i class="fa fa-key"></i>
-                          Secret</b-badge>
-                        <b-badge pill variant="info" @click.stop="editOrg(eachOrg.appId)" title="Click to edit the app"
-                          style="cursor: pointer">
+                          Secret</b-badge> -->
+                        <span class="badge rounded-pill bg-info mx-1" @click.stop="editOrg(eachOrg.appId)"
+                          title="Click to edit the app" style="cursor: pointer; color: white">
                           <i class="fas fa-pencil-alt"></i>
-                          Edit</b-badge>
+                          Edit</span>
                       </span>
                     </div>
                   </div>
@@ -294,130 +307,114 @@
             </div>
           </div>
         </b-tab>
-        <b-tab :title="'KYC (' + getAppsWithKYCServices.length + ')'" v-if="getAppsWithKYCServices.length > 0">
-          <div class="scroll row">
+        <b-tab :title="'KYC (' + getAppsWithKYCServices.length + ')'" v-if="getAppsWithKYCServices.length > 0"
+          class="bg-white p-3">
+          <div class="row">
             <div class="col-md-4 mb-4" v-for="eachOrg in getAppsWithKYCServices" :key="eachOrg.appId">
-              <div class="card bg-gradient-primary" 
-                @click="switchOrg(eachOrg.appId, 'CAVACH_API')"
-                style="cursor: grab">
-                
-
-              <div class="card bg-gradient-primary" style="cursor: grab">
-
-                <div class="card-body">
-                  <div class="row">
-                    <div class="col">
-                      <h5 class="card-title text-uppercase text-muted mb-0">
-                        {{ formattedAppName(eachOrg.appName) }}
-                      </h5>
-                    </div>
-                  </div>
-                  <div class="row mt-2">
-                    <div class="col-md-8">
-                      <span class="card-text">{{
-                    truncate(
-                      eachOrg.description || "No description for this app..",
-                      41
-                    )
-                  }}
-                      </span>
-                    </div>
-                    <div class="col-md-4">
-                      <b-card-img :src="eachOrg.logoUrl ||
-      getProfileIcon(formattedAppName(eachOrg.appId))
-      " alt="logoImg" class="rounded-0" style="max-height: 60px; min-height: 60px"></b-card-img>
-                    </div>
-                  </div>
-                  <div class="row">
-                    <div class="col">
-                      <b-card-text>
-                        <small class="card-field-label">Service Id:</small>
-                        <div class="apiKeySecret" @click.stop="copyToClip(eachOrg.appId, 'Service Id')"
-                          title="Copy Service Id">
-                          {{ truncate(eachOrg.appId, 35) }}
-                          <i class="far fa-copy" style="float: right"></i>
+              <div class="card" @click="switchOrg(eachOrg.appId, 'CAVACH_API')" style="cursor: grab">
+                <div class="card" style="cursor: grab">
+                  <div class="card-body">
+                    <div class="row">
+                      <div class="col-9">
+                        <div class="row">
+                          <div class="col-12">
+                            <h5 class="card-title text-uppercase text-muted mb-0">
+                              {{ formattedAppName(eachOrg.appName) }}
+                            </h5>
+                          </div>
                         </div>
-                      </b-card-text>
-                    </div>
-                  </div>
-                  <div class="row" v-if="eachOrg.tenantUrl">
-                    <div class="col">
-                      <b-card-text>
-                        <small class="card-field-label">Tenant Url:</small>
-                        <div class="apiKeySecret" @click.stop="copyToClip(eachOrg.tenantUrl, 'Tenant Url')"
-                          title="Copy Tenant Url">
-                          {{ truncate(eachOrg.tenantUrl, 42) }}
-                          <i class="far fa-copy" style="float: right"></i>
+                        <div class="row">
+                          <div class="col-12 mt-1">
+                            {{ truncate(
+                              eachOrg.description || "No description for this app..",
+                              70
+                            ) }}
+                          </div>
                         </div>
-                      </b-card-text>
+                      </div>
+                      <div class="col-3">
+                        <div class="p-2">
+                          <b-card-img :src="eachOrg.logoUrl ||
+                            getProfileIcon(formattedAppName(eachOrg.appId))
+                            " alt="logoImg" class="rounded-0" style="max-height: 60px; min-height: 60px">
+                          </b-card-img>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                  <div class="row mt-2">
-                    <div class="col">
-                      <!-- <span class=" " style="cursor: pointer" @click.stop="switchOrg(eachOrg.appId,  'CAVACH_API')"><i
+
+                    <div class="row">
+                      <div class="col">
+                        <b-card-text>
+                          <small class="card-field-label">Service Id:</small>
+                          <div class="apiKeySecret" @click.stop="copyToClip(eachOrg.appId, 'Service Id')"
+                            title="Copy Service Id">
+                            {{ truncate(eachOrg.appId, 35) }}
+                            <i class="far fa-copy" style="float: right"></i>
+                          </div>
+                        </b-card-text>
+                      </div>
+                    </div>
+                    <div class="row" v-if="eachOrg.tenantUrl">
+                      <div class="col">
+                        <b-card-text>
+                          <small class="card-field-label">Tenant Url:</small>
+                          <div class="apiKeySecret" @click.stop="copyToClip(eachOrg.tenantUrl, 'Tenant Url')"
+                            title="Copy Tenant Url">
+                            {{ truncate(eachOrg.tenantUrl, 42) }}
+                            <i class="far fa-copy" style="float: right"></i>
+                          </div>
+                        </b-card-text>
+                      </div>
+                    </div>
+                    <div class="row mt-2">
+                      <div class="col">
+                        <!-- <span class=" " style="cursor: pointer" @click.stop="switchOrg(eachOrg.appId,  'CAVACH_API')"><i
                           class="fas fa-tachometer-alt" aria-hidden="true"></i></span> -->
-                      <span class=" " style="float: right">
-                        <b-badge pill variant="danger" @click.stop="openSecretkeyPopUp(eachOrg.appId)"
-                          title="Click to generate a new API Secret Key" class="mr-2" style="cursor: pointer">
-                          <i class="fa fa-key"></i>
-                          Secret</b-badge>
-                        <b-badge pill variant="info" @click.stop="editOrg(eachOrg.appId)" title="Click to edit the app"
-                          style="cursor: pointer">
-                          <i class="fas fa-pencil-alt"></i>
-                          Edit</b-badge>
-                      </span>
+                        <span class=" " style="float: right">
+                          <!-- <span class="badge rounded-pill bg-warning mx-1"
+                            @click.stop="openOnChainDeployPopup(eachOrg.appId)"
+                            title="Click to generate a new API Secret Key" data-bs-toggle="modal"
+                            data-bs-target="#onchain-kyc-deploy" style="cursor: pointer">
+                            <i class="fa fa-key"></i>
+                            Deploy</span> -->
+
+                          <span class="badge rounded-pill bg-danger mx-1"
+                            @click.stop="openSecretkeyPopUp(eachOrg.appId)"
+                            title="Click to generate a new API Secret Key" style="cursor: pointer; color:white">
+                            <i class="fa fa-key"></i>
+                            Secret</span>
+
+                          <span class="badge rounded-pill bg-info mx-1" @click.stop="editOrg(eachOrg.appId)"
+                            title="Click to edit the app" style="cursor: pointer; color:white">
+                            <i class="fas fa-pencil-alt"></i>
+                            Edit
+                          </span>
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
               </div>
             </div>
           </div>
         </b-tab>
       </b-tabs>
 
-
-
-      <!-- <div style="padding: 5px">
-        <nav aria-label="Page navigation example" style="margin: 0 auto; width: 50px">
-          <ul class="pagination">
-            <li class="page-item">
-              <a class="page-link" href="#" aria-label="Previous">
-                <span aria-hidden="true">&laquo;</span>
-                <span class="sr-only">Previous</span>
-              </a>
-            </li>
-
-            <li class="page-item" v-if="pages > 1">
-              <a class="page-link" href="#">1</a>
-            </li>
-            <li class="page-item" v-if="pages > 2">
-              <a class="page-link" href="#">2</a>
-            </li>
-
-            <li class="page-item">
-              <a class="page-link" href="#" aria-label="Next">
-                <span aria-hidden="true">&raquo;</span>
-                <span class="sr-only">Next</span>
-              </a>
-            </li>
-          </ul>
-        </nav>
-      </div> -->
-
-
     </div>
+
+
+    <!-- <hf-pop-up id="onchain-kyc-deploy" Header="Deploy Your OnChain KYC">
+      <DeployOnChainKYC />
+    </hf-pop-up> -->
   </div>
 </template>
 
 <style scoped>
-.nav-tabs {
-  width: 150px;
-}
-
 .nav-tabs .nav-link.active {
   border-radius: 0px 20px 0px 0px;
+  border-bottom: 1px solid white;
 }
+
 
 .overlay {
   background: rgba(0, 0, 0, 0.323);
@@ -553,6 +550,8 @@ import messages from "../mixins/messages";
 import { mapGetters, mapState, mapActions, mapMutations } from "vuex";
 import HfFlashNotification from "../components/element/HfFlashNotification.vue";
 import { sanitizeUrl } from '../utils/common'
+// import DeployOnChainKYC from "../components/deploy-onchain-kyc-popup/deploy.vue";
+import config from '../config';
 export default {
   name: "AppList",
   computed: {
@@ -560,7 +559,7 @@ export default {
       appList: (state) => state.mainStore.appList,
       totalAppCount: (state) => state.mainStore.totalAppCount,
     }),
-    ...mapGetters("mainStore", ["getAppByAppId", "getAllServices", "getServiceById", 'getAppsWithSSIServices', 'getAppsWithKYCServices']),
+    ...mapGetters("mainStore", ["getAppByAppId", "getAllServices", "getServiceById", 'getAppsWithSSIServices', 'getAppsWithKYCServices', 'getUserAccessList']),
 
     pages() {
       return Math.ceil(parseInt(this.totalAppCount) / 10);
@@ -620,7 +619,8 @@ export default {
         logoUrl: "",
         tenantUrl: "",
         services: [],
-        dependentServices: []
+        dependentServices: [],
+
       },
     };
   },
@@ -631,6 +631,7 @@ export default {
     HfButtons,
     ToolTip,
     HfFlashNotification,
+    // DeployOnChainKYC
   },
   methods: {
     ...mapMutations("mainStore", ["updateAnApp", "setMainSideNavBar"]),
@@ -639,6 +640,7 @@ export default {
       "saveAnAppOnServer",
       "updateAnAppOnServer",
       "generateAPISecretKey",
+      "keepAccessTokenReadyForApp"
     ]),
 
     ...mapMutations("playgroundStore", [
@@ -654,10 +656,22 @@ export default {
           break;
         }
         case 'CAVACH_API': {
-          // Remo this once  this feature is complet
-          this.notifyErr('Feature coming soon..')
-          //this.$router.push({ name: "playgroundCredential", params: { appId } });
-
+          // // Remo this once  this feature is complet
+          // this.notifyErr('Feature coming soon..')
+          const accessList = this.getUserAccessList('CAVACH_API')
+          if (accessList && accessList.length > 0) {
+            const allAccess = accessList.find(x => x.access == 'ALL')
+            if (!allAccess) {
+              // Check if he has dashboard access
+              const readSessionAccess = accessList.find(x => x.access == 'READ_SESSION')
+              if (!readSessionAccess) {
+                return this.notifyErr('You do not have access to KYC dashboard, kindly contact the Hypersign Team')
+              }
+            }
+            this.$router.push({ name: "playgroundCredential", params: { appId } });
+          } else {
+            return this.notifyErr('You do not have access to KYC dashboard, kindly contact the admin 1')
+          }
           break;
         }
         default: {
@@ -767,8 +781,6 @@ export default {
     },
     async createAnApp() {
       try {
-
-
         const errorMessages = this.validateFields();
         if (errorMessages && errorMessages.message.length > 0) {
           throw errorMessages;
@@ -795,7 +807,16 @@ export default {
           serviceIds: [this.selectedServiceId],
           dependentServices: [this.selectedAssociatedSSIAppId]
         });
+
+
+
         if (t && t.apiSecretKey && t.tenantUrl) {
+
+          this.keepAccessTokenReadyForApp({
+            serviceId: t.appId,
+            grant_type: config.GRANT_TYPES_ENUM[t.services[0].id]
+          })
+
           this.apiKeySecret = t.apiSecretKey;
           this.appModel.tenantUrl = t.tenantUrl;
           // Object.assign(this.appModel, { ...t })
@@ -847,16 +868,21 @@ export default {
         if (t) {
           this.closeSlider();
           this.notifySuccess(messages.APPLICATION.APP_UPDATE_SUCCESS);
+          this.isLoading = true;
+
         } else {
           throw new Error("Something went wrong");
         }
       } catch (e) {
+        console.log(e.message)
         if (Array.isArray(e.message)) {
           e.message.forEach((m) => {
             this.notifyErr(m);
           });
           return;
         }
+        this.isLoading = true;
+
         this.notifyErr(e.message);
       } finally {
         this.isLoading = false;
@@ -868,6 +894,11 @@ export default {
       this.selectedAppId = appId;
       this.$root.$emit("bv::show::modal", "entity-secret-confirmation-popup");
     },
+
+    // openOnChainDeployPopup(appId) {
+    //   console.log('Inside openOnChainDeployPopup() appId' + appId)
+    //   this.$root.$emit("bv::show::modal", "onchain-kyc-deploy");
+    // },
     async reGenerateSecretKey() {
       if (this.appIdToGenerateSecret === "") {
         return this.notifyErr(messages.APPLICATION.ENTER_APP_ID);

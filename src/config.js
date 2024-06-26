@@ -27,7 +27,7 @@ const config = {
         DID_RESOLVE_EP: process.env.NODE_SERVER_DID_RERSOLVE_EP || "hypersign-protocol/hidnode/ssi/did/"
     },
     explorer: {
-        BASE_URL: process.env.EXPLORER_BASE_URL || 'https://explorer.hypersign.id/hypersign-testnet/',
+        BASE_URL: process.env.EXPLORER_BASE_URL || 'https://explorer.hypersign.id/hypersign-prajna-testnet',
         NEW_DID_EP: process.env.EXPLORER_NEW_DID_EP || "newdid"
     },
     app: {
@@ -64,6 +64,11 @@ config['DashboardTypes'] = DashboardTypes
 config['SERVICE_TYPES'] = Object.freeze({
     SSI_API: 'SSI_API',
     CAVACH_API: 'CAVACH_API',
+})
+
+config['GRANT_TYPES_ENUM'] = Object.freeze({
+    'SSI_API': 'access_service_ssi',
+    'CAVACH_API': 'access_service_kyc'
 })
 
 export default config
