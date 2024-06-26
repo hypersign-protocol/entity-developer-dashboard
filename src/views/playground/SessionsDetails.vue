@@ -166,7 +166,7 @@ h3 {
         <div class="row">
             <div class="col-md-12">
                 <div class="form-group">
-                    <h3 class="mt-4">
+                    <h3>
                         <a @click="$router.go(-1)" href="#">Verifications</a> <i class="fa fa-angle-double-right"
                             aria-hidden="true" style="color: #8080808f;"></i> {{ sessionId }}
                     </h3>
@@ -719,6 +719,7 @@ export default {
         } catch (e) {
             this.notifyErr(e.message)
             this.isLoading = false
+            this.$router.go(-1);
         }
     },
     beforeRouteEnter(to, from, next) {

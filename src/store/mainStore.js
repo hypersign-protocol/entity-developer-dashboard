@@ -539,10 +539,16 @@ const mainStore = {
                     if (json.error) {
                         return reject(new Error(json.error.join(' ')))
                     }
-                    commit('updateSessionDetails', json.data);
-                    return resolve(json.data)
+
+                    if (json.data && Object.keys(json.data)?.length > 0) {
+                        commit('updateSessionDetails', json.data);
+                        return resolve(json.data)
+                    } else {
+                        return reject(new Error('Invalid session Id or details not found'))
+                    }
+
                 }).catch((e) => {
-                    console.error(`Error while fetching apps ` + e.message);
+                    reject(new Error(`Error while fetching apps ` + e.message));
                 })
             })
         },
