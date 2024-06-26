@@ -127,10 +127,23 @@ h5 span {
 
     <div class="row">
       <div class="col-md-12" style="text-align: left">
-        <div class="form-group" style="display:flex">
-          <h3 v-if="sessionList.length > 0" style="text-align: left;">
-            Sessions</h3>
-          <h3 v-else style="text-align: left;">No session found!</h3>
+        <div class="row" v-if="sessionList.length > 0" style="text-align: left;">
+          <div class="col-md-8">
+            <h3>Sessions</h3>
+          </div>
+          <div class="col-md-4">
+            <div class="input-group mb-3">
+              <input type="text" class="form-control" placeholder="Enter Session Id"
+                aria-label="Enter a Session Id to search" aria-describedby="basic-addon2" v-model="sessionIdTemp">
+              <div class="input-group-append" style="cursor: grab;">
+                <span class="input-group-text" id="basic-addon2" @click="viewSessionDetails(sessionIdTemp)"><i
+                    class="fa fa-search" aria-hidden="true"></i></span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div v-else style="text-align: left;">
+          <h3>No session found!</h3>
         </div>
       </div>
     </div>
@@ -262,6 +275,7 @@ export default {
       user: {},
       fullPage: true,
       isLoading: false,
+      sessionIdTemp: null
     }
   },
   async created() {
@@ -291,9 +305,12 @@ export default {
     ...mapMutations('playgroundStore', ['updateSideNavStatus', 'shiftContainer']),
 
     async viewSessionDetails(sessionId) {
-      console.log(sessionId)
-      this.$router.push({ name: "sessionDetails", params: { appId: this.$route.params.appId, sessionId } });
+      if (!sessionId) {
+        return this.notifyErr('Session Id is required')
+      }
+      this.$router.push({ name: "sessionDetails", params: { appId: this.$route.params.appId, sessionId: sessionId.trim() } });
       this.shiftContainer(false);
+      this.sessionIdTemp = null
     },
   },
   mixins: [UtilsMixin],

@@ -167,7 +167,7 @@ h3 {
             <div class="col-md-12">
                 <div class="form-group">
                     <h3>
-                        <a @click="$router.go(-1)" href="#">Verifications</a> <i class="fa fa-angle-double-right"
+                        <a @click="$router.go(-1)" href="#">Sessions</a> <i class="fa fa-angle-double-right"
                             aria-hidden="true" style="color: #8080808f;"></i> {{ sessionId }}
                     </h3>
                 </div>
