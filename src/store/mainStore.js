@@ -338,11 +338,34 @@ const mainStore = {
                 }
 
                 let url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/session`;
+                let url = 'http://localhost:3001/api/v1/e-kyc/verification/session'
+
+                const paramsObject = {}
 
                 // page
-                url = url + '?page=' + (payload.page ? payload.page : 1)
-                // limit
-                url = url + '&limit=' + (payload.limit ? payload.limit : 20)
+                if (payload.page) {
+                    paramsObject['page'] = payload.page
+                }
+
+                if (payload.limit) {
+                    paramsObject['limit'] = payload.limit
+                }
+
+                if (payload.userId) {
+                    paramsObject['userId'] = payload.userId
+                }
+
+                if (payload.sessionIds) {
+                    paramsObject['sessionIds'] = payload.sessionIds
+                }
+
+                if (Object.keys(paramsObject).length > 0) {
+                    const params = new URLSearchParams({ ...paramsObject });
+                    url = url + '?' + params.toString();
+                }
+
+                // // limit
+                // url = url + '&limit=' + (payload.limit ? payload.limit : 20)
 
                 // const url = 'http://localhost:3001/api/v1/e-kyc/verification/session'
                 const authToken = getters.getSelectedService.access_token

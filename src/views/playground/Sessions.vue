@@ -133,10 +133,10 @@ h5 span {
           </div>
           <div class="col-md-4">
             <div class="input-group mb-3">
-              <input type="text" class="form-control" placeholder="Enter Session Id"
-                aria-label="Enter a Session Id to search" aria-describedby="basic-addon2" v-model="sessionIdTemp">
+              <input type="text" class="form-control" placeholder="Search by session Id or user Id"
+                aria-label="Search by session Id or user Id" aria-describedby="basic-addon2" v-model="sessionIdTemp">
               <div class="input-group-append" style="cursor: grab;">
-                <span class="input-group-text" id="basic-addon2" @click="viewSessionDetails(sessionIdTemp)"><i
+                <span class="input-group-text" id="basic-addon2" @click="filterSessions(sessionIdTemp)"><i
                     class="fa fa-search" aria-hidden="true"></i></span>
               </div>
             </div>
@@ -155,7 +155,7 @@ h5 span {
             <tr>
               <th class="sticky-header">Date</th>
               <th class="sticky-header">Session Id</th>
-              <th class="sticky-header">User Id</th>
+              <th class="sticky-header">User Id (Hash)</th>
               <th class="sticky-header">Steps</th>
               <th class="sticky-header">Status</th>
             </tr>
@@ -170,7 +170,7 @@ h5 span {
                 {{ row.sessionId ? row.sessionId : "-" }}
               </td>
               <td>
-                {{ row.appUserId ? row.appUserId : "-" }}
+                {{ row.appUserId ? stringShortner(row.appUserId, 32) : "-" }}
               </td>
               <td>
                 <span class="stepSpan" title="Start">
@@ -312,11 +312,33 @@ export default {
     ...mapMutations('playgroundStore', ['updateSideNavStatus', 'shiftContainer']),
 
     async handleGetPageNumberEvent(pageNumber) {
-      console.log(pageNumber)
       try {
         this.isLoading = true
         await this.fetchAppsUsersSessions({ appId: "", page: pageNumber })
         this.isLoading = false
+      } catch (e) {
+        this.isLoading = false
+        this.notifyErr(e)
+      }
+    },
+
+    async filterSessions(filterText) {
+      try {
+        if (filterText) {
+          const filter = {
+
+          }
+          if (filterText.split('-').length >= 5) {// UUID sessions
+            filter.sessionIds = filterText
+          } else {
+            filter.userId = filterText
+          }
+
+          this.isLoading = true
+          await this.fetchAppsUsersSessions({ appId: "", ...filter })
+          this.isLoading = false
+        }
+
       } catch (e) {
         this.isLoading = false
         this.notifyErr(e)

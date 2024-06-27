@@ -184,7 +184,8 @@ h3 {
                                     }}</label>
                             </div>
                             <div class="col-md-4 ">
-                                <label><strong>UserId:</strong> {{ session ? session.appUserId : "-" }}</label>
+                                <label><strong>UserId:</strong> {{ session ? stringShortner(session.appUserId, 32) : "-"
+                                    }}</label>
                             </div>
                             <div class="col-md-4  ">
                                 <div class="row">
@@ -356,7 +357,8 @@ h3 {
                                 <span class=""><img style="height:100px;"
                                         :src="session.selfiDetails.tokenSelfiImage" /></span>
                             </div>
-                            <div class="col-md-2 centered-container" style="" v-if="isFacialAuthenticationSuccess">
+                            <div class="col-md-2 centered-container" style=""
+                                v-if="isFacialAuthenticationSuccess.success">
                                 <span class="" style="font-size: 50px; color: green;"><i class="fa fa-check-circle"
                                         aria-hidden="true"></i></span>
                             </div>
@@ -376,15 +378,14 @@ h3 {
                         </div>
                         <div class="row">
                             <div class="col-md-12">
-                                <div class="alert alert-success" role="alert" v-if="isFacialAuthenticationSuccess">
-                                    <span><i class="fa fa-info-circle" aria-hidden="true"></i></span> Facial
-                                    Authentication
-                                    Passed
+                                <div class="alert alert-success" role="alert"
+                                    v-if="isFacialAuthenticationSuccess.success">
+                                    <span><i class="fa fa-info-circle" aria-hidden="true"></i></span>
+                                    {{ isFacialAuthenticationSuccess.result }}
                                 </div>
                                 <div class="alert alert-danger" role="alert" v-else>
-                                    <span><i class="fa fa-info-circle" aria-hidden="true"></i></span> Facial
-                                    Authentication
-                                    Failed
+                                    <span><i class="fa fa-info-circle" aria-hidden="true"></i></span>
+                                    {{ isFacialAuthenticationSuccess.result }}
                                 </div>
                             </div>
                         </div>
@@ -583,6 +584,14 @@ const ServiceLivenessResultEnum = {
     18: "Eyes closed",
 }
 
+const FaicalAuthenticationError = {
+    0: 'Face check could not be performed',
+    1: 'Faces did not match',
+    2: 'Face not found in the image',
+    4: 'Failed to perform face check due to the pose of the face',
+    5: 'Failed due to problems in the extraction of the facial pattern',
+    6: 'Duplicate document was used',
+};
 
 export default {
     name: "sessionDetails",
@@ -596,7 +605,12 @@ export default {
             containerShift: state => state.playgroundStore.containerShift,
         }),
         isFacialAuthenticationSuccess() {
-            return this.selfiDataFound && this.idDocDataFound && this.session.ocriddocsDetails.serviceFacialAuthenticationResult == 3
+            const status = this.selfiDataFound && this.idDocDataFound && this.session.ocriddocsDetails.serviceFacialAuthenticationResult == 3
+            const matchPercentage = ', match ' + Math.round(this.session.ocriddocsDetails.serviceFacialSimilarityResult * 100) + '%'
+            return {
+                success: status,
+                result: !status ? FaicalAuthenticationError[this.session.ocriddocsDetails.serviceFacialAuthenticationResult] + matchPercentage : 'Facial Authentication Passed' + matchPercentage,
+            }
         },
         passiveLivelinessData() {
             const status = this.selfiDataFound && this.session.selfiDetails.serviceLivenessResult == 3
@@ -607,7 +621,7 @@ export default {
             }
         },
         getStatusColor() {
-            if (this.isFacialAuthenticationSuccess) {
+            if (this.isFacialAuthenticationSuccess.success) {
                 return '1px solid rgb(81, 137, 81)'
             } else {
                 return '1px solid red'
