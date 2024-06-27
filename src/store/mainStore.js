@@ -338,7 +338,7 @@ const mainStore = {
                 }
 
                 let url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/session`;
-                let url = 'http://localhost:3001/api/v1/e-kyc/verification/session'
+                // let url = 'http://localhost:3001/api/v1/e-kyc/verification/session'
 
                 const paramsObject = {}
 
