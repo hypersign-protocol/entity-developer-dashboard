@@ -372,15 +372,21 @@ export default {
         this.shiftContainer(true);
       }
     },
-    initializeStore() {
-      this.authToken = localStorage.getItem("authToken");
-      if (this.authToken) {
-        this.showIcon = true;
-        this.fetchAppsListFromServer();
-        this.fetchServicesList()
-      } else {
-        console.log("else");
+    async initializeStore() {
+      try {
+        this.authToken = localStorage.getItem("authToken");
+        if (this.authToken) {
+          this.showIcon = true;
+          await this.fetchAppsListFromServer();
+          await this.fetchServicesList()
+        } else {
+          throw new Error("No auth token")
+        }
+      } catch (e) {
+        this.showIcon = false
+        this.notifyErr(`Error:  ${e.message}`);
       }
+
     },
 
     getSideMenu() {

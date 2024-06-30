@@ -3,6 +3,7 @@ import Vuex from 'vuex';
 import config from '../config'
 import UtilsMixin from '../mixins/utils.js'
 import { sanitizeUrl } from '../utils/common.js'
+import { RequestHandler } from '../utils/utils.js'
 
 const { apiServer } = config;
 const apiServerBaseUrl = sanitizeUrl(apiServer.host) + apiServer.basePath;
@@ -232,18 +233,13 @@ const mainStore = {
 
         },
 
-        fetchAppsListFromServer: ({ commit, dispatch }) => {
-
+        fetchAppsListFromServer: async ({ commit, dispatch }) => {
             // TODO: Get list of orgs 
             const url = `${apiServerBaseUrl}/app`;
             // TODO: // use proper authToken
             const headers = UtilsMixin.methods.getHeader(localStorage.getItem('authToken'));
-            return fetch(url, {
-                headers
-            }).then(response => response.json()).then(json => {
-                if (json.error) {
-                    throw new Error(json)
-                }
+            const json = await RequestHandler(url, 'GET', {}, headers)
+            if (json) {
                 commit('insertAllApps', json);
                 json.data.map(x => {
                     return dispatch('keepAccessTokenReadyForApp', {
@@ -251,10 +247,9 @@ const mainStore = {
                         grant_type: config.GRANT_TYPES_ENUM[x.services[0].id]
                     })
                 })
-            }).catch((e) => {
-                console.error(`Error while fetching apps ` + e.message);
-            })
-
+            } else {
+                return null
+            }
         },
 
         keepAccessTokenReadyForApp: ({ commit, getters }, payload) => {
@@ -285,22 +280,17 @@ const mainStore = {
             })
         },
 
-        fetchServicesList: ({ commit }) => {
+        fetchServicesList: async ({ commit }) => {
             // TODO: Get list of orgs 
             const url = `${apiServerBaseUrl}/services`;
             // TODO: // use proper authToken
             const headers = UtilsMixin.methods.getHeader(localStorage.getItem('authToken'));
-            fetch(url, {
-                headers
-            }).then(response => response.json()).then(json => {
-                if (json.error) {
-                    throw new Error(json)
-                }
-                console.log(json)
-                commit('insertAllServices', json);
-            }).catch((e) => {
-                console.error(`Error while fetching apps ` + e.message);
-            })
+            const resp = await RequestHandler(url, 'GET', {}, headers)
+            if (resp) {
+                commit('insertAllServices', resp);
+            } else {
+                return null
+            }
         },
 
         // eslint-disable-next-line 
