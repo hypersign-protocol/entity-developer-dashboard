@@ -590,18 +590,28 @@ const mainStore = {
         },
 
         // --- SSI
-        fetchDIDsForAService({ commit, getters, dispatch }) {
+        fetchDIDsForAService({ commit, getters, dispatch }, payload = {}) {
             return new Promise(function (resolve, reject) {
                 {
-                    if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
+                    let tenantUrl = ""
+                    let accessToken = ""
+                    if (payload && payload.tenantUrl && payload.accessToken) {
+                        tenantUrl = payload.tenantUrl
+                        accessToken = payload.accessToken
+
+                    } else if (getters.getSelectedService && getters.getSelectedService.tenantUrl && getters.getSelectedService.access_token) {
+                        tenantUrl = getters.getSelectedService.tenantUrl;
+                        accessToken = getters.getSelectedService.access_token
+                    } else {
                         return reject(new Error('Tenant url is null or empty, service is not selected'))
                     }
-                    const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/did?page=1&limit=10`;
+
+                    const url = `${sanitizeUrl(tenantUrl)}/api/v1/did?page=1&limit=10`;
                     const options = {
                         method: "GET",
                         headers: {
                             "Content-Type": "application/json",
-                            "Authorization": `Bearer ${getters.getSelectedService.access_token}`,
+                            "Authorization": `Bearer ${accessToken}`,
                             "Origin": '*'
                         }
                     }
@@ -620,14 +630,15 @@ const mainStore = {
                                         }
                                     })
 
-                                    json.data.map(x => {
-                                        return dispatch('resolveDIDForAService', x)
-                                    })
-                                    commit('setDIDList', payload)
-                                    // allPromises();
-                                    resolve()
+                                    if (getters.getSelectedService) {
+                                        json.data.map(x => {
+                                            return dispatch('resolveDIDForAService', x)
+                                        })
+                                        commit('setDIDList', payload)
+                                    }
+                                    resolve(json.data)
                                 } else {
-                                    resolve()
+                                    reject(new Error('Could not fetch DID for this service'))
                                 }
                             } else {
                                 reject(new Error('Could not fetch DID for this service'))

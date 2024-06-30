@@ -189,7 +189,7 @@ ul {
               <div class="row">
                 <div class="col">
                   <div class="row">
-                    <div class="col">
+                    <div class="col-md-12">
                       <b-form-checkbox switch size="lg" v-model="widgetConfigTemp.userConsent.enabled" disabled>Enable
                         User
                         Consent</b-form-checkbox>
@@ -197,17 +197,20 @@ ul {
                     </div>
                     <div class="row mt-2">
                       <div class="col-md-3">
-                        <img :src="widgetConfigTemp.userConsent.logoUrl" v-if="widgetConfigTemp.userConsent.logoUrl"
-                          width="100" height="100">
+                        <span class="p-2">
+                          <img :src="widgetConfigTemp.userConsent.logoUrl" v-if="widgetConfigTemp.userConsent.logoUrl"
+                            width="100" height="100">
+                        </span>
                       </div>
                       <div class="col-md-8">
                         <div class="row">
-                          <div class="col">
-                            <h4>{{ widgetConfigTemp.userConsent.domain }}</h4>
+                          <div class="col-md-12">
+                            <h4>{{ widgetConfigTemp.userConsent.domain }}
+                            </h4>
                           </div>
                         </div>
                         <div class="row">
-                          <div class="col" style="color:grey">
+                          <div class="col-md-12" style="color:grey">
                             {{ widgetConfigTemp.userConsent.reason }}
                           </div>
 
@@ -223,24 +226,25 @@ ul {
                       <div class="row">
                         <div class="col">
                           <label for=""><strong>Reason For KYC: </strong></label>
-                          <input type="text" class="form-control" id="" v-model="widgetConfigTemp.userConsent.reason"
+                          <textarea type="text" rows="4" class="form-control" id=""
+                            v-model="widgetConfigTemp.userConsent.reason"
                             placeholder="The app is requesting the following information to verify your identity" />
                         </div>
                       </div>
-                      <div class="row mt-2">
+                      <!-- <div class="row mt-2">
                         <div class="col">
                           <label for=""><strong>Enter Logo URL: </strong></label>
                           <input type="textarea" rows="10" class="form-control" id=""
                             v-model="widgetConfigTemp.userConsent.logoUrl" />
                         </div>
-                      </div>
-                      <div class="row mt-2">
+                      </div> -->
+                      <!-- <div class="row mt-2">
                         <div class="col">
                           <label for=""><strong>Enter Domain: </strong></label>
                           <input type="textarea" rows="10" class="form-control" id=""
                             v-model="widgetConfigTemp.userConsent.domain" />
                         </div>
-                      </div>
+                      </div> -->
                     </div>
                   </div>
                 </div>
@@ -280,7 +284,7 @@ ul {
 import UtilsMixin from '../../mixins/utils';
 import { mapState, mapActions } from "vuex";
 import HfButtons from '../../components/element/HfButtons.vue';
-import { mapMutations } from 'vuex/dist/vuex.common.js';
+import { mapGetters, mapMutations } from 'vuex/dist/vuex.common.js';
 
 export default {
   name: "WidgetConfig",
@@ -294,6 +298,7 @@ export default {
       onchainconfigs: state => state.mainStore.onchainconfigs,
       widgetConfig: state => state.mainStore.widgetConfig
     }),
+    ...mapGetters('mainStore', ['getAppByAppId']),
     isContainerShift() {
       return this.containerShift
     },
@@ -315,8 +320,10 @@ export default {
     }
   },
 
-  async created() {
+  async mounted() {
     try {
+
+
       // const usrStr = localStorage.getItem("user");
       // this.user = JSON.parse(usrStr);
       // this.updateSideNavStatus(true)
@@ -331,9 +338,7 @@ export default {
       this.isLoading = false
 
 
-      if (this.widgetConfig) {
-        this.widgetConfigTemp = { ...this.widgetConfig }
-      }
+
 
     } catch (e) {
       this.isLoading = false
@@ -343,13 +348,27 @@ export default {
       }
       // this.$router.push({ path: '/studio/dashboard' });
     }
+
+    if (Object.keys(this.widgetConfig).length > 0) {
+      this.widgetConfigTemp = { ...this.widgetConfig }
+    }
+
+    this.appId = this.$route.params.appId;
+    if (this.appId) {
+      this.app = { ...this.getAppByAppId(this.appId) }
+      if (this.app) {
+        this.widgetConfigTemp.userConsent.domain = this.app.domain ? this.app.domain : this.widgetConfigTemp.userConsent.domain;
+        this.widgetConfigTemp.userConsent.logoUrl = this.app.logoUrl ? this.app.logoUrl : this.widgetConfigTemp.userConsent.logoUrl;
+        this.widgetConfigTemp.issuerDID = this.app.issuerDid;
+      }
+    }
   },
   data() {
     return {
       fullPage: true,
       isLoading: false,
-
-
+      appId: "",
+      app: {},
       widgetConfigTemp: {
         faceRecog: true,
         idOcr: {
@@ -358,7 +377,7 @@ export default {
         },
         userConsent: {
           enabled: true,
-          reason: "The app is requesting the following information to verify your identity",
+          reason: "The app is requesting your KYC data to provide you service",
           logoUrl: "https://static.thenounproject.com/png/4974686-200.png",
           domain: "http://localhost:6006",
         },
@@ -392,7 +411,7 @@ export default {
         throw new Error('Issuer DID is required')
       }
 
-      if (!this.widgetConfigTemp.idOcr.enabled) {
+      if (!this.widgetConfigTemp.idOcr?.enabled) {
         this.widgetConfigTemp.idOcr.documentType = null
       } else {
         if (!this.widgetConfigTemp.idOcr.documentType) {

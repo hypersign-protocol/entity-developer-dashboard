@@ -51,7 +51,7 @@
             <div class="card-body" style="color: #8080808a">
               <h5 class="card-title">EDV Service</h5>
               <p class="card-text">Easily spin up your encrypted data vault, leveraging the strength of decentralized
-                identity to safeguard your sensitive information. </p>
+                identity to safeguard your sensitive information.</p>
               <hf-buttons name=" Create" iconClass="fa fa-plus" style="text-align: right" class="ml-auto mt-4"
                 @executeAction="openSlider('EDV_API')" disabled>
               </hf-buttons>
@@ -74,6 +74,60 @@
           <hf-buttons name="Continue" class="btn btn-primary text-center"
             @executeAction="reGenerateSecretKey"></hf-buttons>
         </div>
+      </div>
+    </hf-pop-up>
+
+    <hf-pop-up id="domain-verificaiton-popup" Header="Verify Your Domain">
+      <div class="border p-2">
+        <div class="form-group">
+          <tool-tip infoMessage="Your Domain Name"></tool-tip>
+          <label for="orgDid"><strong>Your Domain Name: </strong></label>
+          <input type="text" class="form-control" id="orgDid" placeholder="hypersign.id"
+            v-model="domainFromOriginComputed" aria-describedby="orgNameHelp" disabled />
+        </div>
+
+
+        <div class="form-group" v-if="appModel.domain && appModel.dependentServices">
+          <tool-tip infoMessage="Associated SSI Service Id"></tool-tip>
+          <label for="orgDid"><strong>SSI Service Id: </strong></label>
+          <input type="text" class="form-control" id="orgDid" v-model="appModel.dependentServices[0]" disabled
+            aria-describedby="orgNameHelp" />
+        </div>
+
+
+        <div class="form-group" v-if="appModel.domain">
+          <tool-tip infoMessage="Select issuer DID for this app"></tool-tip>
+          <label for="selectService"><strong>Select Issuer DID<span style="color: red">*</span>: </strong></label>
+          <select class="custom-select" id="selectService" v-model="appModel.issuerDid" v-if="!appModel.issuerDid">
+            <option value="" selected>Select a DID</option>
+            <option v-for="did in associatedSSIServiceDIDs" :value="did" :key="did">{{ did }}</option>
+          </select>
+          <input type="text" class="form-control" id="orgDid" v-model="appModel.issuerDid" disabled
+            aria-describedby="orgNameHelp" />
+        </div>
+
+        <div class="form-group" v-if="appModel.domain && appModel.issuerDid">
+          <tool-tip infoMessage="Txt Record"></tool-tip>
+          <label for="tenant"><strong>TXT Record: </strong></label>
+          <div class="input-group mb-1">
+            <input type="text" class="form-control" id="tenant" v-model="txtRecord" aria-describedby="orgNameHelp"
+              disabled />
+            <div class="input-group-append">
+              <span class="input-group-text" id="basic-addon2">
+                <i class="far fa-copy mt-1" @click="copyToClip(txtRecord, 'TXT Record')">
+                </i>
+              </span>
+            </div>
+          </div>
+          <small><a target="_blank">{{ `Please add the above TXT record in your domain (${domainFromOriginComputed}) for
+              DNS-01
+              validation. If you have any trouble setting the TXT record, contact your domain service provider for
+              help. Once updated, kindly click on 'Verify' button to verify your domain.` }}
+            </a></small>
+        </div>
+      </div>
+      <div class="text-center mt-3" v-if="txtRecord">
+        <hf-buttons name="Verify" class="btn btn-primary text-center" @executeAction="verifyDNS01"></hf-buttons>
       </div>
     </hf-pop-up>
 
@@ -126,7 +180,29 @@
             placeholder="Enter meaningful description for your app, max 100 chars"></textarea>
         </div>
 
+        <div class="form-group">
+          <tool-tip infoMessage="Monolog Url"></tool-tip>
+          <label for="orgDid"><strong>Logo Url: </strong></label>
+          <input type="text" class="form-control" id="orgDid" placeholder="https://yourdomain.com/assets/logo.png"
+            v-model="appModel.logoUrl" aria-describedby="orgNameHelp" />
+        </div>
 
+        <div class="form-group">
+          <tool-tip infoMessage="Your domain"></tool-tip>
+          <label for="domain"><strong>Domain (Origin)<span style="color: red">*</span>: </strong></label>
+          <div class="input-group mb-1">
+
+            <input type="text" class="form-control" id="domain" placeholder="https://yourdomain.com"
+              v-model="appModel.domain" aria-describedby="orgDomain"
+              :disabled="appModel.hasDomainVerified && appModel.domainLinkageCredentialString" />
+            <div class="input-group-append" v-if="appModel.hasDomainVerified">
+              <span class="input-group-text" id="basic-addon2">
+                <i class="fa fa-check p-1" style="color:green"></i> Verified
+              </span>
+            </div>
+          </div>
+          <small>{{ domainFromOriginComputed }}</small>
+        </div>
 
         <div class="form-group" v-if="edit === true">
           <tool-tip infoMessage="Your Encrypted Data Vault id"></tool-tip>
@@ -180,10 +256,12 @@
           <small>{{ serviceDescrition }}</small>
         </div>
 
-        <div class="form-group" v-if="edit === false && selectedServiceId == 'CAVACH_API'">
+        <div class="form-group"
+          v-if="selectedServiceId == 'CAVACH_API' || (appModel.services && appModel.services.length > 0 && (appModel.services[0].id == 'CAVACH_API'))">
           <tool-tip infoMessage="Associate your service"></tool-tip>
-          <label for="selectService"><strong>Associate SSI Service:<span style="color: red">*</span>: </strong></label>
-          <select class="custom-select" id="selectSSIService" v-model="selectedAssociatedSSIAppId">
+          <label for="selectService"><strong>Associate SSI Service<span style="color: red">*</span>: </strong></label>
+          <select class="custom-select" id="selectSSIService" v-model="selectedAssociatedSSIAppId"
+            @change="onSSIServiceChange($event)">
             <option value="" disabled>
               Select a service
             </option>
@@ -196,23 +274,49 @@
         </div>
 
         <div class="form-group"
+          v-if="(selectedServiceId == 'CAVACH_API' || (appModel.services && appModel.services.length > 0 && (appModel.services[0].id == 'CAVACH_API'))) && selectedAssociatedSSIAppId">
+          <tool-tip infoMessage="Select issuer DID for this app"></tool-tip>
+          <label for="selectService"><strong>Select Issuer DID<span style="color: red">*</span>: </strong></label>
+          <select class="custom-select" id="selectService" v-model="appModel.issuerDid">
+            <option value="">Select a DID</option>
+            <option v-for="did in associatedSSIServiceDIDs" :value="did" :key="did">{{ did }}</option>
+          </select>
+          <!-- <input type="text" class="form-control" id="orgDid" v-else v-model="appModel.issuerDid" disabled
+            aria-describedby="orgNameHelp" /> -->
+        </div>
+
+        <div class="form-group" v-if="edit === true">
+          <tool-tip infoMessage="Select an environment"></tool-tip>
+          <label for="selectService"><strong>Select Environment<span style="color: red">*</span>: </strong></label>
+          <select class="custom-select" id="selectService" v-model="appModel.env">
+            <option value="dev">Development</option>
+            <option value="prod">Production</option>
+          </select>
+        </div>
+
+        <!-- <div class="form-group"
           v-if="edit === true && (appModel.services && appModel.services.length > 0 && (appModel.services[0].id == 'CAVACH_API'))">
           <tool-tip infoMessage="SSI Service Id"></tool-tip>
           <label for="orgDid"><strong>SSI Service Id: </strong></label>
           <input type="text" class="form-control" id="orgDid" v-model="appModel.dependentServices[0]"
             aria-describedby="orgNameHelp" disabled />
-        </div>
+        </div> -->
+
+        <!-- <div class="form-group"
+          v-if="edit === true && (appModel.issuerDid) && (appModel.services[0].id == 'CAVACH_API')">
+          <tool-tip infoMessage="Issuer DID"></tool-tip>
+          <label for="orgDid"><strong>Issuer DID: </strong></label>
+          <input type="text" class="form-control" id="orgDid" v-model="appModel.issuerDid"
+            aria-describedby="orgNameHelp" disabled />
+        </div> -->
 
         <div class="form-group">
           <tool-tip
             infoMessage="Listed origins allowed to make CORS requests. Enter comman seperated URLs to whitelist"></tool-tip>
           <label for="orgName"><strong>Allowed Origins (CORS):</strong></label>
           <textarea class="form-control" v-model="appModel.whitelistedCors" rows="3"
-            placeholder="*, http://your-domain.com, http://test.com"></textarea>
+            placeholder="*,http://your-domain.com,http://test.com"></textarea>
         </div>
-
-
-
 
         <div class="form-group" v-if="edit">
           <hf-buttons name="Update" iconClass="fa fa-bookmark" class="btn btn-primary"
@@ -266,7 +370,7 @@
                         <small class="card-field-label">Service Id:</small>
                         <div class="apiKeySecret" @click.stop="copyToClip(eachOrg.appId, 'Service Id')"
                           title="Copy Service Id">
-                          {{ truncate(eachOrg.appId, 35) }}
+                          {{ truncate(eachOrg.appId, 45) }}
                           <i class="far fa-copy" style="float: right"></i>
                         </div>
                       </b-card-text>
@@ -278,7 +382,7 @@
                         <small class="card-field-label">Tenant Url:</small>
                         <div class="apiKeySecret" @click.stop="copyToClip(eachOrg.tenantUrl, 'Tenant Url')"
                           title="Copy Tenant Url">
-                          {{ truncate(eachOrg.tenantUrl, 42) }}
+                          {{ truncate(eachOrg.tenantUrl, 55) }}
                           <i class="far fa-copy" style="float: right"></i>
                         </div>
                       </b-card-text>
@@ -320,6 +424,8 @@
                           <div class="col-12">
                             <h5 class="card-title text-uppercase text-muted mb-0">
                               {{ formattedAppName(eachOrg.appName) }}
+                              <img src="../assets/verified-success.png" style="max-height: 20px; min-height: 20px;"
+                                v-if="eachOrg.hasDomainVerified" />
                             </h5>
                           </div>
                         </div>
@@ -333,11 +439,16 @@
                         </div>
                       </div>
                       <div class="col-3">
-                        <div class="p-2">
+                        <div class="p-2 logo-container"
+                          style="border: 1px solid #303c3029;border-radius: 51px; overflow: hidden;">
                           <b-card-img :src="eachOrg.logoUrl ||
                             getProfileIcon(formattedAppName(eachOrg.appId))
-                            " alt="logoImg" class="rounded-0" style="max-height: 60px; min-height: 60px">
+                            " alt="logoImg" class="rounded-1 logo"
+                            style="max-height: 60px; min-height: 60px; border-radius: 50%;">
                           </b-card-img>
+                          <!-- <img src="../assets/verified-success.png"
+                            style="max-height: 20px; min-height: 20px; position: absolute;top: 59px; right: 22px;"
+                            class="verified-badge" /> -->
                         </div>
                       </div>
                     </div>
@@ -348,7 +459,7 @@
                           <small class="card-field-label">Service Id:</small>
                           <div class="apiKeySecret" @click.stop="copyToClip(eachOrg.appId, 'Service Id')"
                             title="Copy Service Id">
-                            {{ truncate(eachOrg.appId, 35) }}
+                            {{ truncate(eachOrg.appId, 45) }}
                             <i class="far fa-copy" style="float: right"></i>
                           </div>
                         </b-card-text>
@@ -360,7 +471,7 @@
                           <small class="card-field-label">Tenant Url:</small>
                           <div class="apiKeySecret" @click.stop="copyToClip(eachOrg.tenantUrl, 'Tenant Url')"
                             title="Copy Tenant Url">
-                            {{ truncate(eachOrg.tenantUrl, 42) }}
+                            {{ truncate(eachOrg.tenantUrl, 55) }}
                             <i class="far fa-copy" style="float: right"></i>
                           </div>
                         </b-card-text>
@@ -370,13 +481,24 @@
                       <div class="col">
                         <!-- <span class=" " style="cursor: pointer" @click.stop="switchOrg(eachOrg.appId,  'CAVACH_API')"><i
                           class="fas fa-tachometer-alt" aria-hidden="true"></i></span> -->
+                        <span style="float:left">
+                          <span class="badge bg-secondary text-white mx-1" v-if="eachOrg.env == 'dev'">{{ eachOrg.env
+                            }}</span>
+                          <span class="badge bg-success text-white mx-1" v-else>{{ eachOrg.env }}</span>
+
+                          <span class="badge rounded bg-light mx-1" v-if="eachOrg.domain && eachOrg.hasDomainVerified">
+                            <a @click.stop :href="eachOrg.domain" target="_blank" style="text-decoration:none">{{
+                              domainFromOrigin(eachOrg.domain) }}</a>
+                          </span>
+                        </span>
                         <span class=" " style="float: right">
-                          <!-- <span class="badge rounded-pill bg-warning mx-1"
-                            @click.stop="openOnChainDeployPopup(eachOrg.appId)"
-                            title="Click to generate a new API Secret Key" data-bs-toggle="modal"
-                            data-bs-target="#onchain-kyc-deploy" style="cursor: pointer">
-                            <i class="fa fa-key"></i>
-                            Deploy</span> -->
+                          <span class="badge rounded-pill bg-warning  text-dark mx-1"
+                            @click.stop="verifyDomainOpenPopup(eachOrg)" title="Click to verify your domain"
+                            v-if="!eachOrg.hasDomainVerified && eachOrg.dependentServices[0]">
+                            <i class="fa fa-check"></i>
+                            Domain</span>
+
+
 
                           <span class="badge rounded-pill bg-danger mx-1"
                             @click.stop="openSecretkeyPopUp(eachOrg.appId)"
@@ -551,6 +673,7 @@ import { mapGetters, mapState, mapActions, mapMutations } from "vuex";
 import HfFlashNotification from "../components/element/HfFlashNotification.vue";
 import { sanitizeUrl } from '../utils/common'
 // import DeployOnChainKYC from "../components/deploy-onchain-kyc-popup/deploy.vue";
+import DomainLinkage from '@hypersign-protocol/domain-linkage-verifier'
 import config from '../config';
 export default {
   name: "AppList",
@@ -561,6 +684,18 @@ export default {
     }),
     ...mapGetters("mainStore", ["getAppByAppId", "getAllServices", "getServiceById", 'getAppsWithSSIServices', 'getAppsWithKYCServices', 'getUserAccessList']),
 
+    domainFromOriginComputed() {
+      try {
+        const url = new URL(this.appModel.domain)
+        return url.host
+      } catch (e) {
+        return this.appModel.domain
+      }
+    },
+
+    txtRecord() {
+      return this.appModel.issuerDid ? "hypersign-domain-verification.did=" + this.appModel.issuerDid : null;
+    },
     pages() {
       return Math.ceil(parseInt(this.totalAppCount) / 10);
     },
@@ -620,8 +755,14 @@ export default {
         tenantUrl: "",
         services: [],
         dependentServices: [],
-
+        env: "dev",
+        issuerDid: null,
+        domain: "",
+        hasDomainVerified: false,
+        domainLinkageCredentialString: ""
       },
+      domain: "",
+      associatedSSIServiceDIDs: []
     };
   },
   components: {
@@ -640,12 +781,22 @@ export default {
       "saveAnAppOnServer",
       "updateAnAppOnServer",
       "generateAPISecretKey",
-      "keepAccessTokenReadyForApp"
+      "keepAccessTokenReadyForApp",
+      "fetchDIDsForAService"
     ]),
 
     ...mapMutations("playgroundStore", [
       "shiftContainer",
     ]),
+
+    domainFromOrigin(domain = this.appModel.domain) {
+      try {
+        const url = new URL(domain)
+        return url.host
+      } catch (e) {
+        return domain
+      }
+    },
 
     async switchOrg(appId, serviceType = 'SSI_API') {
       // 
@@ -690,6 +841,12 @@ export default {
         console.log('Added')
       }
     },
+    async onSSIServiceChange(event) {
+      const ssiServiceId = event.target.value;
+      if (ssiServiceId) {
+        await this.prepareDIDList(ssiServiceId)
+      }
+    },
     formattedAppName(appName) {
       if (appName == "" || appName == undefined) appName = "No app name";
       return this.truncate(appName, 25);
@@ -720,14 +877,16 @@ export default {
     },
     closeSlider() {
       this.$root.$emit("bv::toggle::collapse", "sidebar-right");
-      this.clearAll();
     },
-    editOrg(appId) {
+    async editOrg(appId) {
       this.edit = true;
       this.$root.$emit("bv::toggle::collapse", "sidebar-right");
       const appModel = this.getAppByAppId(appId);
       appModel.whitelistedCors = appModel.whitelistedCors.toString();
       Object.assign(this.appModel, { ...appModel });
+      this.selectedAssociatedSSIAppId = appModel.dependentServices[0]
+      console.log('Edit org this.selectedAssociatedSSIAppId ' + this.selectedAssociatedSSIAppId)
+      await this.prepareDIDList(this.selectedAssociatedSSIAppId)
     },
     validateFields() {
       const m = [];
@@ -753,17 +912,14 @@ export default {
         m.push(messages.APPLICATION.CHAR_EXCEED_APP_DES);
       }
 
-      console.log(this.selectedServiceId)
+
       if (this.selectedServiceId === 'CAVACH_API') {
-        console.log(this.selectedAssociatedSSIAppId)
         if (this.selectedAssociatedSSIAppId === "") {
-          console.log('this.selectedAssociatedSSIAppId is empty')
           m.push(messages.APPLICATION.SSI_SERVICE_NOT_SELECTED)
         }
       }
 
-
-      if (!isEmpty(this.appModel.whitelistedCors)) {
+      if (!Array.isArray(this.appModel.whitelistedCors)) {
         const newArray = this.appModel.whitelistedCors
           .split(",")
           .filter((x) => x != " ")
@@ -775,9 +931,33 @@ export default {
           }
         }
       }
+
+      if (!this.appModel.domain) {
+        m.push(messages.APPLICATION.ENTER_DOMAIN_ORGIN)
+      } else {
+        try {
+          const t = new URL(this.appModel.domain)
+          if (!t.origin || t.host == '') {
+            throw new Error()
+          }
+        } catch (e) {
+          m.push(messages.APPLICATION.INVALID_DOMAIN_ORGIN)
+        }
+      }
+
+      if (this.appModel.env == 'prod') {
+        if (!this.appModel.hasDomainVerified) {
+          m.push(messages.APPLICATION.CANT_GO_PROD_BEFORE_DOMAIN_VERIFICATION)
+        }
+
+        if (!this.appModel.logoUrl) {
+          m.push(messages.APPLICATION.CANT_GO_PROD_BEFORE_SETTING_LOGO)
+        }
+      }
+
       return {
         message: m,
-      };
+      }
     },
     async createAnApp() {
       try {
@@ -805,7 +985,11 @@ export default {
           description: this.appModel.description,
           logoUrl: this.appModel.logoUrl,
           serviceIds: [this.selectedServiceId],
-          dependentServices: [this.selectedAssociatedSSIAppId]
+          dependentServices: [this.selectedAssociatedSSIAppId],
+          env: this.appModel.env,
+          domain: this.appModel.domain,
+          issuerDid: this.appModel.issuerDid,
+          hasDomainVerified: this.appModel.hasDomainVerified
         });
 
 
@@ -839,7 +1023,82 @@ export default {
         this.isLoading = false;
       }
     },
-    async updateAnAppAPIServer() {
+
+
+    async prepareDIDList(ssiSserviceId) {
+      try {
+        if (ssiSserviceId) {
+          const associatedSSIService = this.getAppsWithSSIServices.find(x => x.appId === ssiSserviceId)
+          if (associatedSSIService) {
+            const payload = {
+              tenantUrl: associatedSSIService.tenantUrl,
+              accessToken: associatedSSIService.access_token
+            }
+            this.isLoading = true
+            const allDIDs = await this.fetchDIDsForAService(payload)
+            this.associatedSSIServiceDIDs = allDIDs;
+            this.isLoading = false
+          }
+        }
+      } catch (e) {
+        this.isLoading = false
+
+        this.notifyErr(e.message)
+      }
+    },
+
+    async verifyDomainOpenPopup(app) {
+      // Make API call to retrive all DIDs for this SSI service..
+      // Add them the select dropdown list
+      // getAppsWithSSIServices
+      this.appModel = { ...app }
+      const ssiSserviceId = app.dependentServices[0]
+
+      await this.prepareDIDList(ssiSserviceId);
+      this.$root.$emit("bv::show::modal", "domain-verificaiton-popup");
+    },
+
+    closeDomainPopup() {
+      this.$root.$emit("bv::hide::modal", "domain-verificaiton-popup");
+    },
+
+    async verifyDNS01() {
+      try {
+        if (!this.appModel.domain) {
+          throw new Error('Please enter a domain')
+        }
+
+        if (!this.txtRecord) {
+          throw new Error('Please select a DID')
+        }
+
+        if (this.appModel.domain.includes('localhost') || this.appModel.domain.includes('127.0.0.1')) {
+          throw new Error('Domain can not be localhost or 127.0.0.1')
+        }
+
+        this.isLoading = true
+        const domainLinkage = new DomainLinkage(this.appModel.domain)
+        const txtRecord = await domainLinkage.verifyDnsTxtRecord(this.appModel.domain.includes('http') ? this.appModel.domain : new URL('https://' + this.appModel.domain), this.txtRecord)
+
+        if (txtRecord && txtRecord.error) {
+          throw new Error(txtRecord.error?.message + '. If you have already added then it may take a while to complete. Please try again in sometime.')
+        }
+
+        if (txtRecord && txtRecord.verified) {
+          this.notifySuccess('Domain verified successfully')
+          this.notifySuccess('Proceeing to update the service')
+          this.appModel.hasDomainVerified = true;
+          await this.updateAnAppAPIServer("domainUpdate")
+        }
+        this.isLoading = false
+      } catch (e) {
+        console.log(e)
+        this.isLoading = false
+        this.notifyErr(e.message)
+      }
+
+    },
+    async updateAnAppAPIServer(type) {
       try {
         const errorMessages = this.validateFields();
         if (errorMessages && errorMessages.message.length > 0) {
@@ -848,15 +1107,15 @@ export default {
 
         this.isLoading = true;
         let whitelistCors = [];
-        if (!isEmpty(this.appModel.whitelistedCors)) {
-          whitelistCors = this.appModel.whitelistedCors
-            .split(",")
-            .filter((x) => x != " ")
-            .map((x) => x.trim());
+        console.log(this.appModel.whitelistedCors)
+        if (!Array.isArray(this.appModel.whitelistedCors)) {
+          whitelistCors = this.appModel.whitelistedCors.split(",").filter((x) => x != " ").map((x) => x.trim());
           const s = new Set(whitelistCors);
           if (whitelistCors.length !== s.size) {
             throw new Error(messages.APPLICATION.DUPLICATE_ORIGIN_VALUES);
           }
+        } else {
+          whitelistCors = this.appModel.whitelistedCors
         }
         const t = await this.updateAnAppOnServer({
           appId: this.appModel.appId,
@@ -864,9 +1123,19 @@ export default {
           whitelistedCors: whitelistCors,
           description: this.appModel.description,
           logoUrl: this.appModel.logoUrl,
+          env: this.appModel.env,
+          domain: this.appModel.domain,
+          issuerDid: this.appModel.issuerDid, // on this did linkedDomain credential will be issued
+          hasDomainVerified: this.appModel.hasDomainVerified
         });
         if (t) {
-          this.closeSlider();
+          if (type == "domainUpdate") {
+            this.closeDomainPopup()
+          } else {
+            this.closeSlider();
+          }
+          this.clearAll();
+
           this.notifySuccess(messages.APPLICATION.APP_UPDATE_SUCCESS);
           this.isLoading = true;
 
@@ -939,10 +1208,18 @@ export default {
         tenantUrl: "",
         walletAddress: "",
         edvId: "",
-        whitelistedCors: "",
         logoUrl: "",
+        services: [],
+        dependentServices: [],
+        env: "dev",
+        issuerDid: null,
+        domain: "",
+        hasDomainVerified: false,
+        domainLinkageCredentialString: ""
       };
-      // this.apiKeySecret = ''
+      this.selectedAssociatedSSIAppId = ""
+      this.domain = ""
+      this.associatedSSIServiceDIDs = []
     },
   },
   beforeDestroy() {
