@@ -29,9 +29,13 @@ const mainStore = {
         onChainConfig: {},
         widgetConfig: {
 
-        }
+        },
+        marketPlaceApps: [],
     },
     getters: {
+        getPreparedMarketPlaceApps: (state) => {
+            return state.preparedMarketPlaceApps
+        },
         getAppByAppId: (state) => (appId) => {
             return state.appList.find(x => x.appId === appId);
         },
@@ -69,9 +73,16 @@ const mainStore = {
         },
         getWidgetnConfig: (state) => {
             return state.widgetConfig
+        },
+        getMarketPlaceApps: (state) => {
+            return state.marketPlaceApps
         }
     },
     mutations: {
+        updateAnMarketPlaceApp(state, payload) {
+            const tempToUpdateIndex = state.marketPlaceApps.findIndex(x => x.appId === payload.appId);
+            Object.assign(state.marketPlaceApps[tempToUpdateIndex], { ...payload });
+        },
         setOnChainConfig: (state, payload) => {
             state.onChainConfig = { ...payload }
         },
@@ -90,6 +101,9 @@ const mainStore = {
         },
         insertAllServices(state, payload) {
             state.serviceList = payload;
+        },
+        insertMarketplaceApps(state, payload) {
+            state.marketPlaceApps = payload;
         },
         updateAnApp(state, payload) {
             const tempToUpdateIndex = state.appList.findIndex(x => x.appId === payload.appId);
@@ -251,6 +265,18 @@ const mainStore = {
                 return null
             }
         },
+
+
+        fetchMarketPlaceAppsFromServer: async ({ commit }) => {
+            const url = `${apiServerBaseUrl}/app/marketplace`;
+            const json = await RequestHandler(url, 'GET', {}, {})
+            if (json) {
+                commit('insertMarketplaceApps', json);
+            } else {
+                return null
+            }
+        },
+
 
         keepAccessTokenReadyForApp: ({ commit, getters }, payload) => {
             return new Promise((resolve, reject) => {

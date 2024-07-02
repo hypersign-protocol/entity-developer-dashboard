@@ -130,24 +130,24 @@
     <sidebar-menu class="sidebar-wrapper" v-if="showSideNavbar" @toggle-collapse="onToggleCollapse"
       :collapsed="isSidebarCollapsed" :theme="'white-theme'" width="220px" :menu="getSideMenu()">
       <div slot="header" class="border">
-        <div class="mt-3">
-          <div>
+        <div class="row center p-1">
+          <div class="col">
+            <div class="p-1" style="border: 1px solid #303c3029;border-radius: 50%; overflow: hidden;">
+              <b-card-img :src="getSelectedService.logoUrl ||
+                getProfileIcon(formattedAppName(getSelectedService.appName))
+                " alt="logoImg" class="" style="max-height: 90%;">
+              </b-card-img>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
             <center>
-              <img v-if="!isSidebarCollapsed"
-                :src="`${getProfileIcon(getSelectedService ? getSelectedService.appName : '')}`" alt="avatar"
-                width="100px" style="" />
-            </center>
-            <center>
-              <img v-if="isSidebarCollapsed"
-                :src="`${getProfileIcon(getSelectedService ? getSelectedService.appName : '')}`" class="mr-1"
-                alt="center" width="30px" />
+              <p class="mt-3 orgNameCss">
+                {{ getSelectedService ? getSelectedService.appName : "" }}
+              </p>
             </center>
           </div>
-          <center>
-            <p class="mt-3 orgNameCss">
-              {{ getSelectedService ? getSelectedService.appName : "" }}
-            </p>
-          </center>
         </div>
       </div>
     </sidebar-menu>
@@ -517,6 +517,11 @@ export default {
       localStorage.removeItem("selectedOrg");
       this.resetStore();
       this.resetMainStore();
+    },
+
+    formattedAppName(appName) {
+      if (appName == "" || appName == undefined) appName = "No app name";
+      return this.truncate(appName, 25);
     },
   },
   mixins: [UtilsMixin],

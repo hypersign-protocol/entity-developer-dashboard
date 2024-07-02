@@ -151,14 +151,16 @@ ul {
             <li class="list-group-item">
               <b-form-checkbox switch size="lg" v-model="widgetConfigTemp.faceRecog" disabled>Enable Facial
                 Recoginition</b-form-checkbox>
-              <small>Enable users verify if they are human and generate Personhood Credential</small>
+              <small>Enable users verify if they are human and generate Personhood Credential. Read more <b><a
+                    href="#">here</a></b>.</small>
             </li>
             <li class="list-group-item">
               <div class="row">
                 <div class="col">
                   <b-form-checkbox switch size="lg" v-model="widgetConfigTemp.idOcr.enabled">Enable ID Document
                     Verification</b-form-checkbox>
-                  <small>Enable users verify their ID Document and generate their ID Credential</small>
+                  <small>Enable users verify their ID Document and generate their ID Credential. Read more <b><a
+                        href="#">here</a></b>.</small>
                 </div>
                 <div class="col" v-if="widgetConfigTemp.idOcr.enabled && documentTypeOptions.length > 0">
                   <div class="">
@@ -193,30 +195,9 @@ ul {
                       <b-form-checkbox switch size="lg" v-model="widgetConfigTemp.userConsent.enabled" disabled>Enable
                         User
                         Consent</b-form-checkbox>
-                      <small></small>
-                    </div>
-                    <div class="row mt-2">
-                      <div class="col-md-3">
-                        <span class="p-2">
-                          <img :src="widgetConfigTemp.userConsent.logoUrl" v-if="widgetConfigTemp.userConsent.logoUrl"
-                            width="100" height="100">
-                        </span>
-                      </div>
-                      <div class="col-md-8">
-                        <div class="row">
-                          <div class="col-md-12">
-                            <h4>{{ widgetConfigTemp.userConsent.domain }}
-                            </h4>
-                          </div>
-                        </div>
-                        <div class="row">
-                          <div class="col-md-12" style="color:grey">
-                            {{ widgetConfigTemp.userConsent.reason }}
-                          </div>
-
-                        </div>
-                      </div>
-
+                      <small>Specify a reason for requesting user KYC data. This information will be displayed on the
+                        user consent screen in the KYC widget, helping users understand who is requesting their data and
+                        why. Read more <b><a href="#">here</a></b>.</small>
                     </div>
                   </div>
                 </div>
@@ -231,20 +212,29 @@ ul {
                             placeholder="The app is requesting the following information to verify your identity" />
                         </div>
                       </div>
-                      <!-- <div class="row mt-2">
-                        <div class="col">
-                          <label for=""><strong>Enter Logo URL: </strong></label>
-                          <input type="textarea" rows="10" class="form-control" id=""
-                            v-model="widgetConfigTemp.userConsent.logoUrl" />
+                      <div class="row mt-2 mx-0 p-1" style="border: 1px solid #8080802e;border-radius: 9px;">
+                        <div class="col-md-3 center">
+                          <div style="border: 1px solid #8080802e; border-radius: 50%;" class="p-1">
+                            <img :src="widgetConfigTemp.userConsent.logoUrl" v-if="widgetConfigTemp.userConsent.logoUrl"
+                              style="height: 50px; border-radius: 50%;">
+                          </div>
                         </div>
-                      </div> -->
-                      <!-- <div class="row mt-2">
-                        <div class="col">
-                          <label for=""><strong>Enter Domain: </strong></label>
-                          <input type="textarea" rows="10" class="form-control" id=""
-                            v-model="widgetConfigTemp.userConsent.domain" />
+                        <div class="col-md-8">
+                          <div class="row">
+                            <div class="col-md-12">
+                              <h4>{{ widgetConfigTemp.userConsent.domain }}
+                              </h4>
+                            </div>
+                          </div>
+                          <div class="row">
+                            <div class="col-md-12" style="color:grey">
+                              {{ widgetConfigTemp.userConsent.reason }}
+                            </div>
+
+                          </div>
                         </div>
-                      </div> -->
+
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -252,17 +242,27 @@ ul {
             </li>
             <li class="list-group-item">
               <div class="row">
-                <div class="col-6"></div>
-                <div class="col-6">
-                  <label for=""><strong>Enter Issuer DID: </strong></label>
-                  <input type="textarea" rows="10" class="form-control" id="" v-model="widgetConfigTemp.issuerDID" />
-                </div>
-                <!-- <div class="col-6" v-if="issuerDID">
-                  <label for=""><strong>Choose Verification Method Id: </strong></label>
-                  <input type="textarea" rows="10" class="form-control" id="" v-model="issuerVerificationMethodId" />
-                </div> -->
-              </div>
 
+                <div class="col">
+                  <b-form-checkbox switch size="lg" v-model="widgetConfigTemp.trustedIssuer" disabled>Configure
+                    Trusted
+                    Issuer(s)</b-form-checkbox>
+                  <small>Select one or more trusted issuers, with the default being 'self'. This pertains toreusable
+                    KYC. If configured, users who already possess KYC credentials issued by these trusted
+                    issuers
+                    in
+                    their data vault will not need to repeat the KYC steps in the widget. They can simply authorize the
+                    sharing of their existing credentials with your app, streamlining user onboarding for your company
+                    and providing a smoother experience for your users. Read more <b><a href="#">here</a></b>.</small>
+
+                </div>
+                <div class="col">
+                  <label for=""><strong>Choose Trusted Issuer(s): </strong></label>
+                  <div style="max-height: 300px; overflow-y: scroll;" class="p-1">
+                    <MarketplaceList @selectedServiceEvent="selectedServiceEventHandler" />
+                  </div>
+                </div>
+              </div>
             </li>
           </ul>
         </div>
@@ -285,12 +285,13 @@ import UtilsMixin from '../../mixins/utils';
 import { mapState, mapActions } from "vuex";
 import HfButtons from '../../components/element/HfButtons.vue';
 import { mapGetters, mapMutations } from 'vuex/dist/vuex.common.js';
-
+import MarketplaceList from '../../components/MarketplaceList.vue';
 export default {
   name: "WidgetConfig",
   mixins: [UtilsMixin],
   components: {
-    HfButtons
+    HfButtons,
+    MarketplaceList
   },
   computed: {
     ...mapState({
@@ -298,7 +299,7 @@ export default {
       onchainconfigs: state => state.mainStore.onchainconfigs,
       widgetConfig: state => state.mainStore.widgetConfig
     }),
-    ...mapGetters('mainStore', ['getAppByAppId']),
+    ...mapGetters('mainStore', ['getAppByAppId', 'getMarketPlaceApps']),
     isContainerShift() {
       return this.containerShift
     },
@@ -317,16 +318,11 @@ export default {
         })
       });
       return options
-    }
+    },
   },
 
   async mounted() {
     try {
-
-
-      // const usrStr = localStorage.getItem("user");
-      // this.user = JSON.parse(usrStr);
-      // this.updateSideNavStatus(true)
 
       // appId
       this.isLoading = true
@@ -337,6 +333,7 @@ export default {
       await this.fetchAppsWidgetConfig()
       this.isLoading = false
 
+      await this.fetchMarketPlaceAppsFromServer()
 
 
 
@@ -353,15 +350,39 @@ export default {
       this.widgetConfigTemp = { ...this.widgetConfig }
     }
 
+    this.trustedIssuersList = this.getMarketPlaceApps;
     this.appId = this.$route.params.appId;
     if (this.appId) {
       this.app = { ...this.getAppByAppId(this.appId) }
       if (this.app) {
         this.widgetConfigTemp.userConsent.domain = this.app.domain ? this.app.domain : this.widgetConfigTemp.userConsent.domain;
         this.widgetConfigTemp.userConsent.logoUrl = this.app.logoUrl ? this.app.logoUrl : this.widgetConfigTemp.userConsent.logoUrl;
-        this.widgetConfigTemp.issuerDID = this.app.issuerDid;
+        if (!this.widgetConfigTemp.issuerDID) {
+          this.widgetConfigTemp.issuerDID = this.app.issuerDid;
+        }
+
+        if (!this.getMarketPlaceApps.find(x => x.appId == this.app.appId)) {
+          this.trustedIssuersList.push({ ...this.app })
+        }
       }
     }
+
+    if (this.widgetConfigTemp.issuerDID) {
+      const trustedIssuers = this.widgetConfigTemp.issuerDID.split(',');
+      this.selectedIssuerDids = new Set(trustedIssuers);
+      trustedIssuers.forEach(eachtiss => {
+        console.log({ eachtiss })
+        const tt = this.trustedIssuersList.map(x => {
+          if (x.issuerDid == eachtiss) {
+            x['selected'] = true
+          }
+          return x
+        })
+        this.insertMarketplaceApps(tt)
+      })
+    }
+
+    this.widgetConfigTemp.trustedIssuer = this.widgetConfigTemp.issuerDID ? true : false;
   },
   data() {
     return {
@@ -369,6 +390,7 @@ export default {
       isLoading: false,
       appId: "",
       app: {},
+      trustedIssuersList: [],
       widgetConfigTemp: {
         faceRecog: true,
         idOcr: {
@@ -385,11 +407,12 @@ export default {
           enabled: false,
           selectedOnChainKYCconfiguration: null,
         },
+        trustedIssuer: true,
         issuerDID: "",
         issuerVerificationMethodId: "",
       },
 
-
+      selectedIssuerDids: new Set(),
       documentTypeOptions: [
         {
           value: null,
@@ -403,9 +426,18 @@ export default {
     }
   },
   methods: {
-    ...mapMutations('mainStore', ['setWidgetConfig']),
-    ...mapActions('mainStore', ['fetchAppsOnChainConfigs', 'createAppsWidgetConfig', 'fetchAppsWidgetConfig', 'updateAppsWidgetConfig']),
+    ...mapMutations('mainStore', ['setWidgetConfig', 'setPreparedMarketPlaceApps', 'insertMarketplaceApps']),
+    ...mapActions('mainStore', ['fetchAppsOnChainConfigs', 'fetchMarketPlaceAppsFromServer', 'createAppsWidgetConfig', 'fetchAppsWidgetConfig', 'updateAppsWidgetConfig']),
 
+    selectedServiceEventHandler(event) {
+      console.log('inside selectedServiceEventHandler event ' + event.issuerDid)
+      if (!this.selectedIssuerDids.has(event.issuerDid)) {
+        this.selectedIssuerDids.add(event.issuerDid)
+      } else {
+        this.selectedIssuerDids.delete(event.issuerDid)
+      }
+      this.widgetConfigTemp.issuerDID = Array.from(this.selectedIssuerDids.values()).join(',')
+    },
     validateField() {
       if (!this.widgetConfigTemp.issuerDID) {
         throw new Error('Issuer DID is required')
@@ -458,6 +490,7 @@ export default {
 
         if (this.widgetConfig) {
           this.widgetConfigTemp = { ...this.widgetConfig }
+          this.widgetConfigTemp.trustedIssuer = this.widgetConfigTemp.issuerDID ? true : false;
         }
         this.isLoading = false
       } catch (e) {

@@ -114,6 +114,9 @@ export default {
         formatDate(dateString) {
             return new Date(dateString).toLocaleString('en-us')
         },
+        getProfileIcon(name) {
+            return "https://api.dicebear.com/7.x/identicon/svg?seed=" + name;
+        },
         getStatus(sessionDetails) {
             // Sucess, Expired, Pending
             const { expiresAt, step_finish, ocriddocsDetails, selfiDetails } = sessionDetails

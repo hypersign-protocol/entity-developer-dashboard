@@ -446,9 +446,6 @@
                             " alt="logoImg" class="rounded-1 logo"
                             style="max-height: 60px; min-height: 60px; border-radius: 50%;">
                           </b-card-img>
-                          <!-- <img src="../assets/verified-success.png"
-                            style="max-height: 20px; min-height: 20px; position: absolute;top: 59px; right: 22px;"
-                            class="verified-badge" /> -->
                         </div>
                       </div>
                     </div>
