@@ -1123,7 +1123,8 @@ export default {
           env: this.appModel.env,
           domain: this.appModel.domain,
           issuerDid: this.appModel.issuerDid, // on this did linkedDomain credential will be issued
-          hasDomainVerified: this.appModel.hasDomainVerified
+          hasDomainVerified: this.appModel.hasDomainVerified,
+          dependentServices: [this.selectedAssociatedSSIAppId],
         });
         if (t) {
           if (type == "domainUpdate") {
