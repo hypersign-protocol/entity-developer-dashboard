@@ -664,7 +664,7 @@ const mainStore = {
                                     }
                                     resolve(json.data)
                                 } else {
-                                    reject(new Error('Could not fetch DID for this service'))
+                                    resolve(json.data)
                                 }
                             } else {
                                 reject(new Error('Could not fetch DID for this service'))
