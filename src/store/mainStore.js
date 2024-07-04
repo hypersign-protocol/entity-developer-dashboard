@@ -664,7 +664,8 @@ const mainStore = {
                                     }
                                     resolve(json.data)
                                 } else {
-                                    resolve(json.data)
+                                    resolve([])
+                                    commit('setDIDList', [])
                                 }
                             } else {
                                 reject(new Error('Could not fetch DID for this service'))
