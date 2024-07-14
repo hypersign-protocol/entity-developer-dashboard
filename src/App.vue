@@ -386,6 +386,7 @@ export default {
           this.showIcon = true;
           await this.fetchAppsListFromServer();
           await this.fetchServicesList()
+          this.$router.push("dashboard");
         } else {
           throw new Error("No auth token")
         }

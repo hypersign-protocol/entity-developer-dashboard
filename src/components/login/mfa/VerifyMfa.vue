@@ -54,6 +54,7 @@ import ToolTip from "../../element/ToolTip.vue";
 import PIN from './PIN.vue'
 import { mapMutations, mapActions } from 'vuex/dist/vuex.common.js';
 import UtilsMixin from "../../../mixins/utils";
+import EventBus from "../../../eventbus";
 
 export default {
     name: 'VerifyMfa',
@@ -106,7 +107,7 @@ export default {
                 } else {
                     this.notifySuccess(`Identity verified successfully`);
                     this.setAuthToken(r.authToken)
-                    this.$router.push("dashboard");
+                    EventBus.$emit("initializeStore", "login");
                 }
 
                 this.isLoading = false

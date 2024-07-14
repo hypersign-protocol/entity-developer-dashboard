@@ -17,17 +17,15 @@
 
 
 <script>
-import EventBus from "../../eventbus";
 
 export default {
     name: "GoogleLogin",
-    
+
     mounted() {
         const authorizationToken = this.$route.query.token
         if (authorizationToken) {
             localStorage.setItem("authToken", authorizationToken);
-            EventBus.$emit("initializeStore", "login");
-            this.$router.push("dashboard");
+            this.$router.push("mfa");
         }
     },
     methods: {

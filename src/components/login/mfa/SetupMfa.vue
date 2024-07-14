@@ -64,7 +64,7 @@
             </div>
         </div>
         <div class="mt-2">
-            <button type="button" class="btn btn-light" @click="$router.push('dashboard')">Skip</button>
+            <button type="button" class="btn btn-light" @click="skip()">Skip</button>
         </div>
     </div>
 </template>
@@ -73,6 +73,7 @@
 import PIN from './PIN.vue'
 import { mapMutations, mapActions } from 'vuex/dist/vuex.common.js';
 import UtilsMixin from "../../../mixins/utils";
+import EventBus from "../../../eventbus";
 export default {
     name: 'SetupMfa',
     data() {
@@ -144,7 +145,7 @@ export default {
                     this.setAuthToken(r.authToken)
 
                     // 
-                    this.$router.push("dashboard");
+                    EventBus.$emit("initializeStore", "login");
 
                 }
                 this.isLoading = false
@@ -155,6 +156,10 @@ export default {
                 this.notifyErr(e.message)
             }
 
+        },
+
+        skip() {
+            EventBus.$emit("initializeStore", "login");
         }
     },
     mixins: [UtilsMixin],
