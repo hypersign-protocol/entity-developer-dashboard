@@ -84,6 +84,13 @@
       </b-navbar-brand>
       <b-collapse id="nav-collapse" is-nav>
         <b-navbar-nav class="ml-auto">
+          <b-nav-item v-if="!getParseAuthToken.isTwoFactorAuthenticated">
+            <button class="btn btn-outline-secondary" type="button" @click="$router.push('mfa')">
+              <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
+              <span class="visually-hidden"> Setup MFA</span>
+            </button>
+          </b-nav-item>
+
           <b-nav-item :href="$config.studioServer.BASE_URL" target="_blank" title="Developer Dashboard API">
             <i class="fa fa-code f-36" style=" color: grey"></i></b-nav-item>
           <b-nav-item href="https://docs.hypersign.id/entity-studio/developer-dashboard" target="_blank"
@@ -275,7 +282,7 @@ import { mapActions, mapMutations, mapGetters, mapState } from "vuex";
 export default {
   computed: {
     ...mapGetters("playgroundStore", ["userDetails", "getSelectedOrg"]),
-    ...mapGetters("mainStore", ["getSelectedService", "getAllServices"]),
+    ...mapGetters("mainStore", ["getSelectedService", "getAllServices", "getParseAuthToken"]),
     ...mapState({
       showMainSideNavBar: (state) => state.mainStore.showMainSideNavBar,
       selectedDashboard: (state) => state.globalStore.selectedDashboard,

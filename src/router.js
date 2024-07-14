@@ -13,6 +13,7 @@ import DIDs from './views/playground/DID.vue'
 import UsageS from './views/playground/Usage.vue';
 import OnChainKycSystems from './views/playground/OnChainKycSystems.vue';
 import WidgetConfig from './views/playground/WidgetConfig.vue'
+import MFA from './components/login/mfa/MFA.vue';
 Vue.use(Router)
 
 const router = new Router({
@@ -45,6 +46,11 @@ const router = new Router({
       path: '/studio/login',
       name: 'PKIIdLogin',
       component: PKIIdLogin
+    },
+    {
+      path: '/studio/mfa',
+      name: 'MFAPage',
+      component: MFA
     },
     {
       path: '/studio/dashboard',

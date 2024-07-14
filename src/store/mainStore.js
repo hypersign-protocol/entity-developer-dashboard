@@ -33,6 +33,21 @@ const mainStore = {
         marketPlaceApps: [],
     },
     getters: {
+        getParseAuthToken() {
+            const authTokne = localStorage.getItem('authToken');
+            if (!authTokne) {
+                return {};
+            }
+            var base64Url = authTokne.split('.')[1];
+            var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            var jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function (c) {
+                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+            }).join(''));
+            return JSON.parse(jsonPayload);
+        },
+        getAuthToken() {
+            return localStorage.getItem('authToken')
+        },
         getPreparedMarketPlaceApps: (state) => {
             return state.preparedMarketPlaceApps
         },
@@ -79,6 +94,10 @@ const mainStore = {
         }
     },
     mutations: {
+        setAuthToken(state, payload) {
+            console.log(state.namespaced)
+            localStorage.setItem("authToken", payload);
+        },
         updateAnMarketPlaceApp(state, payload) {
             const tempToUpdateIndex = state.marketPlaceApps.findIndex(x => x.appId === payload.appId);
             Object.assign(state.marketPlaceApps[tempToUpdateIndex], { ...payload });
@@ -181,6 +200,62 @@ const mainStore = {
                         reject(new Error(`while updating an app  ${e}`))
                     })
             })
+        },
+
+
+        mfaGenerate: async ({ getters }, payload) => {
+            try {
+                const { authenticatorType } = payload
+                if (!authenticatorType) throw new Error('Authenticator type must be provided')
+
+                const url = `${apiServerBaseUrl}/auth/mfa/generate`;
+                const resp = await fetch(url, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        authenticatorType
+                    }),
+                    headers: UtilsMixin.methods.getHeader(getters.getAuthToken)
+                })
+
+                const json = await resp.json();
+
+                if (!resp.ok && Array.isArray(json.message)) {
+                    throw new Error(json.message.join(','));
+                }
+
+                return json;
+            } catch (e) {
+                throw new Error(e)
+            }
+        },
+
+        mfaVerify: async ({ getters }, payload) => {
+            try {
+                const { authenticatorType, twoFactorAuthenticationCode } = payload
+                if (!authenticatorType) throw new Error('Authenticator type must be provided')
+
+                if (!twoFactorAuthenticationCode) throw new Error('MFA PIN must be provided')
+
+                const url = `${apiServerBaseUrl}/auth/mfa/verify`;
+                const resp = await fetch(url, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        authenticatorType,
+                        twoFactorAuthenticationCode
+                    }),
+                    headers: UtilsMixin.methods.getHeader(getters.getAuthToken)
+                })
+
+                const json = await resp.json();
+
+                if (!resp.ok && Array.isArray(json.message)) {
+                    throw new Error(json.message.join(','));
+                }
+
+                return json;
+            } catch (e) {
+                throw new Error(e)
+            }
         },
 
         saveAnAppOnServer: ({ commit, dispatch }, payload) => {
