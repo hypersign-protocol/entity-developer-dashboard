@@ -680,7 +680,6 @@ export default {
       totalAppCount: (state) => state.mainStore.totalAppCount,
     }),
     ...mapGetters("mainStore", ["getAppByAppId", "getAllServices", "getServiceById", 'getAppsWithSSIServices', 'getAppsWithKYCServices', 'getUserAccessList']),
-
     domainFromOriginComputed() {
       try {
         const url = new URL(this.appModel.domain)
@@ -724,6 +723,8 @@ export default {
   },
   mounted() {
     this.setMainSideNavBar(false);
+    this.initializeStore()
+    this.$root.$emit('recomputeParseAuthTokenEvent')
   },
   data() {
     return {
@@ -734,7 +735,6 @@ export default {
       isAdd: true,
       controllerValue: "",
       appIdToGenerateSecret: "",
-      authToken: localStorage.getItem("authToken"),
       fullPage: true,
       isLoading: false,
       isProcessFinished: true,
@@ -758,6 +758,7 @@ export default {
         hasDomainVerified: false,
         domainLinkageCredentialString: ""
       },
+      authToken: localStorage.getItem("authToken"),
       domain: "",
       associatedSSIServiceDIDs: []
     };
@@ -779,8 +780,30 @@ export default {
       "updateAnAppOnServer",
       "generateAPISecretKey",
       "keepAccessTokenReadyForApp",
-      "fetchDIDsForAService"
+      "fetchDIDsForAService",
+      "fetchAppsListFromServer",
+      "fetchServicesList"
     ]),
+
+    async initializeStore() {
+      try {
+        this.authToken = localStorage.getItem("authToken");
+        if (this.authToken) {
+          // this.showIcon = true;
+          this.isLoading = true;
+          await this.fetchAppsListFromServer();
+          await this.fetchServicesList()
+          this.isLoading = false;
+        } else {
+          throw new Error("No auth token")
+        }
+      } catch (e) {
+        // this.showIcon = false
+        this.isLoading = false;
+        this.notifyErr(`Error:  ${e.message}`);
+      }
+
+    },
 
     ...mapMutations("playgroundStore", [
       "shiftContainer",
@@ -818,7 +841,7 @@ export default {
             }
             this.$router.push({ name: "playgroundCredential", params: { appId } });
           } else {
-            return this.notifyErr('You do not have access to KYC dashboard, kindly contact the admin 1')
+            return this.notifyErr('You do not have access to KYC dashboard, kindly contact the admin')
           }
           break;
         }

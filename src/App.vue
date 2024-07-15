@@ -76,15 +76,17 @@
 </style>
 <template>
   <div id="app">
+    <load-ing :active.sync="isLoading" :can-cancel="true" :is-full-page="true"></load-ing>
+
     <b-navbar toggleable="lg" type="dark" variant="white" class="navStyle" v-if="showIcon" sticky>
       <b-navbar-brand href="#">
         <a href="#" @click.prevent="route('dashboard')">
           <img src="./assets/Entity_full.png" alt="" style="height: 5vh; opacity: 80%" />
         </a>
       </b-navbar-brand>
-      <b-collapse id="nav-collapse" is-nav>
+      <b-collapse id="nav-collapse" is-nav v-if="parseAuthToken">
         <b-navbar-nav class="ml-auto">
-          <b-nav-item v-if="!getParseAuthToken.isTwoFactorAuthenticated">
+          <b-nav-item v-if="parseAuthToken.isTwoFactorAuthenticated == false">
             <button class="btn btn-outline-secondary" type="button" @click="$router.push('mfa')">
               <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
               <span class="visually-hidden"> Setup MFA</span>
@@ -277,17 +279,21 @@
 
 <script>
 import UtilsMixin from "./mixins/utils";
-import EventBus from "./eventbus";
+// import EventBus from "./eventbus";
 import { mapActions, mapMutations, mapGetters, mapState } from "vuex";
 export default {
   computed: {
     ...mapGetters("playgroundStore", ["userDetails", "getSelectedOrg"]),
-    ...mapGetters("mainStore", ["getSelectedService", "getAllServices", "getParseAuthToken"]),
+    ...mapGetters("mainStore", ["getSelectedService", "getAllServices"]),
     ...mapState({
       showMainSideNavBar: (state) => state.mainStore.showMainSideNavBar,
       selectedDashboard: (state) => state.globalStore.selectedDashboard,
       appList: (state) => state.mainStore.appList,
     }),
+
+    authToken() {
+      return localStorage.getItem("authToken")
+    },
     selectedOrg() {
       return this.getSelectedOrg;
     },
@@ -300,27 +306,34 @@ export default {
   },
   data() {
     return {
+      isLoading: false,
       collapsed: true,
-      showIcon: false,
+      showIcon: true,
       isSidebarCollapsed: true,
-      authToken: localStorage.getItem("authToken"),
       schema_page: 1,
       authRoutes: ["register", "PKIIdLogin"],
       user: {},
+      parseAuthToken: {}
     };
   },
 
   mounted() {
-    EventBus.$on("clearAppData", () => {
+    this.$root.$on("clearAppData", () => {
       this.authToken = null;
       this.showIcon = false;
     });
-    EventBus.$on("closeSideNav", () => {
+
+    this.$root.$on("recomputeParseAuthTokenEvent", () => {
+      this.getParseAuthToken()
+    });
+
+    this.$root.$on("closeSideNav", () => {
       this.isSidebarCollapsed = true;
     });
     if (localStorage.getItem("user")) {
       const usrStr = localStorage.getItem("user");
       this.user = JSON.parse(usrStr);
+      this.showIcon = true;
     }
     if (localStorage.getItem("selectedOrg")) {
       const selectedOrgId = localStorage.getItem("selectedOrg");
@@ -329,8 +342,11 @@ export default {
       this.getCredList(selectedOrgId);
       this.fetchTemplates(selectedOrgId);
     }
-    EventBus.$on("initializeStore", this.initializeStore);
-    this.initializeStore();
+    this.$root.$on("initializeStore", () => {
+      console.log('Inside initializeStore ... event');
+      this.initializeStore()
+    });
+    // this.initializeStore();
   },
   methods: {
     ...mapActions("mainStore", ["fetchAppsListFromServer", "fetchServicesList"]),
@@ -379,19 +395,34 @@ export default {
         this.shiftContainer(true);
       }
     },
+    getParseAuthToken() {
+      const authTokne = localStorage.getItem('authToken');
+      if (!authTokne) {
+        return {};
+      }
+      var base64Url = authTokne.split('.')[1];
+      var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      var jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function (c) {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+      }).join(''));
+      this.parseAuthToken = JSON.parse(jsonPayload);
+    },
     async initializeStore() {
       try {
         this.authToken = localStorage.getItem("authToken");
         if (this.authToken) {
           this.showIcon = true;
-          await this.fetchAppsListFromServer();
-          await this.fetchServicesList()
+          // this.isLoading = true;
+          // await this.fetchAppsListFromServer();
+          // await this.fetchServicesList()
           this.$router.push("dashboard");
+          // this.isLoading = false;
         } else {
           throw new Error("No auth token")
         }
       } catch (e) {
         this.showIcon = false
+        // this.isLoading = false;
         this.notifyErr(`Error:  ${e.message}`);
       }
 
@@ -516,7 +547,7 @@ export default {
       });
     },
     logout() {
-      this.authToken = null;
+      // this.authToken = null;
       localStorage.removeItem("authToken");
       localStorage.removeItem("user");
       localStorage.removeItem("credentials");

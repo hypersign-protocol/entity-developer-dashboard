@@ -1,6 +1,7 @@
 <template>
-    <div>
-        <VerifyMFA v-if="isTwoFactorEnabled" />
+    <div class="mt-3">
+        <VerifyMFA v-if="isTwoFactorEnabled.isTwoFactorAuthenticated"
+            :setAuthenticatorType="isTwoFactorEnabled.authenticatorType" />
         <SetupMFA v-else />
     </div>
 </template>
@@ -17,11 +18,22 @@ export default {
         isTwoFactorEnabled() {
             const authToken = this.getAuthToken;
             const payload = this.parseJwt({ token: authToken });
-            if (payload.isTwoFactorAuthenticated) {
-                return payload.isTwoFactorAuthenticated
-            }
-            return false;
+            // if (payload) {
+            //     this.setAuthenticatorType = payload.authenticatorType
+            //     if (payload.isTwoFactorAuthenticated) {
+            //         return payload.isTwoFactorAuthenticated
+            //     }
+            // }
+            return payload;
         }
+    },
+    data() {
+        return {
+            setAuthenticatorType: "google"
+        }
+    },
+    mounted() {
+        console.log('Inside mounted MFA.vue')
     },
     components: {
         VerifyMFA,

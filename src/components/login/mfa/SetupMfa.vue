@@ -37,8 +37,8 @@
                             On your mobile device tap the "+" icon then select "Scan QR Code" to scan the QR code below
                         </div>
                         <div class="m-1">
-                            <div class="p-3" style="border-radius: 10px; border: 1px solid grey; width: 42%;">
-                                <img :src="qrCodeDataUrl">
+                            <div class="p-3">
+                                <img :src="qrCodeDataUrl" style="border-radius: 10px; border: 1px solid grey;">
 
                             </div>
 
@@ -73,7 +73,7 @@
 import PIN from './PIN.vue'
 import { mapMutations, mapActions } from 'vuex/dist/vuex.common.js';
 import UtilsMixin from "../../../mixins/utils";
-import EventBus from "../../../eventbus";
+// import EventBus from "../../../eventbus";
 export default {
     name: 'SetupMfa',
     data() {
@@ -104,6 +104,9 @@ export default {
         qrCodeDataUrl: function () {
             this.error = ""
         }
+    },
+    mounted() {
+        console.log('Inside mounted SetupMFA.vue')
     },
     methods: {
         ...mapActions('mainStore', ['mfaGenerate', 'mfaVerify']),
@@ -145,7 +148,7 @@ export default {
                     this.setAuthToken(r.authToken)
 
                     // 
-                    EventBus.$emit("initializeStore", "login");
+                    this.$root.$emit("initializeStore", "login");
 
                 }
                 this.isLoading = false
@@ -159,7 +162,8 @@ export default {
         },
 
         skip() {
-            EventBus.$emit("initializeStore", "login");
+            this.$root.$emit("initializeStore", "login");
+            // this.$root.$emit('HelloEvent', 'hi')
         }
     },
     mixins: [UtilsMixin],

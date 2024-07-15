@@ -8,12 +8,12 @@
                     <div class="col">
                         <div class="form-group">
                             <tool-tip infoMessage="Select issuer DID for this app"></tool-tip>
-                            <label for="selectService"><strong>Select An Authentication Method<span
+                            <label for="selectService"><strong>Select An Authentication App<span
                                         style="color: red">*</span>:
                                 </strong></label>
                             <select class="custom-select" id="selectService" v-model="authenticationMethod">
-                                <option value="" selected disabled>Authenticator App</option>
-                                <option v-for="method in authenticationMethodsList" :value="method.value"
+                                <option>Authenticator App</option>
+                                <option v-for="method in authenticationMethodsList" v-bind:value="method.value"
                                     :key="method.name">{{
                                         method.name.toUpperCase() }}
                                 </option>
@@ -43,6 +43,12 @@
                     </div>
                 </div>
             </div>
+
+        </div>
+        <div class="mt-2">
+            <a type="button" class="btn btn-sm btn-light" href="mailto:support@hypersign.id" target="_blank">Lost App?
+                Contact
+                Us</a>
         </div>
     </div>
 
@@ -54,7 +60,7 @@ import ToolTip from "../../element/ToolTip.vue";
 import PIN from './PIN.vue'
 import { mapMutations, mapActions } from 'vuex/dist/vuex.common.js';
 import UtilsMixin from "../../../mixins/utils";
-import EventBus from "../../../eventbus";
+// import EventBus from "../../../eventbus";
 
 export default {
     name: 'VerifyMfa',
@@ -73,7 +79,7 @@ export default {
                     selected: false
                 }
             ],
-            authenticationMethod: "",
+            authenticationMethod: this.setAuthenticatorType,
             error: "",
         }
     },
@@ -82,12 +88,21 @@ export default {
         PIN
     },
 
+    props: {
+        setAuthenticatorType: {
+            type: String
+        }
+    },
+
     watch: {
         authenticationMethod: function () {
             // this.
             this.error = ""
 
         }
+    },
+    mounted() {
+        console.log('Inside mounted MFAVerify.vue')
     },
     methods: {
 
@@ -107,7 +122,7 @@ export default {
                 } else {
                     this.notifySuccess(`Identity verified successfully`);
                     this.setAuthToken(r.authToken)
-                    EventBus.$emit("initializeStore", "login");
+                    this.$root.$emit("initializeStore", "login");
                 }
 
                 this.isLoading = false

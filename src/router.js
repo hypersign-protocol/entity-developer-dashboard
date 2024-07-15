@@ -50,7 +50,11 @@ const router = new Router({
     {
       path: '/studio/mfa',
       name: 'MFAPage',
-      component: MFA
+      component: MFA,
+      meta: {
+        requiresAuth: true,
+        title: `${config.app.name} - MFA`
+      }
     },
     {
       path: '/studio/dashboard',
@@ -147,12 +151,8 @@ router.beforeEach(async (to, from, next) => {
           },
           method: "POST",
         })
-
-
         const json = await response.json()
-        console.log(json)
         if (json.statusCode == 403 || json.statusCode == 401) {
-          console.log('Unauthenticated....')
           throw new Error(json.error)
         } else if (json.status === 200) {
           localStorage.setItem("user", JSON.stringify(json.message));

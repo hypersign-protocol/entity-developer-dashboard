@@ -78,8 +78,8 @@ const mainStore = {
             const user = localStorage.getItem('user')
             if (user) {
                 const userParse = JSON.parse(user)
-                const { userAccessList } = userParse;
-                return userAccessList ? userAccessList.filter(access => access.serviceType === service) : []
+                const { accessList } = userParse;
+                return accessList ? accessList.filter(access => access.serviceType === service) : []
             }
         },
 
