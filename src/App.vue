@@ -313,7 +313,7 @@ export default {
       schema_page: 1,
       authRoutes: ["register", "PKIIdLogin"],
       user: {},
-      parseAuthToken: {}
+      parseAuthToken: null
     };
   },
 
@@ -326,6 +326,8 @@ export default {
     this.$root.$on("recomputeParseAuthTokenEvent", () => {
       this.getParseAuthToken()
     });
+
+    this.getParseAuthToken()
 
     this.$root.$on("closeSideNav", () => {
       this.isSidebarCollapsed = true;
@@ -398,7 +400,8 @@ export default {
     getParseAuthToken() {
       const authTokne = localStorage.getItem('authToken');
       if (!authTokne) {
-        return {};
+        this.parseAuthToken = null
+        return
       }
       var base64Url = authTokne.split('.')[1];
       var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');

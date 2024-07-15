@@ -724,6 +724,7 @@ export default {
   mounted() {
     this.setMainSideNavBar(false);
     this.initializeStore()
+    this.setSelectedAppId("")
     this.$root.$emit('recomputeParseAuthTokenEvent')
   },
   data() {

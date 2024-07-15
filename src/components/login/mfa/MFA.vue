@@ -8,6 +8,7 @@
 
 <script>
 
+import { mapMutations } from 'vuex/dist/vuex.common.js';
 import SetupMFA from './SetupMfa.vue';
 import VerifyMFA from './VerifyMfa.vue';
 import { mapGetters } from 'vuex';
@@ -34,12 +35,14 @@ export default {
     },
     mounted() {
         console.log('Inside mounted MFA.vue')
+        this.setSelectedAppId("")
     },
     components: {
         VerifyMFA,
         SetupMFA
     },
     methods: {
+        ...mapMutations('mainStore', 'setSelectedAppId'),
         parseJwt: (payload) => {
             const { token } = payload;
             if (!token) throw new Error('JWT token must be provided')
