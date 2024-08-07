@@ -666,6 +666,7 @@ import Loading from "vue-loading-overlay";
 import HfButtons from "../components/element/HfButtons.vue";
 import ToolTip from "../components/element/ToolTip.vue";
 import messages from "../mixins/messages";
+import EventBus from '../eventbus'
 import { mapGetters, mapState, mapActions, mapMutations } from "vuex";
 import HfFlashNotification from "../components/element/HfFlashNotification.vue";
 import { sanitizeUrl } from '../utils/common'
@@ -680,7 +681,6 @@ export default {
       totalAppCount: (state) => state.mainStore.totalAppCount,
     }),
     ...mapGetters("mainStore", ["getAppByAppId", "getAllServices", "getServiceById", 'getAppsWithSSIServices', 'getAppsWithKYCServices', 'getUserAccessList']),
-
     domainFromOriginComputed() {
       try {
         const url = new URL(this.appModel.domain)
@@ -724,6 +724,9 @@ export default {
   },
   mounted() {
     this.setMainSideNavBar(false);
+    this.initializeStore()
+    this.setSelectedAppId("")
+    this.$root.$emit('recomputeParseAuthTokenEvent')
   },
   data() {
     return {
@@ -734,7 +737,6 @@ export default {
       isAdd: true,
       controllerValue: "",
       appIdToGenerateSecret: "",
-      authToken: localStorage.getItem("authToken"),
       fullPage: true,
       isLoading: false,
       isProcessFinished: true,
@@ -758,6 +760,7 @@ export default {
         hasDomainVerified: false,
         domainLinkageCredentialString: ""
       },
+      authToken: localStorage.getItem("authToken"),
       domain: "",
       associatedSSIServiceDIDs: []
     };
@@ -779,8 +782,35 @@ export default {
       "updateAnAppOnServer",
       "generateAPISecretKey",
       "keepAccessTokenReadyForApp",
-      "fetchDIDsForAService"
+      "fetchDIDsForAService",
+      "fetchAppsListFromServer",
+      "fetchServicesList"
     ]),
+
+    async initializeStore() {
+      try {
+        this.authToken = localStorage.getItem("authToken");
+        if (this.authToken) {
+          // this.showIcon = true;
+          this.isLoading = true;
+          await this.fetchAppsListFromServer();
+          await this.fetchServicesList()
+          this.isLoading = false;
+        } else {
+          throw new Error("No auth token")
+        }
+      } catch (e) {
+        // this.showIcon = false
+        this.isLoading = false;
+        this.notifyErr(`Error:  ${e.message}`);
+
+        if (e.message.includes('Unauthenticated') || e.message.includes('Unauthorized')) {
+          // emit logout 
+          EventBus.$emit('logoutAll');
+        }
+      }
+
+    },
 
     ...mapMutations("playgroundStore", [
       "shiftContainer",
@@ -818,7 +848,7 @@ export default {
             }
             this.$router.push({ name: "playgroundCredential", params: { appId } });
           } else {
-            return this.notifyErr('You do not have access to KYC dashboard, kindly contact the admin 1')
+            return this.notifyErr('You do not have access to KYC dashboard, kindly contact the admin')
           }
           break;
         }
@@ -1123,7 +1153,8 @@ export default {
           env: this.appModel.env,
           domain: this.appModel.domain,
           issuerDid: this.appModel.issuerDid, // on this did linkedDomain credential will be issued
-          hasDomainVerified: this.appModel.hasDomainVerified
+          hasDomainVerified: this.appModel.hasDomainVerified,
+          dependentServices: [this.selectedAssociatedSSIAppId],
         });
         if (t) {
           if (type == "domainUpdate") {
