@@ -86,7 +86,7 @@
       </b-navbar-brand>
       <b-collapse id="nav-collapse" is-nav v-if="parseAuthToken">
         <b-navbar-nav class="ml-auto">
-          <b-nav-item v-if="parseAuthToken.isTwoFactorAuthenticated == false">
+          <b-nav-item v-if="parseAuthToken.isTwoFactorEnabled == false">
             <button class="btn btn-outline-secondary" type="button" @click="$router.push('mfa')">
               <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
               <span class="visually-hidden"> Setup MFA</span>
@@ -279,7 +279,7 @@
 
 <script>
 import UtilsMixin from "./mixins/utils";
-// import EventBus from "./eventbus";
+import EventBus from "./eventbus";
 import { mapActions, mapMutations, mapGetters, mapState } from "vuex";
 export default {
   computed: {
@@ -349,6 +349,10 @@ export default {
       this.initializeStore()
     });
     // this.initializeStore();
+
+    EventBus.$on("logoutAll", () => {
+      this.logoutAll()
+    })
   },
   methods: {
     ...mapActions("mainStore", ["fetchAppsListFromServer", "fetchServicesList"]),

@@ -666,6 +666,7 @@ import Loading from "vue-loading-overlay";
 import HfButtons from "../components/element/HfButtons.vue";
 import ToolTip from "../components/element/ToolTip.vue";
 import messages from "../mixins/messages";
+import EventBus from '../eventbus'
 import { mapGetters, mapState, mapActions, mapMutations } from "vuex";
 import HfFlashNotification from "../components/element/HfFlashNotification.vue";
 import { sanitizeUrl } from '../utils/common'
@@ -802,6 +803,11 @@ export default {
         // this.showIcon = false
         this.isLoading = false;
         this.notifyErr(`Error:  ${e.message}`);
+
+        if (e.message.includes('Unauthenticated') || e.message.includes('Unauthorized')) {
+          // emit logout 
+          EventBus.$emit('logoutAll');
+        }
       }
 
     },

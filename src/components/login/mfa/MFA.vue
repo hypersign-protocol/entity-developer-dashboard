@@ -1,7 +1,7 @@
 <template>
     <div class="mt-3">
-        <VerifyMFA v-if="isTwoFactorEnabled.isTwoFactorAuthenticated"
-            :setAuthenticatorType="isTwoFactorEnabled.authenticatorType" />
+        <VerifyMFA v-if="isTwoFactorEnabled.isTwoFactorEnabled"
+            :setAuthenticatorType="isTwoFactorEnabled.authenticators[0].type" />
         <SetupMFA v-else />
     </div>
 </template>
@@ -17,15 +17,18 @@ export default {
     computed: {
         ...mapGetters('mainStore', ['getAuthToken']),
         isTwoFactorEnabled() {
-            const authToken = this.getAuthToken;
-            const payload = this.parseJwt({ token: authToken });
+            // const authToken = this.getAuthToken;
+            const payload = localStorage.getItem('user') //this.parseJwt({ token: authToken });
+            if (payload) {
+                return JSON.parse(payload)
+            }
             // if (payload) {
             //     this.setAuthenticatorType = payload.authenticatorType
             //     if (payload.isTwoFactorAuthenticated) {
             //         return payload.isTwoFactorAuthenticated
             //     }
             // }
-            return payload;
+            return {};
         }
     },
     data() {
