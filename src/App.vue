@@ -440,7 +440,7 @@ export default {
       const menu = [
         {
           href: "/studio/dashboard",
-          title: "Dashboard",
+          title: "Home",
           icon: "fa fa-home",
         },
       ];
@@ -476,11 +476,17 @@ export default {
 
           } else if (id == 'SSI_API') {
             menu.push({
-              href: "/studio/did/" + this.getSelectedService.appId,
+              href: "/studio/ssi/did/" + this.getSelectedService.appId,
               title: "DIDs",
               icon: "fa fa-id-badge",
-            },
-            )
+            })
+
+            menu.push({
+              href: "/studio/ssi/credit/" + this.getSelectedService.appId,
+              title: "Credits",
+              icon: "fas fa-hand-holding-usd",
+
+            })
           }
         }
       }
