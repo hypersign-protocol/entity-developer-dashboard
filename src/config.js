@@ -7,6 +7,7 @@ const config = {
         CRED_SSE: `${process.env.VUE_APP_SSE}api/v1/credential/sse/`,
         ORG_SSE: `${process.env.VUE_APP_SSE}api/v1/org/sse/`,
         BASE_URL: sanitizeUrl(process.env.VUE_APP_STUDIO_SERVER_BASE_URL, true),
+        WHITELIST_CORS: process.env.VUE_APP_ORIGINS,
         ACCPCT_CRED_EP: process.env.VUE_APP_ACCPCT_CRED_EP || "api/v1/credential/send",
         SAVE_SCHEMA_EP: process.env.VUE_APP_STUDIO_SERVER_SAVE_SCHEMA || "api/v1/schema",
         CRED_LIST_EP: process.env.VUE_APP_STUDIO_SERVER_CRED_LIST_EP || "api/v1/credential/org",
