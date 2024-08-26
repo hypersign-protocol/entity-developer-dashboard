@@ -15,6 +15,7 @@ import UsageS from './views/playground/Usage.vue';
 import OnChainKycSystems from './views/playground/OnChainKycSystems.vue';
 import WidgetConfig from './views/playground/WidgetConfig.vue'
 import MFA from './components/login/mfa/MFA.vue';
+import SettingConfig from './views/SettingConfig.vue'
 Vue.use(Router)
 
 const router = new Router({
@@ -64,6 +65,16 @@ const router = new Router({
       meta: {
         requiresAuth: true,
         title: `${config.app.name} - Dashboard`
+      }
+    },
+
+    {
+      path: '/studio/settings',
+      name: 'SettingConfig',
+      component: SettingConfig,
+      meta: {
+        requiresAuth: true,
+        title: `${config.app.name} - Settings`
       }
     },
     {

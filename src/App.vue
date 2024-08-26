@@ -111,6 +111,7 @@
                 <i class="far fa-copy mt-1" @click="copyToClip(userDetails.email, 'Email')"></i>
               </div>
 
+
               <hr />
 
               <div class="hov" style="display: flex" :title="userDetails.did" v-if="userDetails.did">
@@ -118,10 +119,18 @@
                 <i class="far fa-copy" @click="copyToClip(userDetails.did, 'DID')"></i>
               </div>
 
-              <div class="hov" @click="logoutAll()" title="Logout">
-                Logout
-                <i class="fas fa-sign-out-alt" style="cursor: pointer; font-size: 1.3rem"></i>
+              <div class="hov" @click="goTo('/studio/settings')" title="Teams">
+                <i class="fa fa-cog" style="cursor: pointer; font-size: 1.3rem"></i>
+                Settings
               </div>
+
+              <hr />
+
+              <div class="hov" @click="logoutAll()" title="Logout">
+                <i class="fas fa-sign-out-alt" style="cursor: pointer; font-size: 1.3rem"></i>
+                Logout
+              </div>
+
             </div>
           </b-nav-item-dropdown>
         </b-navbar-nav>
@@ -370,7 +379,7 @@ export default {
       "resetStore",
     ]),
     route(name) {
-      this.$router.push({ name });
+      if (this.$route.path !== name) this.$router.push({ name })
     },
     copyToClip(textToCopy, contentType) {
       if (textToCopy) {
@@ -389,9 +398,15 @@ export default {
     },
     logoutAll() {
       this.showIcon = false;
-      this.$router.push("/login");
+      if (this.$route.path !== '/login') this.$router.push('/login')
+
       this.logout();
     },
+
+    goTo(path) {
+      if (this.$route.path !== path) this.$router.push(path)
+    },
+
     onToggleCollapse(collapsed) {
       if (collapsed) {
         this.isSidebarCollapsed = true;
