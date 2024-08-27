@@ -12,13 +12,13 @@
                     </div>
                 </div>
 
-                <!-- <div class="row mt-3">
+                <div class="row mt-3">
                     <div class="col center">
-                        <button class="btn btn-primary">
-                            <i class="fa fa-rocket" aria-hidden="true"></i> Upgrade My Plan
+                        <button class="btn btn-secondary" @click.prevent="$router.push('dashboard')">
+                            <i class="fa fa-home" aria-hidden="true"></i> Home Page
                         </button>
                     </div>
-                </div> -->
+                </div>
             </div>
         </div>
     </div>
