@@ -33,6 +33,21 @@ const mainStore = {
         marketPlaceApps: [],
     },
     getters: {
+        getParseAuthToken() {
+            const authTokne = localStorage.getItem('authToken');
+            if (!authTokne) {
+                return {};
+            }
+            var base64Url = authTokne.split('.')[1];
+            var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            var jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function (c) {
+                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+            }).join(''));
+            return JSON.parse(jsonPayload);
+        },
+        getAuthToken() {
+            return localStorage.getItem('authToken')
+        },
         getPreparedMarketPlaceApps: (state) => {
             return state.preparedMarketPlaceApps
         },
@@ -63,8 +78,8 @@ const mainStore = {
             const user = localStorage.getItem('user')
             if (user) {
                 const userParse = JSON.parse(user)
-                const { userAccessList } = userParse;
-                return userAccessList ? userAccessList.filter(access => access.serviceType === service) : []
+                const { accessList } = userParse;
+                return accessList ? accessList.filter(access => access.serviceType === service) : []
             }
         },
 
@@ -79,6 +94,10 @@ const mainStore = {
         }
     },
     mutations: {
+        setAuthToken(state, payload) {
+            console.log(state.namespaced)
+            localStorage.setItem("authToken", payload);
+        },
         updateAnMarketPlaceApp(state, payload) {
             const tempToUpdateIndex = state.marketPlaceApps.findIndex(x => x.appId === payload.appId);
             Object.assign(state.marketPlaceApps[tempToUpdateIndex], { ...payload });
@@ -181,6 +200,62 @@ const mainStore = {
                         reject(new Error(`while updating an app  ${e}`))
                     })
             })
+        },
+
+
+        mfaGenerate: async ({ getters }, payload) => {
+            try {
+                const { authenticatorType } = payload
+                if (!authenticatorType) throw new Error('Authenticator type must be provided')
+
+                const url = `${apiServerBaseUrl}/auth/mfa/generate`;
+                const resp = await fetch(url, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        authenticatorType
+                    }),
+                    headers: UtilsMixin.methods.getHeader(getters.getAuthToken)
+                })
+
+                const json = await resp.json();
+
+                if (!resp.ok && Array.isArray(json.message)) {
+                    throw new Error(json.message.join(','));
+                }
+
+                return json;
+            } catch (e) {
+                throw new Error(e)
+            }
+        },
+
+        mfaVerify: async ({ getters }, payload) => {
+            try {
+                const { authenticatorType, twoFactorAuthenticationCode } = payload
+                if (!authenticatorType) throw new Error('Authenticator type must be provided')
+
+                if (!twoFactorAuthenticationCode) throw new Error('MFA PIN must be provided')
+
+                const url = `${apiServerBaseUrl}/auth/mfa/verify`;
+                const resp = await fetch(url, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        authenticatorType,
+                        twoFactorAuthenticationCode
+                    }),
+                    headers: UtilsMixin.methods.getHeader(getters.getAuthToken)
+                })
+
+                const json = await resp.json();
+
+                if (!resp.ok && Array.isArray(json.message)) {
+                    throw new Error(json.message.join(','));
+                }
+
+                return json;
+            } catch (e) {
+                throw new Error(e)
+            }
         },
 
         saveAnAppOnServer: ({ commit, dispatch }, payload) => {
@@ -664,7 +739,8 @@ const mainStore = {
                                     }
                                     resolve(json.data)
                                 } else {
-                                    reject(new Error('Could not fetch DID for this service'))
+                                    resolve([])
+                                    commit('setDIDList', [])
                                 }
                             } else {
                                 reject(new Error('Could not fetch DID for this service'))
@@ -843,7 +919,209 @@ const mainStore = {
                 }
             })
 
+        },
+
+        // eslint-disable-next-line 
+        async ssiDashboardTxStats({ getters }, payload) {
+
+            if (!payload.wallet) {
+                // throw new Error('Wallet must be passed to pull transactions')
+                payload.wallet = getters.getSelectedService.walletAddress
+            }
+
+            const getDayKey = (date) => {
+                const d = new Date(date);
+                return d.toISOString().split('T')[0];
+            };
+
+            const groupByDay = (data) => {
+                return data.reduce((acc, item) => {
+                    const dayKey = getDayKey(item.timestamp);
+                    if (!acc[dayKey]) {
+                        acc[dayKey] = 0;
+                    }
+                    acc[dayKey]++;
+                    return acc;
+                }, {});
+            };
+
+            const getWeekStart = (date) => {
+                const d = new Date(date);
+                const day = d.getDay();
+                const diff = d.getDate() - day + (day === 0 ? -6 : 1); // Adjust for Sunday
+                return new Date(d.setDate(diff)).toISOString().split('T')[0];
+            };
+
+            const groupByWeek = (data) => {
+                return data.reduce((acc, item) => {
+                    const weekStart = getWeekStart(item.timestamp);
+                    if (!acc[weekStart]) {
+                        acc[weekStart] = 0;
+                    }
+                    acc[weekStart]++;
+                    return acc;
+                }, {});
+            };
+
+            const countByProperty = (array, property) => {
+                return array.reduce((acc, obj) => {
+                    const key = obj[property];
+                    if (!acc[key]) {
+                        acc[key] = 0;
+                    }
+                    acc[key]++;
+                    return acc;
+                }, {});
+            };
+
+            const sorted = (a, b) => {
+                return new Date(a.timestamp) - new Date(b.timestamp)
+            }
+
+            async function callApi() {
+                const wallet = payload.wallet
+                let txApi = `https://api.prajna.hypersign.id/cosmos/tx/v1beta1/txs?order_by=2&events=message.sender='${wallet}'&pagination.limit=5000&pagination.offset=0`
+                const resp = await fetch(txApi)
+                const json = await resp.json()
+                return json
+            }
+
+
+            const result = await callApi()
+            const { tx_responses } = result
+
+            let dids = []
+            let credentials = []
+            let schemas = []
+
+            if (tx_responses && tx_responses.length > 0) {
+                tx_responses.forEach(eachResp => {
+                    const { timestamp, tx } = eachResp
+                    const { body } = tx;
+                    const { messages } = body;
+                    if (messages && messages.length > 0) {
+                        messages.forEach(eachMessage => {
+                            const { msgs } = eachMessage
+                            if (msgs && msgs.length > 0) {
+                                const type = msgs[0]['@type']
+                                if (type === ('/hypersign.ssi.v1.MsgRegisterDID' || '/hypersign.ssi.v1.MsgUpdateDID' || '/hypersign.ssi.v1.MsgDeactivateDID')) {
+                                    dids.push({
+                                        timestamp,
+                                        type
+                                    })
+                                } else if (type === ('/hypersign.ssi.v1.MsgRegisterCredentialStatus' || '/hypersign.ssi.v1.MsgUpdateCredentialStatus')) {
+                                    credentials.push({
+                                        timestamp,
+                                        type
+                                    })
+                                } else if (type === ('/hypersign.ssi.v1.MsgRegisterCredentialSchema')) {
+                                    schemas.push({
+                                        timestamp,
+                                        type
+                                    })
+                                }
+                            }
+                        })
+                    }
+                });
+            }
+
+
+            let did_data = {};
+            let cred_data = {};
+            let schema_data = {};
+
+
+
+            const sorted_did_data = dids.sort(sorted);
+            const sorted_creds_data = credentials.sort(sorted);
+            const sorted_schema_data = schemas.sort(sorted);
+
+
+
+            if (!payload.groupBy) {
+                payload.groupBy = 'daily'
+            }
+
+            if (payload.groupBy === 'daily') {
+                did_data = groupByDay(sorted_did_data);
+                cred_data = groupByDay(sorted_creds_data);
+                schema_data = groupByDay(sorted_schema_data);
+
+            } else if (payload.groupBy === 'weekly') {
+                did_data = groupByWeek(sorted_did_data);
+                cred_data = groupByWeek(sorted_creds_data);
+                schema_data = groupByWeek(sorted_schema_data);
+
+            } else if (payload.groupBy === 'count') {
+                did_data = countByProperty(sorted_did_data, 'timestamp');
+                cred_data = countByProperty(sorted_creds_data, 'timestamp');
+                schema_data = countByProperty(sorted_schema_data, 'timestamp');
+            }
+
+            return {
+                did_data,
+                cred_data,
+                schema_data
+            }
+
+        },
+
+
+        // eslint-disable-next-line 
+        async ssiDashboardAllowanceStats({ getters }, payload) {
+
+            if (!payload.wallet) {
+                // throw new Error('Wallet must be passed to pull transactions')
+                payload.wallet = getters.getSelectedService.walletAddress
+            }
+
+            async function callApi() {
+                const wallet = payload.wallet
+                const granterWallet = "hid10d36jvc7regxe6npw8gxvrzap7lcrnrpjfwmal"; //TODO need to take this variable in env
+                let txApi = `https://api.prajna.hypersign.id/cosmos/feegrant/v1beta1/allowance/${granterWallet}/${wallet}`
+                const resp = await fetch(txApi)
+                const json = await resp.json()
+                return json
+            }
+
+            const data = await callApi()
+
+            if (data.code && data.code === 13) {
+                throw new Error(data.message)
+            }
+
+            return data.allowance
+        },
+
+        // eslint-disable-next-line 
+        async ssiDashboardGrantsStats({ getters }, payload) {
+
+            if (!payload.wallet) {
+                // throw new Error('Wallet must be passed to pull transactions')
+                payload.wallet = getters.getSelectedService.walletAddress
+            }
+
+            async function callApi() {
+                const wallet = payload.wallet
+                let txApi = `https://api.prajna.hypersign.id/cosmos/authz/v1beta1/grants/grantee/${wallet}`
+                const resp = await fetch(txApi)
+                const json = await resp.json()
+                return json
+            }
+
+            const data = await callApi()
+
+            // const { allowance } = data;
+            if (data.grants && data.grants.length == 0) {
+                throw new Error('No grants found for this wallet')
+            }
+
+            return data.grants
         }
+
+
+
     }
 }
 

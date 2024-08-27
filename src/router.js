@@ -10,9 +10,12 @@ import MainDashboard from './views/Dashboard.vue'
 import Credential from './views/playground/Sessions.vue'
 import CredentialDetails from './views/playground/SessionsDetails.vue'
 import DIDs from './views/playground/DID.vue'
+import SSIDashboardCredit from './views/playground/SSIDashboardCredit.vue'
 import UsageS from './views/playground/Usage.vue';
 import OnChainKycSystems from './views/playground/OnChainKycSystems.vue';
 import WidgetConfig from './views/playground/WidgetConfig.vue'
+import MFA from './components/login/mfa/MFA.vue';
+import SettingConfig from './views/SettingConfig.vue'
 Vue.use(Router)
 
 const router = new Router({
@@ -47,12 +50,31 @@ const router = new Router({
       component: PKIIdLogin
     },
     {
+      path: '/studio/mfa',
+      name: 'MFAPage',
+      component: MFA,
+      meta: {
+        requiresAuth: true,
+        title: `${config.app.name} - MFA`
+      }
+    },
+    {
       path: '/studio/dashboard',
       name: 'dashboard',
       component: MainDashboard,
       meta: {
         requiresAuth: true,
         title: `${config.app.name} - Dashboard`
+      }
+    },
+
+    {
+      path: '/studio/settings',
+      name: 'SettingConfig',
+      component: SettingConfig,
+      meta: {
+        requiresAuth: true,
+        title: `${config.app.name} - Settings`
       }
     },
     {
@@ -65,12 +87,21 @@ const router = new Router({
       }
     },
     {
-      path: '/studio/did/:appId',
+      path: '/studio/ssi/did/:appId',
       name: 'DIDs',
       component: DIDs,
       meta: {
         requiresAuth: true,
         title: `${config.app.name} - DIDs`
+      }
+    },
+    {
+      path: '/studio/ssi/credit/:appId',
+      name: 'Credit',
+      component: SSIDashboardCredit,
+      meta: {
+        requiresAuth: true,
+        title: `${config.app.name} - SSI Credit`
       }
     },
     {
@@ -141,12 +172,8 @@ router.beforeEach(async (to, from, next) => {
           },
           method: "POST",
         })
-
-
         const json = await response.json()
-        console.log(json)
         if (json.statusCode == 403 || json.statusCode == 401) {
-          console.log('Unauthenticated....')
           throw new Error(json.error)
         } else if (json.status === 200) {
           localStorage.setItem("user", JSON.stringify(json.message));

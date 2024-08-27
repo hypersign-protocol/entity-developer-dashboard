@@ -76,14 +76,23 @@
 </style>
 <template>
   <div id="app">
+    <load-ing :active.sync="isLoading" :can-cancel="true" :is-full-page="true"></load-ing>
+
     <b-navbar toggleable="lg" type="dark" variant="white" class="navStyle" v-if="showIcon" sticky>
       <b-navbar-brand href="#">
-        <a href="#" @click.prevent="route('dashboard')">
+        <a href="#" @click="route('dashboard')">
           <img src="./assets/Entity_full.png" alt="" style="height: 5vh; opacity: 80%" />
         </a>
       </b-navbar-brand>
-      <b-collapse id="nav-collapse" is-nav>
+      <b-collapse id="nav-collapse" is-nav v-if="parseAuthToken">
         <b-navbar-nav class="ml-auto">
+          <b-nav-item v-if="parseAuthToken.isTwoFactorEnabled == false">
+            <button class="btn btn-outline-secondary" type="button" @click="$router.push('mfa')">
+              <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
+              <span class="visually-hidden"> Setup MFA</span>
+            </button>
+          </b-nav-item>
+
           <b-nav-item :href="$config.studioServer.BASE_URL" target="_blank" title="Developer Dashboard API">
             <i class="fa fa-code f-36" style=" color: grey"></i></b-nav-item>
           <b-nav-item href="https://docs.hypersign.id/entity-studio/developer-dashboard" target="_blank"
@@ -102,6 +111,7 @@
                 <i class="far fa-copy mt-1" @click="copyToClip(userDetails.email, 'Email')"></i>
               </div>
 
+
               <hr />
 
               <div class="hov" style="display: flex" :title="userDetails.did" v-if="userDetails.did">
@@ -109,10 +119,18 @@
                 <i class="far fa-copy" @click="copyToClip(userDetails.did, 'DID')"></i>
               </div>
 
-              <div class="hov" @click="logoutAll()" title="Logout">
-                Logout
-                <i class="fas fa-sign-out-alt" style="cursor: pointer; font-size: 1.3rem"></i>
+              <div class="hov" @click="goTo('/studio/settings')" title="Teams">
+                <i class="fa fa-cog" style="cursor: pointer; font-size: 1.3rem"></i>
+                Settings
               </div>
+
+              <hr />
+
+              <div class="hov" @click="logoutAll()" title="Logout">
+                <i class="fas fa-sign-out-alt" style="cursor: pointer; font-size: 1.3rem"></i>
+                Logout
+              </div>
+
             </div>
           </b-nav-item-dropdown>
         </b-navbar-nav>
@@ -281,6 +299,10 @@ export default {
       selectedDashboard: (state) => state.globalStore.selectedDashboard,
       appList: (state) => state.mainStore.appList,
     }),
+
+    authToken() {
+      return localStorage.getItem("authToken")
+    },
     selectedOrg() {
       return this.getSelectedOrg;
     },
@@ -293,27 +315,36 @@ export default {
   },
   data() {
     return {
+      isLoading: false,
       collapsed: true,
-      showIcon: false,
+      showIcon: true,
       isSidebarCollapsed: true,
-      authToken: localStorage.getItem("authToken"),
       schema_page: 1,
       authRoutes: ["register", "PKIIdLogin"],
       user: {},
+      parseAuthToken: null
     };
   },
 
   mounted() {
-    EventBus.$on("clearAppData", () => {
+    this.$root.$on("clearAppData", () => {
       this.authToken = null;
       this.showIcon = false;
     });
-    EventBus.$on("closeSideNav", () => {
+
+    this.$root.$on("recomputeParseAuthTokenEvent", () => {
+      this.getParseAuthToken()
+    });
+
+    this.getParseAuthToken()
+
+    this.$root.$on("closeSideNav", () => {
       this.isSidebarCollapsed = true;
     });
     if (localStorage.getItem("user")) {
       const usrStr = localStorage.getItem("user");
       this.user = JSON.parse(usrStr);
+      this.showIcon = true;
     }
     if (localStorage.getItem("selectedOrg")) {
       const selectedOrgId = localStorage.getItem("selectedOrg");
@@ -322,8 +353,15 @@ export default {
       this.getCredList(selectedOrgId);
       this.fetchTemplates(selectedOrgId);
     }
-    EventBus.$on("initializeStore", this.initializeStore);
-    this.initializeStore();
+    this.$root.$on("initializeStore", () => {
+      console.log('Inside initializeStore ... event');
+      this.initializeStore()
+    });
+    // this.initializeStore();
+
+    EventBus.$on("logoutAll", () => {
+      this.logoutAll()
+    })
   },
   methods: {
     ...mapActions("mainStore", ["fetchAppsListFromServer", "fetchServicesList"]),
@@ -341,7 +379,9 @@ export default {
       "resetStore",
     ]),
     route(name) {
-      this.$router.push({ name });
+      if (this.$route.path !== name) {
+        this.$router.push({ name })
+      }
     },
     copyToClip(textToCopy, contentType) {
       if (textToCopy) {
@@ -360,9 +400,15 @@ export default {
     },
     logoutAll() {
       this.showIcon = false;
-      this.$router.push("/login");
+      if (this.$route.path !== '/login') this.$router.push('/login')
+
       this.logout();
     },
+
+    goTo(path) {
+      if (this.$route.path !== path) this.$router.push(path)
+    },
+
     onToggleCollapse(collapsed) {
       if (collapsed) {
         this.isSidebarCollapsed = true;
@@ -372,18 +418,35 @@ export default {
         this.shiftContainer(true);
       }
     },
+    getParseAuthToken() {
+      const authTokne = localStorage.getItem('authToken');
+      if (!authTokne) {
+        this.parseAuthToken = null
+        return
+      }
+      var base64Url = authTokne.split('.')[1];
+      var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      var jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function (c) {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+      }).join(''));
+      this.parseAuthToken = JSON.parse(jsonPayload);
+    },
     async initializeStore() {
       try {
         this.authToken = localStorage.getItem("authToken");
         if (this.authToken) {
           this.showIcon = true;
-          await this.fetchAppsListFromServer();
-          await this.fetchServicesList()
+          // this.isLoading = true;
+          // await this.fetchAppsListFromServer();
+          // await this.fetchServicesList()
+          this.$router.push("dashboard");
+          // this.isLoading = false;
         } else {
           throw new Error("No auth token")
         }
       } catch (e) {
         this.showIcon = false
+        // this.isLoading = false;
         this.notifyErr(`Error:  ${e.message}`);
       }
 
@@ -394,7 +457,7 @@ export default {
       const menu = [
         {
           href: "/studio/dashboard",
-          title: "Dashboard",
+          title: "Home",
           icon: "fa fa-home",
         },
       ];
@@ -430,11 +493,17 @@ export default {
 
           } else if (id == 'SSI_API') {
             menu.push({
-              href: "/studio/did/" + this.getSelectedService.appId,
+              href: "/studio/ssi/did/" + this.getSelectedService.appId,
               title: "DIDs",
               icon: "fa fa-id-badge",
-            },
-            )
+            })
+
+            menu.push({
+              href: "/studio/ssi/credit/" + this.getSelectedService.appId,
+              title: "Credits",
+              icon: "fas fa-hand-holding-usd",
+
+            })
           }
         }
       }
@@ -508,7 +577,7 @@ export default {
       });
     },
     logout() {
-      this.authToken = null;
+      // this.authToken = null;
       localStorage.removeItem("authToken");
       localStorage.removeItem("user");
       localStorage.removeItem("credentials");
