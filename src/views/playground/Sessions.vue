@@ -142,6 +142,10 @@ h5 span {
             </div>
           </div>
         </div>
+        <div v-else-if="!hasPermission" style="text-align: left;">
+          <hf-upgrade-plan></hf-upgrade-plan>
+        </div>
+
         <div v-else style="text-align: left;">
           <h3>No session found!</h3>
         </div>
@@ -267,7 +271,7 @@ export default {
   name: "SessionsPage",
   components: { Loading, PagiNation },
   computed: {
-    ...mapGetters('mainStore', ['sessionList']),
+    ...mapGetters('mainStore', ['sessionList', 'getUserAccessList']),
     ...mapState({
       sessionList: state => state.mainStore.sessionList,
       containerShift: state => state.playgroundStore.containerShift,
@@ -282,7 +286,8 @@ export default {
       user: {},
       fullPage: true,
       isLoading: false,
-      sessionIdTemp: null
+      sessionIdTemp: null,
+      hasPermission: false,
     }
   },
   async created() {
@@ -293,7 +298,10 @@ export default {
 
       // appId
       this.isLoading = true
-      await this.fetchAppsUsersSessions({ appId: "" })
+      this.checkIfHasPermission()
+      if (this.hasPermission) {
+        await this.fetchAppsUsersSessions({ appId: "" })
+      }
       this.isLoading = false
 
     } catch (e) {
@@ -310,6 +318,37 @@ export default {
   methods: {
     ...mapActions('mainStore', ['fetchAppsUsersSessions']),
     ...mapMutations('playgroundStore', ['updateSideNavStatus', 'shiftContainer']),
+
+    checkIfHasPermission() {
+      const accessList = this.getUserAccessList("CAVACH_API");
+      if (accessList && accessList.length > 0) {
+        /// Either he should have ALL access
+        const allAccess = accessList.find((x) => x.access == "ALL");
+        if (!allAccess) {
+
+          // Or he should have READ_SESSION access
+          const readSessionAccess = accessList.find(
+            (x) => x.access == "READ_SESSION"
+          );
+          if (!readSessionAccess) {
+            this.hasPermission = false
+            return this.notifyErr(
+              "You do not have access to KYC dashboard, kindly contact the Hypersign Team"
+            );
+          } else {
+            this.hasPermission = true
+          }
+        } else {
+          this.hasPermission = true
+        }
+      } else {
+        this.hasPermission = false
+        return this.notifyErr(
+          "You do not have access to KYC dashboard, kindly contact the admin"
+        );
+      }
+      this.hasPermission = true;
+    },
 
     async handleGetPageNumberEvent(pageNumber) {
       try {

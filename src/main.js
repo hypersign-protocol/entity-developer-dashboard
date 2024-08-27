@@ -16,6 +16,8 @@ import Multiselect from "vue-multiselect";
 import "vue-multiselect/dist/vue-multiselect.min.css";
 import Loading from "vue-loading-overlay";
 import HfButtons from './components/element/HfButtons.vue'
+import HFUpgradePlan from './components/element/UpgradePlan.vue'
+import HFComingSoon from './components/element/FeatureCommingSoon.vue'
 Vue.config.productionTip = false
 Vue.use(VueSidebarMenu);
 Vue.use(BootstrapVue);
@@ -26,6 +28,8 @@ Vue.prototype.$config = config
 Vue.component("multiSelect", Multiselect);
 Vue.component("load-ing", Loading);
 Vue.component("hf-buttons", HfButtons);
+Vue.component("hf-upgrade-plan", HFUpgradePlan)
+Vue.component("hf-feature-soon", HFComingSoon)
 new Vue({
   router,
   store,
