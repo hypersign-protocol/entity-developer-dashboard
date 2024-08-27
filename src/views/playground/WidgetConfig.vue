@@ -244,7 +244,7 @@ ul {
               <div class="row">
 
                 <div class="col">
-                  <b-form-checkbox switch size="lg" v-model="widgetConfigTemp.trustedIssuer">Configure
+                  <b-form-checkbox switch size="lg" v-model="widgetConfigTemp.trustedIssuer" disabled>Configure
                     Trusted
                     Issuer(s)</b-form-checkbox>
                   <small>Select one or more trusted issuers, with the default being 'self'. This pertains toreusable
