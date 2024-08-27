@@ -80,7 +80,7 @@
 
     <b-navbar toggleable="lg" type="dark" variant="white" class="navStyle" v-if="showIcon" sticky>
       <b-navbar-brand href="#">
-        <a href="#" @click.prevent="route('dashboard')">
+        <a href="#" @click="route('dashboard')">
           <img src="./assets/Entity_full.png" alt="" style="height: 5vh; opacity: 80%" />
         </a>
       </b-navbar-brand>
@@ -379,7 +379,9 @@ export default {
       "resetStore",
     ]),
     route(name) {
-      if (this.$route.path !== name) this.$router.push({ name })
+      if (this.$route.path !== name) {
+        this.$router.push({ name })
+      }
     },
     copyToClip(textToCopy, contentType) {
       if (textToCopy) {

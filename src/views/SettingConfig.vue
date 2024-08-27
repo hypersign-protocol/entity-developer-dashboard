@@ -1,7 +1,7 @@
 <template>
 
     <div>
-        <b-card no-body>
+        <b-card no-body v-if="isFeatureImplemented">
             <b-tabs card>
                 <!-- <b-tab active>
                     <template #title>
@@ -29,26 +29,38 @@
                 </b-tab>
             </b-tabs>
         </b-card>
+        <div v-else>
+            <hf-feature-soon></hf-feature-soon>
+        </div>
     </div>
 </template>
 <style>
 .card {
     box-shadow: 0 0 2rem 0 rgb(136 152 170 / 15%);
-    /* border-radius: 20px; */
 }
 </style>
 
 <script>
-
-
-
 import TeamMembers from '../components/teams/TeamMembers.vue';
 import AdminTeams from '../components/teams/AdminTeams.vue';
+import { mapMutations } from "vuex";
+
 export default {
     name: "SettingConfig",
     components: {
         TeamMembers,
         AdminTeams,
+    },
+    data() {
+        return {
+            isFeatureImplemented: false
+        }
+    },
+    methods: {
+        ...mapMutations("mainStore", ["setMainSideNavBar"]),
+    },
+    mounted() {
+        this.setMainSideNavBar(false);
     }
 }
 </script>

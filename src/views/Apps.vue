@@ -899,31 +899,34 @@ export default {
           break;
         }
         case "CAVACH_API": {
-          // // Remo this once  this feature is complet
-          // this.notifyErr('Feature coming soon..')
-          const accessList = this.getUserAccessList("CAVACH_API");
-          if (accessList && accessList.length > 0) {
-            const allAccess = accessList.find((x) => x.access == "ALL");
-            if (!allAccess) {
-              // Check if he has dashboard access
-              const readSessionAccess = accessList.find(
-                (x) => x.access == "READ_SESSION"
-              );
-              if (!readSessionAccess) {
-                return this.notifyErr(
-                  "You do not have access to KYC dashboard, kindly contact the Hypersign Team"
-                );
-              }
-            }
-            this.$router.push({
-              name: "playgroundCredential",
-              params: { appId },
-            });
-          } else {
-            return this.notifyErr(
-              "You do not have access to KYC dashboard, kindly contact the admin"
-            );
-          }
+
+
+          // const accessList = this.getUserAccessList("CAVACH_API");
+          // if (accessList && accessList.length > 0) {
+          //   const allAccess = accessList.find((x) => x.access == "ALL");
+          //   if (!allAccess) {
+          //     // Check if he has dashboard access
+          //     const readSessionAccess = accessList.find(
+          //       (x) => x.access == "READ_SESSION"
+          //     );
+          //     if (!readSessionAccess) {
+          //       return this.notifyErr(
+          //         "You do not have access to KYC dashboard, kindly contact the Hypersign Team"
+          //       );
+          //     }
+          //   }
+
+          // } else {
+          //   return this.notifyErr(
+          //     "You do not have access to KYC dashboard, kindly contact the admin"
+          //   );
+          // }
+
+
+          this.$router.push({
+            name: "playgroundCredential",
+            params: { appId },
+          });
           break;
         }
         default: {

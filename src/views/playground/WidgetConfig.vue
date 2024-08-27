@@ -326,7 +326,8 @@ export default {
 
       // appId
       this.isLoading = true
-      await this.fetchAppsOnChainConfigs()
+      // TODO: this we can stop until onchain feature is ready for production
+      //await this.fetchAppsOnChainConfigs()
       this.isLoading = false
 
       this.isLoading = true
@@ -334,8 +335,6 @@ export default {
       this.isLoading = false
 
       await this.fetchMarketPlaceAppsFromServer()
-
-
 
     } catch (e) {
       this.isLoading = false
