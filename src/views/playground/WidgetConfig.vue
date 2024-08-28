@@ -200,6 +200,29 @@ ul {
                         why. Read more <b><a href="#">here</a></b>.</small>
                     </div>
                   </div>
+                  <div class="row mt-2 mx-0 p-1"
+                    style="border: 2px solid #8080802e;border-radius: 10px; min-height: 90px;">
+                    <div class="col-md-3 center">
+                      <div style="border: 1px solid #8080802e; border-radius: 50%;" class="p-1">
+                        <img :src="widgetConfigTemp.userConsent.logoUrl" v-if="widgetConfigTemp.userConsent.logoUrl"
+                          style="height: 50px; border-radius: 50%;">
+                      </div>
+                    </div>
+                    <div class="col-md-8">
+                      <div class="row">
+                        <div class="col-md-12">
+                          <h4>{{ widgetConfigTemp.userConsent.domain }}
+                          </h4>
+                        </div>
+                      </div>
+                      <div class="row">
+                        <div class="col-md-12" style="color:grey">
+                          {{ widgetConfigTemp.userConsent.reason }}
+                        </div>
+                      </div>
+                    </div>
+
+                  </div>
                 </div>
                 <div class="col">
                   <div class="row">
@@ -207,34 +230,12 @@ ul {
                       <div class="row">
                         <div class="col">
                           <label for=""><strong>Reason For KYC: </strong></label>
-                          <textarea type="text" rows="4" class="form-control" id=""
+                          <textarea type="text" rows="6" class="form-control" id=""
                             v-model="widgetConfigTemp.userConsent.reason"
                             placeholder="The app is requesting the following information to verify your identity" />
                         </div>
                       </div>
-                      <div class="row mt-2 mx-0 p-1" style="border: 1px solid #8080802e;border-radius: 9px;">
-                        <div class="col-md-3 center">
-                          <div style="border: 1px solid #8080802e; border-radius: 50%;" class="p-1">
-                            <img :src="widgetConfigTemp.userConsent.logoUrl" v-if="widgetConfigTemp.userConsent.logoUrl"
-                              style="height: 50px; border-radius: 50%;">
-                          </div>
-                        </div>
-                        <div class="col-md-8">
-                          <div class="row">
-                            <div class="col-md-12">
-                              <h4>{{ widgetConfigTemp.userConsent.domain }}
-                              </h4>
-                            </div>
-                          </div>
-                          <div class="row">
-                            <div class="col-md-12" style="color:grey">
-                              {{ widgetConfigTemp.userConsent.reason }}
-                            </div>
 
-                          </div>
-                        </div>
-
-                      </div>
                     </div>
                   </div>
                 </div>

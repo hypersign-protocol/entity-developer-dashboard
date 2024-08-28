@@ -150,11 +150,10 @@
       <div slot="header" class="border">
         <div class="row center p-1">
           <div class="col">
-            <div class="p-1" style="border: 1px solid #303c3029;border-radius: 50%; overflow: hidden;">
-              <b-card-img :src="getSelectedService.logoUrl ||
+            <div class="p-1 center">
+              <b-avatar :src="getSelectedService.logoUrl ||
                 getProfileIcon(formattedAppName(getSelectedService.appName))
-                " alt="logoImg" class="" style="max-height: 90%;">
-              </b-card-img>
+                " variant="info"></b-avatar>
             </div>
           </div>
         </div>
