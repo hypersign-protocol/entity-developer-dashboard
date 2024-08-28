@@ -53,7 +53,7 @@ export default {
     },
     data() {
         return {
-            isFeatureImplemented: false
+            isFeatureImplemented: true
         }
     },
     methods: {

@@ -173,6 +173,46 @@ const mainStore = {
     },
     actions: {
 
+
+        // eslint-disable-next-line no-empty-pattern
+        inviteMember: async ({ getters }, payload) => {
+
+            const url = `${apiServerBaseUrl}/people/invite`;
+            const resp = await fetch(url, {
+                method: 'POST',
+                body: JSON.stringify({
+                    emailId: payload
+                }),
+                headers: UtilsMixin.methods.getHeader(getters.getAuthToken)
+            })
+            const json = await resp.json();
+
+            if (!resp.ok && Array.isArray(json.message)) {
+                throw new Error(json.message.join(','));
+            }
+
+            return json;
+
+        },
+        getPeopleMembers: async ({ getters }) => {
+
+            const url = `${apiServerBaseUrl}/people`;
+            const resp = await fetch(url, {
+                method: 'GET',
+                headers: UtilsMixin.methods.getHeader(getters.getAuthToken)
+            })
+            const json = await resp.json();
+
+            if (!resp.ok && Array.isArray(json.message)) {
+                throw new Error(json.message.join(','));
+            }
+
+            return json;
+
+        }
+
+        ,
+
         login: () => {
             console.log('Inside action login')
             return new Promise((resolve, reject) => {
