@@ -39,10 +39,8 @@
         <tbody>
           <tr v-for="person in people" :key="person.userId">
             <TeamUser
-              :email="person.peoples[0].email"
-              :twoFactor="
-                person.peoples[0].authenticators.length == 0 ? false : true
-              "
+              :email="person.userEmailId"
+              :twoFactor="person.authenticators.length == 0 ? false : true"
               :invitationStatus="person.accepted"
               :numberOfTeams="0"
             />
