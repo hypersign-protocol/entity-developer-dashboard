@@ -33,6 +33,8 @@ const mainStore = {
         marketPlaceApps: [],
         adminMembers: [],
         myInvitions: [],
+        allRoles: [],
+
     },
     getters: {
         getAdminMembersgetter: (state) => {
@@ -40,6 +42,9 @@ const mainStore = {
         },
         getMyInvitions: (state) => {
             return state.myInvitions
+        },
+        getAllRoles: (state) => {
+            return state.allRoles
         },
         getParseAuthToken() {
             const authTokne = localStorage.getItem('authToken');
@@ -184,9 +189,14 @@ const mainStore = {
         setMyInvitions: (state, payload) => {
             state.myInvitions = payload
         },
+
+        setAllRoles: (state, payload) => {
+            state.allRoles = payload
+        }
     },
     actions: {
 
+        /// Member 
 
         // eslint-disable-next-line no-empty-pattern
         inviteMember: async ({ getters, dispatch }, payload) => {
@@ -289,23 +299,73 @@ const mainStore = {
             }
 
             // sample invitions
-            // json = [
-            //     {
-            //         "adminId": "61e4196c-0ebf-4481-bbde-2f008b1b24f2",
-            //         "userId": "4ea8be57-ca82-4767-9980-6f39d0763dc8",
-            //         "inviteCode": "f6932455-6ad1-477b-b0db-692ad52b3239",
-            //         "accepted": false,
-            //         "invitationValidTill": "2024-08-28T14:49:08.149Z",
-            //         "acceptedAt": "2024-08-28T14:49:08.149Z",
-            //         "createdAt": "2024-08-28T14:49:08.149Z",
-            //         "updatedAt": "2024-08-28T14:49:08.149Z",
-            //         "adminEmailId": "dcat9816@gmail.com"
-            //     }
-            // ]
             commit('setMyInvitions', json)
             return json;
 
         },
+
+        /// Roles
+
+        getMyRolesAction: async ({ getters, commit }) => {
+            const url = `${apiServerBaseUrl}/roles`;
+            const resp = await fetch(url, {
+                method: 'GET',
+                headers: UtilsMixin.methods.getHeader(getters.getAuthToken)
+            })
+            let json = await resp.json();
+
+            if (!resp.ok && Array.isArray(json.message)) {
+                throw new Error(json.message.join(','));
+            }
+            commit('setAllRoles', json)
+            return json;
+
+        },
+
+        createARole: async ({ getters, dispatch }, payload) => {
+
+            const url = `${apiServerBaseUrl}/roles`;
+            const resp = await fetch(url, {
+                method: 'POST',
+                body: JSON.stringify(payload),
+                headers: UtilsMixin.methods.getHeader(getters.getAuthToken)
+            })
+            const json = await resp.json();
+
+            if (!resp.ok && Array.isArray(json.message)) {
+                console.log(json.message)
+                throw new Error(json.message.join(','));
+            } else if (!resp.ok && (json.statusCode !== 200 || 201)) {
+                throw new Error(json.message)
+            }
+
+            dispatch('getMyRolesAction')
+            return json;
+
+        },
+
+        deleteARole: async ({ getters, dispatch }, payload) => {
+            const url = `${apiServerBaseUrl}/roles/${payload}`;
+            const resp = await fetch(url, {
+                method: 'DELETE',
+                headers: UtilsMixin.methods.getHeader(getters.getAuthToken)
+            })
+            const json = await resp.json();
+
+            if (!resp.ok && Array.isArray(json.message)) {
+                console.log(json.message)
+                throw new Error(json.message.join(','));
+            } else if (!resp.ok && (json.statusCode !== 200 || 201)) {
+                throw new Error(json.message)
+            }
+
+            dispatch('getMyRolesAction')
+            return json;
+
+        },
+
+
+        /// Security
 
         login: () => {
             console.log('Inside action login')
@@ -335,7 +395,6 @@ const mainStore = {
                     })
             })
         },
-
 
         mfaGenerate: async ({ getters }, payload) => {
             try {
