@@ -1,4 +1,5 @@
 <template>
+
   <b-list-group-item class="d-flex align-items-center" style="min-height: 70px">
     <load-ing :active.sync="isLoading" :can-cancel="true" :is-full-page="true"></load-ing>
 
@@ -18,9 +19,11 @@
       <template #button-content>
         <b-icon style="color: grey" icon="list" aria-hidden="true"></b-icon>
       </template>
-      <b-dropdown-item-button style="text-align: left" @click="copyToClip(inviteCode, 'Invition Code')">Copy Invition
+      <b-dropdown-item-button style="text-align: left" @click="copyToClip(inviteCode, 'Invition Code')"><i
+          class="far fa-copy mt-1" aria-hidden="true"></i> Invition
         Code</b-dropdown-item-button>
-      <b-dropdown-item-button style="text-align: left" @click="deleteAMember()">Delete</b-dropdown-item-button>
+      <b-dropdown-item-button style="text-align: left" @click="deleteAMember()"><i class="fa fa-trash mt-1"></i>
+        Delete Member</b-dropdown-item-button>
     </b-dropdown>
   </b-list-group-item>
 </template>
@@ -72,10 +75,17 @@ export default {
     },
     async deleteAMember() {
       try {
-        this.isLoading = true;
-        await this.deleteMember(this.email)
-        this.isLoading = false;
-        this.notifySuccess(`${this.email} successfully deleted`)
+
+        const result = confirm("Are you sure you want to delete this member?")
+
+        if (result) {
+          this.isLoading = true;
+          await this.deleteMember(this.email)
+          this.isLoading = false;
+          this.notifySuccess(`${this.email} successfully deleted`)
+        }
+
+
       } catch (e) {
         this.notifyErr(e.message)
       }

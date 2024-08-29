@@ -12,6 +12,12 @@
         </div>
       </div>
       <div class="col-md-8">
+
+        <button type="button" class="btn btn-outline-secondary mx-1" style="float: inline-end"
+          @click="getPeopleMembers()" title="Reload">
+          <i class="fa fa-retweet" aria-hidden="true"></i>
+        </button>
+
         <button type="button" class="btn btn-outline-secondary mx-1" style="float: inline-end"
           @click="acceptInvitePopup()">
           <b-icon icon="hand-thumbs-up-fill"></b-icon> Accept Invition
@@ -20,6 +26,8 @@
         <button type="button" class="btn btn-primary" style="float: inline-end" @click="inviteMemberPopup()">
           <b-icon icon="person-plus-fill"></b-icon> Invite Member
         </button>
+
+
       </div>
     </div>
     <div class="row mb-3" style="padding: 10px" v-if="getAdminMembersgetter.length > 0">
