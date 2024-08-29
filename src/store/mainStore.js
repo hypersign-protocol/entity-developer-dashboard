@@ -289,19 +289,19 @@ const mainStore = {
             }
 
             // sample invitions
-            json = [
-                {
-                    "adminId": "61e4196c-0ebf-4481-bbde-2f008b1b24f2",
-                    "userId": "4ea8be57-ca82-4767-9980-6f39d0763dc8",
-                    "inviteCode": "f6932455-6ad1-477b-b0db-692ad52b3239",
-                    "accepted": false,
-                    "invitationValidTill": "2024-08-28T14:49:08.149Z",
-                    "acceptedAt": "2024-08-28T14:49:08.149Z",
-                    "createdAt": "2024-08-28T14:49:08.149Z",
-                    "updatedAt": "2024-08-28T14:49:08.149Z",
-                    "adminEmailId": "dcat9816@gmail.com"
-                }
-            ]
+            // json = [
+            //     {
+            //         "adminId": "61e4196c-0ebf-4481-bbde-2f008b1b24f2",
+            //         "userId": "4ea8be57-ca82-4767-9980-6f39d0763dc8",
+            //         "inviteCode": "f6932455-6ad1-477b-b0db-692ad52b3239",
+            //         "accepted": false,
+            //         "invitationValidTill": "2024-08-28T14:49:08.149Z",
+            //         "acceptedAt": "2024-08-28T14:49:08.149Z",
+            //         "createdAt": "2024-08-28T14:49:08.149Z",
+            //         "updatedAt": "2024-08-28T14:49:08.149Z",
+            //         "adminEmailId": "dcat9816@gmail.com"
+            //     }
+            // ]
             commit('setMyInvitions', json)
             return json;
 
