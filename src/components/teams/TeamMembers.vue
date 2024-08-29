@@ -3,13 +3,13 @@
     <load-ing :active.sync="isLoading" :can-cancel="true" :is-full-page="true"></load-ing>
     <div class="row mb-3">
       <div class="col-md-4">
-        <div class="input-group">
+        <!-- <div class="input-group">
           <div class="input-group-prepend" style="cursor: grab">
             <span class="input-group-text" id="basic-addon2"><i class="fa fa-search" aria-hidden="true"></i></span>
           </div>
           <input type="text" class="form-control" placeholder="Find a member" aria-label="Find a member"
             aria-describedby="basic-addon2" v-model="sessionIdTemp" />
-        </div>
+        </div> -->
       </div>
       <div class="col-md-8">
 
@@ -35,8 +35,8 @@
         <tbody>
           <tr v-for="person in getAdminMembersgetter" :key="person.userId">
             <TeamUser :email="person.userEmailId" :twoFactor="person.authenticatorEnabled"
-              :invitationStatus="person.accepted" :deleteMemberMenu="true" :inviteCode="person.inviteCode"
-              :numberOfTeams="0" />
+              :invitationStatus="person.accepted" :createdAt="toDateTime(person.createdAt)" :deleteMemberMenu="true"
+              :inviteCode="person.inviteCode" :numberOfTeams="0" />
           </tr>
         </tbody>
       </table>

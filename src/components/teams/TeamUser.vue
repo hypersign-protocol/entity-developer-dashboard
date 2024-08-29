@@ -3,16 +3,21 @@
   <b-list-group-item class="d-flex align-items-center" style="min-height: 70px">
     <load-ing :active.sync="isLoading" :can-cancel="true" :is-full-page="true"></load-ing>
 
-    <b-avatar variant="primary" text="VB" class="mr-2"></b-avatar>
+    <b-avatar variant="secondary" :text="email.charAt(0).toUpperCase()" class="mr-2"></b-avatar>
     <span class="mr-auto">{{ email }}</span>
+
+
+    <span class="mx-1" style="color: grey" v-if="createdAt">
+      <b-icon icon="clock" aria-hidden="true" variant="secondary"></b-icon>
+      {{ createdAt }}
+    </span>
     <span class="mx-1" style="color: grey" v-if="twoFactor"><b-icon icon="check-circle" aria-hidden="true"
         variant="success"></b-icon>
       2FA</span>
-    <span class="mx-1" style="color: grey" v-else><b-icon icon="x-circle" aria-hidden="true" variant="danger"></b-icon>
-      2FA</span>
-    <b-badge pill variant="info" class="mx-1">{{ numberOfTeams }} teams</b-badge>
+    <!-- <b-badge pill variant="info" class="mx-1">{{ numberOfTeams }} teams</b-badge> -->
     <b-badge pill variant="success" class="mx-1" v-if="invitationStatus">
-      <span class="mx-1" style="color: white">Accepted </span></b-badge>
+      <span class="mx-1" style="color: white"><b-icon icon="check" variant=" light"></b-icon>Accepted
+      </span></b-badge>
     <b-badge pill variant="warning" class="mx-1" v-else>
       <span class="mx-1" style="color: white">Pending </span></b-badge>
     <b-dropdown size="sm" variant="link" toggle-class="text-decoration-none" no-caret dropleft>
@@ -62,13 +67,15 @@ export default {
       type: Boolean,
       required: false,
       default: false,
-
     },
     deleteMemberMenu: {
       type: Boolean,
       required: false,
       default: false,
-
+    },
+    createdAt: {
+      type: String,
+      required: false,
     }
   },
   data() {

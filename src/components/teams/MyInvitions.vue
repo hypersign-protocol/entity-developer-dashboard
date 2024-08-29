@@ -28,14 +28,14 @@
       <table class="table">
         <thead class="thead-light">
           <tr>
-            <th scope="col">Members</th>
+            <th scope="col">Admins</th>
           </tr>
         </thead>
         <tbody>
           <tr v-for="person in getMyInvitions" :key="person.userId">
             <TeamUser :email="person.adminEmailId" :twoFactor="person.authenticatorEnabled"
-              :invitationStatus="person.accepted" :acceptInvitionMenu="true" :inviteCode="person.inviteCode"
-              :numberOfTeams="0" />
+              :invitationStatus="person.accepted" :createdAt="toDateTime(person.createdAt)" :acceptInvitionMenu="true"
+              :inviteCode="person.inviteCode" :numberOfTeams="0" />
           </tr>
         </tbody>
       </table>
