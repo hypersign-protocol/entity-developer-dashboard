@@ -39,8 +39,8 @@
         </thead>
         <tbody>
           <tr v-for="person in getAdminMembersgetter" :key="person.userId">
-            <TeamUser :email="person.peoples[0].email" :twoFactor="person.peoples[0].authenticators.length == 0 ? false : true
-              " :invitationStatus="person.accepted" :inviteCode="person.inviteCode" :numberOfTeams="0" />
+            <TeamUser :email="person.userEmailId" :twoFactor="person.authenticators.length == 0 ? false : true"
+              :invitationStatus="person.accepted" :inviteCode="person.inviteCode" :numberOfTeams="0" />
           </tr>
         </tbody>
       </table>
