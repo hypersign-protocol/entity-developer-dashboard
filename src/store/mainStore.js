@@ -32,10 +32,14 @@ const mainStore = {
         },
         marketPlaceApps: [],
         adminMembers: [],
+        myInvitions: [],
     },
     getters: {
         getAdminMembersgetter: (state) => {
             return state.adminMembers
+        },
+        getMyInvitions: (state) => {
+            return state.myInvitions
         },
         getParseAuthToken() {
             const authTokne = localStorage.getItem('authToken');
@@ -177,6 +181,9 @@ const mainStore = {
         setAdminMembers: (state, payload) => {
             state.adminMembers = payload
         },
+        setMyInvitions: (state, payload) => {
+            state.myInvitions = payload
+        },
     },
     actions: {
 
@@ -223,7 +230,7 @@ const mainStore = {
                 throw new Error(json.message)
             }
 
-            dispatch('getPeopleMembers')
+            dispatch('getInvitions')
             return json;
 
         },
@@ -252,8 +259,8 @@ const mainStore = {
             return json;
 
         },
-        getPeopleMembers: async ({ getters, commit }) => {
 
+        getPeopleMembers: async ({ getters, commit }) => {
             const url = `${apiServerBaseUrl}/people`;
             const resp = await fetch(url, {
                 method: 'GET',
@@ -265,12 +272,40 @@ const mainStore = {
                 throw new Error(json.message.join(','));
             }
             commit('setAdminMembers', json)
-
             return json;
 
-        }
+        },
 
-        ,
+        getInvitions: async ({ getters, commit }) => {
+            const url = `${apiServerBaseUrl}/people/invites`;
+            const resp = await fetch(url, {
+                method: 'GET',
+                headers: UtilsMixin.methods.getHeader(getters.getAuthToken)
+            })
+            let json = await resp.json();
+
+            if (!resp.ok && Array.isArray(json.message)) {
+                throw new Error(json.message.join(','));
+            }
+
+            // sample invitions
+            json = [
+                {
+                    "adminId": "61e4196c-0ebf-4481-bbde-2f008b1b24f2",
+                    "userId": "4ea8be57-ca82-4767-9980-6f39d0763dc8",
+                    "inviteCode": "f6932455-6ad1-477b-b0db-692ad52b3239",
+                    "accepted": false,
+                    "invitationValidTill": "2024-08-28T14:49:08.149Z",
+                    "acceptedAt": "2024-08-28T14:49:08.149Z",
+                    "createdAt": "2024-08-28T14:49:08.149Z",
+                    "updatedAt": "2024-08-28T14:49:08.149Z",
+                    "adminEmailId": "dcat9816@gmail.com"
+                }
+            ]
+            commit('setMyInvitions', json)
+            return json;
+
+        },
 
         login: () => {
             console.log('Inside action login')

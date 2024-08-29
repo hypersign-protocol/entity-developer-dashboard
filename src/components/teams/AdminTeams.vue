@@ -2,31 +2,17 @@
     <div>
         <div class="row mb-3">
             <div class="col-md-4">
-                <!-- <div class="input-group">
-                    <div class="input-group-prepend" style="cursor: grab;">
-                        <span class="input-group-text" id="basic-addon2"><i class="fa fa-search"
-                                aria-hidden="true"></i></span>
-                    </div>
-                    <input type="text" class="form-control" placeholder="Find team" aria-label="Find a member"
-                        aria-describedby="basic-addon2" v-model="sessionIdTemp">
-
-                </div> -->
             </div>
             <div class="col-md-8">
-
+                <button type="button" class="btn btn-outline-secondary mx-1" style="float: inline-end" title="Reload">
+                    <i class="fa fa-retweet" aria-hidden="true"></i>
+                </button>
                 <button type="button" class="btn btn-primary" style="float: inline-end;"
-                    @click="createTeamPopup()"><b-icon icon="people-fill"></b-icon> Create Team</button>
-
-
+                    @click="createTeamPopup()"><b-icon icon="people-fill"></b-icon> Create Role</button>
             </div>
         </div>
         <div class="row mb-3" style="padding: 10px;">
             <table class="table ">
-                <!-- <thead class="thead-light">
-                    <tr>
-                        <th scope="col">Your Teams</th>
-                    </tr>
-                </thead> -->
                 <tbody>
                     <tr>
                         <b-list-group-item class="d-flex align-items-center" style="min-height: 80px;">
@@ -50,7 +36,7 @@
                                 <b-avatar icon="music-note" variant="success"></b-avatar> -->
                                 </b-avatar-group>
                             </a>
-                            <b-badge pill variant="info" class="mx-1">20 members</b-badge>
+                            <b-badge pill variant="info" class="mx-1">10 accesss</b-badge>
                             <b-dropdown size="sm" variant="link" toggle-class="text-decoration-none" no-caret dropleft>
                                 <template #button-content>
                                     <b-icon style="color:grey" icon="list" aria-hidden="true"></b-icon>

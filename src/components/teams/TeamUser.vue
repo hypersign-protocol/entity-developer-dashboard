@@ -20,10 +20,14 @@
         <b-icon style="color: grey" icon="list" aria-hidden="true"></b-icon>
       </template>
       <b-dropdown-item-button style="text-align: left" @click="copyToClip(inviteCode, 'Invition Code')"><i
-          class="far fa-copy mt-1" aria-hidden="true"></i> Invition
-        Code</b-dropdown-item-button>
-      <b-dropdown-item-button style="text-align: left" @click="deleteAMember()"><i class="fa fa-trash mt-1"></i>
+          class="far fa-copy mt-1" aria-hidden="true"></i> Copy Invition Code
+      </b-dropdown-item-button>
+      <b-dropdown-item-button v-if="deleteMemberMenu" style="text-align: left" @click="deleteAMember()"><i
+          class="fa fa-trash mt-1"></i>
         Delete Member</b-dropdown-item-button>
+      <b-dropdown-item-button v-if="acceptInvitionMenu" style="text-align: left" @click="acceptInvition()"><b-icon
+          icon="hand-thumbs-up"></b-icon>
+        Accept Invition</b-dropdown-item-button>
     </b-dropdown>
   </b-list-group-item>
 </template>
@@ -39,7 +43,8 @@ export default {
     },
     twoFactor: {
       type: Boolean,
-      required: true,
+      required: false,
+      default: false
     },
     numberOfTeams: {
       type: Number,
@@ -52,6 +57,18 @@ export default {
     inviteCode: {
       type: String,
       required: true
+    },
+    acceptInvitionMenu: {
+      type: Boolean,
+      required: false,
+      default: false,
+
+    },
+    deleteMemberMenu: {
+      type: Boolean,
+      required: false,
+      default: false,
+
     }
   },
   data() {
@@ -60,7 +77,7 @@ export default {
     }
   },
   methods: {
-    ...mapActions("mainStore", ["deleteMember"]),
+    ...mapActions("mainStore", ["deleteMember", "acceptInvition"]),
     copyToClip(textToCopy, contentType) {
       if (textToCopy) {
         navigator.clipboard
@@ -89,7 +106,17 @@ export default {
       } catch (e) {
         this.notifyErr(e.message)
       }
-    }
+    },
+    async acceptInvition() {
+      try {
+        this.isLoading = true;
+        await this.acceptInvition(this.inviteCode.trim());
+        this.notifySuccess(`The Invition successfully accepted, now you can access the team`)
+        this.isLoading = false;
+      } catch (e) {
+        this.notifyErr(e.message)
+      }
+    },
   },
   mixins: [UtilsMixin],
 };
