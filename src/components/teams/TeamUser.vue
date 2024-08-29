@@ -25,7 +25,7 @@
       <b-dropdown-item-button v-if="deleteMemberMenu" style="text-align: left" @click="deleteAMember()"><i
           class="fa fa-trash mt-1"></i>
         Delete Member</b-dropdown-item-button>
-      <b-dropdown-item-button v-if="acceptInvitionMenu" style="text-align: left" @click="acceptInvition()"><b-icon
+      <b-dropdown-item-button v-if="acceptInvitionMenu" style="text-align: left" @click="acceptedInvition()"><b-icon
           icon="hand-thumbs-up"></b-icon>
         Accept Invition</b-dropdown-item-button>
     </b-dropdown>
@@ -107,7 +107,7 @@ export default {
         this.notifyErr(e.message)
       }
     },
-    async acceptInvition() {
+    async acceptedInvition() {
       try {
         this.isLoading = true;
         await this.acceptInvition(this.inviteCode.trim());
@@ -115,6 +115,7 @@ export default {
         this.isLoading = false;
       } catch (e) {
         this.notifyErr(e.message)
+        this.isLoading = false;
       }
     },
   },
