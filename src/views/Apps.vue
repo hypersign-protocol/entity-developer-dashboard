@@ -85,9 +85,10 @@
       <div class="border p-2">
         <div class="form-group">
           <tool-tip infoMessage="Your Domain Name"></tool-tip>
-          <label for="orgDid"><strong>Your Domain Name: </strong></label>
-          <input type="text" class="form-control" id="orgDid" placeholder="hypersign.id"
-            v-model="domainFromOriginComputed" aria-describedby="orgNameHelp" disabled />
+          <label for="orgDid"><strong>Domain (origin): </strong></label>
+          <input type="text" class="form-control" id="orgDid" placeholder="hypersign.id" v-model="appModel.domain"
+            aria-describedby="orgNameHelp" />
+          <small>{{ domainFromOriginComputed }}</small>
         </div>
 
         <div class="form-group" v-if="appModel.domain && appModel.dependentServices">

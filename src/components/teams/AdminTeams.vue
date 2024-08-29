@@ -72,7 +72,7 @@
 
 
         <hf-pop-up id="create-team" Header="Create A New Team">
-            <b-form @submit="onSubmit" @reset="onReset">
+            <b-form>
                 <b-form-group id="input-group-2" label="Team Name:" label-for="input-2">
                     <b-form-input id="input-2" placeholder="Enter name" required></b-form-input>
                 </b-form-group>
@@ -109,11 +109,12 @@
 import HfPopUp from "../element/hfPopup.vue";
 import TeamUser from "./TeamUser.vue";
 
+
 export default {
     name: "AdminTeams",
     components: {
         HfPopUp,
-        TeamUser
+        TeamUser,
     },
     methods: {
         createTeamPopup() {

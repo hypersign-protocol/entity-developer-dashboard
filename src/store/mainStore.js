@@ -31,8 +31,12 @@ const mainStore = {
 
         },
         marketPlaceApps: [],
+        adminMembers: [],
     },
     getters: {
+        getAdminMembersgetter: (state) => {
+            return state.adminMembers
+        },
         getParseAuthToken() {
             const authTokne = localStorage.getItem('authToken');
             if (!authTokne) {
@@ -170,12 +174,15 @@ const mainStore = {
                 state.didList.push(payload);
             }
         },
+        setAdminMembers: (state, payload) => {
+            state.adminMembers = payload
+        },
     },
     actions: {
 
 
         // eslint-disable-next-line no-empty-pattern
-        inviteMember: async ({ getters }, payload) => {
+        inviteMember: async ({ getters, dispatch }, payload) => {
 
             const url = `${apiServerBaseUrl}/people/invite`;
             const resp = await fetch(url, {
@@ -188,13 +195,64 @@ const mainStore = {
             const json = await resp.json();
 
             if (!resp.ok && Array.isArray(json.message)) {
+                console.log(json.message)
                 throw new Error(json.message.join(','));
+            } else if (!resp.ok && (json.statusCode !== 200 || 201)) {
+                throw new Error(json.message)
             }
 
+            dispatch('getPeopleMembers')
             return json;
 
         },
-        getPeopleMembers: async ({ getters }) => {
+
+        // eslint-disable-next-line no-empty-pattern
+        acceptInvition: async ({ getters, dispatch }, payload) => {
+
+            const url = `${apiServerBaseUrl}/people/invite/accept/${payload}`;
+            const resp = await fetch(url, {
+                method: 'POST',
+                headers: UtilsMixin.methods.getHeader(getters.getAuthToken)
+            })
+            const json = await resp.json();
+
+            if (!resp.ok && Array.isArray(json.message)) {
+                console.log(json.message)
+                throw new Error(json.message.join(','));
+            } else if (!resp.ok && (json.statusCode !== 200 || 201)) {
+                throw new Error(json.message)
+            }
+
+            dispatch('getPeopleMembers')
+            return json;
+
+        },
+
+        // eslint-disable-next-line no-empty-pattern
+        deleteMember: async ({ getters, dispatch }, payload) => {
+
+            const url = `${apiServerBaseUrl}/people/`;
+            const resp = await fetch(url, {
+                method: 'DELETE',
+                body: JSON.stringify({
+                    emailId: payload
+                }),
+                headers: UtilsMixin.methods.getHeader(getters.getAuthToken)
+            })
+            const json = await resp.json();
+
+            if (!resp.ok && Array.isArray(json.message)) {
+                console.log(json.message)
+                throw new Error(json.message.join(','));
+            } else if (!resp.ok && (json.statusCode !== 200 || 201)) {
+                throw new Error(json.message)
+            }
+
+            dispatch('getPeopleMembers')
+            return json;
+
+        },
+        getPeopleMembers: async ({ getters, commit }) => {
 
             const url = `${apiServerBaseUrl}/people`;
             const resp = await fetch(url, {
@@ -206,6 +264,7 @@ const mainStore = {
             if (!resp.ok && Array.isArray(json.message)) {
                 throw new Error(json.message.join(','));
             }
+            commit('setAdminMembers', json)
 
             return json;
 
