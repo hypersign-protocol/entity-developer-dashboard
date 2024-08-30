@@ -86,6 +86,13 @@
       </b-navbar-brand>
       <b-collapse id="nav-collapse" is-nav v-if="parseAuthToken">
         <b-navbar-nav class="ml-auto">
+
+          <b-nav-item v-if="user.accessAccount?.email" class="center">
+            <a href="#">
+              Accessing Account Of: <b-badge variant="dark"> {{ user.accessAccount.email }}</b-badge>
+            </a>
+          </b-nav-item>
+
           <b-nav-item v-if="parseAuthToken.isTwoFactorEnabled == false">
             <button class="btn btn-outline-secondary" type="button" @click="$router.push('mfa')">
               <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
@@ -126,38 +133,13 @@
                 <i class="fa fa-home" style="cursor: pointer; font-size: 1.3rem"></i>
                 Home
               </b-dropdown-item-button>
-
               <b-dropdown-divider></b-dropdown-divider>
-
 
               <b-dropdown-item-button style="text-align: left" @click="logoutAll()" title="Logout">
                 <i class="fas fa-sign-out-alt" style="cursor: pointer; font-size: 1.3rem"></i>
                 Logout
               </b-dropdown-item-button>
             </b-dropdown-group>
-
-
-            <!-- <div style="display: inline">
-              <div class="hov" style="display: flex" :title="userDetails.email">
-                {{ shorten(userDetails.email) }}
-                <i class="far fa-copy mt-1" @click="copyToClip(userDetails.email, 'Email')"></i>
-              </div>
-
-              <div class="hov" style="display: flex" :title="userDetails.did" v-if="userDetails.did">
-                {{ shorten(userDetails.did) }}
-                <i class="far fa-copy" @click="copyToClip(userDetails.did, 'DID')"></i>
-              </div>
-
-              <div class="hov" @click="goTo('/studio/settings')" title="Teams">
-                <i class="fa fa-cog" style="cursor: pointer; font-size: 1.3rem"></i>
-                Settings
-              </div>
-
-              <div class="hov" @click="logoutAll()" title="Logout">
-                <i class="fas fa-sign-out-alt" style="cursor: pointer; font-size: 1.3rem"></i>
-                Logout
-              </div>
-            </div> -->
           </b-nav-item-dropdown>
         </b-navbar-nav>
       </b-collapse>
