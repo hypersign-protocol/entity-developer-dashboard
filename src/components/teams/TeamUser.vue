@@ -37,7 +37,8 @@
       <template #button-content>
         <b-icon style="color: grey" icon="list" aria-hidden="true"></b-icon>
       </template>
-      <b-dropdown-group id="dropdown-group-1" header="Assign Role" style="text-align: left;" v-if="invitationStatus">
+      <b-dropdown-group id="dropdown-group-1" header="Assign Role" style="text-align: left;"
+        v-if="invitationStatus && mode == 'Member'">
         <b-dropdown-item-button style="text-align: left" v-for="eachRole in getAllRoles" v-bind:key="eachRole"
           @click="assignRole(eachRole._id, userId)">
           <!-- <button type="submit" class="btn btn-outline-secondary"> -->
@@ -54,19 +55,13 @@
           class="far fa-copy mt-1" aria-hidden="true"></i> Invition Code
       </b-dropdown-item-button>
       <b-dropdown-item-button v-if="deleteMemberMenu" style="text-align: left" @click="deleteAMember()"><i
-          class="fa fa-trash mt-1"></i>
-        Delete Member</b-dropdown-item-button>
-      <b-dropdown-item-button v-if="acceptInvitionMenu" style="text-align: left" @click="acceptedInvition()"><b-icon
-          icon="hand-thumbs-up"></b-icon>
-        Accept Invition</b-dropdown-item-button>
+          class="fa fa-trash mt-1"></i> Delete Member</b-dropdown-item-button>
+      <b-dropdown-item-button v-if="!acceptInvitionMenu" style="text-align: left" @click="acceptedInvition()"><b-icon
+          icon="hand-thumbs-up"></b-icon> Accept Invition</b-dropdown-item-button>
 
-
-
-
-
-      <!-- <b-dropdown-group id="dropdown-group-2" header="Assign Roles">
-        
-      </b-dropdown-group> -->
+      <b-dropdown-item-button v-if="mode == 'Admin' && invitationStatus" style="text-align:left"
+        @click="switchToAdminAccount()"><b-icon icon="box-arrow-in-right"></b-icon> Switch
+        Account</b-dropdown-item-button>
 
     </b-dropdown>
   </b-list-group-item>
@@ -119,6 +114,11 @@ export default {
     createdAt: {
       type: String,
       required: false,
+    },
+    mode: {
+      type: String,
+      required: false,
+      default: 'Admin' // 'Member'
     }
   },
   data() {
@@ -130,7 +130,7 @@ export default {
     ...mapGetters('mainStore', ['getAllRoles'])
   },
   methods: {
-    ...mapActions("mainStore", ["deleteMember", "acceptInvition", "attachMemberToARole"]),
+    ...mapActions("mainStore", ["deleteMember", "acceptInvition", "attachMemberToARole", "switchToAdmin"]),
     copyToClip(textToCopy, contentType) {
       if (textToCopy) {
         navigator.clipboard
@@ -192,7 +192,24 @@ export default {
         this.notifyErr(e.message)
         this.isLoading = false
       }
-    }
+    },
+
+    async switchToAdminAccount() {
+      try {
+        this.isLoading = true
+        await this.switchToAdmin({
+          adminId: this.userId
+        })
+        this.isLoading = false
+        this.notifySuccess('Succefully switch to admin account')
+        this.$router.push("dashboard");
+      } catch (e) {
+        this.notifyErr(e.message)
+        this.isLoading = false
+      }
+    },
+
+
   },
   mixins: [UtilsMixin],
 };

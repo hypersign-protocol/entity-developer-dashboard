@@ -35,7 +35,7 @@
                         <b-tabs card vertical justified small>
                             <b-tab active>
                                 <template #title>
-                                    <b-icon icon="person-plus-fill" aria-hidden="true" small></b-icon>
+                                    <b-icon icon="people-fill" aria-hidden="true" small></b-icon>
                                     All Members
                                 </template>
                                 <TeamMembers />

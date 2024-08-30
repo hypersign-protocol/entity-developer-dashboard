@@ -36,8 +36,8 @@
           <tr v-for="person in getAdminMembersgetter" :key="person.userId">
             <TeamUser :email="person.userEmailId" :twoFactor="person.authenticatorEnabled"
               :invitationStatus="person.accepted" :createdAt="toDateTime(person.createdAt)" :deleteMemberMenu="true"
-              :inviteCode="person.inviteCode" :numberOfTeams="0" :userId="person.userId"
-              :assignedRoleId="person.roleId" />
+              :inviteCode="person.inviteCode" :numberOfTeams="0" :userId="person.userId" :assignedRoleId="person.roleId"
+              :mode="'Member'" />
           </tr>
         </tbody>
       </table>

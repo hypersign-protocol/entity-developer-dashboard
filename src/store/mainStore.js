@@ -91,7 +91,11 @@ const mainStore = {
             const user = localStorage.getItem('user')
             if (user) {
                 const userParse = JSON.parse(user)
-                const { accessList } = userParse;
+                let { accessList, accessAccount } = userParse;
+                if (accessAccount) {
+                    accessList = accessAccount.accessList
+                }
+
                 return accessList ? accessList.filter(access => access.serviceType === service) : []
             }
         },
@@ -322,6 +326,30 @@ const mainStore = {
             }
 
             dispatch('getPeopleMembers')
+            return json;
+
+        },
+
+        switchToAdmin: async ({ getters, commit }, payload) => {
+
+            const url = `${apiServerBaseUrl}/people/admin/login`;
+            const resp = await fetch(url, {
+                method: 'POST',
+                body: JSON.stringify(payload),
+                headers: UtilsMixin.methods.getHeader(getters.getAuthToken)
+            })
+            const json = await resp.json();
+
+            if (!resp.ok && Array.isArray(json.message)) {
+                console.log(json.message)
+                throw new Error(json.message.join(','));
+            } else if (!resp.ok && (json.statusCode !== 200 || 201)) {
+                throw new Error(json.message)
+            }
+
+            //dispatch('getPeopleMembers')
+
+            if (json.authToken) commit('setAuthToken', json.authToken)
             return json;
 
         },

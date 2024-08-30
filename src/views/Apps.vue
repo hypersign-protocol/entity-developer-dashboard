@@ -788,6 +788,7 @@ export default {
       }
     },
   },
+
   mounted() {
     this.setMainSideNavBar(false);
     this.initializeStore();
