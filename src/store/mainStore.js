@@ -364,6 +364,27 @@ const mainStore = {
 
         },
 
+        updateARole: async ({ getters, dispatch }, payload) => {
+            const url = `${apiServerBaseUrl}/roles/${payload._id}`;
+            const resp = await fetch(url, {
+                method: 'PATCH',
+                body: JSON.stringify(payload),
+                headers: UtilsMixin.methods.getHeader(getters.getAuthToken)
+            })
+            const json = await resp.json();
+
+            if (!resp.ok && Array.isArray(json.message)) {
+                console.log(json.message)
+                throw new Error(json.message.join(','));
+            } else if (!resp.ok && (json.statusCode !== 200 || 201)) {
+                throw new Error(json.message)
+            }
+
+            dispatch('getMyRolesAction')
+            return json;
+
+        },
+
 
         /// Security
 

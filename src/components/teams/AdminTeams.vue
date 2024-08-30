@@ -6,16 +6,17 @@
             <div class="col-md-4">
             </div>
             <div class="col-md-8">
-                <button type="button" class="btn btn-outline-secondary mx-1" style="float: inline-end" title="Reload">
+                <button type="button" class="btn btn-outline-secondary mx-1" style="float: inline-end" title="Reload"
+                    @click="getMyRolesAction()">
                     <i class="fa fa-retweet" aria-hidden="true"></i>
                 </button>
                 <button type="button" class="btn btn-primary" style="float: inline-end;" @click="openSlider('add')"><i
                         class="fa fa-gamepad" aria-hidden="true"></i> Create Custom Role</button>
             </div>
         </div>
-        <div class="row mb-3" style="padding: 10px;">
+        <div class="row mb-3" style="padding: 10px;" v-if="getAllRoles.length > 0">
             <table class="table ">
-                <tbody v-if="getAllRoles.length > 0">
+                <tbody>
                     <!-- eslint-disable-next-line -->
                     <tr v-for="role in getAllRoles" v-bind:key="getAllRoles.roleName">
                         <a href="#"
@@ -35,10 +36,12 @@
                                     <template #button-content>
                                         <b-icon style="color:grey" icon="list" aria-hidden="true"></b-icon>
                                     </template>
+                                    <b-dropdown-item-button style="text-align: left;" @click="openSliderForEdit(role)">
+                                        <b-icon icon="pencil-square" aria-hidden="true"></b-icon>
+                                        Edit</b-dropdown-item-button>
                                     <b-dropdown-item-button style="text-align: left;"
-                                        @click="openSliderForEdit(role)">Edit</b-dropdown-item-button>
-                                    <b-dropdown-item-button style="text-align: left;"
-                                        @click="deleteThisRole(role._id)">Delete</b-dropdown-item-button>
+                                        @click="deleteThisRole(role._id)"><i class="fa fa-trash"></i>
+                                        Delete</b-dropdown-item-button>
                                 </b-dropdown>
                             </div>
                         </a>
@@ -46,9 +49,12 @@
                 </tbody>
             </table>
         </div>
+        <div v-else>
+            <h4>No Role(s) Found!</h4>
+        </div>
 
         <StudioSideBar :title="edit ? 'Edit Role' : 'Add Role'">
-            <b-form class="container" @submit="saveRole()">
+            <div class="container">
                 <b-form-group id="input-group-2" label="Role Name:" label-for="input-1">
                     <b-form-input v-model="roleModel.roleName" id="input-2" placeholder="Admin" required></b-form-input>
                 </b-form-group>
@@ -57,57 +63,30 @@
                     <b-form-textarea v-model="roleModel.roleDescription" id="textarea"
                         placeholder="To allow access to all users" rows="3" max-rows="6"></b-form-textarea>
                 </b-form-group>
-
-                <b-form-group label="Role Permissions:" label-for="input-3" v-if="!edit">
+                <b-form-group label="Role Permissions:" label-for="input-3">
                     <div id="input-3" class="card" style="padding:10px; max-height: 350px; overflow-y: auto;">
                         <ul class="list-unstyled">
-                            <li v-for="eachService in getAllServices" v-bind:key="eachService.id"
-                                style="border-bottom: 1px solid lightgray; padding: 10px;">
-                                <label><strong>{{ eachService.name }}</strong></label>
-                                <b-form-checkbox v-for="eachAccess in Object.keys(eachService.accessList)"
-                                    v-bind:key="eachAccess" :name="eachAccess" @change="onCheck($event)"
-                                    :value="{ serviceType: eachService.id, access: eachAccess, checked: true }"
-                                    :unchecked-value="{ serviceType: eachService.id, access: eachAccess, checked: false }">
-                                    {{ eachAccess }}
-                                </b-form-checkbox>
-                            </li>
-                        </ul>
-                    </div>
-                </b-form-group>
-
-
-                <b-form-group label="Role Permissions:" label-for="input-3" v-else>
-                    <div id="input-3" class="card" style="padding:10px; max-height: 350px; overflow-y: auto;">
-                        <ul class="list-unstyled">
-
-                            <!-- <li v-for="eachService in roleModel.servicePermissions" v-bind:key="eachService.id"
-                                style="border-bottom: 1px solid lightgray; padding: 10px;">
-                                <label><strong>{{ eachService.name }}</strong></label>
-                                <b-form-checkbox v-for="eachAccess in eachService.accessList"
-                                    v-bind:key="eachAccess.access" :name="eachAccess.access" @change="onCheck($event)"
-                                    :value="{ serviceType: eachService.id, access: eachAccess.access, checked: true }"
-                                    :unchecked-value="{ serviceType: eachService.id, access: eachAccess.access, checked: false }">
-                                    {{ eachAccess.access }}
-                                </b-form-checkbox>
-                            </li> -->
                             <li v-for="eachService in localAllServices" v-bind:key="eachService.id"
                                 style="border-bottom: 1px solid lightgray; padding: 10px;">
                                 <label><strong>{{ eachService.name }}</strong></label>
-                                <b-form-checkbox v-for="eachAccess in Object.keys(eachService.accessList)"
-                                    v-bind:key="eachAccess" :name="eachAccess" @change="onCheck($event)"
-                                    :value="checkIfAccessIsThereInThatService(eachAccess, eachService.id)"
-                                    :v-check="checkIfAccessIsThereInThatService(eachAccess, eachService.id)"
-                                    :unchecked-value="{ serviceType: eachService.id, access: eachAccess, checked: false }">
-                                    {{ eachAccess }}
-                                </b-form-checkbox>
-                            </li>
 
+                                <div class="form-check" v-for="eachAccess in Object.keys(eachService.accessList)"
+                                    v-bind:key="eachAccess">
+                                    <input class="form-check-input" type="checkbox"
+                                        :value="{ serviceType: eachService.id, access: eachAccess }"
+                                        v-on:change="onCheck($event)"
+                                        :checked="checkIfAccessIsThereInThatService(eachAccess, eachService.id)">
+                                    <label class="form-check-label" for="flexCheckDefault">
+                                        {{ eachAccess }}
+                                    </label>
+                                </div>
+                            </li>
                         </ul>
                     </div>
                 </b-form-group>
 
-                <b-button type="submit" variant="primary">Save</b-button>
-            </b-form>
+                <b-button type="submit" @click="saveRole()" variant="primary">Save</b-button>
+            </div>
         </StudioSideBar>
     </div>
 
@@ -140,7 +119,8 @@ export default {
                 ],
                 "servicePermissions": []
             },
-            localAllServices: []
+            localAllServices: [],
+            checked: true
         }
     },
     mounted() {
@@ -156,7 +136,7 @@ export default {
 
     },
     methods: {
-        ...mapActions("mainStore", ["getMyRolesAction", "createARole", "deleteARole", "fetchServicesList"]),
+        ...mapActions("mainStore", ["getMyRolesAction", "createARole", "deleteARole", "fetchServicesList", "updateARole"]),
         createTeamPopup() {
             this.$root.$emit("bv::show::modal", "create-team");
         },
@@ -167,6 +147,7 @@ export default {
 
         openSlider(action = 'add') {
             if (action == 'add') {
+                this.resetData()
                 this.edit = false;
                 this.$root.$emit("bv::toggle::collapse", "sidebar-right");
             }
@@ -183,24 +164,9 @@ export default {
             return false
         },
         openSliderForEdit(role) {
-            console.log(role)
+            this.resetData()
             this.edit = true;
             this.roleModel = { ...role };
-            this.roleModel.servicePermissions = []
-            this.getAllServices.forEach(y => {
-                const permissions = this.roleModel.permissions.filter(x => {
-                    if (x.serviceType === y.id) return x
-                })
-                console.log(permissions)
-                if (permissions && permissions.length > 0) {
-                    this.roleModel.servicePermissions.push({
-                        name: y.name,
-                        accessList: permissions,
-                        id: y.id
-                    })
-                }
-
-            })
             this.$root.$emit("bv::toggle::collapse", "sidebar-right");
         },
 
@@ -211,25 +177,30 @@ export default {
         },
 
         onCheck(event) {
-            if (event['checked']) {
-                this.roleModel.permissions.push(event)
-            } else {
-                const index = this.roleModel.permissions.findIndex(x => ((x.serviceType == event.serviceType) && (x.access == event.access)))
+            const ev = event.target._value
+            if (ev) {
+                const index = this.roleModel.permissions.findIndex(x => ((x.serviceType == ev.serviceType) && (x.access == ev.access)))
                 if (index > -1) {
                     this.roleModel.permissions.splice(index, 1)
+                } else {
+                    this.roleModel.permissions.push(ev)
                 }
             }
         },
 
         async saveRole() {
-
             try {
                 // do all validations...
                 this.isLoading = true
-                await this.createARole(this.roleModel)
+                if (!this.edit) {
+                    await this.createARole(this.roleModel)
+                } else {
+                    await this.updateARole(this.roleModel)
+                }
                 this.isLoading = false
                 this.notifySuccess('Role saved successfully')
-
+                this.resetData()
+                this.closeSlider()
             } catch (e) {
                 this.notifyError(e.message)
                 this.isLoading = false
@@ -253,6 +224,17 @@ export default {
                 this.notifyError(e.message)
                 this.isLoading = false
             }
+        },
+
+        resetData() {
+            this.roleModel = {
+                "roleName": "",
+                "roleDescription": "",
+                "permissions": [
+                ],
+                "servicePermissions": []
+            }
+            this.edit = false;
         }
 
     },

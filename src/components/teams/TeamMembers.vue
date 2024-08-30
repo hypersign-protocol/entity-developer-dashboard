@@ -41,6 +41,9 @@
         </tbody>
       </table>
     </div>
+    <div v-else>
+      <h4>No Member(s) Found!</h4>
+    </div>
 
     <!-- <div class="row mb-3" style="padding: 20px">No member found, please invite a member to your account!</div> -->
 
