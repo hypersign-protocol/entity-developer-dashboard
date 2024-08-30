@@ -198,7 +198,7 @@ export default {
                     throw new Error('Role name can not be greater than 20 characters')
                 }
 
-                if (!this.roleModel.permissions.length <= 0) {
+                if (this.roleModel.permissions.length <= 0) {
                     throw new Error('Please associate atleast one role')
                 }
 
@@ -214,7 +214,7 @@ export default {
                 this.resetData()
                 this.closeSlider()
             } catch (e) {
-                this.notifyError(e.message)
+                this.notifyErr(e.message)
                 this.isLoading = false
             }
         },
@@ -233,7 +233,7 @@ export default {
 
 
             } catch (e) {
-                this.notifyError(e.message)
+                this.notifyErr(e.message)
                 this.isLoading = false
             }
         },
