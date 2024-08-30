@@ -145,7 +145,7 @@ export default {
                     this.error = "Invalid code or expired, please try again"
                 } else {
                     this.notifySuccess(`Identity verified successfully`);
-                    this.setAuthToken(r.authToken)
+                    await this.setAuthToken(r.authToken)
 
                     // 
                     this.$root.$emit("initializeStore", "login");

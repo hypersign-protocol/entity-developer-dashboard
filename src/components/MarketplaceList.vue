@@ -23,13 +23,9 @@
                     </div>
                     <div class="row center">
                         <div class="col-5">
-                            <div class="p-2 logo-container"
-                                style="border: 1px solid #303c3029;border-radius: 51px; overflow: hidden;">
-                                <b-card-img :src="eachOrg.logoUrl ||
-                                    getProfileIcon(formattedAppName(eachOrg.appId))
-                                    " alt="logoImg" class="rounded-1 logo"
-                                    style="max-height: 70px; min-height: 70px; border-radius: 50%;">
-                                </b-card-img>
+                            <div class="p-2  center">
+                                <b-avatar :src="eachOrg.logoUrl || getProfileIcon(formattedAppName(eachOrg.appId))"
+                                    variant="info"></b-avatar>
                             </div>
                         </div>
                     </div>

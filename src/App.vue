@@ -105,14 +105,43 @@
               <i class="fas fa-user-circle f-36" style="color: grey"></i>
             </template>
 
-            <div style="display: inline">
+            <b-dropdown-group style="text-align: left;">
+              <b-dropdown-item-button style="text-align: left" :title="userDetails.email"
+                @click="copyToClip(userDetails.email, 'Email')">
+                <i class="far fa-copy mt-1"></i>
+                {{ shorten(userDetails.email) }}
+              </b-dropdown-item-button>
+
+              <!-- <b-dropdown-item-button style="text-align: left" :title="userDetails.did" v-if="userDetails.did" @click="copyToClip(userDetails.did, 'DID')">
+                <i class="far fa-copy" ></i>
+                {{ shorten(userDetails.did) }}
+              </b-dropdown-item-button> -->
+
+              <b-dropdown-item-button style="text-align: left" @click="goTo('/studio/settings')" title="Teams">
+                <i class="fa fa-cog" style="cursor: pointer; font-size: 1.3rem"></i>
+                Settings
+              </b-dropdown-item-button>
+
+              <b-dropdown-item-button style="text-align: left" @click="goTo('/studio/dashboard')" title="Teams">
+                <i class="fa fa-home" style="cursor: pointer; font-size: 1.3rem"></i>
+                Home
+              </b-dropdown-item-button>
+
+              <b-dropdown-divider></b-dropdown-divider>
+
+
+              <b-dropdown-item-button style="text-align: left" @click="logoutAll()" title="Logout">
+                <i class="fas fa-sign-out-alt" style="cursor: pointer; font-size: 1.3rem"></i>
+                Logout
+              </b-dropdown-item-button>
+            </b-dropdown-group>
+
+
+            <!-- <div style="display: inline">
               <div class="hov" style="display: flex" :title="userDetails.email">
                 {{ shorten(userDetails.email) }}
                 <i class="far fa-copy mt-1" @click="copyToClip(userDetails.email, 'Email')"></i>
               </div>
-
-
-              <hr />
 
               <div class="hov" style="display: flex" :title="userDetails.did" v-if="userDetails.did">
                 {{ shorten(userDetails.did) }}
@@ -124,14 +153,11 @@
                 Settings
               </div>
 
-              <hr />
-
               <div class="hov" @click="logoutAll()" title="Logout">
                 <i class="fas fa-sign-out-alt" style="cursor: pointer; font-size: 1.3rem"></i>
                 Logout
               </div>
-
-            </div>
+            </div> -->
           </b-nav-item-dropdown>
         </b-navbar-nav>
       </b-collapse>
@@ -150,11 +176,10 @@
       <div slot="header" class="border">
         <div class="row center p-1">
           <div class="col">
-            <div class="p-1" style="border: 1px solid #303c3029;border-radius: 50%; overflow: hidden;">
-              <b-card-img :src="getSelectedService.logoUrl ||
+            <div class="p-1 center">
+              <b-avatar :src="getSelectedService.logoUrl ||
                 getProfileIcon(formattedAppName(getSelectedService.appName))
-                " alt="logoImg" class="" style="max-height: 90%;">
-              </b-card-img>
+                " variant="info"></b-avatar>
             </div>
           </div>
         </div>
@@ -439,7 +464,9 @@ export default {
           // this.isLoading = true;
           // await this.fetchAppsListFromServer();
           // await this.fetchServicesList()
-          this.$router.push("dashboard");
+
+          this.$router.push("dashboard").then(() => { this.$router.go(0) });
+
           // this.isLoading = false;
         } else {
           throw new Error("No auth token")
