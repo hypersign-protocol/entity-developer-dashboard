@@ -190,6 +190,18 @@ export default {
 
         async saveRole() {
             try {
+                if (!this.roleModel.roleName) {
+                    throw new Error('Please enter a role name')
+                }
+
+                if (this.roleModel.roleName.length > 20) {
+                    throw new Error('Role name can not be greater than 20 characters')
+                }
+
+                if (!this.roleModel.permissions.length <= 0) {
+                    throw new Error('Please associate atleast one role')
+                }
+
                 // do all validations...
                 this.isLoading = true
                 if (!this.edit) {
