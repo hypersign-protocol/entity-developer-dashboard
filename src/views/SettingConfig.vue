@@ -29,7 +29,7 @@
                 <b-tab active>
                     <template #title>
                         <b-icon icon="sliders" aria-hidden="true" small></b-icon><strong> Members &
-                            Access</strong>
+                            Roles</strong>
                     </template>
                     <b-card no-body>
                         <b-tabs card vertical justified small>
