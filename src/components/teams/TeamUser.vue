@@ -19,7 +19,7 @@
     <b-badge pill variant="warning" class="mx-1" v-if="assignedRoleId && getAllRoles.length > 0">
       <span class="mx-1"><b-icon icon="person-fill" variant=" light"></b-icon> Role:{{
         getYourRole().roleName
-        }}
+      }}
       </span>
     </b-badge>
     <b-badge pill variant="warning" class="mx-1" v-if="assignedRoleId && getAllRoles.length > 0">
@@ -56,7 +56,7 @@
       </b-dropdown-item-button>
       <b-dropdown-item-button v-if="deleteMemberMenu" style="text-align: left" @click="deleteAMember()"><i
           class="fa fa-trash mt-1"></i> Delete Member</b-dropdown-item-button>
-      <b-dropdown-item-button v-if="!acceptInvitionMenu" style="text-align: left" @click="acceptedInvition()"><b-icon
+      <b-dropdown-item-button v-if="mode == 'Admin'" style="text-align: left" @click="acceptedInvition()"><b-icon
           icon="hand-thumbs-up"></b-icon> Accept Invition</b-dropdown-item-button>
 
       <b-dropdown-item-button v-if="mode == 'Admin' && invitationStatus" style="text-align:left"
