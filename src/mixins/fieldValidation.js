@@ -16,6 +16,17 @@ export function isValidURL(str) {
 //             return false;
 //           }
 // }
+
+
+export function isValidEmail(input) {
+  const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/
+  if (input.match(emailRegex)) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
 export function isValidSchemaAttrName(str) {
   const regExp = /(?!^.*[A-Z]{2,}.*$)^[a-z][A-Za-z]*[0-9]*$/
   if (regExp.test(str)) {

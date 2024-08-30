@@ -31,8 +31,21 @@ const mainStore = {
 
         },
         marketPlaceApps: [],
+        adminMembers: [],
+        myInvitions: [],
+        allRoles: [],
+
     },
     getters: {
+        getAdminMembersgetter: (state) => {
+            return state.adminMembers
+        },
+        getMyInvitions: (state) => {
+            return state.myInvitions
+        },
+        getAllRoles: (state) => {
+            return state.allRoles
+        },
         getParseAuthToken() {
             const authTokne = localStorage.getItem('authToken');
             if (!authTokne) {
@@ -78,7 +91,11 @@ const mainStore = {
             const user = localStorage.getItem('user')
             if (user) {
                 const userParse = JSON.parse(user)
-                const { accessList } = userParse;
+                let { accessList, accessAccount } = userParse;
+                if (accessAccount) {
+                    accessList = accessAccount.accessList
+                }
+
                 return accessList ? accessList.filter(access => access.serviceType === service) : []
             }
         },
@@ -170,8 +187,259 @@ const mainStore = {
                 state.didList.push(payload);
             }
         },
+        setAdminMembers: (state, payload) => {
+            state.adminMembers = payload
+        },
+        setMyInvitions: (state, payload) => {
+            state.myInvitions = payload
+        },
+
+        setAllRoles: (state, payload) => {
+            state.allRoles = payload
+        }
     },
     actions: {
+
+        /// Member 
+
+        // eslint-disable-next-line no-empty-pattern
+        inviteMember: async ({ getters, dispatch }, payload) => {
+
+            const url = `${apiServerBaseUrl}/people/invite`;
+            const resp = await fetch(url, {
+                method: 'POST',
+                body: JSON.stringify({
+                    emailId: payload
+                }),
+                headers: UtilsMixin.methods.getHeader(getters.getAuthToken)
+            })
+            const json = await resp.json();
+
+            if (!resp.ok && Array.isArray(json.message)) {
+                console.log(json.message)
+                throw new Error(json.message.join(','));
+            } else if (!resp.ok && (json.statusCode !== 200 || 201)) {
+                throw new Error(json.message)
+            }
+
+            dispatch('getPeopleMembers')
+            return json;
+
+        },
+
+        // eslint-disable-next-line no-empty-pattern
+        acceptInvition: async ({ getters, dispatch }, payload) => {
+
+            const url = `${apiServerBaseUrl}/people/invite/accept/${payload}`;
+            const resp = await fetch(url, {
+                method: 'POST',
+                headers: UtilsMixin.methods.getHeader(getters.getAuthToken)
+            })
+            const json = await resp.json();
+
+            if (!resp.ok && Array.isArray(json.message)) {
+                console.log(json.message)
+                throw new Error(json.message.join(','));
+            } else if (!resp.ok && (json.statusCode !== 200 || 201)) {
+                throw new Error(json.message)
+            }
+
+            dispatch('getInvitions')
+            return json;
+
+        },
+
+        // eslint-disable-next-line no-empty-pattern
+        deleteMember: async ({ getters, dispatch }, payload) => {
+
+            const url = `${apiServerBaseUrl}/people/`;
+            const resp = await fetch(url, {
+                method: 'DELETE',
+                body: JSON.stringify({
+                    emailId: payload
+                }),
+                headers: UtilsMixin.methods.getHeader(getters.getAuthToken)
+            })
+            const json = await resp.json();
+
+            if (!resp.ok && Array.isArray(json.message)) {
+                console.log(json.message)
+                throw new Error(json.message.join(','));
+            } else if (!resp.ok && (json.statusCode !== 200 || 201)) {
+                throw new Error(json.message)
+            }
+
+            dispatch('getPeopleMembers')
+            return json;
+
+        },
+
+        getPeopleMembers: async ({ getters, commit }) => {
+            const url = `${apiServerBaseUrl}/people`;
+            const resp = await fetch(url, {
+                method: 'GET',
+                headers: UtilsMixin.methods.getHeader(getters.getAuthToken)
+            })
+            const json = await resp.json();
+
+            if (!resp.ok && Array.isArray(json.message)) {
+                throw new Error(json.message.join(','));
+            }
+            commit('setAdminMembers', json)
+            return json;
+
+        },
+
+        getInvitions: async ({ getters, commit }) => {
+            const url = `${apiServerBaseUrl}/people/invites`;
+            const resp = await fetch(url, {
+                method: 'GET',
+                headers: UtilsMixin.methods.getHeader(getters.getAuthToken)
+            })
+            let json = await resp.json();
+
+            if (!resp.ok && Array.isArray(json.message)) {
+                throw new Error(json.message.join(','));
+            }
+
+            // sample invitions
+            commit('setMyInvitions', json)
+            return json;
+
+        },
+
+        attachMemberToARole: async ({ getters, dispatch }, payload) => {
+
+            const url = `${apiServerBaseUrl}/people/roles/attach`;
+            const resp = await fetch(url, {
+                method: 'POST',
+                body: JSON.stringify(payload),
+                headers: UtilsMixin.methods.getHeader(getters.getAuthToken)
+            })
+            const json = await resp.json();
+
+            if (!resp.ok && Array.isArray(json.message)) {
+                console.log(json.message)
+                throw new Error(json.message.join(','));
+            } else if (!resp.ok && (json.statusCode !== 200 || 201)) {
+                throw new Error(json.message)
+            }
+
+            dispatch('getPeopleMembers')
+            return json;
+
+        },
+
+        switchToAdmin: async ({ getters, commit }, payload) => {
+
+            const url = `${apiServerBaseUrl}/people/admin/login`;
+            const resp = await fetch(url, {
+                method: 'POST',
+                body: JSON.stringify(payload),
+                headers: UtilsMixin.methods.getHeader(getters.getAuthToken)
+            })
+            const json = await resp.json();
+
+            if (!resp.ok && Array.isArray(json.message)) {
+                console.log(json.message)
+                throw new Error(json.message.join(','));
+            } else if (!resp.ok && (json.statusCode !== 200 || 201)) {
+                throw new Error(json.message)
+            }
+
+            //dispatch('getPeopleMembers')
+
+            if (json.authToken) commit('setAuthToken', json.authToken)
+            return json;
+
+        },
+
+        /// Roles
+
+        getMyRolesAction: async ({ getters, commit }) => {
+            const url = `${apiServerBaseUrl}/roles`;
+            const resp = await fetch(url, {
+                method: 'GET',
+                headers: UtilsMixin.methods.getHeader(getters.getAuthToken)
+            })
+            let json = await resp.json();
+
+            if (!resp.ok && Array.isArray(json.message)) {
+                throw new Error(json.message.join(','));
+            }
+            commit('setAllRoles', json)
+            return json;
+
+        },
+
+        createARole: async ({ getters, dispatch }, payload) => {
+
+            const url = `${apiServerBaseUrl}/roles`;
+            const resp = await fetch(url, {
+                method: 'POST',
+                body: JSON.stringify(payload),
+                headers: UtilsMixin.methods.getHeader(getters.getAuthToken)
+            })
+            const json = await resp.json();
+
+            if (!resp.ok && Array.isArray(json.message)) {
+                console.log(json.message)
+                throw new Error(json.message.join(','));
+            } else if (!resp.ok && (json.statusCode !== 200 || 201)) {
+                throw new Error(json.message)
+            }
+
+            dispatch('getMyRolesAction')
+            return json;
+
+        },
+
+        deleteARole: async ({ getters, dispatch }, payload) => {
+            const url = `${apiServerBaseUrl}/roles/${payload}`;
+            const resp = await fetch(url, {
+                method: 'DELETE',
+                headers: UtilsMixin.methods.getHeader(getters.getAuthToken)
+            })
+            const json = await resp.json();
+
+            if (!resp.ok && Array.isArray(json.message)) {
+                console.log(json.message)
+                throw new Error(json.message.join(','));
+            } else if (!resp.ok && (json.statusCode !== 200 || 201)) {
+                throw new Error(json.message)
+            }
+
+            dispatch('getMyRolesAction')
+            return json;
+
+        },
+
+        updateARole: async ({ getters, dispatch }, payload) => {
+            const url = `${apiServerBaseUrl}/roles/${payload._id}`;
+            const resp = await fetch(url, {
+                method: 'PATCH',
+                body: JSON.stringify(payload),
+                headers: UtilsMixin.methods.getHeader(getters.getAuthToken)
+            })
+            const json = await resp.json();
+
+            if (!resp.ok && Array.isArray(json.message)) {
+                console.log(json.message)
+                throw new Error(json.message.join(','));
+            } else if (!resp.ok && (json.statusCode !== 200 || 201)) {
+                throw new Error(json.message)
+            }
+
+            dispatch('getMyRolesAction')
+            return json;
+
+        },
+
+
+
+
+
+        /// Security
 
         login: () => {
             console.log('Inside action login')
@@ -201,7 +469,6 @@ const mainStore = {
                     })
             })
         },
-
 
         mfaGenerate: async ({ getters }, payload) => {
             try {
