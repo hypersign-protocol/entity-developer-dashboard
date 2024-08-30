@@ -36,7 +36,8 @@
           <tr v-for="person in getAdminMembersgetter" :key="person.userId">
             <TeamUser :email="person.userEmailId" :twoFactor="person.authenticatorEnabled"
               :invitationStatus="person.accepted" :createdAt="toDateTime(person.createdAt)" :deleteMemberMenu="true"
-              :inviteCode="person.inviteCode" :numberOfTeams="0" />
+              :inviteCode="person.inviteCode" :numberOfTeams="0" :userId="person.userId"
+              :assignedRoleId="person.roleId" />
           </tr>
         </tbody>
       </table>
@@ -112,7 +113,7 @@ export default {
     HfFlashNotification
   },
   computed: {
-    ...mapGetters('mainStore', ['getAdminMembersgetter']),
+    ...mapGetters('mainStore', ['getAdminMembersgetter', "getAllRoles"]),
     checkIfValidEmail() {
       return isValidEmail(this.inviteeEmailId)
     }
@@ -138,6 +139,8 @@ export default {
     try {
       this.isLoading = true;
       await this.getPeopleMembers();
+      this.getMyRolesAction()
+
       this.isLoading = false
     } catch (e) {
       console.error(e.message)
@@ -147,7 +150,7 @@ export default {
 
   },
   methods: {
-    ...mapActions("mainStore", ["inviteMember", "getPeopleMembers", "acceptInvition"]),
+    ...mapActions("mainStore", ["inviteMember", "getPeopleMembers", "acceptInvition", "getMyRolesAction"]),
 
     inviteMemberPopup() {
       this.$root.$emit("bv::show::modal", "invite-member");
@@ -193,6 +196,9 @@ export default {
       this.inviteeEmailId = ""
       this.error = ""
     },
+
+
+
   },
   mixins: [UtilsMixin],
 };

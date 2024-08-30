@@ -304,6 +304,28 @@ const mainStore = {
 
         },
 
+        attachMemberToARole: async ({ getters, dispatch }, payload) => {
+
+            const url = `${apiServerBaseUrl}/people/roles/attach`;
+            const resp = await fetch(url, {
+                method: 'POST',
+                body: JSON.stringify(payload),
+                headers: UtilsMixin.methods.getHeader(getters.getAuthToken)
+            })
+            const json = await resp.json();
+
+            if (!resp.ok && Array.isArray(json.message)) {
+                console.log(json.message)
+                throw new Error(json.message.join(','));
+            } else if (!resp.ok && (json.statusCode !== 200 || 201)) {
+                throw new Error(json.message)
+            }
+
+            dispatch('getPeopleMembers')
+            return json;
+
+        },
+
         /// Roles
 
         getMyRolesAction: async ({ getters, commit }) => {
@@ -384,6 +406,9 @@ const mainStore = {
             return json;
 
         },
+
+
+
 
 
         /// Security

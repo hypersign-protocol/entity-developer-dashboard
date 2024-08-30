@@ -55,15 +55,18 @@
 
         <StudioSideBar :title="edit ? 'Edit Role' : 'Add Role'">
             <div class="container">
-                <b-form-group id="input-group-2" label="Role Name:" label-for="input-1">
+                <b-form-group id="input-group-2" style="font-weight: bold;" label="Role Name:" label-for="input-1">
                     <b-form-input v-model="roleModel.roleName" id="input-2" placeholder="Admin" required></b-form-input>
+                    <small style="color: grey; font-size: x-small;">Upto 10 chars</small>
                 </b-form-group>
 
-                <b-form-group id="input-group-2" label="Role Description:" label-for="textarea">
+                <b-form-group id="input-group-2" style="font-weight: bold;" label="Role Description:"
+                    label-for="textarea">
                     <b-form-textarea v-model="roleModel.roleDescription" id="textarea"
                         placeholder="To allow access to all users" rows="3" max-rows="6"></b-form-textarea>
+                    <small style="color: grey; font-size: x-small;">Upto 100 chars</small>
                 </b-form-group>
-                <b-form-group label="Role Permissions:" label-for="input-3">
+                <b-form-group label="Role Permissions:" style="font-weight: bold;" label-for="input-3">
                     <div id="input-3" class="card" style="padding:10px; max-height: 350px; overflow-y: auto;">
                         <ul class="list-unstyled">
                             <li v-for="eachService in localAllServices" v-bind:key="eachService.id"
@@ -77,7 +80,7 @@
                                         v-on:change="onCheck($event)"
                                         :checked="checkIfAccessIsThereInThatService(eachAccess, eachService.id)">
                                     <label class="form-check-label" for="flexCheckDefault">
-                                        {{ eachAccess }}
+                                        <code> {{ eachAccess }}</code>
                                     </label>
                                 </div>
                             </li>
@@ -136,7 +139,7 @@ export default {
 
     },
     methods: {
-        ...mapActions("mainStore", ["getMyRolesAction", "createARole", "deleteARole", "fetchServicesList", "updateARole"]),
+        ...mapActions("mainStore", ["getMyRolesAction", "createARole", "deleteARole", "fetchServicesList", "updateARole",]),
         createTeamPopup() {
             this.$root.$emit("bv::show::modal", "create-team");
         },
@@ -194,8 +197,12 @@ export default {
                     throw new Error('Please enter a role name')
                 }
 
-                if (this.roleModel.roleName.length > 20) {
+                if (this.roleModel.roleName.length > 10) {
                     throw new Error('Role name can not be greater than 20 characters')
+                }
+
+                if (this.roleModel.roleDescription.length > 100) {
+                    throw new Error('Role description can not be greater than 100 characters')
                 }
 
                 if (this.roleModel.permissions.length <= 0) {
@@ -247,8 +254,7 @@ export default {
                 "servicePermissions": []
             }
             this.edit = false;
-        }
-
+        },
     },
     mixins: [UtilsMixin]
 }
