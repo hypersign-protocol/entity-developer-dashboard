@@ -42,7 +42,7 @@
                             </b-tab>
                             <b-tab>
                                 <template #title>
-                                    <i class="fa fa-gamepad" aria-hidden="true"></i> Roles
+                                    <i class="fa fa-gamepad" aria-hidden="true"></i> Roles & Permissions
                                 </template>
                                 <AdminTeams />
                             </b-tab>

@@ -19,7 +19,7 @@
     <b-badge pill variant="warning" class="mx-1" v-if="assignedRoleId && getAllRoles.length > 0">
       <span class="mx-1"><b-icon icon="person-fill" variant=" light"></b-icon> Role:{{
         getYourRole().roleName
-      }}
+        }}
       </span>
     </b-badge>
     <b-badge pill variant="warning" class="mx-1" v-if="assignedRoleId && getAllRoles.length > 0">
@@ -37,7 +37,7 @@
       <template #button-content>
         <b-icon style="color: grey" icon="list" aria-hidden="true"></b-icon>
       </template>
-      <b-dropdown-group id="dropdown-group-1" header="Assign Role" style="text-align: left;">
+      <b-dropdown-group id="dropdown-group-1" header="Assign Role" style="text-align: left;" v-if="invitationStatus">
         <b-dropdown-item-button style="text-align: left" v-for="eachRole in getAllRoles" v-bind:key="eachRole"
           @click="assignRole(eachRole._id, userId)">
           <!-- <button type="submit" class="btn btn-outline-secondary"> -->
@@ -46,15 +46,16 @@
             permissions</b-badge>
           <!-- </button> -->
         </b-dropdown-item-button>
+        <b-dropdown-divider></b-dropdown-divider>
       </b-dropdown-group>
 
-      <b-dropdown-divider></b-dropdown-divider>
+
       <b-dropdown-item-button style="text-align: left" @click="copyToClip(inviteCode, 'Invition Code')"><i
           class="far fa-copy mt-1" aria-hidden="true"></i> Invition Code
       </b-dropdown-item-button>
       <b-dropdown-item-button v-if="deleteMemberMenu" style="text-align: left" @click="deleteAMember()"><i
           class="fa fa-trash mt-1"></i>
-        Delete</b-dropdown-item-button>
+        Delete Member</b-dropdown-item-button>
       <b-dropdown-item-button v-if="acceptInvitionMenu" style="text-align: left" @click="acceptedInvition()"><b-icon
           icon="hand-thumbs-up"></b-icon>
         Accept Invition</b-dropdown-item-button>

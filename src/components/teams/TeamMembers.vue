@@ -153,6 +153,7 @@ export default {
     ...mapActions("mainStore", ["inviteMember", "getPeopleMembers", "acceptInvition", "getMyRolesAction"]),
 
     inviteMemberPopup() {
+      this.resetInvition()
       this.$root.$emit("bv::show::modal", "invite-member");
     },
     inviteMemberPopDown() {
@@ -192,6 +193,7 @@ export default {
         "invitationValidTill": "",
         "acceptedAt": false
       };
+
 
       this.inviteeEmailId = ""
       this.error = ""

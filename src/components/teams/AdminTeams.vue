@@ -21,7 +21,7 @@
                     <tr v-for="role in getAllRoles" v-bind:key="getAllRoles.roleName">
                         <a href="#"
                             class="list-group-item list-group-item-action align-items-start d-flex align-items-center ">
-                            <b-avatar size="4em" rounded="lg" text="MT"></b-avatar>
+                            <b-avatar size="4em" rounded="lg" variant="info" :text="role.roleName.charAt(0)"></b-avatar>
                             <div class="w-100 mx-3 mt-3 align-items-center">
                                 <h5 class="mb-1">{{ role.roleName }}</h5>
                                 <p>
