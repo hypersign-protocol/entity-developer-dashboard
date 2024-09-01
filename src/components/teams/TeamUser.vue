@@ -19,7 +19,7 @@
     <b-badge pill variant="warning" class="mx-1" v-if="assignedRoleId && getAllRoles.length > 0">
       <span class="mx-1"><b-icon icon="person-fill" variant=" light"></b-icon> Role:{{
         getYourRole().roleName
-      }}
+        }}
       </span>
     </b-badge>
     <b-badge pill variant="warning" class="mx-1" v-if="assignedRoleId && getAllRoles.length > 0">
@@ -202,7 +202,7 @@ export default {
         })
         this.isLoading = false
         this.notifySuccess('Succefully switch to admin account')
-        this.$router.push("dashboard");
+        this.$router.push("dashboard").then(() => { this.$router.go(0) });
       } catch (e) {
         this.notifyErr(e.message)
         this.isLoading = false
