@@ -127,10 +127,27 @@ h5 span {
 
     <div class="row">
       <div class="col-md-12" style="text-align: left">
-        <div class="form-group" style="display:flex">
-          <h3 v-if="sessionList.length > 0" style="text-align: left;">
-            Sessions</h3>
-          <h3 v-else style="text-align: left;">No session found!</h3>
+        <div class="row" v-if="sessionList.length > 0" style="text-align: left;">
+          <div class="col-md-8">
+            <h3>Sessions</h3>
+          </div>
+          <div class="col-md-4">
+            <div class="input-group mb-3">
+              <input type="text" class="form-control" placeholder="Search by session Id or user Id"
+                aria-label="Search by session Id or user Id" aria-describedby="basic-addon2" v-model="sessionIdTemp">
+              <div class="input-group-append" style="cursor: grab;">
+                <span class="input-group-text" id="basic-addon2" @click="filterSessions(sessionIdTemp)"><i
+                    class="fa fa-search" aria-hidden="true"></i></span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div v-else-if="!hasPermission" style="text-align: left;">
+          <hf-upgrade-plan></hf-upgrade-plan>
+        </div>
+
+        <div v-else style="text-align: left;">
+          <h3>No session found!</h3>
         </div>
       </div>
     </div>
@@ -142,7 +159,7 @@ h5 span {
             <tr>
               <th class="sticky-header">Date</th>
               <th class="sticky-header">Session Id</th>
-              <th class="sticky-header">User Id</th>
+              <th class="sticky-header">User Id (Hash)</th>
               <th class="sticky-header">Steps</th>
               <th class="sticky-header">Status</th>
             </tr>
@@ -157,7 +174,7 @@ h5 span {
                 {{ row.sessionId ? row.sessionId : "-" }}
               </td>
               <td>
-                {{ row.appUserId ? row.appUserId : "-" }}
+                {{ row.appUserId ? stringShortner(row.appUserId, 32) : "-" }}
               </td>
               <td>
                 <span class="stepSpan" title="Start">
@@ -236,6 +253,12 @@ h5 span {
         </table>
       </div>
     </div>
+
+    <div class="row mt-2" v-if="sessionList.length > 0">
+      <div class="col-md-12 d-flex justify-content-center align-items-center">
+        <PagiNation pagesCount="5" @event-page-number="handleGetPageNumberEvent" />
+      </div>
+    </div>
   </div>
 </template>
 
@@ -243,11 +266,12 @@ h5 span {
 import UtilsMixin from '../../mixins/utils';
 import Loading from "vue-loading-overlay";
 import { mapState, mapGetters, mapActions, mapMutations } from "vuex";
+import PagiNation from '../../components/Pagination.vue';
 export default {
   name: "SessionsPage",
-  components: { Loading },
+  components: { Loading, PagiNation },
   computed: {
-    ...mapGetters('mainStore', ['sessionList']),
+    ...mapGetters('mainStore', ['sessionList', 'getUserAccessList']),
     ...mapState({
       sessionList: state => state.mainStore.sessionList,
       containerShift: state => state.playgroundStore.containerShift,
@@ -262,6 +286,8 @@ export default {
       user: {},
       fullPage: true,
       isLoading: false,
+      sessionIdTemp: null,
+      hasPermission: false,
     }
   },
   async created() {
@@ -272,7 +298,10 @@ export default {
 
       // appId
       this.isLoading = true
-      await this.fetchAppsUsersSessions({ appId: "" })
+      this.checkIfHasPermission()
+      if (this.hasPermission) {
+        await this.fetchAppsUsersSessions({ appId: "" })
+      }
       this.isLoading = false
 
     } catch (e) {
@@ -290,10 +319,78 @@ export default {
     ...mapActions('mainStore', ['fetchAppsUsersSessions']),
     ...mapMutations('playgroundStore', ['updateSideNavStatus', 'shiftContainer']),
 
+    checkIfHasPermission() {
+      const accessList = this.getUserAccessList("CAVACH_API");
+      if (accessList && accessList.length > 0) {
+        /// Either he should have ALL access
+        const allAccess = accessList.find((x) => x.access == "ALL");
+        if (!allAccess) {
+
+          // Or he should have READ_SESSION access
+          const readSessionAccess = accessList.find(
+            (x) => x.access == "READ_SESSION"
+          );
+          if (!readSessionAccess) {
+            this.hasPermission = false
+            return this.notifyErr(
+              "You do not have access to KYC dashboard, kindly contact the Hypersign Team"
+            );
+          } else {
+            this.hasPermission = true
+          }
+        } else {
+          this.hasPermission = true
+        }
+      } else {
+        this.hasPermission = false
+        return this.notifyErr(
+          "You do not have access to KYC dashboard, kindly contact the admin"
+        );
+      }
+      this.hasPermission = true;
+    },
+
+    async handleGetPageNumberEvent(pageNumber) {
+      try {
+        this.isLoading = true
+        await this.fetchAppsUsersSessions({ appId: "", page: pageNumber })
+        this.isLoading = false
+      } catch (e) {
+        this.isLoading = false
+        this.notifyErr(e)
+      }
+    },
+
+    async filterSessions(filterText) {
+      try {
+        if (filterText) {
+          const filter = {
+
+          }
+          if (filterText.split('-').length >= 5) {// UUID sessions
+            filter.sessionIds = filterText
+          } else {
+            filter.userId = filterText
+          }
+
+          this.isLoading = true
+          await this.fetchAppsUsersSessions({ appId: "", ...filter })
+          this.isLoading = false
+        }
+
+      } catch (e) {
+        this.isLoading = false
+        this.notifyErr(e)
+      }
+    },
+
     async viewSessionDetails(sessionId) {
-      console.log(sessionId)
-      this.$router.push({ name: "sessionDetails", params: { appId: this.$route.params.appId, sessionId } });
+      if (!sessionId) {
+        return this.notifyErr('Session Id is required')
+      }
+      this.$router.push({ name: "sessionDetails", params: { appId: this.$route.params.appId, sessionId: sessionId.trim() } });
       this.shiftContainer(false);
+      this.sessionIdTemp = null
     },
   },
   mixins: [UtilsMixin],

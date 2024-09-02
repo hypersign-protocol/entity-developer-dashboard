@@ -81,6 +81,9 @@ jobs:
 
 
           find Dockerfile -type f -exec sed  -i -e "s#__VUE_APP_WEB_WALLET_ADDRESS__#${{ vars.VUE_APP_WEB_WALLET_ADDRESS }}#" {} \;
+          
+          find Dockerfile -type f -exec sed  -i -e "s#__VUE_APP_ORIGINS__#${{ vars.VUE_APP_ORIGINS }}#" {} \;
+
 
 
           docker build -t $GOOGLE_ARTIFACT_URL/$GOOGLE_PROJECT_ID/$GOOGLE_ARTIFACT_REPO/entity-developer-dashbord:${{ env.LATEST_RELEASE_TAG }}  .

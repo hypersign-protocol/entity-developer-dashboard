@@ -166,8 +166,8 @@ h3 {
         <div class="row">
             <div class="col-md-12">
                 <div class="form-group">
-                    <h3 class="mt-4">
-                        <a @click="$router.go(-1)" href="#">Verifications</a> <i class="fa fa-angle-double-right"
+                    <h3>
+                        <a @click="$router.go(-1)" href="#">Sessions</a> <i class="fa fa-angle-double-right"
                             aria-hidden="true" style="color: #8080808f;"></i> {{ sessionId }}
                     </h3>
                 </div>
@@ -184,7 +184,8 @@ h3 {
                                     }}</label>
                             </div>
                             <div class="col-md-4 ">
-                                <label><strong>UserId:</strong> {{ session ? session.appUserId : "-" }}</label>
+                                <label><strong>UserId:</strong> {{ session ? stringShortner(session.appUserId, 32) : "-"
+                                    }}</label>
                             </div>
                             <div class="col-md-4  ">
                                 <div class="row">
@@ -345,8 +346,8 @@ h3 {
                 </div>
 
                 <!-- Face Verification -->
-                <div class="card dataCard float-" style="border: 1px solid rgb(81, 137, 81);"
-                    v-if="session.selfiDetails && Object.keys(session.selfiDetails).length > 0">
+                <div class="card dataCard float-" :style="{ 'border': getStatusColor }"
+                    v-if="session.selfiDetails && Object.keys(session.selfiDetails).length > 0 && session.ocriddocsDetails.tokenFaceImage">
                     <div class="card-header" style="padding: 10px">
                         <h4><i class="fa fa-smile" aria-hidden="true"></i> Face Verification</h4>
                     </div>
@@ -356,14 +357,19 @@ h3 {
                                 <span class=""><img style="height:100px;"
                                         :src="session.selfiDetails.tokenSelfiImage" /></span>
                             </div>
-                            <div class="col-md-2 centered-container" style="" v-if="selfiDataFound && idDocDataFound">
+                            <div class="col-md-2 centered-container" style=""
+                                v-if="isFacialAuthenticationSuccess.success">
                                 <span class="" style="font-size: 50px; color: green;"><i class="fa fa-check-circle"
                                         aria-hidden="true"></i></span>
                             </div>
                             <div class="col-md-2 centered-container" style="" v-else>
+                                <span class="" style="font-size: 50px; color: red;"><i class="fa fa-times-circle"
+                                        aria-hidden="true"></i></span>
+                            </div>
+                            <!-- <div class="col-md-2 centered-container" style="" v-else>
                                 <span class="" style="font-size: 50px; color: orange;"><i
                                         class="fa fa-exclamation-triangle" aria-hidden="true"></i></span>
-                            </div>
+                            </div> -->
 
                             <div class="col-md-5 centered-container" style="">
                                 <span class=""><img style="height:100px;"
@@ -372,9 +378,42 @@ h3 {
                         </div>
                         <div class="row">
                             <div class="col-md-12">
-                                <div class="alert alert-success" role="alert">
-                                    <span><i class="fa fa-info-circle" aria-hidden="true"></i></span> Passive liveness
-                                    Success
+                                <div class="alert alert-success" role="alert"
+                                    v-if="isFacialAuthenticationSuccess.success">
+                                    <span><i class="fa fa-info-circle" aria-hidden="true"></i></span>
+                                    {{ isFacialAuthenticationSuccess.result }}
+                                </div>
+                                <div class="alert alert-danger" role="alert" v-else>
+                                    <span><i class="fa fa-info-circle" aria-hidden="true"></i></span>
+                                    {{ isFacialAuthenticationSuccess.result }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Liveliness Check -->
+                <div class="card dataCard float-" :style="{ 'border': passiveLivelinessData.borderColor }"
+                    v-if="session.selfiDetails && Object.keys(session.selfiDetails).length > 0">
+                    <div class="card-header" style="padding: 10px">
+                        <h4><i class="fa fa-heartbeat" aria-hidden="true"></i> Liveliness Check</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-12 centered-container" style="">
+                                <span class=""><img style="height:200px; width: 200px;"
+                                        :src="session.selfiDetails.tokenSelfiImage" /></span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="alert alert-success" role="alert" v-if="passiveLivelinessData.success">
+                                    <span><i class="fa fa-info-circle" aria-hidden="true"></i></span> Liveliness Check
+                                    Passed
+                                </div>
+                                <div class="alert alert-danger" role="alert" v-else>
+                                    <span><i class="fa fa-info-circle" aria-hidden="true"></i></span>
+                                    {{ passiveLivelinessData.result }}
                                 </div>
                             </div>
                         </div>
@@ -523,6 +562,37 @@ import CountryFlag from 'vue-country-flag'
 import { getCosmosChainConfig } from '../../blockchains-metadata/cosmos/wallet/cosmos-wallet-utils'
 
 
+const ServiceLivenessResultEnum = {
+    0: "None",
+    1: "Spoof",
+    2: "Uncertain",
+    3: "Live",
+    4: "Bad quality image",
+    5: "Face very close",
+    6: "Face not found",
+    7: "Face too small",
+    8: "Face too large",
+    9: "Invalid image format",
+    10: "Internal server error",
+    11: "Image processing error",
+    12: "Too many faces",
+    13: "Face too close to edge",
+    14: "Face was cropped",
+    15: "License error",
+    16: "Face is obstructed",
+    17: "No life detected",
+    18: "Eyes closed",
+}
+
+const FaicalAuthenticationError = {
+    0: 'Face check could not be performed',
+    1: 'Faces did not match',
+    2: 'Face not found in the image',
+    4: 'Failed to perform face check due to the pose of the face',
+    5: 'Failed due to problems in the extraction of the facial pattern',
+    6: 'Duplicate document was used',
+};
+
 export default {
     name: "sessionDetails",
     components: {
@@ -534,6 +604,29 @@ export default {
             sessionList: state => state.mainStore.sessionList,
             containerShift: state => state.playgroundStore.containerShift,
         }),
+        isFacialAuthenticationSuccess() {
+            const status = this.selfiDataFound && this.idDocDataFound && this.session.ocriddocsDetails.serviceFacialAuthenticationResult == 3
+            const matchPercentage = ', match ' + Math.round(this.session.ocriddocsDetails.serviceFacialSimilarityResult * 100) + '%'
+            return {
+                success: status,
+                result: !status ? FaicalAuthenticationError[this.session.ocriddocsDetails.serviceFacialAuthenticationResult] + matchPercentage : 'Facial Authentication Passed' + matchPercentage,
+            }
+        },
+        passiveLivelinessData() {
+            const status = this.selfiDataFound && this.session.selfiDetails.serviceLivenessResult == 3
+            return {
+                success: status,
+                result: ServiceLivenessResultEnum[this.session.selfiDetails.serviceLivenessResult],
+                borderColor: status ? '1px solid rgb(81, 137, 81)' : '1px solid red'
+            }
+        },
+        getStatusColor() {
+            if (this.isFacialAuthenticationSuccess.success) {
+                return '1px solid rgb(81, 137, 81)'
+            } else {
+                return '1px solid red'
+            }
+        },
         isContainerShift() {
             return this.containerShift
         },
@@ -640,6 +733,7 @@ export default {
         } catch (e) {
             this.notifyErr(e.message)
             this.isLoading = false
+            this.$router.go(-1);
         }
     },
     beforeRouteEnter(to, from, next) {

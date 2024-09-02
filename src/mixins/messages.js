@@ -18,7 +18,11 @@ const APPLICATION = {
     ENTER_APP_ID: "Enter Service Id",
     INVALID_CORS: "Invalid origins values, use valid url or *",
     DUPLICATE_ORIGIN_VALUES: "Duplicate origin values are not allowed",
-    SSI_SERVICE_NOT_SELECTED: "Kindly select a SSI service to create KYC service"
+    SSI_SERVICE_NOT_SELECTED: "Kindly select a SSI service to create KYC service",
+    ENTER_DOMAIN_ORGIN: "Enter your origin",
+    INVALID_DOMAIN_ORGIN: "Enter a valid origin",
+    CANT_GO_PROD_BEFORE_DOMAIN_VERIFICATION: "You must verify your domain before going to production",
+    CANT_GO_PROD_BEFORE_SETTING_LOGO: "Logo must be set before going to production"
 }
 
 const SCHEMA = {
