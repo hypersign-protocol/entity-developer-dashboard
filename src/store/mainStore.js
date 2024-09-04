@@ -34,6 +34,7 @@ const mainStore = {
         adminMembers: [],
         myInvitions: [],
         allRoles: [],
+        usageDetails: {}
 
     },
     getters: {
@@ -108,6 +109,10 @@ const mainStore = {
         },
         getMarketPlaceApps: (state) => {
             return state.marketPlaceApps
+        },
+
+        getUsageDetails: (state) => {
+            return state.usageDetails
         }
     },
     mutations: {
@@ -196,6 +201,10 @@ const mainStore = {
 
         setAllRoles: (state, payload) => {
             state.allRoles = payload
+        },
+
+        setUsageDetails: (state, payload) => {
+            state.usageDetails = payload
         }
     },
     actions: {
@@ -591,7 +600,7 @@ const mainStore = {
 
         fetchAppsListFromServer: async ({ commit, dispatch }) => {
             // TODO: Get list of orgs 
-            const url = `${apiServerBaseUrl}/app`;
+            const url = `${apiServerBaseUrl}/app?limit=20`;
             // TODO: // use proper authToken
             const headers = UtilsMixin.methods.getHeader(localStorage.getItem('authToken'));
             const json = await RequestHandler(url, 'GET', {}, headers)
@@ -957,6 +966,23 @@ const mainStore = {
             return json?.data
         },
 
+        async fetchUsageDetailsForAService({ getters, commit }, payload) {
+            const { startDate, endDate } = payload
+            if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
+                throw new Error('Tenant url is null or empty, service is not selected')
+            }
+            const url = `http://localhost:3001/api/v1/usage/detail?serviceId=${getters.getSelectedService.appId}&startDate=${startDate}&endDate=${endDate}`;
+            const authToken = getters.getSelectedService.access_token
+            const headers = UtilsMixin.methods.getHeader(authToken);
+            const resp = await fetch(url, {
+                method: 'GET',
+                headers
+            })
+            const json = await resp.json()
+            commit('setUsageDetails', json?.data)
+            return json?.data
+        },
+
         // --- SSI
         fetchDIDsForAService({ commit, getters, dispatch }, payload = {}) {
             return new Promise(function (resolve, reject) {
@@ -1046,7 +1072,7 @@ const mainStore = {
                                 const data = {
                                     did: payload,
                                     didDocument: json.didDocument,
-                                    status: Object.keys(json.didDocumentMetadata).length > 0 ? 'Registered' : 'Created',
+                                    status: json.didDocumentMetadata && Object.keys(json.didDocumentMetadata).length > 0 ? 'Registered' : 'Created',
                                     name: json.name
                                 }
                                 commit('updateADID', data);

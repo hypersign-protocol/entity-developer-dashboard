@@ -126,10 +126,59 @@ h5 span {
     <loading :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loading>
 
 
+    <div class="row mb-3">
+
+      <div class="col">
+        <b-form inline class="mx-1" style="float: inline-end;">
+          <!-- <label for="inline-form-input-name">Start: </label> -->
+          <b-form-datepicker id="example-datepicker" placeholder="Start Date" v-model="startDate"
+            class="mb-2 mr-sm-1 mb-sm-0"></b-form-datepicker>
+
+          <!-- <label for="inline-form-input-username">End:</label> -->
+          <b-form-datepicker id="example-datepicker" placeholder="Start Date" v-model="endDate"
+            class="mb-2 mr-sm-1 mb-sm-0"></b-form-datepicker>
+          <b-button variant="outline-secondary" @click="search()"><i class="fa fa-search"></i></b-button>
+        </b-form>
+        <!-- </div>
+      <div class="col-4"> -->
+
+        <b-button-group style="float: left;">
+          <b-button :pressed="isGroupByDaily" variant="outline-secondary">Daily</b-button>
+          <b-button :pressed="isGroupByWeekly" variant="outline-secondary" @click="groupByTheChart('weekly')"
+            disabled>Weekly</b-button>
+          <b-button :pressed="isGroupByMonthly" variant="outline-secondary" @click="groupByTheChart('monthly')"
+            disabled>Monthly</b-button>
+        </b-button-group>
+
+        <b-button-group style="float: left;" class="mx-1">
+          <b-button variant="secondary" @click="changeGraph('bar')" :pressed="isChartBar"><b-icon
+              icon="bar-chart"></b-icon></b-button>
+          <b-button variant="secondary" @click="changeGraph('line')" :pressed="isChartLine"><b-icon
+              icon="graph-up"></b-icon></b-button>
+        </b-button-group>
+
+
+      </div>
+    </div>
+
     <div class="row">
-      <div class="col-md-12" style="text-align: left">
-        <!-- <Info :message="description" /> -->
-        <div class="form-group" style="display:flex">
+      <div class="col-md-8">
+        <div class="card" style="padding:15px; ">
+          <canvas class="didChart"></canvas>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card" style="padding:0px; height: 100%;">
+          <canvas class="polarChart"></canvas>
+        </div>
+      </div>
+
+    </div>
+
+
+    <div class="row mt-3">
+      <div class="col">
+        <div class="form-group">
           <h3 v-if="usageDetails.serviceDetails.length > 0" style="text-align: left;">
             Usage </h3>
           <h3 v-else style="text-align: left;">No usage found!</h3>
@@ -137,24 +186,7 @@ h5 span {
       </div>
     </div>
 
-    <div class="card">
-      <div class="card-body">
-        <div class="row">
-          <div class="col">
-            Start Date: <input type="datetime-local" class="form-control" placeholder="Start Date" v-model="startDate">
-          </div>
-          <div class="col">
-            End Date: <input type="datetime-local" class="form-control" placeholder="End Date" v-model="endDate">
-          </div>
-          <div class="col">
-            <hf-buttons name="Search" class="form-control" iconClass="fa fa-search" @executeAction="search()"
-              style="margin-top:15px"></hf-buttons>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="row scrollit" style="margin-top: 2%;" v-if="usageDetails.serviceDetails.length > 0">
+    <div class="row scrollit mt-1" v-if="usageDetails.serviceDetails.length > 0">
       <div class="col-md-12">
         <table class="table table-hover event-card" style="background:#FFFF">
           <thead class="thead-light">
@@ -182,26 +214,36 @@ h5 span {
 
 <script>
 // import fetch from "node-fetch";
+import Chart from 'chart.js/auto';
 import UtilsMixin from '../../mixins/utils';
 import Loading from "vue-loading-overlay";
-import HfButtons from "../../components/element/HfButtons.vue"
-
+// import HfButtons from "../../components/element/HfButtons.vue"
+// import ChartData from './test.json'
 import { mapState, mapActions, mapMutations } from "vuex";
+import { mapGetters } from 'vuex/dist/vuex.common.js';
 
 export default {
   name: "UsageS",
-  components: { Loading, HfButtons },
+  components: { Loading, },
   computed: {
     ...mapState({
       containerShift: state => state.playgroundStore.containerShift,
     }),
+    ...mapGetters('mainStore', ['getUsageDetails']),
     isContainerShift() {
       return this.containerShift
     },
   },
   data() {
     return {
-
+      didChart: null,
+      polarChart: null,
+      chartType: 'line',
+      isGroupByDaily: true,
+      isGroupByWeekly: false,
+      isGroupByMonthly: false,
+      isChartLine: true,
+      isChartBar: false,
       authToken: localStorage.getItem('authToken'),
       user: {},
       fullPage: true,
@@ -242,15 +284,14 @@ export default {
 
       // appId
       this.isLoading = true
-
-
-
-
-
       this.setDate()
-      this.usageDetails = await this.fetchUsageForAService({ startDate: this.startDate, endDate: this.endDate })
-      this.isLoading = false
+      this.fetchUsageForAService({ startDate: this.startDate, endDate: this.endDate }).then((data) => {
+        this.usageDetails = data;
+      })
+      await this.fetchUsageDetailsForAService({ startDate: this.startDate, endDate: this.endDate });
+      this.renderUsageDetailsChart()
 
+      this.isLoading = false
     } catch (e) {
       this.isLoading = false
       this.notifyErr(e.message)
@@ -263,9 +304,119 @@ export default {
     });
   },
   methods: {
-    ...mapActions('mainStore', ['fetchUsageForAService']),
+    ...mapActions('mainStore', ['fetchUsageForAService', 'fetchUsageDetailsForAService']),
     ...mapMutations('playgroundStore', ['updateSideNavStatus', 'shiftContainer']),
 
+
+    changeGraph(chartType) {
+      if (chartType == 'line') {
+        this.isChartLine = true;
+        this.isChartBar = false
+      } else {
+        this.isChartLine = false;
+        this.isChartBar = true
+      }
+      this.chartType = chartType
+      this.didChart.destroy()
+      // this.polarChart.destroy()
+      this.renderUsageDetailsChart()
+    },
+    renderUsageDetailsChart() {
+      const didCtx = document.getElementsByClassName('didChart');
+      const serviceDetailsOfSessions = this.getUsageDetails.serviceDetails // ChartData.serviceDetails;
+      const allData = serviceDetailsOfSessions.filter(x => x.apiPath == '/api/v1/e-kyc/verification/session')
+      const successData = serviceDetailsOfSessions.filter(x => x.apiPath.indexOf('success') >= 0)
+      const failedData = serviceDetailsOfSessions.filter(x => x.apiPath.indexOf('failed') >= 0)
+      const expiredData = serviceDetailsOfSessions.filter(x => x.apiPath.indexOf('expired') >= 0)
+
+      const allLabels = [
+        ...Object.keys(successData && successData[0] ? successData[0].data : {}),
+        ...Object.keys(failedData && failedData[0] ? failedData[0].data : {}),
+        ...Object.keys(expiredData && expiredData[0] ? expiredData[0].data : {}),
+      ]
+
+      var set = new Set(allLabels);
+      console.log(Array.from(set))
+      this.didChart = new Chart(didCtx, {
+        type: 'bar',
+        data: {
+          labels: Array.from(set),
+          datasets: [
+            {
+              type: this.chartType,
+              label: 'Successful Verifications',
+              data: successData ? Object.values(successData[0].data) : [],
+              borderCapStyle: 'butt',
+              fill: true,
+              backgroundColor: this.chartType == 'line' ? '#00800066' : 'green',
+              tension: 0.4,
+              stack: 'Stack 0',
+            },
+
+            {
+              type: this.chartType,
+              label: 'Failed Verifications',
+              data: failedData ? Object.values(failedData[0].data) : [],
+              borderCapStyle: 'butt',
+              fill: true,
+              backgroundColor: this.chartType == 'line' ? '#ff000070' : 'red',
+              tension: 0.4,
+              stack: 'Stack 0',
+            },
+
+            {
+              type: this.chartType,
+              label: 'Expired Verifications',
+              data: expiredData ? Object.values(expiredData[0].data) : [],
+              borderCapStyle: 'butt',
+              fill: true,
+              backgroundColor: this.chartType == 'line' ? 'rgba(220, 220, 220, 0.2)' : 'grey',
+              tension: 0.4,
+              stack: 'Stack 0',
+            },
+          ]
+        },
+      });
+
+      const pieData = [
+        allData && allData[0] ? allData[0].quantity : 0,
+        successData && successData[0] ? successData[0].quantity : 0,
+        failedData && failedData[0] ? failedData[0].quantity : 0,
+        expiredData && expiredData[0] ? expiredData[0].quantity : 0,
+      ]
+
+      const polarChartCtx = document.getElementsByClassName('polarChart');
+      this.polarChart = new Chart(polarChartCtx, {
+        type: 'polarArea',
+        options: {
+          plugins: {
+            title: {
+              display: true,
+              text: 'User Verifications',
+            }
+          }
+        },
+        data: {
+          labels: [
+            'All',
+            'Successful',
+            'Failed',
+            'Expired',
+          ],
+          datasets: [{
+            label: 'Verifications',
+            data: pieData,
+            backgroundColor: [
+              'orange',
+              'green',
+              'red',
+              'lightgrey',
+            ]
+          }]
+        },
+      });
+
+    },
 
     copyToClip(textToCopy, contentType) {
       if (textToCopy) {
@@ -305,11 +456,54 @@ export default {
 
         this.isLoading = true
         this.usageDetails = await this.fetchUsageForAService({ startDate: this.startDate, endDate: this.endDate })
+        await this.fetchUsageDetailsForAService({ startDate: this.startDate, endDate: this.endDate });
         this.isLoading = false
+
+        this.didChart.destroy()
+        this.polarChart.destroy()
+        this.renderUsageDetailsChart()
       } catch (e) {
         this.isLoading = false
         this.notifyErr(e.message)
       }
+    },
+
+    groupByWeek(data) {
+      const weeklyData = {};
+      const dates = Object.keys(data).map(date => new Date(date));
+
+      dates.sort((a, b) => a - b); // Sort dates
+
+      let weekNumber = 1;
+      let startOfWeek = new Date(dates[0]);
+
+      dates.forEach(date => {
+        const endOfWeek = new Date(startOfWeek);
+        endOfWeek.setDate(startOfWeek.getDate() + 6);
+
+        if (date >= startOfWeek && date <= endOfWeek) {
+          const weekKey = `Week ${weekNumber}`;
+          weeklyData[weekKey] = (weeklyData[weekKey] || 0) + data[date.toISOString().split('T')[0]];
+        } else {
+          weekNumber++;
+          startOfWeek = new Date(date);
+          const weekKey = `Week ${weekNumber}`;
+          weeklyData[weekKey] = data[date.toISOString().split('T')[0]];
+        }
+      });
+
+      return weeklyData;
+    },
+
+    groupByMonth(data) {
+      const monthlyData = {};
+
+      for (const date in data) {
+        const month = date.slice(0, 7); // Extract 'YYYY-MM'
+        monthlyData[month] = (monthlyData[month] || 0) + data[date];
+      }
+
+      return monthlyData;
     }
 
   },
