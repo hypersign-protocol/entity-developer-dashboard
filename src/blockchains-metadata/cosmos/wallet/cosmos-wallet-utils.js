@@ -1,6 +1,8 @@
 import { SigningCosmWasmClient, CosmWasmClient } from '@cosmjs/cosmwasm-stargate'
-import ComdexSupportedChains from './comdex/chains.json'
+// import ComdexSupportedChains from './comdex/chains.json'
 import NibiruSupportedChains from './nibi/chains.json'
+import NibiruSupportedChainTestnet from './nibi/chains-testnet.json';
+import NibiruSupportedChainLocalnet from './nibi/chains-localnet.json';
 
 export async function getUserAddressFromOfflineSigner(offlineSigner) {
     const accounts = await offlineSigner.getAccounts();
@@ -22,8 +24,13 @@ export async function createNonSigningClient(rpcUrl) {
     return client
 }
 
+/// TODO: for time being lets not use comdex
+// export function getCosmosSupportedChains() {
+//     return [...ComdexSupportedChains, ...NibiruSupportedChains]
+// }
+
 export function getCosmosSupportedChains() {
-    return [...ComdexSupportedChains, ...NibiruSupportedChains]
+    return [...NibiruSupportedChains, ...NibiruSupportedChainTestnet, ...NibiruSupportedChainLocalnet]
 }
 
 // blockchainLabel

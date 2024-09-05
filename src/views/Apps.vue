@@ -576,9 +576,9 @@
       <!-- </b-card> -->
     </div>
 
-    <!-- <hf-pop-up id="onchain-kyc-deploy" Header="Deploy Your OnChain KYC">
+    <hf-pop-up id="onchain-kyc-deploy" Header="Deploy Your OnChain KYC">
       <DeployOnChainKYC />
-    </hf-pop-up> -->
+    </hf-pop-up>
   </div>
 </template>
 
@@ -722,7 +722,7 @@ import EventBus from "../eventbus";
 import { mapGetters, mapState, mapActions, mapMutations } from "vuex";
 import HfFlashNotification from "../components/element/HfFlashNotification.vue";
 import { sanitizeUrl } from "../utils/common";
-// import DeployOnChainKYC from "../components/deploy-onchain-kyc-popup/deploy.vue";
+import DeployOnChainKYC from "../components/deploy-onchain-kyc-popup/deploy.vue";
 import DomainLinkage from "@hypersign-protocol/domain-linkage-verifier";
 import config from "../config";
 export default {
@@ -839,7 +839,7 @@ export default {
     HfButtons,
     ToolTip,
     HfFlashNotification,
-    // DeployOnChainKYC
+    DeployOnChainKYC
   },
   methods: {
     ...mapMutations("mainStore", ["updateAnApp", "setMainSideNavBar"]),
@@ -1308,10 +1308,10 @@ export default {
       this.$root.$emit("bv::show::modal", "entity-secret-confirmation-popup");
     },
 
-    // openOnChainDeployPopup(appId) {
-    //   console.log('Inside openOnChainDeployPopup() appId' + appId)
-    //   this.$root.$emit("bv::show::modal", "onchain-kyc-deploy");
-    // },
+    openOnChainDeployPopup(appId) {
+      console.log('Inside openOnChainDeployPopup() appId' + appId)
+      this.$root.$emit("bv::show::modal", "onchain-kyc-deploy");
+    },
     async reGenerateSecretKey() {
       if (this.appIdToGenerateSecret === "") {
         return this.notifyErr(messages.APPLICATION.ENTER_APP_ID);
