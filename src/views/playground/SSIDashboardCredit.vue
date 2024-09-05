@@ -431,9 +431,6 @@ export default {
 
             // get tx stats
             this.ssiDashboardStats = await this.ssiDashboardTxStats(payload)
-            console.log({
-                stats: JSON.stringify(this.ssiDashboardStats, null, 2)
-            })
 
             this.isLoading = false
         } catch (e) {
