@@ -330,11 +330,38 @@ export default {
       const expiredData = serviceDetailsOfSessions.filter(x => x.apiPath.indexOf('expired') >= 0)
 
       const allLabels = [
-        ...Object.keys(successData && successData[0] ? successData[0].data : {}),
-        ...Object.keys(failedData && failedData[0] ? failedData[0].data : {}),
-        ...Object.keys(expiredData && expiredData[0] ? expiredData[0].data : {}),
+        ...Object.keys(allData && allData[0] ? allData[0].data : {}),
+        // ...Object.keys(successData && successData[0] ? successData[0].data : {}),
+        // ...Object.keys(failedData && failedData[0] ? failedData[0].data : {}),
+        // ...Object.keys(expiredData && expiredData[0] ? expiredData[0].data : {}),
       ]
 
+      const successDataSets = successData[0] ? allLabels.map(x => {
+        if (successData[0].data[x]) {
+          return successData[0].data[x]
+        } else {
+          return 0
+        }
+      }) : []
+
+      const failDataSets = failedData[0] ? allLabels.map(x => {
+        if (failedData[0].data[x]) {
+          return failedData[0].data[x]
+        } else {
+          return 0
+        }
+      }) : []
+
+      const expiredDataSets = expiredData[0] ? allLabels.map(x => {
+        if (expiredData[0].data[x]) {
+          return expiredData[0].data[x]
+        } else {
+          return 0
+        }
+      }) : []
+
+      console.log(successDataSets)
+      console.log(allLabels)
       var set = new Set(allLabels);
       console.log(Array.from(set))
       this.didChart = new Chart(didCtx, {
@@ -345,34 +372,40 @@ export default {
             {
               type: this.chartType,
               label: 'Successful Verifications',
-              data: successData ? Object.values(successData[0].data) : [],
-              borderCapStyle: 'butt',
+              data: successDataSets,
               fill: true,
-              backgroundColor: this.chartType == 'line' ? '#00800066' : 'green',
-              tension: 0.4,
+              backgroundColor: this.chartType == 'line' ? '#00800066' : 'forestgreen',
+              // borderColor: 'green',
+              tension: 0.2,
+              pointRadius: 1,
               stack: 'Stack 0',
             },
 
             {
               type: this.chartType,
               label: 'Failed Verifications',
-              data: failedData ? Object.values(failedData[0].data) : [],
-              borderCapStyle: 'butt',
+              data: failDataSets,
+              // borderColor: 'red',
+              // pointStyle: 'circle',
+              pointRadius: 1,
               fill: true,
-              backgroundColor: this.chartType == 'line' ? '#ff000070' : 'red',
-              tension: 0.4,
+              backgroundColor: this.chartType == 'line' ? '#ff000070' : 'indianred',
+              tension: 0.2,
               stack: 'Stack 0',
             },
 
             {
               type: this.chartType,
               label: 'Expired Verifications',
-              data: expiredData ? Object.values(expiredData[0].data) : [],
-              borderCapStyle: 'butt',
+              data: expiredDataSets,
+              // borderColor: 'grey',
+              pointRadius: 1,
+              pointHitRadius: 1,
               fill: true,
-              backgroundColor: this.chartType == 'line' ? 'rgba(220, 220, 220, 0.2)' : 'grey',
-              tension: 0.4,
+              backgroundColor: this.chartType == 'line' ? 'rgba(220, 220, 220, 0.2)' : 'lightgrey',
+              tension: 0.2,
               stack: 'Stack 0',
+              borderDash: [5, 5]
             },
           ]
         },
@@ -408,8 +441,8 @@ export default {
             data: pieData,
             backgroundColor: [
               'orange',
-              'green',
-              'red',
+              'forestgreen',
+              'indianred',
               'lightgrey',
             ]
           }]
