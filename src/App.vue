@@ -155,7 +155,7 @@
 
     <sidebar-menu class="sidebar-wrapper" v-if="showSideNavbar" @toggle-collapse="onToggleCollapse"
       :collapsed="isSidebarCollapsed" :theme="'white-theme'" width="220px" :menu="getSideMenu()">
-      <div slot="header" class="border">
+      <div slot="header" style="border-bottom: 1px solid #d3d3d354;">
         <div class="row center p-1">
           <div class="col">
             <div class="p-1 center">
@@ -200,8 +200,8 @@
   padding: 5px !important;
   padding-left: 1.5%;
   text-align: left;
-  box-shadow: rgba(0, 0, 0, 0.1) 0px 2px 2px 0px,
-    rgba(0, 0, 0, 0.02) 0px 3px 1px -2px, rgba(0, 0, 0, 0.01) 0px 1px 5px 0px;
+  box-shadow: 0 2px 6px 0 rgba(32, 33, 37, .1);
+  z-index: -1;
 }
 
 .orgNameCss {
@@ -258,7 +258,8 @@
 .sidebar-wrapper {
   min-width: 70px;
   margin-top: 65px;
-  box-shadow: 0 0 15px 0 rgba(34, 41, 47, 0.05);
+  /* box-shadow: 0 0 15px 0 rgba(34, 41, 47, 0.05); */
+  box-shadow: 0 2px 6px 0 rgba(32, 33, 37, .1);
 }
 
 .v-sidebar-menu.vsm_white-theme .vsm--mobile-bg {

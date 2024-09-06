@@ -606,10 +606,10 @@
   cursor: grab;
 }
 
-.card {
+/* .card {
   box-shadow: 0 0 2rem 0 rgb(136 152 170 / 15%);
   border-radius: 20px;
-}
+} */
 
 .icons {
   cursor: pointer;

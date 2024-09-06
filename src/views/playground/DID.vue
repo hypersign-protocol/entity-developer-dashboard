@@ -63,9 +63,6 @@
   padding: 0px;
 }
 
-.card {
-  border-radius: 10px;
-}
 
 .goschema {
   color: #339af0;

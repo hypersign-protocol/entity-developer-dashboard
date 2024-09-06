@@ -1,6 +1,7 @@
+
 #app {
     text-align: left;
-    background-color: #fff;
+    /* background-color: #fff; */
     font-size: 13px;
     font-style: normal;
     font-weight: 400;
@@ -8,6 +9,7 @@
     text-decoration-skip-ink: auto;
     color: #636363;
 }
+
 
 .button-theme{
     background-color: #905ab0;
@@ -97,10 +99,18 @@ a {
 }
 
 .card {
-    border-radius: 10px;
+    border-radius: 8px;
+    box-shadow: 0 0 2rem 0 rgb(136 152 170 / 15%);
 }
 
 .mandatory{
     color: indianred
 }
 
+
+.btn{
+    /* border-radius: 20px; */
+    /* background-color: #a55be6; */
+    /* color: white; */
+    /* border: none */
+}

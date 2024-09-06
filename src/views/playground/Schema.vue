@@ -6,14 +6,17 @@
   box-shadow: 2px 0 10px rgb(0 0 0 / 10%);
   animation: flash 0.4s cubic-bezier(1, 0, 0, 1);
 }
+
 @keyframes flash {
   0% {
     opacity: 0;
   }
+
   100% {
     opacity: 1;
   }
 }
+
 .addmargin {
   margin-top: 10px;
   margin-bottom: 10px;
@@ -53,12 +56,14 @@
   background: #f5dda71c;
   color: #888b8f;
 }
-.far{
+
+.far {
   color: gray;
   font-size: 1.5em;
   padding-top: 10px;
   cursor: pointer;
 }
+
 .sm-tiles:hover {
   float: left;
   padding: 5px;
@@ -75,142 +80,138 @@
   word-wrap: anywhere;
 }
 
-.card {
-  border-radius: 10px;
-}
 
 .container {
-    padding: 20px;
-    text-align: left;
-  }
+  padding: 20px;
+  text-align: left;
+}
 
-  .tile{
-    max-height:150px;
-    overflow: auto
-  }
-  .selected-media-wrapper {
+.tile {
+  max-height: 150px;
+  overflow: auto
+}
+
+.selected-media-wrapper {
   border: 1px dashed;
   max-height: 100px;
   background-color: #f5f5f5;
   border-radius: 10px;
 }
+
 .rounded {
   cursor: pointer;
 }
+
 .schemaProp {
   background-color: lightgoldenrodyellow;
   color: grey;
   border: 1ps solid lightcyan;
-  font-size:small;  
+  font-size: small;
 }
-.theme-color{
-  background-color:rgba(241, 179, 25, 0.24);
+
+.theme-color {
+  background-color: rgba(241, 179, 25, 0.24);
   color: #212529;
 }
-.bg-transparant{
+
+.bg-transparant {
   background-color: transparent !important;
   color: #212529;
 }
+
 .scrollit {
-  overflow:hidden;  
-  height:600px;
+  overflow: hidden;
+  height: 600px;
 }
-.scrollit:hover{
+
+.scrollit:hover {
   overflow-y: auto;
 }
-.head{
+
+.head {
   position: fixed;
   z-index: 400;
 }
 </style>
 <template>
-  <div :class="isContainerShift ?'homeShift':'home'">
+  <div :class="isContainerShift ? 'homeShift' : 'home'">
     <loading :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loading>
 
     <div class="row">
       <div class="col-md-12" style="text-align: left">
         <!-- <Info :message="description" /> -->
-          <div class="form-group" style="display:flex">
-           <h3 v-if="schemaList.length > 0" class="mt-4" style="text-align: left;">
+        <div class="form-group" style="display:flex">
+          <h3 v-if="schemaList.length > 0" class="mt-4" style="text-align: left;">
             Schemas</h3>
-            <h3 v-else class="mt-4" style="text-align: left;">Create your first schema!</h3>      
-            <hf-buttons 
-              name="Create" iconClass="fa fa-plus"
-              style="text-align: right;"
-              class="ml-auto mt-4"
-              @executeAction="openSlider()"
-            ></hf-buttons>
-          </div> 
-          <StudioSideBar title="Create Schema">
-              <div class="container">
-                <div class="form-group">
-                  <tool-tip infoMessage="Name of the schema"></tool-tip>
-                  <label for="schemaName"><strong>Name<span style="color: red">*</span>:</strong></label>                  
-                  <input type="text" class="form-control" id="schemaName" v-model="credentialName" aria-describedby="schemaNameHelp"
-                  placeholder="Enter Schema name">
+          <h3 v-else class="mt-4" style="text-align: left;">Create your first schema!</h3>
+          <hf-buttons name="Create" iconClass="fa fa-plus" style="text-align: right;" class="ml-auto mt-4"
+            @executeAction="openSlider()"></hf-buttons>
+        </div>
+        <StudioSideBar title="Create Schema">
+          <div class="container">
+            <div class="form-group">
+              <tool-tip infoMessage="Name of the schema"></tool-tip>
+              <label for="schemaName"><strong>Name<span style="color: red">*</span>:</strong></label>
+              <input type="text" class="form-control" id="schemaName" v-model="credentialName"
+                aria-describedby="schemaNameHelp" placeholder="Enter Schema name">
+            </div>
+            <div class="form-group">
+              <tool-tip infoMessage="Description for the schema"></tool-tip>
+              <label for="schDescription"><strong>Description:</strong></label>
+
+              <textarea type="text" class="form-control" id="schDescription" v-model="credentialDescription" rows="5"
+                cols="20" aria-describedby="orgNameHelp" placeholder="Enter Description for this schema"></textarea>
+            </div>
+            <div class="form-group card">
+              <b-card-header header-tag="header" class="p-1 border-0 accordin-header theme-color" role="tab">
+                <b-button block v-b-toggle.accordion-1 style="text-decoration:none; color:#212529;" variant="secondary"
+                  :aria-expanded="visible ? 'true' : 'false'" @click="visible = !visible" aria-controls="collapse-1"
+                  class="text-left border-0 theme-color bg-transparant" title="Create schema configuration">Fields
+                  Configurations
+                  <i :class="!visible ? 'fa fa-arrow-down' : 'fa fa-arrow-up'" style="float:right;"></i>
+                </b-button>
+              </b-card-header>
+              <b-collapse id="collapse-1" class="mt-2" v-model="visible" style="padding:10px">
+                <div class="selected-media-wrapper d-flex p-2 mb-4" style="overflow-y: auto"
+                  v-if="attributes.length > 0">
+                  <div v-for="(attr, id) in attributes" v-bind:key="attr.id">
+                    <div :class="flash == attr.id
+                        ? 'flash card rounded m-1 p-1 d-flex flex-row align-items-center'
+                        : 'card rounded m-1 p-1 d-flex flex-row align-items-center pointer'"
+                      @click="handleClick(attr.id)" :title="attr.name">
+                      {{ truncate(attr.name, 15) }}
+                      <span style="color: gray; padding-left: 5px">
+                        <i v-if="flash == attr.id" title="click to delete" class="fas fa-minus-circle"
+                          @click="deleteAttribute" style="color:#d9534f	"></i>
+                      </span>
+                    </div>
+                  </div>
                 </div>
-                <div class="form-group">
-                  <tool-tip infoMessage="Description for the schema"></tool-tip>
-                  <label for="schDescription"><strong>Description:</strong></label>                  
 
-                  <textarea type="text" class="form-control" id="schDescription" v-model="credentialDescription"  rows="5" cols="20" aria-describedby="orgNameHelp"
-                  placeholder="Enter Description for this schema"></textarea>
+                <div class="row g-3 align-items-center w-100">
+                  <div class="col-lg-3 col-md-3 text-left">
+                    <tool-tip infoMessage="Attribute Name"></tool-tip>
+                    <label for="attributeName" class="col-form-label">Name<span style="color: red">*</span>: </label>
+                  </div>
+                  <div class="col-lg-9 col-md-9 px-0">
+                    <input v-model="selected.attributeName" type="text" id="attributeName" class="form-control w-100"
+                      placeholder="firstName">
+                  </div>
                 </div>
-                <div class="form-group card">
-                  <b-card-header header-tag="header" class="p-1 border-0 accordin-header theme-color" role="tab">
-                    <b-button block v-b-toggle.accordion-1 style="text-decoration:none; color:#212529;" variant="secondary"
-                    :aria-expanded="visible ? 'true' : 'false'"
-                    @click="visible = !visible"
-                    aria-controls="collapse-1"
-                    class="text-left border-0 theme-color bg-transparant"
-                    title="Create schema configuration">Fields Configurations
-                    <i :class="!visible ? 'fa fa-arrow-down' : 'fa fa-arrow-up'" style="float:right;"></i>
-                    </b-button>
-                  </b-card-header>
-                  <b-collapse id="collapse-1" class="mt-2" v-model="visible" style="padding:10px">
-                    <div class="selected-media-wrapper d-flex p-2 mb-4"  style="overflow-y: auto" v-if="attributes.length > 0">
-                      <div v-for="(attr,id) in attributes" v-bind:key="attr.id">
-                        <div :class="
-                            flash == attr.id
-                            ? 'flash card rounded m-1 p-1 d-flex flex-row align-items-center'
-                            : 'card rounded m-1 p-1 d-flex flex-row align-items-center pointer'"
-                            @click="handleClick(attr.id)"                            
-                            :title="attr.name"
-                          >
-                          {{ truncate(attr.name,15) }}
-                           <span style="color: gray; padding-left: 5px">
-                            <i v-if="flash==attr.id" title="click to delete" class="fas fa-minus-circle" @click="deleteAttribute" style="color:#d9534f	"></i>
-                          </span>
-                        </div>
-                      </div>
-                    </div>
 
-                    <div class="row g-3 align-items-center w-100">
-                        <div class="col-lg-3 col-md-3 text-left">
-                          <tool-tip infoMessage="Attribute Name"></tool-tip>
-                          <label for="attributeName" class="col-form-label">Name<span style="color: red">*</span>: </label>                          
-                        </div>
-                        <div class="col-lg-9 col-md-9 px-0">
-                            <input v-model="selected.attributeName" type="text" id="attributeName" class="form-control w-100"
-                            placeholder="firstName">
-                        </div>
-                    </div>
+                <div class="row g-3 align-items-center w-100 mt-4">
+                  <div class="col-lg-3 col-md-3 text-left">
+                    <tool-tip infoMessage="Type of the attribute"></tool-tip>
+                    <label for="type" class="col-form-label">Type<span style="color: red">*</span>:</label>
 
-                    <div class="row g-3 align-items-center w-100 mt-4">
-                        <div class="col-lg-3 col-md-3 text-left">
-                        <tool-tip infoMessage="Type of the attribute"></tool-tip>
-                        <label for="type" class="col-form-label">Type<span style="color: red">*</span>:</label>                        
+                  </div>
+                  <div class="col-lg-9 col-md-9 px-0">
+                    <hf-select-drop-down :options="options"
+                      @selected="e => (selected.attributeTypes = e)"></hf-select-drop-down>
+                  </div>
+                </div>
 
-                        </div>
-                        <div class="col-lg-9 col-md-9 px-0">
-                      <hf-select-drop-down
-                        :options="options"
-                        @selected="e =>(selected.attributeTypes=e)"
-                      ></hf-select-drop-down>
-                      </div>
-                    </div>
-
-                     <!-- <div class="row g-3 align-items-center w-100 mt-4">
+                <!-- <div class="row g-3 align-items-center w-100 mt-4">
                         <div class="col-lg-3 col-md-3 text-left">
                           <tool-tip infoMessage="Format of the attribute"></tool-tip>
                           <label for="format" class="col-form-label">Format: </label>                          
@@ -220,57 +221,44 @@
                         </div>
                     </div> -->
 
-                     <div class="row g-3 align-items-center w-100 mt-4">
-                        <div class="col-lg-3 col-md-3 text-left">
-                        <tool-tip infoMessage="Required field"></tool-tip>
-                        <label for="required" class="col-form-label">Required: </label>                        
-                        </div>
-                        <div class="col-lg-9 col-md-9 px-0">
-                             <input type="checkbox" v-model="selected.attributeRequired" id="required">
-                        </div>
-                    </div>
-
-                    <div class="form-group row mt-4" v-if="isAdd">
-                      <div class="col-sm-10">                        
-                        <hf-buttons 
-                          name="Add"                          
-                          @executeAction="addBlankAttrBox()"
-                        ></hf-buttons>
-                      </div>
-                    </div>
-                    <div class="form-group row mt-4" v-else>
-                      <div class="col-sm-10">                        
-                        <hf-buttons 
-                          name="Update"        
-                          class="btn btn-primary"
-                          @executeAction="updateSchemaAttribute()"
-                        ></hf-buttons>
-                        <hf-buttons 
-                          name="Cancel"        
-                          class="btn btn-danger ml-2"
-                          @executeAction="cancelUpdate()"
-                        ></hf-buttons>
-                      </div>
-                    </div>
-                  </b-collapse>
+                <div class="row g-3 align-items-center w-100 mt-4">
+                  <div class="col-lg-3 col-md-3 text-left">
+                    <tool-tip infoMessage="Required field"></tool-tip>
+                    <label for="required" class="col-form-label">Required: </label>
+                  </div>
+                  <div class="col-lg-9 col-md-9 px-0">
+                    <input type="checkbox" v-model="selected.attributeRequired" id="required">
+                  </div>
                 </div>
-                <!-- <div class="form-group">
+
+                <div class="form-group row mt-4" v-if="isAdd">
+                  <div class="col-sm-10">
+                    <hf-buttons name="Add" @executeAction="addBlankAttrBox()"></hf-buttons>
+                  </div>
+                </div>
+                <div class="form-group row mt-4" v-else>
+                  <div class="col-sm-10">
+                    <hf-buttons name="Update" class="btn btn-primary"
+                      @executeAction="updateSchemaAttribute()"></hf-buttons>
+                    <hf-buttons name="Cancel" class="btn btn-danger ml-2" @executeAction="cancelUpdate()"></hf-buttons>
+                  </div>
+                </div>
+              </b-collapse>
+            </div>
+            <!-- <div class="form-group">
                   <tool-tip infoMessage="Additional Properties"></tool-tip>                             
                   <label for="schDescription"><strong>Additional Properties</strong></label>
                   <input v-model="additionalProperties" type="checkbox" style="margin-left:5px;" />
 
                 </div> -->
-                <div class="form-group row">
-                  <div class="col-md-12">
-                    <hr/>                    
-                    <hf-buttons 
-                      name="Save"                      
-                      @executeAction="createSchema()"
-                    ></hf-buttons>
-                  </div>
-                </div>
+            <div class="form-group row">
+              <div class="col-md-12">
+                <hr />
+                <hf-buttons name="Save" @executeAction="createSchema()"></hf-buttons>
               </div>
-          </StudioSideBar>
+            </div>
+          </div>
+        </StudioSideBar>
       </div>
     </div>
     <div class="row scrollit" style="margin-top: 2%;" v-if="schemaList.length > 0">
@@ -293,15 +281,12 @@
             <tr v-for="row in schemaList" :key="row._id">
               <td>
                 <div v-if="row.schemaId">
-                <a :href="`${$config.explorer.BASE_URL}schemas/${row.schemaId}`"
-                  target="_blank">{{ row.schemaId ? shorten(row.schemaId) : "-" }}</a>
-                <i class="far fa-copy ml-1"
-                style="cursor:pointer;"
-                title="Click to copy Schema Id"
-                @click="copyToClip(row.schemaId,'Schema Id')"
-                ></i>
-                  </div>
-                  <span v-else>-</span>
+                  <a :href="`${$config.explorer.BASE_URL}schemas/${row.schemaId}`" target="_blank">{{ row.schemaId ?
+                    shorten(row.schemaId) : "-" }}</a>
+                  <i class="far fa-copy ml-1" style="cursor:pointer;" title="Click to copy Schema Id"
+                    @click="copyToClip(row.schemaId, 'Schema Id')"></i>
+                </div>
+                <span v-else>-</span>
               </td>
 
               <td>{{ row.schemaDetails ? row.schemaDetails.name : "-" }}</td>
@@ -310,7 +295,7 @@
               <td>
                 <div v-if="row.schemaDetails">
                   <div v-for="prop in Object.keys(row.schemaDetails.schema.properties)" style="display:inline-block;">
-                    <b-badge pill variant="info" class="mr-2">{{prop}}</b-badge>
+                    <b-badge pill variant="info" class="mr-2">{{ prop }}</b-badge>
                   </div>
                 </div>
                 <span v-else>-</span>
@@ -320,14 +305,10 @@
 
               <td style="word-wrap: break-word;min-width: 200px;max-width: 200px;">
                 <div v-if="row.transactionHash">
-                <a target="_blank"
-                  :href="`${$config.explorer.BASE_URL}tx/${row.transactionHash}`"
-                  >{{ shorten(row.transactionHash) }}</a>
-                <i class="far fa-copy ml-1"
-                style="cursor:pointer;"
-                title="Click to copy Transaction Hash"
-                @click="copyToClip(row.transactionHash,'Transaction Hash')"
-                ></i>
+                  <a target="_blank" :href="`${$config.explorer.BASE_URL}tx/${row.transactionHash}`">{{
+                    shorten(row.transactionHash) }}</a>
+                  <i class="far fa-copy ml-1" style="cursor:pointer;" title="Click to copy Transaction Hash"
+                    @click="copyToClip(row.transactionHash, 'Transaction Hash')"></i>
                 </div>
                 <span v-else>-</span>
               </td>
@@ -372,31 +353,31 @@ export default {
   },
   data() {
     return {
-      reservedKeys:['id', 'type'],
-      counter:0,
-      flash:null,
-      isAdd:true,
+      reservedKeys: ['id', 'type'],
+      counter: 0,
+      flash: null,
+      isAdd: true,
       // description: "Credential Schema defines what information will go inside a verifiable credential. For example: Directorate General of Civil Aviation (DGCA) can define a schema (or format) for flights tickets, being issued by all airline companies in India.",
       active: 0,
       host: location.hostname,
       user: {},
       options: [
-          { text: "Select Type", value: null },
-          { text: "string", value: "string" },
-          { text: "integer", value: "integer" },
-          { text: "number", value: "number" },
-          { text: "boolean", value: "boolean" },
-          { text: "date-time", value: "date" },
-        ],
+        { text: "Select Type", value: null },
+        { text: "string", value: "string" },
+        { text: "integer", value: "integer" },
+        { text: "number", value: "number" },
+        { text: "boolean", value: "boolean" },
+        { text: "date-time", value: "date" },
+      ],
       page: 1,
-      visible:false,
+      visible: false,
       prevRoute: null,
-      selectedId:null,
-      selected:{
-      attributeName: "",
-      attributeTypes: null,
-      // attributeFormat: "",
-      attributeRequired: false,
+      selectedId: null,
+      selected: {
+        attributeName: "",
+        attributeTypes: null,
+        // attributeFormat: "",
+        attributeRequired: false,
       },
       attributes: [],
       issueCredAttributes: [],
@@ -435,28 +416,28 @@ export default {
   },
   methods: {
     ...mapActions('playgroundStore', ['upsertAschemaAction', 'fetchSchemasForOrg']),
-    ...mapMutations('playgroundStore',['updateSideNavStatus', 'increaseOrgDataCount']),
+    ...mapMutations('playgroundStore', ['updateSideNavStatus', 'increaseOrgDataCount']),
     handleClick(id) {
       this.flash = id
-      const found = this.attributes.find((x)=>x.id === id)
+      const found = this.attributes.find((x) => x.id === id)
       let updateData = found
       this.selectedId = id
       this.selected.attributeName = updateData.name
       // this.selected.attributeFormat = updateData.format
       this.selected.attributeRequired = updateData.isRequired
-      EventBus.$emit("setOption",updateData.type);
+      EventBus.$emit("setOption", updateData.type);
       this.isAdd = false
     },
-    cancelUpdate(){
+    cancelUpdate() {
       this.flash = null;
       this.selected.attributeName = ""
-      EventBus.$emit("resetOption",this.selected.attributeTypes);
+      EventBus.$emit("resetOption", this.selected.attributeTypes);
       this.selected.attributeRequired = false
       this.isAdd = true
     },
     updateSchemaAttribute() {
       let isValid = this.handleValidation(true)
-      if(isValid) {
+      if (isValid) {
         let obj = {
           name: this.selected.attributeName,
           type: this.selected.attributeTypes,
@@ -464,10 +445,10 @@ export default {
           isRequired: this.selected.attributeRequired,
           id: this.selectedId
         }
-        const indexToUpdate = this.attributes.findIndex((x)=>x.id === this.selectedId)
-        if(indexToUpdate > -1){
+        const indexToUpdate = this.attributes.findIndex((x) => x.id === this.selectedId)
+        if (indexToUpdate > -1) {
           this.attributes[indexToUpdate] = obj
-          EventBus.$emit("resetOption",this.selected.attributeTypes);
+          EventBus.$emit("resetOption", this.selected.attributeTypes);
           this.clearSelected()
           this.isAdd = true
         }
@@ -475,12 +456,12 @@ export default {
     },
     deleteAttribute() {
       let id = this.selectedId
-      const actionIndex =  this.attributes.findIndex((x)=> x.id === id)
-      if(actionIndex > -1 ) {
+      const actionIndex = this.attributes.findIndex((x) => x.id === id)
+      if (actionIndex > -1) {
         this.attributes.splice(actionIndex, 1);
       }
-      
-      EventBus.$emit("resetOption",this.selected.attributeTypes);
+
+      EventBus.$emit("resetOption", this.selected.attributeTypes);
       this.clearSelected()
       this.isAdd = true
     },
@@ -488,9 +469,9 @@ export default {
       this.flash = null
       this.selectedId = null
       this.selected = {
-        attributeName : "",
-        attributeTypes : null,
-        attributeRequired : false,
+        attributeName: "",
+        attributeTypes: null,
+        attributeRequired: false,
         // attributeFormat : ""
       }
     },
@@ -499,24 +480,24 @@ export default {
       this.clearAll();
       this.$root.$emit("bv::toggle::collapse", "sidebar-right");
     },
-    clearAll(){
-      this.visible=false
+    clearAll() {
+      this.visible = false
       this.credentialName = ''
       this.credentialDescription = ''
       this.selected.attributeName = ''
-      EventBus.$emit("resetOption",this.selected.attributeTypes)
+      EventBus.$emit("resetOption", this.selected.attributeTypes)
       this.selected.attributeTypes = null
       // this.selected.attributeFormat = ''
       this.selected.attributeRequired = false
       // this.additionalProperties = false
-      this.attributes = []      
+      this.attributes = []
     },
-    handleValidation(update=false) {
+    handleValidation(update = false) {
       let isValid = true
       if (isEmpty(this.selected.attributeName)) {
         isValid = false
         return this.notifyErr(message.SCHEMA.EMPTY_SCHEMA_ATTRIBUTE_NAME)
-      } else if(this.reservedKeys.includes(this.selected.attributeName)) {
+      } else if (this.reservedKeys.includes(this.selected.attributeName)) {
         isValid = false
         return this.notifyErr(this.selected.attributeName + ' ' + message.SCHEMA.PROTECTED_TERM)
       } else if (isValidURL(this.selected.attributeName)) {
@@ -525,59 +506,59 @@ export default {
       } else if (ifSpaceExists(this.selected.attributeName)) {
         isValid = false
         return this.notifyErr(message.SCHEMA.NO_SPACE)
-      } else if(!isValidSchemaAttrName(this.selected.attributeName)){
+      } else if (!isValidSchemaAttrName(this.selected.attributeName)) {
         isValid = false
         return this.notifyErr(message.SCHEMA.NAME_CAMELCASE)
-      } else if(this.isPresent(this.selected,update)){
+      } else if (this.isPresent(this.selected, update)) {
         isValid = false
-        if(update){
+        if (update) {
           return this.notifyErr(message.SCHEMA.DUPLICATE_ATTRIBUTE_UPDATE)
         }
         return this.notifyErr(message.SCHEMA.DUPLICATE_ATTRIBUTE)
       } else if (this.selected.attributeTypes === ' ' || this.selected.attributeTypes === null) {
         isValid = false
         return this.notifyErr(message.SCHEMA.EMPTY_ATTRIBUTE_TYPE)
-      } 
+      }
       // else if (isValidURL(this.selected.attributeFormat)) {
       //   isValid = false
       //   return this.notifyErr(message.SCHEMA.INVALID_FORMAT)
       // }
-    return isValid
+      return isValid
     },
-    isPresent(attr, update=false) {
-    const element = this.attributes.find((x) => {
-           if(update){
-            return x.name === attr.attributeName  && x.type === attr.attributeTypes && x.isRequired === attr.attributeRequired
+    isPresent(attr, update = false) {
+      const element = this.attributes.find((x) => {
+        if (update) {
+          return x.name === attr.attributeName && x.type === attr.attributeTypes && x.isRequired === attr.attributeRequired
 
-           } 
-           return x.name === attr.attributeName
+        }
+        return x.name === attr.attributeName
 
-        });
-        return typeof element === "undefined" ? false : true;
-    
+      });
+      return typeof element === "undefined" ? false : true;
+
     },
     addBlankAttrBox() {
       let isValid = this.handleValidation()
-      if(isValid){
+      if (isValid) {
         let obj = {
           name: this.selected.attributeName,
           type: this.selected.attributeTypes,
           // format: this.selected.attributeFormat,
           isRequired: this.selected.attributeRequired,
         }
-        this.counter +=1
+        this.counter += 1
         obj['id'] = this.counter
         this.attributes.push(obj)
         this.selected.attributeName = "";
-        EventBus.$emit("resetOption",this.selected.attributeTypes)
+        EventBus.$emit("resetOption", this.selected.attributeTypes)
         // this.selected.attributeFormat = "";
-        this.selected.attributeRequired = false;     
+        this.selected.attributeRequired = false;
       }
     },
     ssePopulateSchema(id, store) {
       const sse = new EventSource(`${this.$config.studioServer.SCHEMA_SSE}${id}`);
-    
-      const that =  this
+
+      const that = this
       sse.onmessage = function (e) {
         const data = JSON.parse(e.data)
         if (data.status === "Registered" || data.status === "Failed") {
@@ -586,7 +567,7 @@ export default {
         }
       }
       sse.onopen = function (e) {
-        console.log("Connection to server opened.",e);
+        console.log("Connection to server opened.", e);
       };
 
       sse.onerror = function (e) {
@@ -616,7 +597,7 @@ export default {
           return this.notifyErr(message.SCHEMA.EMPTY_SCHEMA_ATTRIBUTE)
         }
         const url = `${this.$config.studioServer.BASE_URL}${this.$config.studioServer.SAVE_SCHEMA_EP}`;
-        const {orgDid}=this.getSelectedOrg;
+        const { orgDid } = this.getSelectedOrg;
         const schemaData = {
           name: this.credentialName,
           author: orgDid,
@@ -663,5 +644,3 @@ export default {
   mixins: [UtilsMixin],
 };
 </script>
-
-

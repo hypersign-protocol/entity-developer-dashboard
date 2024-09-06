@@ -63,10 +63,6 @@
     padding: 0px;
 }
 
-.card {
-    border-radius: 10px;
-}
-
 .goschema {
     color: #339af0;
 }
@@ -287,7 +283,7 @@ h5 span {
                         <label for="bananas">DID Operations:</label>
                         <span style="float: right;">{{
                             numberFormat(bananaQuantity)
-                        }}</span>
+                            }}</span>
                         <input class="form-control-range" type="range" id="bananas" v-model="bananaQuantity" min="0"
                             :max="maxBananas" step="50" />
 
@@ -306,7 +302,7 @@ h5 span {
                         <label for="oranges">Schema Operations:</label>
                         <span style="float: right;">{{
                             numberFormat(orangeQuantity)
-                        }}</span>
+                            }}</span>
                         <input class="form-control-range" step="50" type="range" id="oranges" v-model="orangeQuantity"
                             min="0" :max="maxOranges" />
 

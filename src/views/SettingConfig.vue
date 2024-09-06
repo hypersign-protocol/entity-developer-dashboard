@@ -63,11 +63,7 @@
         </div>
     </div>
 </template>
-<style>
-.card {
-    box-shadow: 0 0 2rem 0 rgb(136 152 170 / 15%);
-}
-</style>
+
 
 <script>
 import TeamMembers from '../components/teams/TeamMembers.vue';
