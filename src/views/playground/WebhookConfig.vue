@@ -27,8 +27,13 @@
       <div class="col-6">
         <HfButtons name="Save Configuration" @executeAction="saveConfiguration()" v-if="!this.getWebhookConfig._id"
           style="float:right"></HfButtons>
-        <HfButtons name="Update Configuration" @executeAction="updateConfiguration()" style="float:right" v-else>
-        </HfButtons>
+        <div v-else>
+          <b-button variant="outline-danger" @click="deleteConfig()" style="float:right;"
+            title="Delete Configuration"><i class="fa fa-trash"></i></b-button>
+          <HfButtons name="Update Configuration" @executeAction="updateConfiguration()" style="float:right"
+            class="mx-1">
+          </HfButtons>
+        </div>
       </div>
     </div>
 
@@ -68,6 +73,7 @@
 import UtilsMixin from '../../mixins/utils';
 import { mapGetters, mapActions } from "vuex";
 import HfButtons from '../../components/element/HfButtons.vue';
+import { isValidURL } from '../../mixins/fieldValidation.js'
 export default {
   name: "WEbhookConfig",
   mixins: [UtilsMixin],
@@ -112,7 +118,7 @@ export default {
     }
   },
   methods: {
-    ...mapActions('mainStore', ['fetchAppWebhookConfig', 'createAppWebhookConfig', 'updateAppWebhookConfig']),
+    ...mapActions('mainStore', ['fetchAppWebhookConfig', 'createAppWebhookConfig', 'deleteAppWebhookConfig', 'updateAppWebhookConfig']),
     addHeader() {
       this.headers.push({ key: "", value: "" });
     },
@@ -142,6 +148,10 @@ export default {
     validateField() {
       if (!this.webhookUrl) {
         throw new Error('Webhook URL is not specified')
+      }
+
+      if (!isValidURL(this.webhookUrl)) {
+        throw new Error('Webhook URL is not a valid URL')
       }
       // this.headers = this.headers.map(x => x.key != "")
     },
@@ -192,6 +202,28 @@ export default {
         this.notifyErr(e)
       }
     },
+
+    clearAll() {
+      this.webhookUrl = "",
+        this.headers = [
+          { key: "", value: "" }, // Initial header
+        ]
+    },
+
+    async deleteConfig() {
+      try {
+        //TODO validate all field
+        this.isLoading = true;
+        await this.deleteAppWebhookConfig({
+          _id: this.getWebhookConfig._id,
+        })
+        this.clearAll()
+        this.isLoading = false
+      } catch (e) {
+        this.isLoading = false
+        this.notifyErr(e)
+      }
+    }
   }
 };
 </script>
