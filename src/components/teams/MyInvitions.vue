@@ -18,7 +18,7 @@
           <i class="fa fa-retweet" aria-hidden="true"></i>
         </button>
 
-        <button type="button" class="btn btn-primary mx-1" style="float: inline-end" @click="acceptInvitePopup()">
+        <button type="button" class="btn btn-secondary mx-1" style="float: inline-end" @click="acceptInvitePopup()">
           <b-icon icon="hand-thumbs-up-fill"></b-icon> Accept Invition
         </button>
 

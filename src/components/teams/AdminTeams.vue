@@ -10,7 +10,7 @@
                     @click="getMyRolesAction()">
                     <i class="fa fa-retweet" aria-hidden="true"></i>
                 </button>
-                <button type="button" class="btn btn-primary" style="float: inline-end;" @click="openSlider('add')"><i
+                <button type="button" class="btn btn-secondary" style="float: inline-end;" @click="openSlider('add')"><i
                         class="fa fa-gamepad" aria-hidden="true"></i> Create Custom Role</button>
             </div>
         </div>

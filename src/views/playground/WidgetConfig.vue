@@ -143,7 +143,8 @@ ul {
               <b-form-checkbox switch size="lg" v-model="widgetConfigTemp.faceRecog" disabled>Enable Facial
                 Recoginition</b-form-checkbox>
               <small>Enable users verify if they are human and generate Personhood Credential. Read more <b><a
-                    href="#">here</a></b>.</small>
+                    href="https://docs.hypersign.id/hypersign-kyc/integrations/widget-configuration#facial-recognition"
+                    target="_blank">here</a></b>.</small>
             </li>
             <li class="list-group-item">
               <div class="row">
@@ -151,7 +152,8 @@ ul {
                   <b-form-checkbox switch size="lg" v-model="widgetConfigTemp.idOcr.enabled">Enable ID Document
                     Verification</b-form-checkbox>
                   <small>Enable users verify their ID Document and generate their ID Credential. Read more <b><a
-                        href="#">here</a></b>.</small>
+                        href="https://docs.hypersign.id/hypersign-kyc/integrations/widget-configuration#id-document-verification"
+                        target="_blank">here</a></b>.</small>
                 </div>
                 <div class="col" v-if="widgetConfigTemp.idOcr.enabled && documentTypeOptions.length > 0">
                   <div class="">
@@ -188,7 +190,9 @@ ul {
                         Consent</b-form-checkbox>
                       <small>Specify a reason for requesting user KYC data. This information will be displayed on the
                         user consent screen in the KYC widget, helping users understand who is requesting their data and
-                        why. Read more <b><a href="#">here</a></b>.</small>
+                        why. Read more <b><a
+                            href="https://docs.hypersign.id/hypersign-kyc/integrations/widget-configuration#user-consent"
+                            target="_blank">here</a></b>.</small>
                     </div>
                   </div>
                   <div class="row mt-2 mx-0 p-1"
@@ -245,7 +249,9 @@ ul {
                     in
                     their data vault will not need to repeat the KYC steps in the widget. They can simply authorize the
                     sharing of their existing credentials with your app, streamlining user onboarding for your company
-                    and providing a smoother experience for your users. Read more <b><a href="#">here</a></b>.</small>
+                    and providing a smoother experience for your users. Read more <b><a
+                        href="https://docs.hypersign.id/hypersign-kyc/integrations/widget-configuration#trusted-issuer"
+                        target="_blank">here</a></b>.</small>
 
                 </div>
                 <div class="col">

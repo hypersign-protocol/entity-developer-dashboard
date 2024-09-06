@@ -18,7 +18,7 @@
           <i class="fa fa-retweet" aria-hidden="true"></i>
         </button>
 
-        <button type="button" class="btn btn-primary" style="float: inline-end" @click="inviteMemberPopup()">
+        <button type="button" class="btn btn-secondary" style="float: inline-end" @click="inviteMemberPopup()">
           <b-icon icon="person-plus-fill"></b-icon> Invite Member
         </button>
 
@@ -66,7 +66,7 @@
               </button>
             </div>
             <div class="input-group-append">
-              <button type="submit" class="btn btn-primary" @click="sendInvite">
+              <button type="submit" class="btn btn-secondary" @click="sendInvite">
                 <b-icon icon="share"></b-icon> Invite
               </button>
             </div>

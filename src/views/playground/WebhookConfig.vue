@@ -51,11 +51,14 @@
           </div>
 
           <b-form-group label="Header(s)">
-            <div v-for="(header, index) in headers" :key="index" class="d-flex mb-2">
-              <b-form-input v-model="header.key" placeholder="Key" class="mr-2"></b-form-input>
-              <b-form-input v-model="header.value" placeholder="Value" class="mr-2"></b-form-input>
-              <b-button variant="link" @click="removeHeader(index)"><b-icon icon="dash-circle"
-                  style="color:red" /></b-button>
+            <div style="padding: 10px;background: #d3d3d32e;border-radius: 10px;" v-if="this.headers.length > 0">
+              <div v-for="(header, index) in headers" :key="index" class="d-flex mb-2">
+                <b-form-input v-model="header.key" placeholder="Key" class="mr-2"></b-form-input>
+                <b-form-input v-model="header.value" placeholder="Value" class="mr-2"></b-form-input>
+                <b-button variant="link" @click="removeHeader(index)"><b-icon icon="dash-circle"
+                    style="color:red" /></b-button>
+              </div>
+
             </div>
 
             <b-button variant="link" @click="addHeader" style="color:grey"><b-icon icon="plus-circle" /> Add
@@ -142,6 +145,9 @@ export default {
     },
 
     removeHeader(index) {
+      // if (this.headers.length <= 1) {
+      //   return
+      // }
       this.headers.splice(index, 1);
     },
 
