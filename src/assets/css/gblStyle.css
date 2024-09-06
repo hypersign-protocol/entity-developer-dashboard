@@ -95,3 +95,12 @@ a:hover {
 a {
     text-decoration: none;
 }
+
+.card {
+    border-radius: 10px;
+}
+
+.mandatory{
+    color: indianred
+}
+

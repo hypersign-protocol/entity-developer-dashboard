@@ -30,6 +30,7 @@ const mainStore = {
         widgetConfig: {
 
         },
+        webhookConfig: {},
         marketPlaceApps: [],
         adminMembers: [],
         myInvitions: [],
@@ -107,6 +108,9 @@ const mainStore = {
         getWidgetnConfig: (state) => {
             return state.widgetConfig
         },
+        getWebhookConfig: (state) => {
+            return state.webhookConfig
+        },
         getMarketPlaceApps: (state) => {
             return state.marketPlaceApps
         },
@@ -129,6 +133,9 @@ const mainStore = {
         },
         setWidgetConfig: (state, payload) => {
             state.widgetConfig = { ...payload }
+        },
+        setWebhookConfig: (state, payload) => {
+            state.webhookConfig = { ...payload }
         },
         setMainSideNavBar: (state, payload) => {
             state.showMainSideNavBar = payload ? payload : false;
@@ -917,6 +924,93 @@ const mainStore = {
                 })
             })
         },
+
+
+        // webhook config
+        createAppWebhookConfig: ({ commit, getters }, payload) => {
+            return new Promise((resolve, reject) => {
+                if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
+                    return reject(new Error('Tenant url is null or empty, service is not selected'))
+                }
+                const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/widget-config`;
+                // const url = `http://localhost:3001/api/v1/e-kyc/verification/webhook-config`
+                const authToken = getters.getSelectedService.access_token
+                const headers = UtilsMixin.methods.getHeader(authToken);
+
+                fetch(url, {
+                    method: 'POST',
+                    headers,
+                    body: JSON.stringify(payload),
+                }).then(response => response.json()).then(json => {
+                    if (json.error) {
+                        return reject(new Error(json.error.join(' ')))
+                    }
+                    commit('setWebhookConfig', json.data);
+                    resolve(json.data)
+                }).catch((e) => {
+                    return reject(`Error while fetching apps ` + e.message);
+                })
+            })
+        },
+
+        fetchAppWebhookConfig: ({ commit, getters }) => {
+            return new Promise((resolve, reject) => {
+                if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
+                    return reject(new Error('Tenant url is null or empty, service is not selected'))
+                }
+                const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/webhook-config`;
+                // const url = `http://localhost:3001/api/v1/e-kyc/verification/webhook-config/`
+                const authToken = getters.getSelectedService.access_token
+                const headers = UtilsMixin.methods.getHeader(authToken);
+                return fetch(url, {
+                    method: 'GET',
+                    headers
+                }).then(response => response.json()).then(json => {
+                    if (json) {
+                        if (json.error) {
+                            return reject(new Error(json.error.join(' ')))
+                        } else {
+                            commit('setWebhookConfig', json.data);
+                            return resolve()
+                        }
+                    } else {
+                        return resolve()
+                    }
+
+                }).catch((e) => {
+                    return reject(`Error while fetching widget configuration ` + e.message);
+                })
+            })
+        },
+
+        updateAppWebhookConfig: ({ commit, getters }, payload) => {
+            return new Promise((resolve, reject) => {
+                if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
+                    return reject(new Error('Tenant url is null or empty, service is not selected'))
+                }
+                const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/webhook-config/${payload._id}`;
+                // const url = `http://localhost:3001/api/v1/e-kyc/verification/webhook-config/${payload._id}`
+                const authToken = getters.getSelectedService.access_token
+                const headers = UtilsMixin.methods.getHeader(authToken);
+                fetch(url, {
+                    method: 'PATCH',
+                    headers,
+                    body: JSON.stringify(payload),
+                }).then(response => response.json()).then(json => {
+                    if (json.error) {
+                        return reject(new Error(json.error.join(' ')))
+                    }
+                    // restting
+                    commit('setWebhookConfig', json.data);
+                    resolve(json)
+                }).catch((e) => {
+                    return reject(`Error while fetching apps ` + e.message);
+                })
+            })
+        },
+
+
+
 
 
         fetchSessionsDetailsById: ({ commit, getters }, payload) => {

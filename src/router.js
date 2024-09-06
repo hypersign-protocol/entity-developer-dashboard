@@ -14,6 +14,7 @@ import SSIDashboardCredit from './views/playground/SSIDashboardCredit.vue'
 import UsageS from './views/playground/Usage.vue';
 import OnChainKycSystems from './views/playground/OnChainKycSystems.vue';
 import WidgetConfig from './views/playground/WidgetConfig.vue'
+import WebhookConfig from './views/playground/WebhookConfig.vue'
 import MFA from './components/login/mfa/MFA.vue';
 import SettingConfig from './views/SettingConfig.vue'
 Vue.use(Router)
@@ -129,6 +130,16 @@ const router = new Router({
       meta: {
         requiresAuth: true,
         title: `${config.app.name} - WidgetConfig`
+      }
+    },
+
+    {
+      path: '/studio/webhook-config/:appId',
+      name: 'WebhookConfig',
+      component: WebhookConfig,
+      meta: {
+        requiresAuth: true,
+        title: `${config.app.name} - WebhookConfig`
       }
     },
     {

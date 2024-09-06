@@ -493,6 +493,14 @@ export default {
               icon: "fa fa-cogs",
             })
 
+
+            menu.push({
+              href: "/studio/webhook-config/" + this.getSelectedService.appId,
+              title: "Webhook",
+              icon: "fa fa-anchor",
+            })
+
+
             menu.push({
               href: "/studio/usage/" + this.getSelectedService.appId,
               title: "Usages",
