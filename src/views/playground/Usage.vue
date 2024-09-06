@@ -440,10 +440,10 @@ export default {
             label: 'Verifications',
             data: pieData,
             backgroundColor: [
-              'orange',
-              'forestgreen',
-              'indianred',
-              'lightgrey',
+              '#ffa500b3',
+              '#228b22b0',
+              '#cd5c5cc4',
+              '#d3d3d3b8',
             ]
           }]
         },

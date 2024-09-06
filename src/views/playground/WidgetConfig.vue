@@ -138,7 +138,7 @@ ul {
     <div class="row">
       <div class="col">
         <div class="row card" style="padding-right:0px">
-          <ul class="list-group list-group-flush">
+          <ul class="list-group list-group-flush" style="border-radius: 10px;">
             <li class="list-group-item">
               <b-form-checkbox switch size="lg" v-model="widgetConfigTemp.faceRecog" disabled>Enable Facial
                 Recoginition</b-form-checkbox>

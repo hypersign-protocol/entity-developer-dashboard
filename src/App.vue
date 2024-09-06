@@ -487,18 +487,7 @@ export default {
             //   icon: "fas fa-network-wired",
             // })
 
-            menu.push({
-              href: "/studio/widget-config/" + this.getSelectedService.appId,
-              title: "Widget",
-              icon: "fa fa-cogs",
-            })
 
-
-            menu.push({
-              href: "/studio/webhook-config/" + this.getSelectedService.appId,
-              title: "Webhook",
-              icon: "fa fa-anchor",
-            })
 
 
             menu.push({
@@ -507,6 +496,22 @@ export default {
               icon: "fa fa-chart-bar",
             })
 
+            menu.push({
+              href: '#',
+              title: 'Settings',
+              icon: 'fa fa-cogs',
+              child: [
+                {
+                  href: "/studio/widget-config/" + this.getSelectedService.appId,
+                  title: "KYC Widget",
+                  icon: "fa fa-puzzle-piece",
+                }, {
+                  href: "/studio/webhook-config/" + this.getSelectedService.appId,
+                  title: "Webhook",
+                  icon: "fa fa-anchor",
+                }
+              ]
+            })
 
           } else if (id == 'SSI_API') {
             menu.push({
