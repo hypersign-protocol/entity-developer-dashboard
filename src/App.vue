@@ -94,8 +94,8 @@
           </b-nav-item>
 
           <b-nav-item v-if="parseAuthToken.isTwoFactorEnabled == false">
-            <button class="btn btn-outline-secondary" type="button" @click="$router.push('mfa')">
-              <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
+            <button class="btn btn-link" type="button" @click="$router.push('mfa')" style="color: grey">
+              <span class="spinner-grow spinner-grow-sm text-danger" role="status" aria-hidden="true"></span>
               <span class="visually-hidden"> Setup MFA</span>
             </button>
           </b-nav-item>

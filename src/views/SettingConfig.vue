@@ -3,29 +3,43 @@
     <div>
         <b-card no-body v-if="isFeatureImplemented">
             <b-tabs card>
-                <!-- <b-tab active>
+                <b-tab active>
                     <template #title>
                         <b-icon icon="person-square" aria-hidden="true" small></b-icon><strong> Profile</strong>
                     </template>
-<b-card no-body>
-    <b-tabs card vertical justified small>
-        <b-tab active>
-            <template #title>
+                    <b-card no-body>
+                        <b-tabs card vertical justified small>
+                            <!-- <b-tab active>
+                                <template #title>
                                     <i class="fa fa-user-circle" aria-hidden="true"></i>
                                     General
                                 </template>
-            <MyProfile />
-        </b-tab>
-        <b-tab>
-            <template #title>
-                                    <i class="fa fa-lock" aria-hidden="true"></i> Multi Factor
+                                <MyProfile />
+                            </b-tab> -->
+                            <b-tab>
+                                <template #title>
+                                    <b-icon icon="shield-shaded"></b-icon> Multi Factor
                                     Authentication (MFA)
                                 </template>
-            <p></p>
-        </b-tab>
-    </b-tabs>
-</b-card>
-</b-tab> -->
+                                <SetupMFA v-if="!isTwoFactorEnabled.isTwoFactorEnabled" />
+                                <div v-else>
+                                    <h3>MFA Enabled <b-icon icon="shield-shaded"></b-icon> </h3>
+                                    <ul class="list-group">
+                                        <li class="list-group-item">
+                                            <span>
+                                                Type: {{ isTwoFactorEnabled.authenticators[0].type }}
+                                            </span>
+                                            <span style="float:right">
+                                                <!-- <button class="btn btn-danger btn-sm" @click="deleteMFA()"
+                                                    title="Delete MFA"><i class="fa fa-trash"></i></button> -->
+                                            </span>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </b-tab>
+                        </b-tabs>
+                    </b-card>
+                </b-tab>
                 <b-tab active>
                     <template #title>
                         <b-icon icon="sliders" aria-hidden="true" small></b-icon><strong> Members &
@@ -69,7 +83,10 @@
 import TeamMembers from '../components/teams/TeamMembers.vue';
 import MyInvitions from '../components/teams/MyInvitions.vue'
 import AdminTeams from '../components/teams/AdminTeams.vue';
-import { mapMutations } from "vuex";
+import { mapMutations, mapGetters } from "vuex";
+// import MfaPage from '../components/login/mfa/MFA.vue'
+
+import SetupMFA from '../components/login/mfa/SetupMfa.vue';
 // import MyProfile from '../components/teams/MyProfile.vue'
 
 export default {
@@ -78,7 +95,18 @@ export default {
         TeamMembers,
         AdminTeams,
         MyInvitions,
-        // MyProfile
+        SetupMFA
+        // MyProfile,
+    },
+    computed: {
+        ...mapGetters('mainStore', ['getAuthToken']),
+        isTwoFactorEnabled() {
+            const payload = localStorage.getItem('user')
+            if (payload) {
+                return JSON.parse(payload)
+            }
+            return {};
+        }
     },
     data() {
         return {

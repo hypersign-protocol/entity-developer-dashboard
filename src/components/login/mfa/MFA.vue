@@ -17,17 +17,10 @@ export default {
     computed: {
         ...mapGetters('mainStore', ['getAuthToken']),
         isTwoFactorEnabled() {
-            // const authToken = this.getAuthToken;
-            const payload = localStorage.getItem('user') //this.parseJwt({ token: authToken });
+            const payload = localStorage.getItem('user')
             if (payload) {
                 return JSON.parse(payload)
             }
-            // if (payload) {
-            //     this.setAuthenticatorType = payload.authenticatorType
-            //     if (payload.isTwoFactorAuthenticated) {
-            //         return payload.isTwoFactorAuthenticated
-            //     }
-            // }
             return {};
         }
     },
@@ -46,18 +39,6 @@ export default {
     },
     methods: {
         ...mapMutations('mainStore', 'setSelectedAppId'),
-        parseJwt: (payload) => {
-            const { token } = payload;
-            if (!token) throw new Error('JWT token must be provided')
-
-            var base64Url = token.split('.')[1];
-            var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-            var jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function (c) {
-                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-            }).join(''));
-
-            return JSON.parse(jsonPayload);
-        },
     }
 }
 
