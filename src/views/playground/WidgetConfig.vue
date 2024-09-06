@@ -205,9 +205,8 @@ ul {
                     </div>
                     <div class="col-md-8">
                       <div class="row">
-                        <div class="col-md-12">
-                          <h4>{{ widgetConfigTemp.userConsent.domain }}
-                          </h4>
+                        <div class="col-md-12" style="font-size: 1.25rem;">
+                          {{ widgetConfigTemp.userConsent.domain }}
                         </div>
                       </div>
                       <div class="row">
