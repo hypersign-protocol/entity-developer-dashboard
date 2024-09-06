@@ -201,7 +201,6 @@
   padding-left: 1.5%;
   text-align: left;
   box-shadow: 0 2px 6px 0 rgba(32, 33, 37, .1);
-  z-index: -1;
 }
 
 .orgNameCss {
