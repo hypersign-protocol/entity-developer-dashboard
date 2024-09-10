@@ -820,7 +820,7 @@ export default {
                     break;
                 }
                 case 'Document Back': {
-                    this.popupImage = this.session.ocriddocsDetails.tokenFrontDocumentImage
+                    this.popupImage = this.session.ocriddocsDetails.tokenBackDocumentImage
                     break;
                 }
             }
