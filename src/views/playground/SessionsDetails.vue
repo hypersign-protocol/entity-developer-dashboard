@@ -252,7 +252,7 @@ h3 {
                 </div>
 
                 <!-- Personal Information -->
-                <div class="card dataCard float-" style="height: 439px"
+                <div class="card dataCard float-" style="max-height: 439px; overflow-y: scroll"
                     v-if="userPersonalDataFromUserConsent && Object.keys(userPersonalDataFromUserConsent).length > 0">
                     <div class="card-header" style="padding: 10px">
                         <h4> <i class="fa fa-id-badge" aria-hidden="true"></i> Personal Information</h4>
@@ -260,43 +260,40 @@ h3 {
                     <div class="card-body">
                         <table class="table">
                             <tbody>
-                                <tr>
-                                    <td class="greyFont">Name</td>
-                                    <td style="text-align: right;">{{ userPersonalDataFromUserConsent.name }}</td>
-                                </tr>
-                                <tr>
-                                    <td class="greyFont">Country</td>
-                                    <td style="text-align: right;">{{ userPersonalDataFromUserConsent.nationality }}
-                                        <country-flag :country="userPersonalDataFromUserConsent.nationality"
-                                            size='normal' />
+                                <tr v-for="eachkey in Object.keys(userPersonalDataFromUserConsent)"
+                                    v-bind:key="userPersonalDataFromUserConsent[eachkey]">
+                                    <td class="greyFont">{{ eachkey ? eachkey.charAt(0).toUpperCase() +
+                                        eachkey.substring(1, eachkey.length) : eachkey }}</td>
+                                    <td v-if="eachkey == 'issuingStateCode'">
+                                        {{ userPersonalDataFromUserConsent[eachkey] }} <country-flag
+                                            :country="userPersonalDataFromUserConsent[eachkey]" size='normal' />
                                     </td>
-                                </tr>
-                                <tr>
-                                    <td class="greyFont">Sex</td>
-                                    <td style="text-align: right;">{{ userPersonalDataFromUserConsent.sex }}</td>
-                                </tr>
-                                <tr>
-                                    <td class="greyFont">Date Of Birth</td>
-                                    <td style="text-align: right;">{{ userPersonalDataFromUserConsent.dateOfBirth }}
-                                    </td>
-                                </tr>
-
-                                <tr>
-                                    <td class="greyFont">Document Id</td>
-                                    <td style="text-align: right;">{{ userPersonalDataFromUserConsent.idNo }}</td>
-                                </tr>
-                                <tr>
-                                    <td class="greyFont">Issued At</td>
-                                    <td style="text-align: right;">{{ userPersonalDataFromUserConsent.idIssueDate }}
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="greyFont">Expiry Date</td>
-                                    <td style="text-align: right;">{{ userPersonalDataFromUserConsent.idExpireDate }}
-                                    </td>
+                                    <td v-else>{{ userPersonalDataFromUserConsent[eachkey] }}</td>
                                 </tr>
                             </tbody>
+                        </table>
+                    </div>
+                </div>
 
+                <div class="card dataCard float-" style="max-height: 439px; overflow-y: scroll"
+                    v-if="userPersonalDataGovIdFromUserConsent && Object.keys(userPersonalDataGovIdFromUserConsent).length > 0">
+                    <div class="card-header" style="padding: 10px">
+                        <h4> <i class="fa fa-id-badge" aria-hidden="true"></i> Personal Information</h4>
+                    </div>
+                    <div class="card-body">
+                        <table class="table">
+                            <tbody>
+                                <tr v-for="eachkey in Object.keys(userPersonalDataGovIdFromUserConsent)"
+                                    v-bind:key="userPersonalDataGovIdFromUserConsent[eachkey]">
+                                    <td class="greyFont">{{ eachkey ? eachkey.charAt(0).toUpperCase() +
+                                        eachkey.substring(1, eachkey.length) : eachkey }}</td>
+                                    <td v-if="eachkey == 'issuingStateCode'">
+                                        {{ userPersonalDataGovIdFromUserConsent[eachkey] }} <country-flag
+                                            :country="userPersonalDataGovIdFromUserConsent[eachkey]" size='normal' />
+                                    </td>
+                                    <td v-else>{{ userPersonalDataGovIdFromUserConsent[eachkey] }}</td>
+                                </tr>
+                            </tbody>
                         </table>
                     </div>
                 </div>
@@ -463,7 +460,7 @@ h3 {
                                     <span style="font-size: small;">Selfie</span>
                                 </div>
                                 <div class="col-md-2" style="text-align: right; font-size: medium; cursor: pointer;"
-                                    title="Zoom" @click="zoom('Selfie')">
+                                    title="Zoom" @click="zoomDocument('Selfie')">
                                     <i class="fa fa-search-plus" aria-hidden="true"></i>
                                 </div>
                             </div>
@@ -480,7 +477,25 @@ h3 {
                                     <span style="font-size: medium;">Document Front</span>
                                 </div>
                                 <div class="col-md-2" style="text-align: right; font-size: medium; cursor: pointer;"
-                                    title="Zoom" @click="zoom('Document Front')">
+                                    title="Zoom" @click="zoomDocument('Document Front')">
+                                    <i class="fa fa-search-plus" aria-hidden="true"></i>
+                                </div>
+                            </div>
+                        </div>
+
+
+
+                        <div class="card-body mt-2" style="border: 1px solid rgb(228, 228, 228); border-radius: 10px;"
+                            v-if="session.ocriddocsDetails.tokenBackDocumentImage">
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <img style="height:35px;" :src="session.ocriddocsDetails.tokenBackDocumentImage" />
+                                </div>
+                                <div class="col-md-7">
+                                    <span style="font-size: medium;">Document Back</span>
+                                </div>
+                                <div class="col-md-2" style="text-align: right; font-size: medium; cursor: pointer;"
+                                    title="Zoom" @click="zoomDocument('Document Back')">
                                     <i class="fa fa-search-plus" aria-hidden="true"></i>
                                 </div>
                             </div>
@@ -547,6 +562,13 @@ h3 {
                 </div>
             </div>
         </div>
+
+        <hf-pop-up id="zoom-doc" :Header="popupHeader">
+            <div class="center">
+                <img :src="popupImage" />
+            </div>
+
+        </hf-pop-up>
     </div>
 </template>
 
@@ -558,7 +580,7 @@ import { mapState, mapGetters, mapActions } from "vuex";
 import UAParser from 'ua-parser-js'
 import CountryFlag from 'vue-country-flag'
 import { getCosmosChainConfig } from '../../blockchains-metadata/cosmos/wallet/cosmos-wallet-utils'
-
+import HfPopUp from "../../components/element/hfPopup.vue";
 
 const ServiceLivenessResultEnum = {
     0: "None",
@@ -595,6 +617,7 @@ export default {
     name: "sessionDetails",
     components: {
         Loading, CountryFlag,
+        HfPopUp,
     },
     computed: {
         ...mapGetters('mainStore', ['getSessionDetailsBySessionId']),
@@ -604,7 +627,7 @@ export default {
         }),
         isFacialAuthenticationSuccess() {
             const status = this.selfiDataFound && this.idDocDataFound && this.session.ocriddocsDetails.serviceFacialAuthenticationResult == 3
-            const matchPercentage = ', match ' + Math.round(this.session.ocriddocsDetails.serviceFacialSimilarityResult * 100) + '%'
+            const matchPercentage = ', match ' + (Math.round(this.session.ocriddocsDetails.serviceFacialSimilarityResult * 100)) + '%'
             return {
                 success: status,
                 result: !status ? FaicalAuthenticationError[this.session.ocriddocsDetails.serviceFacialAuthenticationResult] + matchPercentage : 'Facial Authentication Passed' + matchPercentage,
@@ -651,7 +674,18 @@ export default {
             }
         },
         userPersonalDataFromUserConsent() {
-            return this.getCredentialSubjectByType("PassportCredential")
+            const d = { ...this.getCredentialSubjectByType("PassportCredential") }
+            delete d['face']
+            delete d['overallRating']
+            delete d['id']
+            return d
+        },
+        userPersonalDataGovIdFromUserConsent() {
+            const d = { ...this.getCredentialSubjectByType("GovernmentIdCredential") }
+            delete d['face']
+            delete d['overallRating']
+            delete d['id']
+            return d
         },
         userSbtMintDataFromUserConsent() {
             const t = this.getCredentialSubjectByType("SBTCredential")
@@ -774,7 +808,7 @@ export default {
                 return {}
             }
         },
-        zoom(place) {
+        zoomDocument(place) {
             this.popupHeader = place
             switch (place) {
                 case 'Document Front': {
@@ -785,8 +819,12 @@ export default {
                     this.popupImage = this.session.selfiDetails.tokenSelfiImage
                     break;
                 }
+                case 'Document Back': {
+                    this.popupImage = this.session.ocriddocsDetails.tokenFrontDocumentImage
+                    break;
+                }
             }
-            this.$root.$emit('modal-show');
+            this.$root.$emit("bv::show::modal", "zoom-doc");
         },
         async getLocationFromIp(ip) {
             try {
