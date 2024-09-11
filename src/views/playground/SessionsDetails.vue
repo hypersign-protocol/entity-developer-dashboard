@@ -4,7 +4,10 @@
     padding: 0px;
 }
 
-
+img {
+    border-radius: 10px;
+    border: 2px solid lightgrey
+}
 
 .goschema {
     color: #339af0;
@@ -156,6 +159,13 @@ h3 {
 
     /*1rem = 16px*/
 }
+
+.zoomin {
+    text-align: right;
+    font-size: medium;
+    color: grey;
+    cursor: pointer;
+}
 </style>
 <template>
     <div :class="isContainerShift ? 'homeShift' : 'home'">
@@ -212,7 +222,7 @@ h3 {
                     <div class="card-header" style="padding: 10px">
                         <h4><i class="fa fa-hourglass-end" aria-hidden="true"></i> Timelines</h4>
                     </div>
-                    <div class="card-body">
+                    <div class="p-2">
                         <div class="row">
                             <div class="col-md-12">
                                 <ul class="timeline">
@@ -222,17 +232,17 @@ h3 {
                                             formatDate(session.createdAt) : "-"
                                             }}</a>
                                     </li>
-                                    <li v-if="selfiDataFound">
+                                    <li v-if="selfiDataFound && session.selfiDetails.createdAt">
                                         <a target="_blank"><strong>Selfie uploaded</strong></a>
                                         <a href="#" class="float-right greyFont">{{ session ?
                                             formatDate(session.selfiDetails.createdAt) : "-" }}</a>
                                     </li>
-                                    <li v-if="idDocDataFound">
+                                    <li v-if="idDocDataFound && session.ocriddocsDetails.createdAt">
                                         <a target="_blank"><strong>ID Document uploaded</strong></a>
                                         <a href="#" class="float-right greyFont">{{ session ?
                                             formatDate(session.ocriddocsDetails.createdAt) : "-" }}</a>
                                     </li>
-                                    <li v-if="userConsentDataFound">
+                                    <li v-if="userConsentDataFound && session.userConsentDetails.createdAt">
                                         <a target="_blank"><strong>User Consent provided</strong></a>
                                         <a href="#" class="float-right greyFont">{{ session ?
                                             formatDate(session.userConsentDetails.createdAt) : "-"
@@ -252,12 +262,12 @@ h3 {
                 </div>
 
                 <!-- Personal Information -->
-                <div class="card dataCard float-" style="max-height: 439px; overflow-y: scroll"
+                <div class="card dataCard float-" style="max-height: 439px; overflow-y: scroll; max-width: 400px;"
                     v-if="userPersonalDataFromUserConsent && Object.keys(userPersonalDataFromUserConsent).length > 0">
                     <div class="card-header" style="padding: 10px">
                         <h4> <i class="fa fa-id-badge" aria-hidden="true"></i> Personal Information</h4>
                     </div>
-                    <div class="card-body">
+                    <div class="p-2">
                         <table class="table">
                             <tbody>
                                 <tr v-for="eachkey in Object.keys(userPersonalDataFromUserConsent)"
@@ -275,12 +285,12 @@ h3 {
                     </div>
                 </div>
 
-                <div class="card dataCard float-" style="max-height: 439px; overflow-y: scroll"
+                <div class="card dataCard float-" style="max-height: 439px; overflow-y: scroll; max-width: 400px;"
                     v-if="userPersonalDataGovIdFromUserConsent && Object.keys(userPersonalDataGovIdFromUserConsent).length > 0">
                     <div class="card-header" style="padding: 10px">
                         <h4> <i class="fa fa-id-badge" aria-hidden="true"></i> Personal Information</h4>
                     </div>
-                    <div class="card-body">
+                    <div class="p-2">
                         <table class="table">
                             <tbody>
                                 <tr v-for="eachkey in Object.keys(userPersonalDataGovIdFromUserConsent)"
@@ -303,7 +313,7 @@ h3 {
                     <div class="card-header" style="padding: 10px">
                         <h4><i class="fa fa-laptop" aria-hidden="true"></i> Device Information</h4>
                     </div>
-                    <div class="card-body">
+                    <div class="p-2">
                         <table class="table">
                             <tbody>
                                 <tr>
@@ -344,9 +354,9 @@ h3 {
                 <div class="card dataCard float-" :style="{ 'border': getStatusColor }"
                     v-if="session.selfiDetails && Object.keys(session.selfiDetails).length > 0 && session.ocriddocsDetails.tokenFaceImage">
                     <div class="card-header" style="padding: 10px">
-                        <h4><i class="fa fa-smile" aria-hidden="true"></i> Face Verification</h4>
+                        <h4><i class="fa fa-smile" aria-hidden="true"></i> Face Authentication</h4>
                     </div>
-                    <div class="card-body">
+                    <div class="p-2">
                         <div class="row">
                             <div class="col-md-5 centered-container" style="">
                                 <span class=""><img style="height:100px;"
@@ -358,7 +368,7 @@ h3 {
                                         aria-hidden="true"></i></span>
                             </div>
                             <div class="col-md-2 centered-container" style="" v-else>
-                                <span class="" style="font-size: 50px; color: red;"><i class="fa fa-times-circle"
+                                <span class="" style="font-size: 50px; color: indianred;"><i class="fa fa-times-circle"
                                         aria-hidden="true"></i></span>
                             </div>
                             <!-- <div class="col-md-2 centered-container" style="" v-else>
@@ -389,11 +399,11 @@ h3 {
 
                 <!-- Liveliness Check -->
                 <div class="card dataCard float-" :style="{ 'border': passiveLivelinessData.borderColor }"
-                    v-if="session.selfiDetails && Object.keys(session.selfiDetails).length > 0">
+                    v-if="session.selfiDetails && session.selfiDetails.createdAt && Object.keys(session.selfiDetails).length > 0">
                     <div class="card-header" style="padding: 10px">
                         <h4><i class="fa fa-heartbeat" aria-hidden="true"></i> Liveliness Check</h4>
                     </div>
-                    <div class="card-body">
+                    <div class="p-2">
                         <div class="row">
                             <div class="col-md-12 centered-container" style="">
                                 <span class=""><img style="height:200px; width: 200px;"
@@ -420,7 +430,7 @@ h3 {
                     <div class="card-header" style="padding: 10px">
                         <h4><i class="fa fa-map-marker" aria-hidden="true"></i> Location Information </h4>
                     </div>
-                    <div class="card-body">
+                    <div class="p-2">
                         <table class="table">
                             <tbody>
                                 <tr>
@@ -448,8 +458,8 @@ h3 {
                     <div class="card-header" style="padding: 10px">
                         <h4><i class="fa fa-file" aria-hidden="true"></i> Images / Documents</h4>
                     </div>
-                    <div class="card-body" v-if="selfiDataFound || idDocDataFound">
-                        <div class="card-body"
+                    <div class="p-2" v-if="selfiDataFound || idDocDataFound">
+                        <div class="p-2"
                             style="margin-top: 0%; border: 1px solid rgb(228, 228, 228); border-radius: 10px;"
                             v-if="selfiDataFound">
                             <div class="row">
@@ -459,14 +469,13 @@ h3 {
                                 <div class="col-md-7">
                                     <span style="font-size: small;">Selfie</span>
                                 </div>
-                                <div class="col-md-2" style="text-align: right; font-size: medium; cursor: pointer;"
-                                    title="Zoom" @click="zoomDocument('Selfie')">
+                                <div class="col-md-2 zoomin" title="Zoom" @click="zoomDocument('Selfie')">
                                     <i class="fa fa-search-plus" aria-hidden="true"></i>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="card-body"
+                        <div class="p-2"
                             style="margin-top: 2%; border: 1px solid rgb(228, 228, 228); border-radius: 10px;"
                             v-if="idDocDataFound">
                             <div class="row">
@@ -476,16 +485,12 @@ h3 {
                                 <div class="col-md-7">
                                     <span style="font-size: medium;">Document Front</span>
                                 </div>
-                                <div class="col-md-2" style="text-align: right; font-size: medium; cursor: pointer;"
-                                    title="Zoom" @click="zoomDocument('Document Front')">
+                                <div class="col-md-2 zoomin" title="Zoom" @click="zoomDocument('Document Front')">
                                     <i class="fa fa-search-plus" aria-hidden="true"></i>
                                 </div>
                             </div>
                         </div>
-
-
-
-                        <div class="card-body mt-2" style="border: 1px solid rgb(228, 228, 228); border-radius: 10px;"
+                        <div class="p-2 mt-2" style="border: 1px solid rgb(228, 228, 228); border-radius: 10px;"
                             v-if="session.ocriddocsDetails.tokenBackDocumentImage">
                             <div class="row">
                                 <div class="col-md-3">
@@ -494,8 +499,7 @@ h3 {
                                 <div class="col-md-7">
                                     <span style="font-size: medium;">Document Back</span>
                                 </div>
-                                <div class="col-md-2" style="text-align: right; font-size: medium; cursor: pointer;"
-                                    title="Zoom" @click="zoomDocument('Document Back')">
+                                <div class="col-md-2 zoomin" title="Zoom" @click="zoomDocument('Document Back')">
                                     <i class="fa fa-search-plus" aria-hidden="true"></i>
                                 </div>
                             </div>
@@ -638,14 +642,14 @@ export default {
             return {
                 success: status,
                 result: ServiceLivenessResultEnum[this.session.selfiDetails.serviceLivenessResult],
-                borderColor: status ? '1px solid rgb(81, 137, 81)' : '1px solid red'
+                borderColor: status ? '1px solid rgb(81, 137, 81)' : '1px solid indianred'
             }
         },
         getStatusColor() {
             if (this.isFacialAuthenticationSuccess.success) {
                 return '1px solid rgb(81, 137, 81)'
             } else {
-                return '1px solid red'
+                return '1px solid indianred'
             }
         },
         isContainerShift() {
