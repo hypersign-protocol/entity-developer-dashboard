@@ -400,7 +400,7 @@ export default {
                     datasets: [
                         {
                             label: 'Credit',
-                            data: [this.myKYCCredits.allUsedCredits, this.myKYCCredits.allRemainingCredits],
+                            data: this.getKYCCredits.length == 0 ? [1, 0] : [this.myKYCCredits.allUsedCredits, this.myKYCCredits.allRemainingCredits],
                             backgroundColor: [
                                 'grey',
                                 'green',
