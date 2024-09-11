@@ -35,8 +35,8 @@ const mainStore = {
         adminMembers: [],
         myInvitions: [],
         allRoles: [],
-        usageDetails: {}
-
+        usageDetails: {},
+        kycCredits: []
     },
     getters: {
         getAdminMembersgetter: (state) => {
@@ -117,6 +117,10 @@ const mainStore = {
 
         getUsageDetails: (state) => {
             return state.usageDetails
+        },
+
+        getKYCCredits: (state) => {
+            return state.kycCredits
         }
     },
     mutations: {
@@ -212,6 +216,10 @@ const mainStore = {
 
         setUsageDetails: (state, payload) => {
             state.usageDetails = payload
+        },
+
+        setKYCCredits: (state, payload) => {
+            state.kycCredits = payload
         }
     },
     actions: {
@@ -940,7 +948,7 @@ const mainStore = {
                 fetch(url, {
                     method: 'POST',
                     headers,
-                    body: JSON.stringify(payload),
+                    body: JSON.stringify(payload)
                 }).then(response => response.json())
                     .then(json => {
                         if (json.error) {
@@ -1046,8 +1054,8 @@ const mainStore = {
                 if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
                     return reject(new Error('Tenant url is null or empty, service is not selected'))
                 }
-                const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/session/${sessionId}`;
-                // const url = `http://localhost:3001/api/v1/e-kyc/verification/session/${sessionId}`;
+                // const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/session/${sessionId}`;
+                const url = `http://localhost:3001/api/v1/e-kyc/verification/session/${sessionId}`;
                 const authToken = getters.getSelectedService.access_token
                 const headers = UtilsMixin.methods.getHeader(authToken);
                 fetch(url, {
@@ -1076,7 +1084,8 @@ const mainStore = {
             if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
                 throw new Error('Tenant url is null or empty, service is not selected')
             }
-            const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/usage?serviceId=${getters.getSelectedService.appId}&startDate=${startDate}&endDate=${endDate}`;
+            // const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/usage?serviceId=${getters.getSelectedService.appId}&startDate=${startDate}&endDate=${endDate}`;
+            const url = `http://localhost:3001/api/v1/usage?serviceId=${getters.getSelectedService.appId}&startDate=${startDate}&endDate=${endDate}`;
             const authToken = getters.getSelectedService.access_token
             const headers = UtilsMixin.methods.getHeader(authToken);
             const resp = await fetch(url, {
@@ -1103,6 +1112,72 @@ const mainStore = {
             commit('setUsageDetails', json?.data)
             return json?.data
         },
+
+        // - KYC Credit
+
+
+        async fetchKYCCredits({ getters, commit }) {
+
+            if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
+                throw new Error('Tenant url is null or empty, service is not selected')
+            }
+            // const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/usage?serviceId=${getters.getSelectedService.appId}&startDate=${startDate}&endDate=${endDate}`;
+            const url = `http://localhost:3001/api/v1/credit`;
+            const authToken = getters.getSelectedService.access_token
+            const headers = UtilsMixin.methods.getHeader(authToken);
+            const resp = await fetch(url, {
+                method: 'GET',
+                headers
+            })
+            const json = await resp.json()
+            if (json.data) {
+                console.log('Before calling setKycCredits ')
+                commit('setKYCCredits', json.data)
+                return json.data
+            }
+            return []
+        },
+
+
+        activateCredit({ getters, dispatch }, payload) {
+            return new Promise(function (resolve, reject) {
+                const { creditId } = payload
+                {
+                    if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
+                        return reject(new Error('Tenant url is null or empty, service is not selected'))
+                    }
+
+                    if (!creditId) {
+                        return reject(new Error('Credit Id is null or empty'))
+                    }
+                    const url = `http://localhost:3001/api/v1/credit/${creditId}/activate`;
+                    const options = {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": `Bearer ${getters.getSelectedService.access_token}`,
+                            "Origin": '*'
+                        }
+                    }
+                    fetch(url, {
+                        ...options
+                    })
+                        .then(response => response.json())
+                        .then(json => {
+                            if (json) {
+                                dispatch('fetchKYCCredits')
+                                resolve()
+                            } else {
+                                reject(new Error('Could not register DID for this service'))
+                            }
+                        }).catch(e => {
+                            reject(e)
+                        })
+                }
+            })
+
+        },
+
 
         // --- SSI
         fetchDIDsForAService({ commit, getters, dispatch }, payload = {}) {

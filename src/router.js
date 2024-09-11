@@ -11,6 +11,7 @@ import Credential from './views/playground/Sessions.vue'
 import CredentialDetails from './views/playground/SessionsDetails.vue'
 import DIDs from './views/playground/DID.vue'
 import SSIDashboardCredit from './views/playground/SSIDashboardCredit.vue'
+import KYCCreditDashboard from './views/playground/KYCDashboardCredit.vue'
 import UsageS from './views/playground/Usage.vue';
 import OnChainKycSystems from './views/playground/OnChainKycSystems.vue';
 import WidgetConfig from './views/playground/WidgetConfig.vue'
@@ -103,6 +104,15 @@ const router = new Router({
       meta: {
         requiresAuth: true,
         title: `${config.app.name} - SSI Credit`
+      }
+    },
+    {
+      path: '/studio/onchainkyc/credit/:appId',
+      name: 'KYCCredit',
+      component: KYCCreditDashboard,
+      meta: {
+        requiresAuth: true,
+        title: `${config.app.name} - KYC Credit`
       }
     },
     {

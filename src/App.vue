@@ -497,6 +497,12 @@ export default {
             })
 
             menu.push({
+              href: "/studio/onchainkyc/credit/" + this.getSelectedService.appId,
+              title: "Credits",
+              icon: "fas fa-hand-holding-usd",
+            })
+
+            menu.push({
               href: '#',
               title: 'Settings',
               icon: 'fa fa-cogs',

@@ -176,7 +176,7 @@ h5 span {
       <div class="col">
         <div class="form-group">
           <h3 v-if="usageDetails.serviceDetails.length > 0" style="text-align: left;">
-            Usage </h3>
+            API Consumptions </h3>
           <h3 v-else style="text-align: left;">No usage found!</h3>
         </div>
       </div>
@@ -188,19 +188,29 @@ h5 span {
           <thead class="thead-light">
             <tr>
               <th class="sticky-header">Path</th>
-              <th class="sticky-header">From Date</th>
-              <th class="sticky-header">To Date</th>
-              <th class="sticky-header">Count</th>
+              <!-- <th class="sticky-header">From Date</th>
+              <th class="sticky-header">To Date</th> -->
+              <th class="sticky-header">Unit Cost</th>
+              <th class="sticky-header">Total Units</th>
+              <th class="sticky-header">Credits Used</th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="row in usageDetails.serviceDetails" :key="row">
+            <tr v-for="row in usageDetails.serviceDetails" :key="row.apiPath">
               <td>{{ row.apiPath }}</td>
-              <td>{{ toDateTime(usageDetails.startDate) }}</td>
-              <td>{{ toDateTime(usageDetails.endDate) }}</td>
+              <td>{{ row.unit_cost }}</td>
               <td>{{ row.quantity }}</td>
+              <td>{{ row.amount }}</td>
             </tr>
           </tbody>
+          <thead class="thead-light">
+            <tr style="background-color: lightgray;">
+              <td><strong>Grand Total</strong></td>
+              <td></td>
+              <td><strong>{{ grandTotal.totalQuantity }}</strong></td>
+              <td><strong>{{ grandTotal.totalCredits }}</strong></td>
+            </tr>
+          </thead>
         </table>
       </div>
     </div>
@@ -229,12 +239,29 @@ export default {
     isContainerShift() {
       return this.containerShift
     },
+
+    grandTotal() {
+      if (!this.usageDetails.serviceDetails) {
+        return {
+          totalCredits: 0,
+          totalQuantity: 0
+        }
+      }
+
+      const total = this.usageDetails.serviceDetails.reduce((accumulator, currentValue) => {
+        return {
+          totalQuantity: accumulator.totalQuantity + currentValue.quantity,
+          totalCredits: accumulator.totalCredits + currentValue.amount
+        }
+      }, { totalQuantity: 0, totalCredits: 0 })
+      return total
+    }
   },
   data() {
     return {
       didChart: null,
       polarChart: null,
-      chartType: 'line',
+      chartType: 'bar',
       isGroupByDaily: true,
       isGroupByWeekly: false,
       isGroupByMonthly: false,

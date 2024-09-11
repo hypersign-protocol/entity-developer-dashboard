@@ -117,6 +117,27 @@ export default {
         getProfileIcon(name) {
             return "https://api.dicebear.com/7.x/identicon/svg?seed=" + name;
         },
+        formatTimeRemaining(targetDate) {
+            const now = new Date(); // Get current date
+            const expiry = new Date(targetDate); // Convert target date to Date object
+            const diffInSeconds = Math.floor((expiry - now) / 1000); // Get the difference in seconds
+
+            // If the target date is in the past
+            if (diffInSeconds <= 0) {
+                return 'Expired';
+            }
+
+            // Time unit conversions
+            const months = Math.floor(diffInSeconds / (30 * 24 * 60 * 60)); // Approximate months
+            const days = Math.floor((diffInSeconds % (30 * 24 * 60 * 60)) / (24 * 60 * 60)); // Remaining days
+            const hours = Math.floor((diffInSeconds % (24 * 60 * 60)) / (60 * 60)); // Remaining hours
+            const minutes = Math.floor((diffInSeconds % (60 * 60)) / 60); // Remaining minutes
+            const seconds = diffInSeconds % 60; // Remaining seconds
+
+            // Format the output string
+            return `${months > 0 ? months + ' months ' : ''}${days > 0 ? days + ' days ' : ''}${hours} hrs ${minutes} min ${seconds} sec`;
+        },
+
         getStatus(sessionDetails) {
             // Sucess, Expired, Pending
             const { expiresAt, step_finish, ocriddocsDetails, selfiDetails } = sessionDetails
