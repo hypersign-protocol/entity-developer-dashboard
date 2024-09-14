@@ -123,6 +123,10 @@ h5 span {
     top: -12px;
 }
 
+.bg-danger {
+    background-color: lightgrey !important;
+}
+
 .progress {
     background-color: rgba(0, 128, 0, 0.645);
 }
@@ -135,8 +139,12 @@ h5 span {
         <div class="row">
             <div class="col-md-12" style="text-align: left">
                 <div class="form-group" style="display:flex">
-                    <h3 style="text-align: left;">Credits</h3>
+                    <h3 style="text-align: left;">Credits <button class="btn btn-secondary-link"
+                            @click="reloadData()"><b-icon icon="search"></b-icon></button> </h3>
                 </div>
+                <!-- <div class="" style="float: right;">
+                    <button>Refresh</button>
+                </div> -->
             </div>
         </div>
         <div class="row">
@@ -153,7 +161,7 @@ h5 span {
                             <p><b>Total Credits</b></p>
                             <p>
                                 <span style="font-size:xx-large;">
-                                    {{ numberFormat(myKYCCredits.allUsedCredits) }}
+                                    {{ numberFormat(myKYCCredits.allRemainingCredits) }}
                                 </span> <span style="font-size:larger;">/</span>
                                 <span style="font-size:larger; color: grey">
                                     {{ numberFormat(myKYCCredits.allAvailableCredits) }}
@@ -200,7 +208,8 @@ h5 span {
                         <tr>
 
                             <th scope="col">Date</th>
-                            <th scope="col">Total Credit(s)</th>
+                            <th scope="col">Credit(s)</th>
+                            <!-- <th scope="col">Used Credit(s)</th> -->
                             <th scope="col">Expires In</th>
 
                             <th scope="col">Available Credits</th>
@@ -217,14 +226,17 @@ h5 span {
                                 {{ numberFormat(eachRow.totalCredits) }}
                             </td>
 
+                            <!-- <td>
+                                {{ numberFormat(eachRow.used) }}
+                            </td> -->
+
                             <td>
-                                {{ formatTimeRemaining(eachRow.expiresAt) }}
+                                {{ eachRow.expiresAt ? formatTimeRemaining(eachRow.expiresAt) : '' }}
                             </td>
 
                             <td :title="`Credit left: ${eachRow.totalCredits - eachRow.used}`">
-                                <b-progress :max="eachRow.totalCredits" show-value class="mt-1">
-                                    <b-progress-bar :value="eachRow.used" variant="danger" show-progress
-                                        :label="`${((eachRow.used / eachRow.totalCredits) * 100).toFixed(2)}%`"></b-progress-bar>
+                                <b-progress :max="eachRow.totalCredits" class="mt-1">
+                                    <b-progress-bar :value="eachRow.used" variant="danger"></b-progress-bar>
                                 </b-progress>
                             </td>
 
@@ -237,8 +249,9 @@ h5 span {
                                 </button>
                             </td>
                             <td v-else>
-                                <button class="btn btn-secondary" @click="activateThisCredit(eachRow._id)"><b-icon
-                                        icon="play-circle" title="Activate"></b-icon> Activate</button>
+                                <button v-if="eachRow.used < eachRow.totalCredits" class="btn btn-outline-secondary"
+                                    @click="activateThisCredit(eachRow)"><b-icon icon="play-circle"
+                                        title="Activate"></b-icon> Activate</button>
                             </td>
                         </tr>
                     </tbody>
@@ -283,12 +296,20 @@ export default {
             }
 
             const now = new Date()
-            const not_expired_credits = this.getKYCCredits.filter(x => {
-                const expirydate = new Date(x.expiresAt)
-                if (expirydate >= now) {
+            let not_expired_credits = this.getKYCCredits.filter(x => {
+
+                if (x.expiresAt) {
+                    const expirydate = new Date(x.expiresAt)
+                    if ((expirydate >= now) && (x.used < x.totalCredits)) {
+                        return x
+                    }
+                } else if (x.status == 'Active') {
                     return x
                 }
+
             })
+
+
 
             if (not_expired_credits.length == 0) {
                 return {
@@ -309,34 +330,20 @@ export default {
                 allUsedCredits: 0
             })
 
-            expiryAt = not_expired_credits.reduce((oldestItem, currentItem) => {
-                return new Date(currentItem.expiresAt) < new Date(oldestItem.expiresAt)
-                    ? currentItem.expiresAt
-                    : oldestItem.expiresAt;
-            });
+
+            not_expired_credits = not_expired_credits.sort((a, b) => new Date(b.expiresAt) - new Date(a.expiresAt))
+            expiryAt = not_expired_credits[0]
+
 
             return {
                 ...total,
                 allRemainingCredits: total.allAvailableCredits - total.allUsedCredits,
-                expiresAt: expiryAt
+                expiresAt: expiryAt.expiresAt
             }
         }
     },
     async mounted() {
-        try {
-            this.isLoading = true
-            await this.fetchKYCCredits()
-            this.startTimer();
-            this.isLoading = false
-        } catch (e) {
-            this.isLoading = false
-            this.notifyErr(e.message)
-            console.error(e)
-        } finally {
-            this.renderChart()
-
-            // this.renderUsageChart()
-        }
+        await this.reloadData()
 
     },
     beforeDestroy() {
@@ -379,6 +386,22 @@ export default {
     methods: {
         ...mapActions('mainStore', ['fetchKYCCredits', 'activateCredit']),
 
+        async reloadData() {
+            try {
+                this.isLoading = true
+                await this.fetchKYCCredits()
+                this.startTimer();
+                this.isLoading = false
+            } catch (e) {
+                this.isLoading = false
+                this.notifyErr(e.message)
+                console.error(e)
+            } finally {
+
+                this.renderChart()
+                // this.renderUsageChart()
+            }
+        },
         updateTimer() {
             this.timeRemaining = this.formatTimeRemaining(this.myKYCCredits.expiresAt);
         },
@@ -392,6 +415,7 @@ export default {
             clearInterval(this.timer); // Stop the interval timer
         },
         renderChart() {
+            this.doughNutChart?.destroy()
             const ctx = document.getElementById('doughNutChat');
             this.doughNutChart = new Chart(ctx, {
                 type: 'doughnut',
@@ -422,12 +446,17 @@ export default {
             return new Intl.NumberFormat().format(numberstr)
         },
 
-        async activateThisCredit(id) {
+        async activateThisCredit(eachRow) {
             try {
+
+                if (eachRow.used == eachRow.totalCredits) {
+                    this.notifyErr("Credit already exhausted")
+                    return;
+                }
                 this.isLoading = true
 
                 await this.activateCredit({
-                    creditId: id
+                    creditId: eachRow._id
                 })
 
                 this.isLoading = false
