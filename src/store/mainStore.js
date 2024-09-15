@@ -1024,8 +1024,8 @@ const mainStore = {
                 if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
                     return reject(new Error('Tenant url is null or empty, service is not selected'))
                 }
-                // const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/webhook-config/${payload._id}`;
-                const url = `http://localhost:3001/api/v1/e-kyc/verification/webhook-config/${payload._id}`
+                const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/webhook-config/${payload._id}`;
+                // const url = `http://localhost:3001/api/v1/e-kyc/verification/webhook-config/${payload._id}`
                 const authToken = getters.getSelectedService.access_token
                 const headers = UtilsMixin.methods.getHeader(authToken);
                 fetch(url, {
@@ -1045,17 +1045,14 @@ const mainStore = {
         },
 
 
-
-
-
         fetchSessionsDetailsById: ({ commit, getters }, payload) => {
             return new Promise((resolve, reject) => {
                 const { sessionId } = payload
                 if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
                     return reject(new Error('Tenant url is null or empty, service is not selected'))
                 }
-                // const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/session/${sessionId}`;
-                const url = `http://localhost:3001/api/v1/e-kyc/verification/session/${sessionId}`;
+                const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/session/${sessionId}`;
+                // const url = `http://localhost:3001/api/v1/e-kyc/verification/session/${sessionId}`;
                 const authToken = getters.getSelectedService.access_token
                 const headers = UtilsMixin.methods.getHeader(authToken);
                 fetch(url, {
@@ -1084,8 +1081,8 @@ const mainStore = {
             if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
                 throw new Error('Tenant url is null or empty, service is not selected')
             }
-            // const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/usage?serviceId=${getters.getSelectedService.appId}&startDate=${startDate}&endDate=${endDate}`;
-            const url = `http://localhost:3001/api/v1/usage?serviceId=${getters.getSelectedService.appId}&startDate=${startDate}&endDate=${endDate}`;
+            const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/usage?serviceId=${getters.getSelectedService.appId}&startDate=${startDate}&endDate=${endDate}`;
+            // const url = `http://localhost:3001/api/v1/usage?serviceId=${getters.getSelectedService.appId}&startDate=${startDate}&endDate=${endDate}`;
             const authToken = getters.getSelectedService.access_token
             const headers = UtilsMixin.methods.getHeader(authToken);
             const resp = await fetch(url, {
@@ -1121,8 +1118,7 @@ const mainStore = {
             if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
                 throw new Error('Tenant url is null or empty, service is not selected')
             }
-            // const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/usage?serviceId=${getters.getSelectedService.appId}&startDate=${startDate}&endDate=${endDate}`;
-            const url = `http://localhost:3001/api/v1/credit`;
+            const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/credit`;
             const authToken = getters.getSelectedService.access_token
             const headers = UtilsMixin.methods.getHeader(authToken);
             const resp = await fetch(url, {
@@ -1150,7 +1146,7 @@ const mainStore = {
                     if (!creditId) {
                         return reject(new Error('Credit Id is null or empty'))
                     }
-                    const url = `http://localhost:3001/api/v1/credit/${creditId}/activate`;
+                    const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/credit/${creditId}/activate`;
                     const options = {
                         method: "POST",
                         headers: {
