@@ -137,14 +137,14 @@ h5 span {
 
         <!-- Credits -->
         <div class="row">
-            <div class="col-md-12" style="text-align: left">
+            <div class="col-md-6" style="text-align: left">
                 <div class="form-group" style="display:flex">
-                    <h3 style="text-align: left;">Credits <button class="btn btn-secondary-link"
-                            @click="reloadData()"><b-icon icon="search"></b-icon></button> </h3>
+                    <h3 style="text-align: left;">Credits</h3>
                 </div>
-                <!-- <div class="" style="float: right;">
-                    <button>Refresh</button>
-                </div> -->
+            </div>
+            <div class="col-md-6">
+                <button style="float: right;" class="btn btn-outline-secondary" @click="reloadData()"><b-icon
+                        icon="arrow-clockwise"></b-icon> Refresh</button>
             </div>
         </div>
         <div class="row">
@@ -213,11 +213,11 @@ h5 span {
                             <th scope="col">Expires In</th>
 
                             <th scope="col">Available Credits</th>
-                            <th scope="col">Status</th>
+                            <th scope="col"></th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-for="eachRow in getKYCCredits" v-bind:key="eachRow._id">
+                        <tr v-for="eachRow in getSortedKYCCredits" v-bind:key="eachRow._id">
                             <td>
                                 {{ formatDate(eachRow.createdAt) }}
                             </td>
@@ -230,9 +230,20 @@ h5 span {
                                 {{ numberFormat(eachRow.used) }}
                             </td> -->
 
-                            <td>
-                                {{ eachRow.expiresAt ? formatTimeRemaining(eachRow.expiresAt) : '' }}
+
+
+
+                            <td v-if="eachRow.used >= eachRow.totalCredits" class="greyFont">
+                                Expired
                             </td>
+                            <td v-else-if="!eachRow.expiresAt" class="greyFont">
+                                Inactive
+                            </td>
+                            <td v-else>
+                                {{ formatTimeRemaining(eachRow.expiresAt) }}
+                            </td>
+
+
 
                             <td :title="`Credit left: ${eachRow.totalCredits - eachRow.used}`">
                                 <b-progress :max="eachRow.totalCredits" class="mt-1">
@@ -282,6 +293,11 @@ export default {
     },
     computed: {
         ...mapGetters('mainStore', ['getKYCCredits']),
+
+        getSortedKYCCredits() {
+            const t = this.getKYCCredits
+            return t.sort((a, b) => new Date(b.expiresAt) - new Date(a.expiresAt))
+        },
         myKYCCredits() {
 
             let expiryAt = (new Date()).toISOString()
