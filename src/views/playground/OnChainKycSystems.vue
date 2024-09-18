@@ -117,15 +117,43 @@ h5 span {
   overflow-y: auto;
 }
 </style>
+
+<style scoped>
+.badge {
+  padding: 5px;
+  float: right;
+  background-color: black;
+  /* border-radius: 40%; */
+  font-size: x-small;
+  /* font-weight: bold; */
+  color: black;
+  width: auto;
+  text-align: center;
+  align-content: center;
+  margin-left: 5px;
+}
+</style>
 <template>
   <div :class="isContainerShift ? 'homeShift' : 'home'">
     <loading :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loading>
-
+    <!-- <div class="row mb-1">
+      <div class="col-12 bg-warning">
+        <b-navbar style="border-radius: 5px;">
+          <b-navbar-nav><b-nav-item href="#">This is an experimental feature!</b-nav-item></b-navbar-nav>
+        </b-navbar>
+      </div>
+    </div> -->
     <div class="row">
       <div class="col-6" style="text-align: left">
         <div class="form-group" style="display:flex">
-          <h3 v-if="onchainconfigs.length > 0" style="text-align: left;">
-            OnChain KYC Configuration</h3>
+          <h3 v-if="onchainconfigs.length > 0" style="text-align: left;" class="position-relative">
+
+            OnChain KYC Configuration
+            <span class="badge position-absolute  rounded-pill bg-warning">
+              beta
+            </span>
+
+          </h3>
           <h3 v-else style="text-align: left;">No onchain kyc configuration found!</h3>
         </div>
       </div>
@@ -222,6 +250,7 @@ export default {
       return this.containerShift
     },
 
+
   },
   data() {
     return {
@@ -247,6 +276,8 @@ export default {
       this.isLoading = false
       this.notifyErr(e.message)
       this.$router.push({ path: '/studio/dashboard' });
+    } finally {
+      this.warnUsers('b-toaster-top-full')
     }
   },
   beforeRouteEnter(to, from, next) {
@@ -255,9 +286,21 @@ export default {
     });
   },
   methods: {
-    ...mapActions('mainStore', ['fetchAppsOnChainConfigs']),
+
+    warnUsers(toaster, variant = 'warning', append = false) {
+      this.$bvToast.toast(`This is an experimental feature. Kindly use only for testing purposes.`, {
+        title: `⚠️ Warning!`,
+        toaster: toaster,
+        solid: false,
+        variant,
+        appendToast: append,
+      })
+    },
+    ...mapActions('mainStore', ['fetchAppsOnChainConfigs',]),
     ...mapMutations('playgroundStore', ['updateSideNavStatus', 'shiftContainer']),
     ...mapMutations('mainStore', ['setOnChainConfig']),
+
+
 
     async deployOnchainKyc() {
 

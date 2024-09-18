@@ -37,9 +37,15 @@
             <div class="col-md-12 mt-1" v-if="selectedBlockchain">
                 <div class="form-group">
                     <label for="selectIssuer"><strong>Issuer DID<span style="color: red">*</span>:</strong></label>
-                    <input type="text" class="form-control" id="" v-model="selectedIssuerDID"
-                        placeholder="Enter a DID (e.g did:hid:testnet:..)" />
-                    <small>Make sure to use associated DID</small>
+                    <!-- <input type="text" class="form-control" id="" v-model="selectedIssuerDID"
+                        placeholder="Enter a DID (e.g did:hid:testnet:..)" /> -->
+                    <select class="custom-select" id="selectService" v-model="selectedIssuerDID">
+                        <option value="" selected>Select a DID</option>
+                        <option v-for="did in associatedSSIServiceDIDs" :value="did" :key="did">
+                            {{ did }}
+                        </option>
+                    </select>
+                    <!-- <small>Make sure to use associated DID</small> -->
                 </div>
             </div>
 
@@ -54,7 +60,8 @@
                     <b-input-group>
                         <b-form-input v-model="getBlockchainUser.walletAddress" disabled></b-form-input>
                         <b-input-group-append>
-                            <b-button variant="outline-secondary"><b-icon icon="x-octagon"></b-icon></b-button>
+                            <b-button variant="outline-secondary btn-sm" @click="disconnectWallet()"><b-icon
+                                    icon="box-arrow-in-right"></b-icon></b-button>
                         </b-input-group-append>
                     </b-input-group>
                 </div>
@@ -141,14 +148,16 @@ export default {
         }
     },
     computed: {
-        ...mapGetters("walletStore", ['getBlockchainUser', 'getCosmosConnection']),
+        ...mapGetters("walletStore", ['getBlockchainUser', 'getCosmosConnection',]),
         // ...mapState("mainStore", ['onchainconfigs']),
-        ...mapGetters("mainStore", ['getOnChainConfig']),
+        ...mapGetters("mainStore", ['getOnChainConfig', 'getSelectedService', 'getAppsWithSSIServices']),
         showConnectWallet() {
             if (this.getBlockchainUser && Object.keys(this.getBlockchainUser).length > 0) {
                 return false
             } else return true
         },
+
+
 
 
         selectedBlockchain() {
@@ -186,6 +195,10 @@ export default {
                 options: interchainOptions
             })
 
+            this.isLoading = true
+            await this.prepareDIDList()
+            this.isLoading = false
+
         }
         // this.bootstrap()
     },
@@ -211,15 +224,52 @@ export default {
                 issuer: {}
             },
             nonSigningClient: null,
+            associatedSSIServiceDIDs: []
         }
     },
     methods: {
-        ...mapMutations('walletStore', ['setBlockchainUser', 'nextStep', 'setOnChainIssuerData', 'updateAnAppOnServer']),
+        ...mapMutations('walletStore', ['setBlockchainUser',
+            "setCosmosConnection", 'nextStep', 'setOnChainIssuerData', 'updateAnAppOnServer']),
         ...mapActions("mainStore", [
             "updateAnAppOnServer",
+            "fetchDIDsForAService",
+
         ]),
         ...mapMutations('mainStore', ['setOnChainConfig']),
         ...mapActions("mainStore", ['createAppsOnChainConfig']),
+
+        async prepareDIDList() {
+            try {
+                const ssiSserviceId = this.getSelectedService?.dependentServices[0]
+                if (ssiSserviceId) {
+
+                    const associatedSSIService = this.getAppsWithSSIServices.find(
+                        (x) => x.appId === ssiSserviceId
+                    );
+                    if (associatedSSIService) {
+                        const payload = {
+                            tenantUrl: associatedSSIService.tenantUrl,
+                            accessToken: associatedSSIService.access_token,
+                        };
+                        this.isLoading = true;
+                        const allDIDs = await this.fetchDIDsForAService(payload);
+                        this.associatedSSIServiceDIDs = allDIDs;
+                        this.isLoading = false;
+                    }
+                }
+            } catch (e) {
+                this.isLoading = false;
+
+                this.notifyErr(e.message);
+            }
+        },
+
+        async disconnectWallet() {
+            await window.keplr.disable()
+            this.setCosmosConnection({})
+            this.setBlockchainUser({})
+        },
+
         bootstrap() {
             console.log('Inside bootstrap.....')
             if (Object.keys(this.getOnChainConfig).length > 0) {
@@ -280,7 +330,7 @@ export default {
                 }
                 console.log('netowrk change...')
                 // TODO remove this
-                this.selectedIssuerDID = `did:hid:testnet:` + crypto.randomUUID()
+                // this.selectedIssuerDID = `did:hid:testnet:` + crypto.randomUUID()
 
                 this.chainConfig = getCosmosChainConfig(this.selectedChainId)
                 this.onChainIssuer.issuer = {}
