@@ -481,11 +481,7 @@ export default {
               icon: "fa fa-check",
             })
 
-            // menu.push({
-            //   href: "/studio/onchainkyc/" + this.getSelectedService.appId,
-            //   title: "OnChain KYC",
-            //   icon: "fas fa-network-wired",
-            // })
+
 
 
 
@@ -515,6 +511,10 @@ export default {
                   href: "/studio/webhook-config/" + this.getSelectedService.appId,
                   title: "Webhook",
                   icon: "fa fa-anchor",
+                }, {
+                  href: "/studio/onchainkyc/" + this.getSelectedService.appId,
+                  title: "OnChain KYC",
+                  icon: "fas fa-network-wired",
                 }
               ]
             })

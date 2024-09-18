@@ -142,21 +142,30 @@ h5 span {
           <thead class="thead-light">
             <tr>
               <th>Blockchain</th>
+              <th class="sticky-header">ID</th>
               <th class="sticky-header">Date</th>
               <th class="sticky-header">Issuer DID</th>
               <!-- <th class="sticky-header">Owner's Wallet</th> -->
-              <th class="sticky-header">KYC Contract Addr</th>
-              <th class="sticky-header">KYC Tx Hash</th>
-              <th class="sticky-header">SBT Contract Addr</th>
+              <th class="sticky-header">KYC Contract</th>
+              <!-- <th class="sticky-header">KYC Tx Hash</th> -->
+              <th class="sticky-header">SBT Contract</th>
               <!-- <th></th> -->
             </tr>
           </thead>
           <tbody>
             <tr v-for="row in onchainconfigs" :key="row._id">
               <td>
-                <span><img :src="getChainDetail(row.blockchainLabel).logoUrl" width="20" height="20"></span>
+                <span>
+
+                  <b-avatar :src="getChainDetail(row.blockchainLabel).logoUrl" size="30"></b-avatar>
+                  <!-- <img :src="getChainDetail(row.blockchainLabel).logoUrl" width="20" height="20"> -->
+                </span>
                 {{ getChainDetail(row.blockchainLabel).chainName }}
               </td>
+
+
+              <td @click="copyToClip(row._id, 'Onchain Configuration Id')" style="cursor: pointer;">{{
+                stringShortner(row._id, 15) }}</td>
               <td>{{ toDateTime(row.createdAt) }}
               </td>
               <td @click="copyToClip(row.issuerDid, 'Issuer DID')" style="cursor: pointer;">{{
@@ -164,13 +173,13 @@ h5 span {
               <!-- <td @click="copyToClip(row.walletAddress, 'Wallet Address')" style="cursor: pointer;">{{
                 stringShortner(row.walletAddress, 15) }}</td> -->
               <td @click="copyToClip(row.kycContractAddress, 'Kyc Contract Address')" style="cursor: pointer;">{{
-                stringShortner(row.kycContractAddress, 15) }}</td>
-              <td @click="copyToClip(row.kycContractTxHash, 'Kyc Contract Tx Hash')" style="cursor: pointer;"><a
+                stringShortner(row.kycContractAddress, 20) }}</td>
+              <!-- <td @click="copyToClip(row.kycContractTxHash, 'Kyc Contract Tx Hash')" style="cursor: pointer;"><a
                   href="#" target="_blank"> {{
-                    row.kycContractTxHash ? stringShortner(row.kycContractTxHash, 15) : "-" }}</a></td>
+                    row.kycContractTxHash ? stringShortner(row.kycContractTxHash, 15) : "-" }}</a></td> -->
 
               <td @click="copyToClip(row.sbtContractAddress, 'SBT Contract Address')" style="cursor: pointer;">{{
-                stringShortner(row.sbtContractAddress, 15) }}</td>
+                stringShortner(row.sbtContractAddress, 20) }}</td>
               <!--<td v-if="!row.sbtContractAddress">
                 <span @click="editOnChainConfiguration(row)"><i class="fas fa-feather"></i></span>
               </td>

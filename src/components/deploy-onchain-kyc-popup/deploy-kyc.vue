@@ -5,11 +5,24 @@
 
         <div class="row card-body card">
             <div class="col-md-12">
-                <div class="form-group">
-                    <label for="selectService"><strong>Select Blockchain Network<span style="color: red">*</span>:
+                <div>
+                    <label for="selectService"><strong>Blockchain Network<span style="color: red">*</span>:
                         </strong></label>
+                    <!--               
+                    <b-dropdown id="dropdown-custom" size="sm" variant="outline-secondary"
+                        text="Select Blockchain Network" block class="m-2">
+                        <b-dropdown-group v-for="option in selectNetworks" :key="option.label" id="dropdown-group-2"
+                            :header="option.label">
+                            <b-dropdown-item v-for="eachOption in option.options" :key="eachOption.text"
+                                v-model="selectedChainId" @click="changeNetwork()"><b-avatar :src="eachOption.icon"
+                                    size="20"></b-avatar> {{
+                                        eachOption.text
+                                    }}</b-dropdown-item>
+                        </b-dropdown-group>
+                    </b-dropdown> -->
+
                     <b-form-select v-on:change="changeNetwork()" v-model="selectedChainId" :options="selectNetworks"
-                        size=""></b-form-select>
+                        size="" text="Select"></b-form-select>
                     <small v-if="selectedBlockchain">ChainId: {{ selectedBlockchain.chainId }}</small>
                 </div>
             </div>
@@ -21,12 +34,11 @@
                 </div>
             </div> -->
 
-            <div class="col-md-12" v-if="selectedBlockchain">
+            <div class="col-md-12 mt-1" v-if="selectedBlockchain">
                 <div class="form-group">
-                    <label for="selectIssuer"><strong>Enter Issuer DID<span
-                                style="color: red">*</span>:</strong></label>
+                    <label for="selectIssuer"><strong>Issuer DID<span style="color: red">*</span>:</strong></label>
                     <input type="text" class="form-control" id="" v-model="selectedIssuerDID"
-                        placeholder="did:hid:testnet:..." />
+                        placeholder="Enter a DID (e.g did:hid:testnet:..)" />
                     <small>Make sure to use associated DID</small>
                 </div>
             </div>
@@ -35,16 +47,23 @@
             <div class="col-md-12" v-if="Object.keys(getBlockchainUser).length > 0">
                 <div class="form-group">
                     <!-- <tool-tip infoMessage="SSI Service Id"></tool-tip> -->
-                    <label for=""><strong>Your Wallet Address: </strong></label>
-                    <input type="text" class="form-control" id="" v-model="getBlockchainUser.walletAddress"
-                        aria-describedby="orgNameHelp" disabled />
+                    <label for=""><strong>Wallet Address: </strong></label>
+                    <!-- <input type="text" class="form-control" id="" v-model="getBlockchainUser.walletAddress"
+                        aria-describedby="orgNameHelp" disabled /> -->
+
+                    <b-input-group>
+                        <b-form-input v-model="getBlockchainUser.walletAddress" disabled></b-form-input>
+                        <b-input-group-append>
+                            <b-button variant="outline-secondary"><b-icon icon="x-octagon"></b-icon></b-button>
+                        </b-input-group-append>
+                    </b-input-group>
                 </div>
             </div>
 
             <div class="col-md-12" v-if="Object.keys(onChainIssuer.issuer).length > 0">
                 <div class="form-group">
                     <!-- <tool-tip infoMessage="SSI Service Id"></tool-tip> -->
-                    <label for=""><strong>Kyc Contract Address: </strong></label>
+                    <label for=""><strong>KYC Contract Address: </strong></label>
                     <input type="text" class="form-control" id="" v-model="onChainIssuer.issuer.kyc_contract_address"
                         disabled />
                 </div>
@@ -59,9 +78,14 @@
 
 
 
+
+
                     <button class="btn btn-outline-dark btn-md" style="width:100%"
                         v-if="!showConnectWallet && selectedBlockchain && getBlockchainUser.walletAddress && !onChainIssuer.issuer.kyc_contract_address"
-                        v-on:click="deployIssuer()">Deploy KYC Contract</button>
+                        v-on:click="deployIssuer()">
+                        <b-avatar :src="chainConfig.currencies[0].coinImageUrl" size="30"></b-avatar> Deploy KYC
+                        Contract
+                    </button>
 
                     <!-- <button class="btn btn-primary btn-md" style="width:100%"
                         v-if="selectedIssuerDID && selectedBlockchain && !onChainIssuer.issuer.kyc_contract_address"
@@ -89,7 +113,7 @@
 <script>
 import ConnectWalletButton from "../element/authButtons/ConnectWalletButton.vue";
 import { mapGetters, mapMutations, mapActions } from "vuex";
-import { getCosmosBlockchainLabel, getCosmosChainConfig, createNonSigningClient } from '../../blockchains-metadata/cosmos/wallet/cosmos-wallet-utils'
+import { getCosmosBlockchainLabel, getCosmosChainConfig, createNonSigningClient, getCosmosCoinLogo } from '../../blockchains-metadata/cosmos/wallet/cosmos-wallet-utils'
 import { getSupportedChains } from '../../blockchains-metadata/wallet'
 import { smartContractExecuteRPC } from '../../blockchains-metadata/cosmos/contract/execute'
 import { smartContractQueryRPC } from '../../blockchains-metadata/cosmos/contract/query'
@@ -150,15 +174,18 @@ export default {
             const { interchain } = this.allSupportedChains
             const interchainOptions = []
             interchain.forEach(chain => {
+                const chainLabel = getCosmosBlockchainLabel(chain)
                 interchainOptions.push({
-                    value: getCosmosBlockchainLabel(chain),
-                    text: chain.chainName
+                    value: chainLabel,
+                    text: chain.chainName,
+                    icon: getCosmosCoinLogo(chainLabel)
                 })
             })
             this.selectNetworks.push({
-                label: 'Interchain',
+                label: 'Interchain', // let's keep this for future purposes when we have many networks.
                 options: interchainOptions
             })
+
         }
         // this.bootstrap()
     },
@@ -170,7 +197,7 @@ export default {
             selectedChainId: null,
             allSupportedChains: getSupportedChains(),
             selectNetworks: [
-                { value: null, text: 'Please select a network' },
+                { value: null, text: 'Please select a blockchain' },
             ],
             chainConfig: {},
 
@@ -216,6 +243,8 @@ export default {
                     this.isLoading = false
                     return
                 }
+
+                // const msg = constructGetRegistredIssuerMsg("did:hid:testnet:z6Mkk8qQLgMmLKDq6ER9BYGycFEdSaPqy9JPWKUaPGWzJeNp")
                 const msg = constructGetRegistredIssuerMsg(this.selectedIssuerDID)
                 console.log('checkIfIssuerHasAlreadyDeployed:: Before querying kyc contract address = ' + HYPERSIGN_KYC_FACTORY_CONTRACT_ADDRESS)
                 const resp = await this.queryContract(msg, HYPERSIGN_KYC_FACTORY_CONTRACT_ADDRESS)
@@ -250,10 +279,16 @@ export default {
                     return
                 }
                 console.log('netowrk change...')
+                // TODO remove this
+                this.selectedIssuerDID = `did:hid:testnet:` + crypto.randomUUID()
+
                 this.chainConfig = getCosmosChainConfig(this.selectedChainId)
                 this.onChainIssuer.issuer = {}
                 this.setBlockchainUser({})
                 this.nonSigningClient = await createNonSigningClient(this.chainConfig["rpc"]);
+
+
+
             } catch (e) {
                 this.notifyErr("Error ", e.message);
             }
@@ -267,6 +302,105 @@ export default {
             this.onChainIssuer = result;
             this.setOnChainIssuerData(this.onChainIssuer)
             this.selectedIssuerDID = this.onChainIssuer.issuer.did
+        },
+
+        dummyGetDidDocAndProofs() {
+            const did_doc = [
+                {
+                    "https://www.w3.org/ns/activitystreams#alsoKnownAs": [
+                        {
+                            "@id": "did:hid:testnet:z6Mkk8qQLgMmLKDq6ER9BYGycFEdSaPqy9JPWKUaPGWzJeNp"
+                        }
+                    ],
+                    "https://w3id.org/security#assertionMethod": [
+                        {
+                            "@id": "did:hid:testnet:z6Mkk8qQLgMmLKDq6ER9BYGycFEdSaPqy9JPWKUaPGWzJeNp#key-1"
+                        }
+                    ],
+                    "https://w3id.org/security#authenticationMethod": [
+                        {
+                            "@id": "did:hid:testnet:z6Mkk8qQLgMmLKDq6ER9BYGycFEdSaPqy9JPWKUaPGWzJeNp#key-1"
+                        }
+                    ],
+                    "https://w3id.org/security#capabilityDelegationMethod": [
+                        {
+                            "@id": "did:hid:testnet:z6Mkk8qQLgMmLKDq6ER9BYGycFEdSaPqy9JPWKUaPGWzJeNp#key-1"
+                        }
+                    ],
+                    "https://w3id.org/security#capabilityInvocationMethod": [
+                        {
+                            "@id": "did:hid:testnet:z6Mkk8qQLgMmLKDq6ER9BYGycFEdSaPqy9JPWKUaPGWzJeNp#key-1"
+                        }
+                    ],
+                    "https://w3id.org/security#controller": [
+                        {
+                            "@id": "did:hid:testnet:z6Mkk8qQLgMmLKDq6ER9BYGycFEdSaPqy9JPWKUaPGWzJeNp"
+                        }
+                    ],
+                    "@id": this.selectedIssuerDID,
+                    "https://w3id.org/security#keyAgreementMethod": [],
+                    "https://www.w3.org/ns/did#service": [],
+                    "https://w3id.org/security#verificationMethod": [
+                        {
+                            "https://w3id.org/security#controller": [
+                                {
+                                    "@id": "did:hid:testnet:z6Mkk8qQLgMmLKDq6ER9BYGycFEdSaPqy9JPWKUaPGWzJeNp"
+                                }
+                            ],
+                            "@id": "did:hid:testnet:z6Mkk8qQLgMmLKDq6ER9BYGycFEdSaPqy9JPWKUaPGWzJeNp#key-1",
+                            "https://w3id.org/security#publicKeyMultibase": [
+                                {
+                                    "@type": "https://w3id.org/security#multibase",
+                                    "@value": "z6Mkk8qQLgMmLKDq6ER9BYGycFEdSaPqy9JPWKUaPGWzJeNp"
+                                }
+                            ],
+                            "@type": [
+                                "https://w3id.org/security#Ed25519VerificationKey2020"
+                            ]
+                        }
+                    ]
+                }
+            ]
+
+            const did_doc_proof = [
+                {
+                    "https://w3id.org/security#challenge": [
+                        {
+                            "@value": "123123"
+                        }
+                    ],
+                    "http://purl.org/dc/terms/created": [
+                        {
+                            "@type": "http://www.w3.org/2001/XMLSchema#dateTime",
+                            "@value": "2024-09-01T17:44:11Z"
+                        }
+                    ],
+                    "https://w3id.org/security#domain": [
+                        {
+                            "@value": "http:adsasd"
+                        }
+                    ],
+                    "https://w3id.org/security#proofPurpose": [
+                        {
+                            "@id": "https://w3id.org/security#authenticationMethod"
+                        }
+                    ],
+                    "@type": [
+                        "https://w3id.org/security#Ed25519Signature2020"
+                    ],
+                    "https://w3id.org/security#verificationMethod": [
+                        {
+                            "@id": "did:hid:testnet:z6Mkk8qQLgMmLKDq6ER9BYGycFEdSaPqy9JPWKUaPGWzJeNp#key-1"
+                        }
+                    ]
+                }
+            ]
+
+            const signature = "z3aY71DPQAqiiV5Q4UYZ6EYeWYa3MjeEHeEZMxcNfYxTqyn6r14yy1K3eYpuNuPQDX2mjh2BJ8VaPj5UKKMcAjtSq"
+
+            return {
+                did_doc, did_doc_proof, signature
+            }
         },
 
         async deployIssuer() {
@@ -284,10 +418,13 @@ export default {
                     HYPERSIGN_KYC_FACTORY_CONTRACT_ADDRESS, ISSUER_KYC_CODE_ID
                 })
 
-                const smartContractMsg = constructOnBoardIssuer(
-                    this.selectedIssuerDID,
-                    ISSUER_KYC_CODE_ID
-                );
+                const smartContractMsg = constructOnBoardIssuer({
+                    ...this.dummyGetDidDocAndProofs()
+                });
+
+                console.log(smartContractMsg)
+
+
                 const chainConfig = this.chainConfig
                 const chainCoinDenom = chainConfig["feeCurrencies"][0]["coinMinimalDenom"]
                 const result = await smartContractExecuteRPC(
@@ -299,11 +436,12 @@ export default {
 
                 if (result) {
                     console.log(result)
-                    this.notifySuccess('Successfully minted your identity')
+                    this.notifySuccess('Successfully deployed your KYC Issuer Contract')
                     this.isLoading = false
 
 
                     const msg = constructGetRegistredIssuerMsg(this.selectedIssuerDID)
+                    // const msg = constructGetRegistredIssuerMsg("did:hid:testnet:z6Mkk8qQLgMmLKDq6ER9BYGycFEdSaPqy9JPWKUaPGWzJeNp")
                     await this.queryContract(msg, HYPERSIGN_KYC_FACTORY_CONTRACT_ADDRESS)
 
                     this.createAppsOnChainConfig({
@@ -332,7 +470,7 @@ export default {
                 issuer: {}
             }
             this.walletAddress = ""
-            this.selectedIssuerDID = ""
+            // this.selectedIssuerDID = "did:hid:testnet:z6Mkk8qQLgMmLKDq6ER9BYGycFEdSaPqy9JPWKUaPGWzJeNp"
             this.selectedChainId = null
             this.setBlockchainUser({})
         }

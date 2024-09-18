@@ -821,7 +821,7 @@ const mainStore = {
             })
         },
 
-        updateAppsOnChainConfig: ({ commit, getters }, payload) => {
+        updateAppsOnChainConfig: ({ commit, getters, dispatch }, payload) => {
             return new Promise((resolve, reject) => {
                 if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
                     return reject(new Error('Tenant url is null or empty, service is not selected'))
@@ -840,6 +840,7 @@ const mainStore = {
                     }
                     // restting
                     commit('setOnChainConfig', {});
+                    dispatch('fetchAppsOnChainConfigs')
                     resolve(json.data)
                 }).catch((e) => {
                     return reject(`Error while fetching apps ` + e.message);

@@ -9,11 +9,16 @@ export function constructSBTMintMsg(owner, nftTokenId, nftTokenUri) {
     }
 }
 
-export function constructOnBoardIssuer(issuer_did, issuer_kyc_code_id) {
+
+
+export function constructOnBoardIssuer({ did_doc, did_doc_proof, signature }) {
     return {
         "onboard_issuer": {
-            "issuer_did": issuer_did,
-            "issuer_kyc_code_id": issuer_kyc_code_id,
+            "did_doc": JSON.stringify(did_doc),
+            "did_doc_proof": JSON.stringify(did_doc_proof),
+            "signature": signature,
+            // "issuer_did": issuer_did,
+            // "issuer_kyc_code_id": issuer_kyc_code_id,
         }
     }
 }

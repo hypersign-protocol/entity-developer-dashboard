@@ -522,9 +522,11 @@ h3 {
                                 <tr>
                                     <td class="greyFont">Blockchain</td>
                                     <td style="text-align: right;">
-                                        <span><img
+                                        <span>
+                                            <b-avatar
                                                 :src="getChainDetail(this.userSbtMintDataFromUserConsent.blockchainLabel).logoUrl"
-                                                width="20" height="20"></span>
+                                                size="20"></b-avatar>
+                                        </span>
                                         {{ getChainDetail(this.userSbtMintDataFromUserConsent.blockchainLabel).chainName
                                         }}
                                     </td>

@@ -164,7 +164,7 @@ ul {
                 </div>
               </div>
             </li>
-            <!-- <li class="list-group-item">
+            <li class="list-group-item">
               <div class="row">
                 <div class="col">
                   <b-form-checkbox switch size="lg" v-model="widgetConfigTemp.onChainId.enabled">Enable Onchain
@@ -179,7 +179,7 @@ ul {
                   </div>
                 </div>
               </div>
-            </li> -->
+            </li>
             <li class="list-group-item" v-if="widgetConfigTemp.userConsent.enabled">
               <div class="row">
                 <div class="col">
@@ -324,7 +324,7 @@ export default {
       // appId
       this.isLoading = true
       // TODO: this we can stop until onchain feature is ready for production
-      //await this.fetchAppsOnChainConfigs()
+      await this.fetchAppsOnChainConfigs()
       this.isLoading = false
 
       this.isLoading = true

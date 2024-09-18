@@ -9,7 +9,7 @@
             "coinMinimalDenom": "unibi",
             "coinDecimals": 6,
             "coinGeckoId": "nibi",
-            "coinImageUrl": "https://i.ibb.co/mJ99JLL/Screenshot-2024-04-10-at-8-37-58-PM.png"
+            "coinImageUrl": "https://nibiru.fi/_astro/nibi-logomark-profile-pic.DoOUhpoa.svg"
         },
         "bip44": {
             "coinType": 118
@@ -28,7 +28,7 @@
                 "coinMinimalDenom": "unibi",
                 "coinDecimals": 6,
                 "coinGeckoId": "nibi",
-                "coinImageUrl": "https://i.ibb.co/mJ99JLL/Screenshot-2024-04-10-at-8-37-58-PM.png"
+                "coinImageUrl": "https://nibiru.fi/_astro/nibi-logomark-profile-pic.DoOUhpoa.svg"
             }
         ],
         "feeCurrencies": [
@@ -37,7 +37,7 @@
                 "coinMinimalDenom": "unibi",
                 "coinDecimals": 6,
                 "coinGeckoId": "nibi",
-                "coinImageUrl": "https://i.ibb.co/mJ99JLL/Screenshot-2024-04-10-at-8-37-58-PM.png"
+                "coinImageUrl": "https://nibiru.fi/_astro/nibi-logomark-profile-pic.DoOUhpoa.svg"
             }
         ],
         "coinType": 118,

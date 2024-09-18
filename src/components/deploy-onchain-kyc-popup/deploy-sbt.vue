@@ -6,7 +6,7 @@
             <div class="col-md-12" v-if="Object.keys(onChainIssuer.issuer).length > 0">
                 <div class="form-group">
                     <!-- <tool-tip infoMessage="SSI Service Id"></tool-tip> -->
-                    <label for=""><strong>Kyc Contract Address: </strong></label>
+                    <label for=""><strong>KYC Contract Address: </strong></label>
                     <input type="text" class="form-control" id="" v-model="onChainIssuer.issuer.kyc_contract_address"
                         disabled />
                 </div>
@@ -39,8 +39,11 @@
                         @authEvent="myEventListener" style="width:100%" v-if="showConnectWallet" />
 
 
+
                     <button class="btn btn-outline-dark btn-md" style="width:100%" v-on:click="initSBTcontract()"
-                        v-if="!showConnectWallet && getBlockchainUser.walletAddress">Deploy SBT Contract</button>
+                        v-if="!showConnectWallet && getBlockchainUser.walletAddress"><b-avatar
+                            :src="chainConfig.currencies[0].coinImageUrl" size="30"></b-avatar> Deploy SBT
+                        Contract</button>
                 </div>
             </div>
 
@@ -119,8 +122,8 @@ export default {
             //     }
             // },
             selectedChainId: "cosmos:nibi:nibiru-localnet-0",
-            nonSigningClient: null
-
+            nonSigningClient: null,
+            chainConfig: {}
         }
     },
     methods: {
@@ -143,8 +146,8 @@ export default {
         },
         async checkIfalreadyDeployed() {
             try {
-                const chainConfig = getCosmosChainConfig(this.selectedChainId)
-                this.nonSigningClient = await createNonSigningClient(chainConfig["rpc"]);
+                this.chainConfig = getCosmosChainConfig(this.selectedChainId)
+                this.nonSigningClient = await createNonSigningClient(this.chainConfig["rpc"]);
 
                 this.isLoading = true;
                 const msg = constructGetRegistredSBTContractAddressMsg()
@@ -184,8 +187,8 @@ export default {
                     SBT_TOKEN_CODE_ID
                 );
 
-                const chainConfig = getCosmosChainConfig(this.selectedChainId)
-                const chainCoinDenom = chainConfig["feeCurrencies"][0]["coinMinimalDenom"]
+                this.chainConfig = getCosmosChainConfig(this.selectedChainId)
+                const chainCoinDenom = this.chainConfig["feeCurrencies"][0]["coinMinimalDenom"]
                 const result = await smartContractExecuteRPC(
                     this.getCosmosConnection.signingClient,
                     chainCoinDenom,
@@ -195,7 +198,7 @@ export default {
 
                 if (result) {
                     console.log(result)
-                    this.notifySuccess('Successfully minted your identity')
+                    this.notifySuccess('Successfully deployed your SBT Contract')
 
 
                     this.isLoading = false
