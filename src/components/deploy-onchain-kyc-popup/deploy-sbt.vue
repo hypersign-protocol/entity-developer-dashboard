@@ -181,7 +181,7 @@ export default {
                 // }
 
                 this.isLoading = true
-                const { SBT_TOKEN_CODE_ID } = await import(`../../blockchains-metadata/${this.selectedBlockchain.ecosystem}/contract/${this.selectedBlockchain.blockchain}/config`)
+                const { SBT_TOKEN_CODE_ID } = await import(`../../blockchains-metadata/${this.selectedBlockchain.ecosystem}/contract/${this.selectedBlockchain.blockchain}/${this.selectedBlockchain.chainId}/config`)
 
                 const smartContractMsg = constructInitSbtMsg(
                     SBT_TOKEN_CODE_ID

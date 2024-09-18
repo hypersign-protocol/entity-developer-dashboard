@@ -504,6 +504,11 @@ export default {
               icon: 'fa fa-cogs',
               child: [
                 {
+                  href: "/studio/onchainkyc/" + this.getSelectedService.appId,
+                  title: "OnChain KYC",
+                  icon: "fas fa-network-wired",
+                },
+                {
                   href: "/studio/widget-config/" + this.getSelectedService.appId,
                   title: "KYC Widget",
                   icon: "fa fa-puzzle-piece",
@@ -511,11 +516,7 @@ export default {
                   href: "/studio/webhook-config/" + this.getSelectedService.appId,
                   title: "Webhook",
                   icon: "fa fa-anchor",
-                }, {
-                  href: "/studio/onchainkyc/" + this.getSelectedService.appId,
-                  title: "OnChain KYC",
-                  icon: "fas fa-network-wired",
-                }
+                },
               ]
             })
 

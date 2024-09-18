@@ -45,7 +45,7 @@ export default {
         ...mapMutations("walletStore", ['setCosmosConnection', 'setBlockchainUser']),
         async connectWallet() {
             // const { ecosystem, blockchain } = this.getOnChainIssuerConfig
-            const { default: SupportedChains } = await import(`../../../blockchains-metadata/${this.ecosystem}/wallet/${this.blockchain}/chains`)
+            const { default: SupportedChains } = await import(`../../../blockchains-metadata/${this.ecosystem}/wallet/${this.blockchain}/${this.chainId}/chains`)
 
             if (!SupportedChains) {
                 throw new Error('Ecosysem or blockchain is not supported')

@@ -169,7 +169,10 @@ ul {
                 <div class="col">
                   <b-form-checkbox switch size="lg" v-model="widgetConfigTemp.onChainId.enabled">Enable Onchain
                     KYC</b-form-checkbox>
-                  <small>Lorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsum</small>
+                  <small>Enable users to mint SBT of their credentials in a privacy preserving manner and
+                    verify
+                    on
+                    blockchain</small>
                 </div>
                 <div class="col" v-if="widgetConfigTemp.onChainId.enabled && onchainconfigsOptions.length > 0">
                   <div class="">

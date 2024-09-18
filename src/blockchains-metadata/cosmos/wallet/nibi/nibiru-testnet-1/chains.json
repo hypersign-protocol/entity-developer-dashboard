@@ -1,0 +1,60 @@
+[
+    {
+        "chainId": "nibiru-testnet-1",
+        "chainName": "Nibiru (testnet)",
+        "rpc": "https://rpc.testnet-1.nibiru.fi",
+        "rest": "https://lcd.testnet-1.nibiru.fi", 
+        "stakeCurrency": {
+            "coinDenom": "NIBI",
+            "coinMinimalDenom": "unibi",
+            "coinDecimals": 6,
+            "coinGeckoId": "nibi",
+            "coinImageUrl": "https://nibiru.fi/_astro/nibi-logomark-profile-pic.DoOUhpoa.svg"
+        },
+        "bip44": {
+            "coinType": 118
+        },
+        "bech32Config": {
+            "bech32PrefixAccAddr": "nibi",
+            "bech32PrefixAccPub": "nibipub",
+            "bech32PrefixValAddr": "nibivaloper",
+            "bech32PrefixValPub": "nibivaloperpub",
+            "bech32PrefixConsAddr": "nibivalcons",
+            "bech32PrefixConsPub": "nibivalconspub"
+        },
+        "currencies": [
+            {
+                "coinDenom": "NIBI",
+                "coinMinimalDenom": "unibi",
+                "coinDecimals": 6,
+                "coinGeckoId": "nibi",
+                "coinImageUrl": "https://nibiru.fi/_astro/nibi-logomark-profile-pic.DoOUhpoa.svg"
+            }
+        ],
+        "feeCurrencies": [
+            {
+                "coinDenom": "NIBI",
+                "coinMinimalDenom": "unibi",
+                "coinDecimals": 6,
+                "coinGeckoId": "nibi",
+                "coinImageUrl": "https://nibiru.fi/_astro/nibi-logomark-profile-pic.DoOUhpoa.svg"
+            }
+        ],
+        "coinType": 118,
+        "gasPriceStep": {
+            "low": 0.01,
+            "average": 0.025,
+            "high": 0.04
+        },
+        "features": [
+            "ibc-transfer",
+            "ibc-go",
+            "cosmwasm"
+        ],
+        "txExplorer": {
+            "name": "Local",
+            "txUrl": "https://rpc.testnet-1.nibiru.fi/tx?hash={txHash}",
+            "themeColor": "white"
+        }
+    }
+]
