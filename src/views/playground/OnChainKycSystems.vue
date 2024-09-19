@@ -169,7 +169,7 @@ h5 span {
         <table class="table table-hover event-card" style="background:#FFFF">
           <thead class="thead-light">
             <tr>
-              <th>Blockchain</th>
+              <th class="sticky-header">Blockchain</th>
               <th class="sticky-header">ID</th>
               <th class="sticky-header">Date</th>
               <th class="sticky-header">Issuer DID</th>
@@ -177,6 +177,7 @@ h5 span {
               <th class="sticky-header">KYC Contract</th>
               <!-- <th class="sticky-header">KYC Tx Hash</th> -->
               <th class="sticky-header">SBT Contract</th>
+              <th class="sticky-header"></th>
               <!-- <th></th> -->
             </tr>
           </thead>
@@ -212,6 +213,10 @@ h5 span {
                 <span @click="editOnChainConfiguration(row)"><i class="fas fa-feather"></i></span>
               </td>
               <td v-else></td>-->
+              <td>
+                <span @click="deleteConfiguration(row._id)" class="ml-2" style="cursor:grab; color:grey"><i
+                    class="fa fa-trash"></i></span>
+              </td>
             </tr>
           </tbody>
         </table>
@@ -302,8 +307,9 @@ export default {
 
 
 
-    async deployOnchainKyc() {
-
+    async deleteConfiguration() {
+      this.notifyErr('Not implemented')
+      return
     },
 
     editOnChainConfiguration(row) {
