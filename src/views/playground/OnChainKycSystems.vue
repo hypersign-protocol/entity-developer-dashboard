@@ -301,14 +301,17 @@ export default {
         appendToast: append,
       })
     },
-    ...mapActions('mainStore', ['fetchAppsOnChainConfigs',]),
+    ...mapActions('mainStore', ['fetchAppsOnChainConfigs', 'deleteAppOnChainConfig']),
     ...mapMutations('playgroundStore', ['updateSideNavStatus', 'shiftContainer']),
     ...mapMutations('mainStore', ['setOnChainConfig']),
 
 
 
-    async deleteConfiguration() {
-      this.notifyErr('Not implemented')
+    async deleteConfiguration(id) {
+      this.isLoading = true
+      await this.deleteAppOnChainConfig({ _id: id })
+      this.isLoading = false
+      this.notifySuccess('Configuration deleted successfully')
       return
     },
 

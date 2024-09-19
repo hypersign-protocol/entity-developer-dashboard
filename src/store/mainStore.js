@@ -848,6 +848,31 @@ const mainStore = {
             })
         },
 
+        deleteAppOnChainConfig: ({ getters, dispatch }, payload) => {
+            return new Promise((resolve, reject) => {
+                if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
+                    return reject(new Error('Tenant url is null or empty, service is not selected'))
+                }
+                const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/onchainkyc-config/${payload._id}`;
+                const authToken = getters.getSelectedService.access_token
+                const headers = UtilsMixin.methods.getHeader(authToken);
+                fetch(url, {
+                    method: 'DELETE',
+                    headers,
+                }).then(response => response.json()).then(json => {
+                    if (json.error) {
+                        return reject(new Error(json.error.details.join(' ')))
+                    }
+                    dispatch('fetchAppsOnChainConfigs')
+                    resolve(json)
+                }).catch((e) => {
+                    return reject(`Error while fetching apps ` + e.message);
+                })
+            })
+        },
+
+
+
         // Widget Config --------------------------------
         createAppsWidgetConfig: ({ commit, getters }) => {
             return new Promise((resolve, reject) => {
