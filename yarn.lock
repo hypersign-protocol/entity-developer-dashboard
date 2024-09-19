@@ -7703,7 +7703,7 @@ jsonld@^5.0.0, jsonld@^5.2.0:
     lru-cache "^6.0.0"
     rdf-canonize "^3.0.0"
 
-jsonld@^8.0.0, jsonld@^8.2.0, jsonld@^8.3.1:
+jsonld@^8.0.0, jsonld@^8.2.0, jsonld@^8.3.1, jsonld@^8.3.2:
   version "8.3.2"
   resolved "https://registry.yarnpkg.com/jsonld/-/jsonld-8.3.2.tgz#7033f8994aed346b536e9046025f7f1fe9669934"
   integrity sha512-MwBbq95szLwt8eVQ1Bcfwmgju/Y5P2GdtlHE2ncyfuYjIdEhluUVyj1eudacf1mOkWIoS9GpDBTECqhmq7EOaA==

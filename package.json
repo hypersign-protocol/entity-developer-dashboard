@@ -36,6 +36,7 @@
     "fs": "^0.0.1-security",
     "gh-pages": "^1.2.0",
     "hs-ssi-sdk": "^7.0.1",
+    "jsonld": "^8.3.2",
     "lds-sdk": "^4.0.1",
     "leaflet": "^1.9.4",
     "mdbvue": "^6.7.1",

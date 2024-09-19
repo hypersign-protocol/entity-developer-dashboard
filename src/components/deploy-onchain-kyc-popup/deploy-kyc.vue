@@ -119,7 +119,7 @@
 
 <script>
 import ConnectWalletButton from "../element/authButtons/ConnectWalletButton.vue";
-import { mapGetters, mapMutations, mapActions } from "vuex";
+import { mapGetters, mapMutations, mapActions, mapState } from "vuex";
 import { getCosmosBlockchainLabel, getCosmosChainConfig, createNonSigningClient, getCosmosCoinLogo } from '../../blockchains-metadata/cosmos/wallet/cosmos-wallet-utils'
 import { getSupportedChains } from '../../blockchains-metadata/wallet'
 import { smartContractExecuteRPC } from '../../blockchains-metadata/cosmos/contract/execute'
@@ -127,6 +127,8 @@ import { smartContractQueryRPC } from '../../blockchains-metadata/cosmos/contrac
 import UtilsMixin from '../../mixins/utils'
 import { constructOnBoardIssuer, constructGetRegistredIssuerMsg } from '../../blockchains-metadata/cosmos/contract/msg';
 
+const jsonld = require('jsonld');
+import customLoader from '../../blockchains-metadata/documentLoader';
 export default {
     name: 'DeployKyc',
     components: {
@@ -148,6 +150,7 @@ export default {
         }
     },
     computed: {
+        ...mapState('mainStore', ['didList']),
         ...mapGetters("walletStore", ['getBlockchainUser', 'getCosmosConnection',]),
         // ...mapState("mainStore", ['onchainconfigs']),
         ...mapGetters("mainStore", ['getOnChainConfig', 'getSelectedService', 'getAppsWithSSIServices']),
@@ -156,9 +159,6 @@ export default {
                 return false
             } else return true
         },
-
-
-
 
         selectedBlockchain() {
             if (this.selectedChainId) {
@@ -233,7 +233,7 @@ export default {
         ...mapActions("mainStore", [
             "updateAnAppOnServer",
             "fetchDIDsForAService",
-
+            "generateDIDProof"
         ]),
         ...mapMutations('mainStore', ['setOnChainConfig']),
         ...mapActions("mainStore", ['createAppsOnChainConfig']),
@@ -328,7 +328,7 @@ export default {
                     this.reset()
                     return
                 }
-                console.log('netowrk change...')
+
                 // TODO remove this
                 // this.selectedIssuerDID = `did:hid:testnet:` + crypto.randomUUID()
 
@@ -354,102 +354,40 @@ export default {
             this.selectedIssuerDID = this.onChainIssuer.issuer.did
         },
 
-        dummyGetDidDocAndProofs() {
-            const did_doc = [
-                {
-                    "https://www.w3.org/ns/activitystreams#alsoKnownAs": [
-                        {
-                            "@id": "did:hid:testnet:z6Mkk8qQLgMmLKDq6ER9BYGycFEdSaPqy9JPWKUaPGWzJeNp"
-                        }
-                    ],
-                    "https://w3id.org/security#assertionMethod": [
-                        {
-                            "@id": "did:hid:testnet:z6Mkk8qQLgMmLKDq6ER9BYGycFEdSaPqy9JPWKUaPGWzJeNp#key-1"
-                        }
-                    ],
-                    "https://w3id.org/security#authenticationMethod": [
-                        {
-                            "@id": "did:hid:testnet:z6Mkk8qQLgMmLKDq6ER9BYGycFEdSaPqy9JPWKUaPGWzJeNp#key-1"
-                        }
-                    ],
-                    "https://w3id.org/security#capabilityDelegationMethod": [
-                        {
-                            "@id": "did:hid:testnet:z6Mkk8qQLgMmLKDq6ER9BYGycFEdSaPqy9JPWKUaPGWzJeNp#key-1"
-                        }
-                    ],
-                    "https://w3id.org/security#capabilityInvocationMethod": [
-                        {
-                            "@id": "did:hid:testnet:z6Mkk8qQLgMmLKDq6ER9BYGycFEdSaPqy9JPWKUaPGWzJeNp#key-1"
-                        }
-                    ],
-                    "https://w3id.org/security#controller": [
-                        {
-                            "@id": "did:hid:testnet:z6Mkk8qQLgMmLKDq6ER9BYGycFEdSaPqy9JPWKUaPGWzJeNp"
-                        }
-                    ],
-                    "@id": this.selectedIssuerDID,
-                    "https://w3id.org/security#keyAgreementMethod": [],
-                    "https://www.w3.org/ns/did#service": [],
-                    "https://w3id.org/security#verificationMethod": [
-                        {
-                            "https://w3id.org/security#controller": [
-                                {
-                                    "@id": "did:hid:testnet:z6Mkk8qQLgMmLKDq6ER9BYGycFEdSaPqy9JPWKUaPGWzJeNp"
-                                }
-                            ],
-                            "@id": "did:hid:testnet:z6Mkk8qQLgMmLKDq6ER9BYGycFEdSaPqy9JPWKUaPGWzJeNp#key-1",
-                            "https://w3id.org/security#publicKeyMultibase": [
-                                {
-                                    "@type": "https://w3id.org/security#multibase",
-                                    "@value": "z6Mkk8qQLgMmLKDq6ER9BYGycFEdSaPqy9JPWKUaPGWzJeNp"
-                                }
-                            ],
-                            "@type": [
-                                "https://w3id.org/security#Ed25519VerificationKey2020"
-                            ]
-                        }
-                    ]
-                }
-            ]
+        async dummyGetDidDocAndProofs() {
+            const did = this.selectedIssuerDID;
+            const didDocument = this.didList.find(x => x.did == did)?.didDocument;
+            const verificationMethodId = didDocument?.verificationMethod[0]?.id
 
-            const did_doc_proof = [
-                {
-                    "https://w3id.org/security#challenge": [
-                        {
-                            "@value": "123123"
-                        }
-                    ],
-                    "http://purl.org/dc/terms/created": [
-                        {
-                            "@type": "http://www.w3.org/2001/XMLSchema#dateTime",
-                            "@value": "2024-09-01T17:44:11Z"
-                        }
-                    ],
-                    "https://w3id.org/security#domain": [
-                        {
-                            "@value": "http:adsasd"
-                        }
-                    ],
-                    "https://w3id.org/security#proofPurpose": [
-                        {
-                            "@id": "https://w3id.org/security#authenticationMethod"
-                        }
-                    ],
-                    "@type": [
-                        "https://w3id.org/security#Ed25519Signature2020"
-                    ],
-                    "https://w3id.org/security#verificationMethod": [
-                        {
-                            "@id": "did:hid:testnet:z6Mkk8qQLgMmLKDq6ER9BYGycFEdSaPqy9JPWKUaPGWzJeNp#key-1"
-                        }
-                    ]
-                }
-            ]
+            this.isLoading = true;
+            delete didDocument["verificationMethod"][0]["blockchainAccountId"]
+            const proofdoc = await this.generateDIDProof({
+                did,
+                didDocument,
+                verificationMethodId,
+                purpose: 'assertion'
+            })
 
-            const signature = "z3aY71DPQAqiiV5Q4UYZ6EYeWYa3MjeEHeEZMxcNfYxTqyn6r14yy1K3eYpuNuPQDX2mjh2BJ8VaPj5UKKMcAjtSq"
+            this.isLoading = false;
+            const tempproofdoc = proofdoc;
 
+            // signature
+            const signature = tempproofdoc['proof']['proofValue'];
+
+            // expanded diddocproof
+            delete tempproofdoc['proof']['proofValue'];
+            const did_doc_proof_normal = {
+                '@context': tempproofdoc['@context'],
+                ...tempproofdoc['proof']
+            }
+            const did_doc_proof_expanded = await jsonld.expand(did_doc_proof_normal, { documentLoader: customLoader })
+
+            // expanded diddoc
+            delete tempproofdoc['proof']
+            const did_doc_normal = tempproofdoc;
+            const did_doc_expanded = await jsonld.expand(did_doc_normal, { documentLoader: customLoader })
             return {
-                did_doc, did_doc_proof, signature
+                did_doc: did_doc_expanded, did_doc_proof: did_doc_proof_expanded, signature
             }
         },
 
@@ -467,9 +405,10 @@ export default {
                 console.log({
                     HYPERSIGN_KYC_FACTORY_CONTRACT_ADDRESS, ISSUER_KYC_CODE_ID
                 })
+                const proof = await this.dummyGetDidDocAndProofs()
 
                 const smartContractMsg = constructOnBoardIssuer({
-                    ...this.dummyGetDidDocAndProofs()
+                    ...proof
                 });
 
                 console.log(smartContractMsg)
