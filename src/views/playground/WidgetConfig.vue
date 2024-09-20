@@ -164,12 +164,15 @@ ul {
                 </div>
               </div>
             </li>
-            <!-- <li class="list-group-item">
+            <li class="list-group-item">
               <div class="row">
                 <div class="col">
                   <b-form-checkbox switch size="lg" v-model="widgetConfigTemp.onChainId.enabled">Enable Onchain
                     KYC</b-form-checkbox>
-                  <small>Lorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsum</small>
+                  <small>Enable users to mint SBT of their credentials in a privacy preserving manner and
+                    verify
+                    on
+                    blockchain</small>
                 </div>
                 <div class="col" v-if="widgetConfigTemp.onChainId.enabled && onchainconfigsOptions.length > 0">
                   <div class="">
@@ -179,7 +182,7 @@ ul {
                   </div>
                 </div>
               </div>
-            </li> -->
+            </li>
             <li class="list-group-item" v-if="widgetConfigTemp.userConsent.enabled">
               <div class="row">
                 <div class="col">
@@ -324,7 +327,7 @@ export default {
       // appId
       this.isLoading = true
       // TODO: this we can stop until onchain feature is ready for production
-      //await this.fetchAppsOnChainConfigs()
+      await this.fetchAppsOnChainConfigs()
       this.isLoading = false
 
       this.isLoading = true

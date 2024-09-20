@@ -821,7 +821,7 @@ const mainStore = {
             })
         },
 
-        updateAppsOnChainConfig: ({ commit, getters }, payload) => {
+        updateAppsOnChainConfig: ({ commit, getters, dispatch }, payload) => {
             return new Promise((resolve, reject) => {
                 if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
                     return reject(new Error('Tenant url is null or empty, service is not selected'))
@@ -840,12 +840,38 @@ const mainStore = {
                     }
                     // restting
                     commit('setOnChainConfig', {});
+                    dispatch('fetchAppsOnChainConfigs')
                     resolve(json.data)
                 }).catch((e) => {
                     return reject(`Error while fetching apps ` + e.message);
                 })
             })
         },
+
+        deleteAppOnChainConfig: ({ getters, dispatch }, payload) => {
+            return new Promise((resolve, reject) => {
+                if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
+                    return reject(new Error('Tenant url is null or empty, service is not selected'))
+                }
+                const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/onchainkyc-config/${payload._id}`;
+                const authToken = getters.getSelectedService.access_token
+                const headers = UtilsMixin.methods.getHeader(authToken);
+                fetch(url, {
+                    method: 'DELETE',
+                    headers,
+                }).then(response => response.json()).then(json => {
+                    if (json.error) {
+                        return reject(new Error(json.error.details.join(' ')))
+                    }
+                    dispatch('fetchAppsOnChainConfigs')
+                    resolve(json)
+                }).catch((e) => {
+                    return reject(`Error while fetching apps ` + e.message);
+                })
+            })
+        },
+
+
 
         // Widget Config --------------------------------
         createAppsWidgetConfig: ({ commit, getters }) => {
@@ -1243,15 +1269,27 @@ const mainStore = {
             return new Promise(function (resolve, reject) {
                 {
 
-                    if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
+                    let selectedService = {};
+                    if (getters.getSelectedService.services[0].id === 'SSI_API') {
+                        selectedService = getters.getSelectedService
+                    } else if (getters.getSelectedService.services[0].id === 'CAVACH_API') {
+                        const ssiSserviceId = getters.getSelectedService.dependentServices[0];
+                        const associatedSSIService = getters.getAppsWithSSIServices.find(
+                            (x) => x.appId === ssiSserviceId
+                        );
+                        selectedService = associatedSSIService
+                    }
+
+                    if (!selectedService || !selectedService.tenantUrl) {
                         return reject(new Error('Tenant url is null or empty, service is not selected'))
                     }
-                    const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/did/resolve/${payload}`;
+
+                    const url = `${sanitizeUrl(selectedService.tenantUrl)}/api/v1/did/resolve/${payload}`;
                     const options = {
                         method: "GET",
                         headers: {
                             "Content-Type": "application/json",
-                            "Authorization": `Bearer ${getters.getSelectedService.access_token}`,
+                            "Authorization": `Bearer ${selectedService.access_token}`,
                             "Origin": '*'
                         }
                     }
@@ -1603,10 +1641,57 @@ const mainStore = {
             }
 
             return data.grants
-        }
+        },
+
+        // eslint-disable-next-line 
+        generateDIDProof({ commit, getters, dispatch }, payload) {
+            return new Promise(function (resolve, reject) {
+                {
+
+                    let selectedService = {};
+                    if (getters.getSelectedService.services[0].id === 'SSI_API') {
+                        selectedService = getters.getSelectedService
+                    } else if (getters.getSelectedService.services[0].id === 'CAVACH_API') {
+                        const ssiSserviceId = getters.getSelectedService.dependentServices[0];
+                        const associatedSSIService = getters.getAppsWithSSIServices.find(
+                            (x) => x.appId === ssiSserviceId
+                        );
+                        selectedService = associatedSSIService
+                    } else {
+                        throw new Error('Proof can not be generated for service')
+                    }
 
 
+                    if (!selectedService || !selectedService.tenantUrl) {
+                        return reject(new Error('Tenant url is null or empty, service is not selected'))
+                    }
 
+                    const url = `${sanitizeUrl(selectedService.tenantUrl)}/api/v1/did/sign`;
+                    const options = {
+                        method: "POST",
+                        body: JSON.stringify(payload),
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": `Bearer ${selectedService.access_token}`,
+                            "Origin": '*'
+                        }
+                    }
+                    fetch(url, {
+                        ...options
+                    })
+                        .then(response => response.json())
+                        .then(async json => {
+                            if (json) {
+                                resolve(json)
+                            } else {
+                                reject(new Error('Could not generate DID proof for this service'))
+                            }
+                        }).catch(e => {
+                            reject(e)
+                        })
+                }
+            })
+        },
     }
 }
 

@@ -5,11 +5,24 @@
 
         <div class="row card-body card">
             <div class="col-md-12">
-                <div class="form-group">
-                    <label for="selectService"><strong>Select Blockchain Network<span style="color: red">*</span>:
+                <div>
+                    <label for="selectService"><strong>Blockchain Network<span style="color: red">*</span>:
                         </strong></label>
+                    <!--               
+                    <b-dropdown id="dropdown-custom" size="sm" variant="outline-secondary"
+                        text="Select Blockchain Network" block class="m-2">
+                        <b-dropdown-group v-for="option in selectNetworks" :key="option.label" id="dropdown-group-2"
+                            :header="option.label">
+                            <b-dropdown-item v-for="eachOption in option.options" :key="eachOption.text"
+                                v-model="selectedChainId" @click="changeNetwork()"><b-avatar :src="eachOption.icon"
+                                    size="20"></b-avatar> {{
+                                        eachOption.text
+                                    }}</b-dropdown-item>
+                        </b-dropdown-group>
+                    </b-dropdown> -->
+
                     <b-form-select v-on:change="changeNetwork()" v-model="selectedChainId" :options="selectNetworks"
-                        size=""></b-form-select>
+                        size="" text="Select"></b-form-select>
                     <small v-if="selectedBlockchain">ChainId: {{ selectedBlockchain.chainId }}</small>
                 </div>
             </div>
@@ -21,13 +34,18 @@
                 </div>
             </div> -->
 
-            <div class="col-md-12" v-if="selectedBlockchain">
+            <div class="col-md-12 mt-1" v-if="selectedBlockchain">
                 <div class="form-group">
-                    <label for="selectIssuer"><strong>Enter Issuer DID<span
-                                style="color: red">*</span>:</strong></label>
-                    <input type="text" class="form-control" id="" v-model="selectedIssuerDID"
-                        placeholder="did:hid:testnet:..." />
-                    <small>Make sure to use associated DID</small>
+                    <label for="selectIssuer"><strong>Issuer DID<span style="color: red">*</span>:</strong></label>
+                    <!-- <input type="text" class="form-control" id="" v-model="selectedIssuerDID"
+                        placeholder="Enter a DID (e.g did:hid:testnet:..)" /> -->
+                    <select class="custom-select" id="selectService" v-model="selectedIssuerDID">
+                        <option value="" selected>Select a DID</option>
+                        <option v-for="did in associatedSSIServiceDIDs" :value="did" :key="did">
+                            {{ did }}
+                        </option>
+                    </select>
+                    <!-- <small>Make sure to use associated DID</small> -->
                 </div>
             </div>
 
@@ -35,16 +53,24 @@
             <div class="col-md-12" v-if="Object.keys(getBlockchainUser).length > 0">
                 <div class="form-group">
                     <!-- <tool-tip infoMessage="SSI Service Id"></tool-tip> -->
-                    <label for=""><strong>Your Wallet Address: </strong></label>
-                    <input type="text" class="form-control" id="" v-model="getBlockchainUser.walletAddress"
-                        aria-describedby="orgNameHelp" disabled />
+                    <label for=""><strong>Wallet Address: </strong></label>
+                    <!-- <input type="text" class="form-control" id="" v-model="getBlockchainUser.walletAddress"
+                        aria-describedby="orgNameHelp" disabled /> -->
+
+                    <b-input-group>
+                        <b-form-input v-model="getBlockchainUser.walletAddress" disabled></b-form-input>
+                        <b-input-group-append>
+                            <b-button variant="outline-secondary btn-sm" @click="disconnectWallet()"><b-icon
+                                    icon="box-arrow-in-right"></b-icon></b-button>
+                        </b-input-group-append>
+                    </b-input-group>
                 </div>
             </div>
 
             <div class="col-md-12" v-if="Object.keys(onChainIssuer.issuer).length > 0">
                 <div class="form-group">
                     <!-- <tool-tip infoMessage="SSI Service Id"></tool-tip> -->
-                    <label for=""><strong>Kyc Contract Address: </strong></label>
+                    <label for=""><strong>KYC Contract Address: </strong></label>
                     <input type="text" class="form-control" id="" v-model="onChainIssuer.issuer.kyc_contract_address"
                         disabled />
                 </div>
@@ -59,9 +85,14 @@
 
 
 
+
+
                     <button class="btn btn-outline-dark btn-md" style="width:100%"
                         v-if="!showConnectWallet && selectedBlockchain && getBlockchainUser.walletAddress && !onChainIssuer.issuer.kyc_contract_address"
-                        v-on:click="deployIssuer()">Deploy KYC Contract</button>
+                        v-on:click="deployIssuer()">
+                        <b-avatar :src="chainConfig.currencies[0].coinImageUrl" size="30"></b-avatar> Deploy KYC
+                        Contract
+                    </button>
 
                     <!-- <button class="btn btn-primary btn-md" style="width:100%"
                         v-if="selectedIssuerDID && selectedBlockchain && !onChainIssuer.issuer.kyc_contract_address"
@@ -88,14 +119,17 @@
 
 <script>
 import ConnectWalletButton from "../element/authButtons/ConnectWalletButton.vue";
-import { mapGetters, mapMutations, mapActions } from "vuex";
-import { getCosmosBlockchainLabel, getCosmosChainConfig, createNonSigningClient } from '../../blockchains-metadata/cosmos/wallet/cosmos-wallet-utils'
-import { getSupportedChains } from '../../blockchains-metadata/wallet'
-import { smartContractExecuteRPC } from '../../blockchains-metadata/cosmos/contract/execute'
-import { smartContractQueryRPC } from '../../blockchains-metadata/cosmos/contract/query'
+import { mapGetters, mapMutations, mapActions, mapState } from "vuex";
+import { getCosmosBlockchainLabel, getCosmosChainConfig, getCosmosCoinLogo } from '@hypersign-protocol/hypersign-kyc-chains-metadata/cosmos/wallet/cosmos-wallet-utils'
+import { createNonSigningClient } from '../../utils/cosmos-client'
+import { getSupportedChains } from '@hypersign-protocol/hypersign-kyc-chains-metadata/blockchain'
+import { smartContractExecuteRPC } from '@hypersign-protocol/hypersign-kyc-chains-metadata/cosmos/contract/execute'
+import { smartContractQueryRPC } from '@hypersign-protocol/hypersign-kyc-chains-metadata/cosmos/contract/query'
 import UtilsMixin from '../../mixins/utils'
-import { constructOnBoardIssuer, constructGetRegistredIssuerMsg } from '../../blockchains-metadata/cosmos/contract/msg';
+import { constructOnBoardIssuer, constructGetRegistredIssuerMsg } from '@hypersign-protocol/hypersign-kyc-chains-metadata/cosmos/contract/msg';
 
+const jsonld = require('jsonld');
+import customLoader from '../../utils/documentLoader';
 export default {
     name: 'DeployKyc',
     components: {
@@ -117,15 +151,15 @@ export default {
         }
     },
     computed: {
-        ...mapGetters("walletStore", ['getBlockchainUser', 'getCosmosConnection']),
+        ...mapState('mainStore', ['didList']),
+        ...mapGetters("walletStore", ['getBlockchainUser', 'getCosmosConnection',]),
         // ...mapState("mainStore", ['onchainconfigs']),
-        ...mapGetters("mainStore", ['getOnChainConfig']),
+        ...mapGetters("mainStore", ['getOnChainConfig', 'getSelectedService', 'getAppsWithSSIServices']),
         showConnectWallet() {
             if (this.getBlockchainUser && Object.keys(this.getBlockchainUser).length > 0) {
                 return false
             } else return true
         },
-
 
         selectedBlockchain() {
             if (this.selectedChainId) {
@@ -150,15 +184,22 @@ export default {
             const { interchain } = this.allSupportedChains
             const interchainOptions = []
             interchain.forEach(chain => {
+                const chainLabel = getCosmosBlockchainLabel(chain)
                 interchainOptions.push({
-                    value: getCosmosBlockchainLabel(chain),
-                    text: chain.chainName
+                    value: chainLabel,
+                    text: chain.chainName,
+                    icon: getCosmosCoinLogo(chainLabel)
                 })
             })
             this.selectNetworks.push({
-                label: 'Interchain',
+                label: 'Interchain', // let's keep this for future purposes when we have many networks.
                 options: interchainOptions
             })
+
+            this.isLoading = true
+            await this.prepareDIDList()
+            this.isLoading = false
+
         }
         // this.bootstrap()
     },
@@ -170,7 +211,7 @@ export default {
             selectedChainId: null,
             allSupportedChains: getSupportedChains(),
             selectNetworks: [
-                { value: null, text: 'Please select a network' },
+                { value: null, text: 'Please select a blockchain' },
             ],
             chainConfig: {},
 
@@ -184,15 +225,52 @@ export default {
                 issuer: {}
             },
             nonSigningClient: null,
+            associatedSSIServiceDIDs: []
         }
     },
     methods: {
-        ...mapMutations('walletStore', ['setBlockchainUser', 'nextStep', 'setOnChainIssuerData', 'updateAnAppOnServer']),
+        ...mapMutations('walletStore', ['setBlockchainUser',
+            "setCosmosConnection", 'nextStep', 'setOnChainIssuerData', 'updateAnAppOnServer']),
         ...mapActions("mainStore", [
             "updateAnAppOnServer",
+            "fetchDIDsForAService",
+            "generateDIDProof"
         ]),
         ...mapMutations('mainStore', ['setOnChainConfig']),
         ...mapActions("mainStore", ['createAppsOnChainConfig']),
+
+        async prepareDIDList() {
+            try {
+                const ssiSserviceId = this.getSelectedService?.dependentServices[0]
+                if (ssiSserviceId) {
+
+                    const associatedSSIService = this.getAppsWithSSIServices.find(
+                        (x) => x.appId === ssiSserviceId
+                    );
+                    if (associatedSSIService) {
+                        const payload = {
+                            tenantUrl: associatedSSIService.tenantUrl,
+                            accessToken: associatedSSIService.access_token,
+                        };
+                        this.isLoading = true;
+                        const allDIDs = await this.fetchDIDsForAService(payload);
+                        this.associatedSSIServiceDIDs = allDIDs;
+                        this.isLoading = false;
+                    }
+                }
+            } catch (e) {
+                this.isLoading = false;
+
+                this.notifyErr(e.message);
+            }
+        },
+
+        async disconnectWallet() {
+            await window.keplr.disable()
+            this.setCosmosConnection({})
+            this.setBlockchainUser({})
+        },
+
         bootstrap() {
             console.log('Inside bootstrap.....')
             if (Object.keys(this.getOnChainConfig).length > 0) {
@@ -211,11 +289,13 @@ export default {
         async checkIfIssuerHasAlreadyDeployed() {
             try {
                 this.isLoading = true;
-                const { HYPERSIGN_KYC_FACTORY_CONTRACT_ADDRESS } = await import(`../../blockchains-metadata/${this.selectedBlockchain.ecosystem}/contract/${this.selectedBlockchain.blockchain}/config`)
+                const { HYPERSIGN_KYC_FACTORY_CONTRACT_ADDRESS } = await import(`@hypersign-protocol/hypersign-kyc-chains-metadata/${this.selectedBlockchain.ecosystem}/contract/${this.selectedBlockchain.blockchain}/${this.selectedBlockchain.chainId}/config`)
                 if (!this.selectedIssuerDID) {
                     this.isLoading = false
                     return
                 }
+
+                // const msg = constructGetRegistredIssuerMsg("did:hid:testnet:z6Mkk8qQLgMmLKDq6ER9BYGycFEdSaPqy9JPWKUaPGWzJeNp")
                 const msg = constructGetRegistredIssuerMsg(this.selectedIssuerDID)
                 console.log('checkIfIssuerHasAlreadyDeployed:: Before querying kyc contract address = ' + HYPERSIGN_KYC_FACTORY_CONTRACT_ADDRESS)
                 const resp = await this.queryContract(msg, HYPERSIGN_KYC_FACTORY_CONTRACT_ADDRESS)
@@ -249,11 +329,17 @@ export default {
                     this.reset()
                     return
                 }
-                console.log('netowrk change...')
+
+                // TODO remove this
+                // this.selectedIssuerDID = `did:hid:testnet:` + crypto.randomUUID()
+
                 this.chainConfig = getCosmosChainConfig(this.selectedChainId)
                 this.onChainIssuer.issuer = {}
                 this.setBlockchainUser({})
                 this.nonSigningClient = await createNonSigningClient(this.chainConfig["rpc"]);
+
+
+
             } catch (e) {
                 this.notifyErr("Error ", e.message);
             }
@@ -269,6 +355,43 @@ export default {
             this.selectedIssuerDID = this.onChainIssuer.issuer.did
         },
 
+        async dummyGetDidDocAndProofs() {
+            const did = this.selectedIssuerDID;
+            const didDocument = this.didList.find(x => x.did == did)?.didDocument;
+            const verificationMethodId = didDocument?.verificationMethod[0]?.id
+
+            this.isLoading = true;
+            delete didDocument["verificationMethod"][0]["blockchainAccountId"]
+            const proofdoc = await this.generateDIDProof({
+                did,
+                didDocument,
+                verificationMethodId,
+                purpose: 'assertion'
+            })
+
+            this.isLoading = false;
+            const tempproofdoc = proofdoc;
+
+            // signature
+            const signature = tempproofdoc['proof']['proofValue'];
+
+            // expanded diddocproof
+            delete tempproofdoc['proof']['proofValue'];
+            const did_doc_proof_normal = {
+                '@context': tempproofdoc['@context'],
+                ...tempproofdoc['proof']
+            }
+            const did_doc_proof_expanded = await jsonld.expand(did_doc_proof_normal, { documentLoader: customLoader })
+
+            // expanded diddoc
+            delete tempproofdoc['proof']
+            const did_doc_normal = tempproofdoc;
+            const did_doc_expanded = await jsonld.expand(did_doc_normal, { documentLoader: customLoader })
+            return {
+                did_doc: did_doc_expanded, did_doc_proof: did_doc_proof_expanded, signature
+            }
+        },
+
         async deployIssuer() {
             try {
 
@@ -279,15 +402,19 @@ export default {
 
 
                 this.isLoading = true
-                const { HYPERSIGN_KYC_FACTORY_CONTRACT_ADDRESS, ISSUER_KYC_CODE_ID } = await import(`../../blockchains-metadata/${this.selectedBlockchain.ecosystem}/contract/${this.selectedBlockchain.blockchain}/config`)
+                const { HYPERSIGN_KYC_FACTORY_CONTRACT_ADDRESS, ISSUER_KYC_CODE_ID } = await import(`@hypersign-protocol/hypersign-kyc-chains-metadata/${this.selectedBlockchain.ecosystem}/contract/${this.selectedBlockchain.blockchain}/${this.selectedBlockchain.chainId}/config`)
                 console.log({
                     HYPERSIGN_KYC_FACTORY_CONTRACT_ADDRESS, ISSUER_KYC_CODE_ID
                 })
+                const proof = await this.dummyGetDidDocAndProofs()
 
-                const smartContractMsg = constructOnBoardIssuer(
-                    this.selectedIssuerDID,
-                    ISSUER_KYC_CODE_ID
-                );
+                const smartContractMsg = constructOnBoardIssuer({
+                    ...proof
+                });
+
+                console.log(smartContractMsg)
+
+
                 const chainConfig = this.chainConfig
                 const chainCoinDenom = chainConfig["feeCurrencies"][0]["coinMinimalDenom"]
                 const result = await smartContractExecuteRPC(
@@ -299,11 +426,12 @@ export default {
 
                 if (result) {
                     console.log(result)
-                    this.notifySuccess('Successfully minted your identity')
+                    this.notifySuccess('Successfully deployed your KYC Issuer Contract')
                     this.isLoading = false
 
 
                     const msg = constructGetRegistredIssuerMsg(this.selectedIssuerDID)
+                    // const msg = constructGetRegistredIssuerMsg("did:hid:testnet:z6Mkk8qQLgMmLKDq6ER9BYGycFEdSaPqy9JPWKUaPGWzJeNp")
                     await this.queryContract(msg, HYPERSIGN_KYC_FACTORY_CONTRACT_ADDRESS)
 
                     this.createAppsOnChainConfig({
@@ -332,7 +460,7 @@ export default {
                 issuer: {}
             }
             this.walletAddress = ""
-            this.selectedIssuerDID = ""
+            // this.selectedIssuerDID = "did:hid:testnet:z6Mkk8qQLgMmLKDq6ER9BYGycFEdSaPqy9JPWKUaPGWzJeNp"
             this.selectedChainId = null
             this.setBlockchainUser({})
         }

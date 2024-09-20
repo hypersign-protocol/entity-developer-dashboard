@@ -522,9 +522,11 @@ h3 {
                                 <tr>
                                     <td class="greyFont">Blockchain</td>
                                     <td style="text-align: right;">
-                                        <span><img
+                                        <span>
+                                            <b-avatar
                                                 :src="getChainDetail(this.userSbtMintDataFromUserConsent.blockchainLabel).logoUrl"
-                                                width="20" height="20"></span>
+                                                size="20"></b-avatar>
+                                        </span>
                                         {{ getChainDetail(this.userSbtMintDataFromUserConsent.blockchainLabel).chainName
                                         }}
                                     </td>
@@ -583,7 +585,7 @@ import Loading from "vue-loading-overlay";
 import { mapState, mapGetters, mapActions } from "vuex";
 import UAParser from 'ua-parser-js'
 import CountryFlag from 'vue-country-flag'
-import { getCosmosChainConfig } from '../../blockchains-metadata/cosmos/wallet/cosmos-wallet-utils'
+import { getCosmosChainConfig } from '@hypersign-protocol/hypersign-kyc-chains-metadata/cosmos/wallet/cosmos-wallet-utils'
 import HfPopUp from "../../components/element/hfPopup.vue";
 
 const ServiceLivenessResultEnum = {
