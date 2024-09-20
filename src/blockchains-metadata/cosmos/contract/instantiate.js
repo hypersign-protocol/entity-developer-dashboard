@@ -26,12 +26,10 @@ export async function smartContractCodeInstantiateRPC(
             smartContractlabel,
             fee
         )
-        console.log("Transaction hash: ", txResult["transactionHash"]);
         alert("Transaction Successful: " + txResult["transactionHash"]);
         const contractAddress = txResult["contractAddress"]
         return contractAddress
     } catch (err) {
-        console.log(err.message)
         alert("Transaction has failed, Error Log below \n\n " + err.message)
         return null
     }

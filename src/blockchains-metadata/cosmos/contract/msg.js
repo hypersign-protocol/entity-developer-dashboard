@@ -9,7 +9,13 @@ export function constructSBTMintMsg(owner, nftTokenId, nftTokenUri) {
     }
 }
 
-
+export function constructKYCSBTMintMsg({ hypersign_proof }) {
+    return {
+        "mint": {
+            hypersign_proof
+        }
+    }
+}
 
 export function constructOnBoardIssuer({ did_doc, did_doc_proof, signature }) {
     return {
