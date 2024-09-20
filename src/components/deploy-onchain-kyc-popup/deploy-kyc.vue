@@ -120,13 +120,13 @@
 <script>
 import ConnectWalletButton from "../element/authButtons/ConnectWalletButton.vue";
 import { mapGetters, mapMutations, mapActions, mapState } from "vuex";
-import { getCosmosBlockchainLabel, getCosmosChainConfig, getCosmosCoinLogo } from '../../blockchains-metadata/cosmos/wallet/cosmos-wallet-utils'
+import { getCosmosBlockchainLabel, getCosmosChainConfig, getCosmosCoinLogo } from '@hypersign-protocol/hypersign-kyc-chains-metadata/cosmos/wallet/cosmos-wallet-utils'
 import { createNonSigningClient } from '../../utils/cosmos-client'
-import { getSupportedChains } from '../../blockchains-metadata/blockchain'
-import { smartContractExecuteRPC } from '../../blockchains-metadata/cosmos/contract/execute'
-import { smartContractQueryRPC } from '../../blockchains-metadata/cosmos/contract/query'
+import { getSupportedChains } from '@hypersign-protocol/hypersign-kyc-chains-metadata/blockchain'
+import { smartContractExecuteRPC } from '@hypersign-protocol/hypersign-kyc-chains-metadata/cosmos/contract/execute'
+import { smartContractQueryRPC } from '@hypersign-protocol/hypersign-kyc-chains-metadata/cosmos/contract/query'
 import UtilsMixin from '../../mixins/utils'
-import { constructOnBoardIssuer, constructGetRegistredIssuerMsg } from '../../blockchains-metadata/cosmos/contract/msg';
+import { constructOnBoardIssuer, constructGetRegistredIssuerMsg } from '@hypersign-protocol/hypersign-kyc-chains-metadata/cosmos/contract/msg';
 
 const jsonld = require('jsonld');
 import customLoader from '../../utils/documentLoader';
@@ -289,7 +289,7 @@ export default {
         async checkIfIssuerHasAlreadyDeployed() {
             try {
                 this.isLoading = true;
-                const { HYPERSIGN_KYC_FACTORY_CONTRACT_ADDRESS } = await import(`../../blockchains-metadata/${this.selectedBlockchain.ecosystem}/contract/${this.selectedBlockchain.blockchain}/${this.selectedBlockchain.chainId}/config`)
+                const { HYPERSIGN_KYC_FACTORY_CONTRACT_ADDRESS } = await import(`@hypersign-protocol/hypersign-kyc-chains-metadata/${this.selectedBlockchain.ecosystem}/contract/${this.selectedBlockchain.blockchain}/${this.selectedBlockchain.chainId}/config`)
                 if (!this.selectedIssuerDID) {
                     this.isLoading = false
                     return
@@ -402,7 +402,7 @@ export default {
 
 
                 this.isLoading = true
-                const { HYPERSIGN_KYC_FACTORY_CONTRACT_ADDRESS, ISSUER_KYC_CODE_ID } = await import(`../../blockchains-metadata/${this.selectedBlockchain.ecosystem}/contract/${this.selectedBlockchain.blockchain}/${this.selectedBlockchain.chainId}/config`)
+                const { HYPERSIGN_KYC_FACTORY_CONTRACT_ADDRESS, ISSUER_KYC_CODE_ID } = await import(`@hypersign-protocol/hypersign-kyc-chains-metadata/${this.selectedBlockchain.ecosystem}/contract/${this.selectedBlockchain.blockchain}/${this.selectedBlockchain.chainId}/config`)
                 console.log({
                     HYPERSIGN_KYC_FACTORY_CONTRACT_ADDRESS, ISSUER_KYC_CODE_ID
                 })

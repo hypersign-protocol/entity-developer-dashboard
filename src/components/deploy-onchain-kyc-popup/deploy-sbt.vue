@@ -66,10 +66,10 @@
 
 
 import { mapGetters, mapMutations, mapActions } from "vuex";
-import { smartContractExecuteRPC } from '../../blockchains-metadata/cosmos/contract/execute'
-import { smartContractQueryRPC } from '../../blockchains-metadata/cosmos/contract/query'
-import { constructInitSbtMsg, constructGetRegistredSBTContractAddressMsg } from '../../blockchains-metadata/cosmos/contract/msg';
-import { getCosmosChainConfig } from '../../blockchains-metadata/cosmos/wallet/cosmos-wallet-utils'
+import { smartContractExecuteRPC } from '@hypersign-protocol/hypersign-kyc-chains-metadata/cosmos/contract/execute'
+import { smartContractQueryRPC } from '@hypersign-protocol/hypersign-kyc-chains-metadata/cosmos/contract/query'
+import { constructInitSbtMsg, constructGetRegistredSBTContractAddressMsg } from '@hypersign-protocol/hypersign-kyc-chains-metadata/cosmos/contract/msg';
+import { getCosmosChainConfig } from '@hypersign-protocol/hypersign-kyc-chains-metadata/cosmos/wallet/cosmos-wallet-utils'
 import { createNonSigningClient } from '../../utils/cosmos-client'
 import UtilsMixin from '../../mixins/utils'
 import ConnectWalletButton from "../element/authButtons/ConnectWalletButton.vue";
@@ -182,7 +182,7 @@ export default {
                 // }
 
                 this.isLoading = true
-                const { SBT_TOKEN_CODE_ID } = await import(`../../blockchains-metadata/${this.selectedBlockchain.ecosystem}/contract/${this.selectedBlockchain.blockchain}/${this.selectedBlockchain.chainId}/config`)
+                const { SBT_TOKEN_CODE_ID } = await import(`@hypersign-protocol/hypersign-kyc-chains-metadata/${this.selectedBlockchain.ecosystem}/contract/${this.selectedBlockchain.blockchain}/${this.selectedBlockchain.chainId}/config`)
 
                 const smartContractMsg = constructInitSbtMsg(
                     SBT_TOKEN_CODE_ID

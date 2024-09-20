@@ -240,7 +240,7 @@ import Loading from "vue-loading-overlay";
 import HfButtons from "../../components/element/HfButtons.vue"
 import StudioSideBar from "../../components/element/StudioSideBar.vue";
 import DeployOnChainKYC from "../../components/deploy-onchain-kyc-popup/deploy.vue";
-import { getCosmosChainConfig } from '../../blockchains-metadata/cosmos/wallet/cosmos-wallet-utils'
+import { getCosmosChainConfig } from '@hypersign-protocol/hypersign-kyc-chains-metadata/cosmos/wallet/cosmos-wallet-utils'
 
 import { mapState, mapActions, mapMutations } from "vuex";
 

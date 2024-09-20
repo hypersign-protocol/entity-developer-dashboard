@@ -585,7 +585,7 @@ import Loading from "vue-loading-overlay";
 import { mapState, mapGetters, mapActions } from "vuex";
 import UAParser from 'ua-parser-js'
 import CountryFlag from 'vue-country-flag'
-import { getCosmosChainConfig } from '../../blockchains-metadata/cosmos/wallet/cosmos-wallet-utils'
+import { getCosmosChainConfig } from '@hypersign-protocol/hypersign-kyc-chains-metadata/cosmos/wallet/cosmos-wallet-utils'
 import HfPopUp from "../../components/element/hfPopup.vue";
 
 const ServiceLivenessResultEnum = {

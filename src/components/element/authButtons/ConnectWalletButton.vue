@@ -9,9 +9,9 @@
 </template>
 <script>
 import { mapMutations } from "vuex";
-import { getUserAddressFromOfflineSigner } from '../../../blockchains-metadata/cosmos/wallet/cosmos-wallet-utils'
+import { getUserAddressFromOfflineSigner } from '@hypersign-protocol/hypersign-kyc-chains-metadata/cosmos/wallet/cosmos-wallet-utils'
 import { createClient, createNonSigningClient } from '../../../utils/cosmos-client'
-import { getCosmosCoinLogo } from '../../../blockchains-metadata/cosmos/wallet/cosmos-wallet-utils'
+import { getCosmosCoinLogo } from '@hypersign-protocol/hypersign-kyc-chains-metadata/cosmos/wallet/cosmos-wallet-utils'
 export const AUTH_PROVIDERS = Object.freeze({
     GOOGLE: 'google',
     KEPLR: 'keplr',
@@ -46,7 +46,7 @@ export default {
         ...mapMutations("walletStore", ['setCosmosConnection', 'setBlockchainUser']),
         async connectWallet() {
             // const { ecosystem, blockchain } = this.getOnChainIssuerConfig
-            const { default: SupportedChains } = await import(`../../../blockchains-metadata/${this.ecosystem}/wallet/${this.blockchain}/${this.chainId}/chains`)
+            const { default: SupportedChains } = await import(`@hypersign-protocol/hypersign-kyc-chains-metadata/${this.ecosystem}/wallet/${this.blockchain}/${this.chainId}/chains`)
 
             if (!SupportedChains) {
                 throw new Error('Ecosysem or blockchain is not supported')
