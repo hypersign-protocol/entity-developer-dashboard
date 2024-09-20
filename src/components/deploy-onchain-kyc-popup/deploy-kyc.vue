@@ -120,15 +120,16 @@
 <script>
 import ConnectWalletButton from "../element/authButtons/ConnectWalletButton.vue";
 import { mapGetters, mapMutations, mapActions, mapState } from "vuex";
-import { getCosmosBlockchainLabel, getCosmosChainConfig, createNonSigningClient, getCosmosCoinLogo } from '../../blockchains-metadata/cosmos/wallet/cosmos-wallet-utils'
-import { getSupportedChains } from '../../blockchains-metadata/wallet'
+import { getCosmosBlockchainLabel, getCosmosChainConfig, getCosmosCoinLogo } from '../../blockchains-metadata/cosmos/wallet/cosmos-wallet-utils'
+import { createNonSigningClient } from '../../utils/cosmos-client'
+import { getSupportedChains } from '../../blockchains-metadata/blockchain'
 import { smartContractExecuteRPC } from '../../blockchains-metadata/cosmos/contract/execute'
 import { smartContractQueryRPC } from '../../blockchains-metadata/cosmos/contract/query'
 import UtilsMixin from '../../mixins/utils'
 import { constructOnBoardIssuer, constructGetRegistredIssuerMsg } from '../../blockchains-metadata/cosmos/contract/msg';
 
 const jsonld = require('jsonld');
-import customLoader from '../../blockchains-metadata/documentLoader';
+import customLoader from '../../utils/documentLoader';
 export default {
     name: 'DeployKyc',
     components: {

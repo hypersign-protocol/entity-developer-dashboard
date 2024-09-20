@@ -69,7 +69,8 @@ import { mapGetters, mapMutations, mapActions } from "vuex";
 import { smartContractExecuteRPC } from '../../blockchains-metadata/cosmos/contract/execute'
 import { smartContractQueryRPC } from '../../blockchains-metadata/cosmos/contract/query'
 import { constructInitSbtMsg, constructGetRegistredSBTContractAddressMsg } from '../../blockchains-metadata/cosmos/contract/msg';
-import { getCosmosChainConfig, createNonSigningClient } from '../../blockchains-metadata/cosmos/wallet/cosmos-wallet-utils'
+import { getCosmosChainConfig } from '../../blockchains-metadata/cosmos/wallet/cosmos-wallet-utils'
+import { createNonSigningClient } from '../../utils/cosmos-client'
 import UtilsMixin from '../../mixins/utils'
 import ConnectWalletButton from "../element/authButtons/ConnectWalletButton.vue";
 

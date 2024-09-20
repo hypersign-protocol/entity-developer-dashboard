@@ -122,9 +122,10 @@ h5 span {
 .badge {
   padding: 5px;
   float: right;
-  background-color: black;
+  background-color: rgb(236, 232, 200);
   /* border-radius: 40%; */
   font-size: x-small;
+  font-weight: bold;
   /* font-weight: bold; */
   color: black;
   width: auto;
@@ -149,8 +150,8 @@ h5 span {
           <h3 v-if="onchainconfigs.length > 0" style="text-align: left;" class="position-relative">
 
             OnChain KYC Configuration
-            <span class="badge position-absolute  rounded-pill bg-warning">
-              beta
+            <span class="badge position-absolute  rounded">
+              Beta
             </span>
 
           </h3>

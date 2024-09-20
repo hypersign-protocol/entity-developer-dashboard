@@ -9,7 +9,8 @@
 </template>
 <script>
 import { mapMutations } from "vuex";
-import { getUserAddressFromOfflineSigner, createClient, createNonSigningClient } from '../../../blockchains-metadata/cosmos/wallet/cosmos-wallet-utils'
+import { getUserAddressFromOfflineSigner } from '../../../blockchains-metadata/cosmos/wallet/cosmos-wallet-utils'
+import { createClient, createNonSigningClient } from '../../../utils/cosmos-client'
 import { getCosmosCoinLogo } from '../../../blockchains-metadata/cosmos/wallet/cosmos-wallet-utils'
 export const AUTH_PROVIDERS = Object.freeze({
     GOOGLE: 'google',
