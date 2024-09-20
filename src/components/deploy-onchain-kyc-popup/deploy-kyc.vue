@@ -230,7 +230,7 @@ export default {
     },
     methods: {
         ...mapMutations('walletStore', ['setBlockchainUser',
-            "setCosmosConnection", 'nextStep', 'setOnChainIssuerData', 'updateAnAppOnServer']),
+            "setCosmosConnection", 'nextStep', 'setOnChainIssuerData', 'updateAnAppOnServer', 'setOnChainBlockchainLabel']),
         ...mapActions("mainStore", [
             "updateAnAppOnServer",
             "fetchDIDsForAService",
@@ -345,14 +345,16 @@ export default {
             }
         },
         async queryContract(msg, contractAddress) {
+            this.setOnChainBlockchainLabel(this.selectedChainId)
             console.log('queryContract:: Before calling  smartContractQueryRPC(), contractAddress ' + contractAddress)
             const result = await smartContractQueryRPC(
                 this.getCosmosConnection.nonSigningClient || this.nonSigningClient,
                 contractAddress, msg);
-            console.log('queryContract:: After calling  smartContractQueryRPC(), contractAddress ' + contractAddress)
+            console.log('queryContract:: After calling  smartContractQueryRPC(), result ' + JSON.stringify(result, null, 2))
             this.onChainIssuer = result;
             this.setOnChainIssuerData(this.onChainIssuer)
             this.selectedIssuerDID = this.onChainIssuer.issuer.did
+
         },
 
         async dummyGetDidDocAndProofs() {

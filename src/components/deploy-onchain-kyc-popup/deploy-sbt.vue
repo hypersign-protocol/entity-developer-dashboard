@@ -80,7 +80,7 @@ export default {
         ConnectWalletButton,
     },
     computed: {
-        ...mapGetters("walletStore", ['getBlockchainUser', 'getCosmosConnection', 'getOnChainIssuerData']),
+        ...mapGetters("walletStore", ['getBlockchainUser', 'getOnChainBlockchainLabel', 'getCosmosConnection', 'getOnChainIssuerData']),
         ...mapGetters("mainStore", ['getOnChainConfig']),
         selectedBlockchain() {
             if (this.selectedChainId) {
@@ -122,7 +122,7 @@ export default {
 
             //     }
             // },
-            selectedChainId: "cosmos:nibi:nibiru-localnet-0",
+            selectedChainId: "",
             nonSigningClient: null,
             chainConfig: {}
         }
@@ -147,6 +147,9 @@ export default {
         },
         async checkIfalreadyDeployed() {
             try {
+                if (!this.selectedChainId || this.selectedChainId == "") {
+                    this.selectedChainId = this.getOnChainBlockchainLabel;
+                }
                 this.chainConfig = getCosmosChainConfig(this.selectedChainId)
                 this.nonSigningClient = await createNonSigningClient(this.chainConfig["rpc"]);
 
