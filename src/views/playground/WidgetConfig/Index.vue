@@ -216,7 +216,7 @@ ul {
                     </div>
                     <small>{{ selectedProofData.description }}</small>
                     <div class="row col center mt-1">
-                      <HfButtons name="Add" iconClass="fa fa-plus"
+                      <HfButtons name="Add" customClass="btn btn-outline-secondary" iconClass="fa fa-plus"
                         @executeAction="addZkProof(selectedProofData.value, selectedProofData.criteriaValue)">
                       </HfButtons>
                     </div>
