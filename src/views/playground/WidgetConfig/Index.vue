@@ -164,6 +164,42 @@ ul {
                 </div>
               </div>
             </li>
+
+
+
+            <li class="list-group-item">
+              <div class="row">
+                <div class="col">
+                  <b-form-checkbox switch size="lg" v-model="widgetConfigTemp.zkProof.enabled">Enable ZK
+                    Proof <HFBeta></HFBeta>
+                  </b-form-checkbox>
+                  <small>Enable users to share only proof of their data for enhanced data privacy and compliance. Read
+                    more <b><a
+                        href="https://docs.hypersign.id/hypersign-kyc/integrations/widget-configuration#id-document-verification"
+                        target="_blank">here</a></b>.</small>
+                </div>
+                <div class="col" v-if="widgetConfigTemp.zkProof.enabled">
+                  <div class="">
+                    <label for=""><strong>Select Proof Type: </strong></label>
+                    <b-form-select v-model="widgetConfigTemp.zkProof.proofType" :options="proofTypeOptions"
+                      size=""></b-form-select>
+
+
+                    <div class="row" v-if="selectedProofData.criteria">
+                      <div class="col">
+                        <label for=""><strong>{{ selectedProofData.criteriaLabel }}: </strong></label>
+                        <input :type="selectedProofData.criteriaType" class="form-control"
+                          v-model="widgetConfigTemp.zkProof.criteria" />
+                      </div>
+                    </div>
+                    <small>{{ selectedProofData.description }}</small>
+
+                  </div>
+                </div>
+              </div>
+            </li>
+
+
             <li class="list-group-item">
               <div class="row">
                 <div class="col">
@@ -199,7 +235,7 @@ ul {
                     </div>
                   </div>
                   <div class="row mt-2 mx-0 p-1"
-                    style="border: 2px solid #8080802e;border-radius: 10px; min-height: 90px;">
+                    style="border: 2px solid #8080802e;border-radius: 10px; min-height: 115px;">
                     <div class="col-md-3 center">
                       <div style="border: 1px solid #8080802e; border-radius: 50%;" class="p-1">
                         <img :src="widgetConfigTemp.userConsent.logoUrl" v-if="widgetConfigTemp.userConsent.logoUrl"
@@ -227,7 +263,7 @@ ul {
                       <div class="row">
                         <div class="col">
                           <label for=""><strong>Reason For KYC: </strong></label>
-                          <textarea type="text" rows="6" class="form-control" id=""
+                          <textarea type="text" rows="7" class="form-control" id=""
                             v-model="widgetConfigTemp.userConsent.reason"
                             placeholder="The app is requesting the following information to verify your identity" />
                         </div>
@@ -254,7 +290,6 @@ ul {
                     and providing a smoother experience for your users. Read more <b><a
                         href="https://docs.hypersign.id/hypersign-kyc/integrations/widget-configuration#trusted-issuer"
                         target="_blank">here</a></b>.</small>
-
                 </div>
                 <div class="col">
                   <label for=""><strong>Choose Trusted Issuer(s): </strong></label>
@@ -263,6 +298,7 @@ ul {
                   </div>
                 </div>
               </div>
+              <!-- <TrustedIssuer @selectedServiceEventFromTrustedIssuer="selectedServiceEventHandler" /> -->
             </li>
           </ul>
         </div>
@@ -281,17 +317,39 @@ ul {
 
 <script>
 
-import UtilsMixin from '../../mixins/utils';
+import UtilsMixin from '../../../mixins/utils';
 import { mapState, mapActions } from "vuex";
-import HfButtons from '../../components/element/HfButtons.vue';
+import HfButtons from '../../../components/element/HfButtons.vue';
 import { mapGetters, mapMutations } from 'vuex/dist/vuex.common.js';
-import MarketplaceList from '../../components/MarketplaceList.vue';
+// import TrustedIssuer from './components/TrustedIssuer.vue';
+import MarketplaceList from '../../../components/MarketplaceList.vue';
+import HFBeta from '../../../components/element/HFBeta.vue';
+const SupportedZkProofTypes = Object.freeze({
+  PROOF_OF_KYC: 'zkProofKYC',
+  PROOF_OF_PERSONHOOD: 'zkProofOfPersonHood',
+  PROOF_OF_AGE: 'zkProofOfAge',
+  PROOF_OF_MEMBERSHIP: 'zkProofOfMembership',
+  PROOF_OF_DOB: 'zkProofOfDOB',
+})
+
 export default {
   name: "WidgetConfig",
   mixins: [UtilsMixin],
   components: {
     HfButtons,
-    MarketplaceList
+    MarketplaceList,
+    HFBeta
+    // TrustedIssuer
+  },
+  // TODO : check why this is not working... we need to trigger warning that its an experimental feature once user enables zk
+  watch: {
+    // widgetConfigTemp: function (newValue,) {
+    //   console.log(newValue)
+    //   // if (newValue.zkProof.enabled) {
+    //   this.warnUsers('b-toaster-top-full')
+    //   console.log('warningn....')
+    //   // }
+    // }
   },
   computed: {
     ...mapState({
@@ -302,6 +360,10 @@ export default {
     ...mapGetters('mainStore', ['getAppByAppId', 'getMarketPlaceApps']),
     isContainerShift() {
       return this.containerShift
+    },
+
+    selectedProofData() {
+      return this.proofTypeOptions.find(x => x.value == this.widgetConfigTemp.zkProof.proofType)
     },
 
     onchainconfigsOptions() {
@@ -382,6 +444,12 @@ export default {
     }
 
     this.widgetConfigTemp.trustedIssuer = this.widgetConfigTemp.issuerDID ? true : false;
+
+
+    // this.widgetConfigTemp.zkProof = {
+    //   enabled: false,
+    //   proofType: null,
+    // }
   },
   data() {
     return {
@@ -406,6 +474,11 @@ export default {
           enabled: false,
           selectedOnChainKYCconfiguration: null,
         },
+        zkProof: {
+          enabled: false,
+          proofType: null,
+          criteria: null,
+        },
         trustedIssuer: true,
         issuerDID: "",
         issuerVerificationMethodId: "",
@@ -421,7 +494,51 @@ export default {
           value: 'passport',
           text: "Passport"
         },
-      ]
+      ],
+
+      proofTypeOptions: [
+        {
+          value: null,
+          text: "Select a proof type"
+        },
+        {
+          value: 'zkProofKYC',
+          text: "Proof Of KYC",
+          description: "Proves that user has finished his/her KYC",
+          enabled: true,
+          criteria: false,
+        },
+        {
+          value: 'zkProofOfPersonHood',
+          text: "Proof Of Personhood",
+          description: "Proves that user is not a bot",
+          enabled: true,
+          criteria: false,
+        },
+        {
+          value: 'zkProofOfAge',
+          text: "Proof Of Age",
+          description: "Proves user is above the specified age",
+          enabled: true,
+          criteria: true,
+          criteriaLabel: "Specify Age (> than)",
+          criteriaType: 'number'
+        },
+
+        // {
+        //   value: 'zkProofOfDOB',
+        //   text: "Proof Of DOB",
+        //   description: "Proves user's date of birth (discloses DOB, nothing else)",
+        //   enabled: true,
+        // },
+        // {
+        //   value: 'zkProofOfMembership',
+        //   text: "Proof Of Membership Country",
+        //   description: "Proves user is not citizen of specified countries",
+        //   enabled: true,
+        // },
+      ],
+
     }
   },
   methods: {
@@ -457,6 +574,20 @@ export default {
           throw new Error('Kindly select a onchain configuration')
         }
       }
+
+      if (this.widgetConfigTemp.zkProof.enabled) {
+        if (!this.widgetConfigTemp.zkProof.proofType) {
+          throw new Error('Kindly select a proof type')
+        }
+
+        if (this.widgetConfigTemp.zkProof.proofType == SupportedZkProofTypes.PROOF_OF_AGE) {
+          if (!this.widgetConfigTemp.zkProof.criteria) {
+            throw new Error('Kindly specify age criteria to generate proof')
+          }
+        } else {
+          this.widgetConfigTemp.zkProof.criteria = null
+        }
+      }
     },
     async saveConfiguration() {
       try {
@@ -478,8 +609,6 @@ export default {
     },
 
     async updateConfiguration() {
-
-
       try {
         //TODO validate all field
         this.isLoading = true;

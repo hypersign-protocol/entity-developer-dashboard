@@ -14,7 +14,7 @@ import SSIDashboardCredit from './views/playground/SSIDashboardCredit.vue'
 import KYCCreditDashboard from './views/playground/KYCDashboardCredit.vue'
 import UsageS from './views/playground/Usage.vue';
 import OnChainKycSystems from './views/playground/OnChainKycSystems.vue';
-import WidgetConfig from './views/playground/WidgetConfig.vue'
+import WidgetConfig from './views/playground/WidgetConfig/Index.vue'
 import WebhookConfig from './views/playground/WebhookConfig.vue'
 import MFA from './components/login/mfa/MFA.vue';
 import SettingConfig from './views/SettingConfig.vue'
