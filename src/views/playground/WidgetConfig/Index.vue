@@ -140,20 +140,17 @@ ul {
         <div class="row card" style="padding-right:0px">
           <ul class="list-group list-group-flush" style="border-radius: 10px;">
             <li class="list-group-item">
-              <b-form-checkbox switch size="lg" v-model="widgetConfigTemp.faceRecog" disabled>Enable Facial
-                Recoginition</b-form-checkbox>
-              <small>Enable users verify if they are human and generate Personhood Credential. Read more <b><a
-                    href="https://docs.hypersign.id/hypersign-kyc/integrations/widget-configuration#facial-recognition"
-                    target="_blank">here</a></b>.</small>
+              <b-form-checkbox switch size="lg" v-model="widgetConfigTemp.faceRecog" disabled>{{
+                this.widgetConfigUI.faceRecog.label }}</b-form-checkbox>
+              <small v-html="this.widgetConfigUI.faceRecog.description">
+              </small>
             </li>
             <li class="list-group-item">
               <div class="row">
                 <div class="col">
-                  <b-form-checkbox switch size="lg" v-model="widgetConfigTemp.idOcr.enabled">Enable ID Document
-                    Verification</b-form-checkbox>
-                  <small>Enable users verify their ID Document and generate their ID Credential. Read more <b><a
-                        href="https://docs.hypersign.id/hypersign-kyc/integrations/widget-configuration#id-document-verification"
-                        target="_blank">here</a></b>.</small>
+                  <b-form-checkbox switch size="lg" v-model="widgetConfigTemp.idOcr.enabled">
+                    {{ this.widgetConfigUI.idOcr.label }}</b-form-checkbox>
+                  <small v-html="this.widgetConfigUI.idOcr.description"></small>
                 </div>
                 <div class="col" v-if="widgetConfigTemp.idOcr.enabled && documentTypeOptions.length > 0">
                   <div class="">
@@ -164,27 +161,19 @@ ul {
                 </div>
               </div>
             </li>
-
-
-
             <li class="list-group-item">
               <div class="row">
                 <div class="col">
-                  <b-form-checkbox switch size="lg" v-model="widgetConfigTemp.zkProof.enabled">Enable ZK
-                    Proof <HFBeta></HFBeta>
+                  <b-form-checkbox switch size="lg" v-model="widgetConfigTemp.zkProof.enabled">{{
+                    this.widgetConfigUI.zkProof.label }}<HFBeta></HFBeta>
                   </b-form-checkbox>
-                  <small>Enable users to share only proof of their data for enhanced data privacy and compliance. Read
-                    more <b><a
-                        href="https://docs.hypersign.id/hypersign-kyc/integrations/widget-configuration#id-document-verification"
-                        target="_blank">here</a></b>.</small>
+                  <small v-html="this.widgetConfigUI.zkProof.description"></small>
                 </div>
                 <div class="col" v-if="widgetConfigTemp.zkProof.enabled">
                   <div class="">
                     <label for=""><strong>Select Proof Type: </strong></label>
                     <b-form-select v-model="widgetConfigTemp.zkProof.proofType" :options="proofTypeOptions"
                       size=""></b-form-select>
-
-
                     <div class="row" v-if="selectedProofData.criteria">
                       <div class="col">
                         <label for=""><strong>{{ selectedProofData.criteriaLabel }}: </strong></label>
@@ -198,17 +187,12 @@ ul {
                 </div>
               </div>
             </li>
-
-
             <li class="list-group-item">
               <div class="row">
                 <div class="col">
-                  <b-form-checkbox switch size="lg" v-model="widgetConfigTemp.onChainId.enabled">Enable Onchain
-                    KYC</b-form-checkbox>
-                  <small>Enable users to mint SBT of their credentials in a privacy preserving manner and
-                    verify
-                    on
-                    blockchain</small>
+                  <b-form-checkbox switch size="lg" v-model="widgetConfigTemp.onChainId.enabled">{{
+                    this.widgetConfigUI.onChainId.label }}</b-form-checkbox>
+                  <small v-html="this.widgetConfigUI.onChainId.description"></small>
                 </div>
                 <div class="col" v-if="widgetConfigTemp.onChainId.enabled && onchainconfigsOptions.length > 0">
                   <div class="">
@@ -219,19 +203,15 @@ ul {
                 </div>
               </div>
             </li>
+
             <li class="list-group-item" v-if="widgetConfigTemp.userConsent.enabled">
               <div class="row">
                 <div class="col">
                   <div class="row">
                     <div class="col-md-12">
-                      <b-form-checkbox switch size="lg" v-model="widgetConfigTemp.userConsent.enabled" disabled>Enable
-                        User
-                        Consent</b-form-checkbox>
-                      <small>Specify a reason for requesting user KYC data. This information will be displayed on the
-                        user consent screen in the KYC widget, helping users understand who is requesting their data and
-                        why. Read more <b><a
-                            href="https://docs.hypersign.id/hypersign-kyc/integrations/widget-configuration#user-consent"
-                            target="_blank">here</a></b>.</small>
+                      <b-form-checkbox switch size="lg" v-model="widgetConfigTemp.userConsent.enabled" disabled>{{
+                        this.widgetConfigUI.userConsent.label }}</b-form-checkbox>
+                      <small v-html="widgetConfigUI.userConsent.description"></small>
                     </div>
                   </div>
                   <div class="row mt-2 mx-0 p-1"
@@ -278,18 +258,9 @@ ul {
               <div class="row">
 
                 <div class="col">
-                  <b-form-checkbox switch size="lg" v-model="widgetConfigTemp.trustedIssuer" disabled>Configure
-                    Trusted
-                    Issuer(s)</b-form-checkbox>
-                  <small>Select one or more trusted issuers, with the default being 'self'. This pertains toreusable
-                    KYC. If configured, users who already possess KYC credentials issued by these trusted
-                    issuers
-                    in
-                    their data vault will not need to repeat the KYC steps in the widget. They can simply authorize the
-                    sharing of their existing credentials with your app, streamlining user onboarding for your company
-                    and providing a smoother experience for your users. Read more <b><a
-                        href="https://docs.hypersign.id/hypersign-kyc/integrations/widget-configuration#trusted-issuer"
-                        target="_blank">here</a></b>.</small>
+                  <b-form-checkbox switch size="lg" v-model="widgetConfigTemp.trustedIssuer" disabled>{{
+                    widgetConfigUI.trustedIssuer.label }}</b-form-checkbox>
+                  <small v-html="widgetConfigUI.trustedIssuer.description"></small>
                 </div>
                 <div class="col">
                   <label for=""><strong>Choose Trusted Issuer(s): </strong></label>
@@ -453,6 +424,32 @@ export default {
   },
   data() {
     return {
+      widgetConfigUI: {
+        faceRecog: {
+          label: "Enable Facial Recoginition",
+          description: 'Enable users verify if they are human and generate Personhood Credential. Read more <b><a href="https://docs.hypersign.id/hypersign-kyc/integrations/widget-configuration#facial-recognition" target="_blank">here</a></b>.'
+        },
+        idOcr: {
+          label: "Enable ID Document Verification",
+          description: 'Enable users verify their ID Document and generate their ID Credential. Read more <b><a href="https://docs.hypersign.id/hypersign-kyc/integrations/widget-configuration#id-document-verification" target="_blank">here</a></b>.'
+        },
+        userConsent: {
+          label: "Enable User Consent",
+          description: 'Specify a reason for requesting user KYC data. This information will be displayed on the user consent screen in the KYC widget, helping users understand who is requesting their data and why. Read more <b><a href="https://docs.hypersign.id/hypersign-kyc/integrations/widget-configuration#user-consent" target="_blank">here</a></b>.'
+        },
+        onChainId: {
+          label: "Enable Onchain KYC",
+          description: "Enable users to mint SBT of their credentials in a privacy preserving manner and verify on configured blockchain"
+        },
+        zkProof: {
+          label: "Enable ZK Proof",
+          description: 'Enable users to share only proof of their data for enhanced data privacy and compliance. Read more <b><a href="https://docs.hypersign.id/hypersign-kyc/integrations/widget-configuration#id-document-verification" target="_blank">here</a></b>.'
+        },
+        trustedIssuer: {
+          label: "Configure Trusted Issuer(s)",
+          description: 'Select one or more trusted issuers, with the default being "self". This pertains toreusable KYC. If configured, users who already possess KYC credentials issued by these trusted issuers in their data vault will not need to repeat the KYC steps in the widget. They can simply authorize the sharing of their existing credentials with your app, streamlining user onboarding for your company and providing a smoother experience for your users. Read more <b><a href="https://docs.hypersign.id/hypersign-kyc/integrations/widget-configuration#trusted-issuer" target="_blank">here</a></b>.'
+        },
+      },
       fullPage: true,
       isLoading: false,
       appId: "",
@@ -483,7 +480,6 @@ export default {
         issuerDID: "",
         issuerVerificationMethodId: "",
       },
-
       selectedIssuerDids: new Set(),
       documentTypeOptions: [
         {
