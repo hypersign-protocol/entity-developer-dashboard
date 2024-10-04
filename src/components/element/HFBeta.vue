@@ -8,7 +8,7 @@
 .badge {
     padding: 5px;
     float: right;
-    background-color: rgb(236, 232, 200);
+    background-color: rgb(242 221 51);
     /* border-radius: 40%; */
     font-size: x-small;
     font-weight: bold;

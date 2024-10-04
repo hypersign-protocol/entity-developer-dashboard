@@ -115,6 +115,25 @@ h5 span {
 ul {
   list-style-type: none;
 }
+
+.zkbadge {
+  background-color: lightblue;
+  margin-left: 3px;
+  margin-top: 3px;
+  color: black;
+  min-height: 20px;
+  align-content: center;
+  /* display: flex; */
+  padding: 5px;
+  font-size: x-small;
+  font-weight: bold;
+  max-width: 200px;
+  float: left;
+}
+
+.zkbadge:hover {
+  background-color: lightcoral;
+}
 </style>
 <template>
   <div :class="isContainerShift ? 'homeShift' : 'home'">
@@ -164,25 +183,43 @@ ul {
             <li class="list-group-item">
               <div class="row">
                 <div class="col">
-                  <b-form-checkbox switch size="lg" v-model="widgetConfigTemp.zkProof.enabled">{{
-                    this.widgetConfigUI.zkProof.label }}<HFBeta></HFBeta>
-                  </b-form-checkbox>
-                  <small v-html="this.widgetConfigUI.zkProof.description"></small>
+                  <div class="row">
+                    <div class="col-md-12">
+                      <b-form-checkbox switch size="lg" v-model="widgetConfigTemp.zkProof.enabled">{{
+                        this.widgetConfigUI.zkProof.label }}<HFBeta></HFBeta>
+                      </b-form-checkbox>
+                      <small v-html="this.widgetConfigUI.zkProof.description"></small>
+                    </div>
+                  </div>
+                  <div class="mt-2 mx-0 p-1"
+                    style="border: 2px solid #8080802e; border-radius: 10px; min-height: 80px; padding:10px"
+                    v-if="widgetConfigTemp.zkProof.proofs.length > 0">
+                    <div class="">
+                      <span class="zkbadge rounded " style="cursor: grab;" @click="deleteZkProof(proof.proofType)"
+                        v-for="proof in widgetConfigTemp.zkProof.proofs" v-bind:key="proof.proofType"><b-icon
+                          style="color:green;" icon="check-circle" aria-hidden="true"></b-icon> {{ proof.proofType }}
+                        <b-icon class="trash" style="color:red" icon="trash" aria-hidden="true"></b-icon></span>
+                    </div>
+                  </div>
                 </div>
+
                 <div class="col" v-if="widgetConfigTemp.zkProof.enabled">
                   <div class="">
                     <label for=""><strong>Select Proof Type: </strong></label>
-                    <b-form-select v-model="widgetConfigTemp.zkProof.proofType" :options="proofTypeOptions"
-                      size=""></b-form-select>
+                    <b-form-select v-model="slectProof" :options="proofTypeOptions" size=""></b-form-select>
                     <div class="row" v-if="selectedProofData.criteria">
                       <div class="col">
                         <label for=""><strong>{{ selectedProofData.criteriaLabel }}: </strong></label>
                         <input :type="selectedProofData.criteriaType" class="form-control"
-                          v-model="widgetConfigTemp.zkProof.criteria" />
+                          v-model="selectedProofData.criteriaValue" />
                       </div>
                     </div>
                     <small>{{ selectedProofData.description }}</small>
-
+                    <div class="row col center mt-1">
+                      <HfButtons name="Add" iconClass="fa fa-plus"
+                        @executeAction="addZkProof(selectedProofData.value, selectedProofData.criteriaValue)">
+                      </HfButtons>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -334,7 +371,11 @@ export default {
     },
 
     selectedProofData() {
-      return this.proofTypeOptions.find(x => x.value == this.widgetConfigTemp.zkProof.proofType)
+
+      if (!this.slectProof) {
+        return {}
+      }
+      return this.proofTypeOptions.find(x => x.value == this.slectProof)
     },
 
     onchainconfigsOptions() {
@@ -417,6 +458,10 @@ export default {
     this.widgetConfigTemp.trustedIssuer = this.widgetConfigTemp.issuerDID ? true : false;
 
 
+
+    if (!this.widgetConfigTemp.zkProof.proofs) {
+      this.widgetConfigTemp.zkProof.proofs = []
+    }
     // this.widgetConfigTemp.zkProof = {
     //   enabled: false,
     //   proofType: null,
@@ -473,8 +518,7 @@ export default {
         },
         zkProof: {
           enabled: false,
-          proofType: null,
-          criteria: null,
+          proofs: []
         },
         trustedIssuer: true,
         issuerDID: "",
@@ -492,6 +536,7 @@ export default {
         },
       ],
 
+      slectProof: null,
       proofTypeOptions: [
         {
           value: null,
@@ -517,6 +562,7 @@ export default {
           description: "Proves user is above the specified age",
           enabled: true,
           criteria: true,
+          criteriaValue: "",
           criteriaLabel: "Specify Age (> than)",
           criteriaType: 'number'
         },
@@ -570,20 +616,6 @@ export default {
           throw new Error('Kindly select a onchain configuration')
         }
       }
-
-      if (this.widgetConfigTemp.zkProof.enabled) {
-        if (!this.widgetConfigTemp.zkProof.proofType) {
-          throw new Error('Kindly select a proof type')
-        }
-
-        if (this.widgetConfigTemp.zkProof.proofType == SupportedZkProofTypes.PROOF_OF_AGE) {
-          if (!this.widgetConfigTemp.zkProof.criteria) {
-            throw new Error('Kindly specify age criteria to generate proof')
-          }
-        } else {
-          this.widgetConfigTemp.zkProof.criteria = null
-        }
-      }
     },
     async saveConfiguration() {
       try {
@@ -602,6 +634,44 @@ export default {
         this.isLoading = false
         this.notifyErr(e)
       }
+    },
+
+    deleteZkProof(proof) {
+      this.widgetConfigTemp.zkProof.proofs = this.widgetConfigTemp.zkProof.proofs.filter(x => x.proofType != proof)
+      this.updateConfiguration()
+    },
+    addZkProof(proofType, criteria) {
+
+      if (!proofType) {
+        return this.notifyErr(`Proof Type must be slected`)
+      }
+
+      if (this.widgetConfigTemp.zkProof.enabled) {
+        if (!this.widgetConfigTemp.zkProof.proofs) {
+          this.widgetConfigTemp.zkProof.proofs = []
+        }
+
+        if (proofType == SupportedZkProofTypes.PROOF_OF_AGE) {
+          if (!criteria) {
+            return this.notifyErr('Kindly specify age criteria to generate proof')
+          }
+        } else {
+          criteria = null
+        }
+
+        if (this.widgetConfigTemp.zkProof.proofs.find(x => x.proofType === proofType)) {
+          this.slectProof = null
+          return this.notifyErr(`Proof Type ${proofType} is already added`)
+        }
+
+        this.widgetConfigTemp.zkProof.proofs.push({
+          proofType,
+          criteria,
+        })
+      }
+      this.slectProof = null
+
+      this.updateConfiguration()
     },
 
     async updateConfiguration() {
