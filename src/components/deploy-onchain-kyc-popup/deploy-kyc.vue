@@ -121,7 +121,7 @@
 import ConnectWalletButton from "../element/authButtons/ConnectWalletButton.vue";
 import { mapGetters, mapMutations, mapActions, mapState } from "vuex";
 import { getCosmosBlockchainLabel, getCosmosChainConfig, getCosmosCoinLogo } from '@hypersign-protocol/hypersign-kyc-chains-metadata/cosmos/wallet/cosmos-wallet-utils'
-import { createNonSigningClient } from '../../utils/cosmos-client'
+import { createNonSigningClient, calculateFee } from '../../utils/cosmos-client'
 import { getSupportedChains } from '@hypersign-protocol/hypersign-kyc-chains-metadata/blockchain'
 import { smartContractExecuteRPC } from '@hypersign-protocol/hypersign-kyc-chains-metadata/cosmos/contract/execute'
 import { smartContractQueryRPC } from '@hypersign-protocol/hypersign-kyc-chains-metadata/cosmos/contract/query'
@@ -182,6 +182,7 @@ export default {
             this.reset();
 
             const { interchain } = this.allSupportedChains
+            console.log(interchain)
             const interchainOptions = []
             interchain.forEach(chain => {
                 const chainLabel = getCosmosBlockchainLabel(chain)
@@ -414,17 +415,19 @@ export default {
                     ...proof
                 });
 
-                console.log(smartContractMsg)
-
-
                 const chainConfig = this.chainConfig
                 const chainCoinDenom = chainConfig["feeCurrencies"][0]["coinMinimalDenom"]
+                const gasPriceAvg = chainConfig["gasPriceStep"]["average"]
+                const fee = calculateFee(500_000, (gasPriceAvg + chainCoinDenom).toString())
+
                 const result = await smartContractExecuteRPC(
                     this.getCosmosConnection.signingClient,
                     chainCoinDenom,
                     this.getBlockchainUser.walletAddress,
                     HYPERSIGN_KYC_FACTORY_CONTRACT_ADDRESS,
-                    smartContractMsg);
+                    smartContractMsg,
+                    fee
+                );
 
                 if (result) {
                     console.log(result)

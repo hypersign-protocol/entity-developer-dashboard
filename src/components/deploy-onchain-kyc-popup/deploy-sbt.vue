@@ -70,7 +70,7 @@ import { smartContractExecuteRPC } from '@hypersign-protocol/hypersign-kyc-chain
 import { smartContractQueryRPC } from '@hypersign-protocol/hypersign-kyc-chains-metadata/cosmos/contract/query'
 import { constructInitSbtMsg, constructGetRegistredSBTContractAddressMsg } from '@hypersign-protocol/hypersign-kyc-chains-metadata/cosmos/contract/msg';
 import { getCosmosChainConfig } from '@hypersign-protocol/hypersign-kyc-chains-metadata/cosmos/wallet/cosmos-wallet-utils'
-import { createNonSigningClient } from '../../utils/cosmos-client'
+import { createNonSigningClient, calculateFee } from '../../utils/cosmos-client'
 import UtilsMixin from '../../mixins/utils'
 import ConnectWalletButton from "../element/authButtons/ConnectWalletButton.vue";
 
@@ -193,12 +193,15 @@ export default {
 
                 this.chainConfig = getCosmosChainConfig(this.selectedChainId)
                 const chainCoinDenom = this.chainConfig["feeCurrencies"][0]["coinMinimalDenom"]
+                const gasPriceAvg = this.chainConfig["gasPriceStep"]["average"]
+                const fee = calculateFee(500_000, (gasPriceAvg + chainCoinDenom).toString())
+
                 const result = await smartContractExecuteRPC(
                     this.getCosmosConnection.signingClient,
                     chainCoinDenom,
                     this.getBlockchainUser.walletAddress,
                     this.onChainIssuer.issuer.kyc_contract_address,
-                    smartContractMsg);
+                    smartContractMsg, fee);
 
                 if (result) {
                     console.log(result)
