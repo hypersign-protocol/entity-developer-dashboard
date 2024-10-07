@@ -333,7 +333,7 @@ import { mapGetters, mapMutations } from 'vuex/dist/vuex.common.js';
 import MarketplaceList from '../../../components/MarketplaceList.vue';
 import HFBeta from '../../../components/element/HFBeta.vue';
 const SupportedZkProofTypes = Object.freeze({
-  PROOF_OF_KYC: 'zkProofKYC',
+  PROOF_OF_KYC: 'zkProofOfKYC',
   PROOF_OF_PERSONHOOD: 'zkProofOfPersonHood',
   PROOF_OF_AGE: 'zkProofOfAge',
   PROOF_OF_MEMBERSHIP: 'zkProofOfMembership',
@@ -543,7 +543,7 @@ export default {
           text: "Select a proof type"
         },
         {
-          value: 'zkProofKYC',
+          value: 'zkProofOfKYC',
           text: "Proof Of KYC",
           description: "Proves that user has finished his/her KYC",
           enabled: true,

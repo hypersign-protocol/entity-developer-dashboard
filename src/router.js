@@ -4,20 +4,20 @@ import fetch from 'node-fetch'
 import config from './config'
 import store from './store'
 
-import PKIIdLogin from './views/PKIIdLogin.vue'
-import Home from './views/Home.vue'
-import MainDashboard from './views/Dashboard.vue'
-import Credential from './views/playground/Sessions.vue'
-import CredentialDetails from './views/playground/SessionsDetails.vue'
-import DIDs from './views/playground/DID.vue'
-import SSIDashboardCredit from './views/playground/SSIDashboardCredit.vue'
-import KYCCreditDashboard from './views/playground/KYCDashboardCredit.vue'
-import UsageS from './views/playground/Usage.vue';
-import OnChainKycSystems from './views/playground/OnChainKycSystems.vue';
-import WidgetConfig from './views/playground/WidgetConfig/Index.vue'
-import WebhookConfig from './views/playground/WebhookConfig.vue'
-import MFA from './components/login/mfa/MFA.vue';
-import SettingConfig from './views/SettingConfig.vue'
+const Home = () => import('./views/Home.vue');
+const PKIIdLogin = () => import('./views/PKIIdLogin.vue')
+const MainDashboard = () => import('./views/Dashboard.vue')
+const Credential = () => import('./views/playground/Sessions.vue')
+const CredentialDetails = () => import('./views/playground/SessionsDetails.vue')
+const DIDs = () => import('./views/playground/DID.vue')
+const SSIDashboardCredit = () => import('./views/playground/SSIDashboardCredit.vue')
+const KYCCreditDashboard = () => import('./views/playground/KYCDashboardCredit.vue')
+const UsageS = () => import('./views/playground/Usage.vue')
+const OnChainKycSystems = () => import('./views/playground/OnChainKycSystems.vue')
+const WidgetConfig = () => import('./views/playground/WidgetConfig/Index.vue')
+const WebhookConfig = () => import('./views/playground/WebhookConfig.vue')
+const MFA = () => import('./components/login/mfa/MFA.vue')
+const SettingConfig = () => import('./views/SettingConfig.vue')
 Vue.use(Router)
 
 const router = new Router({
