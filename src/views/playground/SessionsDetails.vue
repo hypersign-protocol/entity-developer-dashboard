@@ -585,7 +585,8 @@ import Loading from "vue-loading-overlay";
 import { mapState, mapGetters, mapActions } from "vuex";
 import UAParser from 'ua-parser-js'
 import CountryFlag from 'vue-country-flag'
-import { getCosmosChainConfig } from '@hypersign-protocol/hypersign-kyc-chains-metadata/cosmos/wallet/cosmos-wallet-utils'
+// import { getCosmosChainConfig } from '@hypersign-protocol/hypersign-kyc-chains-metadata/cosmos/wallet/cosmos-wallet-utils'
+import { HypersignOnChainMetadataPlugin } from '@hypersign-protocol/hypersign-kyc-chains-metadata'
 import HfPopUp from "../../components/element/hfPopup.vue";
 
 const ServiceLivenessResultEnum = {
@@ -781,9 +782,11 @@ export default {
     },
     methods: {
         ...mapActions('mainStore', ['fetchSessionsDetailsById']),
-        getChainDetail(blockchainlabel = 'cosmos:comdex:test') {
+        async getChainDetail(blockchainlabel = 'cosmos:comdex:test') {
             console.log('Inside get chain details.... ' + JSON.stringify(blockchainlabel))
-            const config = getCosmosChainConfig(blockchainlabel)
+
+            const selectedChainPlugin = await HypersignOnChainMetadataPlugin.loadPlugin(blockchainlabel)
+            const config = selectedChainPlugin.pluginWallet.CHAIN_JSON //getCosmosChainConfig(blockchainlabel)
             return {
                 chainName: config.chainName,
                 chainId: config.chainId,

@@ -240,8 +240,8 @@ import Loading from "vue-loading-overlay";
 import HfButtons from "../../components/element/HfButtons.vue"
 import StudioSideBar from "../../components/element/StudioSideBar.vue";
 import DeployOnChainKYC from "../../components/deploy-onchain-kyc-popup/deploy.vue";
-import { getCosmosChainConfig } from '@hypersign-protocol/hypersign-kyc-chains-metadata/cosmos/wallet/cosmos-wallet-utils'
-
+// import { getCosmosChainConfig } from '@hypersign-protocol/hypersign-kyc-chains-metadata/cosmos/wallet/cosmos-wallet-utils'
+import { HypersignOnChainMetadataPlugin } from '@hypersign-protocol/hypersign-kyc-chains-metadata'
 import { mapState, mapActions, mapMutations } from "vuex";
 
 export default {
@@ -327,12 +327,15 @@ export default {
       this.setOnChainConfig({});
       this.$root.$emit("bv::toggle::collapse", "sidebar-right");
     },
-    getChainDetail(blockchainlabel = 'cosmos:comdex:test') {
-      const config = getCosmosChainConfig(blockchainlabel)
+    async getChainDetail(blockchainlabel) {
+      // const config = getCosmosChainConfig(blockchainlabel)
+      console.log('Inside getChainDetail --------')
+      console.log({ blockchainlabel })
+      const selectedChainPlugin = await HypersignOnChainMetadataPlugin.loadPlugin(blockchainlabel)
+      const config = selectedChainPlugin.pluginWallet.CHAIN_JSON //getCosmosChainConfig(blockchainlabel)
       return {
         chainName: config.chainName,
         chainId: config.chainId,
-        logoUrl: config.stakeCurrency.coinImageUrl,
         tx_explorer: config.txExplorer.txUrl
       }
     },

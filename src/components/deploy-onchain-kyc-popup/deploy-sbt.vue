@@ -66,11 +66,15 @@
 
 
 import { mapGetters, mapMutations, mapActions } from "vuex";
-import { smartContractExecuteRPC } from '@hypersign-protocol/hypersign-kyc-chains-metadata/cosmos/contract/execute'
-import { smartContractQueryRPC } from '@hypersign-protocol/hypersign-kyc-chains-metadata/cosmos/contract/query'
-import { constructInitSbtMsg, constructGetRegistredSBTContractAddressMsg } from '@hypersign-protocol/hypersign-kyc-chains-metadata/cosmos/contract/msg';
-import { getCosmosChainConfig } from '@hypersign-protocol/hypersign-kyc-chains-metadata/cosmos/wallet/cosmos-wallet-utils'
-import { createNonSigningClient, calculateFee } from '../../utils/cosmos-client'
+
+// import { smartContractExecuteRPC } from '@hypersign-protocol/hypersign-kyc-chains-metadata/cosmos/contract/execute'
+// import { smartContractQueryRPC } from '@hypersign-protocol/hypersign-kyc-chains-metadata/cosmos/contract/query'
+// import { constructInitSbtMsg, constructGetRegistredSBTContractAddressMsg } from '@hypersign-protocol/hypersign-kyc-chains-metadata/cosmos/contract/msg';
+// import { getCosmosChainConfig } from '@hypersign-protocol/hypersign-kyc-chains-metadata/cosmos/wallet/cosmos-wallet-utils'
+// import { createNonSigningClient, calculateFee } from '../../utils/cosmos-client'
+
+import { HypersignOnChainMetadataPlugin } from '@hypersign-protocol/hypersign-kyc-chains-metadata'
+
 import UtilsMixin from '../../mixins/utils'
 import ConnectWalletButton from "../element/authButtons/ConnectWalletButton.vue";
 
@@ -124,7 +128,9 @@ export default {
             // },
             selectedChainId: "",
             nonSigningClient: null,
-            chainConfig: {}
+            chainConfig: {},
+            selectedChainPlugin: null,
+
         }
     },
     methods: {
@@ -134,7 +140,7 @@ export default {
             "updateAppsOnChainConfig"
         ]),
         async queryContract(msg, contractAddress) {
-            const result = await smartContractQueryRPC(
+            const result = await this.selectedChainPlugin.pluginContract.smartContractQueryRPC(
                 this.getCosmosConnection.nonSigningClient || this.nonSigningClient,
                 contractAddress, msg);
 
@@ -150,11 +156,15 @@ export default {
                 if (!this.selectedChainId || this.selectedChainId == "") {
                     this.selectedChainId = this.getOnChainBlockchainLabel;
                 }
-                this.chainConfig = getCosmosChainConfig(this.selectedChainId)
-                this.nonSigningClient = await createNonSigningClient(this.chainConfig["rpc"]);
+                console.log({ blockchainlabel: this.selectedChainId })
+                this.selectedChainPlugin = await HypersignOnChainMetadataPlugin.loadPlugin(this.selectedChainId)
+
+
+                this.chainConfig = this.selectedChainPlugin.pluginWallet.CHAIN_JSON// getCosmosChainConfig(this.selectedChainId)
+                this.nonSigningClient = await this.selectedChainPlugin.pluginWallet.createNonSigningClient(this.chainConfig["rpc"]);
 
                 this.isLoading = true;
-                const msg = constructGetRegistredSBTContractAddressMsg()
+                const msg = this.selectedChainPlugin.pluginContractMessage.constructGetRegistredSBTContractAddressMsg()
                 await this.queryContract(msg, this.onChainIssuer.issuer.kyc_contract_address)
                 this.isLoading = false
                 if (this.onChainIssuer.issuer['sbt_contract_address'] != '') {
@@ -185,18 +195,18 @@ export default {
                 // }
 
                 this.isLoading = true
-                const { SBT_TOKEN_CODE_ID } = await import(`@hypersign-protocol/hypersign-kyc-chains-metadata/${this.selectedBlockchain.ecosystem}/contract/${this.selectedBlockchain.blockchain}/${this.selectedBlockchain.chainId}/config`)
+                const { SBT_TOKEN_CODE_ID } = this.selectedChainPlugin.pluginConfig //await import(`@hypersign-protocol/hypersign-kyc-chains-metadata/${this.selectedBlockchain.ecosystem}/contract/${this.selectedBlockchain.blockchain}/${this.selectedBlockchain.chainId}/config`)
 
-                const smartContractMsg = constructInitSbtMsg(
+                const smartContractMsg = this.selectedChainPlugin.pluginContractMessage.constructInitSbtMsg(
                     SBT_TOKEN_CODE_ID
                 );
 
-                this.chainConfig = getCosmosChainConfig(this.selectedChainId)
+                this.chainConfig = this.selectedChainPlugin.pluginWallet.CHAIN_JSON //getCosmosChainConfig(this.selectedChainId)
                 const chainCoinDenom = this.chainConfig["feeCurrencies"][0]["coinMinimalDenom"]
                 const gasPriceAvg = this.chainConfig["gasPriceStep"]["average"]
-                const fee = calculateFee(500_000, (gasPriceAvg + chainCoinDenom).toString())
+                const fee = this.selectedChainPlugin.pluginWallet.calculateFee(500_000, (gasPriceAvg + chainCoinDenom).toString())
 
-                const result = await smartContractExecuteRPC(
+                const result = await this.selectedChainPlugin.pluginContract.smartContractExecuteRPC(
                     this.getCosmosConnection.signingClient,
                     chainCoinDenom,
                     this.getBlockchainUser.walletAddress,
@@ -210,7 +220,7 @@ export default {
 
                     this.isLoading = false
 
-                    const msg = constructGetRegistredSBTContractAddressMsg()
+                    const msg = this.selectedChainPlugin.pluginContractMessage.constructGetRegistredSBTContractAddressMsg()
                     await this.queryContract(msg, this.onChainIssuer.issuer.kyc_contract_address)
 
                     ///update the db

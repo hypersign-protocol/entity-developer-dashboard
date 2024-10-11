@@ -83,10 +83,6 @@
                         @authEvent="myEventListener" style="width:100%"
                         v-if="showConnectWallet && selectedBlockchain && selectedIssuerDID && !onChainIssuer.issuer.kyc_contract_address" />
 
-
-
-
-
                     <button class="btn btn-outline-dark btn-md" style="width:100%"
                         v-if="!showConnectWallet && selectedBlockchain && getBlockchainUser.walletAddress && !onChainIssuer.issuer.kyc_contract_address"
                         v-on:click="deployIssuer()">
@@ -120,14 +116,19 @@
 <script>
 import ConnectWalletButton from "../element/authButtons/ConnectWalletButton.vue";
 import { mapGetters, mapMutations, mapActions, mapState } from "vuex";
-import { getCosmosBlockchainLabel, getCosmosChainConfig, getCosmosCoinLogo } from '@hypersign-protocol/hypersign-kyc-chains-metadata/cosmos/wallet/cosmos-wallet-utils'
-import { createNonSigningClient, calculateFee } from '../../utils/cosmos-client'
-import { getSupportedChains } from '@hypersign-protocol/hypersign-kyc-chains-metadata/blockchain'
-import { smartContractExecuteRPC } from '@hypersign-protocol/hypersign-kyc-chains-metadata/cosmos/contract/execute'
-import { smartContractQueryRPC } from '@hypersign-protocol/hypersign-kyc-chains-metadata/cosmos/contract/query'
-import UtilsMixin from '../../mixins/utils'
-import { constructOnBoardIssuer, constructGetRegistredIssuerMsg } from '@hypersign-protocol/hypersign-kyc-chains-metadata/cosmos/contract/msg';
 
+
+// import { constructOnBoardIssuer, constructGetRegistredIssuerMsg } from '@hypersign-protocol/hypersign-kyc-chains-metadata/cosmos/contract/msg';
+// import { getCosmosBlockchainLabel, getCosmosChainConfig, getCosmosCoinLogo } from '@hypersign-protocol/hypersign-kyc-chains-metadata/cosmos/wallet/cosmos-wallet-utils'
+// import { getSupportedChains } from '@hypersign-protocol/hypersign-kyc-chains-metadata/blockchain'
+// import { smartContractExecuteRPC } from '@hypersign-protocol/hypersign-kyc-chains-metadata/cosmos/contract/execute'
+// import { smartContractQueryRPC } from '@hypersign-protocol/hypersign-kyc-chains-metadata/cosmos/contract/query'
+// import { createNonSigningClient, calculateFee } from '../../utils/cosmos-client'
+
+import { HypersignOnChainMetadataPlugin } from '@hypersign-protocol/hypersign-kyc-chains-metadata'
+
+
+import UtilsMixin from '../../mixins/utils'
 const jsonld = require('jsonld');
 import customLoader from '../../utils/documentLoader';
 export default {
@@ -178,18 +179,20 @@ export default {
         // const supportedChainsall = getSupportedChains()
         // Interchain 
 
+
+        this.allSupportedChains = await HypersignOnChainMetadataPlugin.listPlugins();
+
         if (Object.keys(this.getOnChainConfig).length <= 0) {
             this.reset();
 
-            const { interchain } = this.allSupportedChains
-            console.log(interchain)
+            // const { interchain } = this.allSupportedChains
+            // console.log(interchain)
             const interchainOptions = []
-            interchain.forEach(chain => {
-                const chainLabel = getCosmosBlockchainLabel(chain)
+            this.allSupportedChains.forEach(chain => {
                 interchainOptions.push({
-                    value: chainLabel,
+                    value: chain.chainLabel,
                     text: chain.chainName,
-                    icon: getCosmosCoinLogo(chainLabel)
+                    icon: chain.logo
                 })
             })
             this.selectNetworks.push({
@@ -210,7 +213,7 @@ export default {
             isLoading: false,
             fullPage: true,
             selectedChainId: null,
-            allSupportedChains: getSupportedChains(),
+            allSupportedChains: null,
             selectNetworks: [
                 { value: null, text: 'Please select a blockchain' },
             ],
@@ -226,7 +229,8 @@ export default {
                 issuer: {}
             },
             nonSigningClient: null,
-            associatedSSIServiceDIDs: []
+            associatedSSIServiceDIDs: [],
+            selectedChainPlugin: null
         }
     },
     methods: {
@@ -290,14 +294,14 @@ export default {
         async checkIfIssuerHasAlreadyDeployed() {
             try {
                 this.isLoading = true;
-                const { HYPERSIGN_KYC_FACTORY_CONTRACT_ADDRESS } = await import(`@hypersign-protocol/hypersign-kyc-chains-metadata/${this.selectedBlockchain.ecosystem}/contract/${this.selectedBlockchain.blockchain}/${this.selectedBlockchain.chainId}/config`)
+                const { HYPERSIGN_KYC_FACTORY_CONTRACT_ADDRESS } = this.selectedChainPlugin.pluginConfig //await import(`@hypersign-protocol/hypersign-kyc-chains-metadata/${this.selectedBlockchain.ecosystem}/contract/${this.selectedBlockchain.blockchain}/${this.selectedBlockchain.chainId}/config`)
                 if (!this.selectedIssuerDID) {
                     this.isLoading = false
                     return
                 }
 
                 // const msg = constructGetRegistredIssuerMsg("did:hid:testnet:z6Mkk8qQLgMmLKDq6ER9BYGycFEdSaPqy9JPWKUaPGWzJeNp")
-                const msg = constructGetRegistredIssuerMsg(this.selectedIssuerDID)
+                const msg = this.selectedChainPlugin.pluginContractMessage.constructGetRegistredIssuerMsg(this.selectedIssuerDID)
                 console.log('checkIfIssuerHasAlreadyDeployed:: Before querying kyc contract address = ' + HYPERSIGN_KYC_FACTORY_CONTRACT_ADDRESS)
                 const resp = await this.queryContract(msg, HYPERSIGN_KYC_FACTORY_CONTRACT_ADDRESS)
                 console.log('checkIfIssuerHasAlreadyDeployed:: After querying kyc contract address = ' + JSON.stringify(resp))
@@ -333,11 +337,12 @@ export default {
 
                 // TODO remove this
                 // this.selectedIssuerDID = `did:hid:testnet:` + crypto.randomUUID()
-
-                this.chainConfig = getCosmosChainConfig(this.selectedChainId)
+                console.log({ blockchainlabel: this.selectedChainId })
+                this.selectedChainPlugin = await HypersignOnChainMetadataPlugin.loadPlugin(this.selectedChainId)
+                this.chainConfig = this.selectedChainPlugin.pluginWallet.CHAIN_JSON //getCosmosChainConfig(this.selectedChainId)
                 this.onChainIssuer.issuer = {}
                 this.setBlockchainUser({})
-                this.nonSigningClient = await createNonSigningClient(this.chainConfig["rpc"]);
+                this.nonSigningClient = await this.selectedChainPlugin.pluginWallet.createNonSigningClient(this.chainConfig["rpc"]);
 
 
 
@@ -348,7 +353,7 @@ export default {
         async queryContract(msg, contractAddress) {
             this.setOnChainBlockchainLabel(this.selectedChainId)
             console.log('queryContract:: Before calling  smartContractQueryRPC(), contractAddress ' + contractAddress)
-            const result = await smartContractQueryRPC(
+            const result = await this.selectedChainPlugin.pluginContract.smartContractQueryRPC(
                 this.getCosmosConnection.nonSigningClient || this.nonSigningClient,
                 contractAddress, msg);
             console.log('queryContract:: After calling  smartContractQueryRPC(), result ' + JSON.stringify(result, null, 2))
@@ -405,22 +410,22 @@ export default {
 
 
                 this.isLoading = true
-                const { HYPERSIGN_KYC_FACTORY_CONTRACT_ADDRESS, ISSUER_KYC_CODE_ID } = await import(`@hypersign-protocol/hypersign-kyc-chains-metadata/${this.selectedBlockchain.ecosystem}/contract/${this.selectedBlockchain.blockchain}/${this.selectedBlockchain.chainId}/config`)
+                const { HYPERSIGN_KYC_FACTORY_CONTRACT_ADDRESS, ISSUER_KYC_CODE_ID } = this.selectedChainPlugin.pluginConfig // await import(`@hypersign-protocol/hypersign-kyc-chains-metadata/${this.selectedBlockchain.ecosystem}/contract/${this.selectedBlockchain.blockchain}/${this.selectedBlockchain.chainId}/config`)
                 console.log({
                     HYPERSIGN_KYC_FACTORY_CONTRACT_ADDRESS, ISSUER_KYC_CODE_ID
                 })
                 const proof = await this.dummyGetDidDocAndProofs()
 
-                const smartContractMsg = constructOnBoardIssuer({
+                const smartContractMsg = this.selectedChainPlugin.pluginContractMessage.constructOnBoardIssuer({
                     ...proof
                 });
 
                 const chainConfig = this.chainConfig
                 const chainCoinDenom = chainConfig["feeCurrencies"][0]["coinMinimalDenom"]
                 const gasPriceAvg = chainConfig["gasPriceStep"]["average"]
-                const fee = calculateFee(500_000, (gasPriceAvg + chainCoinDenom).toString())
+                const fee = this.selectedChainPlugin.pluginWallet.calculateFee(500_000, (gasPriceAvg + chainCoinDenom).toString())
 
-                const result = await smartContractExecuteRPC(
+                const result = await this.selectedChainPlugin.pluginContract.smartContractExecuteRPC(
                     this.getCosmosConnection.signingClient,
                     chainCoinDenom,
                     this.getBlockchainUser.walletAddress,
@@ -435,7 +440,7 @@ export default {
                     this.isLoading = false
 
 
-                    const msg = constructGetRegistredIssuerMsg(this.selectedIssuerDID)
+                    const msg = this.selectedChainPlugin.pluginContractMessage.constructGetRegistredIssuerMsg(this.selectedIssuerDID)
                     // const msg = constructGetRegistredIssuerMsg("did:hid:testnet:z6Mkk8qQLgMmLKDq6ER9BYGycFEdSaPqy9JPWKUaPGWzJeNp")
                     await this.queryContract(msg, HYPERSIGN_KYC_FACTORY_CONTRACT_ADDRESS)
 

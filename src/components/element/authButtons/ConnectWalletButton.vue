@@ -9,9 +9,12 @@
 </template>
 <script>
 import { mapMutations } from "vuex";
-import { getUserAddressFromOfflineSigner } from '@hypersign-protocol/hypersign-kyc-chains-metadata/cosmos/wallet/cosmos-wallet-utils'
-import { createClient, createNonSigningClient } from '../../../utils/cosmos-client'
-import { getCosmosCoinLogo } from '@hypersign-protocol/hypersign-kyc-chains-metadata/cosmos/wallet/cosmos-wallet-utils'
+
+// import { getUserAddressFromOfflineSigner } from '@hypersign-protocol/hypersign-kyc-chains-metadata/cosmos/wallet/cosmos-wallet-utils'
+// import { createClient, createNonSigningClient } from '../../../utils/cosmos-client'
+// import { getCosmosCoinLogo } from '@hypersign-protocol/hypersign-kyc-chains-metadata/cosmos/wallet/cosmos-wallet-utils'
+import { HypersignOnChainMetadataPlugin } from '@hypersign-protocol/hypersign-kyc-chains-metadata'
+
 export const AUTH_PROVIDERS = Object.freeze({
     GOOGLE: 'google',
     KEPLR: 'keplr',
@@ -38,24 +41,32 @@ export default {
         }
     },
     computed: {
+        blockchainLabel() {
+            return `${this.ecosystem}:${this.blockchain}:${this.chainId}`
+        },
         selectedBlockchainLogo() {
-            return getCosmosCoinLogo(`${this.ecosystem}:${this.blockchain}:${this.chainId}`)
+            return this.selectedChainPlugin.pluginWallet.getChainInfo().logo; //getCosmosCoinLogo(`${this.ecosystem}:${this.blockchain}:${this.chainId}`)
         }
+    },
+    async mounted() {
+        console.log({ blockchainlabel: this.blockchainLabel })
+        this.selectedChainPlugin = await HypersignOnChainMetadataPlugin.loadPlugin(this.blockchainLabel)
     },
     methods: {
         ...mapMutations("walletStore", ['setCosmosConnection', 'setBlockchainUser']),
         async connectWallet() {
+
             // const { ecosystem, blockchain } = this.getOnChainIssuerConfig
-            const { default: SupportedChains } = await import(`@hypersign-protocol/hypersign-kyc-chains-metadata/${this.ecosystem}/wallet/${this.blockchain}/${this.chainId}/chains`)
+            // const { default: SupportedChains } = this.selectedChainPlugin.pluginWallet.CHAIN_JSON //await import(`@hypersign-protocol/hypersign-kyc-chains-metadata/${this.ecosystem}/wallet/${this.blockchain}/${this.chainId}/chains`)
 
-            if (!SupportedChains) {
-                throw new Error('Ecosysem or blockchain is not supported')
-            }
+            // if (!SupportedChains) {
+            //     throw new Error('Ecosysem or blockchain is not supported')
+            // }
 
-            const requestedChainId = this.chainId// this.getOnChainIssuerConfig.chainId
-            const chainConfig = SupportedChains.find(x => x.chainId == requestedChainId);
+            // const requestedChainId = this.chainId// this.getOnChainIssuerConfig.chainId
+            const chainConfig = this.selectedChainPlugin.pluginWallet.CHAIN_JSON // SupportedChains.find(x => x.chainId == requestedChainId);
             if (!chainConfig) {
-                throw new Error('Chain not supported for chainId requestedChainId ' + requestedChainId)
+                throw new Error('Chain not supported for chainId requestedChainId ' + this.chainId)
             }
 
             const chainId = chainConfig["chainId"];
@@ -78,13 +89,13 @@ export default {
 
             await window.keplr.enable(chainId);
             const offlineSigner = window.getOfflineSigner(chainId)
-            const userAddress = await getUserAddressFromOfflineSigner(offlineSigner);
+            const userAddress = await this.selectedChainPlugin.pluginWallet.getUserAddressFromOfflineSigner(offlineSigner);
             console.log("User Address: ", userAddress)
 
             if (userAddress != "") {
                 const chainRPC = chainConfig["rpc"]
-                const signingClient = await createClient(chainRPC, offlineSigner);
-                const nonSigningClient = await createNonSigningClient(chainRPC);
+                const signingClient = await this.selectedChainPlugin.pluginWallet.createClient(chainRPC, offlineSigner);
+                const nonSigningClient = await this.selectedChainPlugin.pluginWallet.createNonSigningClient(chainRPC);
 
                 this.setCosmosConnection({
                     signingClient,
