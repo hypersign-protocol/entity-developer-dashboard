@@ -189,7 +189,6 @@ const mainStore = {
             }
         },
         setSelectedAppId: (state, payload) => {
-            console.log('inside setSelectedAppId ' + payload);
             state.selectedServiceId = payload;
         },
 
@@ -619,6 +618,30 @@ const mainStore = {
             })
 
         },
+
+        deleteAnAppOnServer: ({ dispatch }, payload) => {
+            return new Promise((resolve, reject) => {
+                const { appId } = payload;
+                if (!appId) {
+                    reject(new Error(`appId is not specified`))
+                }
+                const url = `${apiServerBaseUrl}/app/${appId}`;
+                const headers = UtilsMixin.methods.getHeader(localStorage.getItem('authToken'));
+                fetch(url, {
+                    method: 'DELETE',
+                    headers,
+                }).then(response => response.json()).then(json => {
+                    if (json.error) {
+                        return reject(new Error(json.error.details.join(' ')))
+                    }
+                    dispatch('fetchAppsListFromServer')
+                    resolve(json)
+                }).catch((e) => {
+                    return reject(`Error while deleting this service ${appId} ` + e.message);
+                })
+            })
+        },
+
 
         fetchAppsListFromServer: async ({ commit, dispatch }) => {
             // TODO: Get list of orgs 

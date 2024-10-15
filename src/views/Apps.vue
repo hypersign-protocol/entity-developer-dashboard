@@ -177,6 +177,22 @@
       </div>
     </hf-pop-up>
 
+
+    <hf-pop-up id="entity-delete-service-confirmation-popup" Header="Delete Service Confirmation">
+      <div>
+        <p style="color: #ff5400de">
+          Warning: This is a destructive feature. It will clean all your metadata and delete your data vault. If you
+          sure you want to delete this service, please enter the service Id:
+        </p>
+        <input type="text" class="form-control" id="appId" v-model="appIdToGenerateSecret"
+          aria-describedby="selected App Id" placeholder="Enter Service Id" />
+        <div class="text-center mt-3">
+          <hf-buttons name="Delete" class="btn btn-primary text-center" customClass="btn btn-danger"
+            iconClass="fa fa-trash-alt" @executeAction="deleteOrg"></hf-buttons>
+        </div>
+      </div>
+    </hf-pop-up>
+
     <StudioSideBar :title="edit ? 'Edit Service' : 'Add Service'">
       <div class="container">
         <div class="form-group" v-if="edit === true">
@@ -460,6 +476,11 @@
                           title="Click to edit the app" style="cursor: pointer; color: white">
                           <i class="fas fa-pencil-alt"></i>
                           Edit</span>
+
+                        <span class="mx-1" @click.stop="openDeleteServicePopUp(eachOrg.appId)"
+                          title="Click to delete the app" style="cursor: pointer; color: red">
+                          <i class="fa fa-trash-alt" aria-hidden="true"></i>
+                        </span>
                       </span>
                     </div>
                   </div>
@@ -587,6 +608,11 @@
                             title="Click to edit the app" style="cursor: pointer; color: white">
                             <i class="fas fa-pencil-alt"></i>
                             Edit
+                          </span>
+
+                          <span class="mx-1" @click.stop="openDeleteServicePopUp(eachOrg.appId)"
+                            title="Click to delete the app" style="cursor: pointer; color: red">
+                            <i class="fa fa-trash-alt" aria-hidden="true"></i>
                           </span>
                         </span>
                       </div>
@@ -719,6 +745,11 @@
                             title="Click to edit the app" style="cursor: pointer; color: white">
                             <i class="fas fa-pencil-alt"></i>
                             Edit
+                          </span>
+
+                          <span class="mx-1" @click.stop="openDeleteServicePopUp(eachOrg.appId)"
+                            title="Click to delete the app" style="cursor: pointer; color: red">
+                            <i class="fa fa-trash-alt" aria-hidden="true"></i>
                           </span>
                         </span>
                       </div>
@@ -1023,6 +1054,7 @@ export default {
       "fetchDIDsForAService",
       "fetchAppsListFromServer",
       "fetchServicesList",
+      "deleteAnAppOnServer"
     ]),
 
     async initializeStore() {
@@ -1108,6 +1140,28 @@ export default {
       }
 
       this.shiftContainer(false);
+    },
+
+    async deleteOrg() {
+      try {
+        if (this.appIdToGenerateSecret === "") {
+          return this.notifyErr(messages.APPLICATION.ENTER_APP_ID);
+        }
+
+        if (this.appIdToGenerateSecret !== this.selectedAppId) {
+          return this.notifyErr(messages.APPLICATION.VALID_ID);
+        }
+        this.$root.$emit("bv::hide::modal", "entity-delete-service-confirmation-popup");
+
+        this.isLoading = true;
+        const appId = this.selectedAppId;
+        await this.deleteAnAppOnServer({ appId })
+        this.isLoading = false
+
+      } catch (e) {
+        this.notifyErr(e.message);
+        this.isLoading = false
+      }
     },
 
     onServicesSelected() {
@@ -1475,6 +1529,12 @@ export default {
       this.apiKeySecret = "";
       this.selectedAppId = appId;
       this.$root.$emit("bv::show::modal", "entity-secret-confirmation-popup");
+    },
+    openDeleteServicePopUp(appId) {
+      this.appIdToGenerateSecret = "";
+      this.apiKeySecret = "";
+      this.selectedAppId = appId;
+      this.$root.$emit("bv::show::modal", "entity-delete-service-confirmation-popup");
     },
 
     // openOnChainDeployPopup(appId) {
