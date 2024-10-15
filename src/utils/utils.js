@@ -23,7 +23,6 @@ export async function RequestHandler(url, method = 'GET', body = {}, headers = {
     })
 
     const json = await response.json();
-    console.log(json)
 
     // error handling
     if (!response.ok) {

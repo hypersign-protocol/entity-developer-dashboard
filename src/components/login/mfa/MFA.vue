@@ -38,7 +38,7 @@ export default {
         SetupMFA
     },
     methods: {
-        ...mapMutations('mainStore', 'setSelectedAppId'),
+        ...mapMutations('mainStore', ['setSelectedAppId']),
     }
 }
 
