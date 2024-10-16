@@ -46,8 +46,27 @@
             </div>
           </div>
 
+
+
+
           <div class="card" style="width: 20rem; float: left; border-radius: 20px; margin: 10px">
-            <div class="overlay"></div>
+            <!-- <div class="overlay"></div> -->
+
+            <img class="card-img-top card-image" src="../assets/qa.png" alt="Card image cap" />
+            <div class="card-body">
+              <h5 class="card-title">Quest Service</h5>
+              <p class="card-text">
+                Seamlessly onboard verified users into your community and increase your brand awareness by
+                verifying them through both on-chain and off-chain tasks.
+              </p>
+              <hf-buttons name=" Create" iconClass="fa fa-plus" style="text-align: right" class="ml-auto mt-4"
+                @executeAction="openSlider('QUEST')">
+              </hf-buttons>
+            </div>
+          </div>
+
+          <div class="card" style="width: 20rem; float: left; border-radius: 20px; margin: 10px">
+            <!-- <div class="overlay"></div> -->
             <img class="card-img-top card-image" src="../assets/edv.png" alt="Card image cap"
               style="height: 125px; width: 125px; opacity: 0.4" />
             <div class="card-body" style="color: #8080808a">
@@ -62,6 +81,9 @@
               </hf-buttons>
             </div>
           </div>
+
+
+
         </div>
       </div>
     </div>
@@ -152,6 +174,22 @@
         </p>
         <HfFlashNotification class="mt-2" v-if="apiKeySecret != ''" :text="`${apiKeySecret}`" type="API Secret Key"
           description="Your API Secret Key" @click="onHfFlashClick()"></HfFlashNotification>
+      </div>
+    </hf-pop-up>
+
+
+    <hf-pop-up id="entity-delete-service-confirmation-popup" Header="Delete Service Confirmation">
+      <div>
+        <p style="color: #ff5400de">
+          Warning: This is a destructive feature. It will clean all your metadata and delete your data vault. If you
+          sure you want to delete this service, please enter the service Id:
+        </p>
+        <input type="text" class="form-control" id="appId" v-model="appIdToGenerateSecret"
+          aria-describedby="selected App Id" placeholder="Enter Service Id" />
+        <div class="text-center mt-3">
+          <hf-buttons name="Delete" class="btn btn-primary text-center" customClass="btn btn-danger"
+            iconClass="fa fa-trash-alt" @executeAction="deleteOrg"></hf-buttons>
+        </div>
       </div>
     </hf-pop-up>
 
@@ -358,13 +396,13 @@
 
 
       <b-tabs content-class="mt-0" card>
-        <b-tab active v-if="getAppsWithSSIServices.length > 0" class="bg-white p-3">
+        <b-tab active class="bg-white p-3">
           <template #title>
             <b-icon icon="credit-card" aria-hidden="true" small></b-icon><strong> {{ 'Self Sovereign Identity (' +
               getAppsWithSSIServices.length + ')' }}</strong>
           </template>
 
-          <div class="row">
+          <div class="row" v-if="getAppsWithSSIServices.length > 0">
             <div class="col-md-4 mb-4" v-for="eachOrg in getAppsWithSSIServices" :key="eachOrg.appId">
               <div class="card" @click="switchOrg(eachOrg.appId, 'SSI_API')" style="cursor: grab">
                 <div class="card-body">
@@ -438,6 +476,11 @@
                           title="Click to edit the app" style="cursor: pointer; color: white">
                           <i class="fas fa-pencil-alt"></i>
                           Edit</span>
+
+                        <span class="mx-1" @click.stop="openDeleteServicePopUp(eachOrg.appId)"
+                          title="Click to delete the app" style="cursor: pointer; color: red">
+                          <i class="fa fa-trash-alt" aria-hidden="true"></i>
+                        </span>
                       </span>
                     </div>
                   </div>
@@ -445,8 +488,14 @@
               </div>
             </div>
           </div>
+          <div class="new-service-popup" v-else>
+            <h3 class="" style="text-align: left">Spin up your SSI service!</h3>
+            <hf-buttons name=" Create" iconClass="fa fa-plus" style="text-align: right" class="ml-auto mt-2"
+              @executeAction="openSlider('SSI_API')">
+            </hf-buttons>
+          </div>
         </b-tab>
-        <b-tab v-if="getAppsWithKYCServices.length > 0" class="bg-white p-3">
+        <b-tab class="bg-white p-3">
 
           <template #title>
             <b-icon icon="person-fill" aria-hidden="true" small></b-icon><strong> {{ 'Know Your Customer (' +
@@ -454,9 +503,7 @@
               }}</strong>
           </template>
 
-
-
-          <div class="row">
+          <div class="row" v-if="getAppsWithKYCServices.length > 0">
             <div class="col-md-4 mb-4" v-for="eachOrg in getAppsWithKYCServices" :key="eachOrg.appId">
               <div class="card" @click="switchOrg(eachOrg.appId, 'CAVACH_API')" style="cursor: grab">
                 <div class="card" style="cursor: grab">
@@ -562,6 +609,11 @@
                             <i class="fas fa-pencil-alt"></i>
                             Edit
                           </span>
+
+                          <span class="mx-1" @click.stop="openDeleteServicePopUp(eachOrg.appId)"
+                            title="Click to delete the app" style="cursor: pointer; color: red">
+                            <i class="fa fa-trash-alt" aria-hidden="true"></i>
+                          </span>
                         </span>
                       </div>
                     </div>
@@ -569,6 +621,149 @@
                 </div>
               </div>
             </div>
+          </div>
+          <div class="new-service-popup" v-else>
+            <h3 style="text-align: left">Spin up your KYC service!</h3>
+            <hf-buttons name=" Create" iconClass="fa fa-plus" style="text-align: right" class="ml-auto mt-2"
+              @executeAction="openSlider('CAVACH_API')">
+            </hf-buttons>
+          </div>
+        </b-tab>
+
+        <b-tab class="bg-white p-3">
+
+          <template #title>
+            <b-icon icon="list-task" aria-hidden="true" small></b-icon><strong> {{ 'Quest (' +
+              getAppsWithQuestServices.length + ')'
+              }}</strong>
+          </template>
+
+
+
+          <div class="row" v-if="getAppsWithQuestServices.length > 0">
+            <div class="col-md-4 mb-4" v-for="eachOrg in getAppsWithQuestServices" :key="eachOrg.appId">
+              <div class="card" @click="switchOrg(eachOrg.appId, 'QUEST')" style="cursor: grab">
+                <div class="card" style="cursor: grab">
+                  <div class="card-body">
+                    <div class="row">
+                      <div class="col-9">
+                        <div class="row">
+                          <div class="col-12">
+                            <h5 class="card-title text-uppercase text-muted mb-0">
+                              {{ formattedAppName(eachOrg.appName) }}
+                              <img src="../assets/verified-success.png" style="max-height: 20px; min-height: 20px"
+                                v-if="eachOrg.hasDomainVerified" />
+                            </h5>
+                          </div>
+                        </div>
+                        <div class="row">
+                          <div class="col-12 mt-1">
+                            {{
+                              truncate(
+                                eachOrg.description ||
+                                "No description for this app..",
+                                70
+                              )
+                            }}
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-3">
+                        <div class="p-2 logo-container" style="
+                  border: 1px solid #303c3029;
+                  border-radius: 51px;
+                  overflow: hidden;
+                ">
+                          <b-card-img :src="eachOrg.logoUrl ||
+                            getProfileIcon(formattedAppName(eachOrg.appId))
+                            " alt="logoImg" class="rounded-1 logo" style="
+                    max-height: 60px;
+                    min-height: 60px;
+                    border-radius: 50%;
+                  ">
+                          </b-card-img>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="row">
+                      <div class="col">
+                        <b-card-text>
+                          <small class="card-field-label">Service Id:</small>
+                          <div class="apiKeySecret" @click.stop="
+                            copyToClip(eachOrg.appId, 'Service Id')
+                            " title="Copy Service Id">
+                            {{ truncate(eachOrg.appId, 45) }}
+                            <i class="far fa-copy" style="float: right"></i>
+                          </div>
+                        </b-card-text>
+                      </div>
+                    </div>
+                    <div class="row" v-if="eachOrg.tenantUrl">
+                      <div class="col">
+                        <b-card-text>
+                          <small class="card-field-label">Tenant Url:</small>
+                          <div class="apiKeySecret" @click.stop="
+                            copyToClip(eachOrg.tenantUrl, 'Tenant Url')
+                            " title="Copy Tenant Url">
+                            {{ truncate(eachOrg.tenantUrl, 55) }}
+                            <i class="far fa-copy" style="float: right"></i>
+                          </div>
+                        </b-card-text>
+                      </div>
+                    </div>
+                    <div class="row mt-2">
+                      <div class="col">
+                        <!-- <span class=" " style="cursor: pointer" @click.stop="switchOrg(eachOrg.appId,  'CAVACH_API')"><i
+                class="fas fa-tachometer-alt" aria-hidden="true"></i></span> -->
+                        <span style="float: left">
+                          <span class="badge bg-secondary text-white mx-1" v-if="eachOrg.env == 'dev'">{{ eachOrg.env
+                            }}</span>
+                          <span class="badge bg-success text-white mx-1" v-else>{{ eachOrg.env }}</span>
+
+                          <span class="badge rounded bg-light mx-1" v-if="eachOrg.domain && eachOrg.hasDomainVerified">
+                            <a @click.stop :href="eachOrg.domain" target="_blank" style="text-decoration: none">{{
+                              domainFromOrigin(eachOrg.domain) }}</a>
+                          </span>
+                        </span>
+                        <span class=" " style="float: right">
+                          <span class="badge rounded-pill bg-warning text-dark mx-1"
+                            @click.stop="verifyDomainOpenPopup(eachOrg)" title="Click to verify your domain" v-if="
+                              !eachOrg.hasDomainVerified &&
+                              eachOrg.dependentServices[0]
+                            ">
+                            <i class="fa fa-check"></i>
+                            Domain</span>
+
+                          <span class="badge rounded-pill bg-danger mx-1"
+                            @click.stop="openSecretkeyPopUp(eachOrg.appId)"
+                            title="Click to generate a new API Secret Key" style="cursor: pointer; color: white">
+                            <i class="fa fa-key"></i>
+                            Secret</span>
+
+                          <span class="badge rounded-pill bg-info mx-1" @click.stop="editOrg(eachOrg.appId)"
+                            title="Click to edit the app" style="cursor: pointer; color: white">
+                            <i class="fas fa-pencil-alt"></i>
+                            Edit
+                          </span>
+
+                          <span class="mx-1" @click.stop="openDeleteServicePopUp(eachOrg.appId)"
+                            title="Click to delete the app" style="cursor: pointer; color: red">
+                            <i class="fa fa-trash-alt" aria-hidden="true"></i>
+                          </span>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="new-service-popup" v-else>
+            <h3 class="" style="text-align: left">Spin up your Quest service!</h3>
+            <hf-buttons name=" Create" iconClass="fa fa-plus" style="text-align: right" class="ml-auto mt-2"
+              @executeAction="openSlider('QUEST')">
+            </hf-buttons>
           </div>
         </b-tab>
       </b-tabs>
@@ -706,6 +901,12 @@
   overflow: auto;
   height: 490px;
 }
+
+.new-service-popup {
+  padding: 20px;
+  background: aliceblue;
+  border-radius: 10px;
+}
 </style>
 
 <script>
@@ -738,6 +939,7 @@ export default {
       "getServiceById",
       "getAppsWithSSIServices",
       "getAppsWithKYCServices",
+      "getAppsWithQuestServices",
       "getUserAccessList",
     ]),
     domainFromOriginComputed() {
@@ -852,6 +1054,7 @@ export default {
       "fetchDIDsForAService",
       "fetchAppsListFromServer",
       "fetchServicesList",
+      "deleteAnAppOnServer"
     ]),
 
     async initializeStore() {
@@ -932,14 +1135,33 @@ export default {
           break;
         }
         default: {
-          this.$router.push({
-            name: "playgroundCredential",
-            params: { appId },
-          });
+          this.notifyErr("Dashboard is not available for this service");
         }
       }
 
       this.shiftContainer(false);
+    },
+
+    async deleteOrg() {
+      try {
+        if (this.appIdToGenerateSecret === "") {
+          return this.notifyErr(messages.APPLICATION.ENTER_APP_ID);
+        }
+
+        if (this.appIdToGenerateSecret !== this.selectedAppId) {
+          return this.notifyErr(messages.APPLICATION.VALID_ID);
+        }
+        this.$root.$emit("bv::hide::modal", "entity-delete-service-confirmation-popup");
+
+        this.isLoading = true;
+        const appId = this.selectedAppId;
+        await this.deleteAnAppOnServer({ appId })
+        this.isLoading = false
+
+      } catch (e) {
+        this.notifyErr(e.message);
+        this.isLoading = false
+      }
     },
 
     onServicesSelected() {
@@ -1115,11 +1337,12 @@ export default {
         });
 
         if (t && t.apiSecretKey && t.tenantUrl) {
-          this.keepAccessTokenReadyForApp({
-            serviceId: t.appId,
-            grant_type: config.GRANT_TYPES_ENUM[t.services[0].id],
-          });
-
+          if (this.selectedServiceId != config.SERVICE_TYPES.QUEST) {
+            this.keepAccessTokenReadyForApp({
+              serviceId: t.appId,
+              grant_type: config.GRANT_TYPES_ENUM[t.services[0].id],
+            });
+          }
           this.apiKeySecret = t.apiSecretKey;
           this.appModel.tenantUrl = t.tenantUrl;
           // Object.assign(this.appModel, { ...t })
@@ -1306,6 +1529,12 @@ export default {
       this.apiKeySecret = "";
       this.selectedAppId = appId;
       this.$root.$emit("bv::show::modal", "entity-secret-confirmation-popup");
+    },
+    openDeleteServicePopUp(appId) {
+      this.appIdToGenerateSecret = "";
+      this.apiKeySecret = "";
+      this.selectedAppId = appId;
+      this.$root.$emit("bv::show::modal", "entity-delete-service-confirmation-popup");
     },
 
     // openOnChainDeployPopup(appId) {

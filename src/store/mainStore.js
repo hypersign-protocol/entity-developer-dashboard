@@ -78,6 +78,9 @@ const mainStore = {
         getAppsWithKYCServices: (state) => {
             return state.appList.filter(x => x.services[0].id === config.SERVICE_TYPES.CAVACH_API)
         },
+        getAppsWithQuestServices: (state) => {
+            return state.appList.filter(x => x.services[0].id === config.SERVICE_TYPES.QUEST)
+        },
         getServiceById: (state) => (serviceId) => {
             return state.serviceList.find(x => x.id === serviceId)
         },
@@ -164,9 +167,10 @@ const mainStore = {
         insertAnApp(state, payload) {
             if (!state.appList.find(x => x.appId === payload.appId)) {
                 state.appList.unshift(payload);
-            } else {
-                this.commit('updateAnApp', payload);
             }
+            // else {
+            //      this.commit('updateAnApp', payload);
+            // }
         },
         insertSessions(state, payload) {
             state.sessionList = payload
@@ -185,7 +189,6 @@ const mainStore = {
             }
         },
         setSelectedAppId: (state, payload) => {
-            console.log('inside setSelectedAppId ' + payload);
             state.selectedServiceId = payload;
         },
 
@@ -568,10 +571,13 @@ const mainStore = {
                         } else {
                             commit('insertAnApp', json);
 
-                            dispatch('keepAccessTokenReadyForApp', {
-                                serviceId: json.appId,
-                                grant_type: config.GRANT_TYPES_ENUM[json.services[0].id]
-                            })
+                            if (json.services[0]?.id != config.SERVICE_TYPES.QUEST) {
+                                dispatch('keepAccessTokenReadyForApp', {
+                                    serviceId: json.appId,
+                                    grant_type: config.GRANT_TYPES_ENUM[json.services[0].id]
+                                })
+                            }
+
 
                             resolve(json)
                         }
@@ -613,6 +619,30 @@ const mainStore = {
 
         },
 
+        deleteAnAppOnServer: ({ dispatch }, payload) => {
+            return new Promise((resolve, reject) => {
+                const { appId } = payload;
+                if (!appId) {
+                    reject(new Error(`appId is not specified`))
+                }
+                const url = `${apiServerBaseUrl}/app/${appId}`;
+                const headers = UtilsMixin.methods.getHeader(localStorage.getItem('authToken'));
+                fetch(url, {
+                    method: 'DELETE',
+                    headers,
+                }).then(response => response.json()).then(json => {
+                    if (json.error) {
+                        return reject(new Error(json.error.details.join(' ')))
+                    }
+                    dispatch('fetchAppsListFromServer')
+                    resolve(json)
+                }).catch((e) => {
+                    return reject(`Error while deleting this service ${appId} ` + e.message);
+                })
+            })
+        },
+
+
         fetchAppsListFromServer: async ({ commit, dispatch }) => {
             // TODO: Get list of orgs 
             const url = `${apiServerBaseUrl}/app?limit=20`;
@@ -622,10 +652,12 @@ const mainStore = {
             if (json) {
                 commit('insertAllApps', json);
                 json.data.map(x => {
-                    return dispatch('keepAccessTokenReadyForApp', {
-                        serviceId: x.appId,
-                        grant_type: config.GRANT_TYPES_ENUM[x.services[0].id]
-                    })
+                    if (x.services[0].id != config.SERVICE_TYPES.QUEST) {
+                        return dispatch('keepAccessTokenReadyForApp', {
+                            serviceId: x.appId,
+                            grant_type: config.GRANT_TYPES_ENUM[x.services[0].id]
+                        })
+                    }
                 })
             } else {
                 return null
@@ -677,8 +709,10 @@ const mainStore = {
             const url = `${apiServerBaseUrl}/services`;
             // TODO: // use proper authToken
             const headers = UtilsMixin.methods.getHeader(localStorage.getItem('authToken'));
-            const resp = await RequestHandler(url, 'GET', {}, headers)
+            let resp = await RequestHandler(url, 'GET', {}, headers)
+
             if (resp) {
+                resp = resp.filter(x => !(x.id == 'DASHBOARD'))
                 commit('insertAllServices', resp);
             } else {
                 return null

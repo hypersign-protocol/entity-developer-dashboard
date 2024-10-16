@@ -216,7 +216,7 @@ h5 span {
               <td v-else></td>-->
               <td>
                 <span @click="deleteConfiguration(row._id)" class="ml-2" style="cursor:grab; color:grey"><i
-                    class="fa fa-trash"></i></span>
+                    class="fa fa-trash-alt"></i></span>
               </td>
             </tr>
           </tbody>
