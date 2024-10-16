@@ -251,7 +251,7 @@
           <small>{{ domainFromOriginComputed }}</small>
         </div>
 
-        <div class="form-group" v-if="edit === true">
+        <div class="form-group" v-if="edit === true && appModel.services[0].id != 'QUEST'">
           <tool-tip infoMessage="Your Encrypted Data Vault id"></tool-tip>
           <label for="orgDid"><strong>Encrypted Data Vault Id: </strong></label>
           <input type="text" class="form-control" id="orgDid" v-model="appModel.edvId" aria-describedby="orgNameHelp"
