@@ -161,12 +161,20 @@ h5 span {
                 </div>
               </div>
             </div>
-
             <div class="form-group" style="width: 550px;">
               <tool-tip infoMessage="Name of the schema"></tool-tip>
-              <label for="schemaName"><strong>Key Type<span style="color: red">*</span>:</strong></label>
-              <hf-select-drop-down :options="keyTypeOptions"
-                @selected="e => (did.options.keyType = e)"></hf-select-drop-down>
+              <label for="schemaName"><strong>Key Type<span
+                    style="color: red">*</span>:</strong></label>
+              <multiSelect v-model="selectedKeyTypes"
+                placeholder="Select on or more keyType" label="text"
+                 track-by="value"
+                :options="keyTypeOptions" 
+                :multiple="true" 
+                :taggable="false" 
+                :close-on-select="false"
+                :clear-on-select="false" 
+                @input="updateKeyTypeValues">
+              </multiselect>
             </div>
 
 
@@ -304,6 +312,7 @@ import ToolTip from "../../components/element/ToolTip.vue"
 // import { isEmpty, isValidDid, isValidURL } from '../../mixins/fieldValidation'
 import DomainLinkage from '@hypersign-protocol/domain-linkage-verifier'
 import { mapState, mapGetters, mapActions, mapMutations } from "vuex";
+import 'vue-multiselect/dist/vue-multiselect.min.css';
 export default {
   name: "DIDs",
   components: { HfPopUp, Loading, StudioSideBar, HfButtons, HfSelectDropDown, ToolTip, },
@@ -322,6 +331,7 @@ export default {
   },
   data() {
     return {
+       selectedKeyTypes: [],
       verifyButtonText: 'Verify',
       authToken: localStorage.getItem('authToken'),
       user: {},
@@ -335,7 +345,8 @@ export default {
       keyTypeOptions: [
         { text: "Select KeyType", value: null },
         { text: "Ed25519VerificationKey2020", value: "Ed25519VerificationKey2020", selected: true },
-        { text: "EcdsaSecp256k1RecoveryMethod2020", value: "EcdsaSecp256k1RecoveryMethod2020" },
+        // { text: "EcdsaSecp256k1RecoveryMethod2020", value: "EcdsaSecp256k1RecoveryMethod2020" },
+        { text: "BabyJubJubKey2021", value: "BabyJubJubKey2021" },
       ],
       verificationRelationshipsOptions: [
         { text: "Select Verification Relationship", value: null },
@@ -351,7 +362,7 @@ export default {
         namespace: "testnet",
         methodSpecificId: "",
         options: {
-          keyType: "",
+          keyType: [],
           chainId: "",
           publicKey: "",
           walletAddress: "",
@@ -397,7 +408,13 @@ export default {
       this.domainDIDDocument = row.didDocument
       // this.$root.$emit("bv::show::modal", "link-domain");
     },
-
+    updateKeyTypeValues(selectedItems) {
+    if (selectedItems && selectedItems.length > 0) {
+       this.did.options.keyType = selectedItems.map(item => item.value);
+    } else {
+      this.did.options.keyType = [];
+    }
+  },
 
     checkIfDomainIsVerified(didDocument) {
       if (didDocument) {
@@ -528,12 +545,13 @@ export default {
     },
     clearAll() {
       this.visible = false
+      this.selectedKeyTypes= []
       this.did = {
         name: "",
         namespace: "testnet",
         methodSpecificId: "",
         options: {
-          keyType: "",
+          keyType: [],
           chainId: "",
           publicKey: "",
           walletAddress: "",
@@ -570,7 +588,7 @@ export default {
         }
 
 
-        this.did.options.verificationRelationships = this.did.options.verificationRelationships.map(x => x.value)
+        // this.did.options.verificationRelationships = this.did.options.verificationRelationships.map(x => x.value)
         // console.log(JSON.stringify(this.did))
         console.log('Before calling createDIDsForAService')
 
@@ -600,7 +618,7 @@ export default {
     generateRandomMethodSepcificId() {
       this.did.methodSpecificId = self.crypto.randomUUID()
     }
-  },
+   },
   mixins: [UtilsMixin],
 
 };

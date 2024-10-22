@@ -1239,7 +1239,7 @@ const mainStore = {
         fetchDIDsForAService({ commit, getters, dispatch }, payload = {}) {
             return new Promise(function (resolve, reject) {
                 {
-                    let tenantUrl = ""
+                    let tenantUrl = ''
                     let accessToken = ""
                     if (payload && payload.tenantUrl && payload.accessToken) {
                         tenantUrl = payload.tenantUrl
@@ -1380,9 +1380,13 @@ const mainStore = {
                                     didDocument: {},
                                     status: 'Created'
                                 })
+                                const verificationMethodIds = json.metaData.didDocument.verificationMethod || [];
+                                const signInfos = verificationMethodIds.map((vm) => ({
+                                    verification_method_id: vm.id,
+                                }));
                                 const payload = {
                                     didDocument: json.metaData.didDocument,
-                                    verificationMethodId: json.metaData.didDocument.verificationMethod[0].id
+                                    signInfos
                                 }
                                 await dispatch('registerDIDsForAService', payload)
                                 resolve()
@@ -1400,15 +1404,14 @@ const mainStore = {
         registerDIDsForAService({ getters, dispatch }, payload) {
             return new Promise(function (resolve, reject) {
                 const body = {
-                    "didDocument": payload.didDocument,
-                    "verificationMethodId": payload.verificationMethodId
-                }
-                //fetct all dids
+                    didDocument: payload.didDocument,
+                    signInfos: payload.signInfos,
+                };
                 {
                     if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
                         return reject(new Error('Tenant url is null or empty, service is not selected'))
                     }
-                    const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/did/register`;
+                    const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/did/register/v2`;
                     const options = {
                         method: "POST",
                         body: JSON.stringify(body),
