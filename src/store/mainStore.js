@@ -1411,7 +1411,7 @@ const mainStore = {
                     if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
                         return reject(new Error('Tenant url is null or empty, service is not selected'))
                     }
-                    const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/did/register`;
+                    const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/did/register/v2`;
                     const options = {
                         method: "POST",
                         body: JSON.stringify(body),

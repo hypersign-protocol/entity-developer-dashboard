@@ -345,7 +345,7 @@ export default {
       keyTypeOptions: [
         { text: "Select KeyType", value: null },
         { text: "Ed25519VerificationKey2020", value: "Ed25519VerificationKey2020", selected: true },
-        { text: "EcdsaSecp256k1RecoveryMethod2020", value: "EcdsaSecp256k1RecoveryMethod2020" },
+        // { text: "EcdsaSecp256k1RecoveryMethod2020", value: "EcdsaSecp256k1RecoveryMethod2020" },
         { text: "BabyJubJubKey2021", value: "BabyJubJubKey2021" },
       ],
       verificationRelationshipsOptions: [
