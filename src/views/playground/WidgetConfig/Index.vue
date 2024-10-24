@@ -225,7 +225,7 @@ ul {
               </div>
             </li>
             <li class="list-group-item">
-              <div class="row">
+              <div class="row" v-if="widgetConfigTemp.zkProof.enabled">
                 <div class="col">
                   <b-form-checkbox switch size="lg" v-model="widgetConfigTemp.onChainId.enabled">{{
                     this.widgetConfigUI.onChainId.label }}</b-form-checkbox>
@@ -609,8 +609,9 @@ export default {
         }
       }
 
-      if (!this.widgetConfigTemp.onChainId.enabled) {
+      if (!this.widgetConfigTemp.onChainId.enabled ||!this.widgetConfigTemp.zkProof.enabled ) {
         this.widgetConfigTemp.onChainId.selectedOnChainKYCconfiguration = null
+        this.widgetConfigTemp.onChainId.enabled=false
       } else {
         if (!this.widgetConfigTemp.onChainId.selectedOnChainKYCconfiguration) {
           throw new Error('Kindly select a onchain configuration')
@@ -679,11 +680,11 @@ export default {
         //TODO validate all field
         this.isLoading = true;
         this.validateField()
+
         this.setWidgetConfig(this.widgetConfigTemp)
         await this.updateAppsWidgetConfig()
-
         if (this.widgetConfig) {
-          this.widgetConfigTemp = { ...this.widgetConfig }
+          // this.widgetConfigTemp = { ...this.widgetConfig }
           this.widgetConfigTemp.trustedIssuer = this.widgetConfigTemp.issuerDID ? true : false;
         }
         this.isLoading = false

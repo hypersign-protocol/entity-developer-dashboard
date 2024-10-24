@@ -1265,31 +1265,33 @@ const mainStore = {
 
         },
 
-        resolveDIDForAService({ commit, getters, }, payload) {
+
+
+        resolveDIDForAService({ getters, }, payload = {}) {
             return new Promise(function (resolve, reject) {
                 {
+                    let tenantUrl = ""
+                    let accessToken = ""
+                    if (payload && payload.tenantUrl && payload.accessToken) {
+                        tenantUrl = payload.tenantUrl
+                        accessToken = payload.accessToken
 
-                    let selectedService = {};
-                    if (getters.getSelectedService.services[0].id === 'SSI_API') {
-                        selectedService = getters.getSelectedService
-                    } else if (getters.getSelectedService.services[0].id === 'CAVACH_API') {
-                        const ssiSserviceId = getters.getSelectedService.dependentServices[0];
-                        const associatedSSIService = getters.getAppsWithSSIServices.find(
-                            (x) => x.appId === ssiSserviceId
-                        );
-                        selectedService = associatedSSIService
-                    }
-
-                    if (!selectedService || !selectedService.tenantUrl) {
+                    } else if (getters.getSelectedService && getters.getSelectedService.tenantUrl && getters.getSelectedService.access_token) {
+                        tenantUrl = getters.getSelectedService.tenantUrl;
+                        accessToken = getters.getSelectedService.access_token
+                    } else {
                         return reject(new Error('Tenant url is null or empty, service is not selected'))
                     }
+                    if (!payload.did) {
+                        throw new Error("could not resolve did");
 
-                    const url = `${sanitizeUrl(selectedService.tenantUrl)}/api/v1/did/resolve/${payload}`;
+                    }
+                    const url = `${sanitizeUrl(tenantUrl)}/api/v1/did/resolve/${payload.did}`;
                     const options = {
                         method: "GET",
                         headers: {
                             "Content-Type": "application/json",
-                            "Authorization": `Bearer ${selectedService.access_token}`,
+                            "Authorization": `Bearer ${accessToken}`,
                             "Origin": '*'
                         }
                     }
@@ -1298,17 +1300,15 @@ const mainStore = {
                     })
                         .then(response => response.json())
                         .then(json => {
+
                             if (json) {
-                                const data = {
-                                    did: payload,
-                                    didDocument: json.didDocument,
-                                    status: json.didDocumentMetadata && Object.keys(json.didDocumentMetadata).length > 0 ? 'Registered' : 'Created',
-                                    name: json.name
-                                }
-                                commit('updateADID', data);
-                                resolve()
+
+
+
+                                resolve(json.didDocument)
+
                             } else {
-                                reject(new Error('Could not fetch DID for this service'))
+                                reject(new Error('Could not resovle'))
                             }
 
                         }).catch(e => {
