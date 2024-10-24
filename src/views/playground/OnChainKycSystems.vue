@@ -118,22 +118,7 @@ h5 span {
 }
 </style>
 
-<style scoped>
-.badge {
-  padding: 5px;
-  float: right;
-  background-color: rgb(236, 232, 200);
-  /* border-radius: 40%; */
-  font-size: x-small;
-  font-weight: bold;
-  /* font-weight: bold; */
-  color: black;
-  width: auto;
-  text-align: center;
-  align-content: center;
-  margin-left: 5px;
-}
-</style>
+
 <template>
   <div :class="isContainerShift ? 'homeShift' : 'home'">
     <loading :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loading>
@@ -150,9 +135,10 @@ h5 span {
           <h3 v-if="onchainconfigs.length > 0" style="text-align: left;" class="position-relative">
 
             OnChain KYC Configuration
-            <span class="badge position-absolute  rounded">
+            <!-- <span class="badge position-absolute  rounded">
               Beta
-            </span>
+            </span> -->
+            <HFBeta></HFBeta>
 
           </h3>
           <h3 v-else style="text-align: left;">No onchain kyc configuration found!</h3>
@@ -241,12 +227,12 @@ import HfButtons from "../../components/element/HfButtons.vue"
 import StudioSideBar from "../../components/element/StudioSideBar.vue";
 import DeployOnChainKYC from "../../components/deploy-onchain-kyc-popup/deploy.vue";
 import { getCosmosChainConfig } from '@hypersign-protocol/hypersign-kyc-chains-metadata/cosmos/wallet/cosmos-wallet-utils'
-
+import HFBeta from '../../components/element/HFBeta.vue';
 import { mapState, mapActions, mapMutations } from "vuex";
 
 export default {
   name: "UsageS",
-  components: { Loading, HfButtons, StudioSideBar, DeployOnChainKYC },
+  components: { Loading, HfButtons, StudioSideBar, DeployOnChainKYC, HFBeta },
   computed: {
     ...mapState({
       containerShift: state => state.playgroundStore.containerShift,
@@ -293,15 +279,15 @@ export default {
   },
   methods: {
 
-    warnUsers(toaster, variant = 'warning', append = false) {
-      this.$bvToast.toast(`This is an experimental feature. Kindly use only for testing purposes.`, {
-        title: `⚠️ Warning!`,
-        toaster: toaster,
-        solid: false,
-        variant,
-        appendToast: append,
-      })
-    },
+    // warnUsers(toaster, variant = 'warning', append = false) {
+    //   this.$bvToast.toast(`This is an experimental feature. Kindly use only for testing purposes.`, {
+    //     title: `⚠️ Warning!`,
+    //     toaster: toaster,
+    //     solid: false,
+    //     variant,
+    //     appendToast: append,
+    //   })
+    // },
     ...mapActions('mainStore', ['fetchAppsOnChainConfigs', 'deleteAppOnChainConfig']),
     ...mapMutations('playgroundStore', ['updateSideNavStatus', 'shiftContainer']),
     ...mapMutations('mainStore', ['setOnChainConfig']),

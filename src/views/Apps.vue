@@ -133,7 +133,6 @@
           <input type="text" class="form-control" id="orgDid" v-model="appModel.issuerDid" disabled
             aria-describedby="orgNameHelp" />
         </div>
-
         <div class="form-group" v-if="appModel.domain && appModel.issuerDid">
           <tool-tip infoMessage="Txt Record"></tool-tip>
           <label for="tenant"><strong>TXT Record: </strong></label>
@@ -337,7 +336,7 @@
           <tool-tip infoMessage="Select issuer DID for this app"></tool-tip>
           <label for="selectService"><strong>Select Issuer DID<span style="color: red">*</span>:
             </strong></label>
-          <select class="custom-select" id="selectService" v-model="appModel.issuerDid">
+          <select class="custom-select" id="selectService" v-model="appModel.issuerDid" @change="resolveDid($event)">
             <option value="">Select a DID</option>
             <option v-for="did in associatedSSIServiceDIDs" :value="did" :key="did">
               {{ did }}
@@ -346,6 +345,31 @@
           <!-- <input type="text" class="form-control" id="orgDid" v-else v-model="appModel.issuerDid" disabled
             aria-describedby="orgNameHelp" /> -->
         </div>
+
+
+
+        <div class="form-group" v-if="
+          (selectedServiceId == 'CAVACH_API' ||
+            (appModel.services &&
+              appModel.services.length > 0 &&
+              appModel.services[0].id == 'CAVACH_API')) &&
+          selectedAssociatedSSIAppId && appModel.issuerDid
+        ">
+          <tool-tip infoMessage="Select VerificationMethod for this app"></tool-tip>
+          <label for="selectService"><strong>Select VerificationMethod<span style="color: red">*</span>:
+            </strong></label>
+          <select class="custom-select" id="selectService" v-model="appModel.issuerVerificationMethodId">
+            <option value="">Select a VerificationMethod</option>
+            <option v-for="vm in issuerVerificationMethodIds" :value="vm.id" :key="vm.id">
+              {{ vm.id + " => " +vm.type }}
+            </option>
+          </select>
+          <!-- <input type="text" class="form-control" id="orgDid" v-else v-model="appModel.issuerDid" disabled
+            aria-describedby="orgNameHelp" /> -->
+        </div>
+
+
+
 
         <div class="form-group" v-if="edit === true">
           <tool-tip infoMessage="Select an environment"></tool-tip>
@@ -1025,6 +1049,7 @@ export default {
         dependentServices: [],
         env: "dev",
         issuerDid: null,
+        issuerVerificationMethodId: null,
         domain: "",
         hasDomainVerified: false,
         domainLinkageCredentialString: "",
@@ -1032,6 +1057,7 @@ export default {
       authToken: localStorage.getItem("authToken"),
       domain: "",
       associatedSSIServiceDIDs: [],
+      issuerVerificationMethodIds: []
     };
   },
   components: {
@@ -1053,6 +1079,7 @@ export default {
       "keepAccessTokenReadyForApp",
       "fetchDIDsForAService",
       "fetchAppsListFromServer",
+      "resolveDIDForAService",
       "fetchServicesList",
       "deleteAnAppOnServer"
     ]),
@@ -1212,6 +1239,7 @@ export default {
       this.edit = true;
       this.$root.$emit("bv::toggle::collapse", "sidebar-right");
       const appModel = this.getAppByAppId(appId);
+
       appModel.whitelistedCors = appModel.whitelistedCors.toString();
 
       Object.assign(this.appModel, { ...appModel });
@@ -1222,6 +1250,8 @@ export default {
       );
 
       await this.prepareDIDList(this.selectedAssociatedSSIAppId);
+      
+      await this.resolveDidDoc(this.appModel.issuerDid)
     },
     validateFields() {
       const m = [];
@@ -1333,6 +1363,7 @@ export default {
           env: this.appModel.env,
           domain: this.appModel.domain,
           issuerDid: this.appModel.issuerDid,
+          issuerVerificationMethodId: this.appModel.issuerVerificationMethodId,
           hasDomainVerified: this.appModel.hasDomainVerified,
         });
 
@@ -1365,7 +1396,46 @@ export default {
         this.isLoading = false;
       }
     },
+    async resolveDid(event) {
 
+      const did = event.target.value
+      return this.resolveDidDoc(did)
+
+
+    },
+
+    async resolveDidDoc(did) {
+      try {
+
+        const ssiSserviceId = this.selectedAssociatedSSIAppId
+
+
+        if (ssiSserviceId) {
+          const associatedSSIService = this.getAppsWithSSIServices.find(
+            (x) => x.appId === ssiSserviceId
+          );
+          if (associatedSSIService) {
+            const payload = {
+              tenantUrl: associatedSSIService.tenantUrl,
+              accessToken: associatedSSIService.access_token,
+              did
+            };
+            this.isLoading = true;
+            const didDocument = await this.resolveDIDForAService(payload);
+            this.issuerVerificationMethodIds = didDocument.verificationMethod.filter(vm => {
+              return vm
+            })
+
+            this.isLoading = false;
+          }
+        }
+      } catch (e) {
+        this.isLoading = false
+        this.notifyErr(e.message);
+
+      }
+
+    },
     async prepareDIDList(ssiSserviceId) {
       try {
         if (ssiSserviceId) {
@@ -1493,6 +1563,7 @@ export default {
           env: this.appModel.env,
           domain: this.appModel.domain,
           issuerDid: this.appModel.issuerDid, // on this did linkedDomain credential will be issued
+          issuerVerificationMethodId: this.appModel.issuerVerificationMethodId,
           hasDomainVerified: this.appModel.hasDomainVerified,
           dependentServices: [this.selectedAssociatedSSIAppId],
         });
@@ -1586,6 +1657,7 @@ export default {
         dependentServices: [],
         env: "dev",
         issuerDid: null,
+        issuerVerificationMethodId: null,
         domain: "",
         hasDomainVerified: false,
         domainLinkageCredentialString: "",
@@ -1593,6 +1665,8 @@ export default {
       this.selectedAssociatedSSIAppId = "";
       this.domain = "";
       this.associatedSSIServiceDIDs = [];
+      this.issuerVerificationMethodIds = []
+
     },
   },
   beforeDestroy() {

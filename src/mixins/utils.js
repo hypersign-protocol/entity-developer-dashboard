@@ -8,6 +8,17 @@ export default {
             const ss = newDate.getSeconds()
             return date + ' ' + hh + ':' + mm + ':' + ss
         },
+
+        warnUsers(toaster, variant = 'warning', append = false) {
+            this.$bvToast.toast(`This is an experimental feature. Kindly use only for testing purposes.`, {
+                title: `⚠️ Warning!`,
+                toaster: toaster,
+                solid: false,
+                variant,
+                appendToast: append,
+            })
+        },
+
         getHeader(authToken = '') {
             if (authToken != '') {
                 // TODO: Remove this userId later
