@@ -59,6 +59,7 @@
     "vuejs-datetimepicker": "^1.1.13",
     "vuetify": "2.0.0",
     "vuex": "^3.4.0",
+    "vuex-persistedstate": "^4.1.0",
     "webpack": "^5.90.3"
   },
   "devDependencies": {
