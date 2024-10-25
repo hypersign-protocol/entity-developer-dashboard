@@ -242,7 +242,7 @@ ul {
             </li>
             <li class="list-group-item">
               <div class="row">
-                <div class="col">
+                <div class="col-md-6">
                   <b-form-checkbox switch size="lg" v-model="widgetConfigTemp.onChainId.enabled">{{
                     this.widgetConfigUI.onChainId.label }} <HFBeta></HFBeta></b-form-checkbox>
                   <small v-html="this.widgetConfigUI.onChainId.description"></small>
