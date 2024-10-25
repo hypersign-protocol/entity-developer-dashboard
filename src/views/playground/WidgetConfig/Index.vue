@@ -171,13 +171,13 @@ ul {
                     {{ this.widgetConfigUI.idOcr.label }}</b-form-checkbox>
                   <small v-html="this.widgetConfigUI.idOcr.description"></small>
                 </div>
-                <div class="col" v-if="widgetConfigTemp.idOcr.enabled && documentTypeOptions.length > 0">
+                <!-- <div class="col" v-if="widgetConfigTemp.idOcr.enabled && documentTypeOptions.length > 0">
                   <div class="">
                     <label for=""><strong>Select Document Type: </strong></label>
                     <b-form-select v-model="widgetConfigTemp.idOcr.documentType" :options="documentTypeOptions"
                       size=""></b-form-select>
                   </div>
-                </div>
+                </div> -->
               </div>
             </li>
             <li class="list-group-item">
@@ -205,21 +205,31 @@ ul {
 
                 <div class="col" v-if="widgetConfigTemp.zkProof.enabled">
                   <div class="">
-                    <label for=""><strong>Select Proof Type: </strong></label>
-                    <b-form-select v-model="slectProof" :options="proofTypeOptions" size=""></b-form-select>
+
+                    <div class="">
+                      <label for=""><strong>Select Proof Type: </strong></label>
+                      <b-form-select class="col-md-10" v-model="slectProof" :options="proofTypeOptions"
+                        size=""></b-form-select>
+                      <span class="col-md-1" style="margin-left:0px">
+                        <HfButtons name="" customClass="btn btn-outline-secondary" iconClass="fa fa-plus"
+                          @executeAction="addZkProof(selectedProofData.value, selectedProofData.criteriaValue)">
+                        </HfButtons>
+                      </span>
+
+                    </div>
                     <div class="row" v-if="selectedProofData.criteria">
                       <div class="col">
                         <label for=""><strong>{{ selectedProofData.criteriaLabel }}: </strong></label>
-                        <input :type="selectedProofData.criteriaType" class="form-control"
+                        <input :type="selectedProofData.criteriaType" class="form-control col-md-10"
                           v-model="selectedProofData.criteriaValue" />
                       </div>
                     </div>
                     <small>{{ selectedProofData.description }}</small>
-                    <div class="row col center mt-1">
+                    <!-- <div class="row col center mt-1">
                       <HfButtons name="Add" customClass="btn btn-outline-secondary" iconClass="fa fa-plus"
                         @executeAction="addZkProof(selectedProofData.value, selectedProofData.criteriaValue)">
                       </HfButtons>
-                    </div>
+                    </div> -->
                   </div>
                 </div>
               </div>
@@ -228,7 +238,7 @@ ul {
               <div class="row" v-if="widgetConfigTemp.zkProof.enabled">
                 <div class="col">
                   <b-form-checkbox switch size="lg" v-model="widgetConfigTemp.onChainId.enabled">{{
-                    this.widgetConfigUI.onChainId.label }}</b-form-checkbox>
+                    this.widgetConfigUI.onChainId.label }} <HFBeta></HFBeta></b-form-checkbox>
                   <small v-html="this.widgetConfigUI.onChainId.description"></small>
                 </div>
                 <div class="col" v-if="widgetConfigTemp.onChainId.enabled && onchainconfigsOptions.length > 0">
@@ -504,7 +514,7 @@ export default {
         faceRecog: true,
         idOcr: {
           enabled: false,
-          documentType: null
+          documentType: 'passport'
         },
         userConsent: {
           enabled: true,
@@ -609,9 +619,9 @@ export default {
         }
       }
 
-      if (!this.widgetConfigTemp.onChainId.enabled ||!this.widgetConfigTemp.zkProof.enabled ) {
+      if (!this.widgetConfigTemp.onChainId.enabled || !this.widgetConfigTemp.zkProof.enabled) {
         this.widgetConfigTemp.onChainId.selectedOnChainKYCconfiguration = null
-        this.widgetConfigTemp.onChainId.enabled=false
+        this.widgetConfigTemp.onChainId.enabled = false
       } else {
         if (!this.widgetConfigTemp.onChainId.selectedOnChainKYCconfiguration) {
           throw new Error('Kindly select a onchain configuration')
