@@ -197,7 +197,14 @@ ul {
                     <div class="">
                       <span class="zkbadge rounded " style="cursor: grab;" @click="deleteZkProof(proof.proofType)"
                         v-for="proof in widgetConfigTemp.zkProof.proofs" v-bind:key="proof.proofType"><b-icon
-                          style="color:green;" icon="check-circle" aria-hidden="true"></b-icon> {{ proof.proofType }}
+                          style="color:green;" icon="check-circle" aria-hidden="true"></b-icon>
+                        <span v-if="proof.proofType == SupportedZkProofTypes.PROOF_OF_AGE">
+                          {{ proof.proofType }} > {{ proof.criteria }}
+                        </span>
+                        <span v-else>
+                          {{ proof.proofType }}
+                        </span>
+
                         <b-icon class="trash" style="color:red" icon="trash" aria-hidden="true"></b-icon></span>
                     </div>
                   </div>
@@ -341,13 +348,13 @@ import { mapGetters, mapMutations } from 'vuex/dist/vuex.common.js';
 // import TrustedIssuer from './components/TrustedIssuer.vue';
 import MarketplaceList from '../../../components/MarketplaceList.vue';
 import HFBeta from '../../../components/element/HFBeta.vue';
-const SupportedZkProofTypes = Object.freeze({
-  PROOF_OF_KYC: 'zkProofOfKYC',
-  PROOF_OF_PERSONHOOD: 'zkProofOfPersonHood',
-  PROOF_OF_AGE: 'zkProofOfAge',
-  PROOF_OF_MEMBERSHIP: 'zkProofOfMembership',
-  PROOF_OF_DOB: 'zkProofOfDOB',
-})
+// const SupportedZkProofTypes = Object.freeze({
+//   PROOF_OF_KYC: 'zkProofOfKYC',
+//   PROOF_OF_PERSONHOOD: 'zkProofOfPersonHood',
+//   PROOF_OF_AGE: 'zkProofOfAge',
+//   PROOF_OF_MEMBERSHIP: 'zkProofOfMembership',
+//   PROOF_OF_DOB: 'zkProofOfDOB',
+// })
 
 export default {
   name: "WidgetConfig",
@@ -488,6 +495,13 @@ export default {
   },
   data() {
     return {
+      SupportedZkProofTypes: Object.freeze({
+        PROOF_OF_KYC: 'zkProofOfKYC',
+        PROOF_OF_PERSONHOOD: 'zkProofOfPersonHood',
+        PROOF_OF_AGE: 'zkProofOfAge',
+        PROOF_OF_MEMBERSHIP: 'zkProofOfMembership',
+        PROOF_OF_DOB: 'zkProofOfDOB',
+      }),
       widgetConfigUI: {
         faceRecog: {
           label: "Enable Facial Recoginition",
@@ -644,6 +658,15 @@ export default {
         }
 
       }
+
+      if (this.widgetConfigTemp.zkProof.enabled) {
+        if (!this.widgetConfigTemp.idOcr.enabled) {
+          const t = this.widgetConfigTemp.zkProof.proofs.filter(x => (x.proofType != this.SupportedZkProofTypes.PROOF_OF_PERSONHOOD))
+          if (t.length > 0) {
+            throw new Error('You are trying to configure zk proof types which required ID Documentation verification. Please enabled ID document to proceed.')
+          }
+        }
+      }
     },
     async saveConfiguration() {
       try {
@@ -679,7 +702,7 @@ export default {
           this.widgetConfigTemp.zkProof.proofs = []
         }
 
-        if (proofType == SupportedZkProofTypes.PROOF_OF_AGE) {
+        if (proofType == this.SupportedZkProofTypes.PROOF_OF_AGE) {
           if (!criteria) {
             return this.notifyErr('Kindly specify age criteria to generate proof')
           }
@@ -699,7 +722,7 @@ export default {
       }
       this.slectProof = null
 
-      this.updateConfiguration()
+      // this.updateConfiguration()
     },
 
     async updateConfiguration() {
