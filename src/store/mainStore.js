@@ -1301,7 +1301,7 @@ const mainStore = {
 
 
 
-        resolveDIDForAService({ getters, }, payload = {}) {
+        resolveDIDForAKycService({ getters, }, payload = {}) {
             return new Promise(function (resolve, reject) {
                 {
                     let tenantUrl = ""
@@ -1352,7 +1352,59 @@ const mainStore = {
             })
 
         },
+        resolveDIDForAService({ commit, getters, }, payload) {
+            return new Promise(function (resolve, reject) {
+                {
 
+                    let selectedService = {};
+                    if (getters.getSelectedService.services[0].id === 'SSI_API') {
+                        selectedService = getters.getSelectedService
+                    } else if (getters.getSelectedService.services[0].id === 'CAVACH_API') {
+                        const ssiSserviceId = getters.getSelectedService.dependentServices[0];
+                        const associatedSSIService = getters.getAppsWithSSIServices.find(
+                            (x) => x.appId === ssiSserviceId
+                        );
+                        selectedService = associatedSSIService
+                    }
+
+                    if (!selectedService || !selectedService.tenantUrl) {
+                        return reject(new Error('Tenant url is null or empty, service is not selected'))
+                    }
+
+                    const url = `${sanitizeUrl(selectedService.tenantUrl)}/api/v1/did/resolve/${payload}`;
+                    const options = {
+                        method: "GET",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": `Bearer ${selectedService.access_token}`,
+                            "Origin": '*'
+                        }
+                    }
+                    fetch(url, {
+                        headers: options.headers
+                    })
+                        .then(response => response.json())
+                        .then(json => {
+                            if (json) {
+                                const data = {
+                                    did: payload,
+                                    didDocument: json.didDocument,
+                                    status: json.didDocumentMetadata && Object.keys(json.didDocumentMetadata).length > 0 ? 'Registered' : 'Created',
+                                    name: json.name
+                                }
+                                commit('updateADID', data);
+                                resolve()
+                            } else {
+                                reject(new Error('Could not fetch DID for this service'))
+                            }
+
+                        }).catch(e => {
+                            reject(e)
+                        })
+                }
+            })
+
+        },
         createDIDsForAService({ commit, getters, dispatch }, payload) {
             return new Promise(function (resolve, reject) {
                 {

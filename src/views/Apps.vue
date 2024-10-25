@@ -1079,7 +1079,7 @@ export default {
       "keepAccessTokenReadyForApp",
       "fetchDIDsForAService",
       "fetchAppsListFromServer",
-      "resolveDIDForAService",
+      "resolveDIDForAKycService",
       "fetchServicesList",
       "deleteAnAppOnServer"
     ]),
@@ -1421,7 +1421,7 @@ export default {
               did
             };
             this.isLoading = true;
-            const didDocument = await this.resolveDIDForAService(payload);
+            const didDocument = await this.resolveDIDForAKycService(payload);
             this.issuerVerificationMethodIds = didDocument.verificationMethod.filter(vm => {
               return vm
             })
