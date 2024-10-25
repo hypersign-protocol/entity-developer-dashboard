@@ -182,7 +182,7 @@ ul {
             </li>
             <li class="list-group-item">
               <div class="row">
-                <div class="col">
+                <div class="col-md-6">
                   <div class="row">
                     <div class="col-md-12">
                       <b-form-checkbox switch size="lg" v-model="widgetConfigTemp.zkProof.enabled">{{
@@ -205,7 +205,6 @@ ul {
 
                 <div class="col" v-if="widgetConfigTemp.zkProof.enabled">
                   <div class="">
-
                     <div class="">
                       <label for=""><strong>Select Proof Type: </strong></label>
                       <b-form-select class="col-md-10" v-model="slectProof" :options="proofTypeOptions"
@@ -235,7 +234,7 @@ ul {
               </div>
             </li>
             <li class="list-group-item">
-              <div class="row" v-if="widgetConfigTemp.zkProof.enabled">
+              <div class="row">
                 <div class="col">
                   <b-form-checkbox switch size="lg" v-model="widgetConfigTemp.onChainId.enabled">{{
                     this.widgetConfigUI.onChainId.label }} <HFBeta></HFBeta></b-form-checkbox>
@@ -361,13 +360,16 @@ export default {
   },
   // TODO : check why this is not working... we need to trigger warning that its an experimental feature once user enables zk
   watch: {
-    // widgetConfigTemp: function (newValue,) {
-    //   console.log(newValue)
-    //   // if (newValue.zkProof.enabled) {
-    //   this.warnUsers('b-toaster-top-full')
-    //   console.log('warningn....')
-    //   // }
-    // }
+    'widgetConfigTemp.zkProof.enabled':
+    {
+      handler(newValue) {
+        if (!newValue) {
+          console.log('going to disabled onchainId')
+          this.widgetConfigTemp.onChainId.enabled = false
+        }
+      },
+      deep: true
+    },
   },
   computed: {
     ...mapState({
@@ -435,9 +437,12 @@ export default {
 
     this.trustedIssuersList = this.getMarketPlaceApps;
     this.appId = this.$route.params.appId;
+    //eslint-disable-next-line
+    debugger;
     if (this.appId) {
       this.app = { ...this.getAppByAppId(this.appId) }
       if (this.app) {
+        console.log(this.app)
         this.widgetConfigTemp.userConsent.domain = this.app.domain ? this.app.domain : this.widgetConfigTemp.userConsent.domain;
         this.widgetConfigTemp.userConsent.logoUrl = this.app.logoUrl ? this.app.logoUrl : this.widgetConfigTemp.userConsent.logoUrl;
         if (!this.widgetConfigTemp.issuerDID) {
@@ -447,7 +452,11 @@ export default {
         if (!this.getMarketPlaceApps.find(x => x.appId == this.app.appId)) {
           this.trustedIssuersList.push({ ...this.app })
         }
+      } else {
+        console.error("No app found");
       }
+    } else {
+      console.error("No appId found");
     }
 
     if (this.widgetConfigTemp.issuerDID) {
@@ -610,22 +619,30 @@ export default {
       if (!this.widgetConfigTemp.issuerDID) {
         throw new Error('Issuer DID is required')
       }
+      console.log(this.widgetConfigTemp.idOcr)
 
       if (!this.widgetConfigTemp.idOcr?.enabled) {
         this.widgetConfigTemp.idOcr.documentType = null
       } else {
         if (!this.widgetConfigTemp.idOcr.documentType) {
-          throw new Error('Kindly select a document type')
+          this.widgetConfigTemp.idOcr.documentType = 'passport'
         }
       }
 
-      if (!this.widgetConfigTemp.onChainId.enabled || !this.widgetConfigTemp.zkProof.enabled) {
+      if (!this.widgetConfigTemp.onChainId.enabled) {
         this.widgetConfigTemp.onChainId.selectedOnChainKYCconfiguration = null
         this.widgetConfigTemp.onChainId.enabled = false
       } else {
+
+
         if (!this.widgetConfigTemp.onChainId.selectedOnChainKYCconfiguration) {
           throw new Error('Kindly select a onchain configuration')
         }
+
+        if (!this.widgetConfigTemp.zkProof.enabled) {
+          throw new Error('Enable ZK Proof to enable onchainId')
+        }
+
       }
     },
     async saveConfiguration() {
