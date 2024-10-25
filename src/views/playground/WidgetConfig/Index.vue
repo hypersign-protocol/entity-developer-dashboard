@@ -271,7 +271,7 @@ ul {
                     </div>
                     <div class="col-md-8">
                       <div class="row">
-                        <div class="col-md-12" style="font-size: 1.25rem;">
+                        <div class="col-md-12" style="font-size: 1.05rem;">
                           {{ widgetConfigTemp.userConsent.domain }}
                         </div>
                       </div>
