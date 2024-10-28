@@ -1755,7 +1755,7 @@ const mainStore = {
                         return reject(new Error('Tenant url is null or empty, service is not selected'))
                     }
 
-                    const url = `${sanitizeUrl(selectedService.tenantUrl)}/api/v1/did/sign`;
+                    const url = `${sanitizeUrl(selectedService.tenantUrl)}/api/v1/did/auth/sign`;
                     const options = {
                         method: "POST",
                         body: JSON.stringify(payload),
