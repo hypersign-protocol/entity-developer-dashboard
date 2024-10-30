@@ -22,6 +22,7 @@
     "@digitalbazaar/vc": "^6.0.1",
     "@hypersign-protocol/domain-linkage-verifier": "github:hypersign-protocol/Domain-linkage-verifier",
     "@hypersign-protocol/hypersign-kyc-chains-metadata": "github:hypersign-protocol/hypersign-kyc-chains-metadata#zk-proof-new-contract",
+    "@nibiruchain/nibijs": "^5.0.2",
     "@mdi/font": "^7.0.96",
     "@mdi/light-font": "^0.2.63",
     "aes-js": "^3.1.2",

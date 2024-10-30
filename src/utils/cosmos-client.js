@@ -1,21 +1,38 @@
-import { SigningCosmWasmClient, CosmWasmClient } from '@cosmjs/cosmwasm-stargate'
+// import { SigningCosmWasmClient, CosmWasmClient } from '@cosmjs/cosmwasm-stargate'
+
 import { Uint53 } from "@cosmjs/math";
 import {
     GasPrice, coins
 } from "@cosmjs/stargate";
+import {
+    NibiruTxClient,
+    NibiruQuerier
+} from "@nibiruchain/nibijs"
+
 export async function createClient(rpcUrl, offlineSigner) {
-    const client = SigningCosmWasmClient.connectWithSigner(
+    const txClient = await NibiruTxClient.connectWithSigner(
         rpcUrl,
         offlineSigner
     )
-    return client
+    return txClient.wasmClient
 }
 
 export async function createNonSigningClient(rpcUrl) {
-    const client = CosmWasmClient.connect(rpcUrl)
+    const client = await (await NibiruQuerier.connect(rpcUrl)).wasmClient
     return client
 }
+// export async function createClient(rpcUrl, offlineSigner) {
+//     const client = SigningCosmWasmClient.connectWithSigner(
+//         rpcUrl,
+//         offlineSigner
+//     )
+//     return client
+// }
 
+// export async function createNonSigningClient(rpcUrl) {
+//     const client = CosmWasmClient.connect(rpcUrl)
+//     return client
+// }
 
 export function calculateFee(gasLimit, gasPrice) {
     const processedGasPrice = typeof gasPrice === "string" ? GasPrice.fromString(gasPrice) : gasPrice;
@@ -29,5 +46,3 @@ export function calculateFee(gasLimit, gasPrice) {
         gas: gasLimit.toString(),
     };
 }
-
-
