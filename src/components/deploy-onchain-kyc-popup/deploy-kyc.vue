@@ -118,6 +118,7 @@
 </template>
 
 <script>
+import { v4 as uuidv4 } from 'uuid';
 import ConnectWalletButton from "../element/authButtons/ConnectWalletButton.vue";
 import { mapGetters, mapMutations, mapActions, mapState } from "vuex";
 import { getCosmosBlockchainLabel, getCosmosChainConfig, getCosmosCoinLogo } from '@hypersign-protocol/hypersign-kyc-chains-metadata/cosmos/wallet/cosmos-wallet-utils'
@@ -369,7 +370,11 @@ export default {
                 did,
                 didDocument,
                 verificationMethodId,
-                purpose: 'assertion'
+                options: {
+                    challenge: uuidv4(),
+                    domain: "entity.dashboard.hypersign.id",
+                    purpose: 'authentication'
+                }
             })
 
             this.isLoading = false;
