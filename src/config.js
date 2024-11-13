@@ -73,4 +73,10 @@ config['GRANT_TYPES_ENUM'] = Object.freeze({
     'CAVACH_API': 'access_service_kyc'
 })
 
+config['AUTH_PROVIDERS'] = Object.freeze({
+    GOOGLE: 'google',
+    KEPLR: 'keplr',
+    METAMASK: 'metamask',
+})
+
 export default config

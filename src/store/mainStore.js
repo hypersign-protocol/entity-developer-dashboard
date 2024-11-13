@@ -1022,6 +1022,33 @@ const mainStore = {
             })
         },
 
+        createMasterWallet: ({ getters }, payload) => {
+            return new Promise((resolve, reject) => {
+                if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
+                    return reject(new Error('Tenant url is null or empty, service is not selected'))
+                }
+                // const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/webhook-config`;
+                const url = `http://localhost:3001/api/v1/wallet`
+                const authToken = getters.getSelectedService.access_token
+                const headers = UtilsMixin.methods.getHeader(authToken);
+
+                fetch(url, {
+                    method: 'POST',
+                    headers,
+                    body: JSON.stringify(payload)
+                }).then(response => response.json())
+                    .then(json => {
+                        if (json.error) {
+                            return reject(new Error(json.error.details.join(' ')))
+                        }
+                        // commit('setWebhookConfig', json.data);
+                        resolve(json.data)
+                    }).catch((e) => {
+                        return reject(`Error while fetching apps ` + e.message);
+                    })
+            })
+        },
+
         fetchAppWebhookConfig: ({ commit, getters }) => {
             return new Promise((resolve, reject) => {
                 if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
@@ -1171,8 +1198,6 @@ const mainStore = {
         },
 
         // - KYC Credit
-
-
         async fetchKYCCredits({ getters, commit }) {
 
             if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {

@@ -70,9 +70,9 @@ import { smartContractExecuteRPC } from '@hypersign-protocol/hypersign-kyc-chain
 import { smartContractQueryRPC } from '@hypersign-protocol/hypersign-kyc-chains-metadata/cosmos/contract/query'
 import { constructInitSbtMsg, constructGetRegistredSBTContractAddressMsg } from '@hypersign-protocol/hypersign-kyc-chains-metadata/cosmos/contract/msg';
 import { getCosmosChainConfig } from '@hypersign-protocol/hypersign-kyc-chains-metadata/cosmos/wallet/cosmos-wallet-utils'
-import { createNonSigningClient, calculateFee } from '../../utils/cosmos-client'
+import { createNonSigningClient, calculateFee } from '../../utils/wallet-client/cosmos-wallet-client'
 import UtilsMixin from '../../mixins/utils'
-import ConnectWalletButton from "../element/authButtons/ConnectWalletButton.vue";
+import ConnectWalletButton from "../element/authButtons/ConnectWalletButtonKeplr.vue";
 
 export default {
     name: 'DeploySbt',
