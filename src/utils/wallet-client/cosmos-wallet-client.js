@@ -1,5 +1,3 @@
-// import { SigningCosmWasmClient, CosmWasmClient } from '@cosmjs/cosmwasm-stargate'
-
 import { Uint53 } from "@cosmjs/math";
 import {
     GasPrice, coins

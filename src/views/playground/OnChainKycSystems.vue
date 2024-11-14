@@ -172,9 +172,10 @@ h5 span {
             <tr v-for="row in onchainconfigs" :key="row._id">
               <td>
                 <span>
-
-                  <b-avatar :src="getChainDetail(row.blockchainLabel).logoUrl" size="30"></b-avatar>
-                  <!-- <img :src="getChainDetail(row.blockchainLabel).logoUrl" width="20" height="20"> -->
+                  <b-avatar badge-top badge-offset="-2px" :src="getChainDetail(row.blockchainLabel).logoUrl" size="30">
+                    <template #badge v-if="getChainDetail(row.blockchainLabel).chainName.indexOf('test') < 0"><b-icon
+                        icon="star-fill"></b-icon></template>
+                  </b-avatar>
                 </span>
                 {{ getChainDetail(row.blockchainLabel).chainName }}
               </td>
@@ -227,6 +228,7 @@ import HfButtons from "../../components/element/HfButtons.vue"
 import StudioSideBar from "../../components/element/StudioSideBar.vue";
 import DeployOnChainKYC from "../../components/deploy-onchain-kyc-popup/deploy.vue";
 import { getCosmosChainConfig } from '@hypersign-protocol/hypersign-kyc-chains-metadata/cosmos/wallet/cosmos-wallet-utils'
+import { getStellarChainConfig } from '@hypersign-protocol/hypersign-kyc-chains-metadata/stellar/wallet/stellar-wallet-utils'
 import HFBeta from '../../components/element/HFBeta.vue';
 import { mapState, mapActions, mapMutations } from "vuex";
 
@@ -314,7 +316,16 @@ export default {
       this.$root.$emit("bv::toggle::collapse", "sidebar-right");
     },
     getChainDetail(blockchainlabel = 'cosmos:comdex:test') {
-      const config = getCosmosChainConfig(blockchainlabel)
+      let config;
+      if (blockchainlabel.indexOf('cosmos') >= 0) {
+        config = getCosmosChainConfig(blockchainlabel)
+      } else {
+        console.log({
+          blockchainlabel
+        })
+        config = getStellarChainConfig(blockchainlabel)
+      }
+
       return {
         chainName: config.chainName,
         chainId: config.chainId,

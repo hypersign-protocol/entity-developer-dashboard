@@ -10,13 +10,9 @@
 <script>
 import { mapMutations } from "vuex";
 import { getUserAddressFromOfflineSigner } from '@hypersign-protocol/hypersign-kyc-chains-metadata/cosmos/wallet/cosmos-wallet-utils'
-import { createClient, createNonSigningClient } from '../../../utils/cosmos-client'
+import { createClient, createNonSigningClient } from '../../../utils/wallet-client/cosmos-wallet-client'
 import { getCosmosCoinLogo } from '@hypersign-protocol/hypersign-kyc-chains-metadata/cosmos/wallet/cosmos-wallet-utils'
-export const AUTH_PROVIDERS = Object.freeze({
-    GOOGLE: 'google',
-    KEPLR: 'keplr',
-    METAMASK: 'metamask',
-})
+import Config from '../../../config';
 
 export default {
     props: {
@@ -99,7 +95,7 @@ export default {
                 })
 
                 this.$emit('authEvent', {
-                    provider: AUTH_PROVIDERS.KEPLR,
+                    provider: Config.AUTH_PROVIDERS.KEPLR,
                     user: {
                         walletAddress: userAddress
                     },
