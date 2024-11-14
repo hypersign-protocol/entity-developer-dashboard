@@ -515,10 +515,8 @@ export default {
 
 
                 this.isLoading = true
-                const { HYPERSIGN_KYC_FACTORY_CONTRACT_ADDRESS, ISSUER_KYC_CODE_ID } = await import(`@hypersign-protocol/hypersign-kyc-chains-metadata/${this.selectedBlockchain.ecosystem}/contract/${this.selectedBlockchain.blockchain}/${this.selectedBlockchain.chainId}/config`)
-                console.log({
-                    HYPERSIGN_KYC_FACTORY_CONTRACT_ADDRESS, ISSUER_KYC_CODE_ID
-                })
+                const { HYPERSIGN_KYC_FACTORY_CONTRACT_ADDRESS } = await import(`@hypersign-protocol/hypersign-kyc-chains-metadata/${this.selectedBlockchain.ecosystem}/contract/${this.selectedBlockchain.blockchain}/${this.selectedBlockchain.chainId}/config`)
+
                 const proof = await this.dummyGetDidDocAndProofs()
 
                 const smartContractMsg = constructOnBoardIssuer({
