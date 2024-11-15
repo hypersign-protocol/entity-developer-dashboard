@@ -459,6 +459,7 @@ export default {
                 if (this.masterWalletFundTxStatus && this.masterWalletFundTxStatus.status == 200) {
                     this.notifySuccess('Successfully created master wallet')
                 } else {
+                    this.masterWalletFundTxStatus = null
                     throw new Error('Could fund issuer wallet account ')
                 }
                 await this.createAppsOnChainConfig({

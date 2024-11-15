@@ -214,14 +214,18 @@ ul {
                   <div class="">
                     <div class="">
                       <label for=""><strong>Select Proof Type: </strong></label>
-                      <b-form-select class="col-md-10" v-model="slectProof" :options="proofTypeOptions"
-                        size=""></b-form-select>
-                      <span class="col-md-1" style="margin-left:0px">
-                        <HfButtons name="" customClass="btn btn-outline-secondary" iconClass="fa fa-plus"
-                          @executeAction="addZkProof(selectedProofData.value, selectedProofData.criteriaValue)">
-                        </HfButtons>
-                      </span>
+                      <div class="input-group">
 
+                        <b-form-select class="col-md-11 col-11 col-sm-11 col-lg-11 col-xl-11" v-model="slectProof" :options="proofTypeOptions"
+                          size=""></b-form-select>
+                        <span class="col-md-1 col-1 col-sm-1 col-lg-1 col-xl-1" style="margin-left:0px">
+                          <HfButtons name="" customClass="btn btn-outline-secondary" iconClass="fa fa-plus"
+                            @executeAction="addZkProof(selectedProofData.value, selectedProofData.criteriaValue)">
+                          </HfButtons>
+                        </span>
+
+
+                      </div>
                     </div>
                     <div class="row" v-if="selectedProofData.criteria">
                       <div class="col">
