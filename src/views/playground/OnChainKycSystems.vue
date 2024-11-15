@@ -160,6 +160,9 @@ h5 span {
               <th class="sticky-header">ID</th>
               <th class="sticky-header">Date</th>
               <th class="sticky-header">Issuer DID</th>
+              <th class="sticky-header">Issuer Wallet</th>
+
+
               <!-- <th class="sticky-header">Owner's Wallet</th> -->
               <th class="sticky-header">KYC Contract</th>
               <!-- <th class="sticky-header">KYC Tx Hash</th> -->
@@ -187,8 +190,10 @@ h5 span {
               </td>
               <td @click="copyToClip(row.issuerDid, 'Issuer DID')" style="cursor: pointer;">{{
                 stringShortner(row.issuerDid, 15) }}</td>
-              <!-- <td @click="copyToClip(row.walletAddress, 'Wallet Address')" style="cursor: pointer;">{{
-                stringShortner(row.walletAddress, 15) }}</td> -->
+              <td @click="copyToClip(row.options?.masterWalletAddress, 'Wallet Address')" style="cursor: pointer;">{{
+                stringShortner(row.options?.masterWalletAddress, 15) }}</td>
+
+
               <td @click="copyToClip(row.kycContractAddress, 'Kyc Contract Address')" style="cursor: pointer;">{{
                 stringShortner(row.kycContractAddress, 20) }}</td>
               <!-- <td @click="copyToClip(row.kycContractTxHash, 'Kyc Contract Tx Hash')" style="cursor: pointer;"><a
@@ -214,7 +219,8 @@ h5 span {
 
     <StudioSideBar title="OnChain KYC">
       <div class="container" style="width: 100%;">
-        <DeployOnChainKYC />
+        <!-- sliderKey is added to enure force rendering when DeployOnChainKyc is Called -->
+        <DeployOnChainKYC :key="sliderKey" />
       </div>
     </StudioSideBar>
   </div>
@@ -252,6 +258,8 @@ export default {
       user: {},
       fullPage: true,
       isLoading: false,
+      // force render 
+      sliderKey: 0,
     }
   },
 
@@ -311,6 +319,8 @@ export default {
       this.$root.$emit("bv::toggle::collapse", "sidebar-right");
     },
     openSlider() {
+      // force render every time the slider is open
+      this.sliderKey = this.sliderKey + 1
       this.edit = false;
       this.setOnChainConfig({});
       this.$root.$emit("bv::toggle::collapse", "sidebar-right");
@@ -320,9 +330,7 @@ export default {
       if (blockchainlabel.indexOf('cosmos') >= 0) {
         config = getCosmosChainConfig(blockchainlabel)
       } else {
-        console.log({
-          blockchainlabel
-        })
+
         config = getStellarChainConfig(blockchainlabel)
       }
 

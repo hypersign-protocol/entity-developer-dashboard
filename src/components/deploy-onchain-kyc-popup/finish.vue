@@ -1,18 +1,30 @@
 <template>
     <div class="container">
-
         <div class="row card-body card">
             <div class="col mt-1">
                 <div>
                     <div class="circleBase type1 mx-1"><i class="fa fa-check"></i></div> Wallet Connected
                 </div>
             </div>
-            <div class="col mt-1">
+            <div class="col mt-1" v-if="getBlockchainUser().blockchain == 'diam'">
+                <div>
+                    <div class="circleBase type1 mx-1"><i class="fa fa-check"></i></div> Issuer Wallet Created
+                </div>
+            </div>
+
+            <div class="col mt-1" v-else>
                 <div>
                     <div class="circleBase type1 mx-1"><i class="fa fa-check"></i></div> KYC Contract deployed
                 </div>
             </div>
-            <div class="col mt-1">
+            <div class="col mt-1" v-if="getBlockchainUser().blockchain == 'diam'">
+                <div>
+                    <div class="circleBase type1 mx-1"><i class="fa fa-check"></i></div> Issuer Wallet Funded
+                </div>
+            </div>
+
+
+            <div class="col mt-1" v-else>
                 <div>
                     <div class="circleBase type1 mx-1"><i class="fa fa-check"></i></div> SBT Contract deployed
                 </div>
@@ -52,10 +64,12 @@
 
 <script>
 import { mapMutations, mapActions } from "vuex";
+import { mapGetters } from "vuex/dist/vuex.common.js";
 
 export default {
     name: 'FinishOnchainKyc',
     methods: {
+        ...mapGetters('walletStore', ['getOnChainBlockchainLabel', 'getBlockchainUser']),
         ...mapMutations('walletStore', ['resetAll', 'nextStep']),
         ...mapActions('mainStore', ['fetchAppsOnChainConfigs']),
         close() {
