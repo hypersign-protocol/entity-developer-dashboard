@@ -10,6 +10,11 @@
     color: #636363;
 }
 
+.logo-container{
+    /* border: 1px solid #303c3029;
+    border-radius: 40px;
+    overflow: hidden; */
+}
 
 .button-theme{
     background-color: #905ab0;

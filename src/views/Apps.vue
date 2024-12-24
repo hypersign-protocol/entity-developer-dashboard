@@ -250,7 +250,8 @@
           <small>{{ domainFromOriginComputed }}</small>
         </div>
 
-          <div class="form-group" v-if="edit === true && appModel.services.length > 0 && appModel.services[0].id != 'QUEST'">
+        <div class="form-group"
+          v-if="edit === true && appModel.services.length > 0 && appModel.services[0].id != 'QUEST'">
           <tool-tip infoMessage="Your Encrypted Data Vault id"></tool-tip>
           <label for="orgDid"><strong>Encrypted Data Vault Id: </strong></label>
           <input type="text" class="form-control" id="orgDid" v-model="appModel.edvId" aria-describedby="orgNameHelp"
@@ -361,7 +362,7 @@
           <select class="custom-select" id="selectService" v-model="appModel.issuerVerificationMethodId">
             <option value="">Select a VerificationMethod</option>
             <option v-for="vm in issuerVerificationMethodIds" :value="vm.id" :key="vm.id">
-              {{ vm.id + " => " +vm.type }}
+              {{ vm.id + " => " + vm.type }}
             </option>
           </select>
           <!-- <input type="text" class="form-control" id="orgDid" v-else v-model="appModel.issuerDid" disabled
@@ -416,9 +417,6 @@
     </StudioSideBar>
 
     <div v-if="appList.length > 0" class="mt-2">
-      <!-- <b-card no-body> -->
-
-
       <b-tabs content-class="mt-0" card>
         <b-tab active class="bg-white p-3">
           <template #title>
@@ -451,13 +449,17 @@
                         </div>
                       </div>
                     </div>
-                    <div class="col-3">
-                      <div class="p-2">
-                        <b-card-img :src="eachOrg.logoUrl ||
-                          getProfileIcon(formattedAppName(eachOrg.appId))
-                          " alt="logoImg" class="rounded-0" style="max-height: 60px; min-height: 60px">
-                        </b-card-img>
-                      </div>
+                      <div class="col-3">
+                        <div class="p-2 logo-container">
+                          <b-card-img :src="eachOrg.logoUrl ||
+                            getProfileIcon(formattedAppName(eachOrg.appId))
+                            " alt="logoImg" class="rounded-1 logo" style="
+                              max-height: 60px;
+                              min-height: 60px;
+                              border-radius: 50%;
+                            ">
+                          </b-card-img>
+                        </div>
                     </div>
                   </div>
                   <div class="row">
@@ -530,116 +532,110 @@
           <div class="row" v-if="getAppsWithKYCServices.length > 0">
             <div class="col-md-4 mb-4" v-for="eachOrg in getAppsWithKYCServices" :key="eachOrg.appId">
               <div class="card" @click="switchOrg(eachOrg.appId, 'CAVACH_API')" style="cursor: grab">
-                <div class="card" style="cursor: grab">
-                  <div class="card-body">
-                    <div class="row">
-                      <div class="col-9">
-                        <div class="row">
-                          <div class="col-12">
-                            <h5 class="card-title text-uppercase text-muted mb-0">
-                              {{ formattedAppName(eachOrg.appName) }}
-                              <img src="../assets/verified-success.png" style="max-height: 20px; min-height: 20px"
-                                v-if="eachOrg.hasDomainVerified" />
-                            </h5>
-                          </div>
-                        </div>
-                        <div class="row">
-                          <div class="col-12 mt-1">
-                            {{
-                              truncate(
-                                eachOrg.description ||
-                                "No description for this app..",
-                                70
-                              )
-                            }}
-                          </div>
+                <div class="card-body">
+                  <div class="row">
+                    <div class="col-9">
+                      <div class="row">
+                        <div class="col-12">
+                          <h5 class="card-title text-uppercase text-muted mb-0">
+                            {{ formattedAppName(eachOrg.appName) }}
+                            <img src="../assets/verified-success.png" style="max-height: 20px; min-height: 20px"
+                              v-if="eachOrg.hasDomainVerified" />
+                          </h5>
                         </div>
                       </div>
-                      <div class="col-3">
-                        <div class="p-2 logo-container" style="
-                            border: 1px solid #303c3029;
-                            border-radius: 51px;
-                            overflow: hidden;
+                      <div class="row">
+                        <div class="col-12 mt-1">
+                          {{
+                            truncate(
+                              eachOrg.description ||
+                              "No description for this app..",
+                              70
+                            )
+                          }}
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-3">
+                      <div class="p-2 logo-container">
+                        <b-card-img :src="eachOrg.logoUrl ||
+                          getProfileIcon(formattedAppName(eachOrg.appId))
+                          " alt="logoImg" class="rounded-1 logo" style="
+                            max-height: 60px;
+                            min-height: 60px;
+                            border-radius: 50%;
                           ">
-                          <b-card-img :src="eachOrg.logoUrl ||
-                            getProfileIcon(formattedAppName(eachOrg.appId))
-                            " alt="logoImg" class="rounded-1 logo" style="
-                              max-height: 60px;
-                              min-height: 60px;
-                              border-radius: 50%;
-                            ">
-                          </b-card-img>
+                        </b-card-img>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col">
+                      <b-card-text>
+                        <small class="card-field-label">Service Id:</small>
+                        <div class="apiKeySecret" @click.stop="
+                          copyToClip(eachOrg.appId, 'Service Id')
+                          " title="Copy Service Id">
+                          {{ truncate(eachOrg.appId, 45) }}
+                          <i class="far fa-copy" style="float: right"></i>
                         </div>
-                      </div>
+                      </b-card-text>
                     </div>
+                  </div>
+                  <div class="row" v-if="eachOrg.tenantUrl">
+                    <div class="col">
+                      <b-card-text>
+                        <small class="card-field-label">Tenant Url:</small>
+                        <div class="apiKeySecret" @click.stop="
+                          copyToClip(eachOrg.tenantUrl, 'Tenant Url')
+                          " title="Copy Tenant Url">
+                          {{ truncate(eachOrg.tenantUrl, 55) }}
+                          <i class="far fa-copy" style="float: right"></i>
+                        </div>
+                      </b-card-text>
+                    </div>
+                  </div>
+                  <div class="row mt-2">
+                    <div class="col">
+                      <!-- <span class=" " style="cursor: pointer" @click.stop="switchOrg(eachOrg.appId,  'CAVACH_API')"><i
+                        class="fas fa-tachometer-alt" aria-hidden="true"></i></span> -->
+                      <span style="float: left">
+                        <span class="badge bg-secondary text-white mx-1" v-if="eachOrg.env == 'dev'">{{ eachOrg.env
+                          }}</span>
+                        <span class="badge bg-success text-white mx-1" v-else>{{ eachOrg.env }}</span>
 
-                    <div class="row">
-                      <div class="col">
-                        <b-card-text>
-                          <small class="card-field-label">Service Id:</small>
-                          <div class="apiKeySecret" @click.stop="
-                            copyToClip(eachOrg.appId, 'Service Id')
-                            " title="Copy Service Id">
-                            {{ truncate(eachOrg.appId, 45) }}
-                            <i class="far fa-copy" style="float: right"></i>
-                          </div>
-                        </b-card-text>
-                      </div>
-                    </div>
-                    <div class="row" v-if="eachOrg.tenantUrl">
-                      <div class="col">
-                        <b-card-text>
-                          <small class="card-field-label">Tenant Url:</small>
-                          <div class="apiKeySecret" @click.stop="
-                            copyToClip(eachOrg.tenantUrl, 'Tenant Url')
-                            " title="Copy Tenant Url">
-                            {{ truncate(eachOrg.tenantUrl, 55) }}
-                            <i class="far fa-copy" style="float: right"></i>
-                          </div>
-                        </b-card-text>
-                      </div>
-                    </div>
-                    <div class="row mt-2">
-                      <div class="col">
-                        <!-- <span class=" " style="cursor: pointer" @click.stop="switchOrg(eachOrg.appId,  'CAVACH_API')"><i
-                          class="fas fa-tachometer-alt" aria-hidden="true"></i></span> -->
-                        <span style="float: left">
-                          <span class="badge bg-secondary text-white mx-1" v-if="eachOrg.env == 'dev'">{{ eachOrg.env
-                            }}</span>
-                          <span class="badge bg-success text-white mx-1" v-else>{{ eachOrg.env }}</span>
-
-                          <span class="badge rounded bg-light mx-1" v-if="eachOrg.domain && eachOrg.hasDomainVerified">
-                            <a @click.stop :href="eachOrg.domain" target="_blank" style="text-decoration: none">{{
-                              domainFromOrigin(eachOrg.domain) }}</a>
-                          </span>
+                        <span class="badge rounded bg-light mx-1" v-if="eachOrg.domain && eachOrg.hasDomainVerified">
+                          <a @click.stop :href="eachOrg.domain" target="_blank" style="text-decoration: none">{{
+                            domainFromOrigin(eachOrg.domain) }}</a>
                         </span>
-                        <span class=" " style="float: right">
-                          <span class="badge rounded-pill bg-warning text-dark mx-1"
-                            @click.stop="verifyDomainOpenPopup(eachOrg)" title="Click to verify your domain" v-if="
-                              !eachOrg.hasDomainVerified &&
-                              eachOrg.dependentServices[0]
-                            ">
-                            <i class="fa fa-check"></i>
-                            Domain</span>
+                      </span>
+                      <span class=" " style="float: right">
+                        <span class="badge rounded-pill bg-warning text-dark mx-1"
+                          @click.stop="verifyDomainOpenPopup(eachOrg)" title="Click to verify your domain" v-if="
+                            !eachOrg.hasDomainVerified &&
+                            eachOrg.dependentServices[0]
+                          ">
+                          <i class="fa fa-check"></i>
+                          Domain</span>
 
-                          <span class="badge rounded-pill bg-danger mx-1"
-                            @click.stop="openSecretkeyPopUp(eachOrg.appId)"
-                            title="Click to generate a new API Secret Key" style="cursor: pointer; color: white">
-                            <i class="fa fa-key"></i>
-                            Secret</span>
+                        <span class="badge rounded-pill bg-danger mx-1"
+                          @click.stop="openSecretkeyPopUp(eachOrg.appId)"
+                          title="Click to generate a new API Secret Key" style="cursor: pointer; color: white">
+                          <i class="fa fa-key"></i>
+                          Secret</span>
 
-                          <span class="badge rounded-pill bg-info mx-1" @click.stop="editOrg(eachOrg.appId)"
-                            title="Click to edit the app" style="cursor: pointer; color: white">
-                            <i class="fas fa-pencil-alt"></i>
-                            Edit
-                          </span>
-
-                          <span class="mx-1" @click.stop="openDeleteServicePopUp(eachOrg.appId)"
-                            title="Click to delete the app" style="cursor: pointer; color: red">
-                            <i class="fa fa-trash-alt" aria-hidden="true"></i>
-                          </span>
+                        <span class="badge rounded-pill bg-info mx-1" @click.stop="editOrg(eachOrg.appId)"
+                          title="Click to edit the app" style="cursor: pointer; color: white">
+                          <i class="fas fa-pencil-alt"></i>
+                          Edit
                         </span>
-                      </div>
+
+                        <span class="mx-1" @click.stop="openDeleteServicePopUp(eachOrg.appId)"
+                          title="Click to delete the app" style="cursor: pointer; color: red">
+                          <i class="fa fa-trash-alt" aria-hidden="true"></i>
+                        </span>
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -666,117 +662,113 @@
 
           <div class="row" v-if="getAppsWithQuestServices.length > 0">
             <div class="col-md-4 mb-4" v-for="eachOrg in getAppsWithQuestServices" :key="eachOrg.appId">
+              
+                
               <div class="card" @click="switchOrg(eachOrg.appId, 'QUEST')" style="cursor: grab">
-                <div class="card" style="cursor: grab">
-                  <div class="card-body">
-                    <div class="row">
-                      <div class="col-9">
-                        <div class="row">
-                          <div class="col-12">
-                            <h5 class="card-title text-uppercase text-muted mb-0">
-                              {{ formattedAppName(eachOrg.appName) }}
-                              <img src="../assets/verified-success.png" style="max-height: 20px; min-height: 20px"
-                                v-if="eachOrg.hasDomainVerified" />
-                            </h5>
-                          </div>
-                        </div>
-                        <div class="row">
-                          <div class="col-12 mt-1">
-                            {{
-                              truncate(
-                                eachOrg.description ||
-                                "No description for this app..",
-                                70
-                              )
-                            }}
-                          </div>
+                <div class="card-body">
+                  <div class="row">
+                    <div class="col-9">
+                      <div class="row">
+                        <div class="col-12">
+                          <h5 class="card-title text-uppercase text-muted mb-0">
+                            {{ formattedAppName(eachOrg.appName) }}
+                            <img src="../assets/verified-success.png" style="max-height: 20px; min-height: 20px"
+                              v-if="eachOrg.hasDomainVerified" />
+                          </h5>
                         </div>
                       </div>
-                      <div class="col-3">
-                        <div class="p-2 logo-container" style="
-                  border: 1px solid #303c3029;
-                  border-radius: 51px;
-                  overflow: hidden;
+                      <div class="row">
+                        <div class="col-12 mt-1">
+                          {{
+                            truncate(
+                              eachOrg.description ||
+                              "No description for this app..",
+                              70
+                            )
+                          }}
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-3">
+                      <div class="p-2 logo-container">
+                        <b-card-img :src="eachOrg.logoUrl ||
+                          getProfileIcon(formattedAppName(eachOrg.appId))
+                          " alt="logoImg" class="rounded-1 logo" style="
+                  max-height: 60px;
+                  min-height: 60px;
+                  border-radius: 50%;
                 ">
-                          <b-card-img :src="eachOrg.logoUrl ||
-                            getProfileIcon(formattedAppName(eachOrg.appId))
-                            " alt="logoImg" class="rounded-1 logo" style="
-                    max-height: 60px;
-                    min-height: 60px;
-                    border-radius: 50%;
-                  ">
-                          </b-card-img>
+                        </b-card-img>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col">
+                      <b-card-text>
+                        <small class="card-field-label">Service Id:</small>
+                        <div class="apiKeySecret" @click.stop="
+                          copyToClip(eachOrg.appId, 'Service Id')
+                          " title="Copy Service Id">
+                          {{ truncate(eachOrg.appId, 45) }}
+                          <i class="far fa-copy" style="float: right"></i>
                         </div>
-                      </div>
+                      </b-card-text>
                     </div>
+                  </div>
+                  <div class="row" v-if="eachOrg.tenantUrl">
+                    <div class="col">
+                      <b-card-text>
+                        <small class="card-field-label">Tenant Url:</small>
+                        <div class="apiKeySecret" @click.stop="
+                          copyToClip(eachOrg.tenantUrl, 'Tenant Url')
+                          " title="Copy Tenant Url">
+                          {{ truncate(eachOrg.tenantUrl, 55) }}
+                          <i class="far fa-copy" style="float: right"></i>
+                        </div>
+                      </b-card-text>
+                    </div>
+                  </div>
+                  <div class="row mt-2">
+                    <div class="col">
+                      <!-- <span class=" " style="cursor: pointer" @click.stop="switchOrg(eachOrg.appId,  'CAVACH_API')"><i
+              class="fas fa-tachometer-alt" aria-hidden="true"></i></span> -->
+                      <span style="float: left">
+                        <span class="badge bg-secondary text-white mx-1" v-if="eachOrg.env == 'dev'">{{ eachOrg.env
+                          }}</span>
+                        <span class="badge bg-success text-white mx-1" v-else>{{ eachOrg.env }}</span>
 
-                    <div class="row">
-                      <div class="col">
-                        <b-card-text>
-                          <small class="card-field-label">Service Id:</small>
-                          <div class="apiKeySecret" @click.stop="
-                            copyToClip(eachOrg.appId, 'Service Id')
-                            " title="Copy Service Id">
-                            {{ truncate(eachOrg.appId, 45) }}
-                            <i class="far fa-copy" style="float: right"></i>
-                          </div>
-                        </b-card-text>
-                      </div>
-                    </div>
-                    <div class="row" v-if="eachOrg.tenantUrl">
-                      <div class="col">
-                        <b-card-text>
-                          <small class="card-field-label">Tenant Url:</small>
-                          <div class="apiKeySecret" @click.stop="
-                            copyToClip(eachOrg.tenantUrl, 'Tenant Url')
-                            " title="Copy Tenant Url">
-                            {{ truncate(eachOrg.tenantUrl, 55) }}
-                            <i class="far fa-copy" style="float: right"></i>
-                          </div>
-                        </b-card-text>
-                      </div>
-                    </div>
-                    <div class="row mt-2">
-                      <div class="col">
-                        <!-- <span class=" " style="cursor: pointer" @click.stop="switchOrg(eachOrg.appId,  'CAVACH_API')"><i
-                class="fas fa-tachometer-alt" aria-hidden="true"></i></span> -->
-                        <span style="float: left">
-                          <span class="badge bg-secondary text-white mx-1" v-if="eachOrg.env == 'dev'">{{ eachOrg.env
-                            }}</span>
-                          <span class="badge bg-success text-white mx-1" v-else>{{ eachOrg.env }}</span>
-
-                          <span class="badge rounded bg-light mx-1" v-if="eachOrg.domain && eachOrg.hasDomainVerified">
-                            <a @click.stop :href="eachOrg.domain" target="_blank" style="text-decoration: none">{{
-                              domainFromOrigin(eachOrg.domain) }}</a>
-                          </span>
+                        <span class="badge rounded bg-light mx-1" v-if="eachOrg.domain && eachOrg.hasDomainVerified">
+                          <a @click.stop :href="eachOrg.domain" target="_blank" style="text-decoration: none">{{
+                            domainFromOrigin(eachOrg.domain) }}</a>
                         </span>
-                        <span class=" " style="float: right">
-                          <span class="badge rounded-pill bg-warning text-dark mx-1"
-                            @click.stop="verifyDomainOpenPopup(eachOrg)" title="Click to verify your domain" v-if="
-                              !eachOrg.hasDomainVerified &&
-                              eachOrg.dependentServices[0]
-                            ">
-                            <i class="fa fa-check"></i>
-                            Domain</span>
+                      </span>
+                      <span class=" " style="float: right">
+                        <span class="badge rounded-pill bg-warning text-dark mx-1"
+                          @click.stop="verifyDomainOpenPopup(eachOrg)" title="Click to verify your domain" v-if="
+                            !eachOrg.hasDomainVerified &&
+                            eachOrg.dependentServices[0]
+                          ">
+                          <i class="fa fa-check"></i>
+                          Domain</span>
 
-                          <span class="badge rounded-pill bg-danger mx-1"
-                            @click.stop="openSecretkeyPopUp(eachOrg.appId)"
-                            title="Click to generate a new API Secret Key" style="cursor: pointer; color: white">
-                            <i class="fa fa-key"></i>
-                            Secret</span>
+                        <span class="badge rounded-pill bg-danger mx-1"
+                          @click.stop="openSecretkeyPopUp(eachOrg.appId)"
+                          title="Click to generate a new API Secret Key" style="cursor: pointer; color: white">
+                          <i class="fa fa-key"></i>
+                          Secret</span>
 
-                          <span class="badge rounded-pill bg-info mx-1" @click.stop="editOrg(eachOrg.appId)"
-                            title="Click to edit the app" style="cursor: pointer; color: white">
-                            <i class="fas fa-pencil-alt"></i>
-                            Edit
-                          </span>
-
-                          <span class="mx-1" @click.stop="openDeleteServicePopUp(eachOrg.appId)"
-                            title="Click to delete the app" style="cursor: pointer; color: red">
-                            <i class="fa fa-trash-alt" aria-hidden="true"></i>
-                          </span>
+                        <span class="badge rounded-pill bg-info mx-1" @click.stop="editOrg(eachOrg.appId)"
+                          title="Click to edit the app" style="cursor: pointer; color: white">
+                          <i class="fas fa-pencil-alt"></i>
+                          Edit
                         </span>
-                      </div>
+
+                        <span class="mx-1" @click.stop="openDeleteServicePopUp(eachOrg.appId)"
+                          title="Click to delete the app" style="cursor: pointer; color: red">
+                          <i class="fa fa-trash-alt" aria-hidden="true"></i>
+                        </span>
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -784,6 +776,15 @@
             </div>
           </div>
           <div class="new-service-popup" v-else>
+            <b-skeleton-wrapper :loading="isLoading">
+                <template #loading>
+                  <b-card>
+                    <b-skeleton width="85%"></b-skeleton>
+                    <b-skeleton width="55%"></b-skeleton>
+                    <b-skeleton width="70%"></b-skeleton>
+                  </b-card>
+                </template>
+              </b-skeleton-wrapper>
             <h3 class="" style="text-align: left">Spin up your Quest service!</h3>
             <hf-buttons name=" Create" iconClass="fa fa-plus" style="text-align: right" class="ml-auto mt-2"
               @executeAction="openSlider('QUEST')">
@@ -1250,7 +1251,7 @@ export default {
       );
 
       await this.prepareDIDList(this.selectedAssociatedSSIAppId);
-      
+
       await this.resolveDidDoc(this.appModel.issuerDid)
     },
     validateFields() {
