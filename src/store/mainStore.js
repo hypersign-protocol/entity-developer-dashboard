@@ -27,6 +27,7 @@ const mainStore = {
         didList: [],
         onchainconfigs: [],
         onChainConfig: {},
+        isLoggedOut: false,
         widgetConfig: {
 
         },
@@ -39,6 +40,9 @@ const mainStore = {
         kycCredits: []
     },
     getters: {
+        getIsLoggedOut: (state) => {
+            return state.isLoggedOut
+        },
         getAdminMembersgetter: (state) => {
             return state.adminMembers
         },
@@ -127,6 +131,14 @@ const mainStore = {
         }
     },
     mutations: {
+        setIsLoggedOut: (state, payload = false) => {
+            state.isLoggedOut = payload;
+            // localStorage.removeItem("authToken");
+            localStorage.removeItem("user");
+            localStorage.removeItem("credentials");
+            localStorage.removeItem("userData");
+            localStorage.removeItem("selectedOrg")
+        },
         setAuthToken(state, payload) {
             console.log(state.namespaced)
             localStorage.setItem("authToken", payload);

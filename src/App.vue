@@ -78,7 +78,7 @@
   <div id="app">
     <load-ing :active.sync="isLoading" :can-cancel="true" :is-full-page="true"></load-ing>
 
-    <b-navbar toggleable="lg" type="dark" variant="white" class="navStyle" v-if="showIcon" sticky>
+    <b-navbar toggleable="lg" type="dark" variant="white" class="navStyle" v-if="getIsLoggedOut" sticky>
       <b-navbar-brand href="#">
         <a href="#" @click="route('dashboard')">
           <img src="./assets/Entity_full.png" alt="" style="height: 5vh; opacity: 80%" />
@@ -107,7 +107,7 @@
             <i class="fas fa-book-open f-36" style=" color: grey"></i>
           </b-nav-item>
 
-          <b-nav-item-dropdown right v-if="showIcon" title="Profile">
+          <b-nav-item-dropdown right v-if="getIsLoggedOut" title="Profile">
             <template #button-content>
               <i class="fas fa-user-circle f-36" style="color: grey"></i>
             </template>
@@ -300,7 +300,7 @@ import { mapActions, mapMutations, mapGetters, mapState } from "vuex";
 export default {
   computed: {
     ...mapGetters("playgroundStore", ["userDetails", "getSelectedOrg"]),
-    ...mapGetters("mainStore", ["getSelectedService", "getAllServices"]),
+    ...mapGetters("mainStore", ["getSelectedService", "getAllServices", 'getIsLoggedOut']),
     ...mapState({
       showMainSideNavBar: (state) => state.mainStore.showMainSideNavBar,
       selectedDashboard: (state) => state.globalStore.selectedDashboard,
@@ -324,7 +324,6 @@ export default {
     return {
       isLoading: false,
       collapsed: true,
-      showIcon: true,
       isSidebarCollapsed: true,
       schema_page: 1,
       authRoutes: ["register", "PKIIdLogin"],
@@ -336,7 +335,8 @@ export default {
   mounted() {
     this.$root.$on("clearAppData", () => {
       this.authToken = null;
-      this.showIcon = false;
+      // this.showIcon = false;
+      this.setIsLoggedOut(false)
     });
 
     this.$root.$on("recomputeParseAuthTokenEvent", () => {
@@ -351,7 +351,8 @@ export default {
     if (localStorage.getItem("user")) {
       const usrStr = localStorage.getItem("user");
       this.user = JSON.parse(usrStr);
-      this.showIcon = true;
+      // this.showIcon = true;
+      this.setIsLoggedOut(true)
     }
     if (localStorage.getItem("selectedOrg")) {
       const selectedOrgId = localStorage.getItem("selectedOrg");
@@ -372,7 +373,7 @@ export default {
   },
   methods: {
     ...mapActions("mainStore", ["fetchAppsListFromServer", "fetchServicesList"]),
-    ...mapMutations("mainStore", ["resetMainStore"]),
+    ...mapMutations("mainStore", ["resetMainStore", "setIsLoggedOut"]),
     ...mapActions("playgroundStore", [
       "insertAschema",
       "insertAcredential",
@@ -406,9 +407,9 @@ export default {
       return "https://api.dicebear.com/7.x/identicon/svg?seed=" + name;
     },
     logoutAll() {
-      this.showIcon = false;
+      // this.showIcon = false;
+      this.setIsLoggedOut(false)
       if (this.$route.path !== '/login') this.$router.push('/login')
-
       this.logout();
     },
 
@@ -442,20 +443,13 @@ export default {
       try {
         this.authToken = localStorage.getItem("authToken");
         if (this.authToken) {
-          this.showIcon = true;
-          // this.isLoading = true;
-          // await this.fetchAppsListFromServer();
-          // await this.fetchServicesList()
-
+          this.setIsLoggedOut(true)
           this.$router.push("dashboard").then(() => { this.$router.go(0) });
-
-          // this.isLoading = false;
         } else {
           throw new Error("No auth token")
         }
       } catch (e) {
-        this.showIcon = false
-        // this.isLoading = false;
+        this.setIsLoggedOut(false)
         this.notifyErr(`Error:  ${e.message}`);
       }
 
@@ -615,6 +609,7 @@ export default {
       localStorage.removeItem("selectedOrg");
       this.resetStore();
       this.resetMainStore();
+      this.$router.go() 
     },
 
     formattedAppName(appName) {

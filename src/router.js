@@ -3,7 +3,6 @@ import Router from 'vue-router'
 import fetch from 'node-fetch'
 import config from './config'
 import store from './store'
-
 const Home = () => import('./views/Home.vue');
 const PKIIdLogin = () => import('./views/PKIIdLogin.vue')
 const MainDashboard = () => import('./views/Dashboard.vue')
@@ -219,6 +218,10 @@ router.beforeEach(async (to, from, next) => {
       })
     }
   } else {
+    console.log(to.path)
+    if (to.path === '/studio/login') {
+      store.commit('mainStore/setIsLoggedOut', false)
+    }
     next()
   }
 })
