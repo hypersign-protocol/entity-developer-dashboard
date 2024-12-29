@@ -94,49 +94,45 @@
           </b-nav-item>
 
           <b-nav-item v-if="parseAuthToken.isTwoFactorEnabled == false">
-            <button class="btn btn-link" type="button" @click="$router.push('mfa')" style="color: grey">
-              <span class="spinner-grow spinner-grow-sm text-danger" role="status" aria-hidden="true"></span>
-              <span class="visually-hidden"> Setup MFA</span>
-            </button>
+            
+            <b-button variant="outline-danger" pill @click="$router.push('mfa')" size="sm" style="color:grey">
+              <span class="spinner-grow spinner-grow-sm"></span>
+              <span class="mx-1">Setup MFA</span>
+            </b-button>
+          
           </b-nav-item>
 
           <b-nav-item :href="$config.studioServer.BASE_URL" target="_blank" title="Developer Dashboard API">
-            <i class="fa fa-code f-36" style=" color: grey"></i></b-nav-item>
+            <i class="fa fa-code" style=" color: #707070;height: 24px; font-size: 24px; width: 24px;"></i></b-nav-item>
           <b-nav-item href="https://docs.hypersign.id/entity-studio/developer-dashboard" target="_blank"
             title="Documentation">
-            <i class="fas fa-book-open f-36" style=" color: grey"></i>
+            <i class="fas fa-book-open nav-icon" style=""></i>
           </b-nav-item>
 
           <b-nav-item-dropdown right v-if="getIsLoggedOut" title="Profile">
             <template #button-content>
-              <i class="fas fa-user-circle f-36" style="color: grey"></i>
+              <i class="fas fa-user-circle nav-icon"></i>
             </template>
 
             <b-dropdown-group style="text-align: left;">
               <b-dropdown-item-button style="text-align: left" :title="userDetails.email"
                 @click="copyToClip(userDetails.email, 'Email')">
-                <i class="far fa-copy mt-1"></i>
                 {{ shorten(userDetails.email) }}
               </b-dropdown-item-button>
 
-              <!-- <b-dropdown-item-button style="text-align: left" :title="userDetails.did" v-if="userDetails.did" @click="copyToClip(userDetails.did, 'DID')">
-                <i class="far fa-copy" ></i>
-                {{ shorten(userDetails.did) }}
-              </b-dropdown-item-button> -->
-
               <b-dropdown-item-button style="text-align: left" @click="goTo('/studio/settings')" title="Teams">
-                <i class="fa fa-cog" style="cursor: pointer; font-size: 1.3rem"></i>
+                <i class="fa fa-cog nav-icon" style="cursor: pointer; font-size: 1.3rem"></i>
                 Settings
               </b-dropdown-item-button>
 
               <b-dropdown-item-button style="text-align: left" @click="goTo('/studio/dashboard')" title="Teams">
-                <i class="fa fa-home" style="cursor: pointer; font-size: 1.3rem"></i>
+                <i class="fa fa-home nav-icon" style="cursor: pointer; font-size: 1.3rem"></i>
                 Home
               </b-dropdown-item-button>
               <b-dropdown-divider></b-dropdown-divider>
 
               <b-dropdown-item-button style="text-align: left" @click="logoutAll()" title="Logout">
-                <i class="fas fa-sign-out-alt" style="cursor: pointer; font-size: 1.3rem"></i>
+                <i class="fas fa-sign-out-alt nav-icon" style="cursor: pointer; font-size: 1.3rem"></i>
                 Logout
               </b-dropdown-item-button>
             </b-dropdown-group>
@@ -259,6 +255,7 @@
   margin-top: 65px;
   /* box-shadow: 0 0 15px 0 rgba(34, 41, 47, 0.05); */
   box-shadow: 0 2px 6px 0 rgba(32, 33, 37, .1);
+  border-right: 1px solid rgba(128, 128, 128, 0.21);
 }
 
 .v-sidebar-menu.vsm_white-theme .vsm--mobile-bg {
@@ -268,28 +265,27 @@
 .vsm--mobile-bg {
   background: #905ab098 !important;
 }
-
 .v-sidebar-menu.vsm_white-theme {
   background-color: white !important;
-  color: #000 !important;
+  color: rgba(0,0,0,.87) !important;
 }
 
 .v-sidebar-menu.vsm_white-theme .vsm--header {
-  color: #000 !important;
+  color: rgba(0,0,0,.87) !important;
 }
 
 .v-sidebar-menu.vsm_white-theme .vsm--link {
-  color: #000 !important;
+  color: rgba(0,0,0,.87) !important;
 }
 
 .v-sidebar-menu.vsm_white-theme .vsm--link_level-1 .vsm--link:hover {
-  color: #000 !important;
+  color: rgba(0,0,0,.87) !important;
   background: #905ab0 !important;
 }
 
 .v-sidebar-menu.vsm_white-theme .vsm--link_level-1 .vsm--icon {
   background-color: transparent !important;
-  color: #000 !important;
+  color: #66666a !important;
 }
 </style>
 
