@@ -138,26 +138,23 @@ ul {
 <template>
   <div :class="isContainerShift ? 'homeShift' : 'home'">
     <load-ing :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></load-ing>
-
-    <div class="row">
-      <div class="col-6" style="text-align: left">
+    <v-row>
+      <v-col>
         <div class="form-group" style="display:flex">
           <h3 style="text-align: left;">
             Widget Configuration </h3>
         </div>
-      </div>
-      <div class="col-6">
+      </v-col>
+      <v-col>
         <HfButtons name="Save Configuration" @executeAction="saveConfiguration()" v-if="!this.widgetConfigTemp._id"
           style="float:right"></HfButtons>
         <HfButtons name="Update Configuration" @executeAction="updateConfiguration()" style="float:right" v-else>
         </HfButtons>
-      </div>
-    </div>
+      </v-col>
+    </v-row>
 
-    <div class="row">
-      <div class="col">
-        <div class="row card" style="padding-right:0px">
-          <ul class="list-group list-group-flush" style="border-radius: 10px;">
+    <v-card >
+          <ul class="list-group list-group-flush" >
             <li class="list-group-item">
               <b-form-checkbox switch size="lg" v-model="widgetConfigTemp.faceRecog" disabled>{{
                 this.widgetConfigUI.faceRecog.label }}</b-form-checkbox>
@@ -211,35 +208,37 @@ ul {
                 </div>
 
                 <div class="col" v-if="widgetConfigTemp.zkProof.enabled">
-                  <div class="">
-                    <div class="">
+                  <div class="row">
+                    <div class="col">
                       <label for=""><strong>Select Proof Type: </strong></label>
-                      <div class="input-group">
 
-                        <b-form-select class="col-md-11 col-11 col-sm-11 col-lg-11 col-xl-11" v-model="slectProof" :options="proofTypeOptions"
-                          size=""></b-form-select>
-                        <span class="col-md-1 col-1 col-sm-1 col-lg-1 col-xl-1" style="margin-left:0px">
-                          <HfButtons name="" customClass="btn btn-outline-secondary" iconClass="fa fa-plus"
+
+                      <b-input-group>
+    <!-- Dropdown -->
+    <b-form-select
+      v-model="slectProof"
+      :options="proofTypeOptions"
+      class="form-select"
+    ></b-form-select>
+
+    <b-input-group-append v-if="selectedProofData.criteria">
+      <b-form-input 
+        v-model="selectedProofData.criteriaValue"
+        placeholder="Enter age"
+        :type="selectedProofData.criteriaType"
+      ></b-form-input>
+    </b-input-group-append>
+
+    <!-- Add Button -->
+    <b-input-group-append v-if="selectedProofData.value != null">
+      <HfButtons name="" customClass="btn btn-outline-secondary" iconClass="fa fa-plus"
                             @executeAction="addZkProof(selectedProofData.value, selectedProofData.criteriaValue)">
                           </HfButtons>
-                        </span>
+    </b-input-group-append>
+  </b-input-group>
+  <small>{{ selectedProofData.description }}</small>
 
-
-                      </div>
                     </div>
-                    <div class="row" v-if="selectedProofData.criteria">
-                      <div class="col">
-                        <label for=""><strong>{{ selectedProofData.criteriaLabel }}: </strong></label>
-                        <input :type="selectedProofData.criteriaType" class="form-control col-md-10"
-                          v-model="selectedProofData.criteriaValue" />
-                      </div>
-                    </div>
-                    <small>{{ selectedProofData.description }}</small>
-                    <!-- <div class="row col center mt-1">
-                      <HfButtons name="Add" customClass="btn btn-outline-secondary" iconClass="fa fa-plus"
-                        @executeAction="addZkProof(selectedProofData.value, selectedProofData.criteriaValue)">
-                      </HfButtons>
-                    </div> -->
                   </div>
                 </div>
               </div>
@@ -329,17 +328,10 @@ ul {
               <!-- <TrustedIssuer @selectedServiceEventFromTrustedIssuer="selectedServiceEventHandler" /> -->
             </li>
           </ul>
-        </div>
-        <!-- <div class="row container mt-3">
-          <div class="col center">
-            <HfButtons name="Save Configuration" @executeAction="saveConfiguration()" v-if="!this.widgetConfigTemp._id">
-            </HfButtons>
-            <HfButtons name="Update Configuration" @executeAction="updateConfiguration()" v-else></HfButtons>
-          </div>
-        </div> -->
-      </div>
-    </div>
+    </v-card>
 
+
+    
   </div>
 </template>
 
@@ -449,7 +441,6 @@ export default {
     this.trustedIssuersList = this.getMarketPlaceApps;
     this.appId = this.$route.params.appId;
     //eslint-disable-next-line
-    debugger;
     if (this.appId) {
       this.app = { ...this.getAppByAppId(this.appId) }
       if (this.app) {
@@ -577,7 +568,7 @@ export default {
       proofTypeOptions: [
         {
           value: null,
-          text: "Select a proof type"
+          text: "Choose zk proof type"
         },
         {
           value: 'zkProofOfKYC',

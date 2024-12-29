@@ -22,12 +22,7 @@
 }
 
 
-.button-theme{
-    background-color: #905ab0;
-    border-collapse: #905ab0;
-    color: #fff;
-    border: 0;
-}
+
 
 .event-card {
     /* border: 0; */
@@ -35,6 +30,7 @@
     -webkit-box-shadow: 2px 0 10px rgb(0 0 0 / 10%);
     box-shadow: 2px 0 10px rgb(0 0 0 / 10%);
     width: 100%;
+    font-size: smaller;
 }
 
 .tile-number {

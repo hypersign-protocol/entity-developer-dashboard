@@ -1,11 +1,11 @@
 <template>
-  <button :class="customClass ? `${customClass}` : 'btn button-theme'"
+  <v-btn :class="customClass ? `${customClass}` : 'btn button-theme'"
   :title="title"
   @click="emitExecuteAction()"
   >
   <span v-if="iconClass"><i :class="iconClass"></i></span>  
   {{name}} 
-  </button>
+  </v-btn>
 </template>
 
 <script>
@@ -52,11 +52,11 @@ export default {
   border: 0;
   
 }
-*/
+
 .button-theme:hover{
   box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.16), 0 2px 10px 0 rgba(0, 0, 0, 0.12);
   background:aliceblue !important;
   border: 1px solid #905ab0 !important;
   color: #905ab0 !important;
-}
+} */
 </style>

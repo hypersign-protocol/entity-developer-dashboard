@@ -10,7 +10,32 @@
 <template>
     <div class="row">
         <div class="col-md-6 mb-2" v-for="eachOrg in services" :key="eachOrg.appId">
-            <div class="card" style="cursor: grab; border-radius: 20px" @click="serviceSelected(eachOrg)"
+            <v-card class="" max-width="400">
+                <v-card-actions>
+                    <v-list-item class="grow">
+                        <v-list-item-avatar color="grey darken-3">
+                            <v-img class="elevation-6" alt=""
+                                :src="eachOrg.logoUrl || getProfileIcon(formattedAppName(eachOrg.appId))"></v-img>
+                        </v-list-item-avatar>
+                        <v-row align="center" justify="end" class="justify-content-end">
+                            <div class="d-flex align-items-start">
+                                <v-checkbox v-model="eachOrg.selected"></v-checkbox>
+                            </div>
+                        </v-row>
+                    </v-list-item>
+                </v-card-actions>
+                <v-card-title>
+                    <span class="text-h6 font-weight-light">
+                        {{ formattedAppName(eachOrg.appName) }}
+                    </span>
+                </v-card-title>
+                <v-card-text class="text-h5 font-weight-bold">
+                    {{ domainFromOrigin(eachOrg.domain) }}
+                </v-card-text>
+            </v-card>
+
+
+            <!-- <div class="card" style="cursor: grab; border-radius: 20px" @click="serviceSelected(eachOrg)"
                 :style="{ 'box-shadow': eachOrg.selected ? '0 0 2rem 0 rgb(136 152 170 / 15%)' : '' }">
                 <div class="card-body">
                     <div class="row">
@@ -73,7 +98,7 @@
                         </div>
                     </div>
                 </div>
-            </div>
+            </div> -->
         </div>
     </div>
 </template>

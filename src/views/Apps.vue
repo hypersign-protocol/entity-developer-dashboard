@@ -2,17 +2,16 @@
   <div>
     <loading :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loading>
     <div>
-      <div v-if="appList.length > 0" class="row">
-        <div class="col mt-1">
+      <v-row  dense v-if="appList.length > 0">
+        <v-col class=" mt-1">
           <h3 style="float: left">
             <i class="fa fa-cogs mr-2" aria-hidden="true"></i>Your Services
           </h3>
           <hf-buttons name=" Create" iconClass="fa fa-plus" class="ml-auto" @executeAction="openSlider('SSI_API')"
             style="float: right">
           </hf-buttons>
-        </div>
-      </div>
-
+        </v-col>
+      </v-row>
       <div v-else>
         <h3 class="" style="text-align: left">Spin up your first service!</h3>
         <div>
@@ -347,8 +346,6 @@
             aria-describedby="orgNameHelp" /> -->
         </div>
 
-
-
         <div class="form-group" v-if="
           (selectedServiceId == 'CAVACH_API' ||
             (appModel.services &&
@@ -368,9 +365,6 @@
           <!-- <input type="text" class="form-control" id="orgDid" v-else v-model="appModel.issuerDid" disabled
             aria-describedby="orgNameHelp" /> -->
         </div>
-
-
-
 
         <div class="form-group" v-if="edit === true">
           <tool-tip infoMessage="Select an environment"></tool-tip>
@@ -416,7 +410,10 @@
       </div>
     </StudioSideBar>
 
-    <div v-if="appList.length > 0" class="mt-2">
+    <v-row  dense v-if="appList.length > 0" class="mt-2">
+      <v-col>
+
+      
       <b-tabs content-class="mt-0" card>
         <b-tab active class="bg-white p-3">
           <template #title>
@@ -424,80 +421,55 @@
               getAppsWithSSIServices.length + ')' }}</strong>
           </template>
 
-          <div class="row" v-if="getAppsWithSSIServices.length > 0">
-            <div class="col-md-4 mb-4" v-for="eachOrg in getAppsWithSSIServices" :key="eachOrg.appId">
-              <div class="card" @click="switchOrg(eachOrg.appId, 'SSI_API')" style="cursor: grab">
-                <div class="card-body">
-                  <div class="row">
-                    <div class="col-9">
-                      <div class="row">
-                        <div class="col-12">
-                          <h5 class="card-title text-uppercase text-muted mb-0">
-                            {{ formattedAppName(eachOrg.appName) }}
-                          </h5>
-                        </div>
-                      </div>
-                      <div class="row">
-                        <div class="col-12 mt-1">
-                          {{
-                            truncate(
-                              eachOrg.description ||
-                              "No description for this app..",
-                              70
-                            )
-                          }}
-                        </div>
-                      </div>
+          <v-row dense v-if="getAppsWithSSIServices.length > 0">
+            <v-col v-for="eachOrg in getAppsWithSSIServices" :key="eachOrg.appId" cols="3">
+              <v-card max-width="344" outlined @click="switchOrg(eachOrg.appId, 'SSI_API')">
+                <v-list-item three-line>
+                  <v-list-item-content>
+                    <div class="text-overline mb-4">
+                      {{ formattedAppName(eachOrg.appName).toUpperCase() }}
                     </div>
-                      <div class="col-3">
-                        <div class="p-2 logo-container">
-                          <b-card-img :src="eachOrg.logoUrl ||
-                            getProfileIcon(formattedAppName(eachOrg.appId))
-                            " alt="logoImg" class="rounded-1 logo" style="
-                              max-height: 60px;
-                              min-height: 60px;
-                              border-radius: 50%;
-                            ">
-                          </b-card-img>
-                        </div>
+                    <v-list-item-subtitle>{{
+                      truncate(
+                        eachOrg.description ||
+                        "No description for this app..",
+                        70
+                      )
+                    }}</v-list-item-subtitle>
+                  </v-list-item-content>
+                  <v-list-item-avatar class="logo-container" size="60" color="grey">
+                    <v-img  :src="eachOrg.logoUrl || getProfileIcon(formattedAppName(eachOrg.appId))"></v-img>
+                  </v-list-item-avatar>
+                </v-list-item>
+
+                <v-list-item-content style="padding: 10px">
+                  <b-card-text>
+                    <small class="card-field-label">Service Id:</small>
+                    <div class="apiKeySecret" @click.stop="copyToClip(eachOrg.appId, 'Service Id')"
+                      title="Copy Service Id">
+                      {{ truncate(eachOrg.appId, 35) }}
+                      <i class="far fa-copy" style="float: right"></i>
                     </div>
-                  </div>
-                  <div class="row">
-                    <div class="col">
-                      <b-card-text>
-                        <small class="card-field-label">Service Id:</small>
-                        <div class="apiKeySecret" @click.stop="copyToClip(eachOrg.appId, 'Service Id')"
-                          title="Copy Service Id">
-                          {{ truncate(eachOrg.appId, 45) }}
-                          <i class="far fa-copy" style="float: right"></i>
-                        </div>
-                      </b-card-text>
+                  </b-card-text>
+                  <b-card-text>
+                    <small class="card-field-label">Tenant Url:</small>
+                    <div class="apiKeySecret" @click.stop="
+                      copyToClip(eachOrg.tenantUrl, 'Tenant Url')
+                      " title="Copy Tenant Url">
+                      {{ truncate(eachOrg.tenantUrl, 43) }}
+                      <i class="far fa-copy" style="float: right"></i>
                     </div>
-                  </div>
-                  <div class="row" v-if="eachOrg.tenantUrl">
-                    <div class="col mt-2">
-                      <b-card-text>
-                        <small class="card-field-label">Tenant Url:</small>
-                        <div class="apiKeySecret" @click.stop="
-                          copyToClip(eachOrg.tenantUrl, 'Tenant Url')
-                          " title="Copy Tenant Url">
-                          {{ truncate(eachOrg.tenantUrl, 55) }}
-                          <i class="far fa-copy" style="float: right"></i>
-                        </div>
-                      </b-card-text>
-                    </div>
-                  </div>
-                  <div class="row mt-2">
-                    <div class="col">
-                      <span class=" " style="float: right">
+                  </b-card-text>
+                </v-list-item-content>
+
+                <v-card-actions>
+                  <div>
+                    <span style="float: right">
                         <span class="badge rounded-pill bg-danger mx-1" title="Click to generate a new API Secret Key"
                           style="cursor: pointer; color: white" @click.stop="openSecretkeyPopUp(eachOrg.appId)">
                           <i class="fa fa-key"></i> Secret
                         </span>
-                        <!-- <b-badge pill variant="danger" @click.stop="openSecretkeyPopUp(eachOrg.appId)"
-                        title="Click to generate a new API Secret Key"  class="mr-2" style="cursor: pointer">
-                          <i class="fa fa-key"></i>
-                          Secret</b-badge> -->
+
                         <span class="badge rounded-pill bg-info mx-1" @click.stop="editOrg(eachOrg.appId)"
                           title="Click to edit the app" style="cursor: pointer; color: white">
                           <i class="fas fa-pencil-alt"></i>
@@ -507,13 +479,29 @@
                           title="Click to delete the app" style="cursor: pointer; color: red">
                           <i class="fa fa-trash-alt" aria-hidden="true"></i>
                         </span>
+
+                         
+                        <!-- <b-dropdown right>
+                          <template #button-content>
+                            <i class="fa fa-bars nav-icon" aria-hidden="true"></i>
+                          </template>
+                          <b-dropdown-group>
+                            <b-dropdown-item-button   @click.stop="openSecretkeyPopUp(eachOrg.appId)" title="Click to generate a new API Secret Key">
+                              <i class="fa fa-key"></i>
+                              Secret
+                            </b-dropdown-item-button>
+                            <b-dropdown-item-button  @click.stop="openDeleteServicePopUp(eachOrg.appId)" title="Delete">
+                              <i class="fa fa-trash-alt" aria-hidden="true"></i>
+                              Delete
+                            </b-dropdown-item-button>
+                          </b-dropdown-group>
+                        </b-dropdown> -->
                       </span>
-                    </div>
                   </div>
-                </div>
-              </div>
-            </div>
-          </div>
+                </v-card-actions>
+              </v-card>
+            </v-col>
+          </v-row>
           <div class="new-service-popup" v-else>
             <h3 class="" style="text-align: left">Spin up your SSI service!</h3>
             <hf-buttons name=" Create" iconClass="fa fa-plus" style="text-align: right" class="ml-auto mt-2"
@@ -521,6 +509,7 @@
             </hf-buttons>
           </div>
         </b-tab>
+
         <b-tab class="bg-white p-3">
 
           <template #title>
@@ -529,78 +518,48 @@
               }}</strong>
           </template>
 
-          <div class="row" v-if="getAppsWithKYCServices.length > 0">
-            <div class="col-md-4 mb-4" v-for="eachOrg in getAppsWithKYCServices" :key="eachOrg.appId">
-              <div class="card" @click="switchOrg(eachOrg.appId, 'CAVACH_API')" style="cursor: grab">
-                <div class="card-body">
-                  <div class="row">
-                    <div class="col-9">
-                      <div class="row">
-                        <div class="col-12">
-                          <h5 class="card-title text-uppercase text-muted mb-0">
-                            {{ formattedAppName(eachOrg.appName) }}
-                            <img src="../assets/verified-success.png" style="max-height: 20px; min-height: 20px"
-                              v-if="eachOrg.hasDomainVerified" />
-                          </h5>
-                        </div>
-                      </div>
-                      <div class="row">
-                        <div class="col-12 mt-1">
-                          {{
-                            truncate(
-                              eachOrg.description ||
-                              "No description for this app..",
-                              70
-                            )
-                          }}
-                        </div>
-                      </div>
+          <v-row dense v-if="getAppsWithKYCServices.length > 0">
+            <v-col v-for="eachOrg in getAppsWithKYCServices" :key="eachOrg.appId" cols="3">
+              <v-card max-width="344" outlined @click="switchOrg(eachOrg.appId, 'CAVACH_API')">
+                <v-list-item three-line>
+                  <v-list-item-content>
+                    <div class="text-overline mb-4">
+                      {{ formattedAppName(eachOrg.appName).toUpperCase() }}
                     </div>
-                    <div class="col-3">
-                      <div class="p-2 logo-container">
-                        <b-card-img :src="eachOrg.logoUrl ||
-                          getProfileIcon(formattedAppName(eachOrg.appId))
-                          " alt="logoImg" class="rounded-1 logo" style="
-                            max-height: 60px;
-                            min-height: 60px;
-                            border-radius: 50%;
-                          ">
-                        </b-card-img>
-                      </div>
-                    </div>
-                  </div>
+                    <v-list-item-subtitle>{{
+                      truncate(
+                        eachOrg.description ||
+                        "No description for this app..",
+                        70
+                      )
+                    }}</v-list-item-subtitle>
+                  </v-list-item-content>
+                  <v-list-item-avatar class="logo-container" size="60" color="grey"><v-img :src="eachOrg.logoUrl || getProfileIcon(formattedAppName(eachOrg.appId))"></v-img></v-list-item-avatar>
+                </v-list-item>
 
-                  <div class="row">
-                    <div class="col">
-                      <b-card-text>
-                        <small class="card-field-label">Service Id:</small>
-                        <div class="apiKeySecret" @click.stop="
-                          copyToClip(eachOrg.appId, 'Service Id')
-                          " title="Copy Service Id">
-                          {{ truncate(eachOrg.appId, 45) }}
-                          <i class="far fa-copy" style="float: right"></i>
-                        </div>
-                      </b-card-text>
+                <v-list-item-content style="padding: 10px">
+                  <b-card-text>
+                    <small class="card-field-label">Service Id:</small>
+                    <div class="apiKeySecret" @click.stop="copyToClip(eachOrg.appId, 'Service Id')"
+                      title="Copy Service Id">
+                      {{ truncate(eachOrg.appId, 30) }}
+                      <i class="far fa-copy" style="float: right"></i>
                     </div>
-                  </div>
-                  <div class="row" v-if="eachOrg.tenantUrl">
-                    <div class="col">
-                      <b-card-text>
-                        <small class="card-field-label">Tenant Url:</small>
-                        <div class="apiKeySecret" @click.stop="
-                          copyToClip(eachOrg.tenantUrl, 'Tenant Url')
-                          " title="Copy Tenant Url">
-                          {{ truncate(eachOrg.tenantUrl, 55) }}
-                          <i class="far fa-copy" style="float: right"></i>
-                        </div>
-                      </b-card-text>
+                  </b-card-text>
+                  <b-card-text>
+                    <small class="card-field-label">Tenant Url:</small>
+                    <div class="apiKeySecret" @click.stop="
+                      copyToClip(eachOrg.tenantUrl, 'Tenant Url')
+                      " title="Copy Tenant Url">
+                      {{ truncate(eachOrg.tenantUrl, 30) }}
+                      <i class="far fa-copy" style="float: right"></i>
                     </div>
-                  </div>
-                  <div class="row mt-2">
-                    <div class="col">
-                      <!-- <span class=" " style="cursor: pointer" @click.stop="switchOrg(eachOrg.appId,  'CAVACH_API')"><i
-                        class="fas fa-tachometer-alt" aria-hidden="true"></i></span> -->
-                      <span style="float: left">
+                  </b-card-text>
+                </v-list-item-content>
+
+                <v-card-actions>
+                  <div>
+                    <span style="float: left">
                         <span class="badge bg-secondary text-white mx-1" v-if="eachOrg.env == 'dev'">{{ eachOrg.env
                           }}</span>
                         <span class="badge bg-success text-white mx-1" v-else>{{ eachOrg.env }}</span>
@@ -619,8 +578,7 @@
                           <i class="fa fa-check"></i>
                           Domain</span>
 
-                        <span class="badge rounded-pill bg-danger mx-1"
-                          @click.stop="openSecretkeyPopUp(eachOrg.appId)"
+                        <span class="badge rounded-pill bg-danger mx-1" @click.stop="openSecretkeyPopUp(eachOrg.appId)"
                           title="Click to generate a new API Secret Key" style="cursor: pointer; color: white">
                           <i class="fa fa-key"></i>
                           Secret</span>
@@ -636,12 +594,11 @@
                           <i class="fa fa-trash-alt" aria-hidden="true"></i>
                         </span>
                       </span>
-                    </div>
                   </div>
-                </div>
-              </div>
-            </div>
-          </div>
+                </v-card-actions>
+              </v-card>
+            </v-col>
+          </v-row>
           <div class="new-service-popup" v-else>
             <h3 style="text-align: left">Spin up your KYC service!</h3>
             <hf-buttons name=" Create" iconClass="fa fa-plus" style="text-align: right" class="ml-auto mt-2"
@@ -659,81 +616,48 @@
           </template>
 
 
+          <v-row dense v-if="getAppsWithQuestServices.length > 0">
+            <v-col v-for="eachOrg in getAppsWithQuestServices" :key="eachOrg.appId" cols="3">
+              <v-card max-width="344" outlined @click="switchOrg(eachOrg.appId, 'CAVACH_API')">
+                <v-list-item three-line>
+                  <v-list-item-content>
+                    <div class="text-overline mb-4">
+                      {{ formattedAppName(eachOrg.appName).toUpperCase() }}
+                    </div>
+                    <v-list-item-subtitle>{{
+                      truncate(
+                        eachOrg.description ||
+                        "No description for this app..",
+                        70
+                      )
+                    }}</v-list-item-subtitle>
+                  </v-list-item-content>
+                  <v-list-item-avatar class="logo-container" size="60" color="grey"><v-img :src="eachOrg.logoUrl || getProfileIcon(formattedAppName(eachOrg.appId))"></v-img></v-list-item-avatar>
+                </v-list-item>
 
-          <div class="row" v-if="getAppsWithQuestServices.length > 0">
-            <div class="col-md-4 mb-4" v-for="eachOrg in getAppsWithQuestServices" :key="eachOrg.appId">
-              
-                
-              <div class="card" @click="switchOrg(eachOrg.appId, 'QUEST')" style="cursor: grab">
-                <div class="card-body">
-                  <div class="row">
-                    <div class="col-9">
-                      <div class="row">
-                        <div class="col-12">
-                          <h5 class="card-title text-uppercase text-muted mb-0">
-                            {{ formattedAppName(eachOrg.appName) }}
-                            <img src="../assets/verified-success.png" style="max-height: 20px; min-height: 20px"
-                              v-if="eachOrg.hasDomainVerified" />
-                          </h5>
-                        </div>
-                      </div>
-                      <div class="row">
-                        <div class="col-12 mt-1">
-                          {{
-                            truncate(
-                              eachOrg.description ||
-                              "No description for this app..",
-                              70
-                            )
-                          }}
-                        </div>
-                      </div>
+                <v-list-item-content style="padding: 10px">
+                  <b-card-text>
+                    <small class="card-field-label">Service Id:</small>
+                    <div class="apiKeySecret" @click.stop="copyToClip(eachOrg.appId, 'Service Id')"
+                      title="Copy Service Id">
+                      {{ truncate(eachOrg.appId, 30) }}
+                      <i class="far fa-copy" style="float: right"></i>
                     </div>
-                    <div class="col-3">
-                      <div class="p-2 logo-container">
-                        <b-card-img :src="eachOrg.logoUrl ||
-                          getProfileIcon(formattedAppName(eachOrg.appId))
-                          " alt="logoImg" class="rounded-1 logo" style="
-                  max-height: 60px;
-                  min-height: 60px;
-                  border-radius: 50%;
-                ">
-                        </b-card-img>
-                      </div>
+                  </b-card-text>
+                  <b-card-text>
+                    <small class="card-field-label">Tenant Url:</small>
+                    <div class="apiKeySecret" @click.stop="
+                      copyToClip(eachOrg.tenantUrl, 'Tenant Url')
+                      " title="Copy Tenant Url">
+                      {{ truncate(eachOrg.tenantUrl, 30) }}
+                      <i class="far fa-copy" style="float: right"></i>
                     </div>
-                  </div>
+                  </b-card-text>
+                </v-list-item-content>
 
-                  <div class="row">
-                    <div class="col">
-                      <b-card-text>
-                        <small class="card-field-label">Service Id:</small>
-                        <div class="apiKeySecret" @click.stop="
-                          copyToClip(eachOrg.appId, 'Service Id')
-                          " title="Copy Service Id">
-                          {{ truncate(eachOrg.appId, 45) }}
-                          <i class="far fa-copy" style="float: right"></i>
-                        </div>
-                      </b-card-text>
-                    </div>
-                  </div>
-                  <div class="row" v-if="eachOrg.tenantUrl">
-                    <div class="col">
-                      <b-card-text>
-                        <small class="card-field-label">Tenant Url:</small>
-                        <div class="apiKeySecret" @click.stop="
-                          copyToClip(eachOrg.tenantUrl, 'Tenant Url')
-                          " title="Copy Tenant Url">
-                          {{ truncate(eachOrg.tenantUrl, 55) }}
-                          <i class="far fa-copy" style="float: right"></i>
-                        </div>
-                      </b-card-text>
-                    </div>
-                  </div>
-                  <div class="row mt-2">
-                    <div class="col">
-                      <!-- <span class=" " style="cursor: pointer" @click.stop="switchOrg(eachOrg.appId,  'CAVACH_API')"><i
-              class="fas fa-tachometer-alt" aria-hidden="true"></i></span> -->
-                      <span style="float: left">
+                <v-card-actions>
+                  <div>
+                    <span style="float: left">
                         <span class="badge bg-secondary text-white mx-1" v-if="eachOrg.env == 'dev'">{{ eachOrg.env
                           }}</span>
                         <span class="badge bg-success text-white mx-1" v-else>{{ eachOrg.env }}</span>
@@ -752,8 +676,7 @@
                           <i class="fa fa-check"></i>
                           Domain</span>
 
-                        <span class="badge rounded-pill bg-danger mx-1"
-                          @click.stop="openSecretkeyPopUp(eachOrg.appId)"
+                        <span class="badge rounded-pill bg-danger mx-1" @click.stop="openSecretkeyPopUp(eachOrg.appId)"
                           title="Click to generate a new API Secret Key" style="cursor: pointer; color: white">
                           <i class="fa fa-key"></i>
                           Secret</span>
@@ -769,22 +692,21 @@
                           <i class="fa fa-trash-alt" aria-hidden="true"></i>
                         </span>
                       </span>
-                    </div>
                   </div>
-                </div>
-              </div>
-            </div>
-          </div>
+                </v-card-actions>
+              </v-card>
+            </v-col>
+          </v-row>
           <div class="new-service-popup" v-else>
             <b-skeleton-wrapper :loading="isLoading">
-                <template #loading>
-                  <b-card>
-                    <b-skeleton width="85%"></b-skeleton>
-                    <b-skeleton width="55%"></b-skeleton>
-                    <b-skeleton width="70%"></b-skeleton>
-                  </b-card>
-                </template>
-              </b-skeleton-wrapper>
+              <template #loading>
+                <b-card>
+                  <b-skeleton width="85%"></b-skeleton>
+                  <b-skeleton width="55%"></b-skeleton>
+                  <b-skeleton width="70%"></b-skeleton>
+                </b-card>
+              </template>
+            </b-skeleton-wrapper>
             <h3 class="" style="text-align: left">Spin up your Quest service!</h3>
             <hf-buttons name=" Create" iconClass="fa fa-plus" style="text-align: right" class="ml-auto mt-2"
               @executeAction="openSlider('QUEST')">
@@ -792,21 +714,20 @@
           </div>
         </b-tab>
       </b-tabs>
-
-      <!-- </b-card> -->
-    </div>
-
-    <!-- <hf-pop-up id="onchain-kyc-deploy" Header="Deploy Your OnChain KYC">
-      <DeployOnChainKYC />
-    </hf-pop-up> -->
+    </v-col>
+    </v-row>
+    
   </div>
 </template>
 
 <style scoped>
-.nav-tabs .nav-link.active {
+.v-card__actions button{
+  background: transparent;border: 0;color: grey;
+}
+/* .nav-tabs .nav-link.active {
   border-radius: 0px 20px 0px 0px;
   border-bottom: 1px solid white;
-}
+} */
 
 .overlay {
   background: rgba(0, 0, 0, 0.323);

@@ -37,8 +37,8 @@
       </div>
     </div>
 
-    <div class="row">
-      <div class="col card p-3">
+    <div class="">
+      <div class="card p-3">
         <form>
           <!-- <div class="form-group">
             <label for="exampleFormControlInput1">Name<span class="mandatory">*</span></label>

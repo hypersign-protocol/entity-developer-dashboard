@@ -18,6 +18,11 @@ import Loading from "vue-loading-overlay";
 import HfButtons from './components/element/HfButtons.vue'
 import HFUpgradePlan from './components/element/UpgradePlan.vue'
 import HFComingSoon from './components/element/FeatureCommingSoon.vue'
+import vuetify from './vuetify'
+import StudioSideBarNav from './components/element/StudioSideBarNav.vue'
+// import Vuetify from 'vuetify'
+// import 'vuetify/dist/vuetify.min.css'
+
 Vue.config.productionTip = false
 Vue.use(VueSidebarMenu);
 Vue.use(BootstrapVue);
@@ -30,8 +35,14 @@ Vue.component("load-ing", Loading);
 Vue.component("hf-buttons", HfButtons);
 Vue.component("hf-upgrade-plan", HFUpgradePlan)
 Vue.component("hf-feature-soon", HFComingSoon)
+Vue.component("sidebar-menu-nav", StudioSideBarNav)
+
+// Vue.use(Vuetify)
+
+
 new Vue({
   router,
   store,
+  vuetify,
   render: h => h(App)
 }).$mount('#app')

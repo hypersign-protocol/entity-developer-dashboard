@@ -123,8 +123,8 @@ h5 span {
     <loading :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loading>
 
 
-    <div class="row">
-      <div class="col-md-12" style="text-align: left">
+    <div class="">
+      <div class="" style="text-align: left">
         <!-- <Info :message="description" /> -->
         <div class="form-group" style="display:flex">
           <h3 v-if="didList.length > 0" style="text-align: left;">
@@ -201,9 +201,9 @@ h5 span {
         </StudioSideBar>
       </div>
     </div>
-    <div class="row scrollit" v-if="didList.length > 0">
-      <div class="col-md-12">
-        <table class="table table-hover event-card" style="background:#FFFF">
+    <div class="scrollit" v-if="didList.length > 0">
+      <div class="">
+        <table class="table table-hover event-card">
           <thead class="thead-light">
             <tr>
               <th></th>

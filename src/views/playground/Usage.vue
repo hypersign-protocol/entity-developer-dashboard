@@ -172,7 +172,7 @@ h5 span {
     </div>
 
 
-    <div class="row mt-3">
+    <div class="row mt-1">
       <div class="col">
         <div class="form-group">
           <h3 v-if="usageDetails.serviceDetails.length > 0" style="text-align: left;">

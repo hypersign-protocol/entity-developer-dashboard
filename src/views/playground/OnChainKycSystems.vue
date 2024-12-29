@@ -151,8 +151,8 @@ h5 span {
       </div>
     </div>
 
-    <div class="row scrollit" v-if="onchainconfigs.length > 0">
-      <div class="col-md-12">
+    <div class="scrollit" v-if="onchainconfigs.length > 0">
+      <div class="">
         <table class="table table-hover event-card" style="background:#FFFF">
           <thead class="thead-light">
             <tr>

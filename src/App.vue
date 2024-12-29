@@ -148,30 +148,37 @@
     </div>
     <notifications group="foo" />
 
-
-    <sidebar-menu class="sidebar-wrapper" v-if="showSideNavbar" @toggle-collapse="onToggleCollapse"
+    <sidebar-menu class="sidebar-wrapper" v-if="showSideNavbar && getSelectedService" @toggle-collapse="onToggleCollapse"
       :collapsed="isSidebarCollapsed" :theme="'white-theme'" width="220px" :menu="getSideMenu()">
-      <div slot="header" style="border-bottom: 1px solid #d3d3d354;">
-        <div class="row center p-1">
-          <div class="col">
-            <div class="p-1 center">
-              <b-avatar :src="getSelectedService.logoUrl ||
+      <div slot="header" style="border-bottom: 1px solid rgba(0,0,0,.12);">
+        <v-list>
+      <v-list-item>
+        <v-list-item-avatar>
+          <v-img :src="getSelectedService.logoUrl ||
                 getProfileIcon(formattedAppName(getSelectedService.appName))
-                " variant="info"></b-avatar>
-            </div>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col">
-            <center>
-              <p class="mt-3 orgNameCss">
-                {{ getSelectedService ? getSelectedService.appName : "" }}
-              </p>
-            </center>
-          </div>
-        </div>
+                "></v-img>
+        </v-list-item-avatar>
+        <v-list-item-content class="mx-1">
+          <v-list-item-title class="text-h7">
+            {{ getSelectedService ? getSelectedService.appName : "" }}
+          </v-list-item-title>
+        </v-list-item-content>
+      </v-list-item>
+
+      
+    </v-list>
+    
+
       </div>
     </sidebar-menu>
+
+    <!-- <sidebar-menu-nav v-if="showSideNavbar && getSelectedService" 
+      :collapsed="isSidebarCollapsed" 
+      :menus="getSideMenu()"
+      :avatar="getSelectedService.logoUrl || getProfileIcon(formattedAppName(getSelectedService.appName))"
+      :service_name="getSelectedService ? getSelectedService.appName : ''"
+      >
+    </sidebar-menu-nav> -->
   </div>
 </template>
 
@@ -259,11 +266,11 @@
 }
 
 .v-sidebar-menu.vsm_white-theme .vsm--mobile-bg {
-  background: #905ab0;
+  background: grey;
 }
 
 .vsm--mobile-bg {
-  background: #905ab098 !important;
+  background: whitesmoke !important;
 }
 .v-sidebar-menu.vsm_white-theme {
   background-color: white !important;
@@ -280,7 +287,7 @@
 
 .v-sidebar-menu.vsm_white-theme .vsm--link_level-1 .vsm--link:hover {
   color: rgba(0,0,0,.87) !important;
-  background: #905ab0 !important;
+  background: whitesmoke !important;
 }
 
 .v-sidebar-menu.vsm_white-theme .vsm--link_level-1 .vsm--icon {
