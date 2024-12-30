@@ -8,9 +8,9 @@
 </style>
 <template>
 
-    <button @click="login" class="btn  button-theme" style="width: 340px;">
+    <v-btn @click="login" class="btn btn-outline-secondary" style="width: 340px;">
         <i class="fab fa-google"></i> Sign In with Google
-    </button>
+    </v-btn>
 
     <!-- <hf-buttons :name="getButtonText()" @executeAction="login" class="btn btn-primary btn-hypersign"></hf-buttons> -->
 </template>

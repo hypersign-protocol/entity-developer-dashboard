@@ -13,14 +13,14 @@
       </div>
       <div class="col-md-8">
 
-        <button type="button" class="btn btn-outline-secondary mx-1" style="float: inline-end"
+        <v-btn type="button" class="btn btn-outline-secondary mx-1" style="float: inline-end"
           @click="getPeopleMembers()" title="Reload">
           <i class="fa fa-retweet" aria-hidden="true"></i>
-        </button>
+        </v-btn>
 
-        <button type="button" class="btn btn-secondary" style="float: inline-end" @click="inviteMemberPopup()">
+        <v-btn type="button" class="btn btn-secondary" style="float: inline-end" @click="inviteMemberPopup()">
           <b-icon icon="person-plus-fill"></b-icon> Invite Member
-        </button>
+        </v-btn>
 
 
       </div>

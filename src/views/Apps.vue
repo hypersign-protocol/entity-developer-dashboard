@@ -480,6 +480,19 @@
                           <i class="fa fa-trash-alt" aria-hidden="true"></i>
                         </span>
 
+                        <!-- <b-dropdown class="m-2" size="sm" variant="link" toggle-class="text-decoration-none" no-caret dropleft>
+      <template #button-content>
+        <b-icon style="color: grey" icon="list" aria-hidden="true"></b-icon>
+      </template>
+
+      <b-dropdown-item-button style="text-align: left" @click.stop="editOrg(eachOrg.appId)"><i
+          class="far fa-copy mt-1" aria-hidden="true"></i> Edit
+      </b-dropdown-item-button>
+      <b-dropdown-item-button v-if="deleteMemberMenu" style="text-align: left" @click.stop="openDeleteServicePopUp(eachOrg.appId)"><i
+          class="fa fa-trash mt-1"></i> Delete</b-dropdown-item-button>  
+    </b-dropdown> -->
+    
+
                          
                         <!-- <b-dropdown right>
                           <template #button-content>

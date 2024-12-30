@@ -6,12 +6,12 @@
             <div class="col-md-4">
             </div>
             <div class="col-md-8">
-                <button type="button" class="btn btn-outline-secondary mx-1" style="float: inline-end" title="Reload"
+                <v-btn type="button" class="btn btn-outline-secondary mx-1" style="float: inline-end" title="Reload"
                     @click="getMyRolesAction()">
                     <i class="fa fa-retweet" aria-hidden="true"></i>
-                </button>
-                <button type="button" class="btn btn-secondary" style="float: inline-end;" @click="openSlider('add')"><i
-                        class="fa fa-gamepad" aria-hidden="true"></i> Create Custom Role</button>
+                </v-btn>
+                <v-btn type="button" class="btn btn-secondary" style="float: inline-end;" @click="openSlider('add')"><i
+                        class="fa fa-gamepad" aria-hidden="true"></i> Create Custom Role</v-btn>
             </div>
         </div>
         <div class="row mb-3" style="padding: 10px;" v-if="getAllRoles.length > 0">

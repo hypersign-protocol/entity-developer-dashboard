@@ -612,7 +612,8 @@ export default {
       localStorage.removeItem("selectedOrg");
       this.resetStore();
       this.resetMainStore();
-      this.$router.go() 
+      this.$router.go();
+      localStorage.removeItem('vuex')
     },
 
     formattedAppName(appName) {

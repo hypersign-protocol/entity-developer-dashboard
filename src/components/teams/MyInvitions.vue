@@ -13,14 +13,14 @@
       </div>
       <div class="col-md-8">
 
-        <button type="button" class="btn btn-outline-secondary mx-1" style="float: inline-end" @click="getInvitions()"
+        <v-btn type="button" class="btn btn-outline-secondary mx-1" style="float: inline-end" @click="getInvitions()"
           title="Reload">
           <i class="fa fa-retweet" aria-hidden="true"></i>
-        </button>
+        </v-btn>
 
-        <button type="button" class="btn btn-secondary mx-1" style="float: inline-end" @click="acceptInvitePopup()">
+        <v-btn type="button" class="btn btn-secondary mx-1" style="float: inline-end" @click="acceptInvitePopup()">
           <b-icon icon="hand-thumbs-up-fill"></b-icon> Accept Invition
-        </button>
+        </v-btn>
 
       </div>
     </div>

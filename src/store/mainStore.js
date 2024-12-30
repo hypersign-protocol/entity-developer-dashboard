@@ -138,6 +138,7 @@ const mainStore = {
             localStorage.removeItem("credentials");
             localStorage.removeItem("userData");
             localStorage.removeItem("selectedOrg")
+            localStorage.removeItem("vuex");
         },
         setAuthToken(state, payload) {
             console.log(state.namespaced)

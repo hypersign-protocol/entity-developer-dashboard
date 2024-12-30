@@ -33,6 +33,7 @@
       </span></b-badge>
     <b-badge pill variant="warning" class="mx-1" v-else>
       <span class="mx-1" style="color: white">Pending </span></b-badge>
+    
     <b-dropdown class="m-2" size="sm" variant="link" toggle-class="text-decoration-none" no-caret dropleft>
       <template #button-content>
         <b-icon style="color: grey" icon="list" aria-hidden="true"></b-icon>
