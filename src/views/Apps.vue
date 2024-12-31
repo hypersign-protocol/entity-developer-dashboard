@@ -7,7 +7,7 @@
           <h3 style="float: left">
             <i class="fa fa-cogs mr-2" aria-hidden="true"></i>Your Services
           </h3>
-          <hf-buttons name=" Create" iconClass="fa fa-plus" class="ml-auto" @executeAction="openSlider('SSI_API')"
+          <hf-buttons name=" Create" iconClass="fa fa-plus"  class="ml-auto" @executeAction="openSlider('SSI_API')"
             style="float: right">
           </hf-buttons>
         </v-col>
@@ -462,10 +462,8 @@
                   </b-card-text>
                 </v-list-item-content>
 
-                <v-card-actions>
-                  <div>
-                    <span style="float: right">
-                        <span class="badge rounded-pill bg-danger mx-1" title="Click to generate a new API Secret Key"
+                <div style="text-align: end;display: block;">
+                        <!-- <span class="badge rounded-pill bg-danger mx-1" title="Click to generate a new API Secret Key"
                           style="cursor: pointer; color: white" @click.stop="openSecretkeyPopUp(eachOrg.appId)">
                           <i class="fa fa-key"></i> Secret
                         </span>
@@ -478,40 +476,23 @@
                         <span class="mx-1" @click.stop="openDeleteServicePopUp(eachOrg.appId)"
                           title="Click to delete the app" style="cursor: pointer; color: red">
                           <i class="fa fa-trash-alt" aria-hidden="true"></i>
-                        </span>
+                        </span> -->
 
-                        <!-- <b-dropdown class="m-2" size="sm" variant="link" toggle-class="text-decoration-none" no-caret dropleft>
-      <template #button-content>
-        <b-icon style="color: grey" icon="list" aria-hidden="true"></b-icon>
-      </template>
-
-      <b-dropdown-item-button style="text-align: left" @click.stop="editOrg(eachOrg.appId)"><i
-          class="far fa-copy mt-1" aria-hidden="true"></i> Edit
-      </b-dropdown-item-button>
-      <b-dropdown-item-button v-if="deleteMemberMenu" style="text-align: left" @click.stop="openDeleteServicePopUp(eachOrg.appId)"><i
-          class="fa fa-trash mt-1"></i> Delete</b-dropdown-item-button>  
-    </b-dropdown> -->
-    
-
-                         
-                        <!-- <b-dropdown right>
+                        <b-dropdown size="sm" variant="link" toggle-class="text-decoration-none" no-caret dropright>
                           <template #button-content>
-                            <i class="fa fa-bars nav-icon" aria-hidden="true"></i>
+                            <b-icon size="sm" style="color: grey" icon="list" aria-hidden="true"></b-icon>
                           </template>
-                          <b-dropdown-group>
-                            <b-dropdown-item-button   @click.stop="openSecretkeyPopUp(eachOrg.appId)" title="Click to generate a new API Secret Key">
-                              <i class="fa fa-key"></i>
-                              Secret
-                            </b-dropdown-item-button>
-                            <b-dropdown-item-button  @click.stop="openDeleteServicePopUp(eachOrg.appId)" title="Delete">
-                              <i class="fa fa-trash-alt" aria-hidden="true"></i>
-                              Delete
-                            </b-dropdown-item-button>
-                          </b-dropdown-group>
-                        </b-dropdown> -->
-                      </span>
-                  </div>
-                </v-card-actions>
+
+                          <b-dropdown-item-button  style="text-align: left" @click.stop="openSecretkeyPopUp(eachOrg.appId)"><i
+                              class="fa fa-key mt-1" aria-hidden="true"></i> Generate API Secret
+                          </b-dropdown-item-button>
+                          <b-dropdown-item-button style="text-align: left" @click.stop="editOrg(eachOrg.appId)"><i
+                              class="fas fa-pencil-alt mt-1" aria-hidden="true"></i> Edit Service
+                          </b-dropdown-item-button>
+                          <b-dropdown-item-button   style="text-align: left" @click.stop="openDeleteServicePopUp(eachOrg.appId)"><i
+                              class="fa fa-trash-alt mt-1"></i> Delete Service</b-dropdown-item-button>  
+                        </b-dropdown>
+                </div>
               </v-card>
             </v-col>
           </v-row>
@@ -570,7 +551,49 @@
                   </b-card-text>
                 </v-list-item-content>
 
-                <v-card-actions>
+                <div style="text-align: end;display: block;">
+                        <!-- <span class="badge rounded-pill bg-danger mx-1" title="Click to generate a new API Secret Key"
+                          style="cursor: pointer; color: white" @click.stop="openSecretkeyPopUp(eachOrg.appId)">
+                          <i class="fa fa-key"></i> Secret
+                        </span>
+
+                        <span class="badge rounded-pill bg-info mx-1" @click.stop="editOrg(eachOrg.appId)"
+                          title="Click to edit the app" style="cursor: pointer; color: white">
+                          <i class="fas fa-pencil-alt"></i>
+                          Edit</span>
+
+                        <span class="mx-1" @click.stop="openDeleteServicePopUp(eachOrg.appId)"
+                          title="Click to delete the app" style="cursor: pointer; color: red">
+                          <i class="fa fa-trash-alt" aria-hidden="true"></i>
+                        </span> -->
+
+                        <span class="badge bg-secondary text-white mx-1" v-if="eachOrg.env == 'dev'">{{ eachOrg.env
+                          }}</span>
+                        <span class="badge bg-success text-white mx-1" v-else>{{ eachOrg.env }}</span>
+                        <span class="badge rounded-pill bg-warning text-dark"
+                          @click.stop="verifyDomainOpenPopup(eachOrg)" title="Click to verify your domain" v-if="
+                            !eachOrg.hasDomainVerified &&
+                            eachOrg.dependentServices[0]
+                          ">
+                          <i class="fa fa-check"></i>
+                          Domain</span>
+                        <b-dropdown size="sm" variant="link" toggle-class="text-decoration-none" no-caret dropright>
+                          <template #button-content>
+                            <b-icon size="sm" style="color: grey" icon="list" aria-hidden="true"></b-icon>
+                          </template>
+
+                          <b-dropdown-item-button  style="text-align: left" @click.stop="openSecretkeyPopUp(eachOrg.appId)"><i
+                              class="fa fa-key mt-1" aria-hidden="true"></i> Generate API Secret
+                          </b-dropdown-item-button>
+                          <b-dropdown-item-button style="text-align: left" @click.stop="editOrg(eachOrg.appId)"><i
+                              class="fas fa-pencil-alt mt-1" aria-hidden="true"></i> Edit Service
+                          </b-dropdown-item-button>
+                          <b-dropdown-item-button   style="text-align: left" @click.stop="openDeleteServicePopUp(eachOrg.appId)"><i
+                              class="fa fa-trash-alt mt-1"></i> Delete Service</b-dropdown-item-button>  
+                        </b-dropdown>
+                </div>
+
+                <!-- <v-card-actions>
                   <div>
                     <span style="float: left">
                         <span class="badge bg-secondary text-white mx-1" v-if="eachOrg.env == 'dev'">{{ eachOrg.env
@@ -608,7 +631,7 @@
                         </span>
                       </span>
                   </div>
-                </v-card-actions>
+                </v-card-actions> -->
               </v-card>
             </v-col>
           </v-row>
@@ -668,7 +691,50 @@
                   </b-card-text>
                 </v-list-item-content>
 
-                <v-card-actions>
+
+                <div style="text-align: end;display: block;">
+                        <!-- <span class="badge rounded-pill bg-danger mx-1" title="Click to generate a new API Secret Key"
+                          style="cursor: pointer; color: white" @click.stop="openSecretkeyPopUp(eachOrg.appId)">
+                          <i class="fa fa-key"></i> Secret
+                        </span>
+
+                        <span class="badge rounded-pill bg-info mx-1" @click.stop="editOrg(eachOrg.appId)"
+                          title="Click to edit the app" style="cursor: pointer; color: white">
+                          <i class="fas fa-pencil-alt"></i>
+                          Edit</span>
+
+                        <span class="mx-1" @click.stop="openDeleteServicePopUp(eachOrg.appId)"
+                          title="Click to delete the app" style="cursor: pointer; color: red">
+                          <i class="fa fa-trash-alt" aria-hidden="true"></i>
+                        </span> -->
+
+                        <span class="badge bg-secondary text-white mx-1" v-if="eachOrg.env == 'dev'">{{ eachOrg.env
+                          }}</span>
+                        <span class="badge bg-success text-white mx-1" v-else>{{ eachOrg.env }}</span>
+                        <span class="badge rounded-pill bg-warning text-dark"
+                          @click.stop="verifyDomainOpenPopup(eachOrg)" title="Click to verify your domain" v-if="
+                            !eachOrg.hasDomainVerified &&
+                            eachOrg.dependentServices[0]
+                          ">
+                          <i class="fa fa-check"></i>
+                          Domain</span>
+                        <b-dropdown size="sm" variant="link" toggle-class="text-decoration-none" no-caret dropright>
+                          <template #button-content>
+                            <b-icon size="sm" style="color: grey" icon="list" aria-hidden="true"></b-icon>
+                          </template>
+
+                          <b-dropdown-item-button  style="text-align: left" @click.stop="openSecretkeyPopUp(eachOrg.appId)"><i
+                              class="fa fa-key mt-1" aria-hidden="true"></i> Generate API Secret
+                          </b-dropdown-item-button>
+                          <b-dropdown-item-button style="text-align: left" @click.stop="editOrg(eachOrg.appId)"><i
+                              class="fas fa-pencil-alt mt-1" aria-hidden="true"></i> Edit Service
+                          </b-dropdown-item-button>
+                          <b-dropdown-item-button   style="text-align: left" @click.stop="openDeleteServicePopUp(eachOrg.appId)"><i
+                              class="fa fa-trash-alt mt-1"></i> Delete Service</b-dropdown-item-button>  
+                        </b-dropdown>
+                </div>
+
+                <!-- <v-card-actions>
                   <div>
                     <span style="float: left">
                         <span class="badge bg-secondary text-white mx-1" v-if="eachOrg.env == 'dev'">{{ eachOrg.env
@@ -706,7 +772,7 @@
                         </span>
                       </span>
                   </div>
-                </v-card-actions>
+                </v-card-actions> -->
               </v-card>
             </v-col>
           </v-row>
@@ -824,14 +890,14 @@
   font-size: larger;
   margin-top: 5px;
   border-radius: 5px;
-  border: 1px solid #99caff;
+  border: 1px solid #8080802b;
   padding-right: 10px;
 }
 
 .apiKeySecret:hover {
   font-weight: bolder;
   background: #f1f1f1;
-  border: 1px solid #007bff;
+  border: 1px solid grey
 }
 
 .far {

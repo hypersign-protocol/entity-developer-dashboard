@@ -545,7 +545,7 @@ h3 {
                                 <tbody>
                                     <tr>
                                         <td class="greyFont">Credential Type</td>
-                                        <td style="text-align: right;">
+                                        <td style="text-align: right;word-break: break-word;">
                                             {{ `${eachProofTypeCredential.proofType}SbtCredential` }}
                                         </td>
                                     </tr>

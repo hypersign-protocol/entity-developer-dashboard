@@ -126,10 +126,9 @@ h5 span {
 <template>
     <div>
         <loading :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loading>
-
         <!-- Credits -->
-        <div class="row">
-            <div class="col-md-12" style="text-align: left">
+        <div>
+            <div style="text-align: left">
                 <div class="form-group" style="display:flex">
                     <h3 style="text-align: left;">Credits</h3>
                 </div>
@@ -137,13 +136,13 @@ h5 span {
         </div>
         <div class="row">
             <div class="col-4">
-                <div class="p-4">
+                <div class="p-1">
                     <canvas id="doughNutChat"></canvas>
                 </div>
             </div>
             <div class="col-2"></div>
             <div class="col-6">
-                <div class="card p-4 mt-1" style="border-radius: 20px;">
+                <v-card class="card p-4 mt-1">
                     <div class="row">
                         <div class="col-8">
                             <p><b>Total Credits</b></p>
@@ -168,8 +167,8 @@ h5 span {
                             </button>
                         </div>
                     </div>
-                </div>
-                <div class="card p-4 mt-1" style="border-radius: 20px;">
+                </v-card>
+                <v-card class="p-4 mt-2">
                     <div>
                         <p><b>Scope(s)</b></p>
                         <p v-if="grants.length > 0">
@@ -182,13 +181,13 @@ h5 span {
                         </p>
 
                     </div>
-                </div>
+                </v-card>
             </div>
         </div>
 
         <!--Usage -->
-        <div class="row mt-2">
-            <div class="col-md-12" style="text-align: left">
+        <div class="">
+            <div class="" style="text-align: left">
                 <div class="form-group" style="display:flex">
                     <h3 style="text-align: left;">Usage</h3>
                 </div>
@@ -196,21 +195,21 @@ h5 span {
         </div>
         <div class="row">
             <div class="col-4">
-                <div class="card p-4">
+                <v-card class="p-4">
                     <canvas id="didChart"></canvas>
-                </div>
+                </v-card>
             </div>
 
             <div class="col-4">
-                <div class="card p-4">
+                <v-card class="p-4">
                     <canvas id="credChart"></canvas>
-                </div>
+                </v-card>
             </div>
 
             <div class="col-4">
-                <div class="card p-4">
+                <v-card class="p-4">
                     <canvas id="schemaChart"></canvas>
-                </div>
+                </v-card>
             </div>
         </div>
 

@@ -143,8 +143,8 @@ h5 span {
                 </div>
             </div>
             <div class="col-md-6">
-                <button style="float: right;" class="btn btn-outline-secondary" @click="reloadData()"><b-icon
-                        icon="arrow-clockwise"></b-icon> Refresh</button>
+                <v-btn style="float: right;" class="btn btn-outline-secondary" @click="reloadData()"><b-icon
+                        icon="arrow-clockwise"></b-icon> Refresh</v-btn>
             </div>
         </div>
         <div class="row">
@@ -155,9 +155,9 @@ h5 span {
             </div>
             <div class="col-2"></div>
             <div class="col-6">
-                <div class="card p-4 mt-1" style="border-radius: 20px;">
-                    <div class="row">
-                        <div class="col-8">
+                <v-card class="p-4 mt-1">
+                    <div class="">
+                        <div class="">
                             <p><b>Total Credits</b></p>
                             <p>
                                 <span style="font-size:xx-large;">
@@ -174,7 +174,7 @@ h5 span {
                             </p>
                         </div>
                     </div>
-                </div>
+                </v-card>
                 <!-- <div class="card p-4 mt-1" style="border-radius: 20px;">
                     <div>
                         <p><b>Scope(s)</b></p>
@@ -191,10 +191,8 @@ h5 span {
                 </div> -->
             </div>
         </div>
-
-
         <!-- Credit History -->
-        <div class="row mt-4" v-if="this.getKYCCredits.length > 0">
+        <div class="row" v-if="this.getKYCCredits.length > 0">
             <div class="col-md-12" style="text-align: left">
                 <div class="form-group" style="display:flex">
                     <h3 style="text-align: left;">Credit History</h3>
@@ -202,7 +200,7 @@ h5 span {
             </div>
         </div>
         <div class="row" v-if="this.getKYCCredits.length > 0">
-            <div class="col  p-1">
+            <div class="col p-1">
                 <table class="table table-hover event-card">
                     <thead class="thead-light">
                         <tr>
@@ -252,17 +250,17 @@ h5 span {
                             </td>
 
                             <td v-if="eachRow.status == 'Active'">
-                                <button class="btn btn-success-link" style="color: green" disabled>
+                                <v-btn class="btn btn-success-link" style="color: green" disabled>
                                     <span class="spinner-grow spinner-grow-sm text-success" role="status"
                                         aria-hidden="true"></span>
                                     <span class="visually-hidden"> {{ eachRow.status
                                         }}</span>
-                                </button>
+                                </v-btn>
                             </td>
                             <td v-else>
-                                <button v-if="eachRow.used < eachRow.totalCredits" class="btn btn-outline-secondary"
+                                <v-btn v-if="eachRow.used < eachRow.totalCredits" class="btn btn-outline-secondary"
                                     @click="activateThisCredit(eachRow)"><b-icon icon="play-circle"
-                                        title="Activate"></b-icon> Activate</button>
+                                        title="Activate"></b-icon> Activate</v-btn>
                             </td>
                         </tr>
                     </tbody>

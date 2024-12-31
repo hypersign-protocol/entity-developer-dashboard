@@ -28,7 +28,7 @@
         <HfButtons name="Save Configuration" @executeAction="saveConfiguration()" v-if="!this.getWebhookConfig._id"
           style="float:right"></HfButtons>
         <div v-else>
-          <b-button variant="outline-danger" @click="deleteConfig()" style="float:right;"
+          <b-button variant="link" class="danger" @click="deleteConfig()" style="float:right;"
             title="Delete Configuration"><i class="fa fa-trash"></i></b-button>
           <HfButtons name="Update Configuration" @executeAction="updateConfiguration()" style="float:right"
             class="mx-1">
@@ -38,7 +38,7 @@
     </div>
 
     <div class="">
-      <div class="card p-3">
+      <v-card class="p-3">
         <form>
           <!-- <div class="form-group">
             <label for="exampleFormControlInput1">Name<span class="mandatory">*</span></label>
@@ -65,7 +65,7 @@
               Header</b-button>
           </b-form-group>
         </form>
-      </div>
+      </v-card>
     </div>
 
   </div>

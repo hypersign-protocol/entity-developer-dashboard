@@ -1,5 +1,5 @@
 <template>
-  <v-btn :class="customClass ? `${customClass}` : 'btn button-theme'"
+  <v-btn class="btn btn-outline-secondary" :class="customClass ? `${customClass}` : 'btn button-theme'"
   :title="title"
   @click="emitExecuteAction()"
   >
