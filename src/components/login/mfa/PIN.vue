@@ -1,17 +1,10 @@
 <template>
-    <form class="row center">
-        <input class="col" :type="inputType" ref="input1" maxlength="1" v-model="pin1" @keyup.exact="gotoInput(2)"
-            @keyup.exact.backspace="backToInput(1)" @focus="selectInput(1)">
-        <input class="col" :type="inputType" ref="input2" maxlength="1" v-model="pin2" @keyup.exact="gotoInput(3)"
-            @keyup.exact.backspace="backToInput(1)" @focus="selectInput(2)">
-        <input class="col" :type="inputType" ref="input3" maxlength="1" v-model="pin3" @keyup.exact="gotoInput(4)"
-            @keyup.exact.backspace="backToInput(2)" @focus="selectInput(3)">
-        <input class="col" :type="inputType" ref="input4" maxlength="1" v-model="pin4" @keyup.exact="gotoInput(5)"
-            @keyup.exact.backspace="backToInput(3)" @focus="selectInput(4)">
-        <input class="col" :type="inputType" ref="input5" maxlength="1" v-model="pin5" @keyup.exact="gotoInput(6)"
-            @keyup.exact.backspace="backToInput(4)" @focus="selectInput(5)">
-        <input class="col" :type="inputType" ref="input6" maxlength="1" v-model="pin6" @keyup.exact="done"
-            @keyup.exact.backspace="backToInput(5)" @focus="selectInput(6)">
+    <form class="row">
+        <v-otp-input
+        v-model="otp"
+        :disabled="c"
+        @finish="done"
+      ></v-otp-input>
     </form>
 </template>
 
@@ -28,36 +21,10 @@ export default {
     },
     data() {
         return {
-            pin1: "",
-            pin2: "",
-            pin3: "",
-            pin4: "",
-            pin5: "",
-            pin6: ""
+            otp: "",
+            loading: false,
         };
     },
-
-    computed: {
-        pins() {
-            return this.pin1 + this.pin2 + this.pin3 + this.pin4 + this.pin5 + this.pin6;
-        }
-    },
-
-    mounted() {
-        this.$refs.input1.focus();
-
-        // EventBus.$on('clearPINs', () => {
-        //     console.log('Inside clearPINs event handler')
-        //     this.pin1 = "";
-        //     this.pin2 = "";
-        //     this.pin3 = "";
-        //     this.pin4 = "";
-        //     this.pin5 = "";
-        //     this.pin6 = "";
-
-        // })
-    },
-
     methods: {
         gotoInput(num) {
             const input = this.$refs["input" + num];
@@ -65,7 +32,8 @@ export default {
             input.focus();
         },
         done() {
-            this.$emit('pinTakenEvent', this.pins)
+            this.loading = true
+            this.$emit('pinTakenEvent', this.otp)
         },
         selectInput(num) {
             this.$refs["input" + num].select();

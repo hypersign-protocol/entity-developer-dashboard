@@ -60,7 +60,7 @@
             </ul>
         </div>
         <div class="mt-2">
-            <button type="button" class="btn btn-light" @click="skip()">Skip</button>
+            <v-btn type="button" class="btn btn-light" @click="skip()">Skip</v-btn>
         </div>
     </div>
 </template>
