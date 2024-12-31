@@ -1,7 +1,7 @@
 <template>
   <div>
     <load-ing :active.sync="isLoading" :can-cancel="true" :is-full-page="true"></load-ing>
-    <div class="row mb-3">
+    <div class="row">
       <div class="col-md-4">
         <!-- <div class="input-group">
           <div class="input-group-prepend" style="cursor: grab">
@@ -24,7 +24,7 @@
 
       </div>
     </div>
-    <div class="row mb-3" style="padding: 10px" v-if="getMyInvitions.length > 0">
+    <div class="row mb-1" v-if="getMyInvitions.length > 0">
       <table class="table">
         <thead class="thead-light">
           <tr>

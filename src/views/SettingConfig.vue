@@ -1,13 +1,13 @@
 <template>
 
     <div>
-        <b-card no-body v-if="isFeatureImplemented">
+        <v-card no-body v-if="isFeatureImplemented">
             <b-tabs card>
                 <b-tab active>
                     <template #title>
                         <b-icon icon="person-square" aria-hidden="true" small></b-icon><strong> Profile</strong>
                     </template>
-                    <b-card no-body>
+                    <!-- <v-card no-body> -->
                         <b-tabs card vertical justified small>
                             <!-- <b-tab active>
                                 <template #title>
@@ -38,14 +38,14 @@
                                 </div>
                             </b-tab>
                         </b-tabs>
-                    </b-card>
+                    <!-- </v-card> -->
                 </b-tab>
                 <b-tab active>
                     <template #title>
                         <b-icon icon="sliders" aria-hidden="true" small></b-icon><strong> Members &
                             Roles</strong>
                     </template>
-                    <b-card no-body>
+                    <!-- <v-card no-body> -->
                         <b-tabs card vertical justified small>
                             <b-tab active>
                                 <template #title>
@@ -68,10 +68,10 @@
                                 <MyInvitions />
                             </b-tab>
                         </b-tabs>
-                    </b-card>
+                    <!-- </v-card> -->
                 </b-tab>
             </b-tabs>
-        </b-card>
+        </v-card>
         <div v-else>
             <hf-feature-soon></hf-feature-soon>
         </div>

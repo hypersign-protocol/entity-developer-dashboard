@@ -1,19 +1,11 @@
 <template>
   <div>
     <load-ing :active.sync="isLoading" :can-cancel="true" :is-full-page="true"></load-ing>
-    <div class="row mb-3">
-      <div class="col-md-4">
-        <!-- <div class="input-group">
-          <div class="input-group-prepend" style="cursor: grab">
-            <span class="input-group-text" id="basic-addon2"><i class="fa fa-search" aria-hidden="true"></i></span>
-          </div>
-          <input type="text" class="form-control" placeholder="Find a member" aria-label="Find a member"
-            aria-describedby="basic-addon2" v-model="sessionIdTemp" />
-        </div> -->
+    <div class="row">
+      <div class="col-md-4">        
       </div>
       <div class="col-md-8">
-
-        <v-btn type="button" class="btn btn-outline-secondary mx-1" style="float: inline-end"
+        <v-btn variant="link" class="btn btn-outline-secondary mx-1" style="float: inline-end"
           @click="getPeopleMembers()" title="Reload">
           <i class="fa fa-retweet" aria-hidden="true"></i>
         </v-btn>
@@ -21,11 +13,9 @@
         <v-btn type="button" class="btn btn-secondary" style="float: inline-end" @click="inviteMemberPopup()">
           <b-icon icon="person-plus-fill"></b-icon> Invite Member
         </v-btn>
-
-
       </div>
     </div>
-    <div class="row mb-3" style="padding: 10px" v-if="getAdminMembersgetter.length > 0">
+    <div class="row" v-if="getAdminMembersgetter.length > 0">
       <table class="table">
         <thead class="thead-light">
           <tr>

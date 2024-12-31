@@ -159,21 +159,21 @@ h5 span {
 
     <div class="row">
       <div class="col-md-8">
-        <div class="card" style="padding:15px; ">
+        <v-card style="padding:15px; ">
           <canvas class="didChart"></canvas>
-        </div>
+        </v-card>
       </div>
       <div class="col-md-4">
-        <div class="card" style="padding:0px; height: 100%;">
+        <v-card style="padding:0px; height: 100%;">
           <canvas class="polarChart"></canvas>
-        </div>
+        </v-card>
       </div>
 
     </div>
 
 
-    <div class="row mt-1">
-      <div class="col">
+    <div class="mt-3">
+      <div class="">
         <div class="form-group">
           <h3 v-if="usageDetails.serviceDetails.length > 0" style="text-align: left;">
             API Consumptions </h3>

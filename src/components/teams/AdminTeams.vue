@@ -2,7 +2,7 @@
     <div>
         <load-ing :active.sync="isLoading" :can-cancel="true" :is-full-page="true"></load-ing>
 
-        <div class="row mb-3">
+        <div class="row">
             <div class="col-md-4">
             </div>
             <div class="col-md-8">
@@ -14,8 +14,8 @@
                         class="fa fa-gamepad" aria-hidden="true"></i> Create Custom Role</v-btn>
             </div>
         </div>
-        <div class="row mb-3" style="padding: 10px;" v-if="getAllRoles.length > 0">
-            <table class="table ">
+        <div class="row" v-if="getAllRoles.length > 0">
+            <table class="table">
                 <tbody>
                     <!-- eslint-disable-next-line -->
                     <tr v-for="role in getAllRoles" v-bind:key="getAllRoles.roleName">

@@ -4,7 +4,7 @@
         <load-ing :active.sync="isLoading" :can-cancel="true" :is-full-page="true"></load-ing>
 
         <h3>Setup Authenticator as a MFA method</h3>
-        <div class="card " style="width: 50%;">
+        <v-card style="width: 50%;">
             <ul class="list-group">
                 <li class="list-group-item">
                     <div>
@@ -58,7 +58,7 @@
                     </div>
                 </li>
             </ul>
-        </div>
+        </v-card>
         <div class="mt-2">
             <v-btn type="button" class="btn btn-light" @click="skip()">Skip</v-btn>
         </div>

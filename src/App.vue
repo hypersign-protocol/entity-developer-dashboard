@@ -96,10 +96,15 @@
           <b-nav-item v-if="parseAuthToken.isTwoFactorEnabled == false">
             
             <router-link to="/studio/mfa">
-              <b-button variant="outline-danger" pill size="sm" style="color:grey">
+              <v-chip
+              outlined
+                class="ma-2"
+                style="cursor: grab;"
+              >
               <span class="spinner-grow spinner-grow-sm"></span>
               <span class="mx-1">Setup MFA</span>
-            </b-button>
+            </v-chip>
+              
             </router-link>
             
           
