@@ -3,7 +3,7 @@
     <loading :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loading>
     <div>
       <v-row  dense v-if="appList.length > 0">
-        <v-col class=" mt-1">
+        <v-col>
           <h3 style="float: left">
             <i class="fa fa-cogs mr-2" aria-hidden="true"></i>Your Services
           </h3>
@@ -174,7 +174,6 @@
           description="Your API Secret Key" @click="onHfFlashClick()"></HfFlashNotification>
       </div>
     </hf-pop-up>
-
 
     <hf-pop-up id="entity-delete-service-confirmation-popup" Header="Delete Service Confirmation">
       <div>

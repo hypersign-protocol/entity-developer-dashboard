@@ -134,7 +134,6 @@ h5 span {
 <template>
     <div>
         <loading :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loading>
-
         <!-- Credits -->
         <div class="row">
             <div class="col-md-6" style="text-align: left">

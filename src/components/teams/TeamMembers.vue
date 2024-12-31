@@ -7,7 +7,7 @@
       <div class="col-md-8">
         <v-btn variant="link" class="btn btn-outline-secondary mx-1" style="float: inline-end"
           @click="getPeopleMembers()" title="Reload">
-          <i class="fa fa-retweet" aria-hidden="true"></i>
+          <b-icon icon="arrow-clockwise"></b-icon>
         </v-btn>
 
         <v-btn type="button" class="btn btn-secondary" style="float: inline-end" @click="inviteMemberPopup()">

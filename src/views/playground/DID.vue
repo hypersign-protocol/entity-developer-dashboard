@@ -121,8 +121,6 @@ h5 span {
 <template>
   <div :class="isContainerShift ? 'homeShift' : 'home'">
     <loading :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loading>
-
-
     <div class="">
       <div class="" style="text-align: left">
         <!-- <Info :message="description" /> -->
@@ -136,20 +134,20 @@ h5 span {
         <StudioSideBar title="Create DID">
           <div class="container" style="width: 100%;">
             <div class="form-group">
-              <tool-tip infoMessage="Name of the schema"></tool-tip>
+              <tool-tip infoMessage="Enter name of DID"></tool-tip>
               <label for="schemaName"><strong>Name<span style="color: red">*</span>:</strong></label>
               <input type="text" class="form-control" id="schemaName" v-model="did.options.name"
                 aria-describedby="schemaNameHelp" placeholder="Enter a name for this did">
             </div>
 
-            <div class="form-group" style="width: 550px;">
-              <tool-tip infoMessage="Name of the schema"></tool-tip>
+            <div class="form-group">
+              <tool-tip infoMessage="Select a DID method namespace"></tool-tip>
               <label for="schemaName"><strong>Namespace<span style="color: red">*</span>:</strong></label>
               <hf-select-drop-down :options="namespaceOptions"
                 @selected="e => (did.namespace = e)"></hf-select-drop-down>
             </div>
 
-            <div class="form-group" style="width: 550px;">
+            <div class="form-group">
               <tool-tip infoMessage="Method specific id for a did"></tool-tip>
               <label for="schemaName"><strong>Method Specific Id<span style="color: red">*</span>:</strong></label>
               <div class="input-group">
@@ -161,40 +159,45 @@ h5 span {
                 </div>
               </div>
             </div>
-            <div class="form-group" style="width: 550px;">
-              <tool-tip infoMessage="Name of the schema"></tool-tip>
+            <div class="">
+              <tool-tip infoMessage="Select one or more key type"></tool-tip>
               <label for="schemaName"><strong>Key Type<span
                     style="color: red">*</span>:</strong></label>
-              <multiSelect v-model="selectedKeyTypes"
-                placeholder="Select on or more keyType" label="text"
-                 track-by="value"
-                :options="keyTypeOptions" 
-                :multiple="true" 
-                :taggable="false" 
-                :close-on-select="false"
-                :clear-on-select="false" 
-                @input="updateKeyTypeValues">
-              </multiselect>
+                <v-select
+                  v-model="selectedKeyTypes"
+                  :items="keyTypeOptions"
+                  multiple
+                  chips
+                  attach
+                  dense
+                  outlined
+                ></v-select>
             </div>
-
-
-            <div class="form-group" style="width: 550px;">
-              <tool-tip infoMessage="Name of the schema"></tool-tip>
+            <div class="">
+              <tool-tip infoMessage="Select one or more verification relationships"></tool-tip>
               <label for="schemaName"><strong>Verification Relationships<span
                     style="color: red">*</span>:</strong></label>
-              <multiSelect v-model="did.options.verificationRelationships"
-                placeholder="Select on or more verification relationship" label="text" track-by="value"
-                :options="verificationRelationshipsOptions" :multiple="true" :taggable="false" :close-on-select="false"
-                :clear-on-select="false" @input="onInputTag">
-              </multiselect>
+              
+                <v-select
+                  v-model="selectedVerificationRelationships"
+                  :items="verificationRelationshipsOptions"
+                  multiple
+                  chips
+                  attach
+                  dense
+                  outlined
+                ></v-select>
+            </div>
+            <div class="">
+              <v-checkbox
+                v-model="shouldRegister"
+                label="Register DID on the blockchain?"
+              ></v-checkbox>
             </div>
 
-
-            <div class="form-group row " style="width: 550px;">
+            <div class="form-group row ">
               <div class="col-md-12">
-                <hr />
                 <hf-buttons name="Save" @executeAction="createDID()"></hf-buttons>
-                <!-- <button @click="createDID" class="btn btn-primary">Save1</button> -->
               </div>
             </div>
           </div>
@@ -300,19 +303,15 @@ h5 span {
 </template>
 
 <script>
-// import fetch from "node-fetch";
 import UtilsMixin from '../../mixins/utils';
 import HfPopUp from "../../components/element/hfPopup.vue";
 import Loading from "vue-loading-overlay";
 import StudioSideBar from "../../components/element/StudioSideBar.vue";
 import HfButtons from "../../components/element/HfButtons.vue"
 import HfSelectDropDown from "../../components/element/HfSelectDropDown.vue"
-// import EventBus from "../../eventbus"
 import ToolTip from "../../components/element/ToolTip.vue"
-// import { isEmpty, isValidDid, isValidURL } from '../../mixins/fieldValidation'
 import DomainLinkage from '@hypersign-protocol/domain-linkage-verifier'
 import { mapState, mapGetters, mapActions, mapMutations } from "vuex";
-import 'vue-multiselect/dist/vue-multiselect.min.css';
 export default {
   name: "DIDs",
   components: { HfPopUp, Loading, StudioSideBar, HfButtons, HfSelectDropDown, ToolTip, },
@@ -331,7 +330,8 @@ export default {
   },
   data() {
     return {
-       selectedKeyTypes: [],
+       selectedKeyTypes: ['Ed25519VerificationKey2020'],
+       shouldRegister: false,
       verifyButtonText: 'Verify',
       authToken: localStorage.getItem('authToken'),
       user: {},
@@ -339,20 +339,23 @@ export default {
       isLoading: false,
       viewDidDocument: "",
       namespaceOptions: [
-        { text: "Select Namespace", value: null },
+        { text: "Select a DID method namespace", value: null },
         { text: "testnet", value: "testnet", selected: true },
       ],
-      keyTypeOptions: [
-        { text: "Select KeyType", value: null },
-        { text: "Ed25519VerificationKey2020", value: "Ed25519VerificationKey2020", selected: true },
-        // { text: "EcdsaSecp256k1RecoveryMethod2020", value: "EcdsaSecp256k1RecoveryMethod2020" },
-        { text: "BabyJubJubKey2021", value: "BabyJubJubKey2021" },
-      ],
-      verificationRelationshipsOptions: [
-        { text: "Select Verification Relationship", value: null },
-        { text: "assertionMethod", value: "assertionMethod" },
-        { text: "authentication", value: "authentication" },
-      ],
+      keyTypeOptions: ['Ed25519VerificationKey2020','BabyJubJubKey2021'],
+      // keyTypeOptions: [
+      //   { text: "Select KeyType", value: null },
+      //   { text: "Ed25519VerificationKey2020", value: "Ed25519VerificationKey2020", selected: true },
+      //   // { text: "EcdsaSecp256k1RecoveryMethod2020", value: "EcdsaSecp256k1RecoveryMethod2020" },
+      //   { text: "BabyJubJubKey2021", value: "BabyJubJubKey2021" },
+      // ],
+      selectedVerificationRelationships: ['assertionMethod', 'authentication'],
+      verificationRelationshipsOptions: ['assertionMethod', 'authentication'],
+      // verificationRelationshipsOptions: [
+      //   { text: "Select Verification Relationship", value: null },
+      //   { text: "assertionMethod", value: "assertionMethod" },
+      //   { text: "authentication", value: "authentication" },
+      // ],
       domain: "",
       domainLogoUrl: "",
       domainDID: "",
@@ -541,11 +544,12 @@ export default {
     openSlider() {
       this.counter = 0
       this.clearAll();
+      this.generateRandomMethodSepcificId()
       this.$root.$emit("bv::toggle::collapse", "sidebar-right");
     },
     clearAll() {
       this.visible = false
-      this.selectedKeyTypes= []
+      this.selectedKeyTypes= ['Ed25519VerificationKey2020']
       this.did = {
         name: "",
         namespace: "testnet",
@@ -587,11 +591,13 @@ export default {
           delete this.did.options.chainId
         }
 
+        this.did.options.keyType = this.selectedKeyTypes
+        this.did.options.verificationRelationships = this.selectedVerificationRelationships
+         
 
         // this.did.options.verificationRelationships = this.did.options.verificationRelationships.map(x => x.value)
         // console.log(JSON.stringify(this.did))
         console.log('Before calling createDIDsForAService')
-
         await this.createDIDsForAService(this.did)
         console.log('After calling createDIDsForAService')
         this.isLoading = false;
@@ -599,6 +605,7 @@ export default {
       } catch (e) {
         console.error(e.message)
         this.isLoading = false
+        this.notifyErr(e.message)
       }
     },
 
