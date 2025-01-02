@@ -14,8 +14,13 @@
       </v-row>
       <div v-else>
         <h3 class="" style="text-align: left">Spin up your first service!</h3>
-        <div>
-          <div class="card" style="width: 19rem; float: left; border-radius: 20px; margin: 10px">
+         
+
+        <div class="row container">
+          <div class="col-md-3">
+
+          
+          <v-card style="max-height: 400px; float: left">
             <img class="card-img-top card-image" src="../assets/ssi.png" alt="Card image cap" />
             <div class="card-body">
               <h5 class="card-title">SSI Service</h5>
@@ -28,9 +33,12 @@
                 @executeAction="openSlider('SSI_API')">
               </hf-buttons>
             </div>
-          </div>
+          </v-card>
 
-          <div class="card" style="width: 20rem; float: left; border-radius: 20px; margin: 10px">
+        </div>
+          <div class="col-md-3">
+
+          <v-card style="max-height: 400px; float: left">
             <img class="card-img-top card-image" src="../assets/kyc2.png" alt="Card image cap" />
             <div class="card-body">
               <h5 class="card-title">KYC Service</h5>
@@ -43,12 +51,13 @@
                 @executeAction="openSlider('CAVACH_API')">
               </hf-buttons>
             </div>
-          </div>
+          </v-card>
 
 
+        </div>
+        <div class="col-md-3">
 
-
-          <div class="card" style="width: 20rem; float: left; border-radius: 20px; margin: 10px">
+          <v-card style="max-height: 400px; float: left">
             <!-- <div class="overlay"></div> -->
 
             <img class="card-img-top card-image" src="../assets/qa.png" alt="Card image cap" />
@@ -62,9 +71,12 @@
                 @executeAction="openSlider('QUEST')">
               </hf-buttons>
             </div>
-          </div>
+          </v-card>
 
-          <div class="card" style="width: 20rem; float: left; border-radius: 20px; margin: 10px">
+        </div>
+        <div class="col-md-3">
+
+          <v-card style="max-height: 400px; float: left">
             <!-- <div class="overlay"></div> -->
             <img class="card-img-top card-image" src="../assets/edv.png" alt="Card image cap"
               style="height: 125px; width: 125px; opacity: 0.4" />
@@ -75,13 +87,13 @@
                 strength of decentralized identity to safeguard your sensitive
                 information.
               </p>
-              <hf-buttons name=" Create" iconClass="fa fa-plus" style="text-align: right" class="ml-auto mt-4"
+              <hf-buttons  name="Create" iconClass="fa fa-plus" style="text-align: right" class="ml-auto mt-4"
                 @executeAction="openSlider('EDV_API')" disabled>
               </hf-buttons>
             </div>
-          </div>
+          </v-card>
 
-
+        </div>
 
         </div>
       </div>
@@ -120,7 +132,7 @@
         </div>
 
         <div class="form-group" v-if="appModel.domain">
-          <tool-tip infoMessage="Select issuer DID for this app"></tool-tip>
+          <tool-tip infoMessage="Select issuer DID"></tool-tip>
           <label for="selectService"><strong>Select Issuer DID<span style="color: red">*</span>:
             </strong></label>
           <select class="custom-select" id="selectService" v-model="appModel.issuerDid" v-if="!appModel.issuerDid">
@@ -191,7 +203,7 @@
     </hf-pop-up>
 
     <StudioSideBar :title="edit ? 'Edit Service' : 'Add Service'">
-      <div class="container">
+      <v-form class="container">
         <div class="form-group" v-if="edit === true">
           <tool-tip infoMessage="Your Service Id"></tool-tip>
           <label for="orgDid"><strong>Service Id<span style="color: red">*</span>:
@@ -213,7 +225,7 @@
           <tool-tip infoMessage="Name of the service, upto 20 chars"></tool-tip>
           <label for="orgName"><strong>Name<span style="color: red">*</span>:</strong></label>
           <input type="text" class="form-control" id="orgName" v-model="appModel.appName"
-            placeholder="Enter name of your app" />
+            placeholder="Enter service name (max 20 chars)" />
         </div>
 
         <div class="form-group">
@@ -294,8 +306,8 @@
         </div>
 
         <div class="form-group" v-if="edit === false">
-          <tool-tip infoMessage="Select a service you want to associate with this app"></tool-tip>
-          <label for="selectService"><strong>Select Service<span style="color: red">*</span>:
+          <tool-tip infoMessage="Select a service type"></tool-tip>
+          <label for="selectService"><strong>Service Type<span style="color: red">*</span>:
             </strong></label>
           <select class="custom-select" id="selectService" v-model="selectedServiceId">
             <option :value="eachService.id" v-for="eachService in selectServicesOptions" v-bind:key="eachService.id">
@@ -305,64 +317,70 @@
           <small>{{ serviceDescrition }}</small>
         </div>
 
-        <div class="form-group" v-if="
-          selectedServiceId == 'CAVACH_API' ||
-          (appModel.services &&
-            appModel.services.length > 0 &&
-            appModel.services[0].id == 'CAVACH_API')
-        ">
-          <tool-tip infoMessage="Associate your service"></tool-tip>
-          <label for="selectService"><strong>Associate SSI Service<span style="color: red">*</span>:
-            </strong></label>
-          <select class="custom-select" id="selectSSIService" v-model="selectedAssociatedSSIAppId"
-            @change="onSSIServiceChange($event)">
-            <option value="" disabled>Select a service</option>
-            <option :value="eachSSIApp.appId" v-for="eachSSIApp in getAppsWithSSIServices"
-              v-bind:key="eachSSIApp.appId">
-              <div>{{ eachSSIApp.appName }} ( {{ eachSSIApp.appId }} )</div>
-            </option>
-          </select>
-          <!-- <small>{{ serviceDescrition }}</small> -->
-        </div>
+        <div v-if="selectedServiceId == 'CAVACH_API'" class="container mb-2" style="border: 1px solid #80808038;border-radius: 5px;">
 
-        <div class="form-group" v-if="
-          (selectedServiceId == 'CAVACH_API' ||
+        
+
+          <div class="form-group" v-if="
+            selectedServiceId == 'CAVACH_API' ||
             (appModel.services &&
               appModel.services.length > 0 &&
-              appModel.services[0].id == 'CAVACH_API')) &&
-          selectedAssociatedSSIAppId
-        ">
-          <tool-tip infoMessage="Select issuer DID for this app"></tool-tip>
-          <label for="selectService"><strong>Select Issuer DID<span style="color: red">*</span>:
-            </strong></label>
-          <select class="custom-select" id="selectService" v-model="appModel.issuerDid" @change="resolveDid($event)">
-            <option value="">Select a DID</option>
-            <option v-for="did in associatedSSIServiceDIDs" :value="did" :key="did">
-              {{ did }}
-            </option>
-          </select>
-          <!-- <input type="text" class="form-control" id="orgDid" v-else v-model="appModel.issuerDid" disabled
-            aria-describedby="orgNameHelp" /> -->
-        </div>
+              appModel.services[0].id == 'CAVACH_API')
+          ">
+            <tool-tip infoMessage="KYC service need to be associated with a SSI service"></tool-tip>
+            <label for="selectService"><strong>SSI Service<span style="color: red">*</span>:
+              </strong></label>
+            <select class="custom-select" id="selectSSIService" v-model="selectedAssociatedSSIAppId"
+              @change="onSSIServiceChange($event)">
+              <option value="" disabled>Select SSI Service</option>
+              <option :value="eachSSIApp.appId" v-for="eachSSIApp in getAppsWithSSIServices"
+                v-bind:key="eachSSIApp.appId">
+                <div>{{ eachSSIApp.appName }} ( {{ eachSSIApp.appId }} )</div>
+              </option>
+            </select>
+            <!-- <small>{{ serviceDescrition }}</small> -->
+          </div>
 
-        <div class="form-group" v-if="
-          (selectedServiceId == 'CAVACH_API' ||
-            (appModel.services &&
-              appModel.services.length > 0 &&
-              appModel.services[0].id == 'CAVACH_API')) &&
-          selectedAssociatedSSIAppId && appModel.issuerDid
-        ">
-          <tool-tip infoMessage="Select VerificationMethod for this app"></tool-tip>
-          <label for="selectService"><strong>Select VerificationMethod<span style="color: red">*</span>:
-            </strong></label>
-          <select class="custom-select" id="selectService" v-model="appModel.issuerVerificationMethodId">
-            <option value="">Select a VerificationMethod</option>
-            <option v-for="vm in issuerVerificationMethodIds" :value="vm.id" :key="vm.id">
-              {{ vm.id + " => " + vm.type }}
-            </option>
-          </select>
-          <!-- <input type="text" class="form-control" id="orgDid" v-else v-model="appModel.issuerDid" disabled
-            aria-describedby="orgNameHelp" /> -->
+          <div class="form-group" v-if="
+            (selectedServiceId == 'CAVACH_API' ||
+              (appModel.services &&
+                appModel.services.length > 0 &&
+                appModel.services[0].id == 'CAVACH_API')) &&
+            selectedAssociatedSSIAppId
+          ">
+            <tool-tip infoMessage="Select issuer DID for this app"></tool-tip>
+            <label for="selectService"><strong>Select Issuer DID<span style="color: red">*</span>:
+              </strong></label>
+            <select class="custom-select" id="selectService" v-model="appModel.issuerDid" @change="resolveDid($event)">
+              <option value="">Select a DID</option>
+              <option v-for="did in associatedSSIServiceDIDs" :value="did" :key="did">
+                {{ did }}
+              </option>
+            </select>
+            <!-- <input type="text" class="form-control" id="orgDid" v-else v-model="appModel.issuerDid" disabled
+              aria-describedby="orgNameHelp" /> -->
+          </div>
+
+          <div class="form-group" v-if="
+            (selectedServiceId == 'CAVACH_API' ||
+              (appModel.services &&
+                appModel.services.length > 0 &&
+                appModel.services[0].id == 'CAVACH_API')) &&
+            selectedAssociatedSSIAppId && appModel.issuerDid
+          ">
+            <tool-tip infoMessage="Choose a signing key"></tool-tip>
+            <label for="selectService"><strong>Signing Key<span style="color: red">*</span>:
+              </strong></label>
+            <select class="custom-select" id="selectService" v-model="appModel.issuerVerificationMethodId">
+              <option value="">Select a Signing Key</option>
+              <option v-for="vm in issuerVerificationMethodIds" :value="vm.id" :key="vm.id">
+                {{ truncate(vm.id, 40) + ' (' +vm.type+')' }}
+              </option>
+            </select>
+            <!-- <input type="text" class="form-control" id="orgDid" v-else v-model="appModel.issuerDid" disabled
+              aria-describedby="orgNameHelp" /> -->
+          </div>
+
         </div>
 
         <div class="form-group" v-if="edit === true">
@@ -375,29 +393,13 @@
           </select>
         </div>
 
-        <!-- <div class="form-group"
-          v-if="edit === true && (appModel.services && appModel.services.length > 0 && (appModel.services[0].id == 'CAVACH_API'))">
-          <tool-tip infoMessage="SSI Service Id"></tool-tip>
-          <label for="orgDid"><strong>SSI Service Id: </strong></label>
-          <input type="text" class="form-control" id="orgDid" v-model="appModel.dependentServices[0]"
-            aria-describedby="orgNameHelp" disabled />
-        </div> -->
-
-        <!-- <div class="form-group"
-          v-if="edit === true && (appModel.issuerDid) && (appModel.services[0].id == 'CAVACH_API')">
-          <tool-tip infoMessage="Issuer DID"></tool-tip>
-          <label for="orgDid"><strong>Issuer DID: </strong></label>
-          <input type="text" class="form-control" id="orgDid" v-model="appModel.issuerDid"
-            aria-describedby="orgNameHelp" disabled />
-        </div> -->
-
-        <div class="form-group">
+        <!-- <div class="form-group">
           <tool-tip
             infoMessage="Listed origins allowed to make CORS requests. Enter comman seperated URLs to whitelist"></tool-tip>
           <label for="orgName"><strong>Allowed Origins (CORS):</strong></label>
           <textarea class="form-control" v-model="appModel.whitelistedCors" rows="3"
             placeholder="*,http://your-domain.com,http://test.com"></textarea>
-        </div>
+        </div> -->
 
         <div class="form-group" v-if="edit">
           <hf-buttons name="Update" iconClass="fa fa-bookmark" class="btn btn-primary"
@@ -406,7 +408,7 @@
         <div class="form-group" v-else>
           <hf-buttons name="Save" iconClass="fa fa-bookmark" @executeAction="createAnApp()"></hf-buttons>
         </div>
-      </div>
+      </v-form>
     </StudioSideBar>
 
     <v-row  dense v-if="appList.length > 0" class="mt-2">
@@ -1023,6 +1025,20 @@ export default {
   },
   data() {
     return {
+      items: [
+          {
+            src: 'https://cdn.vuetifyjs.com/images/carousel/squirrel.jpg',
+          },
+          {
+            src: 'https://cdn.vuetifyjs.com/images/carousel/sky.jpg',
+          },
+          {
+            src: 'https://cdn.vuetifyjs.com/images/carousel/bird.jpg',
+          },
+          {
+            src: 'https://cdn.vuetifyjs.com/images/carousel/planet.jpg',
+          },
+        ],
       selectedServiceId: "SSI_API",
       selectedAssociatedSSIAppId: "",
       edit: false,
@@ -1240,7 +1256,9 @@ export default {
       this.$root.$emit("bv::toggle::collapse", "sidebar-right");
       const appModel = this.getAppByAppId(appId);
 
-      appModel.whitelistedCors = appModel.whitelistedCors.toString();
+      //// commeting it for time being 
+      // appModel.whitelistedCors = appModel.whitelistedCors.toString();
+      appModel.whitelistedCors = '*';
 
       Object.assign(this.appModel, { ...appModel });
       this.selectedAssociatedSSIAppId = appModel.dependentServices[0];
