@@ -209,23 +209,23 @@ h5 span {
         <table class="table table-hover event-card">
           <thead class="thead-light">
             <tr>
-              <th></th>
+              <!-- <th></th> -->
               <th class="sticky-header">DID Id</th>
               <th class="sticky-header">Name</th>
               <th class="sticky-header">Linked Keys</th>
               <th class="sticky-header">Status</th>
-              <th class="sticky-header">Action</th>
+              <!-- <th class="sticky-header">Action</th> -->
             </tr>
           </thead>
           <tbody>
-            <tr v-for="row in didList" :key="row">
+            <tr v-for="row in didList" :key="row.did">
 
-              <td>
+              <!-- <td>
                 <span class="fa-stack fa-sm" v-if="checkIfDomainIsVerified(row.didDocument)" style="font-size:8px">
                   <i class="fa fa-certificate fa-stack-2x" aria-hidden="true" style="color:#651d65"></i>
                   <i class="fa fa-check fa-stack-1x fa-inverse" aria-hidden="true"></i>
                 </span>
-              </td>
+              </td> -->
               <td @click="copyToClip(row.did, 'DID')" style="cursor: pointer;">{{ row.did }}</td>
               <td>{{ row.name }}</td>
               <td>
@@ -238,20 +238,21 @@ h5 span {
                 </div>
 
               </td>
-              <td v-if="row.status == 'Registered'">
-                <span class="badge badge-pill badge-success"><i class="fa fa-check" aria-hidden="true"></i>
+              <td >
+                <span v-if="row.status == 'Registered'" class="badge badge-pill badge-success"><i class="fa fa-check" aria-hidden="true"></i>
                   Registered</span>
-              </td>
-              <td v-else>
-                <span class="badge badge-pill badge-warning"><i class="fa fa-cog" aria-hidden="true"></i>
+                <span v-else-if="row.status == 'Created'" class="badge badge-pill badge-warning"><i class="fa fa-cog" aria-hidden="true"></i>
                   Created</span>
+                <span v-else>
+                  <wait-spinner></wait-spinner>
+                </span>
               </td>
-              <td>
+              <!-- <td>
                 <span><i class="fa fa-eye" aria-hidden="true"></i></span>
 
                 <span v-if="!checkIfDomainIsVerified(row.didDocument)" @click="linkDomain(row)" class="ml-2"
                   style="cursor:grab"><i class="fa fa-link"></i></span>
-              </td>
+              </td> -->
             </tr>
           </tbody>
         </table>
@@ -400,8 +401,9 @@ export default {
     });
   },
   methods: {
-    ...mapActions('mainStore', ['fetchDIDsForAService', 'createDIDsForAService', 'registerDIDsForAService', 'updateDIDsForAService']),
+    ...mapActions('mainStore', ['fetchDIDsForAService', 'createDIDsForAService','checkBlockchainStatusOfSSI', 'registerDIDsForAService', 'updateDIDsForAService']),
     ...mapMutations('playgroundStore', ['updateSideNavStatus', 'shiftContainer']),
+    ...mapMutations('mainStore', ['updateADID']),
 
     linkDomain(row) {
       // remove this once this feature is complete
@@ -419,20 +421,20 @@ export default {
     }
   },
 
-    checkIfDomainIsVerified(didDocument) {
-      if (didDocument) {
-        if (didDocument.service.length > 0) {
-          const linkedDomainServices = didDocument.service.filter(service => service.type == "LinkedDomains")
-          if (linkedDomainServices.length > 0) {
-            return true
-          }
-        } else {
-          return false;
-        }
-      } else {
-        return false;
-      }
-    },
+    // checkIfDomainIsVerified(didDocument) {
+    //   if (didDocument && Object.keys(didDocument).length > 0) {
+    //     if (didDocument.service && didDocument.service.length > 0) {
+    //       const linkedDomainServices = didDocument.service.filter(service => service.type == "LinkedDomains")
+    //       if (linkedDomainServices.length > 0) {
+    //         return true
+    //       }
+    //     } else {
+    //       return false;
+    //     }
+    //   } else {
+    //     return false;
+    //   }
+    // },
     async verifyDNS01AndUpdateDID() {
       try {
         this.isLoading = true;
@@ -519,7 +521,6 @@ export default {
 
     async registerDidDoc(didDocument, verificationMethodId) {
       try {
-
         this.isLoading = true;
         await this.registerDIDsForAService({
           didDocument, verificationMethodId
@@ -565,8 +566,8 @@ export default {
           ]
         }
       },
-        // EventBus.$emit("resetOption", this.selected.attributeTypes)
-        this.attributes = []
+      this.shouldRegister = false
+      this.attributes = []
     },
 
     async createDID() {
@@ -598,13 +599,68 @@ export default {
         // this.did.options.verificationRelationships = this.did.options.verificationRelationships.map(x => x.value)
         // console.log(JSON.stringify(this.did))
         console.log('Before calling createDIDsForAService')
-        await this.createDIDsForAService(this.did)
+        const json = await this.createDIDsForAService(this.did)
         console.log('After calling createDIDsForAService')
+
+        this.notifySuccess('DID created successfully')
+        
+        if(this.shouldRegister == true){
+          this.notifySuccess('Proceeding to register the DID...')
+          const verificationMethodIds = json.metaData.didDocument.verificationMethod || [];
+          const signInfos = verificationMethodIds.map((vm) => ({
+            verification_method_id: vm.id,
+          }));
+          const payload = {
+              didDocument: json.metaData.didDocument,
+              signInfos
+          }
+          this.registerDIDsForAService(payload).then((registerAsyncResponse) => {
+            if(registerAsyncResponse){
+              this.updateADID({
+                did: registerAsyncResponse.did,
+                status: 'Please wait..',
+              })
+              this.checkRegistrationStatus(registerAsyncResponse.did)
+            }
+          })  
+        }
         this.isLoading = false;
         this.openSlider();
       } catch (e) {
         console.error(e.message)
         this.isLoading = false
+        this.notifyErr(e.message)
+      }
+    },
+
+    async checkRegistrationStatus(id_to_check_status){
+      try{
+        const maxrtries = 6 // after 30 sec abort            
+        const interval = 5
+        let i = 0
+        const statusCheckInterval = setInterval(async () => {
+          //this.notifySuccess('Please wait, checking status of registration from blockchain...')
+          i = i + 1;
+          const response = await this.checkBlockchainStatusOfSSI(id_to_check_status)
+          if(response && response.data && response.data.length > 0 && response.data[0]){
+            if(response.data[0].status == 0){
+              this.notifySuccess('DID successfully registerd on the blockchain, txHash: '+ response.data[0].txnHash)
+              this.updateADID({
+                did: id_to_check_status,
+                status: 'Registered',
+              })
+              clearInterval(statusCheckInterval)
+            } else {
+              this.notifyError('Sorry we could not register your DID, txHash: '+ response.data[0].txnHash)
+            }
+          }
+          if(i == maxrtries){
+            this.notifyErr('All atempts failed to check the status on blockchain. Please check it manually')
+            clearInterval(statusCheckInterval)
+          }
+        }, interval * 1000)
+      }catch(e){
+        console.error(e.message)
         this.notifyErr(e.message)
       }
     },

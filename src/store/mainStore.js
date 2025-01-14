@@ -1290,7 +1290,7 @@ const mainStore = {
                         return reject(new Error('Tenant url is null or empty, service is not selected'))
                     }
 
-                    const url = `${sanitizeUrl(tenantUrl)}/api/v1/did?page=1&limit=10`;
+                    const url = `${sanitizeUrl(tenantUrl)}/api/v1/did?page=1&limit=100`;
                     const options = {
                         method: "GET",
                         headers: {
@@ -1320,6 +1320,7 @@ const mainStore = {
                                         })
                                         commit('setDIDList', payload)
                                     }
+
                                     resolve(json.data)
                                 } else {
                                     resolve([])
@@ -1410,6 +1411,7 @@ const mainStore = {
                     }
 
                     const url = `${sanitizeUrl(selectedService.tenantUrl)}/api/v1/did/resolve/${payload}`;
+                    // const url = `http://ent-8ee83cc.localhost:3003/api/v1/did/resolve/${payload}`;
                     const options = {
                         method: "GET",
                         headers: {
@@ -1446,6 +1448,7 @@ const mainStore = {
         createDIDsForAService({ commit, getters, dispatch }, payload) {
             return new Promise(function (resolve, reject) {
                 {
+                    // const payload = data.requestBody
                     if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
                         return reject(new Error('Tenant url is null or empty, service is not selected'))
                     }
@@ -1470,16 +1473,8 @@ const mainStore = {
                                     didDocument: {},
                                     status: 'Created'
                                 })
-                                const verificationMethodIds = json.metaData.didDocument.verificationMethod || [];
-                                const signInfos = verificationMethodIds.map((vm) => ({
-                                    verification_method_id: vm.id,
-                                }));
-                                const payload = {
-                                    didDocument: json.metaData.didDocument,
-                                    signInfos
-                                }
-                                await dispatch('registerDIDsForAService', payload)
-                                resolve()
+                                dispatch('resolveDIDForAService', json.did)
+                                resolve(json)
                             } else {
                                 reject(new Error('Could not create DID for this service'))
                             }
@@ -1491,7 +1486,7 @@ const mainStore = {
 
         },
 
-        registerDIDsForAService({ getters, dispatch }, payload) {
+        registerDIDsForAService({ getters }, payload) {
             return new Promise(function (resolve, reject) {
                 const body = {
                     didDocument: payload.didDocument,
@@ -1517,10 +1512,43 @@ const mainStore = {
                         .then(response => response.json())
                         .then(json => {
                             if (json) {
-                                dispatch('resolveDIDForAService', json.did)
-                                resolve()
+                                //dispatch('resolveDIDForAService', json.did)
+                                resolve(json)
                             } else {
                                 reject(new Error('Could not register DID for this service'))
+                            }
+                        }).catch(e => {
+                            reject(e)
+                        })
+                }
+            })
+
+        },
+
+        checkBlockchainStatusOfSSI({ getters }, payload) {
+            return new Promise(function (resolve, reject) {
+                {
+                    if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
+                        return reject(new Error('Tenant url is null or empty, service is not selected'))
+                    }
+                    const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/status/ssi/${payload}?page=1&limit=10`;
+                    const options = {
+                        method: "GET",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": `Bearer ${getters.getSelectedService.access_token}`,
+                            "Origin": '*'
+                        }
+                    }
+                    fetch(url, {
+                        ...options
+                    })
+                        .then(response => response.json())
+                        .then(json => {
+                            if (json) {
+                                resolve(json)
+                            } else {
+                                reject(new Error('Could not get SSI status of id ' + payload))
                             }
                         }).catch(e => {
                             reject(e)

@@ -156,7 +156,7 @@
     </div>
     <notifications group="foo" />
 
-    <sidebar-menu class="sidebar-wrapper" v-if="showSideNavbar && getSelectedService" @toggle-collapse="onToggleCollapse"
+    <sidebar-menu class="sidebar-wrapper" v-if="parseAuthToken && showSideNavbar && getSelectedService" @toggle-collapse="onToggleCollapse"
       :collapsed="isSidebarCollapsed" :theme="'white-theme'" width="220px" :menu="getSideMenu()">
       <div slot="header" style="border-bottom: 1px solid rgba(0,0,0,.12);">
         <v-list>
@@ -443,12 +443,26 @@ export default {
         this.parseAuthToken = null
         return
       }
-      var base64Url = authTokne.split('.')[1];
-      var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-      var jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function (c) {
+      const base64Url = authTokne.split('.')[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function (c) {
         return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
       }).join(''));
-      this.parseAuthToken = JSON.parse(jsonPayload);
+      const parsedjsonPayload = JSON.parse(jsonPayload);
+      const { exp } = parsedjsonPayload
+      if(!this.checkIfDateExpired(exp)){
+        this.parseAuthToken = parsedjsonPayload
+      } else {
+        this.parseAuthToken = null
+      }
+    },
+    checkIfDateExpired(datetimestamp){
+      const currentTime = Math.floor(Date.now() / 1000);
+      if (datetimestamp < currentTime) {
+        return true
+      } else {
+        return false
+      }
     },
     async initializeStore() {
       try {
