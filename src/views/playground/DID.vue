@@ -212,7 +212,7 @@ h5 span {
               <!-- <th></th> -->
               <th class="sticky-header">DID Id</th>
               <th class="sticky-header">Name</th>
-              <th class="sticky-header">Linked Keys</th>
+              <th class="sticky-header">Associated Key Type(s)</th>
               <th class="sticky-header">Status</th>
               <!-- <th class="sticky-header">Action</th> -->
             </tr>
