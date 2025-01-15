@@ -212,10 +212,10 @@ const mainStore = {
             state.schemaList = payload;
         },
         insertDIDList(state, payload) {
-            state.didList.push(payload);
+            state.didList.unshift(payload);
         },
         insertSchemaList(state, payload) {
-            state.schemaList.push(payload);
+            state.schemaList.unshift(payload);
         },
         updateADID(state, payload) {
             let index = state.didList.findIndex(x => x.did === payload.did);

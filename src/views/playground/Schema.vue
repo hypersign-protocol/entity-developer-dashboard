@@ -159,8 +159,7 @@
             </div>
             <div class="form-group">
               <tool-tip infoMessage="Description for the schema"></tool-tip>
-              <label for="schDescription"><strong>Description:</strong></label>
-
+              <label for="schDescription"><strong>Description<span style="color: red">*</span>:</strong></label>
               <textarea type="text" class="form-control" id="schDescription" v-model="credentialDescription" rows="5"
                 cols="20" aria-describedby="orgNameHelp" placeholder="Enter Description for this schema"></textarea>
             </div>
@@ -544,9 +543,9 @@ export default {
                 id: id_to_check_status,
                 status: 'Registered',
               })
+              this.resolveSchema(id_to_check_status)
               clearInterval(statusCheckInterval)
             } else {
-              console.log(response)
               this.resolveSchema(id_to_check_status)
               this.notifyErr('Sorry we could not register your Schema, txHash: ' + response.data[0].txnHash)
             }
@@ -664,10 +663,6 @@ export default {
         isValid = false
         return this.notifyErr(message.SCHEMA.EMPTY_ATTRIBUTE_TYPE)
       }
-      // else if (isValidURL(this.selected.attributeFormat)) {
-      //   isValid = false
-      //   return this.notifyErr(message.SCHEMA.INVALID_FORMAT)
-      // }
       return isValid
     },
     isPresent(attr, update = false) {
@@ -747,79 +742,30 @@ export default {
           return this.notifyErr(message.SCHEMA.INVALID_SCHEMA_NAME)
         } else if (this.attributes.length == 0) {
           return this.notifyErr(message.SCHEMA.EMPTY_SCHEMA_ATTRIBUTE)
+        } else if (isEmpty(this.credentialDescription)) {
+          return this.notifyErr(message.SCHEMA.INVALID_SCHEMA_DESCRIPTION)
+        } else if (isEmpty(this.schemaData.schema.author)) {
+          return this.notifyErr(message.SCHEMA.EMPTY_SCHEMA_AUTHOR)
+        } else if (isEmpty(this.schemaData.verificationMethodId)) {
+          return this.notifyErr(message.SCHEMA.EMPTY_SCHEMA_AUTHOR_VER_METH)
         }
-        // const url = `${this.$config.studioServer.BASE_URL}${this.$config.studioServer.SAVE_SCHEMA_EP}`;
-        // const { orgDid } = this.getSelectedOrg;
-
+        
         this.attributes.map(x => delete x.id)
-        // this.schemaData = {
-        //   "schema": {
-        //     "name": this.credentialName,
-        //     "author": "did:hid:testnet:56d5e9bf-911d-4bfb-b2e6-0e16a2cc7d07",
-        //     "description": this.credentialDescription,
-        //     "additionalProperties": false,
-        //     "fields": this.attributes
-        //   },
-        //   "namespace": "testnet",
-        //   "verificationMethodId": "did:hid:testnet:56d5e9bf-911d-4bfb-b2e6-0e16a2cc7d07s#key-1"
-        // }
         this.schemaData.schema.name = this.credentialName.trim()
         this.schemaData.schema.description = this.credentialDescription.trim()
         this.schemaData.schema.fields = this.attributes
         this.schemaData.schema.author = this.schemaData.schema.author.trim()
         this.schemaData.verificationMethodId = this.schemaData.verificationMethodId.trim()
-        // this.schemaData.verificationMethodId = "did:hid:testnet:56d5e9bf-911d-4bfb-b2e6-0e16a2cc7d07s#key-1"
-
-        console.log(this.schemaData)
-
         const response = await this.createSchemaForAService(this.schemaData)
-        this.isLoading = false;
-        this.openSlider();
         if (response) {
-          console.log(response)
           this.updateASchema({
             id: response?.schemaId,
             status: 'Please wait..',
           })
           this.checkRegistrationStatus(response?.schemaId)
         }
-
-        // // const schemaData = {
-        // //   name: this.credentialName,
-        // //   author: orgDid,
-        // //   fields: this.attributes,
-        // //   description: this.credentialDescription,
-        // //   // additionalProperties: this.additionalProperties,
-        // //   orgDid: this.selectedOrgDid
-        // // };
-        // this.QrData.data = schemaData
-
-        // let headers = {
-        //   "Content-Type": "application/json",
-        //   "Authorization": `Bearer ${this.authToken}`
-        // };
-        // fetch(url, {
-        //   method: "POST",
-        //   body: JSON.stringify({ QR_DATA: this.QrData }),
-        //   headers,
-        // })
-        //   .then((res) => res.json())
-        //   .then((j) => {
-        //     const { QR_DATA } = j.data
-        //     if (j.message === 'success') {
-        //       this.notifySuccess("Schema creation initiated. Please approve the transaction from your wallet");
-        //       // Store the information in store.
-        //       this.upsertAschemaAction(j.data.schema)
-        //       // Open the wallet for trasanctional approval.
-        //       const URL = `${this.$config.webWalletAddress}/deeplink?url=${JSON.stringify(QR_DATA)}`
-        //       this.openWallet(URL)
-        //       this.ssePopulateSchema(j.data.schema._id, this.$store)
-        //       this.openSlider();
-        //       this.increaseOrgDataCount('schemasCount')
-        //     } else {
-        //       throw new Error(`${j.error}`);
-        //     }
-        //   });
+        this.isLoading = false;
+        this.openSlider();
       } catch (e) {
         console.error(e)
         this.notifyErr(`Error: ${e.message}`);
