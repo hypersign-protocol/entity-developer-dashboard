@@ -547,6 +547,12 @@ export default {
             })
 
             menu.push({
+              href: "/studio/ssi/schema/" + this.getSelectedService.appId,
+              title: "Schemas",
+              icon: "fa fa-puzzle-piece",
+            })
+
+            menu.push({
               href: "/studio/ssi/credit/" + this.getSelectedService.appId,
               title: "Credits",
               icon: "fas fa-hand-holding-usd",

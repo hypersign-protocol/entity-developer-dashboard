@@ -1,5 +1,16 @@
 <template>
-  <b-modal v-model="show" :id="id" hide-footer ref="modal-1" :title="Header" centered>
+  <b-modal 
+    :size="size" 
+    scrollable  
+    v-model="show" 
+    :id="id" 
+    hide-footer 
+    ref="modal-1" 
+    :title="Header" 
+    centered
+    header-bg-variant="dark"
+    header-text-variant='light'
+    >
     <slot />
   </b-modal>
 </template>
@@ -18,6 +29,10 @@ export default {
     },
     id: {
       type: String,
+    },
+    size: {
+      type: String, 
+      default: ''
     }
   },
   created() {

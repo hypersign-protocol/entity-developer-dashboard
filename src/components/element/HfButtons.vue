@@ -1,6 +1,7 @@
 <template>
-  <v-btn class="btn btn-outline-secondary" :class="customClass ? `${customClass}` : 'btn button-theme'"
+  <v-btn  :class="customClass ? `${customClass}` : 'btn button-theme'"
   :title="title"
+  depressed
   @click="emitExecuteAction()"
   >
   <span v-if="iconClass"><i :class="iconClass"></i></span>  
@@ -21,7 +22,8 @@ export default {
       }, 
       customClass:{
         type:String,
-        require:false
+        require:false,
+        default: 'btn btn-outline-secondary'
       },
       title:{
         type:String,

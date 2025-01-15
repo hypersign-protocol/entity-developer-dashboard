@@ -208,8 +208,14 @@ const mainStore = {
         setDIDList(state, payload) {
             state.didList = payload;
         },
+        setSchemaList(state, payload) {
+            state.schemaList = payload;
+        },
         insertDIDList(state, payload) {
             state.didList.push(payload);
+        },
+        insertSchemaList(state, payload) {
+            state.schemaList.push(payload);
         },
         updateADID(state, payload) {
             let index = state.didList.findIndex(x => x.did === payload.did);
@@ -217,6 +223,14 @@ const mainStore = {
                 Object.assign(state.didList[index], { ...payload });
             } else {
                 state.didList.push(payload);
+            }
+        },
+        updateASchema(state, payload) {
+            let index = state.schemaList.findIndex(x => x.id === payload.id);
+            if (index >= 0) {
+                Object.assign(state.schemaList[index], { ...payload });
+            } else {
+                state.schemaList.push(payload);
             }
         },
         setAdminMembers: (state, payload) => {
@@ -1846,6 +1860,180 @@ const mainStore = {
                         })
                 }
             })
+        },
+
+
+
+        // schema
+
+        fetchSchemaList({ commit, getters, dispatch }, payload = {}) {
+            return new Promise(function (resolve, reject) {
+                {
+                    let tenantUrl = ''
+                    let accessToken = ""
+                    if (payload && payload.tenantUrl && payload.accessToken) {
+                        tenantUrl = payload.tenantUrl
+                        accessToken = payload.accessToken
+
+                    } else if (getters.getSelectedService && getters.getSelectedService.tenantUrl && getters.getSelectedService.access_token) {
+                        tenantUrl = getters.getSelectedService.tenantUrl;
+                        accessToken = getters.getSelectedService.access_token
+                    } else {
+                        return reject(new Error('Tenant url is null or empty, service is not selected'))
+                    }
+
+                    const url = `${sanitizeUrl(tenantUrl)}/api/v1/schema?page=1&limit=100`;
+                    const options = {
+                        method: "GET",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": `Bearer ${accessToken}`,
+                            "Origin": '*'
+                        }
+                    }
+                    fetch(url, {
+                        headers: options.headers
+                    })
+                        .then(response => response.json())
+                        .then(json => {
+                            if (json) {
+                                if (json.data.length > 0) {
+                                    const payload = json.data.map(x => {
+                                        return {
+                                            id: x,
+                                            schemaDocument: {},
+                                            status: ""
+                                        }
+                                    })
+
+                                    if (getters.getSelectedService) {
+                                        json.data.map(x => {
+                                            console.log({ x })
+                                            dispatch('resolveSchema', x)
+                                        })
+                                        commit('setSchemaList', payload)
+                                    }
+
+                                    resolve(json.data)
+                                } else {
+                                    resolve([])
+                                    commit('setSchemaList', [])
+                                }
+                            } else {
+                                reject(new Error('Could not fetch DID for this service'))
+                            }
+
+                        }).catch(e => {
+                            reject(e)
+                        })
+                }
+            })
+
+        },
+
+
+        async resolveSchema({ commit, getters, }, payload) {
+            try {
+                let selectedService = {};
+                if (getters.getSelectedService.services[0].id === 'SSI_API') {
+                    selectedService = getters.getSelectedService
+                } else if (getters.getSelectedService.services[0].id === 'CAVACH_API') {
+                    const ssiSserviceId = getters.getSelectedService.dependentServices[0];
+                    const associatedSSIService = getters.getAppsWithSSIServices.find(
+                        (x) => x.appId === ssiSserviceId
+                    );
+                    selectedService = associatedSSIService
+                }
+
+                if (!selectedService || !selectedService.tenantUrl) {
+                    throw new Error('Tenant url is null or empty, service is not selected')
+                }
+
+                const url = `${sanitizeUrl(selectedService.tenantUrl)}/api/v1/schema/${payload}`;
+                // const url = `http://ent-8ee83cc.localhost:3003/api/v1/schema/${payload}`;
+
+                const options = {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${selectedService.access_token}`,
+                        "Origin": '*'
+                    }
+                }
+                const response = await fetch(url, {
+                    headers: options.headers
+                })
+                const json = await response.json()
+
+                if (json && json.id) {
+                    const data = {
+                        id: payload,
+                        schemaDocument: json,
+                        status: json.proof && Object.keys(json.proof).length > 0 ? 'Registered' : 'Created',
+                    }
+                    commit('updateASchema', data);
+                } else {
+                    const data = {
+                        id: payload,
+                        schemaDocument: {},
+                        status: 'Error',
+                        error: json?.message[0].data
+                    }
+                    commit('updateASchema', data);
+                    //   console.error('Could not fetch Schema for this service id = ' + payload)
+                }
+            } catch (e) {
+                const data = {
+                    id: payload,
+                    schemaDocument: {},
+                    status: 'Error',
+                    error: e.message
+                }
+                commit('updateASchema', data);
+                console.error(e)
+            }
+        },
+
+
+        createSchemaForAService({ commit, getters }, payload) {
+            return new Promise(function (resolve, reject) {
+                {
+                    // const payload = data.requestBody
+                    if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
+                        return reject(new Error('Tenant url is null or empty, service is not selected'))
+                    }
+                    const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/schema`;
+                    const options = {
+                        method: "POST",
+                        body: JSON.stringify(payload),
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": `Bearer ${getters.getSelectedService.access_token}`,
+                            "Origin": '*'
+                        }
+                    }
+                    fetch(url, {
+                        ...options
+                    })
+                        .then(response => response.json())
+                        .then(async json => {
+                            if (json && json.schemaId) {
+                                commit('insertSchemaList', {
+                                    id: json.schemaId,
+                                    schemaDocument: {},
+                                    status: 'Please wait...'
+                                })
+                                //dispatch('resolveSchema', json.schemaId)
+                                resolve(json)
+                            } else {
+                                reject(new Error('Could not create DID for this service'))
+                            }
+                        }).catch(e => {
+                            reject(e)
+                        })
+                }
+            })
+
         },
     }
 }

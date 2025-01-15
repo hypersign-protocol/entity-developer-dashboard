@@ -357,8 +357,6 @@
                 {{ did }}
               </option>
             </select>
-            <!-- <input type="text" class="form-control" id="orgDid" v-else v-model="appModel.issuerDid" disabled
-              aria-describedby="orgNameHelp" /> -->
           </div>
 
           <div class="form-group" v-if="
@@ -377,8 +375,7 @@
                 {{ truncate(vm.id, 40) + ' (' +vm.type+')' }}
               </option>
             </select>
-            <!-- <input type="text" class="form-control" id="orgDid" v-else v-model="appModel.issuerDid" disabled
-              aria-describedby="orgNameHelp" /> -->
+           
           </div>
 
         </div>

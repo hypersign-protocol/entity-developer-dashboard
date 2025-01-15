@@ -1,9 +1,4 @@
 <style scoped>
-.sticky-header {
-  position: sticky;
-  top: 0;
-}
-
 .container {
   width: 80vw;
 }
@@ -651,7 +646,7 @@ export default {
               })
               clearInterval(statusCheckInterval)
             } else {
-              this.notifyError('Sorry we could not register your DID, txHash: '+ response.data[0].txnHash)
+              this.notifyErr('Sorry we could not register your DID, txHash: '+ response.data[0].txnHash)
             }
           }
           if(i == maxrtries){

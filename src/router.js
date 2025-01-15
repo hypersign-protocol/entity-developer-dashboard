@@ -3,6 +3,7 @@ import Router from 'vue-router'
 import fetch from 'node-fetch'
 import config from './config'
 import store from './store'
+import Schema from './views/playground/Schema.vue'
 const Home = () => import('./views/Home.vue');
 const PKIIdLogin = () => import('./views/PKIIdLogin.vue')
 const MainDashboard = () => import('./views/Dashboard.vue')
@@ -94,6 +95,15 @@ const router = new Router({
       meta: {
         requiresAuth: true,
         title: `${config.app.name} - DIDs`
+      }
+    },
+    {
+      path: '/studio/ssi/schema/:appId',
+      name: 'Schemas',
+      component: Schema,
+      meta: {
+        requiresAuth: true,
+        title: `${config.app.name} - Schema`
       }
     },
     {
