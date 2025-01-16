@@ -37,7 +37,10 @@ const mainStore = {
         myInvitions: [],
         allRoles: [],
         usageDetails: {},
-        kycCredits: []
+        kycCredits: [],
+
+        schemaList: [],
+        credentialList: []
     },
     getters: {
         getIsLoggedOut: (state) => {
@@ -211,11 +214,17 @@ const mainStore = {
         setSchemaList(state, payload) {
             state.schemaList = payload;
         },
+        setCredentialList(state, payload) {
+            state.credentialList = payload;
+        },
         insertDIDList(state, payload) {
             state.didList.unshift(payload);
         },
         insertSchemaList(state, payload) {
             state.schemaList.unshift(payload);
+        },
+        insertCredentialList(state, payload) {
+            state.credentialList.unshift(payload);
         },
         updateADID(state, payload) {
             let index = state.didList.findIndex(x => x.did === payload.did);
@@ -231,6 +240,14 @@ const mainStore = {
                 Object.assign(state.schemaList[index], { ...payload });
             } else {
                 state.schemaList.push(payload);
+            }
+        },
+        updateACredential(state, payload) {
+            let index = state.credentialList.findIndex(x => x.id === payload.id);
+            if (index >= 0) {
+                Object.assign(state.credentialList[index], { ...payload });
+            } else {
+                state.credentialList.push(payload);
             }
         },
         setAdminMembers: (state, payload) => {
@@ -1931,7 +1948,6 @@ const mainStore = {
 
         },
 
-
         async resolveSchema({ commit, getters, }, payload) {
             try {
                 let selectedService = {};
@@ -1972,6 +1988,7 @@ const mainStore = {
                         status: json.proof && Object.keys(json.proof).length > 0 ? 'Registered' : 'Created',
                     }
                     commit('updateASchema', data);
+                    return data;
                 } else {
                     const data = {
                         id: payload,
@@ -1980,6 +1997,7 @@ const mainStore = {
                         error: json?.message[0].data
                     }
                     commit('updateASchema', data);
+                    return data;
                     //   console.error('Could not fetch Schema for this service id = ' + payload)
                 }
             } catch (e) {
@@ -2027,6 +2045,202 @@ const mainStore = {
                                 resolve(json)
                             } else {
                                 reject(new Error('Could not create DID for this service'))
+                            }
+                        }).catch(e => {
+                            reject(e)
+                        })
+                }
+            })
+
+        },
+
+        // credential 
+        // eslint-disable-next-line
+        fetchCredentialList({ commit, getters, dispatch }, payload = {}) {
+            return new Promise(function (resolve, reject) {
+                {
+                    let tenantUrl = ''
+                    let accessToken = ""
+                    if (payload && payload.tenantUrl && payload.accessToken) {
+                        tenantUrl = payload.tenantUrl
+                        accessToken = payload.accessToken
+
+                    } else if (getters.getSelectedService && getters.getSelectedService.tenantUrl && getters.getSelectedService.access_token) {
+                        tenantUrl = getters.getSelectedService.tenantUrl;
+                        accessToken = getters.getSelectedService.access_token
+                    } else {
+                        return reject(new Error('Tenant url is null or empty, service is not selected'))
+                    }
+
+                    const url = `${sanitizeUrl(tenantUrl)}/api/v1/credential?page=1&limit=100`;
+                    const options = {
+                        method: "GET",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": `Bearer ${accessToken}`,
+                            "Origin": '*'
+                        }
+                    }
+                    fetch(url, {
+                        headers: options.headers
+                    })
+                        .then(response => response.json())
+                        .then(json => {
+                            if (json) {
+                                if (json.data.length > 0) {
+                                    const payload = json.data.map(x => {
+                                        return {
+                                            id: x,
+                                            credentialDocument: {},
+                                            credentialStatus: {},
+                                            credentialMetadata: {},
+                                            status: ""
+                                        }
+                                    })
+
+                                    if (getters.getSelectedService) {
+                                        json.data.map(x => {
+                                            dispatch('resolveCredential', { credentialId: x })
+                                        })
+                                        commit('setCredentialList', payload)
+                                    }
+
+                                    resolve(json.data)
+                                } else {
+                                    resolve([])
+                                    commit('setCredentialList', [])
+                                }
+                            } else {
+                                reject(new Error('Could not fetch DID for this service'))
+                            }
+
+                        }).catch(e => {
+                            reject(e)
+                        })
+                }
+            })
+
+        },
+
+
+        async resolveCredential({ commit, getters, }, payload) {
+            try {
+                let selectedService = {};
+                if (getters.getSelectedService.services[0].id === 'SSI_API') {
+                    selectedService = getters.getSelectedService
+                } else if (getters.getSelectedService.services[0].id === 'CAVACH_API') {
+                    const ssiSserviceId = getters.getSelectedService.dependentServices[0];
+                    const associatedSSIService = getters.getAppsWithSSIServices.find(
+                        (x) => x.appId === ssiSserviceId
+                    );
+                    selectedService = associatedSSIService
+                }
+
+                if (!selectedService || !selectedService.tenantUrl) {
+                    throw new Error('Tenant url is null or empty, service is not selected')
+                }
+
+                const url = `${sanitizeUrl(selectedService.tenantUrl)}/api/v1/credential/${payload.credentialId}?retrieveCredential=${payload.retrieveCredential ? payload.retrieveCredential : false}`;
+                const options = {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${selectedService.access_token}`,
+                        "Origin": '*'
+                    }
+                }
+                const response = await fetch(url, {
+                    headers: options.headers
+                })
+                const json = await response.json()
+
+
+                if (json && json.metadata) {
+                    let status = "";
+                    let error = "";
+                    if (json.metadata.transactionStatus) {
+                        if (json.metadata.transactionStatus.findIndex((x) => x['status'] == 0) >= 0) {
+                            status = 'Registered'
+                        } else {
+                            status = 'Error'
+                            error = json.metadata.transactionStatus
+                        }
+                    } else {
+                        status = 'Created'
+                    }
+
+
+                    const data = {
+                        id: payload.credentialId,
+                        credentialDocument: json.credentialDocument,
+                        credentialStatus: json.credentialStatus,
+                        credentialMetadata: json.metadata,
+                        status: status, //json.metadata.transactionStatus && Object.keys(json.metadata.transactionStatus).length > 0 ? 'Registered' : 'Created',
+                        error
+                    }
+                    commit('updateACredential', data);
+                }
+
+                // else {
+                //     const data = {
+                //         id: payload,
+                //         credentialDocument: {},
+                //         credentialStatus: {},
+                //         credentialMetadata: {},
+                //         status: 'Error',
+                //         error: json?.message[0].data
+                //     }
+                //     commit('updateACredential', data);
+
+                // }
+            } catch (e) {
+                const data = {
+                    id: payload.credentialId,
+                    credentialDocument: {},
+                    credentialStatus: {},
+                    credentialMetadata: {},
+                    status: 'Error',
+                    error: e.message
+                }
+                commit('updateACredential', data);
+                console.error(e)
+            }
+        },
+
+        issueCredentialForAService({ commit, getters }, payload) {
+            return new Promise(function (resolve, reject) {
+                {
+                    // const payload = data.requestBody
+                    if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
+                        return reject(new Error('Tenant url is null or empty, service is not selected'))
+                    }
+                    const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/credential/issue`;
+                    const options = {
+                        method: "POST",
+                        body: JSON.stringify(payload),
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": `Bearer ${getters.getSelectedService.access_token}`,
+                            "Origin": '*'
+                        }
+                    }
+                    fetch(url, {
+                        ...options
+                    })
+                        .then(response => response.json())
+                        .then(async json => {
+                            if (json && json.metadata) {
+                                const data = {
+                                    id: json.metadata.credentialId,
+                                    credentialDocument: json.credentialDocument,
+                                    credentialStatus: json.credentialStatus,
+                                    credentialMetadata: json.metadata,
+                                    status: ''//json.proof && Object.keys(json.proof).length > 0 ? 'Registered' : 'Created',
+                                }
+                                commit('insertCredentialList', data)
+                                resolve(data)
+                            } else {
+                                reject(new Error('Could not issue credential'))
                             }
                         }).catch(e => {
                             reject(e)

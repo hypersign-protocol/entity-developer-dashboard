@@ -4,6 +4,7 @@ import fetch from 'node-fetch'
 import config from './config'
 import store from './store'
 import Schema from './views/playground/Schema.vue'
+import CredentialStatus from './views/playground/CredentialStatus.vue'
 const Home = () => import('./views/Home.vue');
 const PKIIdLogin = () => import('./views/PKIIdLogin.vue')
 const MainDashboard = () => import('./views/Dashboard.vue')
@@ -104,6 +105,15 @@ const router = new Router({
       meta: {
         requiresAuth: true,
         title: `${config.app.name} - Schema`
+      }
+    },
+    {
+      path: '/studio/ssi/credential/:appId',
+      name: 'Credential',
+      component: CredentialStatus,
+      meta: {
+        requiresAuth: true,
+        title: `${config.app.name} - Credential`
       }
     },
     {

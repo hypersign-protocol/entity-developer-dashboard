@@ -553,6 +553,13 @@ export default {
             })
 
             menu.push({
+              href: "/studio/ssi/credential/" + this.getSelectedService.appId,
+              title: "Credential",
+              icon: "fa fa-certificate",
+            })
+
+
+            menu.push({
               href: "/studio/ssi/credit/" + this.getSelectedService.appId,
               title: "Credits",
               icon: "fas fa-hand-holding-usd",

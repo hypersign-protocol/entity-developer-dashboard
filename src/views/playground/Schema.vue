@@ -146,7 +146,7 @@
           <h3 v-if="schemaList.length > 0" style="text-align: left;">
             Schemas</h3>
           <h3 v-else style="text-align: left;">Create your first schema!</h3>
-          <hf-buttons name="Create" iconClass="fa fa-plus" style="text-align: right;" class="ml-auto"
+          <hf-buttons name="Create" iconClass="fa fa-plus" class="ml-auto"
             @executeAction="openSlider()"></hf-buttons>
         </div>
         <StudioSideBar title="Create Schema">
