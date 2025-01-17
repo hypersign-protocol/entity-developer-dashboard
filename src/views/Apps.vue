@@ -936,7 +936,7 @@
 import HfPopUp from "../components/element/hfPopup.vue";
 import StudioSideBar from "../components/element/StudioSideBar.vue";
 import UtilsMixin from "../mixins/utils";
-import { isEmpty, isValidOrigin } from "../mixins/fieldValidation";
+import { isEmpty } from "../mixins/fieldValidation";
 import "vue-loading-overlay/dist/vue-loading.css";
 import Loading from "vue-loading-overlay";
 import HfButtons from "../components/element/HfButtons.vue";
@@ -1055,7 +1055,7 @@ export default {
         walletAddress: "",
         edvId: "",
         description: "",
-        whitelistedCors: "",
+        whitelistedCors: "*",
         logoUrl: "",
         tenantUrl: "",
         services: [],
@@ -1298,18 +1298,17 @@ export default {
         }
       }
 
-      if (!Array.isArray(this.appModel.whitelistedCors)) {
-        const newArray = this.appModel.whitelistedCors
-          .split(",")
-          .filter((x) => x != " ")
-          .map((x) => x.trim());
-        for (let i = 0; i < newArray.length; i++) {
-          if (!isValidOrigin(newArray[i])) {
-            m.push(messages.APPLICATION.INVALID_CORS);
-            break;
-          }
-        }
-      }
+      // console.log('----------------------------------------------------------------')
+      // console.log(this.appModel.whitelistedCors)
+      // if (!Array.isArray(this.appModel.whitelistedCors)) {
+      //   const newArray = this.appModel.whitelistedCors?.split(",").filter((x) => x != " ").map((x) => x.trim());
+      //   for (let i = 0; i < newArray.length; i++) {
+      //     if (!isValidOrigin(newArray[i])) {
+      //       m.push(messages.APPLICATION.INVALID_CORS);
+      //       break;
+      //     }
+      //   }
+      // }
 
       if (!this.appModel.domain) {
         m.push(messages.APPLICATION.ENTER_DOMAIN_ORGIN);
@@ -1340,6 +1339,9 @@ export default {
     },
     async createAnApp() {
       try {
+        if(!this.appModel.whitelistCors) {
+          this.appModel.whitelistedCors = '*';
+        }
         const errorMessages = this.validateFields();
         if (errorMessages && errorMessages.message.length > 0) {
           throw errorMessages;
@@ -1348,10 +1350,7 @@ export default {
         this.isLoading = true;
         let whitelistCors = [];
         if (!isEmpty(this.appModel.whitelistedCors)) {
-          whitelistCors = this.appModel.whitelistedCors
-            .split(",")
-            .filter((x) => x != " ")
-            .map((x) => x.trim());
+          whitelistCors = this.appModel.whitelistedCors?.split(",").filter((x) => x != " ").map((x) => x.trim());
           const cors = config?.studioServer?.WHITELIST_CORS?.split(",");
 
           cors.forEach((e) => {
