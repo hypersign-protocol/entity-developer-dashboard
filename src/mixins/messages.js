@@ -47,7 +47,8 @@ const CREDENTIAL = {
     EMPTY_ISSUER_DID: "Please enter Issuer DID",
     EMPTY_HOLDER_DID: "Please enter Subject Did",
     SELECT_SCHEMA: "Please select atleat one schema",
-    INVALID_DID: "Please enter a valid did"
+    INVALID_DID: "Please enter a valid did",
+    ISSUER_HOLDER_NOT_SAME: 'Issuer and subject DID can not be the same'
 }
 
 const PRESENTATION = {

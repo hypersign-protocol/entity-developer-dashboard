@@ -195,6 +195,7 @@
                 </b-button>
               </b-card-header>
               <b-collapse id="collapse-1" class="mt-2" v-model="visible" style="padding:10px">
+                
                 <div class="selected-media-wrapper d-flex p-2 mb-4" style="overflow-y: auto"
                   v-if="attributes.length > 0">
                   <div v-for="(attr) in attributes" v-bind:key="attr.id">
@@ -210,7 +211,6 @@
                     </div>
                   </div>
                 </div>
-
                 <div class="row g-3 align-items-center w-100">
                   <div class="col-lg-3 col-md-3 text-left">
                     <tool-tip infoMessage="Attribute Name"></tool-tip>
@@ -233,8 +233,6 @@
                       @selected="e => (selected.attributeTypes = e)"></hf-select-drop-down>
                   </div>
                 </div>
-
-
 
                 <div class="row g-3 align-items-center w-100 mt-4">
                   <div class="col-lg-3 col-md-3 text-left">
@@ -278,8 +276,6 @@
             <tr>
               <th class="sticky-header">ID</th>
               <th class="sticky-header">Name</th>
-              <!-- <th>Model Version</th> -->
-              <!-- <th class="sticky-header">Description</th> -->
               <th class="sticky-header">Author</th>
               <th class="sticky-header">Properties</th>
               <th class="sticky-header">Created At (UTC)</th>
@@ -461,7 +457,7 @@ export default {
         { text: "integer", value: "integer" },
         { text: "number", value: "number" },
         { text: "boolean", value: "boolean" },
-        { text: "date-time", value: "date" },
+        // { text: "date-time", value: "date" },
       ],
       page: 1,
       visible: false,
@@ -728,6 +724,7 @@ export default {
     },
 
     async resolveDid(event) {
+      this.schemaData.verificationMethodId = ""
       const did = event.target.value.trim()
       const didDocument = this.didList.find(x => x.did == did)?.didDocument
       this.issuerVerificationMethodIds = didDocument ? didDocument.verificationMethod : [];

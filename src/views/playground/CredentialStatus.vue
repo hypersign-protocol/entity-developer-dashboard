@@ -2,27 +2,47 @@
 .container {
   width: 80vw;
 }
+
 .card-header {
   background: aliceblue;
   padding: 0px;
 }
 
+.theme-color {
+  background-color: rgba(241, 179, 25, 0.24);
+  color: #212529;
+}
+
+.bg-transparant {
+  background-color: transparent !important;
+  color: #212529;
+}
+
 .card {
   border-radius: 10px;
 }
+
 .goschema {
   color: #339af0;
 }
+
 .goschema:hover {
   text-decoration: underline;
   cursor: pointer;
 }
+
+.theme-color {
+  background-color: rgba(241, 179, 25, 0.24);
+  color: #212529;
+}
+
 .far {
   color: gray;
   font-size: 1.5em;
   display: inline;
   cursor: pointer;
 }
+
 .datetime-picker {
   background-color: #fff;
   background-clip: content-box;
@@ -30,6 +50,7 @@
   border-radius: 0.25rem;
   padding: 0.375rem 0.75rem;
 }
+
 .linkdiv {
   background-clip: content-box;
   background-color: rgba(173, 232, 255, 0.5607843137254902);
@@ -37,6 +58,7 @@
   height: 50px;
   text-align: left;
 }
+
 h5 {
   width: 100%;
   text-align: center;
@@ -44,28 +66,28 @@ h5 {
   line-height: 0.1em;
   margin: 10px 0 20px;
 }
+
 h5 span {
   background: #fff;
   padding: 0 10px;
 }
+
 .scrollit {
   overflow: hidden;
   height: 600px;
 }
+
 .scrollit:hover {
   overflow-y: auto;
 }
+
 .grabStyle {
   cursor: grab
 }
 </style>
 <template>
   <div :class="isContainerShift ? 'homeShift' : 'home'">
-    <loading
-      :active.sync="isLoading"
-      :can-cancel="true"
-      :is-full-page="fullPage"
-    ></loading>
+    <loading :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loading>
     <div class="">
       <div class="" style="text-align: left">
         <!-- <Info :message="description" /> -->
@@ -76,108 +98,92 @@ h5 span {
           <h3 v-else style="text-align: left">
             Issue your first verifiable credential!
           </h3>
-          <hf-buttons
-            iconClass="fa fa-plus"
-            name="Create"
-            class="ml-auto"
-            @executeAction="openSlider()"
-          ></hf-buttons>
+          <hf-buttons iconClass="fa fa-plus" name="Create" class="ml-auto" @executeAction="openSlider()"></hf-buttons>
         </div>
-        <StudioSideBar
-          :title="isEdit ? 'Edit Credential Status' : 'Issue Credential'"
-        >
-          <div class="container" style="width: 100%;">    
-                 
-                  <div class="" v-if="isEdit === false">
-                    <tool-tip
-                      infoMessage="Enter DID to whome you are issuing credential"
-                    ></tool-tip>
-                    <label for="fordid"
-                      ><strong
-                        >Subject DID<span style="color: red">*</span>:</strong
-                      ></label
-                    >
-                    <div class="input-group mb-3">
-                      <input
-                        type="text"
-                        class="form-control"
-                        placeholder="Issued To (did:hs:...)"
-                        v-model="holderDid"
-                      />
+        <StudioSideBar :title="isEdit ? 'Edit Credential Status' : 'Issue Credential'">
+          <div class="container" style="width: 100%;">
 
-                      <div
+            <div class="" v-if="isEdit === false">
+              <tool-tip infoMessage="Enter DID to whome you are issuing credential"></tool-tip>
+              <label for="fordid"><strong>Subject DID<span style="color: red">*</span>:</strong></label>
+              <div class="input-group mb-3">
+                <input type="text" class="form-control" placeholder="did:hid:123123123123" v-model="holderDid" />
+
+                <!-- <div
                         class="input-group-append"
                         @click="getSelfDIDAsSubject()"
                       >
                         <button class="btn btn-outline-secondary" type="button">
                           Self
                         </button>
-                      </div>
-                    </div>
-                  </div>
+                      </div> -->
+              </div>
+            </div>
+            <div class="form-group card">
+              <b-card-header header-tag="header" class="p-1 border-0 accordin-header theme-color" role="tab">
+                <b-button block v-b-toggle.accordion-1 style="text-decoration:none; color:#212529;" variant="secondary"
+                  :aria-expanded="schemaConfigVisible ? 'true' : 'false'"
+                  @click="issuerConfigVisible = !issuerConfigVisible" aria-controls="collapse-1"
+                  class="text-left border-0 theme-color bg-transparant" title="Create schema configuration">Issuer
+                  Configurations
+                  <i :class="!issuerConfigVisible ? 'fa fa-arrow-down' : 'fa fa-arrow-up'" style="float:right;"></i>
+                </b-button>
+              </b-card-header>
+              <b-collapse id="collapse-1" class="mt-2" v-model="issuerConfigVisible" style="padding:10px">
 
-                  <div class="">
-              <tool-tip infoMessage="Select issuer DID who will be author of this schema"></tool-tip>
-              <label for="selectService"><strong>Select Issuer DID<span style="color: red">*</span>:
-                </strong></label>
-              <select class="custom-select" id="selectService" v-model="issuerDid" @change="resolveDid($event)">
-                <option value="">Select a DID</option>
-                <option v-for="did in associatedSSIServiceDIDs" :value="did.split('|')[1]" :key="did">
-                  {{ did }}
-                </option>
-              </select>
+
+                <div class="mb-1">
+                  <tool-tip infoMessage="Select issuer DID who will be author of this schema"></tool-tip>
+                  <label for="selectService"><strong>Select Issuer DID<span style="color: red">*</span>:
+                    </strong></label>
+                  <select class="custom-select" id="selectService" v-model="issuerDid" @change="resolveDid($event)">
+                    <option value="">Select a DID</option>
+                    <option v-for="did in associatedSSIServiceDIDs" :value="did.split('|')[1]" :key="did">
+                      {{ did }}
+                    </option>
+                  </select>
+                </div>
+
+                <div class="" v-if="issuerDid">
+                  <tool-tip infoMessage="Choose a signing key"></tool-tip>
+                  <label for="selectService"><strong>Signing Key Of Issuer<span style="color: red">*</span>:
+                    </strong></label>
+                  <select class="custom-select" id="selectService" v-model="issuerVerificationMethodId">
+                    <option value="">Select a Signing Key</option>
+                    <option v-for="vm in issuerVerificationMethodIds" :value="vm.id" :key="vm.id">
+                      {{ truncate(vm.id, 40) + ' (' + vm.type + ')' }}
+                    </option>
+                  </select>
+                </div>
+              </b-collapse>
             </div>
 
-            <div class="" v-if="issuerDid">
-              <tool-tip infoMessage="Choose a signing key"></tool-tip>
-              <label for="selectService"><strong>Signing Key Of Issuer<span style="color: red">*</span>:
-              </strong></label>
-              <select class="custom-select" id="selectService" v-model="issuerVerificationMethodId">
-                <option value="">Select a Signing Key</option>
-                <option v-for="vm in issuerVerificationMethodIds" :value="vm.id" :key="vm.id">
-                  {{ truncate(vm.id, 40) + ' (' +vm.type+')' }}
-                </option>
-              </select>
-            </div>
+            <div class="form-group card">
+              <b-card-header header-tag="header" class="p-1 border-0 accordin-header theme-color" role="tab">
+                <b-button block v-b-toggle.accordion-1 style="text-decoration:none; color:#212529;" variant="secondary"
+                  :aria-expanded="schemaConfigVisible ? 'true' : 'false'"
+                  @click="schemaConfigVisible = !schemaConfigVisible" aria-controls="collapse-1"
+                  class="text-left border-0 theme-color bg-transparant" title="Create schema configuration">Fields
+                  Configurations
+                  <i :class="!schemaConfigVisible ? 'fa fa-arrow-down' : 'fa fa-arrow-up'" style="float:right;"></i>
+                </b-button>
+              </b-card-header>
+              <b-collapse id="collapse-1" class="mt-2" v-model="schemaConfigVisible" style="padding:10px">
+                <div class="mb-1" v-if="isEdit === false">
+                  <tool-tip infoMessage="Select Schema to issue credential"></tool-tip>
+                  <label for="forselectschema"><strong>SchemaId<span style="color: red">*</span>:</strong></label>
 
-
-                  
-                  <div class="" v-if="isEdit === false">
-                    <tool-tip
-                      infoMessage="Select Schema to issue credential"
-                    ></tool-tip>
-                    <label for="forselectschema"
-                      ><strong
-                        >SchemaId<span style="color: red">*</span>:</strong
-                      ></label
-                    >
-                    <!-- <input list="selectOptions" id="forselectschema" name="forselectschema"/>                     -->
-                    <!-- <b-form-select v-model="selected" :options="selectOptions"
-                        @change="OnSchemaSelectDropDownChange($event)" size="md" class="mt-3">
-                      </b-form-select> -->
-                    <input
-                      list="schema"
-                      class="custom-select custom-select custom-select-md form-control"
-                      placeholder="Click to select your SchemaId Or Enter a SchemaId"
-                      v-model="selectedSchema"
-                      @input="OnSchemaSelectDropDownChange(selectedSchema)"
-                      @change="OnSchemaSelectDropDownChange(selectedSchema)"
-                    />
-                    <datalist id="schema">
-                      <option
-                        v-for="browser in selectOptions"
-                        :key="browser.selected"
-                        :value="browser.value"
-                        class="form-control"
-                      >
-                        {{ browser.text }}
-                      </option>
-                    </datalist>
-                    <!-- <hf-select-drop-down
-                      :options="selectOptions"
-                       @selected="e =>{OnSchemaSelectDropDownChange(e)}"
-                      ></hf-select-drop-down>                 -->
-                    <span
+                  <input list="schema" class="custom-select custom-select custom-select-md form-control"
+                    placeholder="Enter a SchemaId" v-model="selectedSchema"
+                    @input="OnSchemaSelectDropDownChange(selectedSchema)"
+                    @change="OnSchemaSelectDropDownChange(selectedSchema)" />
+                  <datalist id="schema">
+                    <option v-for="browser in selectOptions" :key="browser.selected" :value="browser.value"
+                      class="form-control">
+                      {{ browser.text }}
+                    </option>
+                  </datalist>
+                  <!-- <span
                       class="goschema"
                       v-if="selectOptions.length === 1"
                       @click="goToSchema()"
@@ -192,141 +198,78 @@ h5 span {
                       >
                         Explore Schema(s)</a
                       >
-                    </span>
-                  </div>
-                  <div
-                    class=""
-                    v-if="
-                      isEdit === false &&
-                      issueCredentialType != '' &&
-                      selectedSchema != ''
-                    "
-                  >
-                    <tool-tip infoMessage="Schema Type"></tool-tip>
-                    <label for="fordid"><strong>Type:</strong></label>
-                    <input
-                      type="text"
-                      class="form-control"
-                      v-model="issueCredentialType"
-                      disabled
-                    />
-                  </div>
-                  <div
-                    class=""
-                    v-for="attr in issueCredAttributes"
-                    :key="attr.name"
-                  >
-                    <label for="schDescription"
-                      ><strong
-                        >{{ CapitaliseString(attr.name)
-                        }}<span v-if="attr.required === true" style="color: red"
-                          >*</span
-                        >:</strong
-                      ></label
-                    >
-                    <Datepicker
+                    </span> -->
+                </div>
+                <div class="mb-1" v-if="
+                  isEdit === false &&
+                  issueCredentialType != '' &&
+                  selectedSchema != ''
+                ">
+                  <tool-tip infoMessage="Schema Type"></tool-tip>
+                  <label for="fordid"><strong>Type:</strong></label>
+                  <input type="text" class="form-control" v-model="issueCredentialType" disabled />
+                </div>
+                <div class="mb-1" v-for="attr in issueCredAttributes" :key="attr.name">
+                  <label for="schDescription"><strong>{{ CapitaliseString(attr.name)
+                      }}<span v-if="attr.required === true" style="color: red">*</span>:</strong></label>
+                  <!-- <Datepicker
                       v-if="attr.type === 'date'"
                       class="datepicker"
                       name="toDate"
                       format="YYYY-MM-DD h:i:s"
                       v-model="attr.value"
-                    />
-                    <!-- <input class="ml-2" v-if="attr.type === 'boolean'" type="radio" v-model="attr.value" id="required" >                      -->
-                    <b-form-radio-group
-                      class="pl-2"
-                      style="display: inline-block"
-                      v-if="attr.type === 'boolean'"
-                      id="radio-group-1"
-                      v-model="attr.value"
-                      :options="booleanOption"
-                      name="radio-options-currency"
-                    ></b-form-radio-group>
-                    <input
-                      v-if="attr.type === 'integer'"
-                      type="number"
-                      class="form-control"
-                      id="schemaName"
-                      v-model="attr.value"
-                      aria-describedby="schemaNameHelp"
-                      placeholder="Enter attribute value"
-                    />
-                    <input
-                      v-if="attr.type == 'number'"
-                      type="number"
-                      step="0.01"
-                      class="form-control"
-                      id="schemaName"
-                      v-model="attr.value"
-                      aria-describedby="schemaNameHelp"
-                      placeholder="Enter attribute value"
-                    />
-                    <input
-                      v-if="attr.type == 'string'"
-                      type="text"
-                      class="form-control"
-                      id="schemaName"
-                      v-model="attr.value"
-                      aria-describedby="schemaNameHelp"
-                      placeholder="Enter attribute value"
-                    />
-                  </div>
-                  <div class="pt-2" v-if="isEdit === false">
-                    <tool-tip
-                      infoMessage="Enter expiry time for the credential"
-                    ></tool-tip>
-                    <label for="fordid"
-                      ><strong
-                        >Expiry Date<span style="color: red">*</span>:</strong
-                      ></label
-                    >
-                    <!-- <input type="date" class="form-control"
-                         /> -->
-                    <!-- <div class="form-control"> -->
-                    <Datepicker
+                    /> -->
+                  <b-form-datepicker v-if="attr.type === 'date'" v-model="attr.value"></b-form-datepicker>
+
+                  <!-- <input class="ml-2" v-if="attr.type === 'boolean'" type="radio" v-model="attr.value" id="required" >                      -->
+                  <b-form-radio-group class="pl-2" style="display: inline-block" v-if="attr.type === 'boolean'"
+                    id="radio-group-1" v-model="attr.value" :options="booleanOption"
+                    name="radio-options-currency"></b-form-radio-group>
+                  <input v-if="attr.type === 'integer'" type="number" class="form-control" id="schemaName"
+                    v-model.number="attr.value" aria-describedby="schemaNameHelp" placeholder="Enter attribute value" />
+                  <input v-if="attr.type == 'number'" type="number" step="0.01" class="form-control" id="schemaName"
+                    v-model.number="attr.value" aria-describedby="schemaNameHelp" placeholder="Enter attribute value" />
+                  <input v-if="attr.type == 'string'" type="text" class="form-control" id="schemaName"
+                    v-model="attr.value" aria-describedby="schemaNameHelp" placeholder="Enter attribute value" />
+                </div>
+              </b-collapse>
+
+            </div>
+            <div class="mb-1" v-if="isEdit === false">
+              <tool-tip infoMessage="Enter expiry time for the credential"></tool-tip>
+              <label for="fordid"><strong>Expiry Date<span style="color: red">*</span>:</strong></label>
+              <b-form-datepicker id="example-datepicker" v-model="expiryDateTime" :min="minDate"></b-form-datepicker>
+              <!-- <Datepicker
                       class="datepicker"
                       name="expiryDateTime"
                       format="YYYY-MM-DD h:i:s"
                       v-model="expiryDateTime"
-                    />
-                    <!-- </div>   -->
-                  </div>
+                    /> -->
+            </div>
 
+           
+            <div class="">
+              
 
-                  <div class="">
-              <v-checkbox
-                v-model="creadData.persist"
-                label="Want to store the credential in data vault?"
-              ></v-checkbox>
+              <v-checkbox v-model="creadData.persist" label="Store the credential in the data vault?"></v-checkbox>
             </div>
 
 
             <div class="">
-              <v-checkbox
-                v-model="creadData.registerCredentialStatus"
-                label="Want to attest the credential status on blockchain?"
-              ></v-checkbox>
+              <v-checkbox v-model="creadData.registerCredentialStatus"
+                label="Attest the credential status on the blockchain?"></v-checkbox>
             </div>
 
-                   
-                   
-                   
-                        
+
+
+
+
             <div class="form-group row">
               <div class="col-md-12">
-                <hf-buttons
-                  v-if="isEdit === false"
-                  name="Save"
-                  style="text-align: right"
-                  class="ml-auto"
-                  @executeAction="issueCredential()"
-                ></hf-buttons>
-                <hf-buttons
-                  v-else
-                  name="Update"
-                  style="text-align: right"
-                  class="ml-auto mt-4"
-                  @executeAction="updateCredStatus()"
-                ></hf-buttons>
+                <hf-buttons v-if="isEdit === false" name="Issue" style="text-align: right" class="ml-auto"
+                  @executeAction="issueCredential()"></hf-buttons>
+                <hf-buttons v-else name="Update" style="text-align: right" class="ml-auto mt-4"
+                  @executeAction="updateCredStatus()"></hf-buttons>
               </div>
             </div>
           </div>
@@ -335,15 +278,12 @@ h5 span {
     </div>
     <div class="scrollit" v-if="credentialList.length > 0">
       <div class="">
-        <table
-          class="table table-hover event-card"
-          style="background: #ffff"
-        >
+        <table class="table table-hover event-card" style="background: #ffff">
           <thead class="thead-light">
             <tr>
-              <th  class="sticky-header">Credential Id</th>
-              <th  class="sticky-header">Schema</th>
-              <th  class="sticky-header">Issuer DID</th>
+              <th class="sticky-header">Credential Id</th>
+              <th class="sticky-header">Schema</th>
+              <th class="sticky-header">Issuer DID</th>
               <!-- <th class="sticky-header">Date</th> -->
               <!-- <th>Expiration Date</th>
               <th>Credential Hash</th> -->
@@ -355,13 +295,13 @@ h5 span {
             <tr v-for="row in credentialList" :key="row.id">
               <!-- {{ row }} -->
               <td class="grabStyle">
-                  <span
-                    @click="copyToClip(removeUrl(row.credentialMetadata.credentialId), 'Credential Id')"
-                    >{{ row.credentialMetadata.credentialId ? shorten(row.credentialMetadata.credentialId) : "-" }}
-                  </span>
+                <span @click="copyToClip(removeUrl(row.credentialMetadata.credentialId), 'Credential Id')">{{
+                  row.credentialMetadata.credentialId ? shorten(row.credentialMetadata.credentialId) : "-" }}
+                </span>
               </td>
               <td class="grabStyle" @click="copyToClip(removeUrl(row.credentialMetadata.type.schemaId), 'Schema')">
-                {{ typeof(row.credentialMetadata.type) == 'object' ? shorten(row.credentialMetadata.type.schemaId) : row.credentialMetadata.type }}
+                {{ typeof (row.credentialMetadata.type) == 'object' ? shorten(row.credentialMetadata.type.schemaId) :
+                  row.credentialMetadata.type }}
               </td>
               <td class="grabStyle" @click="copyToClip(removeUrl(row.credentialMetadata.issuerDid), 'Issuer')">
                 {{ shorten(row.credentialMetadata.issuerDid) }}
@@ -383,13 +323,14 @@ h5 span {
                 <span v-else>
                   <wait-spinner></wait-spinner>
                 </span>
-                
+
 
 
               </td>
-              
+
               <td>
-                <span  class="mx-1 grabStyle greyFont" v-if="row.credentialMetadata.persist" title="Unlock credential document" @click="unlockCredential(row.id)">
+                <span class="mx-1 grabStyle greyFont" v-if="row.credentialMetadata.persist"
+                  title="Unlock credential document" @click="unlockCredential(row.id)">
                   <i class="fa fa-unlock" aria-hidden="true"></i> UNLOCK
                 </span>
 
@@ -408,38 +349,24 @@ h5 span {
             </code> 
           </pre>
         </hf-pop-up>
-        
+
         <hf-pop-up Header="Send Credential">
           <Info
-            message="Scan QR code or Copy the link and send it to the credential owner so that they can accept in their wallet"
-          />
+            message="Scan QR code or Copy the link and send it to the credential owner so that they can accept in their wallet" />
           <div class="d-flex justify-content-center">
-            <vue-qr
-              margin="1"
-              :text="credUrl"
-              :size="200"
-              logoBackgroundColor="white"
-              logoCornerRadius="2"
-            ></vue-qr>
+            <vue-qr margin="1" :text="credUrl" :size="200" logoBackgroundColor="white" logoCornerRadius="2"></vue-qr>
           </div>
           <h5 class="pt-2"><span>OR</span></h5>
           <div class="linkdiv">
-            <span
-              style="
+            <span style="
                 max-width: 500px;
                 overflow-wrap: break-word;
                 padding-left: 10px;
                 margin-top: 10px;
                 position: absolute;
-              "
-              >{{ truncate(credUrl, 65) }}</span
-            >
+              ">{{ truncate(credUrl, 65) }}</span>
             <span style="padding: 6px; float: right; margin-top: 5px">
-              <i
-                class="far fa-copy pr-2"
-                title="copy url"
-                @click="copyToClip(credUrl, 'URL')"
-              ></i>
+              <i class="far fa-copy pr-2" title="copy url" @click="copyToClip(credUrl, 'URL')"></i>
             </span>
           </div>
         </hf-pop-up>
@@ -464,7 +391,7 @@ import {
   isFloat,
 } from "../../mixins/fieldValidation";
 import message from "../../mixins/messages";
-import Datepicker from "vuejs-datetimepicker";
+// import Datepicker from "vuejs-datetimepicker";
 import VueQr from "vue-qr";
 import { mapState, mapGetters, mapActions, mapMutations } from "vuex";
 export default {
@@ -475,10 +402,16 @@ export default {
     StudioSideBar,
     HfButtons,
     ToolTip,
-    Datepicker,
+    // Datepicker,
     VueQr,
   },
   computed: {
+    minDate() {
+      const now = new Date()
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+      // 15th two months prior
+      return new Date(today)
+    },
     ...mapGetters("playgroundStore", [
       "vcList",
       "listOfAllSchemaOptions",
@@ -493,8 +426,8 @@ export default {
       containerShift: (state) => state.playgroundStore.containerShift,
       selectedOrgDid: (state) => state.playgroundStore.selectedOrgDid,
     }),
-    associatedSSIServiceDIDs(){
-      return this.didList.filter(x => x.status == 'Registered').map(x =>  x.name ?  `${x.name} | ${x.did}` : x.did)
+    associatedSSIServiceDIDs() {
+      return this.didList.filter(x => x.status == 'Registered').map(x => x.name ? `${x.name} | ${x.did}` : x.did)
     },
     selectOptions() {
       return this.listOfAllSchemaOptions;
@@ -518,6 +451,8 @@ export default {
   },
   data() {
     return {
+      schemaConfigVisible: false,
+      issuerConfigVisible: false,
       credentialDocumentToView: "",
       booleanOption: [
         { text: true, value: true },
@@ -562,7 +497,7 @@ export default {
       // schemaList: [],
       fullPage: true,
       isLoading: false,
-      holderDid: "",
+      holderDid: "did:hid:testnet:20571bbd-2a8f-4a30-836a-c35630053e46",
       issuanceDate: null,
       expiryDateTime: null,
       preStatusSelect: "",
@@ -580,20 +515,20 @@ export default {
         data: "",
       },
       creadData: {
-          fields: {},
-          schemaId: "",
-          issuerDid: "",
-          verificationMethodId: "",
-          subjectDid: "",
-          expirationDate:"",
-          persist: false,
-          registerCredentialStatus: true,
-          namespace: "testnet"
-        }
+        fields: {},
+        schemaId: "",
+        issuerDid: "",
+        verificationMethodId: "",
+        subjectDid: "",
+        expirationDate: "",
+        persist: false,
+        registerCredentialStatus: true,
+        namespace: "testnet"
+      }
     };
   },
   async created() {
-    try{
+    try {
       const usrStr = localStorage.getItem("user");
       this.user = JSON.parse(usrStr);
       this.updateSideNavStatus(true);
@@ -602,7 +537,7 @@ export default {
       // await this.fetchSchemaList();
       await this.fetchCredentialList();
       this.isLoading = false
-    }catch(e){
+    } catch (e) {
       this.isLoading = false
       this.notifyErr(e.message)
       this.$router.push({ path: '/studio/dashboard' });
@@ -617,12 +552,13 @@ export default {
   },
   methods: {
     ...mapActions('mainStore', [
-      'fetchCredentialList', 
-      'resolveCredential', 
+      'fetchCredentialList',
+      'resolveCredential',
       'checkBlockchainStatusOfSSI',
       'resolveSchema',
       'issueCredentialForAService'
     ]),
+    ...mapMutations("mainStore", ['updateACredential']),
     ...mapActions("playgroundStore", [
       "upsertAcredentialAction",
       "fetchCredentialsForOrg",
@@ -633,17 +569,52 @@ export default {
       "increaseOrgDataCount",
       "updateSideNavStatus",
     ]),
+
+    async checkRegistrationStatus(id_to_check_status) {
+      try {
+        const maxrtries = 6 // after 30 sec abort            
+        const interval = 5
+        let i = 0
+        const statusCheckInterval = setInterval(async () => {
+          //this.notifySuccess('Please wait, checking status of registration from blockchain...')
+          i = i + 1;
+          const response = await this.checkBlockchainStatusOfSSI(id_to_check_status)
+          if (response && response.data && response.data.length > 0 && response.data[0]) {
+            if (response.data.findIndex(x => x.status == 0) >= 0) {
+              this.notifySuccess('Credential successfully registerd on the blockchain, txHash: ' + response.data[0].txnHash)
+              this.updateACredential({
+                id: id_to_check_status,
+                status: 'Registered',
+              })
+              this.resolveCredential({ credentialId: id_to_check_status, retrieveCredential: false })
+              clearInterval(statusCheckInterval)
+            } else {
+              this.resolveCredential({ credentialId: id_to_check_status, retrieveCredential: false })
+              this.notifyErr('Sorry we could not register your Credential, txHash: ' + response.data[0].txnHash)
+            }
+          }
+          if (i == maxrtries) {
+            this.notifyErr('All atempts failed to check the status on blockchain. Please check it manually')
+            this.resolveCredential({ credentialId: id_to_check_status, retrieveCredential: false })
+            clearInterval(statusCheckInterval)
+          }
+        }, interval * 1000)
+      } catch (e) {
+        console.error(e.message)
+        this.notifyErr(e.message)
+      }
+    },
     async unlockCredential(credentialId) {
-      this.isLoading = true; 
+      this.isLoading = true;
 
       await this.resolveCredential({
-        credentialId, 
+        credentialId,
         retrieveCredential: true
       })
 
       const cred = this.credentialList.find(x => x.id == credentialId)
       console.log(cred)
-      if(cred){
+      if (cred) {
         this.credentialDocumentToView = JSON.stringify(cred.credentialDocument, null, 2)
         this.$root.$emit("bv::show::modal", "view-credential-doc");
       }
@@ -653,6 +624,7 @@ export default {
       this.holderDid = this.user.id;
     },
     async resolveDid(event) {
+      this.issuerVerificationMethodId = ""
       const did = event.target.value.trim()
       const didDocument = this.didList.find(x => x.did == did)?.didDocument
       this.issuerVerificationMethodIds = didDocument ? didDocument.verificationMethod : [];
@@ -666,7 +638,6 @@ export default {
       }
     },
     editCred(cred) {
-      console.log(JSON.stringify(cred));
       this.clearEdit();
       this.isEdit = true;
       this.$root.$emit("bv::toggle::collapse", "sidebar-right");
@@ -737,6 +708,7 @@ export default {
     clearEdit() {
       this.selectedStatus = null;
       this.issuerDid = "";
+      this.issuerVerificationMethodId = ""
       this.holderDid = "";
       this.expiryDateTime = null;
       this.currentStatus = "";
@@ -794,9 +766,8 @@ export default {
             const id = QR_DATA.data._id;
             if (json.message === "success") {
               this.notifySuccess("cred status updated successfully");
-              const URL = `${
-                this.$config.webWalletAddress
-              }/deeplink?url=${JSON.stringify(QR_DATA)}`;
+              const URL = `${this.$config.webWalletAddress
+                }/deeplink?url=${JSON.stringify(QR_DATA)}`;
               this.openWallet(URL);
               this.ssePopulateCredStatus(id, this.$store);
               this.openSlider();
@@ -828,13 +799,11 @@ export default {
       }
     },
     goToSchema() {
-      this.$router.push({ name: "playgroundSchema" });
+      this.$router.push(`/studio/dashboard/schema/${window.location.href.split('credential/')[1]}`);
     },
     openSlider() {
       this.isEdit = false;
-
       this.clearAll();
-      this.issuerDid = this.orgDid;
       this.$root.$emit("bv::toggle::collapse", "sidebar-right");
     },
     ssePopulateCredStatus(id) {
@@ -903,9 +872,6 @@ export default {
       // }
     },
     onSchemaInputChange() {
-      console.log("inside onSchemaInput");
-      console.log(this.selectedSchema);
-      // this.selected= selected
       this.OnSchemaSelectDropDownChange(this.selectedSchema);
     },
     async OnSchemaSelectDropDownChange(event) {
@@ -916,7 +882,6 @@ export default {
           this.issueCredAttributes = [];
           this.isLoading = true;
           let selectedSchemas = await this.resolveSchema(event);
-          console.log(selectedSchemas)
           const schemaMap = selectedSchemas.schemaDocument.schema.properties;
           const requiredFields = selectedSchemas.schemaDocument.schema.required;
           this.issueCredentialType = selectedSchemas.schemaDocument.name;
@@ -931,16 +896,16 @@ export default {
                 dataToPush["value"] = null;
                 break;
               case "string":
-                dataToPush["value"] = "";
+                dataToPush["value"] = null;
                 break;
               case "number":
-                dataToPush["value"] = "";
+                dataToPush["value"] = null;
                 break;
               case "integer":
-                dataToPush["value"] = "";
+                dataToPush["value"] = null;
                 break;
               case "date":
-                dataToPush["value"] = "";
+                dataToPush["value"] = null;
                 break;
               default:
                 this.notifyErr("invalid type");
@@ -986,15 +951,6 @@ export default {
       let attributesMap = {};
       if (this.issueCredAttributes.length > 0) {
         this.issueCredAttributes.forEach((e) => {
-          // if(e.type !== 'boolean'){
-          // if (isEmpty(e.value)) {
-          //   throw new Error(`Please enter value in ${this.CapitaliseString(e.name)} field`)
-          // } else if(e.type === 'number') {
-          //   if(isNaN(parseInt(e.value))){
-          //     throw new Error('Enter a number')
-          //   }
-          // }
-          // }
           switch (e.type) {
             case "string": {
               if (e.required === true) {
@@ -1090,7 +1046,7 @@ export default {
             //   value: e.value,
             // };
             // attributesMap.push(dataToSend);
-            attributesMap[e.name]=e.value
+            attributesMap[e.name] = e.value
           }
         });
       }
@@ -1102,16 +1058,20 @@ export default {
         if (isEmpty(this.holderDid)) {
           return this.notifyErr(message.CREDENTIAL.EMPTY_HOLDER_DID);
         }
-        // else if(isEmpty(this.issuerDid)) {
-        //   return this.notifyErr(message.CREDENTIAL.EMPTY_ISSUER_DID)
-        // }
+        else if (isEmpty(this.issuerDid)) {
+          return this.notifyErr(message.CREDENTIAL.EMPTY_ISSUER_DID)
+        }
         // else if(!isValidDid(this.issuerDid)) {
         //   return this.notifyErr(message.CREDENTIAL.INVALID_DID)
         // }
         else if (!isValidDid(this.holderDid)) {
           return this.notifyErr(message.CREDENTIAL.INVALID_DID);
-        } else if (isEmpty(this.selected)) {
+        }
+
+        else if (isEmpty(this.selected)) {
           return this.notifyErr(message.CREDENTIAL.SELECT_SCHEMA);
+        } else if (this.holderDid.trim() == this.issuerDid) {
+          return this.notifyErr(message.CREDENTIAL.ISSUER_HOLDER_NOT_SAME);
         }
         // generateAttributeMap
         const attributeMap = await this.generateAttributeMap();
@@ -1124,17 +1084,24 @@ export default {
             "Expiry time should be gretter than current date & time"
           );
         }
-        this.isLoading = true;   
+        this.isLoading = true;
         this.creadData.fields = attributeMap;
-          this.creadData.schemaId = this.selected.trim(),
+        this.creadData.schemaId = this.selected.trim(),
           this.creadData.issuerDid = this.issuerDid.trim(),
-          this.creadData.verificationMethodId= this.issuerVerificationMethodId.trim(),
+          this.creadData.verificationMethodId = this.issuerVerificationMethodId.trim(),
           this.creadData.subjectDid = this.holderDid.trim(),
           this.creadData.expirationDate = this.expiryDateTime,
-        
-        // this.QrData.data = creadData;
-        console.log(this.creadData);
-        await this.issueCredentialForAService(this.creadData)
+
+          // this.QrData.data = creadData;
+          console.log(this.creadData);
+        const response = await this.issueCredentialForAService(this.creadData)
+        if (this.creadData.registerCredentialStatus && response.id) {
+          // this.updateASchema({
+          //   id: response?.schemaId,
+          //   status: 'Please wait..',
+          // })
+          this.checkRegistrationStatus(response?.id)
+        }
         this.openSlider();
         this.isLoading = false;
       } catch (e) {
@@ -1143,11 +1110,13 @@ export default {
         this.notifyErr(`Error: ${e.message}`);
       } finally {
         this.isLoading = false;
-        this.clearAll();
+        // this.clearAll();
       }
     },
     clearAll() {
       this.issuerDid = "";
+      this.issuerVerificationMethodId = "";
+      this.issuerVerificationMethodIds = []
       this.holderDid = "";
       this.expiryDateTime = null;
       this.issueCredAttributes = [];
