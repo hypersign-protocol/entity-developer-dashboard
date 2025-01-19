@@ -9,7 +9,7 @@
 }
 
 .theme-color {
-  background-color: rgba(241, 179, 25, 0.24);
+  background-color: #80808078;
   color: #212529;
 }
 
@@ -29,11 +29,6 @@
 .goschema:hover {
   text-decoration: underline;
   cursor: pointer;
-}
-
-.theme-color {
-  background-color: rgba(241, 179, 25, 0.24);
-  color: #212529;
 }
 
 .far {
@@ -130,8 +125,6 @@ h5 span {
                 </b-button>
               </b-card-header>
               <b-collapse id="collapse-1" class="mt-2" v-model="issuerConfigVisible" style="padding:10px">
-
-
                 <div class="mb-1">
                   <tool-tip infoMessage="Select issuer DID who will be author of this schema"></tool-tip>
                   <label for="selectService"><strong>Select Issuer DID<span style="color: red">*</span>:

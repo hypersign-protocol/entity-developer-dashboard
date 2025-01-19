@@ -6,12 +6,16 @@
             <div class="col-md-4">
             </div>
             <div class="col-md-8">
-                <v-btn type="button" class="btn btn-outline-secondary mx-1" style="float: inline-end" title="Reload"
-                    @click="getMyRolesAction()">
+                <!-- <v-btn type="button" class="btn btn-outline-secondary mx-1" style="float: inline-end" title="Reload"
+                    @click="getMyRolesAction()" plain>
                     <b-icon icon="arrow-clockwise"></b-icon>
-                </v-btn>
-                <v-btn type="button" class="btn btn-secondary" style="float: inline-end;" @click="openSlider('add')"><i
-                        class="fa fa-gamepad" aria-hidden="true"></i> Create Custom Role</v-btn>
+                </v-btn> -->
+                <hf-buttons name="" title="Reload" class="mx-1" :bIcon="true"  style="float: inline-end"  iconClass="arrow-clockwise" @executeAction="getMyRolesAction">
+                </hf-buttons>
+                <hf-buttons name="Create Custom Role" title="Reload" style="float: inline-end"  iconClass="fa fa-gamepad" @executeAction="openSlider('add')">
+                </hf-buttons>
+                <!-- <v-btn type="button" class="btn btn-secondary" plain style="float: inline-end;" @click="openSlider('add')"><i
+                        class="fa fa-gamepad" aria-hidden="true"></i> Create Custom Role</v-btn> -->
             </div>
         </div>
         <div class="row" v-if="getAllRoles.length > 0">
@@ -88,7 +92,7 @@
                     </div>
                 </b-form-group>
 
-                <b-button type="submit" @click="saveRole()" variant="primary">Save</b-button>
+                <hf-buttons name="Save" @executeAction="saveRole()">Save</hf-buttons>
             </div>
         </StudioSideBar>
     </div>

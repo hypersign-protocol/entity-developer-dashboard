@@ -5,14 +5,20 @@
       <div class="col-md-4">        
       </div>
       <div class="col-md-8">
-        <v-btn variant="link" class="btn btn-outline-secondary mx-1" style="float: inline-end"
+        <!-- <v-btn variant="link" class="btn btn-outline-secondary mx-1" style="float: inline-end"
           @click="getPeopleMembers()" title="Reload">
           <b-icon icon="arrow-clockwise"></b-icon>
-        </v-btn>
+        </v-btn> -->
 
-        <v-btn type="button" class="btn btn-secondary" style="float: inline-end" @click="inviteMemberPopup()">
+        <hf-buttons name="" title="Reload" class="mx-1" :bIcon="true"  style="float: inline-end"  iconClass="arrow-clockwise" @executeAction="getPeopleMembers">
+        </hf-buttons>
+
+        <hf-buttons name="Invite Member" class="ml-auto"  style="float: inline-end"  iconClass="fa fa-user-plus" @executeAction="inviteMemberPopup">
+        </hf-buttons>
+
+        <!-- <v-btn type="button" class="btn btn-secondary" style="float: inline-end" @click="inviteMemberPopup()">
           <b-icon icon="person-plus-fill"></b-icon> Invite Member
-        </v-btn>
+        </v-btn> -->
       </div>
     </div>
     <div class="row" v-if="getAdminMembersgetter.length > 0">
@@ -56,9 +62,9 @@
               </button>
             </div>
             <div class="input-group-append">
-              <button type="submit" class="btn btn-secondary" @click="sendInvite">
+              <v-btn type="submit" class="btn btn-secondary"  :disabled="!checkIfValidEmail" @click="sendInvite">
                 <b-icon icon="share"></b-icon> Invite
-              </button>
+              </v-btn>
             </div>
 
             <small style="color:grey; font-size: x-small;">Please make sure the user has an account on this

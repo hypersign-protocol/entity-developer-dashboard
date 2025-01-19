@@ -60,7 +60,9 @@
             </ul>
         </v-card>
         <div class="mt-2">
-            <v-btn type="button" class="btn btn-light" @click="skip()">Skip</v-btn>
+            <!-- <v-btn type="button" class="btn btn-light" @click="skip()">Skip</v-btn> -->
+            <hf-buttons name="Skip" class="ml-auto" @executeAction="skip">
+            </hf-buttons>
         </div>
     </div>
 </template>

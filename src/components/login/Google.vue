@@ -8,19 +8,20 @@
 </style>
 <template>
 
-    <v-btn @click="login" class="btn btn-outline-secondary" style="width: 340px;">
+    <!-- <v-btn @click="login" class="btn btn-outline-secondary" style="width: 340px;">
         <i class="fab fa-google"></i> Sign In with Google
-    </v-btn>
+    </v-btn> -->
+
+    <hf-buttons name="Sign In with Google" style="width: 340px;"  iconClass="fab fa-google"  class="ml-auto" @executeAction="login">
+    </hf-buttons>
 
     <!-- <hf-buttons :name="getButtonText()" @executeAction="login" class="btn btn-primary btn-hypersign"></hf-buttons> -->
 </template>
 
 
 <script>
-
 export default {
     name: "GoogleLogin",
-
     mounted() {
         const authorizationToken = this.$route.query.token
         if (authorizationToken) {

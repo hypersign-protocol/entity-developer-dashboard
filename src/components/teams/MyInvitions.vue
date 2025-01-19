@@ -13,14 +13,19 @@
       </div>
       <div class="col-md-8">
 
-        <v-btn type="button" class="btn btn-outline-secondary mx-1" style="float: inline-end" @click="getInvitions()"
+        <!-- <v-btn type="button" class="btn btn-outline-secondary mx-1" style="float: inline-end" @click="getInvitions()"
           title="Reload">
           <b-icon icon="arrow-clockwise"></b-icon>
         </v-btn>
 
         <v-btn type="button" class="btn btn-secondary" style="float: inline-end" @click="acceptInvitePopup()">
           <b-icon icon="hand-thumbs-up-fill"></b-icon> Accept Invition
-        </v-btn>
+        </v-btn> -->
+
+        <hf-buttons name="" title="Reload" class="mx-1" :bIcon="true"  style="float: inline-end"  iconClass="arrow-clockwise" @executeAction="getInvitions">
+                </hf-buttons>
+                <hf-buttons name="Accept Invition" title="Reload" style="float: inline-end"  iconClass="fa fa-gamepad" @executeAction="acceptInvitePopup">
+                </hf-buttons>
 
       </div>
     </div>
@@ -52,7 +57,7 @@
           <div class="input-group">
             <input type="email" class="form-control" placeholder="Enter invition code" v-model="invitionCodeToAccept" />
             <div class="input-group-append">
-              <button type="submit" class="btn btn-primary" @click="acceptedInvition">
+              <button type="submit" class="btn btn-secondary" @click="acceptedInvition">
                 <b-icon icon="hand-thumbs-up-fill"></b-icon> Accept
               </button>
             </div>

@@ -4,7 +4,10 @@
   depressed
   @click="emitExecuteAction()"
   >
-  <span v-if="iconClass"><i :class="iconClass"></i></span>  
+  <span v-if="iconClass">
+    <i :class="iconClass" v-if="bIcon==false"></i>
+    <b-icon :icon="iconClass" v-else></b-icon>
+  </span>  
   {{name}} 
   </v-btn>
 </template>
@@ -12,6 +15,11 @@
 <script>
 export default {
     props:{
+      bIcon:{
+        type: Boolean,
+        require: false,
+        default: false
+      },
       name:{
         type: String,
         require:true

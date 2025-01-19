@@ -317,11 +317,21 @@
           <small>{{ serviceDescrition }}</small>
         </div>
 
-        <div v-if="selectedServiceId == 'CAVACH_API'" class="container mb-2" style="border: 1px solid #80808038;border-radius: 5px;">
+        <!-- <div v-if="selectedServiceId == 'CAVACH_API'" class="container mb-2" style="border: 1px solid #80808038;border-radius: 5px;"> -->
+          
+          <div class="form-group card" v-if="selectedServiceId == 'CAVACH_API'">
+              <b-card-header header-tag="header" class="p-1 border-0 accordin-header theme-color" role="tab" >
+                <b-button block v-b-toggle.accordion-1 style="text-decoration:none; color:#212529;" variant="secondary"
+                  :aria-expanded="issuerConfigVisible ? 'true' : 'false'"
+                  @click="issuerConfigVisible = !issuerConfigVisible" aria-controls="collapse-1"
+                  class="text-left border-0 theme-color bg-transparant" title="Create schema configuration">Issuer
+                  Configurations
+                  <i :class="!issuerConfigVisible ? 'fa fa-arrow-down' : 'fa fa-arrow-up'" style="float:right;"></i>
+                </b-button>
+              </b-card-header>
 
-        
-
-          <div class="form-group" v-if="
+              <b-collapse id="collapse-1" class="mt-2" v-model="issuerConfigVisible" style="padding:10px">
+                <div class="form-group" v-if="
             selectedServiceId == 'CAVACH_API' ||
             (appModel.services &&
               appModel.services.length > 0 &&
@@ -378,7 +388,11 @@
            
           </div>
 
-        </div>
+              </b-collapse>
+            </div>
+         
+
+        <!-- </div> -->
 
         <div class="form-group" v-if="edit === true">
           <tool-tip infoMessage="Select an environment"></tool-tip>
@@ -399,11 +413,11 @@
         </div> -->
 
         <div class="form-group" v-if="edit">
-          <hf-buttons name="Update" iconClass="fa fa-bookmark" class="btn btn-primary"
+          <hf-buttons name="Update" class="btn btn-primary"
             @executeAction="updateAnAppAPIServer()"></hf-buttons>
         </div>
         <div class="form-group" v-else>
-          <hf-buttons name="Save" iconClass="fa fa-bookmark" @executeAction="createAnApp()"></hf-buttons>
+          <hf-buttons name="Save" @executeAction="createAnApp()"></hf-buttons>
         </div>
       </v-form>
     </StudioSideBar>
@@ -798,6 +812,16 @@
 </template>
 
 <style scoped>
+.theme-color {
+    background-color: #80808078;
+    color: #212529;
+}
+
+.bg-transparant {
+  background-color: transparent !important;
+  color: #212529;
+}
+
 .v-card__actions button{
   background: transparent;border: 0;color: grey;
 }
@@ -927,7 +951,7 @@
 
 .new-service-popup {
   padding: 20px;
-  background: aliceblue;
+  background: #8080801c;
   border-radius: 10px;
 }
 </style>
@@ -1022,6 +1046,7 @@ export default {
   },
   data() {
     return {
+      issuerConfigVisible: false,
       items: [
           {
             src: 'https://cdn.vuetifyjs.com/images/carousel/squirrel.jpg',

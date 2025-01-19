@@ -156,7 +156,7 @@
     </div>
     <notifications group="foo" />
 
-    <sidebar-menu class="sidebar-wrapper" v-if="parseAuthToken && showSideNavbar && getSelectedService" @toggle-collapse="onToggleCollapse"
+    <sidebar-menu :relative="false" class="sidebar-wrapper" v-if="parseAuthToken && showSideNavbar && getSelectedService" @toggle-collapse="onToggleCollapse"
       :collapsed="isSidebarCollapsed" :theme="'white-theme'" width="220px" :menu="getSideMenu()">
       <div slot="header" style="border-bottom: 1px solid rgba(0,0,0,.12);">
         <v-list>
@@ -267,7 +267,7 @@
 
 .sidebar-wrapper {
   min-width: 70px;
-  margin-top: 65px;
+  margin-top: 7.9vh;
   /* box-shadow: 0 0 15px 0 rgba(34, 41, 47, 0.05); */
   box-shadow: 0 2px 6px 0 rgba(32, 33, 37, .1);
   border-right: 1px solid rgba(128, 128, 128, 0.21);

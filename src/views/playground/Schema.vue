@@ -1,4 +1,5 @@
 <style scoped>
+
 .flash {
   cursor: pointer;
   background-color: #1faa596b;
@@ -113,8 +114,8 @@
 }
 
 .theme-color {
-  background-color: rgba(241, 179, 25, 0.24);
-  color: #212529;
+    background-color: #80808078;
+    color: #212529;
 }
 
 .bg-transparant {
@@ -165,7 +166,7 @@
             </div>
             <div class="form-group">
               <tool-tip infoMessage="Select issuer DID who will be author of this schema"></tool-tip>
-              <label for="selectService"><strong>Select Issuer DID<span style="color: red">*</span>:
+              <label for="selectService"><strong>Select Author DID<span style="color: red">*</span>:
                 </strong></label>
               <select class="custom-select" id="selectService" v-model="schemaData.schema.author" @change="resolveDid($event)">
                 <option value="">Select a DID</option>
@@ -176,7 +177,7 @@
             </div>
             <div class="form-group" v-if="schemaData.schema.author">
               <tool-tip infoMessage="Choose a signing key"></tool-tip>
-              <label for="selectService"><strong>Signing Key Of Issuer<span style="color: red">*</span>:
+              <label for="selectService"><strong>Signing Key Of Author<span style="color: red">*</span>:
               </strong></label>
               <select class="custom-select" id="selectService" v-model="schemaData.verificationMethodId">
                 <option value="">Select a Signing Key</option>
