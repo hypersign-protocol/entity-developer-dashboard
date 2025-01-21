@@ -527,7 +527,8 @@ export default {
                 const chainConfig = this.chainConfig
                 const chainCoinDenom = chainConfig["feeCurrencies"][0]["coinMinimalDenom"]
                 const gasPriceAvg = chainConfig["gasPriceStep"]["average"]
-                const fee = calculateFee(500_000, (gasPriceAvg + chainCoinDenom).toString())
+
+                const fee = calculateFee(500_000_0, (gasPriceAvg + chainCoinDenom).toString())
 
                 const result = await smartContractExecuteRPC(
                     this.getCosmosConnection.signingClient,
