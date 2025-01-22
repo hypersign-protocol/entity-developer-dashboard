@@ -96,9 +96,7 @@ export default {
                 throw new Error("Please install the DIAM wallet extension");
             }
 
-            let result = await window.diam.connect()
-            console.log(result);
-
+            const result = await window.diam.connect()
             if (result && result.status == 404) {
                 throw new Error(result.message)
             }
