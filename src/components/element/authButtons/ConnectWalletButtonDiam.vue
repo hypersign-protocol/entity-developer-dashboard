@@ -2,7 +2,7 @@
     <div>
         <button type="button" class="btn btn-outline-dark btn-lg mb-2" style="width: 100%;" @click="connectWallet()"
             :disabled="isDisable || !ifDiamInstalled">
-            <span><b-avatar :src="getChainDetail().logoUrl" size="30"></b-avatar> Connect DIAM Wallet</span>
+            <span><b-avatar :src="getChainDetail().logoUrl" :style="{ backgroundColor: 'white' }" size="30"></b-avatar> Connect DIAM Wallet</span>
 
 
 

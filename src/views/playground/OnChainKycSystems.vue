@@ -175,7 +175,9 @@ h5 span {
             <tr v-for="row in onchainconfigs" :key="row._id">
               <td>
                 <span>
-                  <b-avatar badge-top badge-offset="-2px" :src="getChainDetail(row.blockchainLabel).logoUrl" size="30">
+
+                  <b-avatar badge-top badge-offset="-2px"   :style="{ backgroundColor: 'white' }"
+                    :src="getChainDetail(row.blockchainLabel).logoUrl" size="30">
                     <template #badge v-if="getChainDetail(row.blockchainLabel).chainName.indexOf('test') < 0"><b-icon
                         icon="star-fill"></b-icon></template>
                   </b-avatar>

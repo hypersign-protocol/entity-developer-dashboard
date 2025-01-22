@@ -79,9 +79,10 @@
 
 
                     <button class="btn btn-outline-dark btn-md" style="width:100%"
+                     
                         v-if="!showConnectWallet && selectedBlockchain && getBlockchainUser.walletAddress && !onChainIssuer.issuer.kyc_contract_address && selectedBlockchain.ecosystem == 'cosmos'"
                         v-on:click="deployIssuer()">
-                        <b-avatar :src="chainConfig.currencies[0].coinImageUrl" size="30"></b-avatar> Deploy KYC
+                        <b-avatar :style="{ backgroundColor: 'white' }"  :src="chainConfig.currencies[0].coinImageUrl" size="30"></b-avatar> Deploy KYC
                         Contract
                     </button>
 
@@ -94,7 +95,7 @@
                     <button class="btn btn-outline-dark btn-md" style="width:100%"
                         v-if="!showConnectWallet && selectedBlockchain && getBlockchainUser.walletAddress && !masterWalletFundTxStatus && masterWallet != '' && selectedBlockchain.ecosystem == 'stellar'"
                         v-on:click="fundMasterWallet()">
-                        <b-avatar :src="chainConfig.currencies[0].coinImageUrl" size="30"></b-avatar> Fund
+                        <b-avatar :style="{ backgroundColor: 'white' }" :src="chainConfig.currencies[0].coinImageUrl" size="30"></b-avatar> Fund
                         Issuer Wallet
                     </button>
                 </div>

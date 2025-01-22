@@ -554,6 +554,7 @@ h3 {
                                         <td style="text-align: right;">
                                             <span>
                                                 <b-avatar
+                                                :style="{ 'background-color': 'white' }"
                                                     :src="getChainDetail(eachProofTypeCredential.blockchainLabel).logoUrl"
                                                     size="20"></b-avatar>
                                             </span>
