@@ -264,7 +264,7 @@ export default {
                         })
                     })
                     this.selectNetworks.push({
-                        label: 'Stellar', // let's keep this for future purposes when we have many networks.
+                        label: 'Others', // let's keep this for future purposes when we have many networks.
                         options: stellarOptions
                     })
                 }
