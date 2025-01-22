@@ -2,7 +2,8 @@
     <div>
         <button type="button" class="btn btn-outline-dark btn-lg mb-2" style="width: 100%;" @click="connectWallet()"
             :disabled="isDisable || !ifDiamInstalled">
-            <span><b-avatar :src="getChainDetail().logoUrl" :style="{ backgroundColor: 'white' }" size="30"></b-avatar> Connect DIAM Wallet</span>
+            <span><b-avatar :src="getChainDetail().logoUrl" :style="{ backgroundColor: 'white' }" size="30"></b-avatar>
+                Connect DIAM Wallet</span>
 
 
 
@@ -95,12 +96,14 @@ export default {
                 throw new Error("Please install the DIAM wallet extension");
             }
 
-            const result = await window.diam.connect()
+            let result = await window.diam.connect()
+            console.log(result);
+
             if (result && result.status == 404) {
                 throw new Error(result.message)
             }
 
-            const walletAddress = result.walletAddress ? result.walletAddress : result.message[0].diamPublicKey;
+            const walletAddress = result.walletAddress ? result.walletAddress : result.message[0]?.diamPublicKey ? result.message[0].diamPublicKey : result.message.data[0].diamPublicKey;
             console.log({
                 walletAddress,
                 result
