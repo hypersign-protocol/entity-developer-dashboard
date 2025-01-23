@@ -141,9 +141,9 @@ h5 span {
                     <h3 style="text-align: left;">Credits</h3>
                 </div>
             </div>
-            <div class="col-md-6">
-                <v-btn style="float: right;" class="btn btn-outline-secondary" @click="reloadData()"><b-icon
-                        icon="arrow-clockwise"></b-icon> Refresh</v-btn>
+            <div class="col-6">
+                <hf-buttons name=" Refresh" iconClass="arrow-clockwise" :bIcon="true" class="ml-auto "
+                    style="float: right;" @executeAction="reloadData()"></hf-buttons>
             </div>
         </div>
         <div class="row">
@@ -241,25 +241,21 @@ h5 span {
                             </td>
 
 
-
-                            <td :title="`Credit left: ${eachRow.totalCredits - eachRow.used}`">
+                            <td :title="`Credit left: ${eachRow.totalCredits - eachRow.used}`" >
                                 <b-progress :max="eachRow.totalCredits" class="mt-1">
-                                    <b-progress-bar :value="eachRow.used" variant="danger"></b-progress-bar>
+                                    <b-progress-bar :value="eachRow.used" variant="danger" ></b-progress-bar>
                                 </b-progress>
                             </td>
 
                             <td v-if="eachRow.status == 'Active'">
-                                <v-btn class="btn btn-success-link" style="color: green" disabled>
-                                    <span class="spinner-grow spinner-grow-sm text-success" role="status"
-                                        aria-hidden="true"></span>
-                                    <span class="visually-hidden"> {{ eachRow.status
-                                        }}</span>
-                                </v-btn>
+                                <hf-buttons iconClass="circle-fill" :bIcon="true" class="ml-auto " style="color:gray; "
+                                    disabled animate="throb" :name="eachRow.status">
+                                </hf-buttons>
                             </td>
                             <td v-else>
-                                <v-btn v-if="eachRow.used < eachRow.totalCredits" class="btn btn-outline-secondary"
-                                    @click="activateThisCredit(eachRow)"><b-icon icon="play-circle"
-                                        title="Activate"></b-icon> Activate</v-btn>
+                                <hf-buttons v-if="eachRow.used < eachRow.totalCredits" name=" Activate"
+                                    iconClass="play-circle" :bIcon="true" class="ml-auto "
+                                    @executeAction="activateThisCredit(eachRow)"></hf-buttons>
                             </td>
                         </tr>
                     </tbody>
@@ -280,12 +276,14 @@ import Chart from 'chart.js/auto';
 import { mapActions, mapGetters } from "vuex";
 import Loading from "vue-loading-overlay";
 import UtilsMixin from '../../mixins/utils';
+import HfButtons from "../../components/element/HfButtons.vue"
 
 export default {
     name: "SSIDashboardCredit",
     components: {
         // CChart,
         // HfPopUp,
+        HfButtons,
         Loading
     },
     computed: {
@@ -308,17 +306,22 @@ export default {
                 }
             }
 
-            const now = new Date()
+            // const now = new Date()
             let not_expired_credits = this.getKYCCredits.filter(x => {
 
-                if (x.expiresAt) {
-                    const expirydate = new Date(x.expiresAt)
-                    if ((expirydate >= now) && (x.used < x.totalCredits)) {
-                        return x
-                    }
-                } else if (x.status == 'Active') {
-                    return x
-                }
+                // if (x.expiresAt) {
+                //     const expirydate = new Date(x.expiresAt)
+
+
+
+                //     if ((expirydate >= now) && (x.used < x.totalCredits)) {
+
+                //         return x
+                //     }
+                // } else if (x.status == 'Active') {
+                //     return x
+                // }
+                return x
 
             })
 
