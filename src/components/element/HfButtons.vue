@@ -6,7 +6,7 @@
   >
   <span v-if="iconClass">
     <i :class="iconClass" v-if="bIcon==false"></i>
-    <b-icon :icon="iconClass" v-else></b-icon>
+    <b-icon :icon="iconClass" :animation="animate" v-else></b-icon>
   </span>  
   {{name}} 
   </v-btn>
@@ -20,6 +20,10 @@ export default {
         require: false,
         default: false
       },
+      animate:{
+        type: String,
+        require: false,
+        default: ''},
       name:{
         type: String,
         require:true

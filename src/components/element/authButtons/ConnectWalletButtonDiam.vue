@@ -9,7 +9,7 @@
 
         </button>
         <small style="color:indianred; text-decoration: underline;" v-if="!ifDiamInstalled"><a
-                href="https://chromewebstore.google.com/detail/diam-wallet/oakkognifoojdbfjaccegangippipdmn?hl=en"
+                href="https://chromewebstore.google.com/detail/diam-wallet/ghncoolaiahphiaccmhdofdfkdokbljk?hl=en"
                 target="_blank">DIAM Wallet extention</a> not installed in your browser</small>
     </div>
 </template>
