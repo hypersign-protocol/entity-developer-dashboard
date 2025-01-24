@@ -216,8 +216,8 @@ h5 span {
                     <tbody>
                         <tr v-for="eachRow in getSortedKYCCredits" v-bind:key="eachRow._id">
                             <td>
-                                {{ formatDate(eachRow.createdAt) }}
-                            </td>
+
+                                {{ formatDate(eachRow.createdAt) }} 
 
                             <td>
                                 {{ numberFormat(eachRow.totalCredits) }}
@@ -231,29 +231,34 @@ h5 span {
 
 
                             <td v-if="eachRow.used >= eachRow.totalCredits" class="greyFont">
-                                Expired
+                                Credit Limit Reached
+                                
                             </td>
-                            <td v-else-if="!eachRow.expiresAt" class="greyFont">
-                                Inactive
+                            <td v-else-if="Date.now() > new Date(eachRow.expiresAt)" class="greyFont">
+                                Expired
                             </td>
                             <td v-else>
                                 {{ formatTimeRemaining(eachRow.expiresAt) }}
                             </td>
+                          
 
 
                             <td :title="`Credit left: ${eachRow.totalCredits - eachRow.used}`" >
-                                <b-progress :max="eachRow.totalCredits" class="mt-1">
+                                <b-progress :max="eachRow.totalCredits" class="mt-1" v-if="Date.now() > new Date(eachRow.expiresAt)" >
+                                    <b-progress-bar :value="eachRow.used" variant="danger" ></b-progress-bar>
+                                </b-progress>
+                                <b-progress :max="eachRow.totalCredits" class="mt-1" v-else >
                                     <b-progress-bar :value="eachRow.used" variant="danger" ></b-progress-bar>
                                 </b-progress>
                             </td>
 
-                            <td v-if="eachRow.status == 'Active'">
+                            <td v-if="(eachRow.status == 'Active'   && !(Date.now() > new Date(eachRow.expiresAt)) ) ">
                                 <hf-buttons iconClass="circle-fill" :bIcon="true" class="ml-auto " style="color:gray; "
                                     disabled animate="throb" :name="eachRow.status">
                                 </hf-buttons>
                             </td>
                             <td v-else>
-                                <hf-buttons v-if="eachRow.used < eachRow.totalCredits" name=" Activate"
+                                <hf-buttons v-if="eachRow.used < eachRow.totalCredits && !(Date.now() > new Date(eachRow.expiresAt)) " name=" Activate"
                                     iconClass="play-circle" :bIcon="true" class="ml-auto "
                                     @executeAction="activateThisCredit(eachRow)"></hf-buttons>
                             </td>
@@ -291,6 +296,7 @@ export default {
 
         getSortedKYCCredits() {
             const t = this.getKYCCredits
+            
             return t.sort((a, b) => new Date(b.expiresAt) - new Date(a.expiresAt))
         },
         myKYCCredits() {
@@ -431,6 +437,10 @@ export default {
             clearInterval(this.timer); // Stop the interval timer
         },
         renderChart() {
+            const expired = this.getKYCCredits.every(element => Date.now() > new Date(element.expiresAt));
+
+            
+            const color=expired?['grey','#d0d0d0']:['grey','green']
             this.doughNutChart?.destroy()
             const ctx = document.getElementById('doughNutChat');
             this.doughNutChart = new Chart(ctx, {
@@ -441,11 +451,7 @@ export default {
                         {
                             label: 'Credit',
                             data: this.getKYCCredits.length == 0 ? [1, 0] : [this.myKYCCredits.allUsedCredits, this.myKYCCredits.allRemainingCredits],
-                            backgroundColor: [
-                                'grey',
-                                'green',
-
-                            ],
+                            backgroundColor: color,
                             hoverOffset: 4,
                             cutout: '50%',
                             circumference: 180,
