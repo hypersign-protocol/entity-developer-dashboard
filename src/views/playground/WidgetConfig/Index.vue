@@ -246,8 +246,12 @@ ul {
             <div class="col" v-if="widgetConfigTemp.onChainId.enabled && onchainconfigsOptions.length > 0">
               <div class="">
                 <label for=""><strong>Select OnChain KYC Config: </strong></label>
-                <v-select small-chips v-model="widgetConfigTemp.onChainId.selectedOnChainKYCconfiguration"
-                  :items="onchainconfigsOptions" item-text="text" item-value="value" multiple></v-select>
+                <v-select  v-model="widgetConfigTemp.onChainId.selectedOnChainKYCconfiguration"
+                  :items="onchainconfigsOptions" item-text="text" item-value="value"  multiple
+                  small-chips
+                  attach
+                  dense
+                  outlined></v-select>
               </div>
             </div>
           </div>
