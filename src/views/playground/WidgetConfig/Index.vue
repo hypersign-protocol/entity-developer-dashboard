@@ -153,185 +153,178 @@ ul {
       </v-col>
     </v-row>
 
-    <v-card >
-          <ul class="list-group list-group-flush" >
-            <li class="list-group-item">
-              <b-form-checkbox switch size="lg" v-model="widgetConfigTemp.faceRecog" disabled>{{
-                this.widgetConfigUI.faceRecog.label }}</b-form-checkbox>
-              <small v-html="this.widgetConfigUI.faceRecog.description">
-              </small>
-            </li>
-            <li class="list-group-item">
-              <div class="row">
-                <div class="col">
-                  <b-form-checkbox switch size="lg" v-model="widgetConfigTemp.idOcr.enabled">
-                    {{ this.widgetConfigUI.idOcr.label }}</b-form-checkbox>
-                  <small v-html="this.widgetConfigUI.idOcr.description"></small>
-                </div>
-                <!-- <div class="col" v-if="widgetConfigTemp.idOcr.enabled && documentTypeOptions.length > 0">
+    <v-card>
+      <ul class="list-group list-group-flush">
+        <li class="list-group-item">
+          <b-form-checkbox switch size="lg" v-model="widgetConfigTemp.faceRecog" disabled>{{
+            this.widgetConfigUI.faceRecog.label }}</b-form-checkbox>
+          <small v-html="this.widgetConfigUI.faceRecog.description">
+          </small>
+        </li>
+        <li class="list-group-item">
+          <div class="row">
+            <div class="col">
+              <b-form-checkbox switch size="lg" v-model="widgetConfigTemp.idOcr.enabled">
+                {{ this.widgetConfigUI.idOcr.label }}</b-form-checkbox>
+              <small v-html="this.widgetConfigUI.idOcr.description"></small>
+            </div>
+            <!-- <div class="col" v-if="widgetConfigTemp.idOcr.enabled && documentTypeOptions.length > 0">
                   <div class="">
                     <label for=""><strong>Select Document Type: </strong></label>
                     <b-form-select v-model="widgetConfigTemp.idOcr.documentType" :options="documentTypeOptions"
                       size=""></b-form-select>
                   </div>
                 </div> -->
-              </div>
-            </li>
-            <li class="list-group-item">
+          </div>
+        </li>
+        <li class="list-group-item">
+          <div class="row">
+            <div class="col-md-6">
               <div class="row">
-                <div class="col-md-6">
-                  <div class="row">
-                    <div class="col-md-12">
-                      <b-form-checkbox switch size="lg" v-model="widgetConfigTemp.zkProof.enabled">{{
-                        this.widgetConfigUI.zkProof.label }}<HFBeta></HFBeta>
-                      </b-form-checkbox>
-                      <small v-html="this.widgetConfigUI.zkProof.description"></small>
-                    </div>
-                  </div>
-                  <div class="mt-2 mx-0 p-1"
-                    style="border: 2px solid #8080802e; border-radius: 10px; min-height: 80px; padding:10px"
-                    v-if="widgetConfigTemp.zkProof.proofs.length > 0">
-                    <div class="">
-                      <span class="zkbadge rounded " style="cursor: grab;" @click="deleteZkProof(proof.proofType)"
-                        v-for="proof in widgetConfigTemp.zkProof.proofs" v-bind:key="proof.proofType"><b-icon
-                          style="color:green;" icon="check-circle" aria-hidden="true"></b-icon>
-                        <span v-if="proof.proofType == SupportedZkProofTypes.PROOF_OF_AGE">
-                          {{ proof.proofType }} > {{ proof.criteria }}
-                        </span>
-                        <span v-else>
-                          {{ proof.proofType }}
-                        </span>
-
-                        <b-icon class="trash" style="color:red" icon="trash" aria-hidden="true"></b-icon></span>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="col" v-if="widgetConfigTemp.zkProof.enabled">
-                  <div class="row">
-                    <div class="col">
-                      <label for=""><strong>Select Proof Type: </strong></label>
-
-
-                      <b-input-group>
-    <!-- Dropdown -->
-    <b-form-select
-      v-model="slectProof"
-      :options="proofTypeOptions"
-      class="form-select"
-    ></b-form-select>
-
-    <b-input-group-append v-if="selectedProofData.criteria">
-      <b-form-input 
-        v-model="selectedProofData.criteriaValue"
-        placeholder="Enter age"
-        :type="selectedProofData.criteriaType"
-      ></b-form-input>
-    </b-input-group-append>
-
-    <!-- Add Button -->
-    <b-input-group-append v-if="selectedProofData.value != null">
-      <HfButtons name="" customClass="btn btn-outline-secondary" iconClass="fa fa-plus"
-                            @executeAction="addZkProof(selectedProofData.value, selectedProofData.criteriaValue)">
-                          </HfButtons>
-    </b-input-group-append>
-  </b-input-group>
-  <small>{{ selectedProofData.description }}</small>
-
-                    </div>
-                  </div>
+                <div class="col-md-12">
+                  <b-form-checkbox switch size="lg" v-model="widgetConfigTemp.zkProof.enabled">{{
+                    this.widgetConfigUI.zkProof.label }}<HFBeta></HFBeta>
+                  </b-form-checkbox>
+                  <small v-html="this.widgetConfigUI.zkProof.description"></small>
                 </div>
               </div>
-            </li>
-            <li class="list-group-item">
-              <div class="row">
-                <div class="col-md-6">
-                  <b-form-checkbox switch size="lg" v-model="widgetConfigTemp.onChainId.enabled">{{
-                    this.widgetConfigUI.onChainId.label }} <HFBeta></HFBeta></b-form-checkbox>
-                  <small v-html="this.widgetConfigUI.onChainId.description"></small>
-                </div>
-                <div class="col" v-if="widgetConfigTemp.onChainId.enabled && onchainconfigsOptions.length > 0">
-                  <div class="">
-                    <label for=""><strong>Select OnChain KYC Config: </strong></label>
-                    <b-form-select v-model="widgetConfigTemp.onChainId.selectedOnChainKYCconfiguration"
-                      :options="onchainconfigsOptions" size=""></b-form-select>
-                  </div>
+              <div class="mt-2 mx-0 p-1"
+                style="border: 2px solid #8080802e; border-radius: 10px; min-height: 80px; padding:10px"
+                v-if="widgetConfigTemp.zkProof.proofs.length > 0">
+                <div class="">
+                  <span class="zkbadge rounded " style="cursor: grab;" @click="deleteZkProof(proof.proofType)"
+                    v-for="proof in widgetConfigTemp.zkProof.proofs" v-bind:key="proof.proofType"><b-icon
+                      style="color:green;" icon="check-circle" aria-hidden="true"></b-icon>
+                    <span v-if="proof.proofType == SupportedZkProofTypes.PROOF_OF_AGE">
+                      {{ proof.proofType }} > {{ proof.criteria }}
+                    </span>
+                    <span v-else>
+                      {{ proof.proofType }}
+                    </span>
+
+                    <b-icon class="trash" style="color:red" icon="trash" aria-hidden="true"></b-icon></span>
                 </div>
               </div>
-            </li>
+            </div>
 
-            <li class="list-group-item" v-if="widgetConfigTemp.userConsent.enabled">
+            <div class="col" v-if="widgetConfigTemp.zkProof.enabled">
               <div class="row">
                 <div class="col">
-                  <div class="row">
-                    <div class="col-md-12">
-                      <b-form-checkbox switch size="lg" v-model="widgetConfigTemp.userConsent.enabled" disabled>{{
-                        this.widgetConfigUI.userConsent.label }}</b-form-checkbox>
-                      <small v-html="widgetConfigUI.userConsent.description"></small>
-                    </div>
-                  </div>
-                  <div class="row mt-2 mx-0 p-1"
-                    style="border: 2px solid #8080802e;border-radius: 10px; min-height: 115px;">
-                    <div class="col-md-3 center">
-                      <div style="border: 1px solid #8080802e; border-radius: 50%;" class="p-1">
-                        <img :src="widgetConfigTemp.userConsent.logoUrl" v-if="widgetConfigTemp.userConsent.logoUrl"
-                          style="height: 50px; border-radius: 50%;">
-                      </div>
-                    </div>
-                    <div class="col-md-8">
-                      <div class="row">
-                        <div class="col-md-12" style="font-size: 1.05rem;">
-                          {{ widgetConfigTemp.userConsent.domain }}
-                        </div>
-                      </div>
-                      <div class="row">
-                        <div class="col-md-12" style="color:grey">
-                          {{ widgetConfigTemp.userConsent.reason }}
-                        </div>
-                      </div>
-                    </div>
+                  <label for=""><strong>Select Proof Type: </strong></label>
 
+
+                  <b-input-group>
+                    <!-- Dropdown -->
+                    <b-form-select v-model="slectProof" :options="proofTypeOptions" class="form-select"></b-form-select>
+
+                    <b-input-group-append v-if="selectedProofData.criteria">
+                      <b-form-input v-model="selectedProofData.criteriaValue" placeholder="Enter age"
+                        :type="selectedProofData.criteriaType"></b-form-input>
+                    </b-input-group-append>
+
+                    <!-- Add Button -->
+                    <b-input-group-append v-if="selectedProofData.value != null">
+                      <HfButtons name="" customClass="btn btn-outline-secondary" iconClass="fa fa-plus"
+                        @executeAction="addZkProof(selectedProofData.value, selectedProofData.criteriaValue)">
+                      </HfButtons>
+                    </b-input-group-append>
+                  </b-input-group>
+                  <small>{{ selectedProofData.description }}</small>
+
+                </div>
+              </div>
+            </div>
+          </div>
+        </li>
+        <li class="list-group-item">
+          <div class="row">
+            <div class="col-md-6">
+              <b-form-checkbox switch size="lg" v-model="widgetConfigTemp.onChainId.enabled">{{
+                this.widgetConfigUI.onChainId.label }} <HFBeta></HFBeta></b-form-checkbox>
+              <small v-html="this.widgetConfigUI.onChainId.description"></small>
+            </div>
+            <div class="col" v-if="widgetConfigTemp.onChainId.enabled && onchainconfigsOptions.length > 0">
+              <div class="">
+                <label for=""><strong>Select OnChain KYC Config: </strong></label>
+                <v-select small-chips v-model="widgetConfigTemp.onChainId.selectedOnChainKYCconfiguration"
+                  :items="onchainconfigsOptions" item-text="text" item-value="value" multiple></v-select>
+              </div>
+            </div>
+          </div>
+        </li>
+
+        <li class="list-group-item" v-if="widgetConfigTemp.userConsent.enabled">
+          <div class="row">
+            <div class="col">
+              <div class="row">
+                <div class="col-md-12">
+                  <b-form-checkbox switch size="lg" v-model="widgetConfigTemp.userConsent.enabled" disabled>{{
+                    this.widgetConfigUI.userConsent.label }}</b-form-checkbox>
+                  <small v-html="widgetConfigUI.userConsent.description"></small>
+                </div>
+              </div>
+              <div class="row mt-2 mx-0 p-1"
+                style="border: 2px solid #8080802e;border-radius: 10px; min-height: 115px;">
+                <div class="col-md-3 center">
+                  <div style="border: 1px solid #8080802e; border-radius: 50%;" class="p-1">
+                    <img :src="widgetConfigTemp.userConsent.logoUrl" v-if="widgetConfigTemp.userConsent.logoUrl"
+                      style="height: 50px; border-radius: 50%;">
                   </div>
                 </div>
+                <div class="col-md-8">
+                  <div class="row">
+                    <div class="col-md-12" style="font-size: 1.05rem;">
+                      {{ widgetConfigTemp.userConsent.domain }}
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-12" style="color:grey">
+                      {{ widgetConfigTemp.userConsent.reason }}
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+            <div class="col">
+              <div class="row">
                 <div class="col">
                   <div class="row">
                     <div class="col">
-                      <div class="row">
-                        <div class="col">
-                          <label for=""><strong>Reason For KYC: </strong></label>
-                          <textarea type="text" rows="7" class="form-control" id=""
-                            v-model="widgetConfigTemp.userConsent.reason"
-                            placeholder="The app is requesting the following information to verify your identity" />
-                        </div>
-                      </div>
-
+                      <label for=""><strong>Reason For KYC: </strong></label>
+                      <textarea type="text" rows="7" class="form-control" id=""
+                        v-model="widgetConfigTemp.userConsent.reason"
+                        placeholder="The app is requesting the following information to verify your identity" />
                     </div>
                   </div>
-                </div>
-              </div>
-            </li>
-            <li class="list-group-item">
-              <div class="row">
 
-                <div class="col">
-                  <b-form-checkbox switch size="lg" v-model="widgetConfigTemp.trustedIssuer" disabled>{{
-                    widgetConfigUI.trustedIssuer.label }}</b-form-checkbox>
-                  <small v-html="widgetConfigUI.trustedIssuer.description"></small>
-                </div>
-                <div class="col">
-                  <label for=""><strong>Choose Trusted Issuer(s): </strong></label>
-                  <div style="max-height: 300px; overflow-y: scroll;" class="p-1">
-                    <MarketplaceList @selectedServiceEvent="selectedServiceEventHandler" />
-                  </div>
                 </div>
               </div>
-              <!-- <TrustedIssuer @selectedServiceEventFromTrustedIssuer="selectedServiceEventHandler" /> -->
-            </li>
-          </ul>
+            </div>
+          </div>
+        </li>
+        <li class="list-group-item">
+          <div class="row">
+
+            <div class="col">
+              <b-form-checkbox switch size="lg" v-model="widgetConfigTemp.trustedIssuer" disabled>{{
+                widgetConfigUI.trustedIssuer.label }}</b-form-checkbox>
+              <small v-html="widgetConfigUI.trustedIssuer.description"></small>
+            </div>
+            <div class="col">
+              <label for=""><strong>Choose Trusted Issuer(s): </strong></label>
+              <div style="max-height: 300px; overflow-y: scroll;" class="p-1">
+                <MarketplaceList @selectedServiceEvent="selectedServiceEventHandler" />
+              </div>
+            </div>
+          </div>
+          <!-- <TrustedIssuer @selectedServiceEventFromTrustedIssuer="selectedServiceEventHandler" /> -->
+        </li>
+      </ul>
     </v-card>
 
 
-    
+
   </div>
 </template>
 
