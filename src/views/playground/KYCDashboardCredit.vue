@@ -226,10 +226,6 @@ h5 span {
                             <!-- <td>
                                 {{ numberFormat(eachRow.used) }}
                             </td> -->
-
-
-
-
                             <td v-if="eachRow.used >= eachRow.totalCredits" class="greyFont">
                                 Credit Limit Reached
                                 
@@ -238,9 +234,8 @@ h5 span {
                                 Expired
                             </td>
                             <td v-else>
-                                {{ formatTimeRemaining(eachRow.expiresAt) }}
+                                  {{ isValidDate(eachRow.expiresAt) ? formatTimeRemaining(eachRow.expiresAt) : 'Not Activated' }}
                             </td>
-                          
 
 
                             <td :title="`Credit left: ${eachRow.totalCredits - eachRow.used}`" >
@@ -312,25 +307,21 @@ export default {
                 }
             }
 
-            // const now = new Date()
+            const now = new Date()
             let not_expired_credits = this.getKYCCredits.filter(x => {
 
-                // if (x.expiresAt) {
-                //     const expirydate = new Date(x.expiresAt)
+                if (x.expiresAt) {
+                    const expirydate = new Date(x.expiresAt)
 
+                    if ((expirydate >= now) && (x.used < x.totalCredits)) {
 
-
-                //     if ((expirydate >= now) && (x.used < x.totalCredits)) {
-
-                //         return x
-                //     }
-                // } else if (x.status == 'Active') {
-                //     return x
-                // }
+                        return x
+                    }
+                } else if (x.status == 'Active') {
+                    return x
+                }else if(!x.expiresAt)
                 return x
-
             })
-
 
 
             if (not_expired_credits.length == 0) {
@@ -489,8 +480,12 @@ export default {
             }
 
 
-        }
+        },
 
+         isValidDate(date) {
+             const parsedDate = new Date(date);
+             return !isNaN(parsedDate.getTime());
+         },
     },
     mixins: [UtilsMixin],
 
