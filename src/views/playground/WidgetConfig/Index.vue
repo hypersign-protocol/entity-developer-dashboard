@@ -640,6 +640,7 @@ export default {
         if (!this.widgetConfigTemp.onChainId.selectedOnChainKYCconfiguration) {
           throw new Error('Kindly select a onchain configuration')
         }
+        this.widgetConfigTemp.onChainId.selectedOnChainKYCconfiguration = this.widgetConfigTemp.onChainId.selectedOnChainKYCconfiguration.filter(e => e != null)
 
         if (!this.widgetConfigTemp.zkProof.enabled) {
           throw new Error('Enable ZK Proof to enable onchainId')
