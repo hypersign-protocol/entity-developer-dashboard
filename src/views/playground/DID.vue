@@ -126,12 +126,12 @@ h5 span {
           <hf-buttons name="Create" iconClass="fa fa-plus" style="text-align: right;" class="ml-auto"
             @executeAction="openSlider()"></hf-buttons>
         </div>
-        <StudioSideBar title="Create DID">
+        <StudioSideBar :title="isEditing ? 'Edit DID' : 'Create DID'">
           <div class="container" style="width: 100%;">
             <div class="form-group">
               <tool-tip infoMessage="Enter name of DID"></tool-tip>
               <label for="schemaName"><strong>Name<span style="color: red">*</span>:</strong></label>
-              <input type="text" class="form-control" id="schemaName" v-model="did.options.name"
+              <input type="text" class="form-control" id="schemaName" v-model="didName"
                 aria-describedby="schemaNameHelp" placeholder="Enter a name for this did">
             </div>
 
@@ -139,18 +139,18 @@ h5 span {
               <tool-tip infoMessage="Select a DID method namespace"></tool-tip>
               <label for="schemaName"><strong>Namespace<span style="color: red">*</span>:</strong></label>
               <hf-select-drop-down :options="namespaceOptions"
-                @selected="e => (did.namespace = e)"></hf-select-drop-down>
+                @selected="e => (did.namespace = e)" :disabled="isEditing"></hf-select-drop-down>
             </div>
 
             <div class="form-group">
               <tool-tip infoMessage="Method specific id for a did"></tool-tip>
               <label for="schemaName"><strong>Method Specific Id<span style="color: red">*</span>:</strong></label>
               <div class="input-group">
-                <input type="text" class="form-control" id="schemaName" v-model="did.methodSpecificId"
+                <input type="text" class="form-control" id="schemaName" v-model="did.methodSpecificId" :disabled="isEditing"
                   aria-describedby="schemaNameHelp" placeholder="Enter or create a method specific id">
                 <div class="input-group-append">
                   <button class="input-group-text btn btn-secondary" id="basic-addon1"
-                    @click="generateRandomMethodSepcificId">Generate</button>
+                    @click="generateRandomMethodSepcificId" :disabled="isEditing" >Generate</button>
                 </div>
               </div>
             </div>
@@ -166,6 +166,7 @@ h5 span {
                   attach
                   dense
                   outlined
+                  :disabled="isEditing"
                 ></v-select>
             </div>
             <div class="">
@@ -181,18 +182,20 @@ h5 span {
                   attach
                   dense
                   outlined
+                  :disabled="isEditing"
                 ></v-select>
             </div>
             <div class="">
               <v-checkbox
                 v-model="shouldRegister"
                 label="Register DID on the blockchain?"
+               :disabled="isEditing && shouldRegister"
               ></v-checkbox>
             </div>
 
             <div class="form-group row ">
               <div class="col-md-12">
-                <hf-buttons name="Save" @executeAction="createDID()"></hf-buttons>
+                <hf-buttons :name="isEditing ? 'Update' : 'Save'"  @executeAction="isEditing ? updateDID(): createDID()"></hf-buttons>
               </div>
             </div>
           </div>
@@ -209,6 +212,7 @@ h5 span {
               <th class="sticky-header">Name</th>
               <th class="sticky-header">Associated Key Type(s)</th>
               <th class="sticky-header">Status</th>
+              <th class="sticky-header"></th>
               <!-- <th class="sticky-header">Action</th> -->
             </tr>
           </thead>
@@ -231,7 +235,6 @@ h5 span {
 
                   </span>
                 </div>
-
               </td>
               <td >
                 <span v-if="row.status == 'Registered'" class="badge badge-pill badge-success"><i class="fa fa-check" aria-hidden="true"></i>
@@ -242,12 +245,15 @@ h5 span {
                   <wait-spinner></wait-spinner>
                 </span>
               </td>
-              <!-- <td>
+               <!-- <td>
                 <span><i class="fa fa-eye" aria-hidden="true"></i></span>
 
                 <span v-if="!checkIfDomainIsVerified(row.didDocument)" @click="linkDomain(row)" class="ml-2"
                   style="cursor:grab"><i class="fa fa-link"></i></span>
               </td> -->
+              <td>
+                <span><i class="fas fa-pencil-alt mt-1" aria-hidden="true" @click="editDid(row.did)" title="Click to update the did name" style="cursor: pointer"></i></span>
+              </td> 
             </tr>
           </tbody>
         </table>
@@ -278,10 +284,6 @@ h5 span {
         </div>
         <small style="color:grey">Please add the TXT record in your DNS for DNS-01 validation</small>
       </div>
-
-
-
-
       <div class="form-group">
         <label for="orgDid"><strong>Logo Url</strong> (optional): </label>
         <input type="text" class="form-control" id="appId" v-model="domainLogoUrl"
@@ -311,6 +313,19 @@ import { mapState, mapGetters, mapActions, mapMutations } from "vuex";
 export default {
   name: "DIDs",
   components: { HfPopUp, Loading, StudioSideBar, HfButtons, HfSelectDropDown, ToolTip, },
+  watch: {
+  selectedDid: {
+    handler(newValue) {
+      if (newValue) {
+         this.did.name= newValue.name;
+         this.shouldRegister = (newValue.status === 'Registered');
+         this.did.methodSpecificId= newValue.did.split(':')[3];
+      }
+    },
+    immediate: true 
+  }
+
+},
   computed: {
     ...mapGetters('mainStore', ['sessionList']),
     ...mapState({
@@ -322,12 +337,26 @@ export default {
     },
     domainDidLinkTxtRecordText() {
       return `hypersign-link-domain.did=${this.domainDID}`
+    },
+    didName:{
+      get(){
+        return this.selectedDid? this.selectedDid.name : this.did.options.name;
+      },
+      set(value){
+        if(this.selectedDid){
+          this.selectedDid.name= value;
+        }else{
+          this.did.options.name= value;
+        }
+      }
     }
   },
   data() {
     return {
        selectedKeyTypes: ['Ed25519VerificationKey2020'],
        shouldRegister: false,
+       isEditing: false,
+       selectedDid: null,
       verifyButtonText: 'Verify',
       authToken: localStorage.getItem('authToken'),
       user: {},
@@ -536,13 +565,25 @@ export default {
       //   this.presentationTemplate.schemaId = []; 
       // }
     },
+    editDid(didDocId) {
+        this.isEditing = true;
+        this.selectedDid = this.didList.find(didDoc => didDoc.did === didDocId);
+          if (this.selectedDid) {
+            this.did.name= this.selectedDid.name,
+            this.did.namespace= 'testnet',
+            this.did.methodSpecificId = this.selectedDid.did.split(':')[3]
+          }
+        this.openSlider();
+},
 
-    openSlider() {
-      this.counter = 0
+  openSlider() {
+   if (!this.isEditing) { 
+      this.counter = 0;
       this.clearAll();
-      this.generateRandomMethodSepcificId()
-      this.$root.$emit("bv::toggle::collapse", "sidebar-right");
-    },
+      this.generateRandomMethodSepcificId();
+    }
+  this.$root.$emit("bv::toggle::collapse", "sidebar-right");
+},
     clearAll() {
       this.visible = false
       this.selectedKeyTypes= ['Ed25519VerificationKey2020']
@@ -562,14 +603,16 @@ export default {
         }
       },
       this.shouldRegister = false
-      this.attributes = []
+      this.attributes = [],
+      this.isEditing= false,
+      this.selectedDid= null
     },
 
     async createDID() {
       try {
 
         this.isLoading = true
-        console.log('Inside createDID methot................................')
+        console.log('Inside createDID method................................')
         delete this.did.name
         if (this.did.options.publicKey == "") {
           delete this.did.options.publicKey
@@ -627,7 +670,48 @@ export default {
         this.notifyErr(e.message)
       }
     },
-
+    async updateDID(){
+      try{
+      this.isLoading= true
+      if(!this.selectedDid.name && !this.shouldRegister){
+        this.notifyErr('Please pass name or tick the checkbox to register the did')
+      }
+      const payload={
+        did: this.selectedDid.did,
+        name:this.selectedDid.name
+      }
+      if(this.selectedDid.name){
+        this.updateDIDsForAService(payload)
+      }
+        if(this.shouldRegister && this.selectedDid.status!=='Registered'){
+          this.notifySuccess('Proceeding to register the DID...')
+          const verificationMethodIds = this.selectedDid?.didDocument?.verificationMethod||[];
+          const signInfos = verificationMethodIds.map((vm) => ({
+            verification_method_id: vm.id,
+          }));
+          const payload = {
+              didDocument: this.selectedDid.didDocument,
+              signInfos
+          }
+          this.registerDIDsForAService(payload).then((registerAsyncResponse) => {
+            if(registerAsyncResponse){
+              this.updateADID({
+                did: registerAsyncResponse.did,
+                status: 'Please wait..',
+              })
+              this.checkRegistrationStatus(registerAsyncResponse.did)
+            }
+          })  
+        }
+        this.notifySuccess('DID updated successfully')
+        this.isLoading = false;
+        this.clearAll();
+        this.$root.$emit("bv::toggle::collapse", "sidebar-right");
+      }catch(e){
+       this.isLoading = false
+        this.notifyErr(e.message)
+      }
+    },
     async checkRegistrationStatus(id_to_check_status){
       try{
         const maxrtries = 6 // after 30 sec abort            

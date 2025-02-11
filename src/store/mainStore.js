@@ -1591,10 +1591,18 @@ const mainStore = {
 
         updateDIDsForAService({ getters, }, payload) {
             return new Promise(function (resolve, reject) {
-                const body = {
+                let body;
+                if (payload.didDocument) {
+                    body = {
                     "didDocument": payload.didDocument,
                     "verificationMethodId": payload.verificationMethodId,
                     "deactivate": payload.deactivate
+                    }
+                } else {
+                    if (!payload.name || payload.name == '') {
+                        return reject(new Error('Please Provide name for the did'))
+                    }
+                    body = { ...payload }
                 }
                 //fetct all dids
                 {
