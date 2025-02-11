@@ -288,8 +288,9 @@ h5 span {
             <tr v-for="row in credentialList" :key="row.id">
               <!-- {{ row }} -->
               <td class="grabStyle">
-                <span @click="copyToClip(removeUrl(row.credentialMetadata.credentialId), 'Credential Id')">{{
-                  row.credentialMetadata.credentialId ? shorten(row.credentialMetadata.credentialId) : "-" }}
+                <span @click="copyToClip(removeUrl(row.credentialMetadata.credentialId), 'Credential Id')">
+                   <a :href="`${$config.explorer.BASE_URL}/revocationRegistry/${row.id}`" target="_blank">{{
+                  row.credentialMetadata.credentialId ? shorten(row.credentialMetadata.credentialId) : "-" }}</a>
                 </span>
               </td>
               <td class="grabStyle" @click="copyToClip(removeUrl(row.credentialMetadata.type.schemaId), 'Schema')">
