@@ -87,9 +87,10 @@
       <b-collapse id="nav-collapse" is-nav v-if="parseAuthToken">
         <b-navbar-nav class="ml-auto">
 
-          <b-nav-item v-if="user.accessAccount?.email" class="center">
+          <b-nav-item v-if="user.accessAccount?.email && user.accessAccount.userId !== user.userId" class="center">
             <a href="#">
-              Accessing Account Of: <b-badge variant="dark"> {{ user.accessAccount.email }}</b-badge>
+              Accessing Account Of: <b-badge variant="dark"> {{ loggedInUserEmailId }}</b-badge>
+            <b-icon icon="box-arrow-in-right" class="ml-2" @click="switchBackToAdminAccount"></b-icon>
             </a>
           </b-nav-item>
 
@@ -339,6 +340,7 @@ export default {
       schema_page: 1,
       authRoutes: ["register", "PKIIdLogin"],
       user: {},
+      loggedInUserEmailId:"",
       parseAuthToken: null
     };
   },
@@ -362,6 +364,7 @@ export default {
     if (localStorage.getItem("user")) {
       const usrStr = localStorage.getItem("user");
       this.user = JSON.parse(usrStr);
+      this.loggedInUserEmailId=this.user?.accessAccount?.email
       // this.showIcon = true;
       this.setIsLoggedOut(true)
     }
@@ -383,7 +386,7 @@ export default {
     })
   },
   methods: {
-    ...mapActions("mainStore", ["fetchAppsListFromServer", "fetchServicesList"]),
+    ...mapActions("mainStore", ["fetchAppsListFromServer", "fetchServicesList",'switchToAdmin']),
     ...mapMutations("mainStore", ["resetMainStore", "setIsLoggedOut"]),
     ...mapActions("playgroundStore", [
       "insertAschema",
@@ -654,6 +657,36 @@ export default {
     formattedAppName(appName) {
       if (appName == "" || appName == undefined) appName = "No app name";
       return this.truncate(appName, 25);
+    },
+    async switchBackToAdminAccount(){
+      try{
+        this.isLoding= true
+         await this.switchToAdmin({
+          adminId: this.userDetails.userId
+        })
+        this.isLoading = false
+        this.notifySuccess('Succefully switch to admin account')
+        await this.fetchLoggedInUser()
+        if (this.$route.path !== "/studio/dashboard") {
+          this.$router.push("dashboard").then(() => { this.$router.go(0) })
+        } else {
+          await this.fetchLoggedInUser()
+          this.$forceUpdate();
+          this.$router.go(0); 
+        }
+      } catch (e) {
+        this.notifyErr(e.message)
+        this.isLoading = false
+      }
+      },
+    async fetchLoggedInUser(){
+      if (localStorage.getItem("user")) {
+      const usrStr = localStorage.getItem("user");
+      this.user = JSON.parse(usrStr);
+      this.loggedInUserEmailId=this.user?.accessAccount?.email
+      this.setIsLoggedOut(true)
+    }
+    
     },
   },
   mixins: [UtilsMixin],

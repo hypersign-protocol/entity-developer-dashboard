@@ -79,6 +79,28 @@ h5 span {
 .grabStyle {
   cursor: grab
 }
+
+.warning-box {
+  display: flex;
+  align-items: center;
+  background-color: #fff3cd; /* Light yellow background */
+  color: #856404; /* Dark brown text */
+  padding: 10px;
+  border: 1px solid #ffeeba;
+  border-radius: 5px;
+  margin-bottom: 10px;
+}
+
+/* Warning Icon */
+.warning-icon {
+  font-size: 20px;
+  margin-right: 8px;
+}
+
+/* Warning Text */
+.warning-text {
+  font-weight: bold;
+}
 </style>
 <template>
   <div :class="isContainerShift ? 'homeShift' : 'home'">
@@ -239,24 +261,13 @@ h5 span {
                       v-model="expiryDateTime"
                     /> -->
             </div>
-
-           
             <div class="">
-              
-
               <v-checkbox v-model="creadData.persist" label="Store the credential in the data vault?"></v-checkbox>
             </div>
-
-
             <div class="">
               <v-checkbox v-model="creadData.registerCredentialStatus"
                 label="Attest the credential status on the blockchain?"></v-checkbox>
             </div>
-
-
-
-
-
             <div class="form-group row">
               <div class="col-md-12">
                 <hf-buttons v-if="isEdit === false" name="Issue" style="text-align: right" class="ml-auto"
@@ -288,8 +299,9 @@ h5 span {
             <tr v-for="row in credentialList" :key="row.id">
               <!-- {{ row }} -->
               <td class="grabStyle">
-                <span @click="copyToClip(removeUrl(row.credentialMetadata.credentialId), 'Credential Id')">{{
-                  row.credentialMetadata.credentialId ? shorten(row.credentialMetadata.credentialId) : "-" }}
+                <span @click="copyToClip(removeUrl(row.credentialMetadata.credentialId), 'Credential Id')">
+                   <a :href="`${$config.explorer.BASE_URL}/revocationRegistry/${row.id}`" target="_blank">{{
+                  row.credentialMetadata.credentialId ? shorten(row.credentialMetadata.credentialId) : "-" }}</a>
                 </span>
               </td>
               <td class="grabStyle" @click="copyToClip(removeUrl(row.credentialMetadata.type.schemaId), 'Schema')">
@@ -301,31 +313,57 @@ h5 span {
               </td>
               <!-- <td></td> -->
               <td>
-
-
-
-                <span v-if="row.status == 'Registered'" class="badge badge-pill badge-success"><i class="fa fa-check"
-                    aria-hidden="true"></i>
+                <span v-if="row.status == 'Registered'" class="badge badge-pill badge-primary mr-1">
+                <i class="fa fa-check" aria-hidden="true"></i>
                   Registered</span>
-                <span v-else-if="row.status == 'Created'" class="badge badge-pill badge-warning">
+                <span v-else-if="row.status == 'Created'" class="badge badge-pill badge-warning mr-1">
                   <i class="fa fa-cog" aria-hidden="true"></i>
                   Created</span>
-                <span v-else-if="row.status == 'Error'" class="badge badge-pill badge-danger">
+                <span v-else-if="row.status == 'Error'" class="badge badge-pill badge-danger mr-1">
                   <i class="fa fa-exclamation-circle" aria-hidden="true"></i> Error
                 </span>
                 <span v-else>
                   <wait-spinner></wait-spinner>
                 </span>
-
-
-
+                 <!-- Additional status based on row.credentialStatus -->
+                <span v-if="row.credentialStatus">
+                  <span v-if="row.credentialStatus.revoked" class="badge badge-pill badge-danger">
+                    <i class="fa fa-ban" aria-hidden="true"></i> Revoked
+                  </span>
+                  <span v-else-if="row.credentialStatus.suspended" class="badge badge-pill badge-secondary">
+                    <i class="fa fa-pause" aria-hidden="true"></i> Suspended
+                  </span>
+                  <span v-else-if="!row.credentialStatus.suspended && !row.credentialStatus.revoked" class="badge badge-pill badge-success">
+                    <i class="fa fa-play" aria-hidden="true"></i> Live
+                  </span>
+                   <span v-else>
+                  <wait-spinner></wait-spinner>
+                </span>
+                </span>
               </td>
-
               <td>
-                <span class="mx-1 grabStyle greyFont" v-if="row.credentialMetadata.persist"
+                <!-- <span class="mx-1 grabStyle greyFont" v-if="row.credentialMetadata.persist"
                   title="Unlock credential document" @click="unlockCredential(row.id)">
                   <i class="fa fa-unlock" aria-hidden="true"></i> UNLOCK
-                </span>
+                </span> -->
+                        <b-dropdown size="sm" variant="link" toggle-class="text-decoration-none" no-caret dropright :disabled="(!row.credentialMetadata?.persist && row.status !== 'Registered') || (!row.credentialMetadata?.persist && row.credentialStatus?.revoked)">
+                          <template #button-content >
+                            <b-icon size="sm" style="color: grey" icon="list" aria-hidden="true"></b-icon>
+                          </template>
+                          <b-dropdown-item-button  style="text-align: left" v-if="row.status == 'Registered' && !row.credentialStatus?.revoked" @click.stop="handleCredentialAction(row.id,'REVOKE')"><i
+                              class="fa fa-ban mt-1" aria-hidden="true"></i> Revoke
+                          </b-dropdown-item-button>
+                          <b-dropdown-item-button style="text-align: left" v-if="row.status == 'Registered' && !row.credentialStatus?.revoked && !row.credentialStatus?.suspended" @click.stop="handleCredentialAction(row.id,'SUSPEND')"><i
+                              class="fas fa-pause mt-1" aria-hidden="true"></i> Suspend
+                          </b-dropdown-item-button>
+                          <b-dropdown-item-button style="text-align: left" v-if="row.status == 'Registered'  && row.credentialStatus?.suspended && !row.credentialStatus?.revoked" @click.stop="handleCredentialAction(row.id,'LIVE')"><i
+                              class="fa fa-play mt-1"></i> Live</b-dropdown-item-button>
+                          <b-dropdown-item-button style="text-align: left;"  v-if="row.credentialMetadata.persist" title="Unlock credential document" @click.stop="unlockCredential(row.id)"><i 
+                              class="fa fa-unlock" aria-hidden="true"></i> Unlock
+                          </b-dropdown-item-button>
+                        </b-dropdown>
+
+                <!-- </div> -->
 
                 <!-- <span  class="mx-1 grabStyle" v-if="row.credentialMetadata.registerCredentialStatus">
                   <i class="fa-check-circle" aria-hidden="true"></i>
@@ -342,7 +380,7 @@ h5 span {
             </code> 
           </pre>
         </hf-pop-up>
-
+        <loading :active.sync="isLoading" :can-cancel="true" :is-full-page="false"></loading>
         <hf-pop-up Header="Send Credential">
           <Info
             message="Scan QR code or Copy the link and send it to the credential owner so that they can accept in their wallet" />
@@ -362,6 +400,53 @@ h5 span {
               <i class="far fa-copy pr-2" title="copy url" @click="copyToClip(credUrl, 'URL')"></i>
             </span>
           </div>
+        </hf-pop-up>
+        <hf-pop-up id="credentialActionPopup"  :Header="selectedAction + ' CREDENTIAL'" size="lg"  @hide="resetForm">
+             <form @submit.prevent="submitCredentialAction">
+            <div v-if="warningMessage" class="warning-box">
+              <span class="warning-icon">⚠️</span> 
+              <span class="warning-text">{{ warningMessage }}</span>
+            </div>
+          <div v-if="errorMessage" class="alert alert-danger">
+             {{ errorMessage }}
+          </div>
+            <!-- Reason Input -->
+            <div class="form-group mb-3">
+              <label for="update-reason">Reason:</label>
+              <input 
+                type="text" 
+                id="update-reason" 
+                class="form-control" 
+                placeholder="Enter Reason" 
+                v-model="reasonForCredentialUpdate"
+                 :class="{'is-invalid': errorMessage && !reasonForCredentialUpdate}"
+              />
+            </div>
+            <!-- VerificationMethodId Input -->
+
+            <div v-if="selectedCredential.credentialStatus">
+              <tool-tip infoMessage="Choose a signing key"></tool-tip>
+              <label for="selectService">
+                <strong>Signing Key Of Issuer<span style="color: red">*</span>:</strong>
+              </label>
+              <select 
+                class="custom-select" 
+                id="selectService" 
+                v-model="verificationMethodId"
+                :class="{'is-invalid': errorMessage && !issuerVerificationMethodId}"
+              >
+                <option value="">Select a Signing Key</option>
+                <option v-for="vm in issuerVerificationMethodIds" :value="vm.id" :key="vm.id">
+                  {{ truncate(vm.id, 40) + ' (' + vm.type + ')' }}
+                </option>
+              </select>
+            </div>
+          <hf-buttons 
+            name="Submit" 
+            @executeAction="submitCredentialAction"
+          >
+         </hf-buttons>
+          </form>
         </hf-pop-up>
       </div>
     </div>
@@ -517,7 +602,13 @@ export default {
         persist: false,
         registerCredentialStatus: true,
         namespace: "testnet"
-      }
+      },
+      reasonForCredentialUpdate: '',
+      verificationMethodId: '',
+      selectedAction:"",
+      warningMessage: '',
+      errorMessage:"",
+      selectedCredential:""
     };
   },
   async created() {
@@ -549,7 +640,8 @@ export default {
       'resolveCredential',
       'checkBlockchainStatusOfSSI',
       'resolveSchema',
-      'issueCredentialForAService'
+      'issueCredentialForAService',
+      'updateCredentialForAService'
     ]),
     ...mapMutations("mainStore", ['updateACredential']),
     ...mapActions("playgroundStore", [
@@ -604,7 +696,6 @@ export default {
         credentialId,
         retrieveCredential: true
       })
-
       const cred = this.credentialList.find(x => x.id == credentialId)
       console.log(cred)
       if (cred) {
@@ -618,7 +709,8 @@ export default {
     },
     async resolveDid(event) {
       this.issuerVerificationMethodId = ""
-      const did = event.target.value.trim()
+      const didDocId=event?.target?.value || event
+      const did = didDocId.trim()
       const didDocument = this.didList.find(x => x.did == did)?.didDocument
       this.issuerVerificationMethodIds = didDocument ? didDocument.verificationMethod : [];
     },
@@ -630,6 +722,91 @@ export default {
         return true;
       }
     },
+    resetForm() {
+      this.reasonForCredentialUpdate = "";
+      this.verificationMethodId = "";
+      this.errorMessage = "";
+  },
+   async handleCredentialAction(credentialId,action){
+       this.vcId = credentialId; 
+       this.selectedAction =action ;
+       this.selectedCredential= this.credentialList.find(x=>x.id===credentialId)
+      if(this.selectedCredential){
+        const credIssuerDid= this.selectedCredential.credentialStatus.issuer;
+        await this.resolveDid(credIssuerDid)
+      }
+        this.$root.$emit("bv::show::modal", "credentialActionPopup"); 
+        if(action=='SUSPEND'){
+        this.warningMessage="You are suspending this credential. It can be reactivated and made live again later."
+        }else if(action=='REVOKE'){
+          this.warningMessage="You are revoking the credential.Once revoked, this credential cannot be made live again. This action is permanent."
+        }
+    },
+     
+    async submitCredentialAction() {
+      try {
+         this.isLoading = true;
+         this.errorMessage = "";
+          if (this.reasonForCredentialUpdate == "") {
+            this.errorMessage = "Status Reason cannot be empty.";
+            return;
+          }
+            if (this.verificationMethodId == "") {
+               this.errorMessage = "Verification Method ID cannot be empty.";
+               return;
+          }
+           let fetchedCredStatus;
+           const { revoked, suspended, issuer } =this.selectedCredential.credentialStatus;
+            if (!revoked && !suspended) {
+              fetchedCredStatus='LIVE'
+            } else if (!suspended) {
+              fetchedCredStatus="SUSPEND"
+            }else{
+              fetchedCredStatus="REVOKE"
+            }
+         //check for status
+        switch (this.selectedAction) {
+          case "LIVE":
+            if (fetchedCredStatus === "LIVE") {
+               this.errorMessage = "Credential is already Live.";
+              return;
+            }
+            break;
+          case "SUSPEND":
+            if (fetchedCredStatus === "SUSPEND") {
+               this.errorMessage = "Credential is already Live.";
+            }
+            break;
+          case "REVOKE":
+            if (fetchedCredStatus === "REVOKE") {
+              this.errorMessage = "Credential is already Revoked.";
+              return;
+            }
+            break;
+          default:
+            this.errorMessage = "Invalid status.";
+            return;
+        }
+        const credPayload=
+                {
+                  "namespace": "testnet",
+                  "status":this.selectedAction,
+                  "statusReason":this.reasonForCredentialUpdate,
+                  "issuerDid": issuer,
+                  "verificationMethodId": this.verificationMethodId,
+                  "credentialId":this.vcId
+                }
+        await this.updateCredentialForAService(credPayload)
+        this.isLoading = false;
+        this.clearEdit();
+        this.clearAll();
+        this.$root.$emit("bv::hide::modal", "credentialActionPopup");
+      } catch (e) {
+        this.notifyErr(e);
+      } finally {
+        this.isLoading = false;
+      }
+    },
     editCred(cred) {
       this.clearEdit();
       this.isEdit = true;
@@ -638,7 +815,6 @@ export default {
       this.issuerDid = cred.issuerDid;
       this.credHash =
         cred.credentialStatus.credentialStatusDocument.credentialMerkleRootHash;
-
       const { expirationDate, issuanceDate } = cred.vc;
       console.log({ expirationDate, issuanceDate });
       this.expiryDateTime = expirationDate;
@@ -646,7 +822,6 @@ export default {
       const { revoked, suspended, remarks } =
         cred.credentialStatus.credentialStatusDocument;
       this.statusReason = remarks;
-
       if (!revoked && !suspended) {
         this.selectedStatus = "LIVE";
         this.currentStatus = "LIVE";
@@ -710,8 +885,14 @@ export default {
       this.statusReason = "";
       this.selectedSchema = "";
       this.issueCredentialType = "";
+      this.reasonForCredentialUpdate = "";
+      this.verificationMethodId = "";
+      this.warningMessage = "";
+      this.selectedAction='';
+      this.errorMessage='';
+      this.selectedCredential='';
     },
-    async updateCredStatus() {
+      async updateCredStatus() {
       try {
         this.isLoading = true;
         if (this.statusReason == "") {
@@ -743,7 +924,6 @@ export default {
           vcId: this.vcId,
           statusReason: this.statusReason,
         };
-
         const headers = {
           "Content-Type": "application/json",
           Authorization: `Bearer ${this.authToken}`,
@@ -826,7 +1006,6 @@ export default {
       };
       return;
     },
-
     async generateCred(id) {
       this.credUrl = "";
       const body = {
@@ -925,7 +1104,6 @@ export default {
         this.notifyErr(`Error: ${e.message}`);
       }
     },
-
     forceFileDownload(data, fileName) {
       const url = window.URL.createObjectURL(new Blob([data]));
       const link = document.createElement("a");
@@ -1115,6 +1293,11 @@ export default {
       this.issueCredAttributes = [];
       this.selectedSchema = "";
       this.issueCredentialType = "";
+      this.reasonForCredentialUpdate = "";
+      this.verificationMethodId = "";
+      this.warningMessage = "";
+      this.selectedAction='';
+      this.errorMessage='';
       EventBus.$emit("resetOption", this.selected);
     },
   },
