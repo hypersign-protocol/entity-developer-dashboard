@@ -124,7 +124,7 @@ h5 span {
             Decentralised Identifier</h3>
           <h3 v-else style="text-align: left;">Create your first decentralised identifier!</h3>
           <hf-buttons name="Create" iconClass="fa fa-plus" style="text-align: right;" class="ml-auto"
-            @executeAction="openSlider()"></hf-buttons>
+            @executeAction="createDid()"></hf-buttons>
         </div>
         <StudioSideBar :title="isEditing ? 'Edit DID' : 'Create DID'">
           <div class="container" style="width: 100%;">
@@ -574,8 +574,11 @@ export default {
             this.did.methodSpecificId = this.selectedDid.did.split(':')[3]
           }
         this.openSlider();
-},
-
+    },
+    createDid(){
+      this.isEditing= false;
+      this.openSlider()
+    },
   openSlider() {
    if (!this.isEditing) { 
       this.counter = 0;
@@ -611,7 +614,7 @@ export default {
     async createDID() {
       try {
 
-        this.isLoading = true
+        this.isLoading = true;
         console.log('Inside createDID method................................')
         delete this.did.name
         if (this.did.options.publicKey == "") {

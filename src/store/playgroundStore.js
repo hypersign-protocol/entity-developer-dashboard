@@ -17,6 +17,7 @@ const playgroundStore = {
                 name: '',
                 email: '',
                 did: '',
+                userId: ""
             },
             count: {
                 credentialsCount: 0,
@@ -100,6 +101,7 @@ const playgroundStore = {
                     name: '',
                     email: '',
                     did: '',
+                    userId: ''
                 },
                 count: {
                     credentialsCount: 0,
@@ -135,7 +137,9 @@ const playgroundStore = {
         addUserDetailsToProfile(state, payload) {
             state.userProfile.details.name = payload.name;
             state.userProfile.details.email = payload.email;
-            state.userProfile.details.did = payload.id
+            state.userProfile.details.did = payload.id;
+            state.userProfile.details.userId = payload.userId;
+
         },
         addCountDataToProfile(state, payload) {
             state.userProfile.count = { ...payload }

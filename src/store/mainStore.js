@@ -1594,9 +1594,9 @@ const mainStore = {
                 let body;
                 if (payload.didDocument) {
                     body = {
-                    "didDocument": payload.didDocument,
-                    "verificationMethodId": payload.verificationMethodId,
-                    "deactivate": payload.deactivate
+                        "didDocument": payload.didDocument,
+                        "verificationMethodId": payload.verificationMethodId,
+                        "deactivate": payload.deactivate
                     }
                 } else {
                     if (!payload.name || payload.name == '') {
@@ -1609,6 +1609,7 @@ const mainStore = {
                     if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
                         return reject(new Error('Tenant url is null or empty, service is not selected'))
                     }
+                    // const url = `http://ent-2af45c1.localhost:4001/api/v1/did/`;
                     const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/did/`;
                     const options = {
                         method: "PATCH",
@@ -2249,6 +2250,39 @@ const mainStore = {
                                 resolve(data)
                             } else {
                                 reject(new Error('Could not issue credential'))
+                            }
+                        }).catch(e => {
+                            reject(e)
+                        })
+                }
+            })
+
+        },
+        updateCredentialForAService({ getters }, payload) {
+            return new Promise(function (resolve, reject) {
+                {
+                    if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
+                        return reject(new Error('Tenant url is null or empty, service is not selected'))
+                    }
+                    const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/credential/status/${payload.credentialId}`;
+                    const options = {
+                        method: "PATCH",
+                        body: JSON.stringify(payload),
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": `Bearer ${getters.getSelectedService.access_token}`,
+                            "Origin": '*'
+                        }
+                    }
+                    fetch(url, {
+                        ...options
+                    })
+                        .then(response => response.json())
+                        .then(async json => {
+                            if (json && !json.error) {
+                                window.location.reload();
+                            } else {
+                                reject(new Error('Could not update credential'))
                             }
                         }).catch(e => {
                             reject(e)
