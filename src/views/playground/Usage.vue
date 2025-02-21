@@ -127,11 +127,11 @@ h5 span {
       <div class="col">
         <b-form inline class="mx-1" style="float: inline-end;">
           <!-- <label for="inline-form-input-name">Start: </label> -->
-          <b-form-datepicker id="example-datepicker" placeholder="Start Date" v-model="startDate"
+          <b-form-datepicker id="startDate-datepicker" placeholder="Start Date" v-model="startDate"
             class="mb-2 mr-sm-1 mb-sm-0"></b-form-datepicker>
 
           <!-- <label for="inline-form-input-username">End:</label> -->
-          <b-form-datepicker id="example-datepicker" placeholder="Start Date" v-model="endDate"
+          <b-form-datepicker id="endDate-datepicker" placeholder="End Date" v-model="endDate"
             class="mb-2 mr-sm-1 mb-sm-0"></b-form-datepicker>
           <b-button variant="outline-secondary" @click="search()"><i class="fa fa-search"></i></b-button>
         </b-form>

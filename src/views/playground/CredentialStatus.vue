@@ -193,9 +193,10 @@ h5 span {
                     @input="OnSchemaSelectDropDownChange(selectedSchema)"
                     @change="OnSchemaSelectDropDownChange(selectedSchema)" />
                   <datalist id="schema">
-                    <option v-for="browser in selectOptions" :key="browser.selected" :value="browser.value"
+                    <option v-for="schema in schemaIdsList" :key="schema.value"
+                     :value="schema.value"
                       class="form-control">
-                      {{ browser.text }}
+                      {{ schema.text }}
                     </option>
                   </datalist>
                   <!-- <span
@@ -532,6 +533,7 @@ export default {
       schemaConfigVisible: false,
       issuerConfigVisible: false,
       credentialDocumentToView: "",
+      schemaIdsList:[],
       booleanOption: [
         { text: true, value: true },
         { text: false, value: false },
@@ -611,6 +613,26 @@ export default {
       selectedCredential:""
     };
   },
+    async mounted() {
+    try {
+     const schemaIds=this.schemaList.map(schema=>{
+        if(schema.id&&schema.id!==undefined && schema.status === 'Registered'){
+          return {
+            text:schema.schemaDocument.name + " "+ `{${UtilsMixin.methods.truncate(schema.id, 60)}}`,
+            value:schema.id
+        }
+        }
+        else{
+          return null
+        }
+      })
+      this.schemaIdsList = schemaIds.filter(x => x)
+      this.schemaIdsList.unshift({ value: null, text: "Please select a schema" })
+      return this.schemaIdsList;
+    } catch (error) {
+      return this.notifyErr(error.message)
+    }
+  },
   async created() {
     try {
       const usrStr = localStorage.getItem("user");
@@ -637,6 +659,7 @@ export default {
   methods: {
     ...mapActions('mainStore', [
       'fetchCredentialList',
+      'fetchSchemaList',
       'resolveCredential',
       'checkBlockchainStatusOfSSI',
       'resolveSchema',
@@ -726,8 +749,10 @@ export default {
       this.reasonForCredentialUpdate = "";
       this.verificationMethodId = "";
       this.errorMessage = "";
+      this.warningMessage="";
   },
    async handleCredentialAction(credentialId,action){
+       this.resetForm()
        this.vcId = credentialId; 
        this.selectedAction =action ;
        this.selectedCredential= this.credentialList.find(x=>x.id===credentialId)
@@ -757,13 +782,13 @@ export default {
           }
            let fetchedCredStatus;
            const { revoked, suspended, issuer } =this.selectedCredential.credentialStatus;
-            if (!revoked && !suspended) {
-              fetchedCredStatus='LIVE'
-            } else if (!suspended) {
-              fetchedCredStatus="SUSPEND"
-            }else{
-              fetchedCredStatus="REVOKE"
-            }
+              if (revoked) {
+                  fetchedCredStatus = "REVOKE";
+                } else if (suspended) {
+                  fetchedCredStatus = "SUSPEND";
+                } else {
+                  fetchedCredStatus = "LIVE";
+                }
          //check for status
         switch (this.selectedAction) {
           case "LIVE":
@@ -774,7 +799,7 @@ export default {
             break;
           case "SUSPEND":
             if (fetchedCredStatus === "SUSPEND") {
-               this.errorMessage = "Credential is already Live.";
+               this.errorMessage = "Credential is already SUSPENDED.";
             }
             break;
           case "REVOKE":
