@@ -124,125 +124,36 @@ h5 span {
 }
 </style>
 <template>
-    <div>
+  <div :class="isContainerShift ? 'homeShift' : 'home'">
+
         <loading :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loading>
-        <!-- Credits -->
-        <div>
-            <div style="text-align: left">
+    
+        <div class="">
+            <div class="" style="text-align: left">
                 <div class="form-group" style="display:flex">
-                    <h3 style="text-align: left;">Credits</h3>
+                    <h3 style="text-align: left;">Usage</h3>
                 </div>
             </div>
         </div>
         <div class="row">
             <div class="col-4">
-                <div class="p-1">
-                    <canvas id="doughNutChat"></canvas>
-                </div>
-            </div>
-            <div class="col-2"></div>
-            <div class="col-6">
-                <v-card class="card p-4 mt-1">
-                    <div class="row">
-                        <div class="col-8">
-                            <p><b>Total Credits</b></p>
-                            <p>
-                                <span style="font-size:xx-large;">
-                                    {{ numberFormat(parsedAllowanceLimit) }}
-                                </span> <span style="font-size:larger;">/</span>
-                                <span style="font-size:larger; color: grey">
-                                    {{ numberFormat(allowance.total) }}
-                                </span>
-                            </p>
-                            <p>
-                                <span style="font-size:small; color: grey">
-                                    Expires In: {{ expiration }}
-                                </span>
-                            </p>
-                        </div>
-                        <div class="col-4 center">
-                            <button class="btn btn-outline-secondary  " type="button" @click="openCreditCalcualtor()"
-                                :disabled="parsedAllowanceLimit <= 0">
-                                <i class="fas fa-calculator"></i> Credit Usage Estimation
-                            </button>
-                        </div>
-                    </div>
+                <v-card class="p-4">
+                    <canvas id="didChart"></canvas>
                 </v-card>
-                <v-card class="p-4 mt-2">
-                    <div>
-                        <p><b>Scope(s)</b></p>
-                        <p v-if="grants.length > 0">
-                            <span class="badge badge-info mx-1" v-for="eachRow in grants"
-                                v-bind:key="eachRow.authorization.msg">{{
-                                    eachRow.authorization.msg.replace('/hypersign.ssi.v1.Msg', '') }}</span>
-                        </p>
-                        <p v-else>
-                            No scope granted!
-                        </p>
+            </div>
 
-                    </div>
+             <div class="col-4">
+                <v-card class="p-4">
+                    <canvas id="schemaChart"></canvas>
+                </v-card>
+            </div>
+
+            <div class="col-4">
+                <v-card class="p-4">
+                    <canvas id="credChart"></canvas>
                 </v-card>
             </div>
         </div>
-
-        <!-- Credit History -->
-        <!-- 
-        
-        <div class="row mt-4" style="display: none;">
-            <div class="col-md-12" style="text-align: left">
-                <div class="form-group" style="display:flex">
-                    <h3 style="text-align: left;">Credits History</h3>
-                </div>
-            </div>
-        </div>
-        <div class="row" style="display: none;">
-            <div class="col">
-                <table class="table table-hover">
-                    <thead>
-                        <tr>
-                            
-        <th scope="col">Date</th>
-        <th scope="col">Amount</th>
-        <th scope="col">Scope</th>
-        <th scope="col">Expiry At</th>
-        <th scope="col">Status</th>
-        </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>{{ (new Date()).toUTCString() }}</td>
-                <td>{{ numberFormat("10000") }}</td>
-                <td style="word-wrap: break-word; max-width: 200px;"><span class="badge badge-info mx-1"
-                        v-for="eachRow in grants" v-bind:key="eachRow.authorization.msg">{{
-                            eachRow.authorization.msg.replace('/hypersign.ssi.v1.Msg', '') }}</span></td>
-                <td>{{ (new Date()).toUTCString() }}</td>
-                <td>Expired</td>
-            </tr>
-            <tr>
-                <td>{{ (new Date()).toUTCString() }}</td>
-                <td>{{ numberFormat("10000") }}</td>
-                <td style="word-wrap: break-word; max-width: 200px;"><span class="badge badge-info mx-1"
-                        v-for="eachRow in grants" v-bind:key="eachRow.authorization.msg">{{
-                            eachRow.authorization.msg.replace('/hypersign.ssi.v1.Msg', '') }}</span></td>
-                <td>{{ (new Date()).toUTCString() }}</td>
-                <td>Expired</td>
-            </tr>
-            <tr>
-                <td>{{ (new Date()).toUTCString() }}</td>
-                <td>{{ numberFormat("10000") }}</td>
-                <td style="word-wrap: break-word; max-width: 200px;"><span class="badge badge-info mx-1"
-                        v-for="eachRow in grants" v-bind:key="eachRow.authorization.msg">{{
-                            eachRow.authorization.msg.replace('/hypersign.ssi.v1.Msg', '') }}</span></td>
-                <td>{{ (new Date()).toUTCString() }}</td>
-                <td>Expired</td>
-            </tr>
-
-        </tbody>
-        </table>
-        </div>
-        </div> 
-        --->
-
 
         <hf-pop-up id="credit-estimation" Header="Credit/Usage Estimation Calculator">
 
@@ -281,7 +192,6 @@ h5 span {
 
                     <div>
                         <hr />
-                        <!-- <p>Total Cost: ${{ numberFormat(totalCost) }}</p> -->
                         <div>
                             <span style="float: left;">Remaining Credits: {{ numberFormat(remainingBudget) }}</span>
                             <span style="float:right">
@@ -295,7 +205,6 @@ h5 span {
                                                 id="inlineFormInputGroup" @change="updateCredit()"
                                                 v-model="creditDollarValue" style="width: 120px;">
                                         </span>
-                                        <!-- <small class="form-text text-muted">Added ${{ added }}</small> -->
                                     </span>
                                 </form>
                             </span>
@@ -313,28 +222,20 @@ h5 span {
 <script>
 
 
-// import { CChart, } from '@coreui/vue-chartjs'
 import Chart from 'chart.js/auto';
 import HfPopUp from "../../components/element/hfPopup.vue";
 import { mapActions } from "vuex";
 import Loading from "vue-loading-overlay";
 import UtilsMixin from '../../mixins/utils';
-
 export default {
     name: "SSIDashboardCredit",
     components: {
-        // CChart,
         HfPopUp,
         Loading
     },
     computed: {
         parsedAllowanceLimit() {
-            // if (this.allowance.spend_limit) {
             return parseInt(this.allowance.spend_limit[0].amount)
-            // } else {
-            //     return 0
-            // }
-
         },
         expiryDate() {
             if (this.grants.length > 0 && this.grants[0]) {
@@ -342,7 +243,6 @@ export default {
             } else {
                 return new Date()
             }
-
         },
         computedService() {
             const balance = this.parsedAllowanceLimit;

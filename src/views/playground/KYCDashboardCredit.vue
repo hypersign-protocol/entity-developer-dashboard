@@ -158,15 +158,26 @@ h5 span {
                     <div class="">
                         <div class="">
                             <p><b>Total Credits</b></p>
-                            <p>
-                                <span style="font-size:xx-large;">
-                                    {{ numberFormat(myKYCCredits.allRemainingCredits) }}
-                                </span> <span style="font-size:larger;">/</span>
-                                <span style="font-size:larger; color: grey">
-                                    {{ numberFormat(myKYCCredits.allAvailableCredits) }}
+                          <p v-if="myKYCCredits.allRemainingCredits === 0 && myKYCCredits.allAvailableCredits === 0">
+                            <span style="font-size: xx-large;">
+                                {{ numberFormat(myKYCCredits.allRemainingCredits) }}
+                            </span>
+                         </p>
+                         <p v-else>
+                            <span style="font-size: xx-large;">
+                                {{ numberFormat(myKYCCredits.allRemainingCredits) }}
+                            </span> 
+                            <span style="font-size: larger;">/</span>
+                            <span style="font-size: larger; color: grey">
+                                {{ numberFormat(myKYCCredits.allAvailableCredits) }}
+                            </span>
+                         </p>
+                            <p v-if="this.timeRemaining==='Expired'">
+                                <span style="font-size:small; color: grey">
+                                    Expired
                                 </span>
                             </p>
-                            <p>
+                             <p v-else>
                                 <span style="font-size:small; color: grey">
                                     Expires In: {{ this.timeRemaining }}
                                 </span>

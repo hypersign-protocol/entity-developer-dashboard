@@ -12,6 +12,7 @@ const Credential = () => import('./views/playground/Sessions.vue')
 const CredentialDetails = () => import('./views/playground/SessionsDetails.vue')
 const DIDs = () => import('./views/playground/DID.vue')
 const SSIDashboardCredit = () => import('./views/playground/SSIDashboardCredit.vue')
+const SSIDashboardUsage = () => import('./views/playground/SSIDashboardUsages.vue')
 const KYCCreditDashboard = () => import('./views/playground/KYCDashboardCredit.vue')
 const UsageS = () => import('./views/playground/Usage.vue')
 const OnChainKycSystems = () => import('./views/playground/OnChainKycSystems.vue')
@@ -123,6 +124,15 @@ const router = new Router({
       meta: {
         requiresAuth: true,
         title: `${config.app.name} - SSI Credit`
+      }
+    },
+    {
+      path: '/studio/ssi/usage/:appId',
+      name: 'Usage',
+      component: SSIDashboardUsage,
+      meta: {
+        requiresAuth: true,
+        title: `${config.app.name} - Usages`
       }
     },
     {
