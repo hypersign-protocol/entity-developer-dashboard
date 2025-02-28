@@ -2053,7 +2053,8 @@ const mainStore = {
                                 //dispatch('resolveSchema', json.schemaId)
                                 resolve(json)
                             } else {
-                                reject(new Error('Could not create DID for this service'))
+                                const message = json?.message?.[0] || 'Could not create schema for this service'
+                                reject(new Error(message))
                             }
                         }).catch(e => {
                             reject(e)
