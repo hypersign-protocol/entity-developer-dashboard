@@ -1221,7 +1221,11 @@ const mainStore = {
                 headers
             })
             const json = await resp.json()
-            return json?.data
+            if (json?.data) {
+                return json?.data
+            } else {
+                return json
+            }
         },
 
         async fetchUsageDetailsForAService({ getters, commit }, payload) {
@@ -1237,8 +1241,13 @@ const mainStore = {
                 headers
             })
             const json = await resp.json()
-            commit('setUsageDetails', json?.data)
-            return json?.data
+            if (json?.data) {
+                commit('setUsageDetails', json?.data)
+                return json?.data
+            } else {
+                commit('setUsageDetails', json)
+                return json
+            }
         },
 
         // - KYC Credit

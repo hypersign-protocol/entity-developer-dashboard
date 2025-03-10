@@ -124,97 +124,108 @@ h5 span {
 }
 </style>
 <template>
-  <div :class="isContainerShift ? 'homeShift' : 'home'">
+
+    <div :class="isContainerShift ? 'homeShift' : 'home'">
 
         <loading :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loading>
-    
-        <div class="">
-            <div class="" style="text-align: left">
-                <div class="form-group" style="display:flex">
-                    <h3 style="text-align: left;">Usage</h3>
-                </div>
+
+
+        <!-- -------- -->
+
+
+        <div class="row mb-3">
+
+            <div class="col">
+                <b-form inline class="mx-1" style="float: inline-end;">
+                    <!-- <label for="inline-form-input-name">Start: </label> -->
+                    <b-form-datepicker id="startDate-datepicker" placeholder="Start Date" v-model="startDate"
+                        class="mb-2 mr-sm-1 mb-sm-0"></b-form-datepicker>
+
+                    <!-- <label for="inline-form-input-username">End:</label> -->
+                    <b-form-datepicker id="endDate-datepicker" placeholder="End Date" v-model="endDate"
+                        class="mb-2 mr-sm-1 mb-sm-0"></b-form-datepicker>
+                    <b-button variant="outline-secondary" @click="search()"><i class="fa fa-search"></i></b-button>
+                </b-form>
+                <!-- </div>
+<div class="col-4"> -->
+
+                <b-button-group style="float: left;">
+                    <b-button :pressed="isGroupByDaily" variant="outline-secondary">Daily</b-button>
+                    <b-button :pressed="isGroupByWeekly" variant="outline-secondary" @click="groupByTheChart('weekly')"
+                        disabled>Weekly</b-button>
+                    <b-button :pressed="isGroupByMonthly" variant="outline-secondary"
+                        @click="groupByTheChart('monthly')" disabled>Monthly</b-button>
+                </b-button-group>
+
+                <b-button-group style="float: left;" class="mx-1">
+                    <b-button variant="secondary" @click="changeGraph('bar')" :pressed="isChartBar"><b-icon
+                            icon="bar-chart"></b-icon></b-button>
+                    <b-button variant="secondary" @click="changeGraph('line')" :pressed="isChartLine"><b-icon
+                            icon="graph-up"></b-icon></b-button>
+                </b-button-group>
+
+
             </div>
         </div>
+
         <div class="row">
-            <div class="col-4">
-                <v-card class="p-4">
-                    <canvas id="didChart"></canvas>
+            <div class="col-md-8">
+                <v-card style="padding:15px; ">
+                    <canvas class="didChart"></canvas>
+                </v-card>
+            </div>
+            <div class="col-md-4">
+                <v-card style="padding:0px; height: 100%;">
+                    <canvas class="polarChart"></canvas>
                 </v-card>
             </div>
 
-             <div class="col-4">
-                <v-card class="p-4">
-                    <canvas id="schemaChart"></canvas>
-                </v-card>
-            </div>
+        </div>
 
-            <div class="col-4">
-                <v-card class="p-4">
-                    <canvas id="credChart"></canvas>
-                </v-card>
+
+        <div class="mt-3">
+            <div class="">
+                <div class="form-group">
+                    <h3 v-if="usageDetails.serviceDetails.length > 0" style="text-align: left;">
+                        API Consumptions </h3>
+                    <h3 v-else style="text-align: left;">No usage found!</h3>
+                </div>
             </div>
         </div>
 
-        <hf-pop-up id="credit-estimation" Header="Credit/Usage Estimation Calculator">
-
-            <div class="card p-4 mt-1" style="border-radius: 20px;">
-                <div>
-                    <!-- <p><b>Credit Usage Calculator</b></p> -->
-                    <!-- <hr /> -->
-                    <div>
-                        <label for="bananas">DID Operations:</label>
-                        <span style="float: right;">{{
-                            numberFormat(bananaQuantity)
-                            }}</span>
-                        <input class="form-control-range" type="range" id="bananas" v-model="bananaQuantity" min="0"
-                            :max="maxBananas" step="50" />
-
-                    </div>
-
-                    <div>
-                        <label for="apples">Credentials Operation:</label>
-                        <span style="float: right;">{{ numberFormat(appleQuantity)
-                            }}</span>
-                        <input class="form-control-range" step="50" type="range" id="apples" v-model="appleQuantity"
-                            min="0" :max="maxApples" />
-
-                    </div>
-
-                    <div>
-                        <label for="oranges">Schema Operations:</label>
-                        <span style="float: right;">{{
-                            numberFormat(orangeQuantity)
-                            }}</span>
-                        <input class="form-control-range" step="50" type="range" id="oranges" v-model="orangeQuantity"
-                            min="0" :max="maxOranges" />
-
-                    </div>
-
-                    <div>
-                        <hr />
-                        <div>
-                            <span style="float: left;">Remaining Credits: {{ numberFormat(remainingBudget) }}</span>
-                            <span style="float:right">
-                                <form>
-                                    <span class="form-group">
-                                        <span class="input-group">
-                                            <span class="input-group-prepend">
-                                                <span class="input-group-text" id="basic-addon1">$</span>
-                                            </span>
-                                            <input type="number" class="form-control" aria-describedby="basic-addon1"
-                                                id="inlineFormInputGroup" @change="updateCredit()"
-                                                v-model="creditDollarValue" style="width: 120px;">
-                                        </span>
-                                    </span>
-                                </form>
-                            </span>
-                        </div>
-                    </div>
-
-                </div>
+        <div class="row scrollit mt-1" v-if="usageDetails.serviceDetails.length > 0">
+            <div class="col-md-12">
+                <table class="table table-hover event-card" style="background:#FFFF">
+                    <thead class="thead-light">
+                        <tr>
+                            <th class="sticky-header">Path</th>
+                            <!-- <th class="sticky-header">From Date</th>
+        <th class="sticky-header">To Date</th> -->
+                            <th class="sticky-header">Unit Cost</th>
+                            <th class="sticky-header">Total Units</th>
+                            <th class="sticky-header">Credits Used</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="row in usageDetails.serviceDetails" :key="row.apiPath">
+                            <td>{{ row.apiPath }}</td>
+                            <td>{{ row.offchain_unit_cost }}</td>
+                            <td>{{ row.quantity }}</td>
+                            <td>{{ row.offchainAmount }}</td>
+                        </tr>
+                    </tbody>
+                    <thead class="thead-light">
+                        <tr style="background-color: lightgray;">
+                            <td><strong>Grand Total</strong></td>
+                            <td></td>
+                            <td><strong>{{ grandTotal.totalQuantity }}</strong></td>
+                            <td><strong>{{ grandTotal.totalCredits }}</strong></td>
+                        </tr>
+                    </thead>
+                </table>
             </div>
+        </div>
 
-        </hf-pop-up>
     </div>
 </template>
 
@@ -223,17 +234,46 @@ h5 span {
 
 
 import Chart from 'chart.js/auto';
-import HfPopUp from "../../components/element/hfPopup.vue";
-import { mapActions } from "vuex";
+import { mapState, mapActions, mapMutations } from "vuex";
+import { mapGetters } from 'vuex/dist/vuex.common.js';
+
 import Loading from "vue-loading-overlay";
 import UtilsMixin from '../../mixins/utils';
 export default {
     name: "SSIDashboardCredit",
     components: {
-        HfPopUp,
+        
         Loading
     },
+
     computed: {
+
+        ...mapState({
+            containerShift: state => state.playgroundStore.containerShift,
+        }),
+        ...mapGetters('mainStore', ['getUsageDetails']),
+
+        isContainerShift() {
+            return this.containerShift
+        },
+        grandTotal() {
+            if (!this.usageDetails.serviceDetails) {
+                return {
+                    totalCredits: 0,
+                    totalQuantity: 0
+                }
+            }
+
+            const total = this.usageDetails.serviceDetails.reduce((accumulator, currentValue) => {
+                return {
+                    totalQuantity: accumulator.totalQuantity + currentValue.quantity,
+                    totalCredits: accumulator.totalCredits + currentValue.offchainAmount
+                }
+            }, { totalQuantity: 0, totalCredits: 0 })
+            return total
+        },
+
+
         parsedAllowanceLimit() {
             return parseInt(this.allowance.spend_limit[0].amount)
         },
@@ -246,7 +286,6 @@ export default {
         },
         computedService() {
             const balance = this.parsedAllowanceLimit;
-            console.log(balance)
             return balance
         },
 
@@ -276,66 +315,9 @@ export default {
         }
 
     },
-    async mounted() {
-        try {
-            this.isLoading = true
-            const payload = {
-                // wallet: "hid1a4zqvlmp3w9ggctvc873f08k3evh3mmj2vx939",
-                groupBy: 'daily'
-            }
-
-            // get allowance
-            const t = await this.ssiDashboardAllowanceStats(payload)
-            if (t.allowance) {
-                this.allowance = t.allowance
-                this.allowance.total = 5000000
-                this.dougnNutData = [this.parsedAllowanceLimit, this.allowance.total - this.parsedAllowanceLimit]
-                this.redrawChart = true
-            }
-
-            // get grants
-            this.grants = await this.ssiDashboardGrantsStats(payload)
-
-            // get tx stats
-            this.ssiDashboardStats = await this.ssiDashboardTxStats(payload)
-
-            this.isLoading = false
-        } catch (e) {
-            this.isLoading = false
-            this.notifyErr(e.message)
-            console.error(e)
-        } finally {
-            if (this.allowance.expiration) {
-                this.expiration = this.getTimeUntilEvent(this.allowance.expiration)
-                this.interval = setInterval(() => {
-                    this.expiration = this.getTimeUntilEvent(this.allowance.expiration)
-                }, 1000)
-            }
-            this.calculateCreditDollarValue()
-            this.renderChart()
-            this.renderUsageChart()
-        }
-
-    },
-    beforeDestroy() {
-        console.log('Clearing clear interval before destroying...')
-        clearInterval(this.interval)
-    },
-    watch: {
-        bananaQuantity() {
-            this.adjustQuantities()
-        },
-        appleQuantity() {
-            this.adjustQuantities()
-        },
-        orangeQuantity() {
-            this.adjustQuantities()
-        },
-    },
     data() {
         return {
             doughNutChart: null,
-            didChart: null,
             schemaChart: null,
             credChart: null,
             doughNutChartLabel: [
@@ -372,8 +354,6 @@ export default {
                 },
             },
             interval: null,
-            fullPage: true,
-            isLoading: false,
             expiration: "",
             allowance: {
                 "@type": "/cosmos.feegrant.v1beta1.BasicAllowance",
@@ -406,11 +386,351 @@ export default {
             creditDollarValue: 0,
             added: 0,
 
+            didChart: null,
+            polarChart: null,
+            chartType: 'bar',
+            isGroupByDaily: true,
+            isGroupByWeekly: false,
+            isGroupByMonthly: false,
+            isChartLine: true,
+            isChartBar: false,
+            authToken: localStorage.getItem('authToken'),
+            user: {},
+            fullPage: true,
+            isLoading: false,
+
+            startDate: "",
+            endDate: "",
+            usageDetails: {
+                "serviceId": "13f70faf7f5c5d03520b71181136b595f7c6",
+                "startDate": "2024-01-01T18:30:00.000Z",
+                "endDate": "2024-04-02T10:07:53.757Z",
+                "serviceDetails": [
+                    {
+                        "apiPath": "/api/v1/e-kyc/verification/user-consent",
+                        "quantity": 4
+                    },
+                    {
+                        "apiPath": "/api/v1/e-kyc/verification/session",
+                        "quantity": 19
+                    },
+                    {
+                        "apiPath": "/api/v1/e-kyc/verification/passive-liveliness",
+                        "quantity": 17
+                    },
+                    {
+                        "apiPath": "/api/v1/e-kyc/verification/doc-ocr",
+                        "quantity": 3
+                    }
+                ]
+            }
         }
+    },
+    async created() {
+        try {
+            const usrStr = localStorage.getItem("user");
+            this.user = JSON.parse(usrStr);
+            this.updateSideNavStatus(true)
+
+            // appId
+            this.isLoading = true
+            this.setDate()
+            await this.fetchUsageForAService({ startDate: this.startDate, endDate: this.endDate }).then((data) => {
+                this.usageDetails = data;
+            })
+            await this.fetchUsageDetailsForAService({ startDate: this.startDate, endDate: this.endDate });
+            this.renderUsageDetailsChart()
+
+            this.isLoading = false
+        } catch (e) {
+            this.isLoading = false
+            this.notifyErr(e.message)
+             this.$router.push({ path: '/studio/dashboard' });
+        }
+    },
+
+    beforeDestroy() {
+        console.log('Clearing clear interval before destroying...')
+        clearInterval(this.interval)
+    },
+    watch: {
+        bananaQuantity() {
+            this.adjustQuantities()
+        },
+        appleQuantity() {
+            this.adjustQuantities()
+        },
+        orangeQuantity() {
+            this.adjustQuantities()
+        },
+    },
+    beforeRouteEnter(to, from, next) {
+        next((vm) => {
+            vm.prevRoute = from;
+        });
     },
     methods: {
         ...mapActions('mainStore', ['ssiDashboardTxStats', 'ssiDashboardAllowanceStats', 'ssiDashboardGrantsStats']),
+        ...mapActions('mainStore', ['fetchUsageForAService', 'fetchUsageDetailsForAService']),
 
+        ...mapMutations('playgroundStore', ['updateSideNavStatus', 'shiftContainer']),
+
+
+        changeGraph(chartType) {
+            if (chartType == 'line') {
+                this.isChartLine = true;
+                this.isChartBar = false
+            } else {
+                this.isChartLine = false;
+                this.isChartBar = true
+            }
+            this.chartType = chartType
+            this.didChart.destroy()
+            this.polarChart.destroy()
+            this.renderUsageDetailsChart()
+        },
+        renderUsageDetailsChart() {
+            const didCtx = document.getElementsByClassName('didChart');
+
+            const serviceDetailsOfSessions = this.getUsageDetails.serviceDetails // ChartData.serviceDetails;
+
+            const allData = serviceDetailsOfSessions.filter(x => x.apiPath.includes('/api/v1/')).map(x => {
+                return {
+                    apiPath: x.apiPath,
+                    quantity: x.quantity,
+                    data: x.data
+                }
+            })
+
+            const allDidActivities = serviceDetailsOfSessions.filter(x => x.apiPath.includes('api/v1/did'))
+            const allSchemaActivities = serviceDetailsOfSessions.filter(x => x.apiPath.includes('/api/v1/schema'))
+            const allCredentialActivities = serviceDetailsOfSessions.filter(x => x.apiPath.includes('/api/v1/credential'))
+
+
+            var set = new Set();
+
+            allData.forEach(x => {
+                Object.keys(x.data).forEach(y => {
+                    set.add(y)
+                })
+            })
+            const allLabels = Array.from(set)
+
+
+
+            const allDidDataSets = allDidActivities.length > 0 ?
+                allLabels.map(x => {
+
+                    return allDidActivities.map(y => {
+
+                        if (y.data[x]) {
+                            return y.data[x]
+                        } else {
+                            return 0
+                        }
+                    })
+                }).map(innerArray => innerArray.reduce((acc, curr) => acc + curr, 0))
+
+                : []
+
+            const allSchemaDataSets = 
+            allSchemaActivities.length > 0 ? allLabels.map(x => {
+                return allSchemaActivities.map(y => {
+                    if (y.data[x]) {
+                        return y.data[x]
+                    } else {
+                        return 0
+                    }
+                })
+            }).map(innerArray => innerArray.reduce((acc, curr) => acc + curr, 0)) : []
+
+            const allCredentialDataSets = 
+            allCredentialActivities.length > 0 ? allLabels.map(x => {
+                return allCredentialActivities.map(y => {
+                    if (y.data[x]) {
+                        return y.data[x]
+                    } else {
+                        return 0
+                    }
+                })
+            }).map(innerArray => innerArray.reduce((acc, curr) => acc + curr, 0)) : []
+            this.didChart = new Chart(didCtx, {
+                type: 'bar',
+                data: {
+                    labels: Array.from(set),
+                    datasets: [
+                        {
+                            type: this.chartType,
+                            label: 'Did Operations',
+                            data: allDidDataSets,
+                            fill: true,
+                            backgroundColor: this.chartType == 'line' ? '#00800066' : 'forestgreen',
+                            // borderColor: 'green',
+                            tension: 0.2,
+                            pointRadius: 1,
+                            stack: 'Stack 0',
+                        },
+
+                        {
+                            type: this.chartType,
+                            label: 'Schema Operations',
+                            data: allSchemaDataSets,
+                            // borderColor: 'red',
+                            // pointStyle: 'circle',
+                            pointRadius: 1,
+                            fill: true,
+                            backgroundColor: this.chartType == 'line' ? '#ff000070' : 'indianred',
+                            tension: 0.2,
+                            stack: 'Stack 0',
+                        },
+
+                        {
+                            type: this.chartType,
+                            label: 'Credential Operations',
+                            data: allCredentialDataSets,
+                            // borderColor: 'grey',
+                            pointRadius: 1,
+                            pointHitRadius: 1,
+                            fill: true,
+                            backgroundColor: this.chartType == 'line' ? 'rgba(220, 220, 220, 0.2)' : 'lightgrey',
+                            tension: 0.2,
+                            stack: 'Stack 0',
+                            borderDash: [5, 5]
+                        },
+                    ]
+                },
+            });
+
+            const pieData = [
+                allData.length > 0? allData.map(x => x.quantity).reduce((acc, curr) => acc + curr, 0) : 0,
+                allDidActivities.length > 0 ? allDidActivities.map(x => x.quantity).reduce((acc, curr) => acc + curr, 0) : 0,
+                allSchemaActivities.length > 0 ? allSchemaActivities.map(x => x.quantity).reduce((acc, curr) => acc + curr, 0) : 0,
+                allCredentialActivities.length > 0 ? allCredentialActivities.map(x => x.quantity).reduce((acc, curr) => acc + curr, 0) : 0,
+            ]
+
+
+
+            const polarChartCtx = document.getElementsByClassName('polarChart');
+            this.polarChart = new Chart(polarChartCtx, {
+                type: 'doughnut',
+                options: {
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'SSI Usage Details',
+                        }
+                    }
+                },
+                data: {
+                    labels: [
+                        'All API Calls',
+                        'Did Operations',
+                        'Schema Operations',
+                        'Credential Operations',
+
+                    ],
+                    datasets: [{
+                        label: 'Usage Count',
+                        data: pieData,
+                        backgroundColor: [
+                            '#ffa500b3',
+                            '#228b22b0',
+                            '#cd5c5cc4',
+                            '#d3d3d3b8',
+                        ]
+                    }]
+                },
+            });
+
+        },
+
+        copyToClip(textToCopy, contentType) {
+            if (textToCopy) {
+                navigator.clipboard
+                    .writeText(textToCopy)
+                    .then(() => {
+                        this.notifySuccess(`${contentType} copied!`);
+                    })
+                    .catch((err) => {
+                        this.notifyErr("Error while copying", err);
+                    });
+            }
+        },
+
+        setDate() {
+            const today = new Date();
+            const day = 1;
+            const month = today.getMonth();
+            const year = today.getFullYear();
+
+            this.startDate = (new Date(year, month, day));
+            this.endDate = today;
+        },
+
+        async search() {
+            try {
+                if (!this.startDate) {
+                    throw new Error("Start date is not set")
+                }
+
+                if (!this.endDate) {
+                    this.endDate = (new Date());
+                }
+
+                this.startDate = (new Date(this.startDate));
+                this.endDate = (new Date(this.endDate));
+
+                this.isLoading = true
+                this.usageDetails = await this.fetchUsageForAService({ startDate: this.startDate, endDate: this.endDate })
+                await this.fetchUsageDetailsForAService({ startDate: this.startDate, endDate: this.endDate });
+                this.isLoading = false
+
+                this.didChart.destroy()
+                this.polarChart.destroy()
+                this.renderUsageDetailsChart()
+            } catch (e) {
+                this.isLoading = false
+                this.notifyErr(e.message)
+            }
+        },
+
+        groupByWeek(data) {
+            const weeklyData = {};
+            const dates = Object.keys(data).map(date => new Date(date));
+
+            dates.sort((a, b) => a - b); // Sort dates
+
+            let weekNumber = 1;
+            let startOfWeek = new Date(dates[0]);
+
+            dates.forEach(date => {
+                const endOfWeek = new Date(startOfWeek);
+                endOfWeek.setDate(startOfWeek.getDate() + 6);
+
+                if (date >= startOfWeek && date <= endOfWeek) {
+                    const weekKey = `Week ${weekNumber}`;
+                    weeklyData[weekKey] = (weeklyData[weekKey] || 0) + data[date.toISOString().split('T')[0]];
+                } else {
+                    weekNumber++;
+                    startOfWeek = new Date(date);
+                    const weekKey = `Week ${weekNumber}`;
+                    weeklyData[weekKey] = data[date.toISOString().split('T')[0]];
+                }
+            });
+
+            return weeklyData;
+        },
+
+        groupByMonth(data) {
+            const monthlyData = {};
+
+            for (const date in data) {
+                const month = date.slice(0, 7); // Extract 'YYYY-MM'
+                monthlyData[month] = (monthlyData[month] || 0) + data[date];
+            }
+
+            return monthlyData;
+        },
         renderChart() {
             const ctx = document.getElementById('doughNutChat');
             this.doughNutChart = new Chart(ctx, {
@@ -437,7 +757,7 @@ export default {
         },
 
         renderUsageChart() {
-            const didCtx = document.getElementById('didChart');
+            const didCtx = document.getElementById('didChartX');
             this.didChart = new Chart(didCtx, {
                 type: 'line',
                 data: {
@@ -459,7 +779,7 @@ export default {
                 },
             });
 
-            const credCtx = document.getElementById('credChart');
+            const credCtx = document.getElementById('credChartX');
             this.credChart = new Chart(credCtx, {
                 type: 'line',
                 data: {
@@ -482,7 +802,7 @@ export default {
             });
 
 
-            const schemaCtx = document.getElementById('schemaChart');
+            const schemaCtx = document.getElementById('schemaChartX');
             this.schemaChart = new Chart(schemaCtx, {
                 type: 'line',
                 data: {
