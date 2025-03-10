@@ -145,7 +145,7 @@ h5 span {
                 <v-card class="card p-4 mt-1">
                     <div class="row">
                         <div class="col-8">
-                            <p><b>Total Credits</b></p>
+                            <p><b>Total Credits Used</b></p>
                             <p>
                                 <span style="font-size:xx-large;">
                                     {{ numberFormat(parsedAllowanceLimit) }}
@@ -171,10 +171,10 @@ h5 span {
                 <v-card class="p-4 mt-2">
                     <div>
                         <p><b>Scope(s)</b></p>
-                        <p v-if="grants.length > 0">
-                            <span class="badge badge-info mx-1" v-for="eachRow in grants"
-                                v-bind:key="eachRow.authorization.msg">{{
-                                    eachRow.authorization.msg.replace('/hypersign.ssi.v1.Msg', '') }}</span>
+                        <p v-if="allowance.scope.length > 0">
+                            <span class="badge badge-info mx-1" v-for="eachRow in allowance.scope"
+                                v-bind:key="eachRow">{{
+                                    eachRow }}</span>
                         </p>
                         <p v-else>
                             No scope granted!
@@ -378,26 +378,36 @@ export default {
     },
     async mounted() {
         try {
-            this.isLoading = true
-            const payload = {
-                // wallet: "hid1a4zqvlmp3w9ggctvc873f08k3evh3mmj2vx939",
-                groupBy: 'daily'
-            }
 
-            // get allowance
-            const t = await this.ssiDashboardAllowanceStats(payload)
-            if (t.allowance) {
-                this.allowance = t.allowance
-                this.allowance.total = 5000000
-                this.dougnNutData = [this.parsedAllowanceLimit, this.allowance.total - this.parsedAllowanceLimit]
+            this.isLoading = true
+
+            const credits = await this.ssiCredits()
+
+
+            const credit = credits.filter(each => {
+                if (each.status == 'Active') {
+                    return each
+                }
+            })
+
+
+            // get allowanc            
+
+            if (credit[0]?.credit) {
+
+                // this.allowance = credits[0].credit.amount
+                this.allowance.spend_limit[0].amount = credit[0].used
+                this.allowance.total = credit[0].totalCredits
+                this.dougnNutData = [this.allowance.total - this.parsedAllowanceLimit, this.parsedAllowanceLimit]
+
+                this.allowance.scope=credit[0].creditScope
+                this.allowance.expiration = credit[0].expiresAt
+
                 this.redrawChart = true
             }
 
             // get grants
-            this.grants = await this.ssiDashboardGrantsStats(payload)
 
-            // get tx stats
-            this.ssiDashboardStats = await this.ssiDashboardTxStats(payload)
 
             this.isLoading = false
         } catch (e) {
@@ -484,7 +494,8 @@ export default {
                     }
                 ],
                 "expiration": null,
-                "total": 5000000
+                "total": 5000000,
+                scope: []
             },
             initialBalance: 1000,
             leftBalance: 1000,
@@ -509,7 +520,7 @@ export default {
         }
     },
     methods: {
-        ...mapActions('mainStore', ['ssiDashboardTxStats', 'ssiDashboardAllowanceStats', 'ssiDashboardGrantsStats']),
+        ...mapActions('mainStore', ['ssiDashboardTxStats', 'ssiDashboardAllowanceStats', 'ssiCredits', 'ssiDashboardGrantsStats']),
 
         renderChart() {
             const ctx = document.getElementById('doughNutChat');

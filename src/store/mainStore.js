@@ -1794,6 +1794,28 @@ const mainStore = {
 
         },
 
+        // eslint-disable-next-line 
+        async ssiCredits({ getters }, payload) {
+            const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/credit`;
+            const options = {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${getters.getSelectedService.access_token}`,
+                    "Origin": '*'
+
+                }
+            }
+
+            const resp = await fetch(url, {
+                ...options
+            })
+            const json = await resp.json()
+            
+            return json
+            
+
+        },
 
         // eslint-disable-next-line 
         async ssiDashboardAllowanceStats({ getters }, payload) {
