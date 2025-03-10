@@ -1221,7 +1221,11 @@ const mainStore = {
                 headers
             })
             const json = await resp.json()
-            return json?.data
+            if (json?.data) {
+                return json?.data
+            } else {
+                return json
+            }
         },
 
         async fetchUsageDetailsForAService({ getters, commit }, payload) {
@@ -1237,8 +1241,13 @@ const mainStore = {
                 headers
             })
             const json = await resp.json()
-            commit('setUsageDetails', json?.data)
-            return json?.data
+            if (json?.data) {
+                commit('setUsageDetails', json?.data)
+                return json?.data
+            } else {
+                commit('setUsageDetails', json)
+                return json
+            }
         },
 
         // - KYC Credit
@@ -1336,6 +1345,9 @@ const mainStore = {
                         .then(response => response.json())
                         .then(json => {
                             if (json) {
+                                if (json.error) {
+                                    reject(new Error(json.message[0]))
+                                }
                                 if (json.data.length > 0) {
                                     const payload = json.data.map(x => {
                                         return {
@@ -1353,7 +1365,8 @@ const mainStore = {
                                     }
 
                                     resolve(json.data)
-                                } else {
+                                }
+                                else {
                                     resolve([])
                                     commit('setDIDList', [])
                                 }
@@ -1406,13 +1419,12 @@ const mainStore = {
                         .then(json => {
 
                             if (json) {
-
-
-
+                                if (json.error) {
+                                    reject(new Error(json.message[0]))
+                                }
                                 resolve(json.didDocument)
-
                             } else {
-                                reject(new Error('Could not resovle'))
+                                reject(new Error('Could not resolve'))
                             }
 
                         }).catch(e => {
@@ -1457,6 +1469,9 @@ const mainStore = {
                         .then(response => response.json())
                         .then(json => {
                             if (json) {
+                                if (json.error) {
+                                    reject(new Error(json.message[0]))
+                                }
                                 const data = {
                                     did: payload,
                                     didDocument: json.didDocument,
@@ -1498,6 +1513,9 @@ const mainStore = {
                     })
                         .then(response => response.json())
                         .then(async json => {
+                            if (json.error) {
+                                reject(new Error(json.message[0]))
+                            }
                             if (json && json.did) {
                                 commit('insertDIDList', {
                                     did: json.did,
@@ -1785,6 +1803,28 @@ const mainStore = {
 
         },
 
+        // eslint-disable-next-line 
+        async ssiCredits({ getters }, payload) {
+            const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/credit`;
+            const options = {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${getters.getSelectedService.access_token}`,
+                    "Origin": '*'
+
+                }
+            }
+
+            const resp = await fetch(url, {
+                ...options
+            })
+            const json = await resp.json()
+            
+            return json
+            
+
+        },
 
         // eslint-disable-next-line 
         async ssiDashboardAllowanceStats({ getters }, payload) {
