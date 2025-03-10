@@ -1345,6 +1345,9 @@ const mainStore = {
                         .then(response => response.json())
                         .then(json => {
                             if (json) {
+                                if (json.error) {
+                                    reject(new Error(json.message[0]))
+                                }
                                 if (json.data.length > 0) {
                                     const payload = json.data.map(x => {
                                         return {
@@ -1362,7 +1365,8 @@ const mainStore = {
                                     }
 
                                     resolve(json.data)
-                                } else {
+                                }
+                                else {
                                     resolve([])
                                     commit('setDIDList', [])
                                 }
@@ -1415,13 +1419,12 @@ const mainStore = {
                         .then(json => {
 
                             if (json) {
-
-
-
+                                if (json.error) {
+                                    reject(new Error(json.message[0]))
+                                }
                                 resolve(json.didDocument)
-
                             } else {
-                                reject(new Error('Could not resovle'))
+                                reject(new Error('Could not resolve'))
                             }
 
                         }).catch(e => {
@@ -1466,6 +1469,9 @@ const mainStore = {
                         .then(response => response.json())
                         .then(json => {
                             if (json) {
+                                if (json.error) {
+                                    reject(new Error(json.message[0]))
+                                }
                                 const data = {
                                     did: payload,
                                     didDocument: json.didDocument,
@@ -1507,6 +1513,9 @@ const mainStore = {
                     })
                         .then(response => response.json())
                         .then(async json => {
+                            if (json.error) {
+                                reject(new Error(json.message[0]))
+                            }
                             if (json && json.did) {
                                 commit('insertDIDList', {
                                     did: json.did,
