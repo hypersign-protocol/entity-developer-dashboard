@@ -322,7 +322,7 @@ h5 span {
                             <td v-else>
                                 <hf-buttons v-if="eachRow.used < eachRow.totalCredits && !(Date.now() > new Date(eachRow.expiresAt)) " name=" Activate"
                                     iconClass="play-circle" :bIcon="true" class="ml-auto "
-                                    @executeAction="activateSSICredit(eachRow)"></hf-buttons>
+                                    @executeAction="activateParticularSSICredit(eachRow)"></hf-buttons>
                             </td>
                         </tr>
                     </tbody>
@@ -773,7 +773,7 @@ export default {
             const amt = (this.creditDollarValue / (this.hidPrice)) * this.uhidFactor
             this.allowance.spend_limit[0].amount = amt.toString()
         },
-        async activateSSICredit(eachRow) {
+        async activateParticularSSICredit(eachRow) {
             try {
                 if (eachRow.used == eachRow.totalCredits) {
                     this.notifyErr("Credit already exhausted")
