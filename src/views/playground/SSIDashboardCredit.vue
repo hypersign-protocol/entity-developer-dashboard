@@ -122,6 +122,14 @@ h5 span {
     position: relative;
     top: -12px;
 }
+
+.bg-danger {
+    background-color: lightgrey !important;
+}
+
+.progress {
+    background-color: rgba(0, 128, 0, 0.645);
+}
 </style>
 <template>
     <div>
@@ -285,6 +293,7 @@ h5 span {
                             <td>
 
                                 {{ formatDate(eachRow.createdAt) }} 
+                            </td>
 
                             <td>
                                 {{ numberFormat(eachRow.totalCredits) }}
