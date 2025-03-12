@@ -208,7 +208,7 @@ h5 span {
                     </thead>
                     <tbody>
                         <tr v-for="row in usageDetails.serviceDetails" :key="row.apiPath">
-                            <td>{{ row.apiPath }}</td>
+                            <td><span style="font-weight: bold;">{{ row.method }}</span>  {{ row.apiPath }}</td>
                             <td>{{ row.offchain_unit_cost }}</td>
                             <td>{{ row.quantity }}</td>
                             <td>{{ row.offchainAmount }}</td>
