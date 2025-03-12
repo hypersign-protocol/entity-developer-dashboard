@@ -38,6 +38,7 @@ const mainStore = {
         allRoles: [],
         usageDetails: {},
         kycCredits: [],
+        ssiCredits: [],
 
         schemaList: [],
         credentialList: []
@@ -131,6 +132,9 @@ const mainStore = {
 
         getKYCCredits: (state) => {
             return state.kycCredits
+        },
+        getSsiCredits: (state) => {
+            return state.ssiCredits
         }
     },
     mutations: {
@@ -267,8 +271,12 @@ const mainStore = {
 
         setKYCCredits: (state, payload) => {
             state.kycCredits = payload
+        },
+        setSSICredits: (state, payload) => {
+            state.ssiCredits = payload
         }
     },
+
     actions: {
 
         /// Member 
@@ -1804,7 +1812,10 @@ const mainStore = {
         },
 
         // eslint-disable-next-line 
-        async ssiCredits({ getters }, payload) {
+        async fetchSSICredits({ getters, commit }) {
+            if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
+                throw new Error('Tenant url is null or empty, service is not selected')
+            }
             const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/credit`;
             const options = {
                 method: "GET",
@@ -1820,12 +1831,51 @@ const mainStore = {
                 ...options
             })
             const json = await resp.json()
-            
-            return json
-            
-
+            if (json) {
+                commit('setSSICredits', json)
+                return json
+            }
+            return []
         },
 
+        activateSSICredit({ getters, dispatch }, payload) {
+            return new Promise(function (resolve, reject) {
+                const { creditId } = payload
+                {
+                    if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
+                        return reject(new Error('Tenant url is null or empty, service is not selected'))
+                    }
+
+                    if (!creditId) {
+                        return reject(new Error('Credit Id is null or empty'))
+                    }
+                    const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/credit/${creditId}/activate`;
+                    const options = {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": `Bearer ${getters.getSelectedService.access_token}`,
+                            "Origin": '*'
+                        }
+                    }
+                    fetch(url, {
+                        ...options
+                    })
+                        .then(response => response.json())
+                        .then(json => {
+                            if (json) {
+                                dispatch('fetchSSICredits')
+                                resolve()
+                            } else {
+                                reject(new Error('Could not Activate credit for this service'))
+                            }
+                        }).catch(e => {
+                            reject(e)
+                        })
+                }
+            })
+
+        },
         // eslint-disable-next-line 
         async ssiDashboardAllowanceStats({ getters }, payload) {
 
