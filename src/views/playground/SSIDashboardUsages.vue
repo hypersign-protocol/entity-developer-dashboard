@@ -602,7 +602,7 @@ export default {
             });
 
             const pieData = [
-                allData.length > 0? allData.map(x => x.quantity).reduce((acc, curr) => acc + curr, 0) : 0,
+                // allData.length > 0? allData.map(x => x.quantity).reduce((acc, curr) => acc + curr, 0) : 0,
                 allDidActivities.length > 0 ? allDidActivities.map(x => x.quantity).reduce((acc, curr) => acc + curr, 0) : 0,
                 allSchemaActivities.length > 0 ? allSchemaActivities.map(x => x.quantity).reduce((acc, curr) => acc + curr, 0) : 0,
                 allCredentialActivities.length > 0 ? allCredentialActivities.map(x => x.quantity).reduce((acc, curr) => acc + curr, 0) : 0,
@@ -623,7 +623,7 @@ export default {
                 },
                 data: {
                     labels: [
-                        'All API Calls',
+                        // 'All API Calls',
                         'Did Operations',
                         'Schema Operations',
                         'Credential Operations',
@@ -633,7 +633,7 @@ export default {
                         label: 'Usage Count',
                         data: pieData,
                         backgroundColor: [
-                            '#ffa500b3',
+                            // '#ffa500b3',
                             '#228b22b0',
                             '#cd5c5cc4',
                             '#d3d3d3b8',
