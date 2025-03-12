@@ -305,7 +305,7 @@ h5 span {
                             </td>
 
 
-                            <td :title="`Credit left: ${eachRow.totalCredits - eachRow.used}`" >{{eachRow}}
+                            <td :title="`Credit left: ${eachRow.totalCredits - eachRow.used}`" >
                                 <b-progress :max="eachRow.totalCredits" class="mt-1" v-if="Date.now() > new Date(eachRow.expiresAt)" >
                                     <b-progress-bar :value="eachRow.used" variant="danger" ></b-progress-bar>
                                 </b-progress>
