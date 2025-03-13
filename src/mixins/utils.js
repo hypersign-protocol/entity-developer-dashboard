@@ -146,7 +146,7 @@ export default {
             const seconds = diffInSeconds % 60; // Remaining seconds
 
             // Format the output string
-            return `${months > 0 ? months + ' months ' : ''}${days > 0 ? days + ' days ' : ''}${hours} hrs ${minutes} min ${seconds} sec`;
+            return `${months > 0 ? months + ' month ' : ''}${days > 0 ? days + ' day ' : ''}${hours} hr ${minutes} min ${seconds} sec`;
         },
 
         getStatus(sessionDetails) {

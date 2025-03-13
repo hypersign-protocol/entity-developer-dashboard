@@ -592,7 +592,7 @@ export default {
                             pointRadius: 1,
                             pointHitRadius: 1,
                             fill: true,
-                            backgroundColor: this.chartType == 'line' ? 'rgba(220, 220, 220, 0.2)' : 'lightgrey',
+                            backgroundColor: this.chartType == 'line' ? 'rgba(220, 220, 220, 0.2)' : '#ffa500b3',
                             tension: 0.2,
                             stack: 'Stack 0',
                             borderDash: [5, 5]
@@ -633,10 +633,9 @@ export default {
                         label: 'Usage Count',
                         data: pieData,
                         backgroundColor: [
-                            // '#ffa500b3',
                             '#228b22b0',
                             '#cd5c5cc4',
-                            '#d3d3d3b8',
+                           '#ffa500b3'
                         ]
                     }]
                 },
