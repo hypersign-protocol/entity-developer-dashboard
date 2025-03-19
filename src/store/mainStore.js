@@ -684,7 +684,7 @@ const mainStore = {
                     headers,
                 }).then(response => response.json()).then(json => {
                     if (json.error) {
-                        return reject(new Error(json.error.details.join(' ')))
+                        return reject(new Error(json.message.join(' ')))
                     }
                     dispatch('fetchAppsListFromServer')
                     resolve(json)

@@ -1224,7 +1224,7 @@ export default {
         this.isLoading = false
 
       } catch (e) {
-        this.notifyErr(e.message);
+        this.notifyErr(e?.message|| e);
         this.isLoading = false
       }
     },
