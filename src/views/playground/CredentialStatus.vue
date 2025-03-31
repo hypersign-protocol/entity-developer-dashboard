@@ -163,7 +163,7 @@ h5 span {
                   <tool-tip infoMessage="Choose a signing key"></tool-tip>
                   <label for="selectService"><strong>Signing Key Of Issuer<span style="color: red">*</span>:
                     </strong></label>
-                  <select class="custom-select" id="selectService" v-model="issuerVerificationMethodId">
+                  <select class="cu10-select" id="selectService" v-model="issuerVerificationMethodId">
                     <option value="">Select a Signing Key</option>
                     <option v-for="vm in issuerVerificationMethodIds" :value="vm.id" :key="vm.id">
                       {{ truncate(vm.id, 40) + ' (' + vm.type + ')' }}
@@ -1079,54 +1079,60 @@ export default {
           this.issueCredAttributes = [];
           this.isLoading = true;
           let selectedSchemas = await this.resolveSchema(event);
-          const schemaMap = selectedSchemas.schemaDocument.schema.properties;
-          const requiredFields = selectedSchemas.schemaDocument.schema.required;
-          this.issueCredentialType = selectedSchemas.schemaDocument.name;
-          for (const e of Object.entries(schemaMap)) {
-            let dataToPush = {
-              id: event,
-              type: e[1].type,
-              name: e[0],
-            };
-            switch (e[1].type) {
-              case "boolean":
-                dataToPush["value"] = null;
-                break;
-              case "string":
-                dataToPush["value"] = null;
-                break;
-              case "number":
-                dataToPush["value"] = null;
-                break;
-              case "integer":
-                dataToPush["value"] = null;
-                break;
-              case "date":
-                dataToPush["value"] = null;
-                break;
-              default:
-                this.notifyErr("invalid type");
+          if(selectedSchemas && selectedSchemas.schemaDocument){
+            console.log('Calling resolveSchemma successfully..')
+            const schemaMap = selectedSchemas.schemaDocument.schema.properties;
+            const requiredFields = selectedSchemas.schemaDocument.schema.required;
+            this.issueCredentialType = selectedSchemas.schemaDocument.name;
+            for (const e of Object.entries(schemaMap)) {
+              let dataToPush = {
+                id: event,
+                type: e[1].type,
+                name: e[0],
+              };
+              switch (e[1].type) {
+                case "boolean":
+                  dataToPush["value"] = null;
+                  break;
+                case "string":
+                  dataToPush["value"] = null;
+                  break;
+                case "number":
+                  dataToPush["value"] = null;
+                  break;
+                case "integer":
+                  dataToPush["value"] = null;
+                  break;
+                case "date":
+                  dataToPush["value"] = null;
+                  break;
+                default:
+                  this.notifyErr("invalid type");
+              }
+
+              this.issueCredAttributes.push(dataToPush);
             }
 
-            this.issueCredAttributes.push(dataToPush);
+            this.issueCredAttributes.map((x) => {
+              if (requiredFields.includes(x.name)) {
+                x["required"] = true;
+              } else {
+                x["required"] = false;
+              }
+            });
+
+            this.isLoading = false;
+          } else {
+            this.issueCredAttributes = [];
           }
-
-          this.issueCredAttributes.map((x) => {
-            if (requiredFields.includes(x.name)) {
-              x["required"] = true;
-            } else {
-              x["required"] = false;
-            }
-          });
-
-          this.isLoading = false;
         } else {
           this.issueCredAttributes = [];
-        }
+        } 
       } catch (e) {
         console.log(e);
         this.isLoading = false;
         this.notifyErr(`Error: ${e.message}`);
+        this.issueCredAttributes = [];
       }
     },
     forceFileDownload(data, fileName) {
