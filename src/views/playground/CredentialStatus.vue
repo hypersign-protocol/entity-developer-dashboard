@@ -163,7 +163,7 @@ h5 span {
                   <tool-tip infoMessage="Choose a signing key"></tool-tip>
                   <label for="selectService"><strong>Signing Key Of Issuer<span style="color: red">*</span>:
                     </strong></label>
-                  <select class="cu10-select" id="selectService" v-model="issuerVerificationMethodId">
+                  <select class="custom-select" id="selectService" v-model="issuerVerificationMethodId">
                     <option value="">Select a Signing Key</option>
                     <option v-for="vm in issuerVerificationMethodIds" :value="vm.id" :key="vm.id">
                       {{ truncate(vm.id, 40) + ' (' + vm.type + ')' }}
@@ -1079,8 +1079,7 @@ export default {
           this.issueCredAttributes = [];
           this.isLoading = true;
           let selectedSchemas = await this.resolveSchema(event);
-          if(selectedSchemas && selectedSchemas.schemaDocument){
-            console.log('Calling resolveSchemma successfully..')
+          if(selectedSchemas && selectedSchemas?.schemaDocument && selectedSchemas?.schemaDocument?.schema){
             const schemaMap = selectedSchemas.schemaDocument.schema.properties;
             const requiredFields = selectedSchemas.schemaDocument.schema.required;
             this.issueCredentialType = selectedSchemas.schemaDocument.name;
@@ -1113,20 +1112,24 @@ export default {
               this.issueCredAttributes.push(dataToPush);
             }
 
-            this.issueCredAttributes.map((x) => {
+          this.issueCredAttributes=  this.issueCredAttributes.map((x) => {
               if (requiredFields.includes(x.name)) {
                 x["required"] = true;
               } else {
                 x["required"] = false;
               }
+              return x
             });
-
+            this.isLoading = false;
+            console.log(JSON.stringify(this.issueCredAttributes, null, 2));
             this.isLoading = false;
           } else {
             this.issueCredAttributes = [];
+            this.isLoading= false
           }
         } else {
           this.issueCredAttributes = [];
+            this.isLoading= false
         } 
       } catch (e) {
         console.log(e);
