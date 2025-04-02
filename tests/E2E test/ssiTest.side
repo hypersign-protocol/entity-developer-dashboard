@@ -2,7 +2,7 @@
   "id": "5919f94f-c285-473c-ba96-2681f0e13d4f",
   "version": "2.0",
   "name": "Developer dashboard2",
-  "url": "http://localhost:9001",
+  "url": "https://entity.dashboard.hypersign.id",
   "tests": [{
     "id": "c8fe19b8-26be-4184-825d-543f410c1be4",
     "name": "login test case",
@@ -86,6 +86,13 @@
       ],
       "value": ""
     }, {
+      "id": "b0068e2b-9f37-4c3d-afcb-81008014aaad",
+      "comment": "",
+      "command": "pause",
+      "target": "2000",
+      "targets": [],
+      "value": ""
+    }, {
       "id": "77ee4df4-6c1a-4188-9440-cdae838fcc30",
       "comment": "",
       "command": "clickAt",
@@ -104,15 +111,18 @@
       ],
       "value": ""
     }, {
-      "id": "cae37c58-a36a-4c55-b8a6-bc7637bfbbea",
+      "id": "4c674136-78dc-40c2-8a82-532aaddae7ec",
+      "comment": "",
+      "command": "pause",
+      "target": "3000",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "e7a33128-b93b-4615-addf-ec9340d48785",
       "comment": "",
       "command": "clickAt",
-      "target": "css=.col-md-3:nth-child(1) .v-btn__content",
-      "targets": [
-        ["css=.col > .ml-auto > .v-btn__content", "css:finder"],
-        ["xpath=//div[@id='app']/div[2]/div/div/div/div/div[2]/div/div/button/span", "xpath:idRelative"],
-        ["xpath=//button/span", "xpath:position"]
-      ],
+      "target": "css=.v-btn__content",
+      "targets": [],
       "value": ""
     }, {
       "id": "9d3047dd-ad83-4ff4-9cd5-655c22350d95",
@@ -5889,6 +5899,6 @@
     "timeout": 300,
     "tests": ["c8fe19b8-26be-4184-825d-543f410c1be4"]
   }],
-  "urls": ["http://localhost:9001/"],
+  "urls": ["https://entity.dashboard.hypersign.id/"],
   "plugins": []
 }
