@@ -1059,7 +1059,12 @@
       "comment": "",
       "command": "storeText",
       "target": "css=tr:nth-child(2) > td:nth-child(1)",
-      "targets": [],
+      "targets": [
+        ["css=tr:nth-child(2) > td:nth-child(1)", "css:finder"],
+        ["xpath=//div[@id='app']/div[2]/div/div[3]/div/table/tbody/tr[2]/td", "xpath:idRelative"],
+        ["xpath=//tr[2]/td", "xpath:position"],
+        ["xpath=//td[contains(.,'did:hid:testnet:be7fc7a2-b764-46e7-bc56-57e2e665a3d6')]", "xpath:innerText"]
+      ],
       "value": "issuerDid"
     }, {
       "id": "6e53264b-d1d1-4502-9273-727a5f58b7c3",
@@ -1371,7 +1376,7 @@
       "id": "107a9bb5-2ef3-4b97-ba1e-b3ffe04ad850",
       "comment": "",
       "command": "click",
-      "target": "css=#selectService > option:nth-child(2)",
+      "target": "css=#selectService > option:nth-child(3)",
       "targets": [
         ["css=#selectService > option:nth-child(2)", "css:finder"],
         ["xpath=//option[@value=' did:hid:testnet:0a5d53b3-42ec-4491-9f8e-5431e58b4875']", "xpath:attributes"],
@@ -1771,7 +1776,7 @@
       "id": "3206fd04-5db1-4001-a8ce-75c90e741ff5",
       "comment": "",
       "command": "pause",
-      "target": "1000",
+      "target": "2000",
       "targets": [],
       "value": ""
     }, {
@@ -1799,6 +1804,27 @@
       "target": "${holderDid}",
       "targets": [],
       "value": "${holderDid}"
+    }, {
+      "id": "f07ddb55-8513-42ff-9b08-d6af2ff977de",
+      "comment": "",
+      "command": "storeText",
+      "target": "css=tr:nth-child(2) > td:nth-child(1)",
+      "targets": [],
+      "value": "issuerDid"
+    }, {
+      "id": "b6536ab4-eaff-4e87-809a-5060e37b056a",
+      "comment": "",
+      "command": "echo",
+      "target": "${issuerDid}",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "99ffb500-8ba7-45b5-9c59-9937446f3225",
+      "comment": "",
+      "command": "executeScript",
+      "target": "return 'Issuer did | ' + ${issuerDid}",
+      "targets": [],
+      "value": "fullLabel"
     }, {
       "id": "38b991d9-0770-4636-aa7f-855f3b587029",
       "comment": "",
@@ -1874,9 +1900,16 @@
       ],
       "value": "30000"
     }, {
-      "id": "b72f9988-d794-4d63-9fa2-2600a3a88743",
+      "id": "c582adb7-2371-47d1-9b5b-4cfabe65978e",
       "comment": "",
       "command": "storeAttribute",
+      "target": "xpath=//a[contains(@href, 'https://explorer.hypersign.id/hypersign-prajna-testnet/schemas/sch:hid:testnet:')]@href",
+      "targets": [],
+      "value": "fullUrl"
+    }, {
+      "id": "b72f9988-d794-4d63-9fa2-2600a3a88743",
+      "comment": "",
+      "command": "//storeAttribute",
       "target": "xpath=//a[contains(@href, 'https://explorer.hypersign.id/hypersign-prajna-testnet/schemas/sch:hid:testnet:z6Mkf5VQ83xKdZaeJo323D6T2L4ch7AnKCGusuhg3fbDHCEB:1.0')]@href",
       "targets": [],
       "value": "fullUrl"
@@ -2037,7 +2070,7 @@
     }, {
       "id": "c806b6f6-9cb9-4560-9572-01fef7caa593",
       "comment": "",
-      "command": "select",
+      "command": "//select",
       "target": "id=selectService",
       "targets": [],
       "value": "label=Issuer did | did:hid:testnet:1e9cd3c8-5687-4420-852e-cc26eecfcbc4"
@@ -2148,10 +2181,10 @@
     }, {
       "id": "2db55c75-122f-46d1-9402-83e34efe19d5",
       "comment": "",
-      "command": "select",
-      "target": "css=div:nth-child(2) > #selectService",
+      "command": "executeScript",
+      "target": "var event = new Event('change'); document.getElementById('selectService').dispatchEvent(event);",
       "targets": [],
-      "value": "label=did:hid:testn ... 159a141#key-1 (Ed25519VerificationKey2020)"
+      "value": ""
     }, {
       "id": "caf8de1d-5c5b-4f6f-9051-65ea31e3fa6a",
       "comment": "",
@@ -2582,7 +2615,7 @@
       "id": "72939f11-69be-4384-9a86-9661d2b6ab40",
       "comment": "",
       "command": "pause",
-      "target": "1000",
+      "target": "2000",
       "targets": [],
       "value": ""
     }, {
@@ -2610,6 +2643,20 @@
       "target": "${holderDid}",
       "targets": [],
       "value": "${holderDid}"
+    }, {
+      "id": "12665e89-f1bf-484c-a63f-40f3a01a664c",
+      "comment": "",
+      "command": "storeText",
+      "target": "css=tr:nth-child(2) > td:nth-child(1)",
+      "targets": [],
+      "value": "issuerDid"
+    }, {
+      "id": "b4e89dcb-5fca-4764-89d5-27b86415b53e",
+      "comment": "",
+      "command": "executeScript",
+      "target": "return 'Issuer did | ' + ${issuerDid}",
+      "targets": [],
+      "value": "fullLabel"
     }, {
       "id": "2b4c8421-1a45-4e0f-991e-7bd4badcba36",
       "comment": "",
@@ -2688,7 +2735,7 @@
       "id": "05c73bda-2d1a-4afd-8275-13962a976906",
       "comment": "",
       "command": "storeAttribute",
-      "target": "xpath=//a[contains(@href, 'https://explorer.hypersign.id/hypersign-prajna-testnet/schemas/sch:hid:testnet:z6Mkf5VQ83xKdZaeJo323D6T2L4ch7AnKCGusuhg3fbDHCEB:1.0')]@href",
+      "target": "xpath=//a[contains(@href, 'https://explorer.hypersign.id/hypersign-prajna-testnet/schemas/sch:hid:testnet:')]@href",
       "targets": [],
       "value": "fullUrl"
     }, {
@@ -2846,9 +2893,16 @@
       ],
       "value": ""
     }, {
+      "id": "f858fcc3-10ea-42ce-abd8-c9524b431ac9",
+      "comment": "",
+      "command": "executeScript",
+      "target": "var event = new Event('change'); document.getElementById('selectService').dispatchEvent(event);",
+      "targets": [],
+      "value": ""
+    }, {
       "id": "e4382841-f63c-459b-aea0-031d9021b089",
       "comment": "",
-      "command": "select",
+      "command": "//select",
       "target": "id=selectService",
       "targets": [],
       "value": "label=Issuer did | did:hid:testnet:1e9cd3c8-5687-4420-852e-cc26eecfcbc4"
@@ -2957,24 +3011,25 @@
       ],
       "value": ""
     }, {
+      "id": "82b76c85-678d-490e-ab9d-52554acabc20",
+      "comment": "",
+      "command": "",
+      "target": "",
+      "targets": [],
+      "value": ""
+    }, {
       "id": "07ab01f0-680b-4f41-8a7c-72da29f5c8fd",
       "comment": "",
-      "command": "select",
-      "target": "css=div:nth-child(2) > #selectService",
+      "command": "executeScript",
+      "target": "var event = new Event('change'); document.getElementById('selectService').dispatchEvent(event);",
       "targets": [],
-      "value": "label=did:hid:testn ... 159a141#key-1 (Ed25519VerificationKey2020)"
+      "value": ""
     }, {
       "id": "20f1655a-ff07-419b-ad0e-7381bc36d90e",
       "comment": "",
-      "command": "click",
+      "command": "//click",
       "target": "css=div:nth-child(2) > #selectService > option:nth-child(2)",
-      "targets": [
-        ["css=div:nth-child(2) > #selectService > option:nth-child(2)", "css:finder"],
-        ["xpath=//option[@value='did:hid:testnet:0fc878e6-e010-4257-9b94-84e31159a141#key-1']", "xpath:attributes"],
-        ["xpath=(//select[@id='selectService']/option[2])[2]", "xpath:idRelative"],
-        ["xpath=//div[2]/select/option[2]", "xpath:position"],
-        ["xpath=//option[contains(.,' did:hid:testn ... 159a141#key-1 (Ed25519VerificationKey2020) ')]", "xpath:innerText"]
-      ],
+      "targets": [],
       "value": ""
     }, {
       "id": "09736300-bcdd-439a-a036-293b43ed56c7",
@@ -3356,7 +3411,7 @@
       "id": "ff50b393-1ddf-4610-b31c-b466a4239db2",
       "comment": "",
       "command": "pause",
-      "target": "1000",
+      "target": "2000",
       "targets": [],
       "value": ""
     }, {
@@ -3384,6 +3439,20 @@
       "target": "${holderDid}",
       "targets": [],
       "value": "${holderDid}"
+    }, {
+      "id": "8efbe1d2-8e83-4d78-a4e8-2b2e333855b5",
+      "comment": "",
+      "command": "storeText",
+      "target": "css=tr:nth-child(2) > td:nth-child(1)",
+      "targets": [],
+      "value": "issuerDid"
+    }, {
+      "id": "d25c73e0-3360-4e52-9b56-27e60f4ff53c",
+      "comment": "",
+      "command": "executeScript",
+      "target": "return 'Issuer did | ' + ${issuerDid}",
+      "targets": [],
+      "value": "fullLabel"
     }, {
       "id": "9c6cb0eb-1c2f-4e84-bb68-1c239caa6da1",
       "comment": "",
@@ -3455,7 +3524,7 @@
       "id": "10174776-5133-4597-ac03-953e39a2b0fb",
       "comment": "",
       "command": "storeAttribute",
-      "target": "xpath=//a[contains(@href, 'https://explorer.hypersign.id/hypersign-prajna-testnet/schemas/sch:hid:testnet:z6Mkf5VQ83xKdZaeJo323D6T2L4ch7AnKCGusuhg3fbDHCEB:1.0')]@href",
+      "target": "xpath=//a[contains(@href, 'https://explorer.hypersign.id/hypersign-prajna-testnet/schemas/sch:hid:testnet:')]@href",
       "targets": [],
       "value": "fullUrl"
     }, {
@@ -3548,6 +3617,13 @@
       ],
       "value": "${holderDid}"
     }, {
+      "id": "f1760195-79a6-4c90-9cd2-8686eb3b99a9",
+      "comment": "",
+      "command": "",
+      "target": "",
+      "targets": [],
+      "value": ""
+    }, {
       "id": "764cf10c-e4b1-4b7f-a719-08d111345f47",
       "comment": "",
       "command": "click",
@@ -3602,35 +3678,23 @@
     }, {
       "id": "76ce62f6-e4f3-4979-988b-5342ea090409",
       "comment": "",
-      "command": "click",
-      "target": "id=selectService",
-      "targets": [
-        ["id=selectService", "id"],
-        ["css=#selectService", "css:finder"],
-        ["xpath=//select[@id='selectService']", "xpath:attributes"],
-        ["xpath=//div[@id='collapse-1']/div/select", "xpath:idRelative"],
-        ["xpath=//select", "xpath:position"]
-      ],
-      "value": ""
-    }, {
-      "id": "0572db4d-df5b-4b22-ad03-9d47fe667456",
-      "comment": "",
-      "command": "select",
+      "command": "clickAt",
       "target": "id=selectService",
       "targets": [],
-      "value": "label=Issuer did | did:hid:testnet:1e9cd3c8-5687-4420-852e-cc26eecfcbc4"
+      "value": ""
     }, {
-      "id": "39a56bf0-1e49-4a39-b98e-9209060ba2e5",
+      "id": "c1ab60e5-1090-4f1c-8311-4993e3e55fc3",
       "comment": "",
-      "command": "click",
+      "command": "executeScript",
+      "target": "var event = new Event('change'); document.getElementById('selectService').dispatchEvent(event);",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "2de2898e-73f8-4dbf-b9ba-60bb84e4a1d0",
+      "comment": "",
+      "command": "clickAt",
       "target": "css=#selectService > option:nth-child(3)",
-      "targets": [
-        ["css=#selectService > option:nth-child(3)", "css:finder"],
-        ["xpath=//option[@value=' did:hid:testnet:1e9cd3c8-5687-4420-852e-cc26eecfcbc4']", "xpath:attributes"],
-        ["xpath=//select[@id='selectService']/option[3]", "xpath:idRelative"],
-        ["xpath=//option[3]", "xpath:position"],
-        ["xpath=//option[contains(.,' Issuer did | did:hid:testnet:1e9cd3c8-5687-4420-852e-cc26eecfcbc4 ')]", "xpath:innerText"]
-      ],
+      "targets": [],
       "value": ""
     }, {
       "id": "f5988d22-0524-408e-ae66-d72689d1367a",
@@ -3724,12 +3788,19 @@
       ],
       "value": ""
     }, {
+      "id": "bc1ab984-4371-468b-94e0-ed0a7ecb8dd1",
+      "comment": "",
+      "command": "//executeScript",
+      "target": "var event = new Event('change'); document.getElementById('selectService').dispatchEvent(event);",
+      "targets": [],
+      "value": ""
+    }, {
       "id": "910ddf69-a7e1-43a6-a730-5dfe805c42ef",
       "comment": "",
-      "command": "select",
-      "target": "css=div:nth-child(2) > #selectService",
+      "command": "//select",
+      "target": "css=#selectService > option:nth-child(2)",
       "targets": [],
-      "value": "label=did:hid:testn ... 159a141#key-1 (Ed25519VerificationKey2020)"
+      "value": ""
     }, {
       "id": "4c8e6dc6-6d3d-497a-8163-cd57265d60f4",
       "comment": "",
@@ -4132,7 +4203,7 @@
       "id": "bbd88bba-89de-48b3-83ae-3a7a7832efd8",
       "comment": "",
       "command": "pause",
-      "target": "1000",
+      "target": "2000",
       "targets": [],
       "value": ""
     }, {
@@ -4160,6 +4231,20 @@
       "target": "${holderDid}",
       "targets": [],
       "value": "${holderDid}"
+    }, {
+      "id": "91e20f55-3d16-4236-a240-d134699f6fd9",
+      "comment": "",
+      "command": "storeText",
+      "target": "css=tr:nth-child(2) > td:nth-child(1)",
+      "targets": [],
+      "value": "issuerDid"
+    }, {
+      "id": "aa1fc407-5c37-4e06-82a1-5917d8887e0c",
+      "comment": "",
+      "command": "executeScript",
+      "target": "return 'Issuer did | ' + ${issuerDid}",
+      "targets": [],
+      "value": "fullLabel"
     }, {
       "id": "fd33bd7f-b5fb-4931-a400-f6bce2e3abff",
       "comment": "",
@@ -4231,7 +4316,7 @@
       "id": "567298f6-3cef-442c-85c9-83c38fff319b",
       "comment": "",
       "command": "storeAttribute",
-      "target": "xpath=//a[contains(@href, 'https://explorer.hypersign.id/hypersign-prajna-testnet/schemas/sch:hid:testnet:z6Mkf5VQ83xKdZaeJo323D6T2L4ch7AnKCGusuhg3fbDHCEB:1.0')]@href",
+      "target": "xpath=//a[contains(@href, 'https://explorer.hypersign.id/hypersign-prajna-testnet/schemas/sch:hid:testnet:')]@href",
       "targets": [],
       "value": "fullUrl"
     }, {
@@ -4378,35 +4463,30 @@
     }, {
       "id": "de00b476-2d29-463f-a3b6-c7b29271845d",
       "comment": "",
-      "command": "click",
+      "command": "clickAt",
       "target": "id=selectService",
-      "targets": [
-        ["id=selectService", "id"],
-        ["css=#selectService", "css:finder"],
-        ["xpath=//select[@id='selectService']", "xpath:attributes"],
-        ["xpath=//div[@id='collapse-1']/div/select", "xpath:idRelative"],
-        ["xpath=//select", "xpath:position"]
-      ],
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "7b2d4b7d-8218-4c45-bc44-4785084dc34a",
+      "comment": "",
+      "command": "executeScript",
+      "target": "var event = new Event('change'); document.getElementById('selectService').dispatchEvent(event);",
+      "targets": [],
       "value": ""
     }, {
       "id": "9947877b-a80c-4a31-acb7-eb8cc8b4627d",
       "comment": "",
-      "command": "select",
+      "command": "//select",
       "target": "id=selectService",
       "targets": [],
       "value": "label=Issuer did | did:hid:testnet:1e9cd3c8-5687-4420-852e-cc26eecfcbc4"
     }, {
       "id": "d5379d5a-6872-4b2e-b60b-f30d9248b63f",
       "comment": "",
-      "command": "click",
+      "command": "clickAt",
       "target": "css=#selectService > option:nth-child(3)",
-      "targets": [
-        ["css=#selectService > option:nth-child(3)", "css:finder"],
-        ["xpath=//option[@value=' did:hid:testnet:1e9cd3c8-5687-4420-852e-cc26eecfcbc4']", "xpath:attributes"],
-        ["xpath=//select[@id='selectService']/option[3]", "xpath:idRelative"],
-        ["xpath=//option[3]", "xpath:position"],
-        ["xpath=//option[contains(.,' Issuer did | did:hid:testnet:1e9cd3c8-5687-4420-852e-cc26eecfcbc4 ')]", "xpath:innerText"]
-      ],
+      "targets": [],
       "value": ""
     }, {
       "id": "b538049e-cbec-4853-98ef-3b6e09d382d9",
@@ -4502,10 +4582,10 @@
     }, {
       "id": "64743ff4-86ea-458b-b87d-7706549a1849",
       "comment": "",
-      "command": "select",
+      "command": "//select",
       "target": "css=div:nth-child(2) > #selectService",
       "targets": [],
-      "value": "label=did:hid:testn ... 159a141#key-1 (Ed25519VerificationKey2020)"
+      "value": ""
     }, {
       "id": "19470506-22c4-4363-99d2-f84069321e7d",
       "comment": "",
@@ -4933,7 +5013,7 @@
       "id": "05cf769e-da35-40db-9b92-96fdd3abc356",
       "comment": "",
       "command": "pause",
-      "target": "1000",
+      "target": "2000",
       "targets": [],
       "value": ""
     }, {
@@ -4961,6 +5041,27 @@
       "target": "${holderDid}",
       "targets": [],
       "value": "${holderDid}"
+    }, {
+      "id": "a318639e-1405-457d-a4da-9f640acadd80",
+      "comment": "",
+      "command": "storeText",
+      "target": "css=tr:nth-child(2) > td:nth-child(1)",
+      "targets": [],
+      "value": "issuerDid"
+    }, {
+      "id": "b87e5838-7ebd-4829-87cc-12e47d5ca67b",
+      "comment": "",
+      "command": "echo",
+      "target": "${issuerDid}",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "8654a518-f7d8-4f15-b166-c11c1b5b68a2",
+      "comment": "",
+      "command": "executeScript",
+      "target": "return 'Issuer did | ' + ${issuerDid}",
+      "targets": [],
+      "value": "fullLabel"
     }, {
       "id": "632991d1-0615-4ef6-be7e-3b5d0510d9e8",
       "comment": "",
@@ -5032,7 +5133,7 @@
       "id": "7bd35b6d-474b-47f0-bee5-6473f0c433e0",
       "comment": "",
       "command": "storeAttribute",
-      "target": "xpath=//a[contains(@href, 'https://explorer.hypersign.id/hypersign-prajna-testnet/schemas/sch:hid:testnet:z6Mkf5VQ83xKdZaeJo323D6T2L4ch7AnKCGusuhg3fbDHCEB:1.0')]@href",
+      "target": "xpath=//a[contains(@href, 'https://explorer.hypersign.id/hypersign-prajna-testnet/schemas/sch:hid:testnet:')]@href",
       "targets": [],
       "value": "fullUrl"
     }, {
@@ -5190,9 +5291,16 @@
       ],
       "value": ""
     }, {
+      "id": "e572746e-530f-4c95-9513-5de559158d41",
+      "comment": "",
+      "command": "executeScript",
+      "target": "var event = new Event('change'); document.getElementById('selectService').dispatchEvent(event);",
+      "targets": [],
+      "value": ""
+    }, {
       "id": "6da524b8-00e2-4cd7-89ac-3aa18bd9681e",
       "comment": "",
-      "command": "select",
+      "command": "//select",
       "target": "id=selectService",
       "targets": [],
       "value": "label=Issuer did | did:hid:testnet:1e9cd3c8-5687-4420-852e-cc26eecfcbc4"
@@ -5303,7 +5411,7 @@
     }, {
       "id": "a06a9abe-81b0-411d-a3bb-a6fd8acf69ae",
       "comment": "",
-      "command": "select",
+      "command": "//select",
       "target": "css=div:nth-child(2) > #selectService",
       "targets": [],
       "value": "label=did:hid:testn ... 159a141#key-1 (Ed25519VerificationKey2020)"
