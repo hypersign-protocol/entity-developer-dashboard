@@ -35,17 +35,24 @@
       "targets": [],
       "value": ""
     }, {
+      "id": "601831ad-ea69-480e-a465-e730e65099b6",
+      "comment": "",
+      "command": "store",
+      "target": "seleniumtest963@gmail.com",
+      "targets": [],
+      "value": "adminEmailId"
+    }, {
       "id": "da181ce2-92cf-4b8a-863b-b6bed61a73dc",
       "comment": "",
       "command": "waitForElementPresent",
-      "target": "//div[contains(translate(text(), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'seleniumtest963@gmail.com')]",
+      "target": "//div[contains(translate(text(), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), '${adminEmailId}')]",
       "targets": [],
       "value": "30000"
     }, {
       "id": "27862238-1c0d-40e5-ae5f-2b942207668f",
       "comment": "",
       "command": "clickAt",
-      "target": "xpath=//div[contains(text(), 'seleniumtest963@gmail.com')]",
+      "target": "xpath=//div[contains(text(), '${adminEmailId}')]",
       "targets": [],
       "value": ""
     }, {
@@ -790,6 +797,20 @@
         ["xpath=//span[contains(.,' Registered')]", "xpath:innerText"]
       ],
       "value": "Registered"
+    }, {
+      "id": "df8c7c0d-f298-4727-84b6-f0681115a060",
+      "comment": "",
+      "command": "click",
+      "target": "css=.fa-user-circle",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "93629361-9642-4514-8fa2-9149386d6266",
+      "comment": "",
+      "command": "click",
+      "target": "css=li:nth-child(5) > .dropdown-item",
+      "targets": [],
+      "value": ""
     }]
   }],
   "suites": [{

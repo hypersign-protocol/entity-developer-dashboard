@@ -35,6 +35,13 @@
       "targets": [],
       "value": ""
     }, {
+      "id": "dd398b1d-830d-46c3-b64c-49ef251413ef",
+      "comment": "",
+      "command": "store",
+      "target": "seleniumtest963@gmail.com",
+      "targets": [],
+      "value": "adminEmailId"
+    }, {
       "id": "5e3db1ae-bcde-4bfb-8417-10d85d061dfa",
       "comment": "",
       "command": "waitForElementPresent",
@@ -742,6 +749,20 @@
         ["xpath=//div[@id='sidebar-right']/div/div/div[7]/div/button/span", "xpath:idRelative"],
         ["xpath=//div[7]/div/button/span", "xpath:position"]
       ],
+      "value": ""
+    }, {
+      "id": "1778e321-59df-493c-8647-a241c6a2d6e4",
+      "comment": "",
+      "command": "click",
+      "target": "css=.fa-user-circle",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "6a2684f5-9b72-438a-88b0-7d87e625be56",
+      "comment": "",
+      "command": "clickAt",
+      "target": "css=li:nth-child(5) > .dropdown-item",
+      "targets": [],
       "value": ""
     }]
   }],

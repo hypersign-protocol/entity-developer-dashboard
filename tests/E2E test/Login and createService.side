@@ -39,17 +39,24 @@
       "targets": [],
       "value": ""
     }, {
+      "id": "0d3eb0ce-8794-42d1-9a3e-42e461fd0ad6",
+      "comment": "",
+      "command": "store",
+      "target": "seleniumtest963@gmail.com",
+      "targets": [],
+      "value": "adminEmailId"
+    }, {
       "id": "a87588a9-7efa-41d6-b67d-875c1d275f77",
       "comment": "",
       "command": "waitForElementPresent",
-      "target": "//div[contains(translate(text(), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'seleniumtest963@gmail.com')]",
+      "target": "//div[contains(translate(text(), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'),'${adminEmailId}')]",
       "targets": [],
       "value": "30000"
     }, {
       "id": "c7d09428-00dc-4329-b0bc-f9fec8447197",
       "comment": "",
       "command": "clickAt",
-      "target": "xpath=//div[contains(text(), 'seleniumtest963@gmail.com')]",
+      "target": "xpath=//div[contains(text(),'${adminEmailId}')]",
       "targets": [
         ["css=.aZvCDf:nth-child(2) .pGzURd", "css:finder"],
         ["xpath=//body[@id='yDmH0d']/div[3]/div/div[2]/div/div/div[2]/div/div/div/form/span/section/div/div/div/div/ul/li[2]/div/div/div/div[2]/div", "xpath:idRelative"],
@@ -329,6 +336,20 @@
         ["xpath=//div[@id='app']", "xpath:attributes"],
         ["xpath=//div", "xpath:position"]
       ],
+      "value": ""
+    }, {
+      "id": "f57e1318-5297-4d91-91c5-9ec4de0a56b6",
+      "comment": "",
+      "command": "click",
+      "target": "css=.fa-user-circle",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "bde7f787-5752-42de-9e95-be814fc62985",
+      "comment": "",
+      "command": "clickAt",
+      "target": "css=li:nth-child(5) > .dropdown-item",
+      "targets": [],
       "value": ""
     }]
   }],
