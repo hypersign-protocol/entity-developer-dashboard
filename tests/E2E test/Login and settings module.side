@@ -72,7 +72,7 @@
       "command": "waitForElementPresent",
       "target": "//div[contains(translate(text(), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'),'${adminEmailId}')]",
       "targets": [],
-      "value": "30000"
+      "value": "3000"
     }, {
       "id": "c7d09428-00dc-4329-b0bc-f9fec8447197",
       "comment": "",
@@ -836,7 +836,7 @@
         ["xpath=//body[@id='yDmH0d']/div[3]/div/div[2]/div/div/div[2]/div/div/div/form/span/section/div/div/div/div/ul/li[12]/div", "xpath:idRelative"],
         ["xpath=//li[12]/div", "xpath:position"]
       ],
-      "value": "30000"
+      "value": "3000"
     }, {
       "id": "8496dc19-6acd-4daf-b415-5ebd47bc56e5",
       "comment": "",
@@ -1301,7 +1301,7 @@
       "command": "waitForElementPresent",
       "target": "//div[contains(translate(text(), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'),\"${adminEmailId}\")]",
       "targets": [],
-      "value": "30000"
+      "value": "3000"
     }, {
       "id": "b1409d7f-5787-4673-a192-ec368989b884",
       "comment": "",

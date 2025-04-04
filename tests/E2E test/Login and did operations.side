@@ -47,7 +47,7 @@
       "command": "waitForElementPresent",
       "target": "//div[contains(translate(text(), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'seleniumtest963@gmail.com')]",
       "targets": [],
-      "value": "30000"
+      "value": "3000"
     }, {
       "id": "b5f9558a-5b9c-4518-8c9c-9af3d8965a6b",
       "comment": "",

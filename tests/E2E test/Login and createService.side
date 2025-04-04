@@ -51,7 +51,7 @@
       "command": "waitForElementPresent",
       "target": "//div[contains(translate(text(), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'),'${adminEmailId}')]",
       "targets": [],
-      "value": "30000"
+      "value": "3000"
     }, {
       "id": "c7d09428-00dc-4329-b0bc-f9fec8447197",
       "comment": "",
