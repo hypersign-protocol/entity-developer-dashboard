@@ -53,7 +53,6 @@ Please run [Create SSI Service Test](./E2E_test/ssiServiceModule/loginAndCreateS
 - Open Selenium IDE in your browser.
 - Click on the `Open an existing project` button and upload the test file from the E2E folder inside test folder in this repository.
 
-
 > **NOTES**:
 > - If the email ID is already in use within the Entity Developer Dashboard, it must not have 2FA enabled. You can verify this by logging into the dashboard before running the tests.
 > - After running [LoginAndCreateSSIService](./E2E_test/ssiServiceModule/LoginAndCreateSSIService.side) request credits to your service by contacting the admin, and then run other tests.
