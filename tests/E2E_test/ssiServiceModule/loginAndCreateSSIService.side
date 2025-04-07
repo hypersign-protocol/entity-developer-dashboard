@@ -51,7 +51,7 @@
       "command": "waitForElementPresent",
       "target": "//div[contains(translate(text(), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'),'${adminEmailId}')]",
       "targets": [],
-      "value": "3000"
+      "value": "30000"
     }, {
       "id": "c7d09428-00dc-4329-b0bc-f9fec8447197",
       "comment": "",
@@ -132,6 +132,13 @@
       "targets": [],
       "value": ""
     }, {
+      "id": "2bb70965-f3c7-455c-8101-66439271488f",
+      "comment": "",
+      "command": "executeScript",
+      "target": "return 'SSI SERVICE-' + Math.floor(Math.random() * 100000);",
+      "targets": [],
+      "value": "serviceName"
+    }, {
       "id": "9d3047dd-ad83-4ff4-9cd5-655c22350d95",
       "comment": "",
       "command": "click",
@@ -156,7 +163,7 @@
         ["xpath=//div[@id='sidebar-right']/div/form/div/input", "xpath:idRelative"],
         ["xpath=//input", "xpath:position"]
       ],
-      "value": "ssi app"
+      "value": "${serviceName}"
     }, {
       "id": "37638b7f-30eb-4fd9-9235-15792730a514",
       "comment": "",
@@ -169,6 +176,13 @@
       ],
       "value": ""
     }, {
+      "id": "26f2631c-a01e-40b4-bd2a-accf7ad38297",
+      "comment": "",
+      "command": "store",
+      "target": "This is a ssi service app",
+      "targets": [],
+      "value": "serviceDescription"
+    }, {
       "id": "2d79c201-a7c3-40b4-a5c5-ba533329c0a1",
       "comment": "",
       "command": "type",
@@ -178,7 +192,7 @@
         ["xpath=//div[@id='sidebar-right']/div/form/div[2]/textarea", "xpath:idRelative"],
         ["xpath=//textarea", "xpath:position"]
       ],
-      "value": "This is a ssi service app"
+      "value": "${serviceDescription}"
     }, {
       "id": "3ea98c0b-e9d0-4af2-ab1b-658843cf1f40",
       "comment": "",
@@ -325,6 +339,28 @@
       "target": "Entity Developer Dashboard - Dashboard",
       "targets": [],
       "value": ""
+    }, {
+      "id": "c9266dae-25c1-4512-ba3a-d7f955c631d0",
+      "comment": "",
+      "command": "assertText",
+      "target": "xpath=//div/div/div[2]/div/div/div/div/div/div/div",
+      "targets": [
+        ["css=#\\__BVID__69 .col:nth-child(1) .text-overline", "css:finder"],
+        ["xpath=//div[@id='__BVID__69']/div/div/div/div/div/div", "xpath:idRelative"],
+        ["xpath=//div/div/div[2]/div/div/div/div/div/div/div", "xpath:position"]
+      ],
+      "value": "${serviceName}"
+    }, {
+      "id": "515f4d58-a6c6-450d-ad89-0ef19d913a3d",
+      "comment": "",
+      "command": "assertText",
+      "target": "xpath=//div/div/div[2]/div/div/div/div/div/div/div[2]",
+      "targets": [
+        ["css=#\\__BVID__69 .col:nth-child(1) .v-list-item__subtitle", "css:finder"],
+        ["xpath=//div[@id='__BVID__69']/div/div/div/div/div/div[2]", "xpath:idRelative"],
+        ["xpath=//div/div/div[2]/div/div/div/div/div/div/div[2]", "xpath:position"]
+      ],
+      "value": "${serviceDescription}"
     }, {
       "id": "8c5ff5f8-ae63-4107-87cc-40b2a5a7f22b",
       "comment": "",

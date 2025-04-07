@@ -28,10 +28,14 @@ Selenium is a widely-used open-source framework for automating web applications.
 |---------|---------|----------|
 | Service | Login   | [LoginTest](./E2E_test/serviceModule/Login.side)   |   
 | Service | Login and invite a member and accept invitation   |[Invite people](./E2E_test//serviceModule//LoginAndSettingsModule.side)  | 
-|SSI Service |Login and create a new service   |[CreateSSIApp](./E2E_test/ssiServiceModule/LoginAndCreateSSIService.side)  |
-|SSI Service | Login and perform did operations in specific service   | [Perform did operations](./E2E_test/ssiServiceModule/LoginAndDidOperations.side)  |    
-|SSI Service | Login and perform schema operations in specific service  |  [Perform schema operations](./E2E_test/ssiServiceModule/LoginAndSchemaOperations.side)  |
-|SSI Service | Login and perform credential operations in specific service |  [Perform credential operations](./E2E_test/ssiServiceModule/LoginAndCredentialOperation.side)  |
+|SSI Service |Login and create a new service   |[CreateSSIApp](./E2E_test/ssiServiceModule/loginAndCreateSSIService.side)  |
+|SSI Service | Login and perform did operations in specific service   | [Perform did operations](./E2E_test/ssiServiceModule/loginAndDidOperations.side)  |    
+|SSI Service | Login and perform schema operations in specific service  |  [Perform schema operations](./E2E_test/ssiServiceModule/loginAndSchemaOperations.side)  |
+|SSI Service | Login and perform credential operations in specific service |  [Perform credential operations](./E2E_test/ssiServiceModule/loginAndCredentialOperation.side)  |
+|KYC Service | Login and create kyc service   | [Create Kyc service](./E2E_test/kycServiceModule//loginAndCreateKycService.side)  |    
+|KYC Service | Login and configure onchain kyc  |  [Configure onchain kyc](./E2E_test/kycServiceModule/loginAndConfigureOnchainKyc.side)  |
+|KYC Service | Login and configure widget |  [Add widget configuration](./E2E_test/kycServiceModule/loginAndWidgetConfiguration.side)  |
+|KYC Service | Login and perform webhook configuration |  [Add webhook configuration](./E2E_test/kycServiceModule/loginAndWebhookConfiguration.side)  |
 
 #### Steps to Run
 ##### Running Selenium IDE
