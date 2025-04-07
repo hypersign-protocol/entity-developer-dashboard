@@ -53,6 +53,8 @@ If the email ID is already in use within the Entity Developer Dashboard, it must
 **Running the Tests**
 - After running [Login and Create service]('./E2E test/Login and createService.side') get credit to your service by contacting the admin, and then run other tests.
 - Check the log and results for any issues or errors.
-- 
-[Demo](../src/assets/test_demo.gif)
+  
+## Demo 
+
+![Demo](../src/assets/test_demo.gif)
   
