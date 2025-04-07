@@ -47,6 +47,8 @@ Follow these steps to set up and run Selenium IDE with your test files:
     - Save the changes after updating the email ID.
  - You can also change the value after uploading to Selenium IDE by replacing the `adminEmailId` value with your own email ID.
  - If you want to run the Login and Settings module, you must have an additional email to add as a teammate. To do this, replace "target": "seleniumide609@gmail.com" with your teammate's email ID directly in the test file, or update the value of teamMateEmailId after uploading it to Selenium IDE.
+ - In order to run the KYC module test cases, you must first create an SSI service.
+Please run [Create SSI Service Test](./E2E_test/ssiServiceModule/loginAndCreateSSIService.side) and [Perform DID Operations](./E2E_test/ssiServiceModule/loginAndDidOperations.side) before proceeding.
 **Steps to Run Tests**
 - Open Selenium IDE in your browser.
 - Click on the `Open an existing project` button and upload the test file from the E2E folder inside test folder in this repository.
