@@ -15,7 +15,7 @@ Selenium is a widely-used open-source framework for automating web applications.
  For the best compatibility, use Selenium IDE version 3.17.4.
  Follow these steps to install Selenium IDE:
   - For Firefox
-      - Visit the official Selenium IDE download page: [Selenium IDE Download]('https://addons.mozilla.org/en-US/firefox/addon/selenium_ide/')
+      - Visit the official Selenium IDE download page: [Selenium IDE Download](https://addons.mozilla.org/en-US/firefox/addon/selenium_ide/)
       - Click 'Add to Firefox' to install the extension
  - For brave
       - Go to [chrome web store]('https://chromewebstore.google.com/?pli=1')
@@ -54,5 +54,5 @@ If the email ID is already in use within the Entity Developer Dashboard, it must
 - After running [Login and Create service]('./E2E test/Login and createService.side') get credit to your service by contacting the admin, and then run other tests.
 - Check the log and results for any issues or errors.
 - 
-[Demo]('../src/assets/test_demo.gif')
+[Demo](../src/assets/test_demo.gif)
   
