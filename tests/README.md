@@ -24,14 +24,14 @@ Selenium is a widely-used open-source framework for automating web applications.
       - Click 'Add to Brave'
   #### Test Scenarios
   The following table lists the test scenarios along with their respective test files:
-  | Test Scenario | Test File |
-|---------|----------|
-| Login   | [LoginTest](./E2E%20test/Login.side)   |    
-| Login and create a new service   |[CreateApp](./E2E%20test/Login%20and%20createService.side)  |
-| Login and invite a member and accept invitation   |[Invite people](./E2E%20test/Login%20and%20settings%20module.side)  |
-| Login perform did operations in specific service   | [Perform did operations](./E2E%20test/Login%20and%20did%20operations.side)  |    
-| Login and perform schema operations in specific service  |  [Perform schema operations](./E2E%20test/Login%20and%20schema%20operations.side)  |
-| Login and perform credential operations in specific service |  [Perform credential operations](./E2E%20test/Login%20and%20credential%20operation.side)  |
+ |Module | Scenario |  File |
+|---------|---------|----------|
+| Service | Login   | [LoginTest](./E2E_test/serviceModule/Login.side)   |   
+| Service | Login and invite a member and accept invitation   |[Invite people](./E2E_test//serviceModule//LoginAndSettingsModule.side)  | 
+|SSI Service |Login and create a new service   |[CreateSSIApp](./E2E_test/ssiServiceModule/LoginAndCreateSSIService.side)  |
+|SSI Service | Login and perform did operations in specific service   | [Perform did operations](./E2E_test/ssiServiceModule/LoginAndDidOperations.side)  |    
+|SSI Service | Login and perform schema operations in specific service  |  [Perform schema operations](./E2E_test/ssiServiceModule/LoginAndSchemaOperations.side)  |
+|SSI Service | Login and perform credential operations in specific service |  [Perform credential operations](./E2E_test/ssiServiceModule/LoginAndCredentialOperation.side)  |
 
 #### Steps to Run
 ##### Running Selenium IDE
