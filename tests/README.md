@@ -46,9 +46,8 @@ Follow these steps to set up and run Selenium IDE with your test files:
 **Steps to Run Tests**
 - Open Selenium IDE in your browser.
 - Click on the `Open an existing project` button and upload the test file from the E2E folder inside test folder in this repository.
-**Important Note**
 
-If the email ID is already in use within the Entity Developer Dashboard, it must not have 2FA enabled. You can verify this by logging into the dashboard before running the tests.
+> **NOTE**: If the email ID is already in use within the Entity Developer Dashboard, it must not have 2FA enabled. You can verify this by logging into the dashboard before running the tests.
 
 **Running the Tests**
 - After running [Login and Create service]('./E2E test/Login and createService.side') get credit to your service by contacting the admin, and then run other tests.
