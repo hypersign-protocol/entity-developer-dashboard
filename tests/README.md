@@ -50,7 +50,7 @@ Follow these steps to set up and run Selenium IDE with your test files:
 
 > **NOTES**:
 > - If the email ID is already in use within the Entity Developer Dashboard, it must not have 2FA enabled. You can verify this by logging into the dashboard before running the tests.
-> - After running [Login and Create service]('./E2E test/Login and createService.side') request credits to your service by contacting the admin, and then run other tests.
+> - After running [LoginAndCreateSSIService](./E2E_test/ssiServiceModule/LoginAndCreateSSIService.side) request credits to your service by contacting the admin, and then run other tests.
   
 ## Demo 
 
