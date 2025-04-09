@@ -697,7 +697,7 @@ const mainStore = {
 
         fetchAppsListFromServer: async ({ commit, dispatch }) => {
             // TODO: Get list of orgs 
-            const url = `${apiServerBaseUrl}/app?limit=20`;
+            const url = `${apiServerBaseUrl}/app?limit=50`;
             // TODO: // use proper authToken
             const headers = UtilsMixin.methods.getHeader(localStorage.getItem('authToken'));
             const json = await RequestHandler(url, 'GET', {}, headers)
