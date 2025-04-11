@@ -570,9 +570,9 @@ h3 {
                                     </tr>
                                     <tr>
                                         <td class="greyFont">User's DID</td>
-                                        <td @click="copyToClip(eachSbtMintData.id, 'User Id')"
+                                        <td @click="copyToClip(eachSbtMintData.did, 'User Id')"
                                             style="text-align: right;cursor: pointer;">{{
-                                                stringShortner(eachSbtMintData.id, 15) }} </td>
+                                                stringShortner(eachSbtMintData.did, 15) }} </td>
                                     </tr>
                                     <tr v-if="eachSbtMintData.tokenId">
                                         <td class="greyFont">Token Id</td>
