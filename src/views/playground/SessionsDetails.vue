@@ -529,10 +529,9 @@ h3 {
             </v-list-item>
                 </v-card>
 
-                <!-- SBT Minting -->
-                <div v-for="eachProofTypeCredential in allProofTypeSBTCredentials" v-bind:key="eachProofTypeCredential">
+                <!-- SBT Minting -->  <div v-for="eachSbtMintData in allSbtMintData" v-bind:key="eachSbtMintData">
                     <v-card class=" dataCard float-"
-                        v-if="eachProofTypeCredential && Object.keys(eachProofTypeCredential).length > 0">
+                        v-if="eachSbtMintData && eachSbtMintData.length > 0">
                         <v-list-item three-line>
                         <v-list-item-content>
                             <v-list-item-title class="text-h5 mb-1">
@@ -546,7 +545,7 @@ h3 {
                                     <tr>
                                         <td class="greyFont">Credential Type</td>
                                         <td style="text-align: right;word-break: break-word;">
-                                            {{ `${eachProofTypeCredential.proofType}SbtCredential` }}
+                                            {{ `${eachSbtMintData.proofType}SbtCredential` }}
                                         </td>
                                     </tr>
                                     <tr>
@@ -555,43 +554,43 @@ h3 {
                                             <span>
                                                 <b-avatar
                                                 :style="{ 'background-color': 'white' }"
-                                                    :src="getChainDetail(eachProofTypeCredential.blockchainLabel).logoUrl"
+                                                    :src="getChainDetail(eachSbtMintData.blockchainLabel).logoUrl"
                                                     size="20"></b-avatar>
                                             </span>
-                                            {{ getChainDetail(eachProofTypeCredential.blockchainLabel).chainName
+                                            {{ getChainDetail(eachSbtMintData.blockchainLabel).chainName
                                             }}
                                         </td>
                                     </tr>
                                     <tr>
                                         <td class="greyFont">User's Wallet Address</td>
-                                        <td @click="copyToClip(eachProofTypeCredential.ownerWalletAddress, 'Wallet Address')"
+                                        <td @click="copyToClip(eachSbtMintData.ownerWalletAddress, 'Wallet Address')"
                                             style="text-align: right;cursor: pointer;">{{
-                                                stringShortner(eachProofTypeCredential.ownerWalletAddress, 15) }}
+                                                stringShortner(eachSbtMintData.ownerWalletAddress, 15) }}
                                         </td>
                                     </tr>
                                     <tr>
                                         <td class="greyFont">User's DID</td>
-                                        <td @click="copyToClip(eachProofTypeCredential.id, 'User Id')"
+                                        <td @click="copyToClip(eachSbtMintData.id, 'User Id')"
                                             style="text-align: right;cursor: pointer;">{{
-                                                stringShortner(eachProofTypeCredential.id, 15) }} </td>
+                                                stringShortner(eachSbtMintData.id, 15) }} </td>
                                     </tr>
-                                    <tr v-if="eachProofTypeCredential.tokenId">
+                                    <tr v-if="eachSbtMintData.tokenId">
                                         <td class="greyFont">Token Id</td>
                                         <td style="text-align: right;">{{
-                                            eachProofTypeCredential.tokenId }} </td>
+                                            eachSbtMintData.tokenId }} </td>
                                     </tr>
-                                    <tr v-if="eachProofTypeCredential.sbtContractAddress">
+                                    <tr v-if="eachSbtMintData.sbtContractAddress">
                                         <td class="greyFont">Contract Address</td>
-                                        <td @click="copyToClip(eachProofTypeCredential.sbtContractAddress, 'SBT Contract Address')"
+                                        <td @click="copyToClip(eachSbtMintData.sbtContractAddress, 'SBT Contract Address')"
                                             style="text-align: right;cursor: pointer;">{{
-                                                stringShortner(eachProofTypeCredential.sbtContractAddress, 15) }}
+                                                stringShortner(eachSbtMintData.sbtContractAddress, 15) }}
                                         </td>
                                     </tr>
                                     <tr>
                                         <td class="greyFont">TransactionHash</td>
-                                        <td @click="copyToClip(eachProofTypeCredential.transactionHash, 'Transaction hash')"
+                                        <td @click="copyToClip(eachSbtMintData.transactionHash, 'Transaction hash')"
                                             style="text-align: right;cursor: pointer;">{{
-                                                stringShortner(eachProofTypeCredential.transactionHash, 15) }} </td>
+                                                stringShortner(eachSbtMintData.transactionHash, 15) }} </td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -600,6 +599,7 @@ h3 {
                 </v-list-item>
                     </v-card>
                 </div>
+              
         </div>
 
         <hf-pop-up id="zoom-doc" :Header="popupHeader">
@@ -699,6 +699,9 @@ export default {
         userConsentDataFound() {
             return (this.session.userConsentDetails && Object.keys(this.session.userConsentDetails).length > 0)
         },
+        sbtDataFound() {
+            return (this.session.mintsbtsDetails && this.session.mintsbtsDetails.length > 0)
+        },
         startFinishDiffInSeconds() {
             if (this.userConsentDataFound) {
                 const startDate = new Date(this.session.createdAt)
@@ -738,6 +741,13 @@ export default {
                 proofTypeSBTCredential.push(this.getCredentialSubjectByType(`${eachProofType}SbtCredential`))
             })
             return proofTypeSBTCredential
+        },
+        allSbtMintData(){
+            let sbtMintData
+            if(this.sbtDataFound){
+             sbtMintData=this.session.mintsbtsDetails
+            }
+            return sbtMintData
         }
     },
     data() {
@@ -842,7 +852,7 @@ export default {
             }
         },
         getCredentialSubjectByType(type = "PassportCredential") {
-            if (this.userConsentDataFound) {
+            if (this.sbtDataFound) {
                 const presentationStr = this.session.userConsentDetails.presentation
                 if (presentationStr) {
                     const presentation = JSON.parse(presentationStr)

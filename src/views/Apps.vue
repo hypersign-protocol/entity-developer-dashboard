@@ -201,6 +201,15 @@
         </div>
       </div>
     </hf-pop-up>
+    <hf-pop-up id="entity-linked-service-detail-popup" Header="Linked Service Detail">
+      <div>
+        <p  style="color: #ff5400de;" v-html="formattedErrorMessage"></p>
+        <div class="text-center mt-3">
+          <hf-buttons name="Ok" class="btn btn-primary text-center" customClass="btn btn-danger"  @executeAction="closeLinkedServiceDetailPopup"
+           ></hf-buttons>
+        </div>
+      </div>
+    </hf-pop-up>
 
     <StudioSideBar :title="edit ? 'Edit Service' : 'Add Service'">
       <v-form class="container">
@@ -997,7 +1006,9 @@ export default {
         return this.appModel.domain;
       }
     },
-
+    formattedErrorMessage() {
+        return this.linkedAppErrorMessage.replace(/\n/g, "<br>");
+      },
     txtRecord() {
       return this.appModel.issuerDid
         ? "hypersign-domain-verification.did=" + this.appModel.issuerDid
@@ -1046,6 +1057,7 @@ export default {
   },
   data() {
     return {
+      linkedAppErrorMessage:"",
       issuerConfigVisible: false,
       items: [
           {
@@ -1224,11 +1236,21 @@ export default {
         this.isLoading = false
 
       } catch (e) {
-        this.notifyErr(e?.message|| e);
+        const error= e?.message|| e
+        if(error && error.includes('This service is linked with') ){
+          this.linkedAppErrorMessage= error;
+          this.$root.$emit("bv::show::modal", "entity-linked-service-detail-popup");
+          this.isLoading= false
+        }else{
+        this.notifyErr(error);
         this.isLoading = false
+        }
       }
     },
-
+    closeLinkedServiceDetailPopup(){
+      this.linkedAppErrorMessage='';
+      this.$root.$emit("bv::hide::modal", "entity-linked-service-detail-popup"); 
+    },
     onServicesSelected() {
       console.log("ononServicesSelected() got calledsuccessfully");
 

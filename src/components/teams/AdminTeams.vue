@@ -23,8 +23,9 @@
                 <tbody>
                     <!-- eslint-disable-next-line -->
                     <tr v-for="role in getAllRoles" v-bind:key="getAllRoles.roleName">
-                        <a href="#"
-                            class="list-group-item list-group-item-action align-items-start d-flex align-items-center ">
+                        <!-- <a href="#" -->
+                        <td>
+                            <div class="list-group-item list-group-item-action align-items-start d-flex align-items-center ">
                             <b-avatar size="4em" rounded="lg" variant="info" :text="role.roleName.charAt(0)"></b-avatar>
                             <div class="w-100 mx-3 mt-3 align-items-center">
                                 <h5 class="mb-1">{{ role.roleName }}</h5>
@@ -48,8 +49,10 @@
                                         Delete</b-dropdown-item-button>
                                 </b-dropdown>
                             </div>
-                        </a>
-                    </tr>
+                            </div> 
+                        </td>
+                        <!-- </a> -->
+                    </tr> 
                 </tbody>
             </table>
         </div>

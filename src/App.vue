@@ -319,9 +319,9 @@ export default {
       appList: (state) => state.mainStore.appList,
     }),
 
-    authToken() {
-      return localStorage.getItem("authToken")
-    },
+    // authToken() {
+    //   return localStorage.getItem("authToken")
+    // },
     selectedOrg() {
       return this.getSelectedOrg;
     },
@@ -341,11 +341,13 @@ export default {
       authRoutes: ["register", "PKIIdLogin"],
       user: {},
       loggedInUserEmailId:"",
-      parseAuthToken: null
+      parseAuthToken: null,
+      authToken:null
     };
   },
 
   mounted() {
+    this.authToken = localStorage.getItem("authToken");
     this.$root.$on("clearAppData", () => {
       this.authToken = null;
       // this.showIcon = false;
