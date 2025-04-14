@@ -24,6 +24,10 @@ export default {
     name: "GoogleLogin",
     mounted() {
         const authorizationToken = this.$route.query.token
+        const redirect = this.$route.query.redirect;
+         if (redirect) {
+            localStorage.setItem('postLoginRedirect', redirect);
+        }
         if (authorizationToken) {
             localStorage.setItem("authToken", authorizationToken);
             this.$router.push("mfa");

@@ -236,7 +236,8 @@ router.beforeEach(async (to, from, next) => {
         store.commit('mainStore/setMainSideNavBar', false)
         next({
           path: '/studio/login',
-          params: { nextUrl: to.fullPath }
+          query: { redirect: to.fullPath }
+          // params: { nextUrl: to.fullPath }
         })
 
       }
@@ -244,7 +245,9 @@ router.beforeEach(async (to, from, next) => {
     } else {
       next({
         path: '/studio/login',
-        params: { nextUrl: to.fullPath }
+        query: { redirect: to.fullPath }
+        // params: { nextUrl: to.fullPath }
+
       })
     }
   } else {

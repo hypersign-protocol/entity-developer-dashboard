@@ -474,7 +474,11 @@ export default {
         this.authToken = localStorage.getItem("authToken");
         if (this.authToken) {
           this.setIsLoggedOut(true)
-          this.$router.push("dashboard").then(() => { this.$router.go(0) });
+           const redirectPath=localStorage.getItem("postLoginRedirect")||'/studio/dashboard'
+           localStorage.removeItem("postLoginRedirect");
+          this.$router.push(redirectPath).then(() => { 
+            this.$router.go(0) 
+            });
         } else {
           throw new Error("No auth token")
         }
