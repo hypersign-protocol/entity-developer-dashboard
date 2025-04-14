@@ -1079,54 +1079,63 @@ export default {
           this.issueCredAttributes = [];
           this.isLoading = true;
           let selectedSchemas = await this.resolveSchema(event);
-          const schemaMap = selectedSchemas.schemaDocument.schema.properties;
-          const requiredFields = selectedSchemas.schemaDocument.schema.required;
-          this.issueCredentialType = selectedSchemas.schemaDocument.name;
-          for (const e of Object.entries(schemaMap)) {
-            let dataToPush = {
-              id: event,
-              type: e[1].type,
-              name: e[0],
-            };
-            switch (e[1].type) {
-              case "boolean":
-                dataToPush["value"] = null;
-                break;
-              case "string":
-                dataToPush["value"] = null;
-                break;
-              case "number":
-                dataToPush["value"] = null;
-                break;
-              case "integer":
-                dataToPush["value"] = null;
-                break;
-              case "date":
-                dataToPush["value"] = null;
-                break;
-              default:
-                this.notifyErr("invalid type");
+          if(selectedSchemas && selectedSchemas?.schemaDocument && selectedSchemas?.schemaDocument?.schema){
+            const schemaMap = selectedSchemas.schemaDocument.schema.properties;
+            const requiredFields = selectedSchemas.schemaDocument.schema.required;
+            this.issueCredentialType = selectedSchemas.schemaDocument.name;
+            for (const e of Object.entries(schemaMap)) {
+              let dataToPush = {
+                id: event,
+                type: e[1].type,
+                name: e[0],
+              };
+              switch (e[1].type) {
+                case "boolean":
+                  dataToPush["value"] = null;
+                  break;
+                case "string":
+                  dataToPush["value"] = null;
+                  break;
+                case "number":
+                  dataToPush["value"] = null;
+                  break;
+                case "integer":
+                  dataToPush["value"] = null;
+                  break;
+                case "date":
+                  dataToPush["value"] = null;
+                  break;
+                default:
+                  this.notifyErr("invalid type");
+              }
+
+              this.issueCredAttributes.push(dataToPush);
             }
 
-            this.issueCredAttributes.push(dataToPush);
+          this.issueCredAttributes=  this.issueCredAttributes.map((x) => {
+              if (requiredFields.includes(x.name)) {
+                x["required"] = true;
+              } else {
+                x["required"] = false;
+              }
+              return x
+            });
+            this.isLoading = false;
+            console.log(JSON.stringify(this.issueCredAttributes, null, 2));
+            this.isLoading = false;
+          } else {
+            this.issueCredAttributes = [];
+            this.isLoading= false
           }
-
-          this.issueCredAttributes.map((x) => {
-            if (requiredFields.includes(x.name)) {
-              x["required"] = true;
-            } else {
-              x["required"] = false;
-            }
-          });
-
-          this.isLoading = false;
         } else {
           this.issueCredAttributes = [];
-        }
+            this.isLoading= false
+        } 
       } catch (e) {
         console.log(e);
         this.isLoading = false;
         this.notifyErr(`Error: ${e.message}`);
+        this.issueCredAttributes = [];
       }
     },
     forceFileDownload(data, fileName) {

@@ -46,9 +46,9 @@
 
     <hf-pop-up id="invite-member" Header="Invite New Member">
       <div>
-        <div class="form-group mb-3">
-          <label for="exampleInputEmail1">Email:</label>
-          <div class="input-group">
+        <div  class="form-group mb-3">
+          <label v-if="invitionData.inviteCode === ''" for="exampleInputEmail1">Email:</label>
+          <div class="input-group" v-if="invitionData.inviteCode == ''">
             <input type="email" class="form-control" placeholder="Enter email id of a valid platform user"
               v-model="inviteeEmailId" />
             <div class="input-group-append" v-if="checkIfValidEmail">
@@ -76,9 +76,9 @@
           <div class="mt-2" v-if="invitionData.inviteCode != ''">
             <p>
               <small>
-                Copy the invition code and send to {{ inviteeEmailId }}. Alternatively, invitee can also see and accept
-                the invition from
-                their dashboard. The code is only valid till {{
+                  An invitation has been sent to {{ inviteeEmailId }}.
+                  The recipient may accept it via the provided email link or through their platform dashboard.
+                  This invitation is valid until{{
                   toDateTime(invitionData.invitationValidTill) }}.
               </small>
             </p>
