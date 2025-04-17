@@ -1543,7 +1543,7 @@ const mainStore = {
 
         },
 
-        registerDIDsForAService({ getters }, payload) {
+        registerDIDsForAService({ commit, getters }, payload) {
             return new Promise(function (resolve, reject) {
                 const body = {
                     didDocument: payload.didDocument,
@@ -1567,9 +1567,16 @@ const mainStore = {
                         ...options
                     })
                         .then(response => response.json())
-                        .then(json => {
+                        .then(async json => {
                             if (json) {
-                                //dispatch('resolveDIDForAService', json.did)
+                                // dispatch('resolveDIDForAService', json.did)
+                                const data = {
+                                    did: json.did,
+                                    didDocument: json?.metaData?.didDocument,
+                                    status: json.didDocumentMetadata && Object.keys(json.didDocumentMetadata).length > 0 ? 'Registered' : 'Created',
+                                    name: json.name
+                                }
+                                commit('updateADID', data)
                                 resolve(json)
                             } else {
                                 reject(new Error('Could not register DID for this service'))
@@ -2371,7 +2378,11 @@ const mainStore = {
                         .then(response => response.json())
                         .then(async json => {
                             if (json && !json.error) {
-                                window.location.reload();
+                                const data = {
+                                    id: json.id,
+                                    status: ''//json.proof && Object.keys(json.proof).length > 0 ? 'Registered' : 'Created',
+                                }
+                                resolve(data)
                             } else {
                                 reject(new Error('Could not update credential'))
                             }
