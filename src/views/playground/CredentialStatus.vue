@@ -124,8 +124,23 @@ h5 span {
               <tool-tip infoMessage="Enter DID to whome you are issuing credential"></tool-tip>
               <label for="fordid"><strong>Subject DID<span style="color: red">*</span>:</strong></label>
               <div class="input-group mb-3">
-                <input type="text" class="form-control" placeholder="did:hid:123123123123" v-model="holderDid" />
-
+                <!-- <input type="text" class="form-control" placeholder="did:hid:123123123123" v-model="holderDid" /> -->
+                <input
+                    list="subjectDidList"
+                    id="fordid"
+                    class="custom-select custom-select-md form-control"
+                    placeholder="Enter or select a DID"
+                    v-model="holderDid"
+                  />
+                <datalist id="subjectDidList">
+                  <option
+                    v-for="did in associatedSSIServiceDIDs"
+                    :value="did.split('|')[1].trim()"
+                    :key="did"
+                  >
+                    {{ did }}
+                  </option>
+                </datalist>
                 <!-- <div
                         class="input-group-append"
                         @click="getSelfDIDAsSubject()"
@@ -712,6 +727,39 @@ export default {
         this.notifyErr(e.message)
       }
     },
+     async checkCredentialUpdateStatus(id_to_check_status, dateTime) {
+      try {
+        const maxrtries = 7         
+        const interval = 5
+        let i = 0
+        const statusCheckInterval = setInterval(async () => {
+          i = i + 1;
+          const response = await this.checkBlockchainStatusOfSSI(id_to_check_status)
+          if (response && response.data && response.data.length > 0 ) {
+            const sortedData = response.data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            const latestEntry = sortedData[0];
+          if(new Date(latestEntry.createdAt)>= new Date(dateTime)){
+             if (latestEntry.status === 0) {
+            this.notifySuccess('Credential successfully updated on the blockchain, txHash: ' + latestEntry.txnHash);
+          } else {
+            this.notifyErr('Sorry we could not register your Credential, txHash: ' + latestEntry.txnHash);
+          }
+          this.resolveCredential({ credentialId: id_to_check_status, retrieveCredential: false });
+             clearInterval(statusCheckInterval);
+        }
+        }  
+     
+          if (i == maxrtries) {
+            this.notifyErr('All atempts failed to check the status on blockchain. Please check it manually')
+            this.resolveCredential({ credentialId: id_to_check_status, retrieveCredential: false })
+            clearInterval(statusCheckInterval)
+          }
+        }, interval * 1000)
+      } catch (e) {
+        console.error(e.message)
+        this.notifyErr(e.message)
+      }
+    },
     async unlockCredential(credentialId) {
       this.isLoading = true;
 
@@ -821,7 +869,11 @@ export default {
                   "verificationMethodId": this.verificationMethodId,
                   "credentialId":this.vcId
                 }
-        await this.updateCredentialForAService(credPayload)
+        const currentTime= new Date()
+        const response= await this.updateCredentialForAService(credPayload)
+        if(response.id){
+          this.checkCredentialUpdateStatus(response?.id,currentTime)
+        }
         this.isLoading = false;
         this.clearEdit();
         this.clearAll();
@@ -1292,10 +1344,10 @@ export default {
         this.isLoading = true;
         this.creadData.fields = attributeMap;
         this.creadData.schemaId = this.selected.trim(),
-          this.creadData.issuerDid = this.issuerDid.trim(),
-          this.creadData.verificationMethodId = this.issuerVerificationMethodId.trim(),
-          this.creadData.subjectDid = this.holderDid.trim(),
-          this.creadData.expirationDate = this.expiryDateTime,
+        this.creadData.issuerDid = this.issuerDid.trim(),
+        this.creadData.verificationMethodId = this.issuerVerificationMethodId.trim(),
+        this.creadData.subjectDid = this.holderDid.trim(),
+        this.creadData.expirationDate = this.expiryDateTime,
 
           // this.QrData.data = creadData;
           console.log(this.creadData);
@@ -1308,6 +1360,7 @@ export default {
           this.checkRegistrationStatus(response?.id)
         }
         this.openSlider();
+        this.schemaConfigVisible= false
         this.isLoading = false;
       } catch (e) {
         console.log(e);
@@ -1332,6 +1385,7 @@ export default {
       this.warningMessage = "";
       this.selectedAction='';
       this.errorMessage='';
+      this.issuerConfigVisible = false;
       EventBus.$emit("resetOption", this.selected);
     },
   },
