@@ -37,7 +37,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="person in getMyInvitions" :key="person.userId">
+          <tr v-for="person in getMyInvitions" :key="person.adminId">
             <TeamUser :email="person.adminEmailId" :twoFactor="person.authenticatorEnabled"
               :invitationStatus="person.accepted" :createdAt="toDateTime(person.createdAt)" :acceptInvitionMenu="true"
               :inviteCode="person.inviteCode" :userId="person.adminId" :numberOfTeams="0" :mode="'Admin'" />

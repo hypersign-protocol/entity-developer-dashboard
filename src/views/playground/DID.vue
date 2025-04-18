@@ -135,12 +135,12 @@ h5 span {
                 aria-describedby="schemaNameHelp" placeholder="Enter a name for this did">
             </div>
 
-            <div class="form-group">
+            <!-- <div class="form-group">
               <tool-tip infoMessage="Select a DID method namespace"></tool-tip>
               <label for="schemaName"><strong>Namespace<span style="color: red">*</span>:</strong></label>
               <hf-select-drop-down :options="namespaceOptions"
                 @selected="e => (did.namespace = e)" :disabled="isEditing"></hf-select-drop-down>
-            </div>
+            </div> -->
 
             <div class="form-group">
               <tool-tip infoMessage="Method specific id for a did"></tool-tip>
@@ -306,13 +306,12 @@ import HfPopUp from "../../components/element/hfPopup.vue";
 import Loading from "vue-loading-overlay";
 import StudioSideBar from "../../components/element/StudioSideBar.vue";
 import HfButtons from "../../components/element/HfButtons.vue"
-import HfSelectDropDown from "../../components/element/HfSelectDropDown.vue"
 import ToolTip from "../../components/element/ToolTip.vue"
 import DomainLinkage from '@hypersign-protocol/domain-linkage-verifier'
 import { mapState, mapGetters, mapActions, mapMutations } from "vuex";
 export default {
   name: "DIDs",
-  components: { HfPopUp, Loading, StudioSideBar, HfButtons, HfSelectDropDown, ToolTip, },
+  components: { HfPopUp, Loading, StudioSideBar, HfButtons, ToolTip, },
   watch: {
   selectedDid: {
     handler(newValue) {
@@ -571,7 +570,8 @@ export default {
           if (this.selectedDid) {
             this.did.name= this.selectedDid.name,
             this.did.namespace= 'testnet',
-            this.did.methodSpecificId = this.selectedDid.did.split(':')[3]
+            this.did.methodSpecificId = this.selectedDid.did.split(':')[3],
+            this.selectedKeyTypes= this.selectedDid?.didDocument?.verificationMethod.map((vm)=>vm.type)
           }
         this.openSlider();
     },
