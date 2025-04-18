@@ -205,8 +205,8 @@ h5 span {
 
                   <input list="schema" class="custom-select custom-select custom-select-md form-control"
                     placeholder="Enter a SchemaId" v-model="selectedSchema"
-                    @input="OnSchemaSelectDropDownChange(selectedSchema)"
-                    @change="OnSchemaSelectDropDownChange(selectedSchema)" />
+                    @input="debouncedSchemaChange(selectedSchema)"
+                     />
                   <datalist id="schema">
                     <option v-for="schema in schemaIdsList" :key="schema.value"
                      :value="schema.value"
@@ -649,20 +649,11 @@ export default {
     }
   },
   async created() {
-    try {
+      this.debouncedSchemaChange = this.debounce(this.OnSchemaSelectDropDownChange, 400);
       const usrStr = localStorage.getItem("user");
       this.user = JSON.parse(usrStr);
       this.updateSideNavStatus(true);
-
-      this.isLoading = true;
-      // await this.fetchSchemaList();
-      await this.fetchCredentialList();
-      this.isLoading = false
-    } catch (e) {
-      this.isLoading = false
-      this.notifyErr(e.message)
-      this.$router.push({ path: '/studio/dashboard' });
-    }
+      this.initComponent()
     // this.fetchCredentialsForOrg();
     // this.fetchSchemasForOrg();
   },
@@ -692,7 +683,26 @@ export default {
       "increaseOrgDataCount",
       "updateSideNavStatus",
     ]),
-
+    async initComponent(){
+      try {
+      this.isLoading = true;
+      // await this.fetchSchemaList();
+      await this.fetchCredentialList();
+      this.isLoading = false
+    } catch (e) {
+      this.isLoading = false
+      this.notifyErr(e.message)
+      this.$router.push({ path: '/studio/dashboard' });
+    }
+    },
+    debounce(fn, delay) {
+        let timeout;
+        return function (...args) {
+          const context = this;
+          clearTimeout(timeout);
+          timeout = setTimeout(() => fn.apply(context, args), delay);
+        };
+      },
     async checkRegistrationStatus(id_to_check_status) {
       try {
         const maxrtries = 6 // after 30 sec abort            
@@ -781,7 +791,7 @@ export default {
     async resolveDid(event) {
       this.issuerVerificationMethodId = ""
       const didDocId=event?.target?.value || event
-      const did = didDocId.trim()
+      const did = didDocId?.trim()
       const didDocument = this.didList.find(x => x.did == did)?.didDocument
       this.issuerVerificationMethodIds = didDocument ? didDocument.verificationMethod : [];
     },
