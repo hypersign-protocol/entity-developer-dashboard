@@ -1,7 +1,7 @@
 <template>
   <div>
-    <v-card no-body v-if="isFeatureImplemented">
-      <b-tabs card v-model="activeMainTab">
+    <div no-body v-if="isFeatureImplemented">
+      <b-tabs  v-model="activeMainTab">
         <!-- Profile Tab -->
         <b-tab>
           <template #title>
@@ -59,7 +59,7 @@
           </b-tabs>
         </b-tab>
       </b-tabs>
-    </v-card>
+    </div>
 
     <div v-else>
       <hf-feature-soon></hf-feature-soon>
