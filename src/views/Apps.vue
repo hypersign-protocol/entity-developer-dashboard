@@ -4,9 +4,9 @@
     <div>
       <v-row  dense v-if="appList.length > 0">
         <v-col>
-          <h3 style="float: left">
+          <h4 style="float: left">
             <i class="fa fa-cogs mr-2" aria-hidden="true"></i>Your Services
-          </h3>
+          </h4>
           <!-- <hf-buttons name=" Create" iconClass="fa fa-plus"  class="ml-auto" @executeAction="openSlider('SSI_API')"
             style="float: right">
           </hf-buttons> -->
@@ -441,7 +441,7 @@
 
       
       <b-tabs content-class="mt-0">
-        <b-tab active class="bg-white p-3">
+        <b-tab active class="bg-white p-2">
           <template #title>
             <b-icon icon="credit-card" aria-hidden="true" small></b-icon><strong> {{ 'Self Sovereign Identity (' +
               getAppsWithSSIServices.length + ')' }}</strong>
@@ -530,7 +530,7 @@
           </div>
         </b-tab>
 
-        <b-tab class="bg-white p-3">
+        <b-tab class="bg-white p-2">
 
           <template #title>
             <b-icon icon="person-fill" aria-hidden="true" small></b-icon><strong> {{ 'Know Your Customer (' +
@@ -669,7 +669,7 @@
           </div>
         </b-tab>
 
-        <b-tab class="bg-white p-3">
+        <b-tab class="bg-white p-2">
 
           <template #title>
             <b-icon icon="list-task" aria-hidden="true" small></b-icon><strong> {{ 'Quest (' +
