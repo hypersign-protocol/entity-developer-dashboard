@@ -178,39 +178,15 @@ export default {
           });
       }
     },
-    // async deleteAMember() {
-    //   try {
-
-    //     const result = confirm("Are you sure you want to delete this member?")
-
-    //     if (result) {
-    //       this.isLoading = true;
-    //       await this.deleteMember(this.email)
-    //       this.isLoading = false;
-    //       this.notifySuccess(`${this.email} successfully deleted`)
-    //     }
-
-
-    //   } catch (e) {
-    //     this.notifyErr(e.message)
-    //   }
-    // },
   async deleteAMember() {
     this.showDeleteConfirm = true;
-      // await this.$nextTick();
-    //  this.$nextTick(() => {
-    // this.$refs.deleteModal.$root.$emit('delete-member-confirm-popup');
-    // $refs['modal-1'].openModal(); // OR .openModal() if you defined that
-  // );
-        // this.$refs.deleteModal.$refs['modal-1'].openModal();
-     this.$root.$emit("bv::show::modal", "delete-member-confirm-popup");
+    this.$root.$emit("bv::show::modal", "delete-member-confirm-popup");
   },
   async confirmDeleteMember() {
     try {
       this.isLoading = true;
       await this.deleteMember(this.email);
       this.notifySuccess(`${this.email} successfully deleted`);
-        // this.$refs.deleteModal.$refs['modal-1'].closeModal()
       this.$root.$emit("bv::hide::modal", "delete-member-confirm-popup");
     } catch (e) {
       this.notifyErr(e.message);
@@ -220,12 +196,9 @@ export default {
     }
   },
   resetDeleteMember(){
-    console.log('inside resetform')
     this.showDeleteConfirm = false;
     this.isLoading = false;
-    // this.$refs.deleteModal.$refs['modal-1'].closeModal();
-      this.$root.$emit("bv::hide::modal", "delete-member-confirm-popup");
-
+    this.$root.$emit("bv::hide::modal", "delete-member-confirm-popup");
   },
    async acceptedInvition() {
       try {
