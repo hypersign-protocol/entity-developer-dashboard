@@ -10,6 +10,7 @@
     centered
     header-bg-variant="dark"
     header-text-variant='light'
+     :hide-header-close="hideHeaderClose"
     >
     <slot />
   </b-modal>
@@ -33,7 +34,8 @@ export default {
     size: {
       type: String, 
       default: ''
-    }
+    },
+    hideHeaderClose: { type: Boolean, default: false } 
   },
   created() {
     this.openModal();
