@@ -136,6 +136,7 @@ const playgroundStore = {
         },
         addUserDetailsToProfile(state, payload) {
             state.userProfile.details.name = payload.name;
+            state.userProfile.details.profileIcon = payload.profileIcon;
             state.userProfile.details.email = payload.email;
             state.userProfile.details.did = payload.id;
             state.userProfile.details.userId = payload.userId;

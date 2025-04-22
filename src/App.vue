@@ -119,11 +119,18 @@
           </b-nav-item>
 
           <b-nav-item-dropdown right v-if="getIsLoggedOut" title="Profile">
-            <template #button-content>
-              <i class="fas fa-user-circle nav-icon"></i>
+           <template #button-content>
+             <img
+              v-if="userDetails?.profileIcon"
+              :src="userDetails.profileIcon"
+              style="width: 100px; height: 100px; border-radius: 50%; border: 1px solid red;"
+            />
+            <i v-else class="fas fa-user-circle nav-icon"></i> 
             </template>
-
             <b-dropdown-group style="text-align: left;">
+              <b-dropdown-item-button style="text-align: left" :title="userDetails.name">
+                {{ `Welcome, ${(userDetails.name)}` }}
+              </b-dropdown-item-button>
               <b-dropdown-item-button style="text-align: left" :title="userDetails.email"
                 @click="copyToClip(userDetails.email, 'Email')">
                 {{ shorten(userDetails.email) }}

@@ -111,7 +111,7 @@ export default {
   computed: {
     ...mapGetters('mainStore', ['getAdminMembersgetter', "getAllRoles"]),
     checkIfValidEmail() {
-      return isValidEmail(this.inviteeEmailId)
+      return isValidEmail(this.inviteeEmailId) && this.inviteeEmailId.toLowerCase().endsWith('@gmail.com');
     }
   },
   data: function () {
