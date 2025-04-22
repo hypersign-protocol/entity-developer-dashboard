@@ -123,7 +123,7 @@
              <img
               v-if="userDetails?.profileIcon"
               :src="userDetails.profileIcon"
-              style="width: 100px; height: 100px; border-radius: 50%; border: 1px solid red;"
+              style="width: 24; height: 24; border-radius: 50%;"
             />
             <i v-else class="fas fa-user-circle nav-icon"></i> 
             </template>
