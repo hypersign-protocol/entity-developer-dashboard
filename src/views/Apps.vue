@@ -1082,7 +1082,7 @@ export default {
               ? this.appModel.services[0]
               : null;
           if (service) {
-            if (service.swaggerAPIDocPath) {
+            if (service.swaggerAPIDocPath && ! service?.type==='SSI_API') {
               return (
                 sanitizeUrl(this.appModel.tenantUrl) + service.swaggerAPIDocPath
               );

@@ -49,7 +49,7 @@
         <div  class="form-group mb-3">
           <label v-if="invitionData.inviteCode === ''" for="exampleInputEmail1">Email:</label>
           <div class="input-group" v-if="invitionData.inviteCode == ''">
-            <input type="email" class="form-control" placeholder="Enter email id of a valid platform user"
+            <input type="email" class="form-control" placeholder="Enter Gmail address"
               v-model="inviteeEmailId" />
             <div class="input-group-append" v-if="checkIfValidEmail">
               <button type="submit" class="btn btn-outline-success">
@@ -67,10 +67,10 @@
               </v-btn>
             </div>
 
-            <small style="color:grey; font-size: x-small;">Please make sure the user has an account on this
+            <!-- <small style="color:grey; font-size: x-small;">Please make sure the user has an account on this
               platform, if
               not, ask him/her to
-              create one</small>
+              create one</small> -->
 
           </div>
           <div class="mt-2" v-if="invitionData.inviteCode != ''">
