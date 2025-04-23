@@ -37,6 +37,7 @@ const config = {
         version: process.env.VUE_APP_VERSION || "v1.0.0",
         buttonBgColor: process.env.VUE_APP_BTN_BACKGROUND || "#f1b319",
         buttonTextColor: process.env.VUE_APP_BTN_TXT_COLOR || "black",
+        url: sanitizeUrl(process.env.VUE_APP_URL || "https://entity.dashboard.hypersign.id", false),
     },
     apiServer: {
         host: sanitizeUrl(process.env.VUE_APP_STUDIO_SERVER_BASE_URL || 'http://localhost:3001', false),
