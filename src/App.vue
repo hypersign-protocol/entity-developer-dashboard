@@ -123,13 +123,16 @@
              <img
               v-if="userDetails?.profileIcon"
               :src="userDetails?.profileIcon"
-              style="width: 24; height: 24; border-radius: 50%;"
+              style="width: 24px; height: 24px; border-radius: 50%;"
             />
             <i v-else class="fas fa-user-circle nav-icon"></i> 
             </template>
             <b-dropdown-group style="text-align: left;">
-              <b-dropdown-item-button style="text-align: left" :title="userDetails.name">
-                {{ `Welcome, ${(userDetails.name)}` }}
+              <b-dropdown-item-button style="text-align: center; font-size: 0.9rem;">
+                <span>
+                 <span style="font-size: 0.8rem;">Welcome, </span>
+                   <strong style="font-size: 0.9rem;">{{ userDetails.name || 'User' }}</strong>
+                 </span>
               </b-dropdown-item-button>
               <b-dropdown-item-button style="text-align: left" :title="userDetails.email"
                 @click="copyToClip(userDetails.email, 'Email')">
