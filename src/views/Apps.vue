@@ -4,12 +4,17 @@
     <div>
       <v-row  dense v-if="appList.length > 0">
         <v-col>
-          <h3 style="float: left">
+          <h4 style="float: left">
             <i class="fa fa-cogs mr-2" aria-hidden="true"></i>Your Services
-          </h3>
-          <hf-buttons name=" Create" iconClass="fa fa-plus"  class="ml-auto" @executeAction="openSlider('SSI_API')"
+          </h4>
+          <!-- <hf-buttons name=" Create" iconClass="fa fa-plus"  class="ml-auto" @executeAction="openSlider('SSI_API')"
             style="float: right">
-          </hf-buttons>
+          </hf-buttons> -->
+          <b-dropdown split  text="Create Service" variant="outline-dark" style="float: right" @click="openSlider('SSI_API')">
+            <b-dropdown-item @click="openSlider('SSI_API')">SSI Service</b-dropdown-item>
+            <b-dropdown-item @click="openSlider('CAVACH_API')">KYC Service</b-dropdown-item>
+            <b-dropdown-item @click="openSlider('QUEST')">Quest Service</b-dropdown-item>
+          </b-dropdown>
         </v-col>
       </v-row>
       <div v-else>
@@ -461,8 +466,8 @@
       <v-col>
 
       
-      <b-tabs content-class="mt-0" card>
-        <b-tab active class="bg-white p-3">
+      <b-tabs content-class="mt-0">
+        <b-tab active class="bg-white p-2">
           <template #title>
             <b-icon icon="credit-card" aria-hidden="true" small></b-icon><strong> {{ 'Self Sovereign Identity (' +
               getAppsWithSSIServices.length + ')' }}</strong>
@@ -470,7 +475,7 @@
 
           <v-row dense v-if="getAppsWithSSIServices.length > 0">
             <v-col v-for="eachOrg in getAppsWithSSIServices" :key="eachOrg.appId" cols="3">
-              <v-card max-width="344" outlined @click="switchOrg(eachOrg.appId, 'SSI_API')">
+              <v-card max-width="344" outlined @click="switchOrg(eachOrg.appId, 'SSI_API')" class="sericeCard">
                 <v-list-item three-line>
                   <v-list-item-content>
                     <div class="text-overline mb-4">
@@ -551,7 +556,7 @@
           </div>
         </b-tab>
 
-        <b-tab class="bg-white p-3">
+        <b-tab class="bg-white p-2">
 
           <template #title>
             <b-icon icon="person-fill" aria-hidden="true" small></b-icon><strong> {{ 'Know Your Customer (' +
@@ -561,7 +566,7 @@
 
           <v-row dense v-if="getAppsWithKYCServices.length > 0">
             <v-col v-for="eachOrg in getAppsWithKYCServices" :key="eachOrg.appId" cols="3">
-              <v-card max-width="344" outlined @click="switchOrg(eachOrg.appId, 'CAVACH_API')">
+              <v-card max-width="344" outlined @click="switchOrg(eachOrg.appId, 'CAVACH_API')" class="sericeCard">
                 <v-list-item three-line>
                   <v-list-item-content>
                     <div class="text-overline mb-4">
@@ -690,7 +695,7 @@
           </div>
         </b-tab>
 
-        <b-tab class="bg-white p-3">
+        <b-tab class="bg-white p-2">
 
           <template #title>
             <b-icon icon="list-task" aria-hidden="true" small></b-icon><strong> {{ 'Quest (' +
@@ -701,7 +706,7 @@
 
           <v-row dense v-if="getAppsWithQuestServices.length > 0">
             <v-col v-for="eachOrg in getAppsWithQuestServices" :key="eachOrg.appId" cols="3">
-              <v-card max-width="344" outlined @click="switchOrg(eachOrg.appId, 'CAVACH_API')">
+              <v-card max-width="344" outlined @click="switchOrg(eachOrg.appId, 'CAVACH_API')" class="sericeCard">
                 <v-list-item three-line>
                   <v-list-item-content>
                     <div class="text-overline mb-4">
@@ -847,6 +852,22 @@
 </template>
 
 <style scoped>
+.sericeCard{
+  border-radius: 8px;
+  box-shadow: 0 0 2rem 0 rgba(136, 152, 170, .15);
+  position: relative;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-direction: column;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  flex-direction: column;
+  min-width: 0;
+  word-wrap: break-word;
+  background-color: #fff;
+  background-clip: border-box;
+  border: 1px solid rgba(0, 0, 0, .125);
+}
 .theme-color {
     background-color: #80808078;
     color: #212529;

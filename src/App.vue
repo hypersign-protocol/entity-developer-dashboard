@@ -81,7 +81,7 @@
     <b-navbar toggleable="lg" type="dark" variant="white" class="navStyle" v-if="getIsLoggedOut" sticky>
       <b-navbar-brand href="#">
         <a href="#" @click="route('dashboard')">
-          <img src="./assets/Entity_full.png" alt="" style="height: 5vh; opacity: 80%" />
+          <img src="./assets/Entity_full.png" alt="" style="height: 3vh; opacity: 80%;" />
         </a>
       </b-navbar-brand>
       <b-collapse id="nav-collapse" is-nav v-if="parseAuthToken">
@@ -100,7 +100,7 @@
               <v-chip
               outlined
                 class="ma-2"
-                style="cursor: grab;"
+                style="cursor: grab; font-size: 10px; height: 26px;"
               >
               <span class="spinner-grow spinner-grow-sm"></span>
               <span class="mx-1">Setup MFA</span>
@@ -112,10 +112,10 @@
           </b-nav-item>
 
           <b-nav-item :href="$config.studioServer.BASE_URL" target="_blank" title="Developer Dashboard API">
-            <i class="fa fa-code" style=" color: #707070;height: 24px; font-size: 24px; width: 24px;"></i></b-nav-item>
+            <i class="fa fa-code" style=" color: #707070;height: 18px; font-size: 18px; width: 18px;"></i></b-nav-item>
           <b-nav-item href="https://docs.hypersign.id/entity-studio/developer-dashboard" target="_blank"
             title="Documentation">
-            <i class="fas fa-book-open nav-icon" style=""></i>
+            <i class="fas fa-book-open nav-icon" style="height: 18px; font-size: 18px; width: 18px;"></i>
           </b-nav-item>
 
           <b-nav-item-dropdown right v-if="getIsLoggedOut" title="Profile">
@@ -123,9 +123,9 @@
              <img
               v-if="userDetails?.profileIcon"
               :src="userDetails?.profileIcon"
-              style="width: 24px; height: 24px; border-radius: 50%;"
+              style="width: 18px; height: 18px; border-radius: 50%;"
             />
-            <i v-else class="fas fa-user-circle nav-icon"></i> 
+            <i v-else class="fas fa-user-circle nav-icon" style="height: 18px; font-size: 18px; width: 18px;"></i> 
             </template>
             <b-dropdown-group style="text-align: left;">
               <b-dropdown-item-button style="text-align: center; font-size: 0.9rem;">
@@ -278,7 +278,7 @@
 
 .sidebar-wrapper {
   min-width: 70px;
-  margin-top: 7.9vh;
+  margin-top: 5.8vh;
   /* box-shadow: 0 0 15px 0 rgba(34, 41, 47, 0.05); */
   box-shadow: 0 2px 6px 0 rgba(32, 33, 37, .1);
   border-right: 1px solid rgba(128, 128, 128, 0.21);
