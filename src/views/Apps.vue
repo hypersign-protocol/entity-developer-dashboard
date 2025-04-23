@@ -276,7 +276,33 @@
           <input type="text" class="form-control" id="orgDid" v-model="appModel.edvId" aria-describedby="orgNameHelp"
             disabled />
         </div>
+        <div
+          class="form-group"
+          v-if="edit === true &&
+                appModel.services.length > 0 &&
+                appModel.services[0].id === 'CAVACH_API' &&
+                appModel?.dependentServices &&
+                appModel?.dependentServices[0]"
+        >
+          <tool-tip infoMessage="Your Linked SSI Service Id"></tool-tip>
+          <label for="linkedServiceId"><strong>Linked SSI Service Id: </strong></label>
 
+          <div class="input-group mb-1">
+            <input
+              type="text"
+              class="form-control"
+              id="orgDid"
+              v-model="appModel.dependentServices[0]"
+              aria-describedby="orgSSiServiceHelp"
+              disabled
+            />
+            <div class="input-group-append">
+              <span class="input-group-text" style="cursor: pointer;" @click="copyToClip(appModel.dependentServices[0], 'Linked SSI Service Id')">
+                <i class="far fa-copy"></i>
+              </span>
+            </div>
+          </div>
+        </div>
         <div class="form-group" v-if="edit === true">
           <tool-tip infoMessage="Your tenant URL"></tool-tip>
           <label for="tenant"><strong>Tenant URL: </strong></label>
