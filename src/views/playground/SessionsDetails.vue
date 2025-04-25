@@ -531,7 +531,7 @@ h3 {
 
                 <!-- SBT Minting -->  <div v-for="eachSbtMintData in allSbtMintData" v-bind:key="eachSbtMintData">
                     <v-card class=" dataCard float-"
-                        v-if="eachSbtMintData && eachSbtMintData.length > 0">
+                        v-if="eachSbtMintData">
                         <v-list-item three-line>
                         <v-list-item-content>
                             <v-list-item-title class="text-h5 mb-1">
