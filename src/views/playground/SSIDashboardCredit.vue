@@ -184,6 +184,11 @@ h5 span {
                                     Expired
                                 </span>
                             </p>
+                             <p v-else-if="this.timeRemaining==='InActive'">
+                                <span style="font-size:small; color: grey">
+                                    InActive
+                                </span>
+                            </p>
                              <p v-else>
                                 <span style="font-size:small; color: grey">
                                     Expires In: {{ this.timeRemaining }}
@@ -627,6 +632,11 @@ export default {
 
        renderChart() {
             const expired = this.getSsiCredits.every(element => Date.now() > new Date(element.expiresAt));
+            const used = this.mySSICredits.allUsedCredits || 0;
+            const remaining = this.mySSICredits.allRemainingCredits || 0;
+            const total = used + remaining;
+            const dataToRender = this.getSsiCredits.length === 0 || total === 0
+                ? [1, 0] : [used, remaining];
             const color=expired?['grey','#d0d0d0']:['grey','green']
             this.doughNutChart?.destroy()
             const ctx = document.getElementById('doughNutChat');
@@ -637,7 +647,7 @@ export default {
                     datasets: [
                         {
                             label: 'Credit',
-                            data: this.getSsiCredits.length == 0 ? [1, 0] : [this.mySSICredits.allUsedCredits, this.mySSICredits.allRemainingCredits],
+                            data:dataToRender,
                             backgroundColor: color,
                             hoverOffset: 4,
                             cutout: '50%',
