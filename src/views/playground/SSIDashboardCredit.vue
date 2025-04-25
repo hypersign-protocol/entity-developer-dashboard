@@ -161,7 +161,7 @@ h5 span {
             </div>
             <div class="col-2"></div>
             <div class="col-6">
-                   <v-card class="p-4 mt-1">
+                   <div class="serviceCard p-4 mt-1">
                     <div class="">
                         <div class="">
                             <p><b>Total Credits</b></p>
@@ -191,8 +191,8 @@ h5 span {
                             </p>
                         </div>
                     </div>
-                </v-card>
-                <v-card class="p-4 mt-2">
+                </div>
+                <div class="serviceCard p-4 mt-2">
                     <div>
                         <p><b>Scope(s)</b></p>
                         <p v-if="allowance.scope.length > 0">
@@ -205,7 +205,7 @@ h5 span {
                         </p>
 
                     </div>
-                </v-card>
+                </div>
             </div>
         </div>
 

@@ -181,7 +181,7 @@ h3 {
         </div>
 
         <div>
-            <v-card>
+            <div class="serviceCard">
                     <div class="card-body f-sm">
                         <div class="row">
                             <div class="col-md-4 ">
@@ -208,12 +208,12 @@ h3 {
                             </div>
                         </div>
                     </div>
-            </v-card>
+            </div>
         </div>
 
         <div>
             <!-- Timelines -->
-            <v-card  class="dataCard float-md-end">
+            <div  class="serviceCard dataCard float-md-end">
                 <v-list-item three-line>
                     <v-list-item-content>
                         <v-list-item-title class="text-h5 mb-1">
@@ -255,10 +255,10 @@ h3 {
                         </div>
                     </v-list-item-content>
                 </v-list-item> 
-            </v-card>
+            </div>
 
                 <!-- Personal Information -->
-                <v-card class="dataCard float-" style="max-height: 439px; overflow-y: scroll; max-width: 400px;"
+                <div class="serviceCard dataCard float-" style="max-height: 439px; overflow-y: scroll; max-width: 400px;"
                     v-if="userPersonalDataFromUserConsent && Object.keys(userPersonalDataFromUserConsent).length > 0">
                     <v-list-item three-line>
                         <v-list-item-content>
@@ -283,9 +283,9 @@ h3 {
                             </div>
                         </v-list-item-content>
                     </v-list-item> 
-                </v-card>
+                </div>
 
-                <v-card class="dataCard float-" style="max-height: 439px; overflow-y: scroll; max-width: 400px;"
+                <div class="serviceCard dataCard float-" style="max-height: 439px; overflow-y: scroll; max-width: 400px;"
                     v-if="userPersonalDataGovIdFromUserConsent && Object.keys(userPersonalDataGovIdFromUserConsent).length > 0">
                     <v-list-item three-line>
                         <v-list-item-content>
@@ -310,10 +310,10 @@ h3 {
                     </div>
                 </v-list-item-content>
                 </v-list-item> 
-                </v-card>
+                </div>
 
                 <!-- Device Information -->
-                <v-card class="dataCard float-" v-if="deviceDetails && Object.keys(deviceDetails).length > 0">
+                <div class="serviceCard dataCard float-" v-if="deviceDetails && Object.keys(deviceDetails).length > 0">
                     <v-list-item three-line>
                         <v-list-item-content>
                             <v-list-item-title class="text-h5 mb-1">
@@ -356,10 +356,10 @@ h3 {
                     </div>
                 </v-list-item-content>
             </v-list-item> 
-                </v-card>
+                </div>
 
                 <!-- Face Verification -->
-                <v-card class="dataCard float-" :style="{ 'border': getStatusColor }"
+                <div class="serviceCard dataCard float-" :style="{ 'border': getStatusColor }"
                     v-if="session.selfiDetails && Object.keys(session.selfiDetails).length > 0 && session.ocriddocsDetails.tokenFaceImage">
                     <v-list-item three-line>
                         <v-list-item-content>
@@ -401,10 +401,10 @@ h3 {
                     </div>
                 </v-list-item-content>
             </v-list-item>
-                </v-card>
+                </div>
 
                 <!-- Liveliness Check -->
-                <v-card class=" dataCard float-" :style="{ 'border': passiveLivelinessData.borderColor }"
+                <div class="serviceCard dataCard float-" :style="{ 'border': passiveLivelinessData.borderColor }"
                     v-if="session.selfiDetails && session.selfiDetails.createdAt && Object.keys(session.selfiDetails).length > 0">
                     <v-list-item three-line>
                         <v-list-item-content>
@@ -432,10 +432,10 @@ h3 {
                     </div>
                 </v-list-item-content>
             </v-list-item>
-                </v-card>
+                </div>
 
                 <!-- Location Information -->
-                <v-card class=" dataCard float-" v-if="locationDetails && Object.keys(locationDetails).length > 0">
+                <div class="serviceCard dataCard float-" v-if="locationDetails && Object.keys(locationDetails).length > 0">
                     <v-list-item three-line>
                         <v-list-item-content>
                             <v-list-item-title class="text-h5 mb-1">
@@ -465,10 +465,10 @@ h3 {
                     </div>
                 </v-list-item-content>
             </v-list-item>
-                </v-card>
+                </div>
 
                 <!-- Images / Documentation -->
-                <v-card class=" dataCard float-" v-if="selfiDataFound || idDocDataFound">
+                <div class="serviceCard dataCard float-" v-if="selfiDataFound || idDocDataFound">
                     <v-list-item three-line>
                         <v-list-item-content>
                             <v-list-item-title class="text-h5 mb-1">
@@ -527,10 +527,10 @@ h3 {
                     </div> -->
                 </v-list-item-content>
             </v-list-item>
-                </v-card>
+                </div>
 
                 <!-- SBT Minting -->  <div v-for="eachSbtMintData in allSbtMintData" v-bind:key="eachSbtMintData">
-                    <v-card class=" dataCard float-"
+                    <div class="serviceCard dataCard float-"
                         v-if="eachSbtMintData && eachSbtMintData.length > 0">
                         <v-list-item three-line>
                         <v-list-item-content>
@@ -597,7 +597,7 @@ h3 {
                         </div>
                     </v-list-item-content>
                 </v-list-item>
-                    </v-card>
+                    </div>
                 </div>
               
         </div>
