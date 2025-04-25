@@ -10,7 +10,7 @@
           <!-- <hf-buttons name=" Create" iconClass="fa fa-plus"  class="ml-auto" @executeAction="openSlider('SSI_API')"
             style="float: right">
           </hf-buttons> -->
-          <b-dropdown split  text="Create Service" variant="outline-dark" style="float: right" @click="openSlider('SSI_API')">
+          <b-dropdown split  text="Create Service" variant="outline-dark" style="float: right" @click="openSlider('SSI_API')" menu-class="dropDownPopup">
             <b-dropdown-item @click="openSlider('SSI_API')">SSI Service</b-dropdown-item>
             <b-dropdown-item @click="openSlider('CAVACH_API')">KYC Service</b-dropdown-item>
             <b-dropdown-item @click="openSlider('QUEST')">Quest Service</b-dropdown-item>
@@ -530,7 +530,7 @@
                           <i class="fa fa-trash-alt" aria-hidden="true"></i>
                         </span> -->
 
-                        <b-dropdown size="sm" variant="link" toggle-class="text-decoration-none" no-caret dropright>
+                        <b-dropdown size="sm" variant="link" toggle-class="text-decoration-none" no-caret dropright menu-class="dropDownPopup">
                           <template #button-content>
                             <b-icon size="sm" style="color: grey" icon="list" aria-hidden="true"></b-icon>
                           </template>
@@ -629,7 +629,7 @@
                           ">
                           <i class="fa fa-check"></i>
                           Domain</span>
-                        <b-dropdown size="sm" variant="link" toggle-class="text-decoration-none" no-caret dropright>
+                        <b-dropdown size="sm" variant="link" toggle-class="text-decoration-none" no-caret dropright menu-class="dropDownPopup">
                           <template #button-content>
                             <b-icon size="sm" style="color: grey" icon="list" aria-hidden="true"></b-icon>
                           </template>
@@ -770,7 +770,7 @@
                           ">
                           <i class="fa fa-check"></i>
                           Domain</span>
-                        <b-dropdown size="sm" variant="link" toggle-class="text-decoration-none" no-caret dropright>
+                        <b-dropdown size="sm" variant="link" toggle-class="text-decoration-none" no-caret dropright menu-class="dropDownPopup">
                           <template #button-content>
                             <b-icon size="sm" style="color: grey" icon="list" aria-hidden="true"></b-icon>
                           </template>
