@@ -154,7 +154,7 @@ h5 span {
             </div>
             <div class="col-2"></div>
             <div class="col-6">
-                <v-card class="p-4 mt-1">
+                <div class="serviceCard p-4 mt-1">
                     <div class="">
                         <div class="">
                             <p><b>Total Credits</b></p>
@@ -177,6 +177,11 @@ h5 span {
                                     Expired
                                 </span>
                             </p>
+                            <p v-else-if="this.timeRemaining==='InActive'">
+                                <span style="font-size:small; color: grey">
+                                    InActive
+                                </span>
+                            </p>
                              <p v-else>
                                 <span style="font-size:small; color: grey">
                                     Expires In: {{ this.timeRemaining }}
@@ -184,7 +189,7 @@ h5 span {
                             </p>
                         </div>
                     </div>
-                </v-card>
+                </div>
                 <!-- <div class="card p-4 mt-1" style="border-radius: 20px;">
                     <div>
                         <p><b>Scope(s)</b></p>
@@ -440,8 +445,11 @@ export default {
         },
         renderChart() {
             const expired = this.getKYCCredits.every(element => Date.now() > new Date(element.expiresAt));
-
-            
+            const used = this.myKYCCredits.allUsedCredits || 0;
+            const remaining = this.myKYCCredits.allRemainingCredits || 0;
+            const total = used + remaining;
+            const dataToRender = this.getKYCCredits.length === 0 || total === 0
+                ? [1, 0] : [used, remaining];
             const color=expired?['grey','#d0d0d0']:['grey','green']
             this.doughNutChart?.destroy()
             const ctx = document.getElementById('doughNutChat');
@@ -452,7 +460,7 @@ export default {
                     datasets: [
                         {
                             label: 'Credit',
-                            data: this.getKYCCredits.length == 0 ? [1, 0] : [this.myKYCCredits.allUsedCredits, this.myKYCCredits.allRemainingCredits],
+                            data:dataToRender,
                             backgroundColor: color,
                             hoverOffset: 4,
                             cutout: '50%',

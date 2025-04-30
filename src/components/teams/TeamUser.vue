@@ -34,7 +34,7 @@
       <b-badge pill variant="warning" class="mx-1" v-else>
         <span class="mx-1" style="color: white">Pending </span></b-badge>
       
-      <b-dropdown class="m-2" size="sm" variant="link" toggle-class="text-decoration-none" no-caret dropleft>
+      <b-dropdown class="m-2" size="sm" variant="link" toggle-class="text-decoration-none" menu-class="dropDownPopup" no-caret dropleft>
         <template #button-content>
           <b-icon style="color: grey" icon="list" aria-hidden="true"></b-icon>
         </template>
@@ -52,9 +52,12 @@
         </b-dropdown-group>
 
 
-        <b-dropdown-item-button style="text-align: left" @click="copyToClip(`${$config.app.url}/#/studio/settings?ref=invitions`, 'Invitation Url')"><i
+        <b-dropdown-item-button v-if="mode !== 'Admin'" style="text-align: left" @click="copyToClip(`${$config.app.url}/#/studio/settings?ref=invitions`, 'Invitation Url')"><i
             class="far fa-copy mt-1" aria-hidden="true"></i> Invite Url
         </b-dropdown-item-button>
+         <b-dropdown-item-button v-if="mode == 'Admin'" style="text-align: left" @click="copyToClip(inviteCode, 'Invition Code')"><i
+          class="far fa-copy mt-1" aria-hidden="true"></i> Invition Code
+      </b-dropdown-item-button>
         <b-dropdown-item-button v-if="deleteMemberMenu" style="text-align: left" @click="deleteAMember()"><i
             class="fa fa-trash mt-1"></i> Delete Member</b-dropdown-item-button>
         <b-dropdown-item-button v-if="mode == 'Admin'" style="text-align: left" @click="acceptedInvition()"><b-icon
