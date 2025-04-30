@@ -666,7 +666,7 @@ export default {
     },
   async logout() {
       try{
-      await RequestHandler(`${config.studioServer.BASE_URL}api/v1/logout`, 'POST', {})
+      await RequestHandler(`${config.studioServer.BASE_URL}api/v1/auth/logout`, 'POST', {})
       }catch(e){
         console.error('Logout error:', e); 
       }

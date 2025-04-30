@@ -5,7 +5,9 @@ export async function RequestHandler(url, method = 'GET', body = {}, headers = {
     }
 
     const options = {
-        method
+        method,
+        credentials: 'include', 
+
     }
 
     if (headers && Object.keys(headers).length > 0) {

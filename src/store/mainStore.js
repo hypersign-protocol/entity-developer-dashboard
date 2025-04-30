@@ -290,7 +290,9 @@ const mainStore = {
                 body: JSON.stringify({
                     emailId: payload
                 }),
-                headers: UtilsMixin.methods.getHeader(getters.getAuthToken)
+                headers: UtilsMixin.methods.getHeader(getters.getAuthToken),
+                credentials: 'include', 
+
             })
             const json = await resp.json();
 
@@ -312,7 +314,8 @@ const mainStore = {
             const url = `${apiServerBaseUrl}/people/invite/accept/${payload}`;
             const resp = await fetch(url, {
                 method: 'POST',
-                headers: UtilsMixin.methods.getHeader(getters.getAuthToken)
+                headers: UtilsMixin.methods.getHeader(getters.getAuthToken),
+                credentials: 'include', 
             })
             const json = await resp.json();
 
@@ -337,7 +340,8 @@ const mainStore = {
                 body: JSON.stringify({
                     emailId: payload
                 }),
-                headers: UtilsMixin.methods.getHeader(getters.getAuthToken)
+                headers: UtilsMixin.methods.getHeader(getters.getAuthToken),
+                credentials: 'include', 
             })
             const json = await resp.json();
 
@@ -357,7 +361,8 @@ const mainStore = {
             const url = `${apiServerBaseUrl}/people`;
             const resp = await fetch(url, {
                 method: 'GET',
-                headers: UtilsMixin.methods.getHeader(getters.getAuthToken)
+                headers: UtilsMixin.methods.getHeader(getters.getAuthToken),
+                credentials: 'include', 
             })
             const json = await resp.json();
 
@@ -373,7 +378,8 @@ const mainStore = {
             const url = `${apiServerBaseUrl}/people/invites`;
             const resp = await fetch(url, {
                 method: 'GET',
-                headers: UtilsMixin.methods.getHeader(getters.getAuthToken)
+                headers: UtilsMixin.methods.getHeader(getters.getAuthToken),
+                credentials: 'include', 
             })
             let json = await resp.json();
 
@@ -393,7 +399,8 @@ const mainStore = {
             const resp = await fetch(url, {
                 method: 'POST',
                 body: JSON.stringify(payload),
-                headers: UtilsMixin.methods.getHeader(getters.getAuthToken)
+                headers: UtilsMixin.methods.getHeader(getters.getAuthToken),
+                credentials: 'include', 
             })
             const json = await resp.json();
 
@@ -415,7 +422,8 @@ const mainStore = {
             const resp = await fetch(url, {
                 method: 'POST',
                 body: JSON.stringify(payload),
-                headers: UtilsMixin.methods.getHeader(getters.getAuthToken)
+                headers: UtilsMixin.methods.getHeader(getters.getAuthToken),
+                credentials: 'include', 
             })
             const json = await resp.json();
 
@@ -439,7 +447,8 @@ const mainStore = {
             const url = `${apiServerBaseUrl}/roles`;
             const resp = await fetch(url, {
                 method: 'GET',
-                headers: UtilsMixin.methods.getHeader(getters.getAuthToken)
+                headers: UtilsMixin.methods.getHeader(getters.getAuthToken),
+                credentials: 'include', 
             })
             let json = await resp.json();
 
@@ -457,7 +466,8 @@ const mainStore = {
             const resp = await fetch(url, {
                 method: 'POST',
                 body: JSON.stringify(payload),
-                headers: UtilsMixin.methods.getHeader(getters.getAuthToken)
+                credentials: 'include',
+                headers: UtilsMixin.methods.getHeader(getters.getAuthToken),
             })
             const json = await resp.json();
 
@@ -477,7 +487,8 @@ const mainStore = {
             const url = `${apiServerBaseUrl}/roles/${payload}`;
             const resp = await fetch(url, {
                 method: 'DELETE',
-                headers: UtilsMixin.methods.getHeader(getters.getAuthToken)
+                credentials: 'include',
+                headers: UtilsMixin.methods.getHeader(getters.getAuthToken),
             })
             const json = await resp.json();
 
@@ -498,7 +509,8 @@ const mainStore = {
             const resp = await fetch(url, {
                 method: 'PATCH',
                 body: JSON.stringify(payload),
-                headers: UtilsMixin.methods.getHeader(getters.getAuthToken)
+                credentials: 'include',
+                headers: UtilsMixin.methods.getHeader(getters.getAuthToken),
             })
             const json = await resp.json();
 
@@ -589,7 +601,8 @@ const mainStore = {
                         authenticatorType,
                         twoFactorAuthenticationCode
                     }),
-                    headers: UtilsMixin.methods.getHeader(getters.getAuthToken)
+                    headers: UtilsMixin.methods.getHeader(getters.getAuthToken),
+                    credentials: "include"
                 })
 
                 const json = await resp.json();
@@ -612,7 +625,8 @@ const mainStore = {
                 fetch(url, {
                     method: 'POST',
                     headers,
-                    body: JSON.stringify(payload)
+                    body: JSON.stringify(payload),
+                    credentials: 'include', 
                 })
                     .then(response => response.json())
                     .then(json => {
@@ -652,7 +666,8 @@ const mainStore = {
                 fetch(url, {
                     method: 'PUT',
                     headers,
-                    body: JSON.stringify(payload)
+                    body: JSON.stringify(payload),
+                    credentials: 'include', 
                 }).then(response => {
                     return response.json()
                 }).then(json => {
@@ -682,6 +697,7 @@ const mainStore = {
                 fetch(url, {
                     method: 'DELETE',
                     headers,
+                    credentials: 'include', 
                 }).then(response => response.json()).then(json => {
                     if (json.error) {
                         return reject(new Error(json.message.join(' ')))
@@ -737,6 +753,7 @@ const mainStore = {
                 fetch(url, {
                     method: 'GET',
                     headers,
+                    credentials: 'include',
                 })
                     .then(response => response.json())
                     .then(json => {
@@ -785,6 +802,7 @@ const mainStore = {
                 fetch(url, {
                     method: 'POST',
                     headers,
+                    credentials: 'include', 
                 })
                     .then(response => response.json())
                     .then(json => {
