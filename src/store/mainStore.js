@@ -846,7 +846,7 @@ const mainStore = {
                     headers
                 }).then(response => response.json()).then(json => {
                     if (json.error) {
-                        return reject(new Error(json.error.join(' ')))
+                        return reject(new Error(json.error?.details.join(' ') || json.error.join(' ')))
                     }
                     commit('insertSessions', json.data.sessionDetails);
                     resolve()
@@ -897,7 +897,7 @@ const mainStore = {
                     body: JSON.stringify(payload),
                 }).then(response => response.json()).then(json => {
                     if (json.error) {
-                        return reject(new Error(json.error.join(' ')))
+                        return reject(new Error(json.error?.details.join(' ') || json.error.join(' ')))
                     }
                     commit('setOnChainConfig', json.data);
                     resolve(json.data)
@@ -922,7 +922,7 @@ const mainStore = {
                     body: JSON.stringify(payload),
                 }).then(response => response.json()).then(json => {
                     if (json.error) {
-                        return reject(new Error(json.error.join(' ')))
+                        return reject(new Error(json.error?.details.join(' ') || json.error.join(' ')))
                     }
                     // restting
                     commit('setOnChainConfig', {});
@@ -947,7 +947,7 @@ const mainStore = {
                     headers,
                 }).then(response => response.json()).then(json => {
                     if (json.error) {
-                        return reject(new Error(json.error.details.join(' ')))
+                        return reject(new Error(json.error?.details.join(' ') || json.error.join(' ')))
                     }
                     dispatch('fetchAppsOnChainConfigs')
                     resolve(json)
@@ -977,7 +977,7 @@ const mainStore = {
                     body: JSON.stringify(data),
                 }).then(response => response.json()).then(json => {
                     if (json.error) {
-                        return reject(new Error(json.error.join(' ')))
+                        return reject(new Error(json.error?.details.join(' ') || json.error.join(' ')))
                     }
                     commit('setWidgetConfig', json.data);
                     resolve(json.data)
@@ -1002,7 +1002,7 @@ const mainStore = {
                 }).then(response => response.json()).then(json => {
                     if (json) {
                         if (json.error) {
-                            return reject(new Error(json.error.join(' ')))
+                            return reject(new Error(json.error?.details.join(' ') || json.error.join(' ')))
                         } else {
                             commit('setWidgetConfig', json.data);
                             return resolve()
@@ -1034,7 +1034,7 @@ const mainStore = {
                     body: JSON.stringify(data),
                 }).then(response => response.json()).then(json => {
                     if (json.error) {
-                        return reject(new Error(json.error.join(' ')))
+                        return reject(new Error(json.error?.details.join(' ') || json.error.join(' ')))
                     }
                     // restting
                     commit('setWidgetConfig', json.data);
@@ -1199,7 +1199,7 @@ const mainStore = {
                     headers
                 }).then(response => response.json()).then(json => {
                     if (json.error) {
-                        return reject(new Error(json.error.join(' ')))
+                        return reject(new Error(json.error?.details.join(' ') || json.error.join(' ')))
                     }
 
                     if (json.data && Object.keys(json.data)?.length > 0) {

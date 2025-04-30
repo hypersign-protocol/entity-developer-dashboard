@@ -36,7 +36,7 @@
                             <div class="d-flex  align-items-center">
                                 <b-badge pill variant="warning">{{ role.permissions.length }}
                                     permissions</b-badge>
-                                <b-dropdown size="sm" variant="link" toggle-class="text-decoration-none" no-caret
+                                <b-dropdown size="sm" variant="link" toggle-class="text-decoration-none" menu-class="dropDownPopup"
                                     dropleft>
                                     <template #button-content>
                                         <b-icon style="color:grey" icon="list" aria-hidden="true"></b-icon>

@@ -131,7 +131,7 @@ a {
     top: 0;
   }
 
-.sericeCard{
+.serviceCard{
     border-radius: 8px;
     box-shadow: 0 0 2rem 0 rgba(136, 152, 170, .15);
     position: relative;
@@ -147,4 +147,10 @@ a {
     background-clip: border-box;
     border: 1px solid rgba(0, 0, 0, .125);
 }  
+
+.dropDownPopup {
+    box-shadow: var(--dropdown-menu-elevation, 0 1px 10px 0 rgba(0, 0, 0, .25));
+    border-radius: 8px;
+    border: 0px solid grey;
+}
   

@@ -10,7 +10,7 @@
           <!-- <hf-buttons name=" Create" iconClass="fa fa-plus"  class="ml-auto" @executeAction="openSlider('SSI_API')"
             style="float: right">
           </hf-buttons> -->
-          <b-dropdown split  text="Create Service" variant="outline-dark" style="float: right" @click="openSlider('SSI_API')">
+          <b-dropdown split  text="Create Service" variant="outline-dark" style="float: right" @click="openSlider('SSI_API')" menu-class="dropDownPopup">
             <b-dropdown-item @click="openSlider('SSI_API')">SSI Service</b-dropdown-item>
             <b-dropdown-item @click="openSlider('CAVACH_API')">KYC Service</b-dropdown-item>
             <b-dropdown-item @click="openSlider('QUEST')">Quest Service</b-dropdown-item>
@@ -475,7 +475,7 @@
 
           <v-row dense v-if="getAppsWithSSIServices.length > 0">
             <v-col v-for="eachOrg in getAppsWithSSIServices" :key="eachOrg.appId" cols="3">
-              <v-card max-width="344" outlined @click="switchOrg(eachOrg.appId, 'SSI_API')" class="sericeCard">
+              <v-card max-width="344" outlined @click="switchOrg(eachOrg.appId, 'SSI_API')" class="serviceCard">
                 <v-list-item three-line>
                   <v-list-item-content>
                     <div class="text-overline mb-4">
@@ -530,7 +530,7 @@
                           <i class="fa fa-trash-alt" aria-hidden="true"></i>
                         </span> -->
 
-                        <b-dropdown size="sm" variant="link" toggle-class="text-decoration-none" no-caret dropright>
+                        <b-dropdown size="sm" variant="link" toggle-class="text-decoration-none" no-caret dropright menu-class="dropDownPopup">
                           <template #button-content>
                             <b-icon size="sm" style="color: grey" icon="list" aria-hidden="true"></b-icon>
                           </template>
@@ -566,7 +566,7 @@
 
           <v-row dense v-if="getAppsWithKYCServices.length > 0">
             <v-col v-for="eachOrg in getAppsWithKYCServices" :key="eachOrg.appId" cols="3">
-              <v-card max-width="344" outlined @click="switchOrg(eachOrg.appId, 'CAVACH_API')" class="sericeCard">
+              <v-card max-width="344" outlined @click="switchOrg(eachOrg.appId, 'CAVACH_API')" class="serviceCard">
                 <v-list-item three-line>
                   <v-list-item-content>
                     <div class="text-overline mb-4">
@@ -629,7 +629,7 @@
                           ">
                           <i class="fa fa-check"></i>
                           Domain</span>
-                        <b-dropdown size="sm" variant="link" toggle-class="text-decoration-none" no-caret dropright>
+                        <b-dropdown size="sm" variant="link" toggle-class="text-decoration-none" no-caret dropright menu-class="dropDownPopup">
                           <template #button-content>
                             <b-icon size="sm" style="color: grey" icon="list" aria-hidden="true"></b-icon>
                           </template>
@@ -706,7 +706,7 @@
 
           <v-row dense v-if="getAppsWithQuestServices.length > 0">
             <v-col v-for="eachOrg in getAppsWithQuestServices" :key="eachOrg.appId" cols="3">
-              <v-card max-width="344" outlined @click="switchOrg(eachOrg.appId, 'CAVACH_API')" class="sericeCard">
+              <v-card max-width="344" outlined @click="switchOrg(eachOrg.appId, 'CAVACH_API')" class="serviceCard">
                 <v-list-item three-line>
                   <v-list-item-content>
                     <div class="text-overline mb-4">
@@ -770,7 +770,7 @@
                           ">
                           <i class="fa fa-check"></i>
                           Domain</span>
-                        <b-dropdown size="sm" variant="link" toggle-class="text-decoration-none" no-caret dropright>
+                        <b-dropdown size="sm" variant="link" toggle-class="text-decoration-none" no-caret dropright menu-class="dropDownPopup">
                           <template #button-content>
                             <b-icon size="sm" style="color: grey" icon="list" aria-hidden="true"></b-icon>
                           </template>
@@ -852,7 +852,7 @@
 </template>
 
 <style scoped>
-.sericeCard{
+.serviceCard{
   border-radius: 8px;
   box-shadow: 0 0 2rem 0 rgba(136, 152, 170, .15);
   position: relative;
@@ -1100,10 +1100,10 @@ export default {
     this.setMainSideNavBar(false);
     this.initializeStore();
     this.setSelectedAppId("");
-    this.$root.$emit("recomputeParseAuthTokenEvent");
   },
   data() {
     return {
+      userDetails:{},
       linkedAppErrorMessage:"",
       issuerConfigVisible: false,
       items: [
@@ -1183,15 +1183,15 @@ export default {
 
     async initializeStore() {
       try {
-        this.authToken = localStorage.getItem("authToken");
-        if (this.authToken) {
-          // this.showIcon = true;
+        const userDetails = localStorage.getItem("user");
+        if (userDetails) {
+           this.userDetails = JSON.parse(userDetails);
           this.isLoading = true;
           await this.fetchAppsListFromServer();
           await this.fetchServicesList();
           this.isLoading = false;
         } else {
-          throw new Error("No auth token");
+          throw new Error("No user details found in localStorage");
         }
       } catch (e) {
         // this.showIcon = false

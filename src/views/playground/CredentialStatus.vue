@@ -362,7 +362,7 @@ h5 span {
                   title="Unlock credential document" @click="unlockCredential(row.id)">
                   <i class="fa fa-unlock" aria-hidden="true"></i> UNLOCK
                 </span> -->
-                        <b-dropdown size="sm" variant="link" toggle-class="text-decoration-none" no-caret dropright :disabled="(!row.credentialMetadata?.persist && row.status !== 'Registered') || (!row.credentialMetadata?.persist && row.credentialStatus?.revoked)">
+                        <b-dropdown size="sm" variant="link" toggle-class="text-decoration-none" menu-class="dropDownPopup" no-caret dropright :disabled="(!row.credentialMetadata?.persist && row.status !== 'Registered') || (!row.credentialMetadata?.persist && row.credentialStatus?.revoked)">
                           <template #button-content >
                             <b-icon size="sm" style="color: grey" icon="list" aria-hidden="true"></b-icon>
                           </template>

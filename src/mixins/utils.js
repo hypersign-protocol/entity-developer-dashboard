@@ -129,10 +129,12 @@ export default {
             return "https://api.dicebear.com/7.x/identicon/svg?seed=" + name;
         },
         formatTimeRemaining(targetDate) {
+            if (!targetDate || isNaN(new Date(targetDate).getTime())) {
+                return 'InActive';
+            }
             const now = new Date(); // Get current date
             const expiry = new Date(targetDate); // Convert target date to Date object
             const diffInSeconds = Math.floor((expiry - now) / 1000); // Get the difference in seconds
-
             // If the target date is in the past
             if (diffInSeconds <= 0) {
                 return 'Expired';
