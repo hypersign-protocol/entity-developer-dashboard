@@ -84,7 +84,7 @@
           <img src="./assets/Entity_full.png" alt="" style="height: 3vh; opacity: 80%;" />
         </a>
       </b-navbar-brand>
-      <b-collapse id="nav-collapse" is-nav v-if="parseAuthToken">
+      <b-collapse id="nav-collapse" is-nav v-if="userDetails">
         <b-navbar-nav class="ml-auto">
 
           <b-nav-item v-if="user.accessAccount?.email && user.accessAccount.userId !== user.userId" class="center">
@@ -94,7 +94,7 @@
             </a>
           </b-nav-item>
 
-          <b-nav-item v-if="parseAuthToken.isTwoFactorEnabled == false">
+          <b-nav-item v-if="userDetails.isTwoFactorEnabled == false">
             
             <router-link to="/studio/mfa">
               <v-chip
@@ -167,7 +167,7 @@
     </div>
     <notifications group="foo" />
 
-    <sidebar-menu :relative="false" class="sidebar-wrapper" v-if="parseAuthToken && showSideNavbar && getSelectedService" @toggle-collapse="onToggleCollapse"
+    <sidebar-menu :relative="false" class="sidebar-wrapper" v-if="userDetails && showSideNavbar && getSelectedService" @toggle-collapse="onToggleCollapse"
       :collapsed="isSidebarCollapsed" :theme="'white-theme'" width="220px" :menu="getSideMenu()">
       <div slot="header" style="border-bottom: 1px solid rgba(0,0,0,.12);">
         <v-list>
@@ -319,6 +319,8 @@
 import UtilsMixin from "./mixins/utils";
 import EventBus from "./eventbus";
 import { mapActions, mapMutations, mapGetters, mapState } from "vuex";
+import { RequestHandler } from './utils/utils'
+import config from './config'
 export default {
   computed: {
     ...mapGetters("playgroundStore", ["userDetails", "getSelectedOrg"]),
@@ -356,47 +358,45 @@ export default {
     };
   },
 
-  mounted() {
-    this.authToken = localStorage.getItem("authToken");
-    this.$root.$on("clearAppData", () => {
-      this.authToken = null;
-      // this.showIcon = false;
-      this.setIsLoggedOut(false)
-    });
-
-    this.$root.$on("recomputeParseAuthTokenEvent", () => {
-      this.getParseAuthToken()
-    });
-
-    this.getParseAuthToken()
-
-    this.$root.$on("closeSideNav", () => {
-      this.isSidebarCollapsed = true;
-    });
-    if (localStorage.getItem("user")) {
-      const usrStr = localStorage.getItem("user");
-      this.user = JSON.parse(usrStr);
-      this.loggedInUserEmailId=this.user?.accessAccount?.email
-      // this.showIcon = true;
-      this.setIsLoggedOut(true)
+ mounted() {
+  const userDetails = localStorage.getItem("user");
+  if (userDetails) {
+    try {
+      this.userDetails = JSON.parse(userDetails);
+      this.user = this.userDetails;
+      this.loggedInUserEmailId = this.user?.accessAccount?.email;
+      this.setIsLoggedOut(true);
+    } catch (e) {
+      console.error("Invalid user JSON:", e);
+      this.userDetails = {};
     }
-    if (localStorage.getItem("selectedOrg")) {
-      const selectedOrgId = localStorage.getItem("selectedOrg");
-      this.selectAnOrg(selectedOrgId);
-      this.getList(selectedOrgId);
-      this.getCredList(selectedOrgId);
-      this.fetchTemplates(selectedOrgId);
-    }
-    this.$root.$on("initializeStore", () => {
-      console.log('Inside initializeStore ... event');
-      this.initializeStore()
-    });
-    // this.initializeStore();
+  }
 
-    EventBus.$on("logoutAll", () => {
-      this.logoutAll()
-    })
-  },
+  this.$root.$on("clearAppData", () => {
+    this.userDetails = {};
+    this.setIsLoggedOut(false);
+  });
+
+  this.$root.$on("closeSideNav", () => {
+    this.isSidebarCollapsed = true;
+  });
+
+  if (localStorage.getItem("selectedOrg")) {
+    const selectedOrgId = localStorage.getItem("selectedOrg");
+    this.selectAnOrg(selectedOrgId);
+    this.getList(selectedOrgId);
+    this.getCredList(selectedOrgId);
+    this.fetchTemplates(selectedOrgId);
+  }
+  this.$root.$on("initializeStore", () => {
+    console.log("Inside initializeStore ... event");
+    this.initializeStore();
+  });
+
+  EventBus.$on("logoutAll", () => {
+    this.logoutAll();
+  });
+},
   methods: {
     ...mapActions("mainStore", ["fetchAppsListFromServer", "fetchServicesList",'switchToAdmin']),
     ...mapMutations("mainStore", ["resetMainStore", "setIsLoggedOut"]),
@@ -481,8 +481,10 @@ export default {
     },
     async initializeStore() {
       try {
-        this.authToken = localStorage.getItem("authToken");
-        if (this.authToken) {
+            const userDetails = localStorage.getItem("user");
+        if (userDetails) {
+            this.userDetails = JSON.parse(userDetails);
+            this.parseAuthToken= this.userDetails
            this.setIsLoggedOut(true)
            const redirectPath=localStorage.getItem("postLoginRedirect")||'/studio/dashboard'
            localStorage.removeItem("postLoginRedirect");
@@ -492,7 +494,7 @@ export default {
           }, 500);
         });
         } else {
-          throw new Error("No auth token")
+          throw new Error("No user details found in localStorage")
         }
       } catch (e) {
         this.setIsLoggedOut(false)
@@ -662,8 +664,12 @@ export default {
         this.insertAcredential(credential);
       });
     },
-    logout() {
-      // this.authToken = null;
+  async logout() {
+      try{
+      await RequestHandler(`${config.studioServer.BASE_URL}api/v1/logout`, 'POST', {})
+      }catch(e){
+        console.error('Logout error:', e); 
+      }
       localStorage.removeItem("authToken");
       localStorage.removeItem("user");
       localStorage.removeItem("credentials");

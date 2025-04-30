@@ -210,45 +210,32 @@ router.beforeEach(async (to, from, next) => {
     return router.push('/404')
   }
   if (to.matched.some(record => record.meta.requiresAuth)) {
-    document.title = to.meta.title
-    const authToken = localStorage.getItem('authToken')
-    if (authToken) {
-      const url = `${config.studioServer.BASE_URL}api/v1/auth`
-      try {
+    document.title = to.meta.title;
+    const url = `${config.studioServer.BASE_URL}api/v1/auth`
+    try {
 
-        const response = await fetch(url, {
-          headers: {
-            Authorization: `Bearer ${authToken}`,
-          },
-          method: "POST",
-        })
-        const json = await response.json()
-        if (json.statusCode == 403 || json.statusCode == 401) {
-          throw new Error(json.error)
-        } else if (json.status === 200) {
-          localStorage.setItem("user", JSON.stringify(json.message));
-          store.commit('playgroundStore/addUserDetailsToProfile', json.message)
-          next()
-        }
-
-      } catch (e) {
-        console.log(e)
-        store.commit('mainStore/setMainSideNavBar', false)
-        next({
-          path: '/studio/login',
-          query: { redirect: to.fullPath }
-          // params: { nextUrl: to.fullPath }
-        })
-
+      const response = await fetch(url, {
+        method: "POST",
+        credentials: "include",
+      });
+      const json = await response.json();
+      if (json.statusCode === 401 || json.statusCode === 403) {
+        throw new Error(json.error);
+      } else if (json.status === 200) {
+        localStorage.setItem("user", JSON.stringify(json.message));
+        store.commit('playgroundStore/addUserDetailsToProfile', json.message)
+        next()
+      } else {
+        throw new Error("Unexpected response");
       }
-
-    } else {
+    } catch (e) {
+      console.log(e)
+      store.commit('mainStore/setMainSideNavBar', false)
       next({
         path: '/studio/login',
         query: { redirect: to.fullPath }
-        // params: { nextUrl: to.fullPath }
-
       })
+
     }
   } else {
     console.log(to.path)
