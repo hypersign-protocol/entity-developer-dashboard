@@ -63,10 +63,6 @@
   padding: 0px;
 }
 
-.card {
-  border-radius: 10px;
-}
-
 .goschema {
   color: #339af0;
 }
@@ -131,11 +127,11 @@ h5 span {
       <div class="col">
         <b-form inline class="mx-1" style="float: inline-end;">
           <!-- <label for="inline-form-input-name">Start: </label> -->
-          <b-form-datepicker id="example-datepicker" placeholder="Start Date" v-model="startDate"
+          <b-form-datepicker id="startDate-datepicker" placeholder="Start Date" v-model="startDate"
             class="mb-2 mr-sm-1 mb-sm-0"></b-form-datepicker>
 
           <!-- <label for="inline-form-input-username">End:</label> -->
-          <b-form-datepicker id="example-datepicker" placeholder="Start Date" v-model="endDate"
+          <b-form-datepicker id="endDate-datepicker" placeholder="End Date" v-model="endDate"
             class="mb-2 mr-sm-1 mb-sm-0"></b-form-datepicker>
           <b-button variant="outline-secondary" @click="search()"><i class="fa fa-search"></i></b-button>
         </b-form>
@@ -163,12 +159,12 @@ h5 span {
 
     <div class="row">
       <div class="col-md-8">
-        <div class="card" style="padding:15px; ">
+        <div class="serviceCard"  style="padding:15px; ">
           <canvas class="didChart"></canvas>
         </div>
       </div>
       <div class="col-md-4">
-        <div class="card" style="padding:0px; height: 100%;">
+        <div class="serviceCard" style="padding:0px; height: 100%;">
           <canvas class="polarChart"></canvas>
         </div>
       </div>
@@ -176,11 +172,11 @@ h5 span {
     </div>
 
 
-    <div class="row mt-3">
-      <div class="col">
+    <div class="mt-3">
+      <div class="">
         <div class="form-group">
           <h3 v-if="usageDetails.serviceDetails.length > 0" style="text-align: left;">
-            Usage </h3>
+            API Consumptions </h3>
           <h3 v-else style="text-align: left;">No usage found!</h3>
         </div>
       </div>
@@ -192,19 +188,29 @@ h5 span {
           <thead class="thead-light">
             <tr>
               <th class="sticky-header">Path</th>
-              <th class="sticky-header">From Date</th>
-              <th class="sticky-header">To Date</th>
-              <th class="sticky-header">Count</th>
+              <!-- <th class="sticky-header">From Date</th>
+              <th class="sticky-header">To Date</th> -->
+              <th class="sticky-header">Unit Cost</th>
+              <th class="sticky-header">Total Units</th>
+              <th class="sticky-header">Credits Used</th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="row in usageDetails.serviceDetails" :key="row">
+            <tr v-for="row in usageDetails.serviceDetails" :key="row.apiPath">
               <td>{{ row.apiPath }}</td>
-              <td>{{ toDateTime(usageDetails.startDate) }}</td>
-              <td>{{ toDateTime(usageDetails.endDate) }}</td>
+              <td>{{ row.unit_cost }}</td>
               <td>{{ row.quantity }}</td>
+              <td>{{ row.amount }}</td>
             </tr>
           </tbody>
+          <thead class="thead-light">
+            <tr style="background-color: lightgray;">
+              <td><strong>Grand Total</strong></td>
+              <td></td>
+              <td><strong>{{ grandTotal.totalQuantity }}</strong></td>
+              <td><strong>{{ grandTotal.totalCredits }}</strong></td>
+            </tr>
+          </thead>
         </table>
       </div>
     </div>
@@ -233,12 +239,29 @@ export default {
     isContainerShift() {
       return this.containerShift
     },
+
+    grandTotal() {
+      if (!this.usageDetails.serviceDetails) {
+        return {
+          totalCredits: 0,
+          totalQuantity: 0
+        }
+      }
+
+      const total = this.usageDetails.serviceDetails.reduce((accumulator, currentValue) => {
+        return {
+          totalQuantity: accumulator.totalQuantity + currentValue.quantity,
+          totalCredits: accumulator.totalCredits + currentValue.amount
+        }
+      }, { totalQuantity: 0, totalCredits: 0 })
+      return total
+    }
   },
   data() {
     return {
       didChart: null,
       polarChart: null,
-      chartType: 'line',
+      chartType: 'bar',
       isGroupByDaily: true,
       isGroupByWeekly: false,
       isGroupByMonthly: false,
@@ -440,10 +463,10 @@ export default {
             label: 'Verifications',
             data: pieData,
             backgroundColor: [
-              'orange',
-              'forestgreen',
-              'indianred',
-              'lightgrey',
+              '#ffa500b3',
+              '#228b22b0',
+              '#cd5c5cc4',
+              '#d3d3d3b8',
             ]
           }]
         },

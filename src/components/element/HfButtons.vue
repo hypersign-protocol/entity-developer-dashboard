@@ -1,16 +1,29 @@
 <template>
-  <button :class="customClass ? `${customClass}` : 'btn button-theme'"
+  <v-btn  :class="customClass ? `${customClass}` : 'btn button-theme'"
   :title="title"
+  depressed
   @click="emitExecuteAction()"
   >
-  <span v-if="iconClass"><i :class="iconClass"></i></span>  
+  <span v-if="iconClass">
+    <i :class="iconClass" v-if="bIcon==false"></i>
+    <b-icon :icon="iconClass" :animation="animate" v-else></b-icon>
+  </span>  
   {{name}} 
-  </button>
+  </v-btn>
 </template>
 
 <script>
 export default {
     props:{
+      bIcon:{
+        type: Boolean,
+        require: false,
+        default: false
+      },
+      animate:{
+        type: String,
+        require: false,
+        default: ''},
       name:{
         type: String,
         require:true
@@ -21,7 +34,8 @@ export default {
       }, 
       customClass:{
         type:String,
-        require:false
+        require:false,
+        default: 'btn btn-outline-secondary'
       },
       title:{
         type:String,
@@ -52,11 +66,11 @@ export default {
   border: 0;
   
 }
-*/
+
 .button-theme:hover{
   box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.16), 0 2px 10px 0 rgba(0, 0, 0, 0.12);
   background:aliceblue !important;
   border: 1px solid #905ab0 !important;
   color: #905ab0 !important;
-}
+} */
 </style>

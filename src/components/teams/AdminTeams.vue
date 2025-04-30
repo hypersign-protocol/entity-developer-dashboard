@@ -2,25 +2,30 @@
     <div>
         <load-ing :active.sync="isLoading" :can-cancel="true" :is-full-page="true"></load-ing>
 
-        <div class="row mb-3">
+        <div class="row">
             <div class="col-md-4">
             </div>
             <div class="col-md-8">
-                <button type="button" class="btn btn-outline-secondary mx-1" style="float: inline-end" title="Reload"
-                    @click="getMyRolesAction()">
-                    <i class="fa fa-retweet" aria-hidden="true"></i>
-                </button>
-                <button type="button" class="btn btn-primary" style="float: inline-end;" @click="openSlider('add')"><i
-                        class="fa fa-gamepad" aria-hidden="true"></i> Create Custom Role</button>
+                <!-- <v-btn type="button" class="btn btn-outline-secondary mx-1" style="float: inline-end" title="Reload"
+                    @click="getMyRolesAction()" plain>
+                    <b-icon icon="arrow-clockwise"></b-icon>
+                </v-btn> -->
+                <hf-buttons name="" title="Reload" class="mx-1" :bIcon="true"  style="float: inline-end"  iconClass="arrow-clockwise" @executeAction="getMyRolesAction">
+                </hf-buttons>
+                <hf-buttons name="Create Custom Role" title="Reload" style="float: inline-end"  iconClass="fa fa-gamepad" @executeAction="openSlider('add')">
+                </hf-buttons>
+                <!-- <v-btn type="button" class="btn btn-secondary" plain style="float: inline-end;" @click="openSlider('add')"><i
+                        class="fa fa-gamepad" aria-hidden="true"></i> Create Custom Role</v-btn> -->
             </div>
         </div>
-        <div class="row mb-3" style="padding: 10px;" v-if="getAllRoles.length > 0">
-            <table class="table ">
+        <div class="row" v-if="getAllRoles.length > 0">
+            <table class="table">
                 <tbody>
                     <!-- eslint-disable-next-line -->
                     <tr v-for="role in getAllRoles" v-bind:key="getAllRoles.roleName">
-                        <a href="#"
-                            class="list-group-item list-group-item-action align-items-start d-flex align-items-center ">
+                        <!-- <a href="#" -->
+                        <td>
+                            <div class="list-group-item list-group-item-action align-items-start d-flex align-items-center ">
                             <b-avatar size="4em" rounded="lg" variant="info" :text="role.roleName.charAt(0)"></b-avatar>
                             <div class="w-100 mx-3 mt-3 align-items-center">
                                 <h5 class="mb-1">{{ role.roleName }}</h5>
@@ -31,7 +36,7 @@
                             <div class="d-flex  align-items-center">
                                 <b-badge pill variant="warning">{{ role.permissions.length }}
                                     permissions</b-badge>
-                                <b-dropdown size="sm" variant="link" toggle-class="text-decoration-none" no-caret
+                                <b-dropdown size="sm" variant="link" toggle-class="text-decoration-none" menu-class="dropDownPopup"
                                     dropleft>
                                     <template #button-content>
                                         <b-icon style="color:grey" icon="list" aria-hidden="true"></b-icon>
@@ -44,8 +49,10 @@
                                         Delete</b-dropdown-item-button>
                                 </b-dropdown>
                             </div>
-                        </a>
-                    </tr>
+                            </div> 
+                        </td>
+                        <!-- </a> -->
+                    </tr> 
                 </tbody>
             </table>
         </div>
@@ -88,7 +95,7 @@
                     </div>
                 </b-form-group>
 
-                <b-button type="submit" @click="saveRole()" variant="primary">Save</b-button>
+                <hf-buttons name="Save" @executeAction="saveRole()">Save</hf-buttons>
             </div>
         </StudioSideBar>
     </div>

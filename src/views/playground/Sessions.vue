@@ -125,8 +125,8 @@ h5 span {
   <div :class="isContainerShift ? 'homeShift' : 'home'">
     <loading :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loading>
 
-    <div class="row">
-      <div class="col-md-12" style="text-align: left">
+    <div class="">
+      <div class="" style="text-align: left">
         <div class="row" v-if="sessionList.length > 0" style="text-align: left;">
           <div class="col-md-8">
             <h3>Sessions</h3>
@@ -152,8 +152,8 @@ h5 span {
       </div>
     </div>
 
-    <div class="row scrollit" v-if="sessionList.length > 0">
-      <div class="col-md-12">
+    <div class="scrollit" v-if="sessionList.length > 0">
+      <div class="">
         <table class="table table-hover event-card" style="background:#FFFF">
           <thead class="thead-light">
             <tr>

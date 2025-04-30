@@ -33,7 +33,10 @@ const SCHEMA = {
     NAME_CAMELCASE: "Name should be camelCase",
     EMPTY_SCHEMA_NAME: "Please enter Schema name",
     INVALID_SCHEMA_NAME: " Enter valid Schema name",
+    INVALID_SCHEMA_DESCRIPTION: " Enter short description for your schema",
     EMPTY_SCHEMA_ATTRIBUTE: "Atleast one attribute is required",
+    EMPTY_SCHEMA_AUTHOR: " Kindly select a author for your schema",
+    EMPTY_SCHEMA_AUTHOR_VER_METH: " Kindly select a signing key of author",
     EMPTY_SCHEMA_ATTRIBUTE_NAME: "Please provide attribute name",
     INVALID_ATTRIBUTE_NAME: "Enter valid attribute name",
     EMPTY_ATTRIBUTE_TYPE: "Please select attribute type",
@@ -44,7 +47,8 @@ const CREDENTIAL = {
     EMPTY_ISSUER_DID: "Please enter Issuer DID",
     EMPTY_HOLDER_DID: "Please enter Subject Did",
     SELECT_SCHEMA: "Please select atleat one schema",
-    INVALID_DID: "Please enter a valid did"
+    INVALID_DID: "Please enter a valid did",
+    ISSUER_HOLDER_NOT_SAME: 'Issuer and subject DID can not be the same'
 }
 
 const PRESENTATION = {

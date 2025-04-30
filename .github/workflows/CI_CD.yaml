@@ -2,124 +2,123 @@ name: Dashbord UI Build and Deploy Pipeline
 on:
   push:
     tags:
-      - "v[0-9]+.[0-9]+.[0-9]+"
-      - "v[0-9]+.[0-9]+.[0-9]-rc.[0-9]+"
+    - "v[0-9]+.[0-9]+.[0-9]+"
+    - "v[0-9]+.[0-9]+.[0-9]-rc.[0-9]+"
 
 jobs:
   Build-Pipeline:
     runs-on: ubuntu-latest
     environment: production
     steps:
-      - name: code checkout
-        uses: actions/checkout@v3
+    - name: code checkout
+      uses: actions/checkout@v3
 
-      - name: Set Latest Tag
-        run: echo "LATEST_RELEASE_TAG=$(git describe --tags --abbrev=0)" >> $GITHUB_ENV
-      - id: "auth"
-        uses: "google-github-actions/auth@v1"
-        with:
-          credentials_json: "${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}"
+    - name: Set Latest Tag
+      run: echo "LATEST_RELEASE_TAG=$(git describe --tags --abbrev=0)" >> $GITHUB_ENV
+    - id: "auth"
+      uses: "google-github-actions/auth@v1"
+      with:
+        credentials_json: "${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}"
 
-      - name: install gcloud cli tools
-        uses: google-github-actions/setup-gcloud@v1
-        with:
-          project_id: ${{secrets.GOOGLE_PROJECT_ID}}
-          service_account_key: ${{secrets.GOOGLE_APPLICATION_CREDENTIALS}}
-          install_components: "gke-gcloud-auth-plugin"
-          export_default_credentials: true
-      - name: "Use gcloud CLI"
-        run: "gcloud info"
+    - name: install gcloud cli tools
+      uses: google-github-actions/setup-gcloud@v1
+      with:
+        project_id: ${{secrets.GOOGLE_PROJECT_ID}}
+        service_account_key: ${{secrets.GOOGLE_APPLICATION_CREDENTIALS}}
+        install_components: "gke-gcloud-auth-plugin"
+        export_default_credentials: true
+    - name: "Use gcloud CLI"
+      run: "gcloud info"
 
-      - name: "Docker Auth"
-        run: gcloud auth configure-docker ${{secrets.GOOGLE_ARTIFACT_URL}}
-      - name: "Docker Build and Push"
-        env:
-          GOOGLE_PROJECT_ID: ${{secrets.GOOGLE_PROJECT_ID}}
-          GOOGLE_ARTIFACT_URL: ${{secrets.GOOGLE_ARTIFACT_URL}}
-          GOOGLE_ARTIFACT_REPO: ${{secrets.GOOGLE_ARTIFACT_REPO}}
-          NODE_ENV: ${{ vars.NODE_ENV }}
-          VUE_APP_TITLE: ${{ vars.VUE_APP_TITLE }}
-          VUE_APP_DESC: ${{ vars.VUE_APP_DESC }}
-          VUE_APP_VERSION: ${{ vars.VUE_APP_VERSION }}
-          VUE_APP_STUDIO_SERVER_BASE_URL: ${{ vars.VUE_APP_STUDIO_SERVER_BASE_URL }}
-          VUE_APP_STUDIO_SERVER_BASE_WS: ${{ vars.VUE_APP_STUDIO_SERVER_BASE_WS }}
-          VUE_APP_NODE_SERVER_BASE_URL: ${{ vars.VUE_APP_NODE_SERVER_BASE_URL }}
-          VUE_APP_NODE_SERVER_BASE_URL_REST: ${{ vars.VUE_APP_NODE_SERVER_BASE_URL_REST }}
-          VUE_APP_EXPLORER_BASE_URL: ${{ vars.VUE_APP_EXPLORER_BASE_URL }}
-          VUE_APP_WEB_WALLET_ADDRESS: ${{ vars.VUE_APP_WEB_WALLET_ADDRESS }}
-        run:
-          find Dockerfile -type f -exec sed  -i -e "s#__NODE_ENV__#${{ vars.NODE_ENV }}#" {} \;
-
-
-
-          find Dockerfile -type f -exec sed  -i -e "s#__VUE_APP_DESC__#${{ vars.VUE_APP_DESC }}#" {} \;
+    - name: "Docker Auth"
+      run: gcloud auth configure-docker ${{secrets.GOOGLE_ARTIFACT_URL}}
+    - name: "Docker Build and Push"
+      env:
+        GOOGLE_PROJECT_ID: ${{secrets.GOOGLE_PROJECT_ID}}
+        GOOGLE_ARTIFACT_URL: ${{secrets.GOOGLE_ARTIFACT_URL}}
+        GOOGLE_ARTIFACT_REPO: ${{secrets.GOOGLE_ARTIFACT_REPO}}
+        NODE_ENV: ${{ vars.NODE_ENV }}
+        VUE_APP_TITLE: ${{ vars.VUE_APP_TITLE }}
+        VUE_APP_DESC: ${{ vars.VUE_APP_DESC }}
+        VUE_APP_VERSION: ${{ vars.VUE_APP_VERSION }}
+        VUE_APP_STUDIO_SERVER_BASE_URL: ${{ vars.VUE_APP_STUDIO_SERVER_BASE_URL }}
+        VUE_APP_STUDIO_SERVER_BASE_WS: ${{ vars.VUE_APP_STUDIO_SERVER_BASE_WS }}
+        VUE_APP_NODE_SERVER_BASE_URL: ${{ vars.VUE_APP_NODE_SERVER_BASE_URL }}
+        VUE_APP_NODE_SERVER_BASE_URL_REST: ${{ vars.VUE_APP_NODE_SERVER_BASE_URL_REST }}
+        VUE_APP_EXPLORER_BASE_URL: ${{ vars.VUE_APP_EXPLORER_BASE_URL }}
+        VUE_APP_WEB_WALLET_ADDRESS: ${{ vars.VUE_APP_WEB_WALLET_ADDRESS }}
+      run: find Dockerfile -type f -exec sed  -i -e "s#__NODE_ENV__#${{ vars.NODE_ENV }}#" {} \;
 
 
 
-          find Dockerfile -type f -exec sed  -i -e "s#__VUE_APP_EXPLORER_BASE_URL__#${{ vars.VUE_APP_EXPLORER_BASE_URL }}#" {} \;
+        find Dockerfile -type f -exec sed  -i -e "s#__VUE_APP_DESC__#${{ vars.VUE_APP_DESC }}#" {} \;
 
 
 
-          find Dockerfile -type f -exec sed  -i -e "s#__VUE_APP_NODE_SERVER_BASE_URL_REST__#${{ vars.VUE_APP_NODE_SERVER_BASE_URL_REST }}#" {} \;
+        find Dockerfile -type f -exec sed  -i -e "s#__VUE_APP_EXPLORER_BASE_URL__#${{ vars.VUE_APP_EXPLORER_BASE_URL }}#" {} \;
 
 
 
-          find Dockerfile -type f -exec sed  -i -e "s#__VUE_APP_STUDIO_SERVER_BASE_URL__#${{ vars.VUE_APP_STUDIO_SERVER_BASE_URL }}#" {} \;
+        find Dockerfile -type f -exec sed  -i -e "s#__VUE_APP_NODE_SERVER_BASE_URL_REST__#${{ vars.VUE_APP_NODE_SERVER_BASE_URL_REST }}#" {} \;
 
 
 
-          find Dockerfile -type f -exec sed  -i -e "s#__VUE_APP_STUDIO_SERVER_BASE_WS__#${{ vars.VUE_APP_STUDIO_SERVER_BASE_WS }}#" {} \;
+        find Dockerfile -type f -exec sed  -i -e "s#__VUE_APP_STUDIO_SERVER_BASE_URL__#${{ vars.VUE_APP_STUDIO_SERVER_BASE_URL }}#" {} \;
 
 
 
-          find Dockerfile -type f -exec sed  -i -e "s#__VUE_APP_TITLE__#${{ vars.VUE_APP_TITLE }}#" {} \;
+        find Dockerfile -type f -exec sed  -i -e "s#__VUE_APP_STUDIO_SERVER_BASE_WS__#${{ vars.VUE_APP_STUDIO_SERVER_BASE_WS }}#" {} \;
 
 
 
-          find Dockerfile -type f -exec sed  -i -e "s#__VUE_APP_VERSION__#${{ vars.VUE_APP_VERSION }}#" {} \;
+        find Dockerfile -type f -exec sed  -i -e "s#__VUE_APP_TITLE__#${{ vars.VUE_APP_TITLE }}#" {} \;
 
 
 
-          find Dockerfile -type f -exec sed  -i -e "s#__VUE_APP_WEB_WALLET_ADDRESS__#${{ vars.VUE_APP_WEB_WALLET_ADDRESS }}#" {} \;
-          
-          find Dockerfile -type f -exec sed  -i -e "s#__VUE_APP_ORIGINS__#${{ vars.VUE_APP_ORIGINS }}#" {} \;
+        find Dockerfile -type f -exec sed  -i -e "s#__VUE_APP_VERSION__#${{ vars.VUE_APP_VERSION }}#" {} \;
 
 
 
-          docker build -t $GOOGLE_ARTIFACT_URL/$GOOGLE_PROJECT_ID/$GOOGLE_ARTIFACT_REPO/entity-developer-dashbord:${{ env.LATEST_RELEASE_TAG }}  .
+        find Dockerfile -type f -exec sed  -i -e "s#__VUE_APP_WEB_WALLET_ADDRESS__#${{ vars.VUE_APP_WEB_WALLET_ADDRESS }}#" {} \;
 
-          docker push $GOOGLE_ARTIFACT_URL/$GOOGLE_PROJECT_ID/$GOOGLE_ARTIFACT_REPO/entity-developer-dashbord:${{ env.LATEST_RELEASE_TAG }}
+        find Dockerfile -type f -exec sed  -i -e "s#__VUE_APP_ORIGINS__#${{ vars.VUE_APP_ORIGINS }}#" {} \;
+
+
+
+        docker build -t $GOOGLE_ARTIFACT_URL/$GOOGLE_PROJECT_ID/$GOOGLE_ARTIFACT_REPO/entity-developer-dashbord:${{ env.LATEST_RELEASE_TAG }}  .
+
+        docker push $GOOGLE_ARTIFACT_URL/$GOOGLE_PROJECT_ID/$GOOGLE_ARTIFACT_REPO/entity-developer-dashbord:${{ env.LATEST_RELEASE_TAG }}
   Deploy-Pipeline:
-    needs: [Build-Pipeline]
+    needs: [ Build-Pipeline ]
     runs-on: ubuntu-latest
     environment: production
     steps:
-      - name: code checkout
-        uses: actions/checkout@v3
-      - name: Set Latest Tag
-        run: echo "LATEST_RELEASE_TAG=$(git describe --tags --abbrev=0)" >> $GITHUB_ENV
-      - id: "auth"
-        uses: "google-github-actions/auth@v1"
-        with:
-          credentials_json: "${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}"
-      - name: install gcloud cli tools
-        uses: google-github-actions/setup-gcloud@v1
-        with:
-          project_id: ${{secrets.GOOGLE_PROJECT_ID}}
-          service_account_key: ${{secrets.GOOGLE_APPLICATION_CREDENTIALS}}
-          install_components: "gke-gcloud-auth-plugin"
-          export_default_credentials: true
+    - name: code checkout
+      uses: actions/checkout@v3
+    - name: Set Latest Tag
+      run: echo "LATEST_RELEASE_TAG=$(git describe --tags --abbrev=0)" >> $GITHUB_ENV
+    - id: "auth"
+      uses: "google-github-actions/auth@v1"
+      with:
+        credentials_json: "${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}"
+    - name: install gcloud cli tools
+      uses: google-github-actions/setup-gcloud@v1
+      with:
+        project_id: ${{secrets.GOOGLE_PROJECT_ID}}
+        service_account_key: ${{secrets.GOOGLE_APPLICATION_CREDENTIALS}}
+        install_components: "gke-gcloud-auth-plugin"
+        export_default_credentials: true
 
-      - name: "Configure kubectl"
-        run: gcloud container clusters get-credentials hypermine-gke --region=asia-south1
-      - name: Replace tags
-        run: find .deploy/deployment.yaml -type f -exec sed  -i -e "s#__LATEST_RELEASE_TAG__#${{ env.LATEST_RELEASE_TAG }}#" {} \;
+    - name: "Configure kubectl"
+      run: gcloud container clusters get-credentials hypermine-gke-manual --region=asia-south1
+    - name: Replace tags
+      run: find .deploy/deployment.yaml -type f -exec sed  -i -e "s#__LATEST_RELEASE_TAG__#${{ env.LATEST_RELEASE_TAG }}#" {} \;
 
-      - name: "Replace secrets"
-        run: find .deploy/deployment.yaml -type f -exec sed  -i ''s/__GOOGLE_ARTIFACT_URL__/${{ secrets.GOOGLE_ARTIFACT_URL }}/g'' {} \;
-      - name: "Replace secrets"
-        run: find .deploy/deployment.yaml -type f -exec sed  -i ''s/__GOOGLE_ARTIFACT_REPO__/${{ secrets.GOOGLE_ARTIFACT_REPO }}/g'' {} \;
-      - name: "Replace secrets"
-        run: find .deploy/deployment.yaml -type f -exec sed  -i ''s/__GOOGLE_PROJECT_ID__/${{ secrets.GOOGLE_PROJECT_ID }}/g'' {} \;
-      - name: "Deploy to GKE"
-        run: kubectl apply -f .deploy/deployment.yaml
+    - name: "Replace secrets"
+      run: find .deploy/deployment.yaml -type f -exec sed  -i ''s/__GOOGLE_ARTIFACT_URL__/${{ secrets.GOOGLE_ARTIFACT_URL }}/g'' {} \;
+    - name: "Replace secrets"
+      run: find .deploy/deployment.yaml -type f -exec sed  -i ''s/__GOOGLE_ARTIFACT_REPO__/${{ secrets.GOOGLE_ARTIFACT_REPO }}/g'' {} \;
+    - name: "Replace secrets"
+      run: find .deploy/deployment.yaml -type f -exec sed  -i ''s/__GOOGLE_PROJECT_ID__/${{ secrets.GOOGLE_PROJECT_ID }}/g'' {} \;
+    - name: "Deploy to GKE"
+      run: kubectl apply -f .deploy/deployment.yaml

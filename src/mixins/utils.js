@@ -8,6 +8,17 @@ export default {
             const ss = newDate.getSeconds()
             return date + ' ' + hh + ':' + mm + ':' + ss
         },
+
+        warnUsers(toaster, variant = 'warning', append = false) {
+            this.$bvToast.toast(`This is an experimental feature. Kindly use only for testing purposes.`, {
+                title: `⚠️ Warning!`,
+                toaster: toaster,
+                solid: false,
+                variant,
+                appendToast: append,
+            })
+        },
+
         getHeader(authToken = '') {
             if (authToken != '') {
                 // TODO: Remove this userId later
@@ -117,6 +128,29 @@ export default {
         getProfileIcon(name) {
             return "https://api.dicebear.com/7.x/identicon/svg?seed=" + name;
         },
+        formatTimeRemaining(targetDate) {
+            if (!targetDate || isNaN(new Date(targetDate).getTime())) {
+                return 'InActive';
+            }
+            const now = new Date(); // Get current date
+            const expiry = new Date(targetDate); // Convert target date to Date object
+            const diffInSeconds = Math.floor((expiry - now) / 1000); // Get the difference in seconds
+            // If the target date is in the past
+            if (diffInSeconds <= 0) {
+                return 'Expired';
+            }
+
+            // Time unit conversions
+            const months = Math.floor(diffInSeconds / (30 * 24 * 60 * 60)); // Approximate months
+            const days = Math.floor((diffInSeconds % (30 * 24 * 60 * 60)) / (24 * 60 * 60)); // Remaining days
+            const hours = Math.floor((diffInSeconds % (24 * 60 * 60)) / (60 * 60)); // Remaining hours
+            const minutes = Math.floor((diffInSeconds % (60 * 60)) / 60); // Remaining minutes
+            const seconds = diffInSeconds % 60; // Remaining seconds
+
+            // Format the output string
+            return `${months > 0 ? months + ' month ' : ''}${days > 0 ? days + ' day ' : ''}${hours} hr ${minutes} min ${seconds} sec`;
+        },
+
         getStatus(sessionDetails) {
             // Sucess, Expired, Pending
             const { expiresAt, step_finish, ocriddocsDetails, selfiDetails } = sessionDetails

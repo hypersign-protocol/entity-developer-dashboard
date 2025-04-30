@@ -7,6 +7,7 @@
       :text-field="textField"
       :value-field="valueField"
       :options="options"
+      :disabled="computedDisabled" 
     ></b-form-select>
   </div>
 
@@ -38,6 +39,15 @@ export default {
       type: String,
       require: false,
     },
+     disabled: {  
+      type: Boolean,
+      default: null, 
+    }
+  },
+    computed: {
+    computedDisabled() {
+      return this.disabled === null ? false : this.disabled;
+    }
   },
   mounted(){
     EventBus.$on("resetForFresh",()=>{

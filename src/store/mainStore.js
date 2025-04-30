@@ -27,17 +27,26 @@ const mainStore = {
         didList: [],
         onchainconfigs: [],
         onChainConfig: {},
+        isLoggedOut: false,
         widgetConfig: {
 
         },
+        webhookConfig: {},
         marketPlaceApps: [],
         adminMembers: [],
         myInvitions: [],
         allRoles: [],
-        usageDetails: {}
+        usageDetails: {},
+        kycCredits: [],
+        ssiCredits: [],
 
+        schemaList: [],
+        credentialList: []
     },
     getters: {
+        getIsLoggedOut: (state) => {
+            return state.isLoggedOut
+        },
         getAdminMembersgetter: (state) => {
             return state.adminMembers
         },
@@ -77,6 +86,9 @@ const mainStore = {
         getAppsWithKYCServices: (state) => {
             return state.appList.filter(x => x.services[0].id === config.SERVICE_TYPES.CAVACH_API)
         },
+        getAppsWithQuestServices: (state) => {
+            return state.appList.filter(x => x.services[0].id === config.SERVICE_TYPES.QUEST)
+        },
         getServiceById: (state) => (serviceId) => {
             return state.serviceList.find(x => x.id === serviceId)
         },
@@ -107,15 +119,34 @@ const mainStore = {
         getWidgetnConfig: (state) => {
             return state.widgetConfig
         },
+        getWebhookConfig: (state) => {
+            return state.webhookConfig
+        },
         getMarketPlaceApps: (state) => {
             return state.marketPlaceApps
         },
 
         getUsageDetails: (state) => {
             return state.usageDetails
+        },
+
+        getKYCCredits: (state) => {
+            return state.kycCredits
+        },
+        getSsiCredits: (state) => {
+            return state.ssiCredits
         }
     },
     mutations: {
+        setIsLoggedOut: (state, payload = false) => {
+            state.isLoggedOut = payload;
+            // localStorage.removeItem("authToken");
+            localStorage.removeItem("user");
+            localStorage.removeItem("credentials");
+            localStorage.removeItem("userData");
+            localStorage.removeItem("selectedOrg")
+            localStorage.removeItem("vuex");
+        },
         setAuthToken(state, payload) {
             console.log(state.namespaced)
             localStorage.setItem("authToken", payload);
@@ -129,6 +160,9 @@ const mainStore = {
         },
         setWidgetConfig: (state, payload) => {
             state.widgetConfig = { ...payload }
+        },
+        setWebhookConfig: (state, payload) => {
+            state.webhookConfig = { ...payload }
         },
         setMainSideNavBar: (state, payload) => {
             state.showMainSideNavBar = payload ? payload : false;
@@ -153,9 +187,10 @@ const mainStore = {
         insertAnApp(state, payload) {
             if (!state.appList.find(x => x.appId === payload.appId)) {
                 state.appList.unshift(payload);
-            } else {
-                this.commit('updateAnApp', payload);
             }
+            // else {
+            //      this.commit('updateAnApp', payload);
+            // }
         },
         insertSessions(state, payload) {
             state.sessionList = payload
@@ -174,15 +209,26 @@ const mainStore = {
             }
         },
         setSelectedAppId: (state, payload) => {
-            console.log('inside setSelectedAppId ' + payload);
             state.selectedServiceId = payload;
         },
 
         setDIDList(state, payload) {
             state.didList = payload;
         },
+        setSchemaList(state, payload) {
+            state.schemaList = payload;
+        },
+        setCredentialList(state, payload) {
+            state.credentialList = payload;
+        },
         insertDIDList(state, payload) {
-            state.didList.push(payload);
+            state.didList.unshift(payload);
+        },
+        insertSchemaList(state, payload) {
+            state.schemaList.unshift(payload);
+        },
+        insertCredentialList(state, payload) {
+            state.credentialList.unshift(payload);
         },
         updateADID(state, payload) {
             let index = state.didList.findIndex(x => x.did === payload.did);
@@ -190,6 +236,22 @@ const mainStore = {
                 Object.assign(state.didList[index], { ...payload });
             } else {
                 state.didList.push(payload);
+            }
+        },
+        updateASchema(state, payload) {
+            let index = state.schemaList.findIndex(x => x.id === payload.id);
+            if (index >= 0) {
+                Object.assign(state.schemaList[index], { ...payload });
+            } else {
+                state.schemaList.push(payload);
+            }
+        },
+        updateACredential(state, payload) {
+            let index = state.credentialList.findIndex(x => x.id === payload.id);
+            if (index >= 0) {
+                Object.assign(state.credentialList[index], { ...payload });
+            } else {
+                state.credentialList.push(payload);
             }
         },
         setAdminMembers: (state, payload) => {
@@ -205,8 +267,16 @@ const mainStore = {
 
         setUsageDetails: (state, payload) => {
             state.usageDetails = payload
+        },
+
+        setKYCCredits: (state, payload) => {
+            state.kycCredits = payload
+        },
+        setSSICredits: (state, payload) => {
+            state.ssiCredits = payload
         }
     },
+
     actions: {
 
         /// Member 
@@ -553,10 +623,13 @@ const mainStore = {
                         } else {
                             commit('insertAnApp', json);
 
-                            dispatch('keepAccessTokenReadyForApp', {
-                                serviceId: json.appId,
-                                grant_type: config.GRANT_TYPES_ENUM[json.services[0].id]
-                            })
+                            if (json.services[0]?.id != config.SERVICE_TYPES.QUEST) {
+                                dispatch('keepAccessTokenReadyForApp', {
+                                    serviceId: json.appId,
+                                    grant_type: config.GRANT_TYPES_ENUM[json.services[0].id]
+                                })
+                            }
+
 
                             resolve(json)
                         }
@@ -598,19 +671,45 @@ const mainStore = {
 
         },
 
+        deleteAnAppOnServer: ({ dispatch }, payload) => {
+            return new Promise((resolve, reject) => {
+                const { appId } = payload;
+                if (!appId) {
+                    reject(new Error(`appId is not specified`))
+                }
+                const url = `${apiServerBaseUrl}/app/${appId}`;
+                const headers = UtilsMixin.methods.getHeader(localStorage.getItem('authToken'));
+                fetch(url, {
+                    method: 'DELETE',
+                    headers,
+                }).then(response => response.json()).then(json => {
+                    if (json.error) {
+                        return reject(new Error(json.message.join(' ')))
+                    }
+                    dispatch('fetchAppsListFromServer')
+                    resolve(json)
+                }).catch((e) => {
+                    return reject(`Error while deleting this service ${appId} ` + e.message);
+                })
+            })
+        },
+
+
         fetchAppsListFromServer: async ({ commit, dispatch }) => {
             // TODO: Get list of orgs 
-            const url = `${apiServerBaseUrl}/app?limit=20`;
+            const url = `${apiServerBaseUrl}/app?limit=50`;
             // TODO: // use proper authToken
             const headers = UtilsMixin.methods.getHeader(localStorage.getItem('authToken'));
             const json = await RequestHandler(url, 'GET', {}, headers)
             if (json) {
                 commit('insertAllApps', json);
                 json.data.map(x => {
-                    return dispatch('keepAccessTokenReadyForApp', {
-                        serviceId: x.appId,
-                        grant_type: config.GRANT_TYPES_ENUM[x.services[0].id]
-                    })
+                    if (x.services[0].id != config.SERVICE_TYPES.QUEST) {
+                        return dispatch('keepAccessTokenReadyForApp', {
+                            serviceId: x.appId,
+                            grant_type: config.GRANT_TYPES_ENUM[x.services[0].id]
+                        })
+                    }
                 })
             } else {
                 return null
@@ -662,8 +761,10 @@ const mainStore = {
             const url = `${apiServerBaseUrl}/services`;
             // TODO: // use proper authToken
             const headers = UtilsMixin.methods.getHeader(localStorage.getItem('authToken'));
-            const resp = await RequestHandler(url, 'GET', {}, headers)
+            let resp = await RequestHandler(url, 'GET', {}, headers)
+
             if (resp) {
+                resp = resp.filter(x => !(x.id == 'DASHBOARD'))
                 commit('insertAllServices', resp);
             } else {
                 return null
@@ -745,7 +846,7 @@ const mainStore = {
                     headers
                 }).then(response => response.json()).then(json => {
                     if (json.error) {
-                        return reject(new Error(json.error.join(' ')))
+                        return reject(new Error(json.error?.details.join(' ') || json.error.join(' ')))
                     }
                     commit('insertSessions', json.data.sessionDetails);
                     resolve()
@@ -787,7 +888,7 @@ const mainStore = {
                     return reject(new Error('Tenant url is null or empty, service is not selected'))
                 }
                 const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/onchainkyc-config`;
-                // const url = `http://localhost:3001/api/v1/e-kyc/verification/onchainkyc-config`
+                //const url = `http://localhost:3001/api/v1/e-kyc/verification/onchainkyc-config`
                 const authToken = getters.getSelectedService.access_token
                 const headers = UtilsMixin.methods.getHeader(authToken);
                 fetch(url, {
@@ -796,7 +897,7 @@ const mainStore = {
                     body: JSON.stringify(payload),
                 }).then(response => response.json()).then(json => {
                     if (json.error) {
-                        return reject(new Error(json.error.join(' ')))
+                        return reject(new Error(json.error?.details.join(' ') || json.error.join(' ')))
                     }
                     commit('setOnChainConfig', json.data);
                     resolve(json.data)
@@ -806,7 +907,7 @@ const mainStore = {
             })
         },
 
-        updateAppsOnChainConfig: ({ commit, getters }, payload) => {
+        updateAppsOnChainConfig: ({ commit, getters, dispatch }, payload) => {
             return new Promise((resolve, reject) => {
                 if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
                     return reject(new Error('Tenant url is null or empty, service is not selected'))
@@ -821,16 +922,42 @@ const mainStore = {
                     body: JSON.stringify(payload),
                 }).then(response => response.json()).then(json => {
                     if (json.error) {
-                        return reject(new Error(json.error.join(' ')))
+                        return reject(new Error(json.error?.details.join(' ') || json.error.join(' ')))
                     }
                     // restting
                     commit('setOnChainConfig', {});
+                    dispatch('fetchAppsOnChainConfigs')
                     resolve(json.data)
                 }).catch((e) => {
                     return reject(`Error while fetching apps ` + e.message);
                 })
             })
         },
+
+        deleteAppOnChainConfig: ({ getters, dispatch }, payload) => {
+            return new Promise((resolve, reject) => {
+                if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
+                    return reject(new Error('Tenant url is null or empty, service is not selected'))
+                }
+                const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/onchainkyc-config/${payload._id}`;
+                const authToken = getters.getSelectedService.access_token
+                const headers = UtilsMixin.methods.getHeader(authToken);
+                fetch(url, {
+                    method: 'DELETE',
+                    headers,
+                }).then(response => response.json()).then(json => {
+                    if (json.error) {
+                        return reject(new Error(json.error?.details.join(' ') || json.error.join(' ')))
+                    }
+                    dispatch('fetchAppsOnChainConfigs')
+                    resolve(json)
+                }).catch((e) => {
+                    return reject(`Error while fetching apps ` + e.message);
+                })
+            })
+        },
+
+
 
         // Widget Config --------------------------------
         createAppsWidgetConfig: ({ commit, getters }) => {
@@ -850,7 +977,7 @@ const mainStore = {
                     body: JSON.stringify(data),
                 }).then(response => response.json()).then(json => {
                     if (json.error) {
-                        return reject(new Error(json.error.join(' ')))
+                        return reject(new Error(json.error?.details.join(' ') || json.error.join(' ')))
                     }
                     commit('setWidgetConfig', json.data);
                     resolve(json.data)
@@ -875,7 +1002,7 @@ const mainStore = {
                 }).then(response => response.json()).then(json => {
                     if (json) {
                         if (json.error) {
-                            return reject(new Error(json.error.join(' ')))
+                            return reject(new Error(json.error?.details.join(' ') || json.error.join(' ')))
                         } else {
                             commit('setWidgetConfig', json.data);
                             return resolve()
@@ -907,10 +1034,148 @@ const mainStore = {
                     body: JSON.stringify(data),
                 }).then(response => response.json()).then(json => {
                     if (json.error) {
-                        return reject(new Error(json.error.join(' ')))
+                        return reject(new Error(json.error?.details.join(' ') || json.error.join(' ')))
                     }
                     // restting
                     commit('setWidgetConfig', json.data);
+                    resolve(json)
+                }).catch((e) => {
+                    return reject(`Error while fetching apps ` + e.message);
+                })
+            })
+        },
+
+
+        // webhook config
+        createAppWebhookConfig: ({ commit, getters }, payload) => {
+            return new Promise((resolve, reject) => {
+                if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
+                    return reject(new Error('Tenant url is null or empty, service is not selected'))
+                }
+                const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/webhook-config`;
+                // const url = `http://localhost:3001/api/v1/e-kyc/verification/webhook-config`
+                const authToken = getters.getSelectedService.access_token
+                const headers = UtilsMixin.methods.getHeader(authToken);
+
+                fetch(url, {
+                    method: 'POST',
+                    headers,
+                    body: JSON.stringify(payload)
+                }).then(response => response.json())
+                    .then(json => {
+                        if (json.error) {
+                            return reject(new Error(json.error.details.join(' ')))
+                        }
+                        commit('setWebhookConfig', json.data);
+                        resolve(json.data)
+                    }).catch((e) => {
+                        return reject(`Error while fetching apps ` + e.message);
+                    })
+            })
+        },
+
+        createMasterWallet: ({ getters }, payload) => {
+            return new Promise((resolve, reject) => {
+                if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
+                    return reject(new Error('Tenant url is null or empty, service is not selected'))
+                }
+                const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/wallet`;
+                // const url = `http://localhost:3001/api/v1/wallet`
+                const authToken = getters.getSelectedService.access_token
+                const headers = UtilsMixin.methods.getHeader(authToken);
+
+                fetch(url, {
+                    method: 'POST',
+                    headers,
+                    body: JSON.stringify(payload)
+                }).then(response => response.json())
+                    .then(json => {
+                        if (json.error) {
+                            return reject(new Error(json.error.details.join(' ')))
+                        }
+                        // commit('setWebhookConfig', json.data);
+                        resolve(json.data)
+                    }).catch((e) => {
+                        return reject(`Error while fetching apps ` + e.message);
+                    })
+            })
+        },
+
+        fetchAppWebhookConfig: ({ commit, getters }) => {
+            return new Promise((resolve, reject) => {
+                if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
+                    return reject(new Error('Tenant url is null or empty, service is not selected'))
+                }
+                const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/webhook-config`;
+                // const url = `http://localhost:3001/api/v1/e-kyc/verification/webhook-config/`
+                const authToken = getters.getSelectedService.access_token
+                const headers = UtilsMixin.methods.getHeader(authToken);
+                return fetch(url, {
+                    method: 'GET',
+                    headers
+                }).then(response => response.json()).then(json => {
+                    if (json) {
+                        if (json.error) {
+                            return reject(new Error(json.error.details.join(' ')))
+                        } else {
+                            commit('setWebhookConfig', json.data);
+                            return resolve()
+                        }
+                    } else {
+                        return resolve()
+                    }
+
+                }).catch((e) => {
+                    return reject(`Error while fetching widget configuration ` + e.message);
+                })
+            })
+        },
+
+        updateAppWebhookConfig: ({ commit, getters }, payload) => {
+            return new Promise((resolve, reject) => {
+                if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
+                    return reject(new Error('Tenant url is null or empty, service is not selected'))
+                }
+                const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/webhook-config/${payload._id}`;
+                // const url = `http://localhost:3001/api/v1/e-kyc/verification/webhook-config/${payload._id}`
+                const authToken = getters.getSelectedService.access_token
+                const headers = UtilsMixin.methods.getHeader(authToken);
+                fetch(url, {
+                    method: 'PATCH',
+                    headers,
+                    body: JSON.stringify(payload),
+                }).then(response => response.json()).then(json => {
+                    if (json.error) {
+                        return reject(new Error(json.error.details.join(' ')))
+                    }
+                    // restting
+                    commit('setWebhookConfig', json.data);
+                    resolve(json)
+                }).catch((e) => {
+                    return reject(`Error while fetching apps ` + e.message);
+                })
+            })
+        },
+
+
+        deleteAppWebhookConfig: ({ commit, getters }, payload) => {
+            return new Promise((resolve, reject) => {
+                if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
+                    return reject(new Error('Tenant url is null or empty, service is not selected'))
+                }
+                const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/webhook-config/${payload._id}`;
+                // const url = `http://localhost:3001/api/v1/e-kyc/verification/webhook-config/${payload._id}`
+                const authToken = getters.getSelectedService.access_token
+                const headers = UtilsMixin.methods.getHeader(authToken);
+                fetch(url, {
+                    method: 'DELETE',
+                    headers,
+                }).then(response => response.json()).then(json => {
+                    if (json.error) {
+                        return reject(new Error(json.error.details.join(' ')))
+                    }
+                    // restting
+                    commit('setWebhookConfig', {});
                     resolve(json)
                 }).catch((e) => {
                     return reject(`Error while fetching apps ` + e.message);
@@ -934,7 +1199,7 @@ const mainStore = {
                     headers
                 }).then(response => response.json()).then(json => {
                     if (json.error) {
-                        return reject(new Error(json.error.join(' ')))
+                        return reject(new Error(json.error?.details.join(' ') || json.error.join(' ')))
                     }
 
                     if (json.data && Object.keys(json.data)?.length > 0) {
@@ -956,6 +1221,7 @@ const mainStore = {
                 throw new Error('Tenant url is null or empty, service is not selected')
             }
             const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/usage?serviceId=${getters.getSelectedService.appId}&startDate=${startDate}&endDate=${endDate}`;
+            // const url = `http://localhost:3001/api/v1/usage?serviceId=${getters.getSelectedService.appId}&startDate=${startDate}&endDate=${endDate}`;
             const authToken = getters.getSelectedService.access_token
             const headers = UtilsMixin.methods.getHeader(authToken);
             const resp = await fetch(url, {
@@ -963,7 +1229,11 @@ const mainStore = {
                 headers
             })
             const json = await resp.json()
-            return json?.data
+            if (json?.data) {
+                return json?.data
+            } else {
+                return json
+            }
         },
 
         async fetchUsageDetailsForAService({ getters, commit }, payload) {
@@ -979,15 +1249,83 @@ const mainStore = {
                 headers
             })
             const json = await resp.json()
-            commit('setUsageDetails', json?.data)
-            return json?.data
+            if (json?.data) {
+                commit('setUsageDetails', json?.data)
+                return json?.data
+            } else {
+                commit('setUsageDetails', json)
+                return json
+            }
         },
+
+        // - KYC Credit
+        async fetchKYCCredits({ getters, commit }) {
+
+            if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
+                throw new Error('Tenant url is null or empty, service is not selected')
+            }
+            const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/credit`;
+            const authToken = getters.getSelectedService.access_token
+            const headers = UtilsMixin.methods.getHeader(authToken);
+            const resp = await fetch(url, {
+                method: 'GET',
+                headers
+            })
+            const json = await resp.json()
+            if (json.data) {
+                console.log('Before calling setKycCredits ')
+                commit('setKYCCredits', json.data)
+                return json.data
+            }
+            return []
+        },
+
+
+        activateCredit({ getters, dispatch }, payload) {
+            return new Promise(function (resolve, reject) {
+                const { creditId } = payload
+                {
+                    if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
+                        return reject(new Error('Tenant url is null or empty, service is not selected'))
+                    }
+
+                    if (!creditId) {
+                        return reject(new Error('Credit Id is null or empty'))
+                    }
+                    const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/credit/${creditId}/activate`;
+                    const options = {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": `Bearer ${getters.getSelectedService.access_token}`,
+                            "Origin": '*'
+                        }
+                    }
+                    fetch(url, {
+                        ...options
+                    })
+                        .then(response => response.json())
+                        .then(json => {
+                            if (json) {
+                                dispatch('fetchKYCCredits')
+                                resolve()
+                            } else {
+                                reject(new Error('Could not register DID for this service'))
+                            }
+                        }).catch(e => {
+                            reject(e)
+                        })
+                }
+            })
+
+        },
+
 
         // --- SSI
         fetchDIDsForAService({ commit, getters, dispatch }, payload = {}) {
             return new Promise(function (resolve, reject) {
                 {
-                    let tenantUrl = ""
+                    let tenantUrl = ''
                     let accessToken = ""
                     if (payload && payload.tenantUrl && payload.accessToken) {
                         tenantUrl = payload.tenantUrl
@@ -1000,7 +1338,7 @@ const mainStore = {
                         return reject(new Error('Tenant url is null or empty, service is not selected'))
                     }
 
-                    const url = `${sanitizeUrl(tenantUrl)}/api/v1/did?page=1&limit=10`;
+                    const url = `${sanitizeUrl(tenantUrl)}/api/v1/did?page=1&limit=100`;
                     const options = {
                         method: "GET",
                         headers: {
@@ -1015,6 +1353,9 @@ const mainStore = {
                         .then(response => response.json())
                         .then(json => {
                             if (json) {
+                                if (json.error) {
+                                    reject(new Error(json.message[0]))
+                                }
                                 if (json.data.length > 0) {
                                     const payload = json.data.map(x => {
                                         return {
@@ -1030,8 +1371,10 @@ const mainStore = {
                                         })
                                         commit('setDIDList', payload)
                                     }
+
                                     resolve(json.data)
-                                } else {
+                                }
+                                else {
                                     resolve([])
                                     commit('setDIDList', [])
                                 }
@@ -1047,19 +1390,84 @@ const mainStore = {
 
         },
 
-        resolveDIDForAService({ commit, getters, }, payload) {
+
+
+        resolveDIDForAKycService({ getters, }, payload = {}) {
             return new Promise(function (resolve, reject) {
                 {
+                    let tenantUrl = ""
+                    let accessToken = ""
+                    if (payload && payload.tenantUrl && payload.accessToken) {
+                        tenantUrl = payload.tenantUrl
+                        accessToken = payload.accessToken
 
-                    if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
+                    } else if (getters.getSelectedService && getters.getSelectedService.tenantUrl && getters.getSelectedService.access_token) {
+                        tenantUrl = getters.getSelectedService.tenantUrl;
+                        accessToken = getters.getSelectedService.access_token
+                    } else {
                         return reject(new Error('Tenant url is null or empty, service is not selected'))
                     }
-                    const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/did/resolve/${payload}`;
+                    if (!payload.did) {
+                        throw new Error("could not resolve did");
+
+                    }
+                    const url = `${sanitizeUrl(tenantUrl)}/api/v1/did/resolve/${payload.did}`;
                     const options = {
                         method: "GET",
                         headers: {
                             "Content-Type": "application/json",
-                            "Authorization": `Bearer ${getters.getSelectedService.access_token}`,
+                            "Authorization": `Bearer ${accessToken}`,
+                            "Origin": '*'
+                        }
+                    }
+                    fetch(url, {
+                        headers: options.headers
+                    })
+                        .then(response => response.json())
+                        .then(json => {
+
+                            if (json) {
+                                if (json.error) {
+                                    reject(new Error(json.message[0]))
+                                }
+                                resolve(json.didDocument)
+                            } else {
+                                reject(new Error('Could not resolve'))
+                            }
+
+                        }).catch(e => {
+                            reject(e)
+                        })
+                }
+            })
+
+        },
+        resolveDIDForAService({ commit, getters, }, payload) {
+            return new Promise(function (resolve, reject) {
+                {
+
+                    let selectedService = {};
+                    if (getters.getSelectedService.services[0].id === 'SSI_API') {
+                        selectedService = getters.getSelectedService
+                    } else if (getters.getSelectedService.services[0].id === 'CAVACH_API') {
+                        const ssiSserviceId = getters.getSelectedService.dependentServices[0];
+                        const associatedSSIService = getters.getAppsWithSSIServices.find(
+                            (x) => x.appId === ssiSserviceId
+                        );
+                        selectedService = associatedSSIService
+                    }
+
+                    if (!selectedService || !selectedService.tenantUrl) {
+                        return reject(new Error('Tenant url is null or empty, service is not selected'))
+                    }
+
+                    const url = `${sanitizeUrl(selectedService.tenantUrl)}/api/v1/did/resolve/${payload}`;
+                    // const url = `http://ent-8ee83cc.localhost:3003/api/v1/did/resolve/${payload}`;
+                    const options = {
+                        method: "GET",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": `Bearer ${selectedService.access_token}`,
                             "Origin": '*'
                         }
                     }
@@ -1069,6 +1477,9 @@ const mainStore = {
                         .then(response => response.json())
                         .then(json => {
                             if (json) {
+                                if (json.error) {
+                                    reject(new Error(json.message[0]))
+                                }
                                 const data = {
                                     did: payload,
                                     didDocument: json.didDocument,
@@ -1088,10 +1499,10 @@ const mainStore = {
             })
 
         },
-
         createDIDsForAService({ commit, getters, dispatch }, payload) {
             return new Promise(function (resolve, reject) {
                 {
+                    // const payload = data.requestBody
                     if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
                         return reject(new Error('Tenant url is null or empty, service is not selected'))
                     }
@@ -1110,18 +1521,17 @@ const mainStore = {
                     })
                         .then(response => response.json())
                         .then(async json => {
+                            if (json.error) {
+                                reject(new Error(json.message[0]))
+                            }
                             if (json && json.did) {
                                 commit('insertDIDList', {
                                     did: json.did,
                                     didDocument: {},
                                     status: 'Created'
                                 })
-                                const payload = {
-                                    didDocument: json.metaData.didDocument,
-                                    verificationMethodId: json.metaData.didDocument.verificationMethod[0].id
-                                }
-                                await dispatch('registerDIDsForAService', payload)
-                                resolve()
+                                dispatch('resolveDIDForAService', json.did)
+                                resolve(json)
                             } else {
                                 reject(new Error('Could not create DID for this service'))
                             }
@@ -1133,18 +1543,17 @@ const mainStore = {
 
         },
 
-        registerDIDsForAService({ getters, dispatch }, payload) {
+        registerDIDsForAService({ commit, getters }, payload) {
             return new Promise(function (resolve, reject) {
                 const body = {
-                    "didDocument": payload.didDocument,
-                    "verificationMethodId": payload.verificationMethodId
-                }
-                //fetct all dids
+                    didDocument: payload.didDocument,
+                    signInfos: payload.signInfos,
+                };
                 {
                     if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
                         return reject(new Error('Tenant url is null or empty, service is not selected'))
                     }
-                    const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/did/register`;
+                    const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/did/register/v2`;
                     const options = {
                         method: "POST",
                         body: JSON.stringify(body),
@@ -1158,10 +1567,17 @@ const mainStore = {
                         ...options
                     })
                         .then(response => response.json())
-                        .then(json => {
+                        .then(async json => {
                             if (json) {
-                                dispatch('resolveDIDForAService', json.did)
-                                resolve()
+                                // dispatch('resolveDIDForAService', json.did)
+                                const data = {
+                                    did: json.did,
+                                    didDocument: json?.metaData?.didDocument,
+                                    status: json.didDocumentMetadata && Object.keys(json.didDocumentMetadata).length > 0 ? 'Registered' : 'Created',
+                                    name: json.name
+                                }
+                                commit('updateADID', data)
+                                resolve(json)
                             } else {
                                 reject(new Error('Could not register DID for this service'))
                             }
@@ -1173,18 +1589,60 @@ const mainStore = {
 
         },
 
+        checkBlockchainStatusOfSSI({ getters }, payload) {
+            return new Promise(function (resolve, reject) {
+                {
+                    if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
+                        return reject(new Error('Tenant url is null or empty, service is not selected'))
+                    }
+                    const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/status/ssi/${payload}?page=1&limit=10`;
+                    const options = {
+                        method: "GET",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": `Bearer ${getters.getSelectedService.access_token}`,
+                            "Origin": '*'
+                        }
+                    }
+                    fetch(url, {
+                        ...options
+                    })
+                        .then(response => response.json())
+                        .then(json => {
+                            if (json) {
+                                resolve(json)
+                            } else {
+                                reject(new Error('Could not get SSI status of id ' + payload))
+                            }
+                        }).catch(e => {
+                            reject(e)
+                        })
+                }
+            })
+
+        },
+
         updateDIDsForAService({ getters, }, payload) {
             return new Promise(function (resolve, reject) {
-                const body = {
-                    "didDocument": payload.didDocument,
-                    "verificationMethodId": payload.verificationMethodId,
-                    "deactivate": payload.deactivate
+                let body;
+                if (payload.didDocument) {
+                    body = {
+                        "didDocument": payload.didDocument,
+                        "verificationMethodId": payload.verificationMethodId,
+                        "deactivate": payload.deactivate
+                    }
+                } else {
+                    if (!payload.name || payload.name == '') {
+                        return reject(new Error('Please Provide name for the did'))
+                    }
+                    body = { ...payload }
                 }
                 //fetct all dids
                 {
                     if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
                         return reject(new Error('Tenant url is null or empty, service is not selected'))
                     }
+                    // const url = `http://ent-2af45c1.localhost:4001/api/v1/did/`;
                     const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/did/`;
                     const options = {
                         method: "PATCH",
@@ -1360,7 +1818,71 @@ const mainStore = {
 
         },
 
+        // eslint-disable-next-line 
+        async fetchSSICredits({ getters, commit }) {
+            if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
+                throw new Error('Tenant url is null or empty, service is not selected')
+            }
+            const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/credit`;
+            const options = {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${getters.getSelectedService.access_token}`,
+                    "Origin": '*'
 
+                }
+            }
+
+            const resp = await fetch(url, {
+                ...options
+            })
+            const json = await resp.json()
+            if (json) {
+                commit('setSSICredits', json)
+                return json
+            }
+            return []
+        },
+
+        activateSSICredit({ getters, dispatch }, payload) {
+            return new Promise(function (resolve, reject) {
+                const { creditId } = payload
+                {
+                    if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
+                        return reject(new Error('Tenant url is null or empty, service is not selected'))
+                    }
+
+                    if (!creditId) {
+                        return reject(new Error('Credit Id is null or empty'))
+                    }
+                    const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/credit/${creditId}/activate`;
+                    const options = {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": `Bearer ${getters.getSelectedService.access_token}`,
+                            "Origin": '*'
+                        }
+                    }
+                    fetch(url, {
+                        ...options
+                    })
+                        .then(response => response.json())
+                        .then(json => {
+                            if (json) {
+                                dispatch('fetchSSICredits')
+                                resolve()
+                            } else {
+                                reject(new Error('Could not Activate credit for this service'))
+                            }
+                        }).catch(e => {
+                            reject(e)
+                        })
+                }
+            })
+
+        },
         // eslint-disable-next-line 
         async ssiDashboardAllowanceStats({ getters }, payload) {
 
@@ -1411,10 +1933,466 @@ const mainStore = {
             }
 
             return data.grants
-        }
+        },
+
+        // eslint-disable-next-line 
+        generateDIDProof({ commit, getters, dispatch }, payload) {
+            return new Promise(function (resolve, reject) {
+                {
+
+                    let selectedService = {};
+                    if (getters.getSelectedService.services[0].id === 'SSI_API') {
+                        selectedService = getters.getSelectedService
+                    } else if (getters.getSelectedService.services[0].id === 'CAVACH_API') {
+                        const ssiSserviceId = getters.getSelectedService.dependentServices[0];
+                        const associatedSSIService = getters.getAppsWithSSIServices.find(
+                            (x) => x.appId === ssiSserviceId
+                        );
+                        selectedService = associatedSSIService
+                    } else {
+                        throw new Error('Proof can not be generated for service')
+                    }
+
+
+                    if (!selectedService || !selectedService.tenantUrl) {
+                        return reject(new Error('Tenant url is null or empty, service is not selected'))
+                    }
+
+                    const url = `${sanitizeUrl(selectedService.tenantUrl)}/api/v1/did/auth/sign`;
+                    const options = {
+                        method: "POST",
+                        body: JSON.stringify(payload),
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": `Bearer ${selectedService.access_token}`,
+                            "Origin": '*'
+                        }
+                    }
+                    fetch(url, {
+                        ...options
+                    })
+                        .then(response => response.json())
+                        .then(async json => {
+                            if (json) {
+                                resolve(json)
+                            } else {
+                                reject(new Error('Could not generate DID proof for this service'))
+                            }
+                        }).catch(e => {
+                            reject(e)
+                        })
+                }
+            })
+        },
 
 
 
+        // schema
+
+        fetchSchemaList({ commit, getters, dispatch }, payload = {}) {
+            return new Promise(function (resolve, reject) {
+                {
+                    let tenantUrl = ''
+                    let accessToken = ""
+                    if (payload && payload.tenantUrl && payload.accessToken) {
+                        tenantUrl = payload.tenantUrl
+                        accessToken = payload.accessToken
+
+                    } else if (getters.getSelectedService && getters.getSelectedService.tenantUrl && getters.getSelectedService.access_token) {
+                        tenantUrl = getters.getSelectedService.tenantUrl;
+                        accessToken = getters.getSelectedService.access_token
+                    } else {
+                        return reject(new Error('Tenant url is null or empty, service is not selected'))
+                    }
+
+                    const url = `${sanitizeUrl(tenantUrl)}/api/v1/schema?page=1&limit=100`;
+                    const options = {
+                        method: "GET",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": `Bearer ${accessToken}`,
+                            "Origin": '*'
+                        }
+                    }
+                    fetch(url, {
+                        headers: options.headers
+                    })
+                        .then(response => response.json())
+                        .then(json => {
+                            if (json) {
+                                if (json.data.length > 0) {
+                                    const payload = json.data.map(x => {
+                                        return {
+                                            id: x,
+                                            schemaDocument: {},
+                                            status: ""
+                                        }
+                                    })
+
+                                    if (getters.getSelectedService) {
+                                        json.data.map(x => {
+                                            console.log({ x })
+                                            dispatch('resolveSchema', x)
+                                        })
+                                        commit('setSchemaList', payload)
+                                    }
+
+                                    resolve(json.data)
+                                } else {
+                                    resolve([])
+                                    commit('setSchemaList', [])
+                                }
+                            } else {
+                                reject(new Error('Could not fetch DID for this service'))
+                            }
+
+                        }).catch(e => {
+                            reject(e)
+                        })
+                }
+            })
+
+        },
+
+        async resolveSchema({ commit, getters, }, payload) {
+            try {
+                let selectedService = {};
+                if (getters.getSelectedService.services[0].id === 'SSI_API') {
+                    selectedService = getters.getSelectedService
+                } else if (getters.getSelectedService.services[0].id === 'CAVACH_API') {
+                    const ssiSserviceId = getters.getSelectedService.dependentServices[0];
+                    const associatedSSIService = getters.getAppsWithSSIServices.find(
+                        (x) => x.appId === ssiSserviceId
+                    );
+                    selectedService = associatedSSIService
+                }
+
+                if (!selectedService || !selectedService.tenantUrl) {
+                    throw new Error('Tenant url is null or empty, service is not selected')
+                }
+
+                const url = `${sanitizeUrl(selectedService.tenantUrl)}/api/v1/schema/${payload}`;
+                // const url = `http://ent-8ee83cc.localhost:3003/api/v1/schema/${payload}`;
+
+                const options = {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${selectedService.access_token}`,
+                        "Origin": '*'
+                    }
+                }
+                const response = await fetch(url, {
+                    headers: options.headers
+                })
+                const json = await response.json()
+
+                if (json && json.id) {
+                    const data = {
+                        id: payload,
+                        schemaDocument: json,
+                        status: json.proof && Object.keys(json.proof).length > 0 ? 'Registered' : 'Created',
+                    }
+                    commit('updateASchema', data);
+                    return data;
+                } else {
+                    const data = {
+                        id: payload,
+                        schemaDocument: {},
+                        status: 'Error',
+                        error: json?.message[0].data
+                    }
+                    commit('updateASchema', data);
+                    return data;
+                    //   console.error('Could not fetch Schema for this service id = ' + payload)
+                }
+            } catch (e) {
+                const data = {
+                    id: payload,
+                    schemaDocument: {},
+                    status: 'Error',
+                    error: e.message
+                }
+                commit('updateASchema', data);
+                console.error(e)
+            }
+        },
+
+
+        createSchemaForAService({ commit, getters }, payload) {
+            return new Promise(function (resolve, reject) {
+                {
+                    // const payload = data.requestBody
+                    if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
+                        return reject(new Error('Tenant url is null or empty, service is not selected'))
+                    }
+                    const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/schema`;
+                    const options = {
+                        method: "POST",
+                        body: JSON.stringify(payload),
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": `Bearer ${getters.getSelectedService.access_token}`,
+                            "Origin": '*'
+                        }
+                    }
+                    fetch(url, {
+                        ...options
+                    })
+                        .then(response => response.json())
+                        .then(async json => {
+                            if (json && json.schemaId) {
+                                commit('insertSchemaList', {
+                                    id: json.schemaId,
+                                    schemaDocument: {},
+                                    status: 'Please wait...'
+                                })
+                                //dispatch('resolveSchema', json.schemaId)
+                                resolve(json)
+                            } else {
+                                const message = json?.message?.[0] || 'Could not create schema for this service'
+                                reject(new Error(message))
+                            }
+                        }).catch(e => {
+                            reject(e)
+                        })
+                }
+            })
+
+        },
+
+        // credential 
+        // eslint-disable-next-line
+        fetchCredentialList({ commit, getters, dispatch }, payload = {}) {
+            return new Promise(function (resolve, reject) {
+                {
+                    let tenantUrl = ''
+                    let accessToken = ""
+                    if (payload && payload.tenantUrl && payload.accessToken) {
+                        tenantUrl = payload.tenantUrl
+                        accessToken = payload.accessToken
+
+                    } else if (getters.getSelectedService && getters.getSelectedService.tenantUrl && getters.getSelectedService.access_token) {
+                        tenantUrl = getters.getSelectedService.tenantUrl;
+                        accessToken = getters.getSelectedService.access_token
+                    } else {
+                        return reject(new Error('Tenant url is null or empty, service is not selected'))
+                    }
+
+                    const url = `${sanitizeUrl(tenantUrl)}/api/v1/credential?page=1&limit=100`;
+                    const options = {
+                        method: "GET",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": `Bearer ${accessToken}`,
+                            "Origin": '*'
+                        }
+                    }
+                    fetch(url, {
+                        headers: options.headers
+                    })
+                        .then(response => response.json())
+                        .then(json => {
+                            if (json) {
+                                if (json.data.length > 0) {
+                                    const payload = json.data.map(x => {
+                                        return {
+                                            id: x,
+                                            credentialDocument: {},
+                                            credentialStatus: {},
+                                            credentialMetadata: {},
+                                            status: ""
+                                        }
+                                    })
+
+                                    if (getters.getSelectedService) {
+                                        json.data.map(x => {
+                                            dispatch('resolveCredential', { credentialId: x })
+                                        })
+                                        commit('setCredentialList', payload)
+                                    }
+
+                                    resolve(json.data)
+                                } else {
+                                    resolve([])
+                                    commit('setCredentialList', [])
+                                }
+                            } else {
+                                reject(new Error('Could not fetch DID for this service'))
+                            }
+
+                        }).catch(e => {
+                            reject(e)
+                        })
+                }
+            })
+
+        },
+
+
+        async resolveCredential({ commit, getters, }, payload) {
+            try {
+                let selectedService = {};
+                if (getters.getSelectedService.services[0].id === 'SSI_API') {
+                    selectedService = getters.getSelectedService
+                } else if (getters.getSelectedService.services[0].id === 'CAVACH_API') {
+                    const ssiSserviceId = getters.getSelectedService.dependentServices[0];
+                    const associatedSSIService = getters.getAppsWithSSIServices.find(
+                        (x) => x.appId === ssiSserviceId
+                    );
+                    selectedService = associatedSSIService
+                }
+
+                if (!selectedService || !selectedService.tenantUrl) {
+                    throw new Error('Tenant url is null or empty, service is not selected')
+                }
+
+                const url = `${sanitizeUrl(selectedService.tenantUrl)}/api/v1/credential/${payload.credentialId}?retrieveCredential=${payload.retrieveCredential ? payload.retrieveCredential : false}`;
+                const options = {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${selectedService.access_token}`,
+                        "Origin": '*'
+                    }
+                }
+                const response = await fetch(url, {
+                    headers: options.headers
+                })
+                const json = await response.json()
+
+
+                if (json && json.metadata) {
+                    let status = "";
+                    let error = "";
+                    if (json.metadata.transactionStatus) {
+                        if (json.metadata.transactionStatus.findIndex((x) => x['status'] == 0) >= 0) {
+                            status = 'Registered'
+                        } else {
+                            status = 'Error'
+                            error = json.metadata.transactionStatus
+                        }
+                    } else {
+                        status = 'Created'
+                    }
+
+
+                    const data = {
+                        id: payload.credentialId,
+                        credentialDocument: json.credentialDocument,
+                        credentialStatus: json.credentialStatus,
+                        credentialMetadata: json.metadata,
+                        status: status, //json.metadata.transactionStatus && Object.keys(json.metadata.transactionStatus).length > 0 ? 'Registered' : 'Created',
+                        error
+                    }
+                    commit('updateACredential', data);
+                }
+
+                // else {
+                //     const data = {
+                //         id: payload,
+                //         credentialDocument: {},
+                //         credentialStatus: {},
+                //         credentialMetadata: {},
+                //         status: 'Error',
+                //         error: json?.message[0].data
+                //     }
+                //     commit('updateACredential', data);
+
+                // }
+            } catch (e) {
+                const data = {
+                    id: payload.credentialId,
+                    credentialDocument: {},
+                    credentialStatus: {},
+                    credentialMetadata: {},
+                    status: 'Error',
+                    error: e.message
+                }
+                commit('updateACredential', data);
+                console.error(e)
+            }
+        },
+
+        issueCredentialForAService({ commit, getters }, payload) {
+            return new Promise(function (resolve, reject) {
+                {
+                    // const payload = data.requestBody
+                    if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
+                        return reject(new Error('Tenant url is null or empty, service is not selected'))
+                    }
+                    const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/credential/issue`;
+                    const options = {
+                        method: "POST",
+                        body: JSON.stringify(payload),
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": `Bearer ${getters.getSelectedService.access_token}`,
+                            "Origin": '*'
+                        }
+                    }
+                    fetch(url, {
+                        ...options
+                    })
+                        .then(response => response.json())
+                        .then(async json => {
+                            if (json && json.metadata) {
+                                const data = {
+                                    id: json.metadata.credentialId,
+                                    credentialDocument: json.credentialDocument,
+                                    credentialStatus: json.credentialStatus,
+                                    credentialMetadata: json.metadata,
+                                    status: ''//json.proof && Object.keys(json.proof).length > 0 ? 'Registered' : 'Created',
+                                }
+                                commit('insertCredentialList', data)
+                                resolve(data)
+                            } else {
+                                reject(new Error('Could not issue credential'))
+                            }
+                        }).catch(e => {
+                            reject(e)
+                        })
+                }
+            })
+
+        },
+        updateCredentialForAService({ getters }, payload) {
+            return new Promise(function (resolve, reject) {
+                {
+                    if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
+                        return reject(new Error('Tenant url is null or empty, service is not selected'))
+                    }
+                    const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/credential/status/${payload.credentialId}`;
+                    const options = {
+                        method: "PATCH",
+                        body: JSON.stringify(payload),
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": `Bearer ${getters.getSelectedService.access_token}`,
+                            "Origin": '*'
+                        }
+                    }
+                    fetch(url, {
+                        ...options
+                    })
+                        .then(response => response.json())
+                        .then(async json => {
+                            if (json && !json.error) {
+                                const data = {
+                                    id: json.id,
+                                    status: ''//json.proof && Object.keys(json.proof).length > 0 ? 'Registered' : 'Created',
+                                }
+                                resolve(data)
+                            } else {
+                                reject(new Error('Could not update credential'))
+                            }
+                        }).catch(e => {
+                            reject(e)
+                        })
+                }
+            })
+
+        },
     }
 }
 

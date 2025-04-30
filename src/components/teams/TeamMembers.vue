@@ -1,31 +1,27 @@
 <template>
   <div>
     <load-ing :active.sync="isLoading" :can-cancel="true" :is-full-page="true"></load-ing>
-    <div class="row mb-3">
-      <div class="col-md-4">
-        <!-- <div class="input-group">
-          <div class="input-group-prepend" style="cursor: grab">
-            <span class="input-group-text" id="basic-addon2"><i class="fa fa-search" aria-hidden="true"></i></span>
-          </div>
-          <input type="text" class="form-control" placeholder="Find a member" aria-label="Find a member"
-            aria-describedby="basic-addon2" v-model="sessionIdTemp" />
-        </div> -->
+    <div class="row">
+      <div class="col-md-4">        
       </div>
       <div class="col-md-8">
-
-        <button type="button" class="btn btn-outline-secondary mx-1" style="float: inline-end"
+        <!-- <v-btn variant="link" class="btn btn-outline-secondary mx-1" style="float: inline-end"
           @click="getPeopleMembers()" title="Reload">
-          <i class="fa fa-retweet" aria-hidden="true"></i>
-        </button>
+          <b-icon icon="arrow-clockwise"></b-icon>
+        </v-btn> -->
 
-        <button type="button" class="btn btn-primary" style="float: inline-end" @click="inviteMemberPopup()">
+        <hf-buttons name="" title="Reload" class="mx-1" :bIcon="true"  style="float: inline-end"  iconClass="arrow-clockwise" @executeAction="getPeopleMembers">
+        </hf-buttons>
+
+        <hf-buttons name="Invite Member" class="ml-auto"  style="float: inline-end"  iconClass="fa fa-user-plus" @executeAction="inviteMemberPopup">
+        </hf-buttons>
+
+        <!-- <v-btn type="button" class="btn btn-secondary" style="float: inline-end" @click="inviteMemberPopup()">
           <b-icon icon="person-plus-fill"></b-icon> Invite Member
-        </button>
-
-
+        </v-btn> -->
       </div>
     </div>
-    <div class="row mb-3" style="padding: 10px" v-if="getAdminMembersgetter.length > 0">
+    <div class="row" v-if="getAdminMembersgetter.length > 0">
       <table class="table">
         <thead class="thead-light">
           <tr>
@@ -50,10 +46,10 @@
 
     <hf-pop-up id="invite-member" Header="Invite New Member">
       <div>
-        <div class="form-group mb-3">
-          <label for="exampleInputEmail1">Email:</label>
-          <div class="input-group">
-            <input type="email" class="form-control" placeholder="Enter email id of a valid platform user"
+        <div  class="form-group mb-3">
+          <label v-if="invitionData.inviteCode === ''" for="exampleInputEmail1">Email:</label>
+          <div class="input-group" v-if="invitionData.inviteCode == ''">
+            <input type="email" class="form-control" placeholder="Enter Gmail address"
               v-model="inviteeEmailId" />
             <div class="input-group-append" v-if="checkIfValidEmail">
               <button type="submit" class="btn btn-outline-success">
@@ -66,23 +62,23 @@
               </button>
             </div>
             <div class="input-group-append">
-              <button type="submit" class="btn btn-primary" @click="sendInvite">
+              <v-btn type="submit" class="btn btn-secondary"  :disabled="!checkIfValidEmail" @click="sendInvite">
                 <b-icon icon="share"></b-icon> Invite
-              </button>
+              </v-btn>
             </div>
 
-            <small style="color:grey; font-size: x-small;">Please make sure the user has an account on this
+            <!-- <small style="color:grey; font-size: x-small;">Please make sure the user has an account on this
               platform, if
               not, ask him/her to
-              create one</small>
+              create one</small> -->
 
           </div>
           <div class="mt-2" v-if="invitionData.inviteCode != ''">
             <p>
               <small>
-                Copy the invition code and send to {{ inviteeEmailId }}. Alternatively, invitee can also see and accept
-                the invition from
-                their dashboard. The code is only valid till {{
+                  An invitation has been sent to {{ inviteeEmailId }}.
+                  The recipient may accept it via the provided email link or through their platform dashboard.
+                  This invitation is valid until{{
                   toDateTime(invitionData.invitationValidTill) }}.
               </small>
             </p>
@@ -115,7 +111,7 @@ export default {
   computed: {
     ...mapGetters('mainStore', ['getAdminMembersgetter', "getAllRoles"]),
     checkIfValidEmail() {
-      return isValidEmail(this.inviteeEmailId)
+      return isValidEmail(this.inviteeEmailId) && this.inviteeEmailId.toLowerCase().endsWith('@gmail.com');
     }
   },
   data: function () {

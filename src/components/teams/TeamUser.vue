@@ -1,73 +1,107 @@
 <template>
+<div>
+    <b-list-group-item class="d-flex align-items-center" style="min-height: 70px">
+      <load-ing :active.sync="isLoading" :can-cancel="true" :is-full-page="true"></load-ing>
 
-  <b-list-group-item class="d-flex align-items-center" style="min-height: 70px">
-    <load-ing :active.sync="isLoading" :can-cancel="true" :is-full-page="true"></load-ing>
-
-    <b-avatar variant="secondary" :text="email.charAt(0).toUpperCase()" class="mr-2"></b-avatar>
-    <span class="mr-auto">{{ email }}</span>
+      <b-avatar variant="secondary" :text="email.charAt(0).toUpperCase()" class="mr-2"></b-avatar>
+      <span class="mr-auto">{{ email }}</span>
 
 
-    <span class="mx-1" style="color: grey" v-if="createdAt">
-      <b-icon icon="clock" aria-hidden="true" variant="secondary"></b-icon>
-      {{ createdAt }}
-    </span>
-
-    <span class="mx-1" style="color: grey" v-if="twoFactor"><b-icon icon="check-circle" aria-hidden="true"
-        variant="success"></b-icon>
-      2FA</span>
-    <!-- <b-badge pill variant="info" class="mx-1">{{ numberOfTeams }} teams</b-badge> -->
-    <b-badge pill variant="warning" class="mx-1" v-if="assignedRoleId && getAllRoles.length > 0">
-      <span class="mx-1"><b-icon icon="person-fill" variant=" light"></b-icon> Role:{{
-        getYourRole().roleName
-        }}
+      <span class="mx-1" style="color: grey" v-if="createdAt">
+        <b-icon icon="clock" aria-hidden="true" variant="secondary"></b-icon>
+        {{ createdAt }}
       </span>
-    </b-badge>
-    <b-badge pill variant="warning" class="mx-1" v-if="assignedRoleId && getAllRoles.length > 0">
-      {{
-        getYourRole().permissions.length
-      }} permissions
-    </b-badge>
 
-    <b-badge pill variant="success" class="mx-1" v-if="invitationStatus">
-      <span class="mx-1" style="color: white"><b-icon icon="check" variant=" light"></b-icon>Accepted
-      </span></b-badge>
-    <b-badge pill variant="warning" class="mx-1" v-else>
-      <span class="mx-1" style="color: white">Pending </span></b-badge>
-    <b-dropdown class="m-2" size="sm" variant="link" toggle-class="text-decoration-none" no-caret dropleft>
-      <template #button-content>
-        <b-icon style="color: grey" icon="list" aria-hidden="true"></b-icon>
-      </template>
-      <b-dropdown-group id="dropdown-group-1" header="Assign Role" style="text-align: left;"
-        v-if="invitationStatus && mode == 'Member'">
-        <b-dropdown-item-button style="text-align: left" v-for="eachRole in getAllRoles" v-bind:key="eachRole"
-          @click="assignRole(eachRole._id, userId)">
-          <!-- <button type="submit" class="btn btn-outline-secondary"> -->
-          {{ eachRole.roleName }}
-          <b-badge pill variant="warning">{{ eachRole.permissions.length }}
-            permissions</b-badge>
-          <!-- </button> -->
+      <span class="mx-1" style="color: grey" v-if="twoFactor"><b-icon icon="check-circle" aria-hidden="true"
+          variant="success"></b-icon>
+        2FA</span>
+      <!-- <b-badge pill variant="info" class="mx-1">{{ numberOfTeams }} teams</b-badge> -->
+      <b-badge pill variant="warning" class="mx-1" v-if="assignedRoleId && getAllRoles.length > 0">
+        <span class="mx-1"><b-icon icon="person-fill" variant=" light"></b-icon> Role:{{
+          getYourRole().roleName
+          }}
+        </span>
+      </b-badge>
+      <b-badge pill variant="warning" class="mx-1" v-if="assignedRoleId && getAllRoles.length > 0">
+        {{
+          getYourRole().permissions.length
+        }} permissions
+      </b-badge>
+
+      <b-badge pill variant="success" class="mx-1" v-if="invitationStatus">
+        <span class="mx-1" style="color: white"><b-icon icon="check" variant=" light"></b-icon>Accepted
+        </span></b-badge>
+      <b-badge pill variant="warning" class="mx-1" v-else>
+        <span class="mx-1" style="color: white">Pending </span></b-badge>
+      
+      <b-dropdown class="m-2" size="sm" variant="link" toggle-class="text-decoration-none" menu-class="dropDownPopup" no-caret dropleft>
+        <template #button-content>
+          <b-icon style="color: grey" icon="list" aria-hidden="true"></b-icon>
+        </template>
+        <b-dropdown-group id="dropdown-group-1" header="Assign Role" style="text-align: left;"
+          v-if="invitationStatus && mode == 'Member'">
+          <b-dropdown-item-button style="text-align: left" v-for="eachRole in getAllRoles" v-bind:key="eachRole"
+            @click="assignRole(eachRole._id, userId)">
+            <!-- <button type="submit" class="btn btn-outline-secondary"> -->
+            {{ eachRole.roleName }}
+            <b-badge pill variant="warning">{{ eachRole.permissions.length }}
+              permissions</b-badge>
+            <!-- </button> -->
+          </b-dropdown-item-button>
+          <b-dropdown-divider></b-dropdown-divider>
+        </b-dropdown-group>
+
+
+        <b-dropdown-item-button v-if="mode !== 'Admin'" style="text-align: left" @click="copyToClip(`${$config.app.url}/#/studio/settings?ref=invitions`, 'Invitation Url')"><i
+            class="far fa-copy mt-1" aria-hidden="true"></i> Invite Url
         </b-dropdown-item-button>
-        <b-dropdown-divider></b-dropdown-divider>
-      </b-dropdown-group>
-
-
-      <b-dropdown-item-button style="text-align: left" @click="copyToClip(inviteCode, 'Invition Code')"><i
+         <b-dropdown-item-button v-if="mode == 'Admin'" style="text-align: left" @click="copyToClip(inviteCode, 'Invition Code')"><i
           class="far fa-copy mt-1" aria-hidden="true"></i> Invition Code
       </b-dropdown-item-button>
-      <b-dropdown-item-button v-if="deleteMemberMenu" style="text-align: left" @click="deleteAMember()"><i
-          class="fa fa-trash mt-1"></i> Delete Member</b-dropdown-item-button>
-      <b-dropdown-item-button v-if="mode == 'Admin'" style="text-align: left" @click="acceptedInvition()"><b-icon
-          icon="hand-thumbs-up"></b-icon> Accept Invition</b-dropdown-item-button>
+        <b-dropdown-item-button v-if="deleteMemberMenu" style="text-align: left" @click="deleteAMember()"><i
+            class="fa fa-trash mt-1"></i> Delete Member</b-dropdown-item-button>
+        <b-dropdown-item-button v-if="mode == 'Admin'" style="text-align: left" @click="acceptedInvition()"><b-icon
+            icon="hand-thumbs-up"></b-icon> Accept Invition</b-dropdown-item-button>
 
-      <b-dropdown-item-button v-if="mode == 'Admin' && invitationStatus" style="text-align:left"
-        @click="switchToAdminAccount()"><b-icon icon="box-arrow-in-right"></b-icon> Switch
-        Account</b-dropdown-item-button>
+        <b-dropdown-item-button v-if="mode == 'Admin' && invitationStatus" style="text-align:left"
+          @click="switchToAdminAccount()"><b-icon icon="box-arrow-in-right"></b-icon> Switch
+          Account</b-dropdown-item-button>
 
-    </b-dropdown>
-  </b-list-group-item>
+      </b-dropdown>
+    </b-list-group-item>
+    <hf-pop-up
+     v-show="showDeleteConfirm"
+      id="delete-member-confirm-popup" 
+      Header="Delete Member"
+      @hide="resetDeleteMember"
+      :hideHeaderClose="true">
+    <div>
+      <span class="warning-icon">⚠️</span> 
+      <span class="warning-text"> Are you sure you want to delete this member? This action cannot be undone.</span>
+      <div class="text-center mt-3">
+         
+        <hf-buttons
+          name="Cancel"
+          class="btn btn-light px-4 py-2 border rounded me-2"
+          iconClass="fa fa-times"
+          @executeAction="resetDeleteMember"
+        />
+        <hf-buttons 
+        name="Delete" 
+        class="btn btn-primary text-center" 
+        customClass="btn btn-danger"
+        iconClass="fa fa-trash-alt" 
+        @executeAction="confirmDeleteMember">
+        </hf-buttons>
+
+      </div>
+    </div>
+   </hf-pop-up>
+  </div>
 </template>
 
 <script>
+import HfPopUp from "../../components/element/hfPopup.vue";
 import UtilsMixin from "../../mixins/utils";
 import { mapActions, mapGetters } from "vuex/dist/vuex.common.js";
 export default {
@@ -123,9 +157,13 @@ export default {
   },
   data() {
     return {
-      isLoading: false
+      isLoading: false,
+      showDeleteConfirm: false,
     }
   },
+   components: {
+    HfPopUp,
+   },
   computed: {
     ...mapGetters('mainStore', ['getAllRoles'])
   },
@@ -143,24 +181,29 @@ export default {
           });
       }
     },
-    async deleteAMember() {
-      try {
-
-        const result = confirm("Are you sure you want to delete this member?")
-
-        if (result) {
-          this.isLoading = true;
-          await this.deleteMember(this.email)
-          this.isLoading = false;
-          this.notifySuccess(`${this.email} successfully deleted`)
-        }
-
-
-      } catch (e) {
-        this.notifyErr(e.message)
-      }
-    },
-    async acceptedInvition() {
+  async deleteAMember() {
+    this.showDeleteConfirm = true;
+    this.$root.$emit("bv::show::modal", "delete-member-confirm-popup");
+  },
+  async confirmDeleteMember() {
+    try {
+      this.isLoading = true;
+      await this.deleteMember(this.email);
+      this.notifySuccess(`${this.email} successfully deleted`);
+      this.$root.$emit("bv::hide::modal", "delete-member-confirm-popup");
+    } catch (e) {
+      this.notifyErr(e.message);
+    } finally {
+      this.isLoading = false;
+      this.showDeleteConfirm = false;
+    }
+  },
+  resetDeleteMember(){
+    this.showDeleteConfirm = false;
+    this.isLoading = false;
+    this.$root.$emit("bv::hide::modal", "delete-member-confirm-popup");
+  },
+   async acceptedInvition() {
       try {
         this.isLoading = true;
         await this.acceptInvition(this.inviteCode.trim());

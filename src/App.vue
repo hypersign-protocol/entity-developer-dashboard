@@ -75,68 +75,83 @@
 }
 </style>
 <template>
-  <div id="app">
+  <div id="app" data-app>
     <load-ing :active.sync="isLoading" :can-cancel="true" :is-full-page="true"></load-ing>
 
-    <b-navbar toggleable="lg" type="dark" variant="white" class="navStyle" v-if="showIcon" sticky>
+    <b-navbar toggleable="lg" type="dark" variant="white" class="navStyle" v-if="getIsLoggedOut" sticky>
       <b-navbar-brand href="#">
         <a href="#" @click="route('dashboard')">
-          <img src="./assets/Entity_full.png" alt="" style="height: 5vh; opacity: 80%" />
+          <img src="./assets/Entity_full.png" alt="" style="height: 3vh; opacity: 80%;" />
         </a>
       </b-navbar-brand>
       <b-collapse id="nav-collapse" is-nav v-if="parseAuthToken">
         <b-navbar-nav class="ml-auto">
 
-          <b-nav-item v-if="user.accessAccount?.email" class="center">
+          <b-nav-item v-if="user.accessAccount?.email && user.accessAccount.userId !== user.userId" class="center">
             <a href="#">
-              Accessing Account Of: <b-badge variant="dark"> {{ user.accessAccount.email }}</b-badge>
+              Accessing Account Of: <b-badge variant="dark"> {{ loggedInUserEmailId }}</b-badge>
+            <b-icon icon="box-arrow-in-right" class="ml-2" @click="switchBackToAdminAccount"></b-icon>
             </a>
           </b-nav-item>
 
           <b-nav-item v-if="parseAuthToken.isTwoFactorEnabled == false">
-            <button class="btn btn-outline-secondary" type="button" @click="$router.push('mfa')">
-              <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
-              <span class="visually-hidden"> Setup MFA</span>
-            </button>
+            
+            <router-link to="/studio/mfa">
+              <v-chip
+              outlined
+                class="ma-2"
+                style="cursor: grab; font-size: 10px; height: 26px;"
+              >
+              <span class="spinner-grow spinner-grow-sm"></span>
+              <span class="mx-1">Setup MFA</span>
+            </v-chip>
+              
+            </router-link>
+            
+          
           </b-nav-item>
 
           <b-nav-item :href="$config.studioServer.BASE_URL" target="_blank" title="Developer Dashboard API">
-            <i class="fa fa-code f-36" style=" color: grey"></i></b-nav-item>
+            <i class="fa fa-code" style=" color: #707070;height: 18px; font-size: 18px; width: 18px;"></i></b-nav-item>
           <b-nav-item href="https://docs.hypersign.id/entity-studio/developer-dashboard" target="_blank"
             title="Documentation">
-            <i class="fas fa-book-open f-36" style=" color: grey"></i>
+            <i class="fas fa-book-open nav-icon" style="height: 18px; font-size: 18px; width: 18px;"></i>
           </b-nav-item>
 
-          <b-nav-item-dropdown right v-if="showIcon" title="Profile">
-            <template #button-content>
-              <i class="fas fa-user-circle f-36" style="color: grey"></i>
+          <b-nav-item-dropdown right v-if="getIsLoggedOut" title="Profile" menu-class="dropDownPopup">
+           <template #button-content>
+             <img
+              v-if="userDetails?.profileIcon"
+              :src="userDetails?.profileIcon"
+              style="width: 18px; height: 18px; border-radius: 50%;"
+            />
+            <i v-else class="fas fa-user-circle nav-icon" style="height: 18px; font-size: 18px; width: 18px;"></i> 
             </template>
-
             <b-dropdown-group style="text-align: left;">
+              <b-dropdown-item-button style="text-align: center; font-size: 0.9rem;">
+                <span>
+                 <span style="font-size: 0.8rem;">Welcome, </span>
+                   <strong style="font-size: 0.9rem;">{{ userDetails.name || 'User' }}</strong>
+                 </span>
+              </b-dropdown-item-button>
               <b-dropdown-item-button style="text-align: left" :title="userDetails.email"
                 @click="copyToClip(userDetails.email, 'Email')">
-                <i class="far fa-copy mt-1"></i>
                 {{ shorten(userDetails.email) }}
               </b-dropdown-item-button>
 
-              <!-- <b-dropdown-item-button style="text-align: left" :title="userDetails.did" v-if="userDetails.did" @click="copyToClip(userDetails.did, 'DID')">
-                <i class="far fa-copy" ></i>
-                {{ shorten(userDetails.did) }}
-              </b-dropdown-item-button> -->
-
               <b-dropdown-item-button style="text-align: left" @click="goTo('/studio/settings')" title="Teams">
-                <i class="fa fa-cog" style="cursor: pointer; font-size: 1.3rem"></i>
+                <i class="fa fa-cog nav-icon" style="cursor: pointer; font-size: 1.3rem"></i>
                 Settings
               </b-dropdown-item-button>
 
               <b-dropdown-item-button style="text-align: left" @click="goTo('/studio/dashboard')" title="Teams">
-                <i class="fa fa-home" style="cursor: pointer; font-size: 1.3rem"></i>
+                <i class="fa fa-home nav-icon" style="cursor: pointer; font-size: 1.3rem"></i>
                 Home
               </b-dropdown-item-button>
               <b-dropdown-divider></b-dropdown-divider>
 
               <b-dropdown-item-button style="text-align: left" @click="logoutAll()" title="Logout">
-                <i class="fas fa-sign-out-alt" style="cursor: pointer; font-size: 1.3rem"></i>
+                <i class="fas fa-sign-out-alt nav-icon" style="cursor: pointer; font-size: 1.3rem"></i>
                 Logout
               </b-dropdown-item-button>
             </b-dropdown-group>
@@ -152,30 +167,37 @@
     </div>
     <notifications group="foo" />
 
-
-    <sidebar-menu class="sidebar-wrapper" v-if="showSideNavbar" @toggle-collapse="onToggleCollapse"
+    <sidebar-menu :relative="false" class="sidebar-wrapper" v-if="parseAuthToken && showSideNavbar && getSelectedService" @toggle-collapse="onToggleCollapse"
       :collapsed="isSidebarCollapsed" :theme="'white-theme'" width="220px" :menu="getSideMenu()">
-      <div slot="header" class="border">
-        <div class="row center p-1">
-          <div class="col">
-            <div class="p-1 center">
-              <b-avatar :src="getSelectedService.logoUrl ||
+      <div slot="header" style="border-bottom: 1px solid rgba(0,0,0,.12);">
+        <v-list>
+      <v-list-item>
+        <v-list-item-avatar>
+          <v-img :src="getSelectedService.logoUrl ||
                 getProfileIcon(formattedAppName(getSelectedService.appName))
-                " variant="info"></b-avatar>
-            </div>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col">
-            <center>
-              <p class="mt-3 orgNameCss">
-                {{ getSelectedService ? getSelectedService.appName : "" }}
-              </p>
-            </center>
-          </div>
-        </div>
+                "></v-img>
+        </v-list-item-avatar>
+        <v-list-item-content class="mx-1">
+          <v-list-item-title class="text-h7">
+            {{ getSelectedService ? getSelectedService.appName : "" }}
+          </v-list-item-title>
+        </v-list-item-content>
+      </v-list-item>
+
+      
+    </v-list>
+    
+
       </div>
     </sidebar-menu>
+
+    <!-- <sidebar-menu-nav v-if="showSideNavbar && getSelectedService" 
+      :collapsed="isSidebarCollapsed" 
+      :menus="getSideMenu()"
+      :avatar="getSelectedService.logoUrl || getProfileIcon(formattedAppName(getSelectedService.appName))"
+      :service_name="getSelectedService ? getSelectedService.appName : ''"
+      >
+    </sidebar-menu-nav> -->
   </div>
 </template>
 
@@ -200,8 +222,7 @@
   padding: 5px !important;
   padding-left: 1.5%;
   text-align: left;
-  box-shadow: rgba(0, 0, 0, 0.1) 0px 2px 2px 0px,
-    rgba(0, 0, 0, 0.02) 0px 3px 1px -2px, rgba(0, 0, 0, 0.01) 0px 1px 5px 0px;
+  box-shadow: 0 2px 6px 0 rgba(32, 33, 37, .1);
 }
 
 .orgNameCss {
@@ -257,39 +278,40 @@
 
 .sidebar-wrapper {
   min-width: 70px;
-  margin-top: 65px;
-  box-shadow: 0 0 15px 0 rgba(34, 41, 47, 0.05);
+  margin-top: 5.8vh;
+  /* box-shadow: 0 0 15px 0 rgba(34, 41, 47, 0.05); */
+  box-shadow: 0 2px 6px 0 rgba(32, 33, 37, .1);
+  border-right: 1px solid rgba(128, 128, 128, 0.21);
 }
 
 .v-sidebar-menu.vsm_white-theme .vsm--mobile-bg {
-  background: #905ab0;
+  background: grey;
 }
 
 .vsm--mobile-bg {
-  background: #905ab098 !important;
+  background: whitesmoke !important;
 }
-
 .v-sidebar-menu.vsm_white-theme {
   background-color: white !important;
-  color: #000 !important;
+  color: rgba(0,0,0,.87) !important;
 }
 
 .v-sidebar-menu.vsm_white-theme .vsm--header {
-  color: #000 !important;
+  color: rgba(0,0,0,.87) !important;
 }
 
 .v-sidebar-menu.vsm_white-theme .vsm--link {
-  color: #000 !important;
+  color: rgba(0,0,0,.87) !important;
 }
 
 .v-sidebar-menu.vsm_white-theme .vsm--link_level-1 .vsm--link:hover {
-  color: #000 !important;
-  background: #905ab0 !important;
+  color: rgba(0,0,0,.87) !important;
+  background: whitesmoke !important;
 }
 
 .v-sidebar-menu.vsm_white-theme .vsm--link_level-1 .vsm--icon {
   background-color: transparent !important;
-  color: #000 !important;
+  color: #66666a !important;
 }
 </style>
 
@@ -300,16 +322,16 @@ import { mapActions, mapMutations, mapGetters, mapState } from "vuex";
 export default {
   computed: {
     ...mapGetters("playgroundStore", ["userDetails", "getSelectedOrg"]),
-    ...mapGetters("mainStore", ["getSelectedService", "getAllServices"]),
+    ...mapGetters("mainStore", ["getSelectedService", "getAllServices", 'getIsLoggedOut']),
     ...mapState({
       showMainSideNavBar: (state) => state.mainStore.showMainSideNavBar,
       selectedDashboard: (state) => state.globalStore.selectedDashboard,
       appList: (state) => state.mainStore.appList,
     }),
 
-    authToken() {
-      return localStorage.getItem("authToken")
-    },
+    // authToken() {
+    //   return localStorage.getItem("authToken")
+    // },
     selectedOrg() {
       return this.getSelectedOrg;
     },
@@ -324,19 +346,22 @@ export default {
     return {
       isLoading: false,
       collapsed: true,
-      showIcon: true,
       isSidebarCollapsed: true,
       schema_page: 1,
       authRoutes: ["register", "PKIIdLogin"],
       user: {},
-      parseAuthToken: null
+      loggedInUserEmailId:"",
+      parseAuthToken: null,
+      authToken:null
     };
   },
 
   mounted() {
+    this.authToken = localStorage.getItem("authToken");
     this.$root.$on("clearAppData", () => {
       this.authToken = null;
-      this.showIcon = false;
+      // this.showIcon = false;
+      this.setIsLoggedOut(false)
     });
 
     this.$root.$on("recomputeParseAuthTokenEvent", () => {
@@ -351,7 +376,9 @@ export default {
     if (localStorage.getItem("user")) {
       const usrStr = localStorage.getItem("user");
       this.user = JSON.parse(usrStr);
-      this.showIcon = true;
+      this.loggedInUserEmailId=this.user?.accessAccount?.email
+      // this.showIcon = true;
+      this.setIsLoggedOut(true)
     }
     if (localStorage.getItem("selectedOrg")) {
       const selectedOrgId = localStorage.getItem("selectedOrg");
@@ -371,8 +398,8 @@ export default {
     })
   },
   methods: {
-    ...mapActions("mainStore", ["fetchAppsListFromServer", "fetchServicesList"]),
-    ...mapMutations("mainStore", ["resetMainStore"]),
+    ...mapActions("mainStore", ["fetchAppsListFromServer", "fetchServicesList",'switchToAdmin']),
+    ...mapMutations("mainStore", ["resetMainStore", "setIsLoggedOut"]),
     ...mapActions("playgroundStore", [
       "insertAschema",
       "insertAcredential",
@@ -406,9 +433,9 @@ export default {
       return "https://api.dicebear.com/7.x/identicon/svg?seed=" + name;
     },
     logoutAll() {
-      this.showIcon = false;
+      // this.showIcon = false;
+      this.setIsLoggedOut(false)
       if (this.$route.path !== '/login') this.$router.push('/login')
-
       this.logout();
     },
 
@@ -431,31 +458,44 @@ export default {
         this.parseAuthToken = null
         return
       }
-      var base64Url = authTokne.split('.')[1];
-      var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-      var jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function (c) {
+      const base64Url = authTokne.split('.')[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function (c) {
         return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
       }).join(''));
-      this.parseAuthToken = JSON.parse(jsonPayload);
+      const parsedjsonPayload = JSON.parse(jsonPayload);
+      const { exp } = parsedjsonPayload
+      if(!this.checkIfDateExpired(exp)){
+        this.parseAuthToken = parsedjsonPayload
+      } else {
+        this.parseAuthToken = null
+      }
+    },
+    checkIfDateExpired(datetimestamp){
+      const currentTime = Math.floor(Date.now() / 1000);
+      if (datetimestamp < currentTime) {
+        return true
+      } else {
+        return false
+      }
     },
     async initializeStore() {
       try {
         this.authToken = localStorage.getItem("authToken");
         if (this.authToken) {
-          this.showIcon = true;
-          // this.isLoading = true;
-          // await this.fetchAppsListFromServer();
-          // await this.fetchServicesList()
-
-          this.$router.push("dashboard").then(() => { this.$router.go(0) });
-
-          // this.isLoading = false;
+           this.setIsLoggedOut(true)
+           const redirectPath=localStorage.getItem("postLoginRedirect")||'/studio/dashboard'
+           localStorage.removeItem("postLoginRedirect");
+           this.$router.push(redirectPath).then(() => {
+          setTimeout(() => {
+            this.$router.go(0);
+          }, 500);
+        });
         } else {
           throw new Error("No auth token")
         }
       } catch (e) {
-        this.showIcon = false
-        // this.isLoading = false;
+        this.setIsLoggedOut(false)
         this.notifyErr(`Error:  ${e.message}`);
       }
 
@@ -481,17 +521,10 @@ export default {
               icon: "fa fa-check",
             })
 
-            // menu.push({
-            //   href: "/studio/onchainkyc/" + this.getSelectedService.appId,
-            //   title: "OnChain KYC",
-            //   icon: "fas fa-network-wired",
-            // })
 
-            menu.push({
-              href: "/studio/widget-config/" + this.getSelectedService.appId,
-              title: "Widget",
-              icon: "fa fa-cogs",
-            })
+
+
+
 
             menu.push({
               href: "/studio/usage/" + this.getSelectedService.appId,
@@ -499,6 +532,33 @@ export default {
               icon: "fa fa-chart-bar",
             })
 
+            menu.push({
+              href: "/studio/onchainkyc/credit/" + this.getSelectedService.appId,
+              title: "Credits",
+              icon: "fas fa-hand-holding-usd",
+            })
+
+            menu.push({
+              href: '#',
+              title: 'Settings',
+              icon: 'fa fa-cogs',
+              child: [
+                {
+                  href: "/studio/onchainkyc/" + this.getSelectedService.appId,
+                  title: "OnChain KYC",
+                  icon: "fas fa-network-wired",
+                },
+                {
+                  href: "/studio/widget-config/" + this.getSelectedService.appId,
+                  title: "KYC Widget",
+                  icon: "fa fa-puzzle-piece",
+                }, {
+                  href: "/studio/webhook-config/" + this.getSelectedService.appId,
+                  title: "Webhook",
+                  icon: "fa fa-anchor",
+                },
+              ]
+            })
 
           } else if (id == 'SSI_API') {
             menu.push({
@@ -506,6 +566,23 @@ export default {
               title: "DIDs",
               icon: "fa fa-id-badge",
             })
+
+            menu.push({
+              href: "/studio/ssi/schema/" + this.getSelectedService.appId,
+              title: "Schemas",
+              icon: "fa fa-puzzle-piece",
+            })
+
+            menu.push({
+              href: "/studio/ssi/credential/" + this.getSelectedService.appId,
+              title: "Credential",
+              icon: "fa fa-certificate",
+            })
+            menu.push({
+              href: "/studio/ssi/usage/" + this.getSelectedService.appId,
+              title: "Usages",
+              icon: "fa fa-chart-bar",
+                      })
 
             menu.push({
               href: "/studio/ssi/credit/" + this.getSelectedService.appId,
@@ -595,11 +672,43 @@ export default {
       localStorage.removeItem("selectedOrg");
       this.resetStore();
       this.resetMainStore();
+      this.$router.go();
+      localStorage.removeItem('vuex')
     },
 
     formattedAppName(appName) {
       if (appName == "" || appName == undefined) appName = "No app name";
       return this.truncate(appName, 25);
+    },
+    async switchBackToAdminAccount(){
+      try{
+        this.isLoding= true
+         await this.switchToAdmin({
+          adminId: this.userDetails.userId
+        })
+        this.isLoading = false
+        this.notifySuccess('Succefully switch to admin account')
+        await this.fetchLoggedInUser()
+        if (this.$route.path !== "/studio/dashboard") {
+          this.$router.push("dashboard").then(() => { this.$router.go(0) })
+        } else {
+          await this.fetchLoggedInUser()
+          this.$forceUpdate();
+          this.$router.go(0); 
+        }
+      } catch (e) {
+        this.notifyErr(e.message)
+        this.isLoading = false
+      }
+      },
+    async fetchLoggedInUser(){
+      if (localStorage.getItem("user")) {
+      const usrStr = localStorage.getItem("user");
+      this.user = JSON.parse(usrStr);
+      this.loggedInUserEmailId=this.user?.accessAccount?.email
+      this.setIsLoggedOut(true)
+    }
+    
     },
   },
   mixins: [UtilsMixin],

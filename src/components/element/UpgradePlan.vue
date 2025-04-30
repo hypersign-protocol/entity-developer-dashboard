@@ -1,5 +1,5 @@
 <template>
-    <div class="mt-3 card" style="max-width: 800px; padding: 45px;">
+    <v-card class="mt-3 " style="max-width: 800px; padding: 45px;">
         <div class="row">
             <div class="col-md-3">
                 <i class="fa fa-lock" aria-hidden="true" style="font-size: 8rem;"></i>
@@ -22,5 +22,5 @@
                 </div>
             </div>
         </div>
-    </div>
+    </v-card>
 </template>

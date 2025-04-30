@@ -3,19 +3,23 @@ import Router from 'vue-router'
 import fetch from 'node-fetch'
 import config from './config'
 import store from './store'
-
-import PKIIdLogin from './views/PKIIdLogin.vue'
-import Home from './views/Home.vue'
-import MainDashboard from './views/Dashboard.vue'
-import Credential from './views/playground/Sessions.vue'
-import CredentialDetails from './views/playground/SessionsDetails.vue'
-import DIDs from './views/playground/DID.vue'
-import SSIDashboardCredit from './views/playground/SSIDashboardCredit.vue'
-import UsageS from './views/playground/Usage.vue';
-import OnChainKycSystems from './views/playground/OnChainKycSystems.vue';
-import WidgetConfig from './views/playground/WidgetConfig.vue'
-import MFA from './components/login/mfa/MFA.vue';
-import SettingConfig from './views/SettingConfig.vue'
+import Schema from './views/playground/Schema.vue'
+import CredentialStatus from './views/playground/CredentialStatus.vue'
+const Home = () => import('./views/Home.vue');
+const PKIIdLogin = () => import('./views/PKIIdLogin.vue')
+const MainDashboard = () => import('./views/Dashboard.vue')
+const Credential = () => import('./views/playground/Sessions.vue')
+const CredentialDetails = () => import('./views/playground/SessionsDetails.vue')
+const DIDs = () => import('./views/playground/DID.vue')
+const SSIDashboardCredit = () => import('./views/playground/SSIDashboardCredit.vue')
+const SSIDashboardUsage = () => import('./views/playground/SSIDashboardUsages.vue')
+const KYCCreditDashboard = () => import('./views/playground/KYCDashboardCredit.vue')
+const UsageS = () => import('./views/playground/Usage.vue')
+const OnChainKycSystems = () => import('./views/playground/OnChainKycSystems.vue')
+const WidgetConfig = () => import('./views/playground/WidgetConfig/Index.vue')
+const WebhookConfig = () => import('./views/playground/WebhookConfig.vue')
+const MFA = () => import('./components/login/mfa/MFA.vue')
+const SettingConfig = () => import('./views/SettingConfig.vue')
 Vue.use(Router)
 
 const router = new Router({
@@ -96,12 +100,48 @@ const router = new Router({
       }
     },
     {
+      path: '/studio/ssi/schema/:appId',
+      name: 'Schemas',
+      component: Schema,
+      meta: {
+        requiresAuth: true,
+        title: `${config.app.name} - Schema`
+      }
+    },
+    {
+      path: '/studio/ssi/credential/:appId',
+      name: 'Credential',
+      component: CredentialStatus,
+      meta: {
+        requiresAuth: true,
+        title: `${config.app.name} - Credential`
+      }
+    },
+    {
       path: '/studio/ssi/credit/:appId',
       name: 'Credit',
       component: SSIDashboardCredit,
       meta: {
         requiresAuth: true,
         title: `${config.app.name} - SSI Credit`
+      }
+    },
+    {
+      path: '/studio/ssi/usage/:appId',
+      name: 'Usage',
+      component: SSIDashboardUsage,
+      meta: {
+        requiresAuth: true,
+        title: `${config.app.name} - Usages`
+      }
+    },
+    {
+      path: '/studio/onchainkyc/credit/:appId',
+      name: 'KYCCredit',
+      component: KYCCreditDashboard,
+      meta: {
+        requiresAuth: true,
+        title: `${config.app.name} - KYC Credit`
       }
     },
     {
@@ -129,6 +169,16 @@ const router = new Router({
       meta: {
         requiresAuth: true,
         title: `${config.app.name} - WidgetConfig`
+      }
+    },
+
+    {
+      path: '/studio/webhook-config/:appId',
+      name: 'WebhookConfig',
+      component: WebhookConfig,
+      meta: {
+        requiresAuth: true,
+        title: `${config.app.name} - WebhookConfig`
       }
     },
     {
@@ -186,7 +236,8 @@ router.beforeEach(async (to, from, next) => {
         store.commit('mainStore/setMainSideNavBar', false)
         next({
           path: '/studio/login',
-          params: { nextUrl: to.fullPath }
+          query: { redirect: to.fullPath }
+          // params: { nextUrl: to.fullPath }
         })
 
       }
@@ -194,10 +245,16 @@ router.beforeEach(async (to, from, next) => {
     } else {
       next({
         path: '/studio/login',
-        params: { nextUrl: to.fullPath }
+        query: { redirect: to.fullPath }
+        // params: { nextUrl: to.fullPath }
+
       })
     }
   } else {
+    console.log(to.path)
+    if (to.path === '/studio/login') {
+      store.commit('mainStore/setIsLoggedOut', false)
+    }
     next()
   }
 })

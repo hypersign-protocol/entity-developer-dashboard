@@ -33,8 +33,8 @@ const walletStore = {
         ],
 
         onChainIssuerConfig: {},
-        onChainIssuerData: {}
-
+        onChainIssuerData: {},
+        selectedBlockchainLabel: ""
     },
     getters: {
         getOnChainActiveStep: (state) => {
@@ -57,7 +57,10 @@ const walletStore = {
 
         getOnChainIssuerData: (state) => {
             return state.onChainIssuerData
-        }
+        },
+        getOnChainBlockchainLabel(state) {
+            return state.selectedBlockchainLabel
+        },
     },
     mutations: {
         nextStep: (state, jumpToStepId = null) => {
@@ -67,6 +70,9 @@ const walletStore = {
             state.steps[nextStepId].isActive = true;
         },
 
+        setOnChainBlockchainLabel(state, payload) {
+            state.selectedBlockchainLabel = payload
+        },
         setOnChainIssuerData(state, payload) {
             state.onChainIssuerData = { ...payload }
         },

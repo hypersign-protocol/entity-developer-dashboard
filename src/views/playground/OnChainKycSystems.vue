@@ -63,10 +63,6 @@
   padding: 0px;
 }
 
-.card {
-  border-radius: 10px;
-}
-
 .goschema {
   color: #339af0;
 }
@@ -121,15 +117,30 @@ h5 span {
   overflow-y: auto;
 }
 </style>
+
+
 <template>
   <div :class="isContainerShift ? 'homeShift' : 'home'">
     <loading :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loading>
-
+    <!-- <div class="row mb-1">
+      <div class="col-12 bg-warning">
+        <b-navbar style="border-radius: 5px;">
+          <b-navbar-nav><b-nav-item href="#">This is an experimental feature!</b-nav-item></b-navbar-nav>
+        </b-navbar>
+      </div>
+    </div> -->
     <div class="row">
       <div class="col-6" style="text-align: left">
         <div class="form-group" style="display:flex">
-          <h3 v-if="onchainconfigs.length > 0" style="text-align: left;">
-            OnChain KYC Configuration</h3>
+          <h3 v-if="onchainconfigs.length > 0" style="text-align: left;" class="position-relative">
+
+            OnChain KYC Configuration
+            <!-- <span class="badge position-absolute  rounded">
+              Beta
+            </span> -->
+            <HFBeta></HFBeta>
+
+          </h3>
           <h3 v-else style="text-align: left;">No onchain kyc configuration found!</h3>
         </div>
       </div>
@@ -140,45 +151,67 @@ h5 span {
       </div>
     </div>
 
-    <div class="row scrollit" v-if="onchainconfigs.length > 0">
-      <div class="col-md-12">
+    <div class="scrollit" v-if="onchainconfigs.length > 0">
+      <div class="">
         <table class="table table-hover event-card" style="background:#FFFF">
           <thead class="thead-light">
             <tr>
-              <th>Blockchain</th>
+              <th class="sticky-header">Blockchain</th>
+              <th class="sticky-header">ID</th>
               <th class="sticky-header">Date</th>
               <th class="sticky-header">Issuer DID</th>
+              <th class="sticky-header">Issuer Wallet</th>
+
+
               <!-- <th class="sticky-header">Owner's Wallet</th> -->
-              <th class="sticky-header">KYC Contract Addr</th>
-              <th class="sticky-header">KYC Tx Hash</th>
-              <th class="sticky-header">SBT Contract Addr</th>
+              <th class="sticky-header">KYC Contract</th>
+              <!-- <th class="sticky-header">KYC Tx Hash</th> -->
+              <th class="sticky-header">SBT Contract</th>
+              <th class="sticky-header"></th>
               <!-- <th></th> -->
             </tr>
           </thead>
           <tbody>
             <tr v-for="row in onchainconfigs" :key="row._id">
               <td>
-                <span><img :src="getChainDetail(row.blockchainLabel).logoUrl" width="20" height="20"></span>
+                <span>
+
+                  <b-avatar badge-top badge-offset="-2px"   :style="{ backgroundColor: 'white' }"
+                    :src="getChainDetail(row.blockchainLabel).logoUrl" size="30">
+                    <template #badge v-if="getChainDetail(row.blockchainLabel).chainName.indexOf('test') < 0"><b-icon
+                        icon="star-fill"></b-icon></template>
+                  </b-avatar>
+                </span>
                 {{ getChainDetail(row.blockchainLabel).chainName }}
               </td>
+
+
+              <td @click="copyToClip(row._id, 'Onchain Configuration Id')" style="cursor: pointer;">{{
+                stringShortner(row._id, 15) }}</td>
               <td>{{ toDateTime(row.createdAt) }}
               </td>
               <td @click="copyToClip(row.issuerDid, 'Issuer DID')" style="cursor: pointer;">{{
                 stringShortner(row.issuerDid, 15) }}</td>
-              <!-- <td @click="copyToClip(row.walletAddress, 'Wallet Address')" style="cursor: pointer;">{{
-                stringShortner(row.walletAddress, 15) }}</td> -->
+              <td @click="copyToClip(row.options?.masterWalletAddress, 'Wallet Address')" style="cursor: pointer;">{{
+                stringShortner(row.options?.masterWalletAddress, 15) }}</td>
+
+
               <td @click="copyToClip(row.kycContractAddress, 'Kyc Contract Address')" style="cursor: pointer;">{{
-                stringShortner(row.kycContractAddress, 15) }}</td>
-              <td @click="copyToClip(row.kycContractTxHash, 'Kyc Contract Tx Hash')" style="cursor: pointer;"><a
+                stringShortner(row.kycContractAddress, 20) }}</td>
+              <!-- <td @click="copyToClip(row.kycContractTxHash, 'Kyc Contract Tx Hash')" style="cursor: pointer;"><a
                   href="#" target="_blank"> {{
-                    row.kycContractTxHash ? stringShortner(row.kycContractTxHash, 15) : "-" }}</a></td>
+                    row.kycContractTxHash ? stringShortner(row.kycContractTxHash, 15) : "-" }}</a></td> -->
 
               <td @click="copyToClip(row.sbtContractAddress, 'SBT Contract Address')" style="cursor: pointer;">{{
-                stringShortner(row.sbtContractAddress, 15) }}</td>
+                stringShortner(row.sbtContractAddress, 20) }}</td>
               <!--<td v-if="!row.sbtContractAddress">
                 <span @click="editOnChainConfiguration(row)"><i class="fas fa-feather"></i></span>
               </td>
               <td v-else></td>-->
+              <td>
+                <span @click="deleteConfiguration(row._id)" class="ml-2" style="cursor:grab; color:grey"><i
+                    class="fa fa-trash-alt"></i></span>
+              </td>
             </tr>
           </tbody>
         </table>
@@ -188,7 +221,8 @@ h5 span {
 
     <StudioSideBar title="OnChain KYC">
       <div class="container" style="width: 100%;">
-        <DeployOnChainKYC />
+        <!-- sliderKey is added to enure force rendering when DeployOnChainKyc is Called -->
+        <DeployOnChainKYC :key="sliderKey" />
       </div>
     </StudioSideBar>
   </div>
@@ -201,13 +235,14 @@ import Loading from "vue-loading-overlay";
 import HfButtons from "../../components/element/HfButtons.vue"
 import StudioSideBar from "../../components/element/StudioSideBar.vue";
 import DeployOnChainKYC from "../../components/deploy-onchain-kyc-popup/deploy.vue";
-import { getCosmosChainConfig } from '../../blockchains-metadata/cosmos/wallet/cosmos-wallet-utils'
-
+import { getCosmosChainConfig } from '@hypersign-protocol/hypersign-kyc-chains-metadata/cosmos/wallet/cosmos-wallet-utils'
+import { getStellarChainConfig } from '@hypersign-protocol/hypersign-kyc-chains-metadata/stellar/wallet/stellar-wallet-utils'
+import HFBeta from '../../components/element/HFBeta.vue';
 import { mapState, mapActions, mapMutations } from "vuex";
 
 export default {
   name: "UsageS",
-  components: { Loading, HfButtons, StudioSideBar, DeployOnChainKYC },
+  components: { Loading, HfButtons, StudioSideBar, DeployOnChainKYC, HFBeta },
   computed: {
     ...mapState({
       containerShift: state => state.playgroundStore.containerShift,
@@ -217,6 +252,7 @@ export default {
       return this.containerShift
     },
 
+
   },
   data() {
     return {
@@ -224,6 +260,8 @@ export default {
       user: {},
       fullPage: true,
       isLoading: false,
+      // force render 
+      sliderKey: 0,
     }
   },
 
@@ -242,6 +280,8 @@ export default {
       this.isLoading = false
       this.notifyErr(e.message)
       this.$router.push({ path: '/studio/dashboard' });
+    } finally {
+      this.warnUsers('b-toaster-top-full')
     }
   },
   beforeRouteEnter(to, from, next) {
@@ -250,12 +290,28 @@ export default {
     });
   },
   methods: {
-    ...mapActions('mainStore', ['fetchAppsOnChainConfigs']),
+
+    // warnUsers(toaster, variant = 'warning', append = false) {
+    //   this.$bvToast.toast(`This is an experimental feature. Kindly use only for testing purposes.`, {
+    //     title: `⚠️ Warning!`,
+    //     toaster: toaster,
+    //     solid: false,
+    //     variant,
+    //     appendToast: append,
+    //   })
+    // },
+    ...mapActions('mainStore', ['fetchAppsOnChainConfigs', 'deleteAppOnChainConfig']),
     ...mapMutations('playgroundStore', ['updateSideNavStatus', 'shiftContainer']),
     ...mapMutations('mainStore', ['setOnChainConfig']),
 
-    async deployOnchainKyc() {
 
+
+    async deleteConfiguration(id) {
+      this.isLoading = true
+      await this.deleteAppOnChainConfig({ _id: id })
+      this.isLoading = false
+      this.notifySuccess('Configuration deleted successfully')
+      return
     },
 
     editOnChainConfiguration(row) {
@@ -265,12 +321,21 @@ export default {
       this.$root.$emit("bv::toggle::collapse", "sidebar-right");
     },
     openSlider() {
+      // force render every time the slider is open
+      this.sliderKey = this.sliderKey + 1
       this.edit = false;
       this.setOnChainConfig({});
       this.$root.$emit("bv::toggle::collapse", "sidebar-right");
     },
     getChainDetail(blockchainlabel = 'cosmos:comdex:test') {
-      const config = getCosmosChainConfig(blockchainlabel)
+      let config;
+      if (blockchainlabel.indexOf('cosmos') >= 0) {
+        config = getCosmosChainConfig(blockchainlabel)
+      } else {
+
+        config = getStellarChainConfig(blockchainlabel)
+      }
+
       return {
         chainName: config.chainName,
         chainId: config.chainId,

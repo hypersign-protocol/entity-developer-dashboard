@@ -6,7 +6,8 @@
       </h3>
       <h4 v-else class="mt-4" style="text-align: left;">Create your first organization!</h4>
 
-      <hf-buttons name="Create" iconClass="fa fa-plus" style="text-align: right;" class="ml-auto mt-4" @executeAction="openSlider()">
+      <hf-buttons name="Create" iconClass="fa fa-plus" style="text-align: right;" class="ml-auto mt-4"
+        @executeAction="openSlider()">
       </hf-buttons>
     </div>
     <StudioSideBar :title="edit ? 'Edit Organization' : 'Add Organization'">
@@ -18,8 +19,7 @@
           <input type="text" class="form-control" id="orgDid" v-model="orgStore.orgDid" aria-describedby="orgNameHelp"
             disabled>
           <small id="orgNameHelp" class="form-text text-muted">
-            <a :href="`${$config.explorer.BASE_URL}identity/${orgStore.orgDid}`"
-              target="_blank">Resolve DID</a>
+            <a :href="`${$config.explorer.BASE_URL}identity/${orgStore.orgDid}`" target="_blank">Resolve DID</a>
           </small>
         </div>
 
@@ -36,24 +36,25 @@
           <input type="text" class="form-control" id="domain" v-model="orgStore.domain" aria-describedby="domainHelp"
             placeholder="Enter your domain name">
         </div>
-     
+
         <div class="form-group">
-          
-          
+
+
           <div>
             <tool-tip infoMessage="Organistaion Controller"></tool-tip>
             <label for="controller"><strong>Controllers<span style="color: red">*</span>:</strong></label>
           </div>
-          
-          <div class="selected-media-wrapper d-flex p-2 mb-4" style="overflow-y: auto" v-if="orgStore.controller.length > 0">
+
+          <div class="selected-media-wrapper d-flex p-2 mb-4" style="overflow-y: auto"
+            v-if="orgStore.controller.length > 0">
             <div v-for="ctl in orgStore.controller" v-bind:key="ctl">
-              <div :class="
-                flash == ctl
-                ? 'flash card rounded m-1 p-1 d-flex flex-row align-items-center'
-                : 'card rounded m-1 p-1 d-flex flex-row align-items-center pointer'"
-                style="min-width:90px; background-color: lightyellow; box-shadow: #80808042 1px 1px 1px 1px; color: grey" :title="ctl">
+              <div :class="flash == ctl
+                  ? 'flash card rounded m-1 p-1 d-flex flex-row align-items-center'
+                  : 'card rounded m-1 p-1 d-flex flex-row align-items-center pointer'"
+                style="min-width:90px; background-color: lightyellow; box-shadow: #80808042 1px 1px 1px 1px; color: grey"
+                :title="ctl">
                 <div>
-                  {{ truncate(ctl,25)  }}
+                  {{ truncate(ctl, 25) }}
                 </div>
                 <!-- <div style="padding: 5px; color: lightcoral;cursor: pointer;" @click="deleteController(ctl)" title="Remove this controller">
                   <i style="" class="fa fa-trash"></i>
@@ -63,8 +64,8 @@
           </div>
 
 
-          
-<!-- 
+
+          <!-- 
           <div v-if="isAdd">
             <div class="input-group mb-3">
               <input type="text" class="form-control" id="controllers" v-model="controllerValue" aria-describedby="controllerHelp" placeholder="did:hid:...8HPRgfJAnph">
@@ -93,53 +94,56 @@
     <div class="row scroll" v-if="orgList.length > 0">
       <div class="col-lg-4" v-for="eachOrg in orgList" :key="eachOrg._id">
 
-        <b-card :title="truncate(eachOrg.name,20)" tag="article" style="max-width: 30rem; margin-top: 10px; height:13rem"
-          class="mb-2 eventCard" img-top>
-          <ul style="list-style-type: none;padding-left: 0px;min-height: 80px;">            
-            <img style="float:right;" :src="`${getProfileIcon(eachOrg.name)}`" class="mr-2" alt="center" width="70px"/>            
-            <li class="" v-if="eachOrg.status ==='Registered'" style="">
+        <b-card :title="truncate(eachOrg.name, 20)" tag="article"
+          style="max-width: 30rem; margin-top: 10px; height:13rem" class="mb-2 eventCard" img-top>
+          <ul style="list-style-type: none;padding-left: 0px;min-height: 80px;">
+            <img style="float:right;" :src="`${getProfileIcon(eachOrg.name)}`" class="mr-2" alt="center" width="70px" />
+            <li class="" v-if="eachOrg.status === 'Registered'" style="">
               <i class="fa fa-user mr-2"></i>
-              <span class=""><a target="_blank" :href="`${$config.explorer.BASE_URL}identity/${eachOrg.orgDid}`">{{ truncate(eachOrg.orgDid,25) }}</a></span>
-              <span v-if="eachOrg.status === 'Registered'" @click="copyToClip(eachOrg.orgDid,'Org DID')"
-              ><i class="far fa-copy"></i></span>
+              <span class=""><a target="_blank" :href="`${$config.explorer.BASE_URL}identity/${eachOrg.orgDid}`">{{
+                truncate(eachOrg.orgDid,25) }}</a></span>
+              <span v-if="eachOrg.status === 'Registered'" @click="copyToClip(eachOrg.orgDid, 'Org DID')"><i
+                  class="far fa-copy"></i></span>
             </li>
-            <div v-if="eachOrg.status ==='Registered'">
-            <li class="">
-              <span><i class="fa fa-id-card mr-2"></i>Credentials : <span class="badge badge-secondary badge-pill">{{eachOrg.credentialsCount}}</span></span>
-            </li>
-            <li class="">
-              <span><i class="fa fa-table mr-2"></i>Schemas   : <span class="badge badge-secondary badge-pill">{{eachOrg.schemasCount}}</span></span>
-            </li>
-            <li class="">
-              <span><i class="fa fa-desktop mr-2"></i>Templates : <span class="badge badge-secondary badge-pill">{{eachOrg.templatesCount}}</span></span>
-            </li>
+            <div v-if="eachOrg.status === 'Registered'">
+              <li class="">
+                <span><i class="fa fa-id-card mr-2"></i>Credentials : <span
+                    class="badge badge-secondary badge-pill">{{ eachOrg.credentialsCount }}</span></span>
+              </li>
+              <li class="">
+                <span><i class="fa fa-table mr-2"></i>Schemas : <span
+                    class="badge badge-secondary badge-pill">{{ eachOrg.schemasCount }}</span></span>
+              </li>
+              <li class="">
+                <span><i class="fa fa-desktop mr-2"></i>Templates : <span
+                    class="badge badge-secondary badge-pill">{{ eachOrg.templatesCount }}</span></span>
+              </li>
             </div>
           </ul>
           <footer>
             <div class="form-group row" style="margin-bottom: 0rem;">
               <div class="col-sm-10">
-              <ul style="list-style-type: none;padding-left: 0px;">
-              <li v-if="eachOrg.status === 'Failed'">
-              <span class="card-title" >
-                <img :src="images.redcross" height="25" width="25" /> Failed
-              </span>
-            </li>
-            <li v-else-if="eachOrg.status === 'Registered'">
-              <span class="card-title" >
-                <img :src="images.greentick" height="21" width="21"/> Registered
-              </span>
-            </li>
-            <li v-else>
-              <span class="card-title" >
-                <img :src="images.loader"  height="25" width="25"/> Processing ..... 
-              </span>
-            </li>
-            </ul>
-            </div>
-                <div class="pl-2" v-if="eachOrg.status === 'Registered'">            
-                <i class="fas fa-pencil-alt"
-                @click="editOrg(eachOrg._id)" title="Click to edit this event" style="cursor: pointer"
-                ></i>
+                <ul style="list-style-type: none;padding-left: 0px;">
+                  <li v-if="eachOrg.status === 'Failed'">
+                    <span class="card-title">
+                      <img :src="images.redcross" height="25" width="25" /> Failed
+                    </span>
+                  </li>
+                  <li v-else-if="eachOrg.status === 'Registered'">
+                    <span class="card-title">
+                      <img :src="images.greentick" height="21" width="21" /> Registered
+                    </span>
+                  </li>
+                  <li v-else>
+                    <span class="card-title">
+                      <img :src="images.loader" height="25" width="25" /> Processing .....
+                    </span>
+                  </li>
+                </ul>
+              </div>
+              <div class="pl-2" v-if="eachOrg.status === 'Registered'">
+                <i class="fas fa-pencil-alt" @click="editOrg(eachOrg._id)" title="Click to edit this event"
+                  style="cursor: pointer"></i>
                 <span class="ml-3"></span>
                 <i class="fas fa-sync" aria-hidden="true" @click="switchOrg(eachOrg._id)" title="Click to switch to org"
                   style="cursor: pointer"></i>
@@ -181,8 +185,6 @@
   cursor: pointer;
 }
 
-.card {}
-
 .card-body {
   -ms-flex: 1 1 auto;
   -webkit-box-flex: 1;
@@ -210,7 +212,7 @@ import Loading from "vue-loading-overlay";
 import HfButtons from '../../components/element/HfButtons.vue'
 import ToolTip from '../../components/element/ToolTip.vue'
 import messages from '../../mixins/messages';
-import  { mapGetters, mapState, mapActions, mapMutations } from 'vuex'
+import { mapGetters, mapState, mapActions, mapMutations } from 'vuex'
 export default {
   computed: {
     ...mapState({
@@ -249,48 +251,48 @@ export default {
   components: { HfPopUp, Loading, StudioSideBar, HfButtons, ToolTip },
   methods: {
     ...mapActions('playgroundStore', ['fetchAllOrgDataOnOrgSelect']),
-    ...mapMutations('playgroundStore', ['shiftContainer', 'updateSideNavStatus', 'increaseOrgCount', 'selectAnOrg', 'insertAnOrg','updateAnOrg']),
+    ...mapMutations('playgroundStore', ['shiftContainer', 'updateSideNavStatus', 'increaseOrgCount', 'selectAnOrg', 'insertAnOrg', 'updateAnOrg']),
     selectController(id) {
-      this.isAdd=false
+      this.isAdd = false
       this.flash = id
     },
-    deleteController(id){
+    deleteController(id) {
       this.orgStore.controller.splice(id, 1)
       this.flash = null
-      this.isAdd=true
+      this.isAdd = true
     }
     ,
-    cancelController(){
+    cancelController() {
       this.flash = null
-      this.isAdd=true
-    
+      this.isAdd = true
+
     },
     addController() {
 
-      try{
-        if(!this.controllerValue){
+      try {
+        if (!this.controllerValue) {
           throw new Error("Please enter contoller id")
         }
 
-        if(!this.controllerValue.startsWith("did:hid")){
+        if (!this.controllerValue.startsWith("did:hid")) {
           throw new Error("DID method not supported")
         }
 
-        if(this.orgStore.controller.indexOf(this.controllerValue) >= 0){
+        if (this.orgStore.controller.indexOf(this.controllerValue) >= 0) {
           throw new Error("The controller has already been added")
         }
 
         this.isAdd = true
         this.orgStore.controller.push(this.controllerValue)
-        
-      }catch(e){
+
+      } catch (e) {
         this.notifyErr(e.message)
       } finally {
         this.controllerValue = ""
       }
     },
     getProfileIcon(name) {
-      return "https://api.dicebear.com/7.x/identicon/svg?seed="+name
+      return "https://api.dicebear.com/7.x/identicon/svg?seed=" + name
     },
     ssePopulateOrg(id, store) {
       const sse = new EventSource(`${this.$config.studioServer.ORG_SSE}${id}`);
@@ -351,7 +353,7 @@ export default {
 
       this.selectAnOrg(orgDid)
       this.$router.push({ name: 'playgroundCredential' })
-    
+
       await this.fetchAllOrgDataOnOrgSelect();
 
       this.shiftContainer(false)
@@ -416,10 +418,10 @@ export default {
           let QR_DATA = j.data.QrData
           let URL = `${this.$config.webWalletAddress}/deeplink?url=${JSON.stringify(QR_DATA)}`
 
-          if(this.edit===true){
+          if (this.edit === true) {
             this.notifySuccess("Org Edited successfull");
             return this.$root.$emit("bv::toggle::collapse", "sidebar-right");
-            
+
           }
           this.openWallet(URL)
           if (j.error === false) {
@@ -439,7 +441,7 @@ export default {
               this.$root.$emit("bv::toggle::collapse", "sidebar-right");
             }
 
-            
+
           }
 
 
@@ -453,8 +455,8 @@ export default {
     clearAll() {
       this.controllerValue = ""
       this.orgStore = {
-      flash: null,
-      isAdd: true,
+        flash: null,
+        isAdd: true,
 
         name: "",
         domain: "https://entity.hypersign.id",

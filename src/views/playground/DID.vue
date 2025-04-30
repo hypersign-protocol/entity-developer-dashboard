@@ -1,9 +1,4 @@
 <style scoped>
-.sticky-header {
-  position: sticky;
-  top: 0;
-}
-
 .container {
   width: 80vw;
 }
@@ -63,9 +58,6 @@
   padding: 0px;
 }
 
-.card {
-  border-radius: 10px;
-}
 
 .goschema {
   color: #339af0;
@@ -124,100 +116,115 @@ h5 span {
 <template>
   <div :class="isContainerShift ? 'homeShift' : 'home'">
     <loading :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loading>
-
-
-    <div class="row">
-      <div class="col-md-12" style="text-align: left">
+    <div class="">
+      <div class="" style="text-align: left">
         <!-- <Info :message="description" /> -->
         <div class="form-group" style="display:flex">
           <h3 v-if="didList.length > 0" style="text-align: left;">
             Decentralised Identifier</h3>
           <h3 v-else style="text-align: left;">Create your first decentralised identifier!</h3>
           <hf-buttons name="Create" iconClass="fa fa-plus" style="text-align: right;" class="ml-auto"
-            @executeAction="openSlider()"></hf-buttons>
+            @executeAction="createDid()"></hf-buttons>
         </div>
-        <StudioSideBar title="Create DID">
+        <StudioSideBar :title="isEditing ? 'Edit DID' : 'Create DID'">
           <div class="container" style="width: 100%;">
             <div class="form-group">
-              <tool-tip infoMessage="Name of the schema"></tool-tip>
+              <tool-tip infoMessage="Enter name of DID"></tool-tip>
               <label for="schemaName"><strong>Name<span style="color: red">*</span>:</strong></label>
-              <input type="text" class="form-control" id="schemaName" v-model="did.options.name"
+              <input type="text" class="form-control" id="schemaName" v-model="didName"
                 aria-describedby="schemaNameHelp" placeholder="Enter a name for this did">
             </div>
 
-            <div class="form-group" style="width: 550px;">
-              <tool-tip infoMessage="Name of the schema"></tool-tip>
+            <!-- <div class="form-group">
+              <tool-tip infoMessage="Select a DID method namespace"></tool-tip>
               <label for="schemaName"><strong>Namespace<span style="color: red">*</span>:</strong></label>
               <hf-select-drop-down :options="namespaceOptions"
-                @selected="e => (did.namespace = e)"></hf-select-drop-down>
-            </div>
+                @selected="e => (did.namespace = e)" :disabled="isEditing"></hf-select-drop-down>
+            </div> -->
 
-            <div class="form-group" style="width: 550px;">
+            <div class="form-group">
               <tool-tip infoMessage="Method specific id for a did"></tool-tip>
               <label for="schemaName"><strong>Method Specific Id<span style="color: red">*</span>:</strong></label>
               <div class="input-group">
-                <input type="text" class="form-control" id="schemaName" v-model="did.methodSpecificId"
+                <input type="text" class="form-control" id="schemaName" v-model="did.methodSpecificId" :disabled="isEditing"
                   aria-describedby="schemaNameHelp" placeholder="Enter or create a method specific id">
                 <div class="input-group-append">
                   <button class="input-group-text btn btn-secondary" id="basic-addon1"
-                    @click="generateRandomMethodSepcificId">Generate</button>
+                    @click="generateRandomMethodSepcificId" :disabled="isEditing" >Generate</button>
                 </div>
               </div>
             </div>
-
-            <div class="form-group" style="width: 550px;">
-              <tool-tip infoMessage="Name of the schema"></tool-tip>
-              <label for="schemaName"><strong>Key Type<span style="color: red">*</span>:</strong></label>
-              <hf-select-drop-down :options="keyTypeOptions"
-                @selected="e => (did.options.keyType = e)"></hf-select-drop-down>
+            <div class="">
+              <tool-tip infoMessage="Select one or more key type"></tool-tip>
+              <label for="schemaName"><strong>Key Type<span
+                    style="color: red">*</span>:</strong></label>
+                <v-select
+                  v-model="selectedKeyTypes"
+                  :items="keyTypeOptions"
+                  multiple
+                  chips
+                  attach
+                  dense
+                  outlined
+                  :disabled="isEditing"
+                ></v-select>
             </div>
-
-
-            <div class="form-group" style="width: 550px;">
-              <tool-tip infoMessage="Name of the schema"></tool-tip>
+            <div class="">
+              <tool-tip infoMessage="Select one or more verification relationships"></tool-tip>
               <label for="schemaName"><strong>Verification Relationships<span
                     style="color: red">*</span>:</strong></label>
-              <multiSelect v-model="did.options.verificationRelationships"
-                placeholder="Select on or more verification relationship" label="text" track-by="value"
-                :options="verificationRelationshipsOptions" :multiple="true" :taggable="false" :close-on-select="false"
-                :clear-on-select="false" @input="onInputTag">
-              </multiselect>
+              
+                <v-select
+                  v-model="selectedVerificationRelationships"
+                  :items="verificationRelationshipsOptions"
+                  multiple
+                  chips
+                  attach
+                  dense
+                  outlined
+                  :disabled="isEditing"
+                ></v-select>
+            </div>
+            <div class="">
+              <v-checkbox
+                v-model="shouldRegister"
+                label="Register DID on the blockchain?"
+               :disabled="isEditing && shouldRegister"
+              ></v-checkbox>
             </div>
 
-
-            <div class="form-group row " style="width: 550px;">
+            <div class="form-group row ">
               <div class="col-md-12">
-                <hr />
-                <hf-buttons name="Save" @executeAction="createDID()"></hf-buttons>
-                <!-- <button @click="createDID" class="btn btn-primary">Save1</button> -->
+                <hf-buttons :name="isEditing ? 'Update' : 'Save'"  @executeAction="isEditing ? updateDID(): createDID()"></hf-buttons>
               </div>
             </div>
           </div>
         </StudioSideBar>
       </div>
     </div>
-    <div class="row scrollit" v-if="didList.length > 0">
-      <div class="col-md-12">
-        <table class="table table-hover event-card" style="background:#FFFF">
+    <div class="scrollit" v-if="didList.length > 0">
+      <div class="">
+        <table class="table table-hover event-card">
           <thead class="thead-light">
             <tr>
-              <th></th>
+              <!-- <th></th> -->
               <th class="sticky-header">DID Id</th>
               <th class="sticky-header">Name</th>
-              <th class="sticky-header">Linked Keys</th>
+              <th class="sticky-header">Associated Key Type(s)</th>
               <th class="sticky-header">Status</th>
-              <th class="sticky-header">Action</th>
+              <th class="sticky-header"></th>
+              <!-- <th class="sticky-header">Action</th> -->
             </tr>
           </thead>
           <tbody>
-            <tr v-for="row in didList" :key="row">
+            <tr v-for="row in didList" :key="row.did">
 
-              <td>
+              <!-- <td>
                 <span class="fa-stack fa-sm" v-if="checkIfDomainIsVerified(row.didDocument)" style="font-size:8px">
                   <i class="fa fa-certificate fa-stack-2x" aria-hidden="true" style="color:#651d65"></i>
                   <i class="fa fa-check fa-stack-1x fa-inverse" aria-hidden="true"></i>
                 </span>
-              </td>
+              </td> -->
               <td @click="copyToClip(row.did, 'DID')" style="cursor: pointer;">{{ row.did }}</td>
               <td>{{ row.name }}</td>
               <td>
@@ -228,22 +235,25 @@ h5 span {
 
                   </span>
                 </div>
-
               </td>
-              <td v-if="row.status == 'Registered'">
-                <span class="badge badge-pill badge-success"><i class="fa fa-check" aria-hidden="true"></i>
+              <td >
+                <span v-if="row.status == 'Registered'" class="badge badge-pill badge-success"><i class="fa fa-check" aria-hidden="true"></i>
                   Registered</span>
-              </td>
-              <td v-else>
-                <span class="badge badge-pill badge-warning"><i class="fa fa-cog" aria-hidden="true"></i>
+                <span v-else-if="row.status == 'Created'" class="badge badge-pill badge-warning"><i class="fa fa-cog" aria-hidden="true"></i>
                   Created</span>
+                <span v-else>
+                  <wait-spinner></wait-spinner>
+                </span>
               </td>
-              <td>
+               <!-- <td>
                 <span><i class="fa fa-eye" aria-hidden="true"></i></span>
 
                 <span v-if="!checkIfDomainIsVerified(row.didDocument)" @click="linkDomain(row)" class="ml-2"
                   style="cursor:grab"><i class="fa fa-link"></i></span>
-              </td>
+              </td> -->
+              <td>
+                <span><i class="fas fa-pencil-alt mt-1" aria-hidden="true" @click="editDid(row.did)" title="Click to update the did name" style="cursor: pointer"></i></span>
+              </td> 
             </tr>
           </tbody>
         </table>
@@ -274,10 +284,6 @@ h5 span {
         </div>
         <small style="color:grey">Please add the TXT record in your DNS for DNS-01 validation</small>
       </div>
-
-
-
-
       <div class="form-group">
         <label for="orgDid"><strong>Logo Url</strong> (optional): </label>
         <input type="text" class="form-control" id="appId" v-model="domainLogoUrl"
@@ -295,21 +301,30 @@ h5 span {
 </template>
 
 <script>
-// import fetch from "node-fetch";
 import UtilsMixin from '../../mixins/utils';
 import HfPopUp from "../../components/element/hfPopup.vue";
 import Loading from "vue-loading-overlay";
 import StudioSideBar from "../../components/element/StudioSideBar.vue";
 import HfButtons from "../../components/element/HfButtons.vue"
-import HfSelectDropDown from "../../components/element/HfSelectDropDown.vue"
-// import EventBus from "../../eventbus"
 import ToolTip from "../../components/element/ToolTip.vue"
-// import { isEmpty, isValidDid, isValidURL } from '../../mixins/fieldValidation'
 import DomainLinkage from '@hypersign-protocol/domain-linkage-verifier'
 import { mapState, mapGetters, mapActions, mapMutations } from "vuex";
 export default {
   name: "DIDs",
-  components: { HfPopUp, Loading, StudioSideBar, HfButtons, HfSelectDropDown, ToolTip, },
+  components: { HfPopUp, Loading, StudioSideBar, HfButtons, ToolTip, },
+  watch: {
+  selectedDid: {
+    handler(newValue) {
+      if (newValue) {
+         this.did.name= newValue.name;
+         this.shouldRegister = (newValue.status === 'Registered');
+         this.did.methodSpecificId= newValue.did.split(':')[3];
+      }
+    },
+    immediate: true 
+  }
+
+},
   computed: {
     ...mapGetters('mainStore', ['sessionList']),
     ...mapState({
@@ -321,10 +336,26 @@ export default {
     },
     domainDidLinkTxtRecordText() {
       return `hypersign-link-domain.did=${this.domainDID}`
+    },
+    didName:{
+      get(){
+        return this.selectedDid? this.selectedDid.name : this.did.options.name;
+      },
+      set(value){
+        if(this.selectedDid){
+          this.selectedDid.name= value;
+        }else{
+          this.did.options.name= value;
+        }
+      }
     }
   },
   data() {
     return {
+       selectedKeyTypes: ['Ed25519VerificationKey2020'],
+       shouldRegister: false,
+       isEditing: false,
+       selectedDid: null,
       verifyButtonText: 'Verify',
       authToken: localStorage.getItem('authToken'),
       user: {},
@@ -332,19 +363,23 @@ export default {
       isLoading: false,
       viewDidDocument: "",
       namespaceOptions: [
-        { text: "Select Namespace", value: null },
+        { text: "Select a DID method namespace", value: null },
         { text: "testnet", value: "testnet", selected: true },
       ],
-      keyTypeOptions: [
-        { text: "Select KeyType", value: null },
-        { text: "Ed25519VerificationKey2020", value: "Ed25519VerificationKey2020", selected: true },
-        { text: "EcdsaSecp256k1RecoveryMethod2020", value: "EcdsaSecp256k1RecoveryMethod2020" },
-      ],
-      verificationRelationshipsOptions: [
-        { text: "Select Verification Relationship", value: null },
-        { text: "assertionMethod", value: "assertionMethod" },
-        { text: "authentication", value: "authentication" },
-      ],
+      keyTypeOptions: ['Ed25519VerificationKey2020','BabyJubJubKey2021'],
+      // keyTypeOptions: [
+      //   { text: "Select KeyType", value: null },
+      //   { text: "Ed25519VerificationKey2020", value: "Ed25519VerificationKey2020", selected: true },
+      //   // { text: "EcdsaSecp256k1RecoveryMethod2020", value: "EcdsaSecp256k1RecoveryMethod2020" },
+      //   { text: "BabyJubJubKey2021", value: "BabyJubJubKey2021" },
+      // ],
+      selectedVerificationRelationships: ['assertionMethod', 'authentication'],
+      verificationRelationshipsOptions: ['assertionMethod', 'authentication'],
+      // verificationRelationshipsOptions: [
+      //   { text: "Select Verification Relationship", value: null },
+      //   { text: "assertionMethod", value: "assertionMethod" },
+      //   { text: "authentication", value: "authentication" },
+      // ],
       domain: "",
       domainLogoUrl: "",
       domainDID: "",
@@ -354,7 +389,7 @@ export default {
         namespace: "testnet",
         methodSpecificId: "",
         options: {
-          keyType: "",
+          keyType: [],
           chainId: "",
           publicKey: "",
           walletAddress: "",
@@ -389,8 +424,9 @@ export default {
     });
   },
   methods: {
-    ...mapActions('mainStore', ['fetchDIDsForAService', 'createDIDsForAService', 'registerDIDsForAService', 'updateDIDsForAService']),
+    ...mapActions('mainStore', ['fetchDIDsForAService', 'createDIDsForAService','checkBlockchainStatusOfSSI', 'registerDIDsForAService', 'updateDIDsForAService']),
     ...mapMutations('playgroundStore', ['updateSideNavStatus', 'shiftContainer']),
+    ...mapMutations('mainStore', ['updateADID']),
 
     linkDomain(row) {
       // remove this once this feature is complete
@@ -400,22 +436,28 @@ export default {
       this.domainDIDDocument = row.didDocument
       // this.$root.$emit("bv::show::modal", "link-domain");
     },
+    updateKeyTypeValues(selectedItems) {
+    if (selectedItems && selectedItems.length > 0) {
+       this.did.options.keyType = selectedItems.map(item => item.value);
+    } else {
+      this.did.options.keyType = [];
+    }
+  },
 
-
-    checkIfDomainIsVerified(didDocument) {
-      if (didDocument) {
-        if (didDocument.service.length > 0) {
-          const linkedDomainServices = didDocument.service.filter(service => service.type == "LinkedDomains")
-          if (linkedDomainServices.length > 0) {
-            return true
-          }
-        } else {
-          return false;
-        }
-      } else {
-        return false;
-      }
-    },
+    // checkIfDomainIsVerified(didDocument) {
+    //   if (didDocument && Object.keys(didDocument).length > 0) {
+    //     if (didDocument.service && didDocument.service.length > 0) {
+    //       const linkedDomainServices = didDocument.service.filter(service => service.type == "LinkedDomains")
+    //       if (linkedDomainServices.length > 0) {
+    //         return true
+    //       }
+    //     } else {
+    //       return false;
+    //     }
+    //   } else {
+    //     return false;
+    //   }
+    // },
     async verifyDNS01AndUpdateDID() {
       try {
         this.isLoading = true;
@@ -502,7 +544,6 @@ export default {
 
     async registerDidDoc(didDocument, verificationMethodId) {
       try {
-
         this.isLoading = true;
         await this.registerDIDsForAService({
           didDocument, verificationMethodId
@@ -523,20 +564,38 @@ export default {
       //   this.presentationTemplate.schemaId = []; 
       // }
     },
-
-    openSlider() {
-      this.counter = 0
-      this.clearAll();
-      this.$root.$emit("bv::toggle::collapse", "sidebar-right");
+    editDid(didDocId) {
+        this.isEditing = true;
+        this.selectedDid = this.didList.find(didDoc => didDoc.did === didDocId);
+          if (this.selectedDid) {
+            this.did.name= this.selectedDid.name,
+            this.did.namespace= 'testnet',
+            this.did.methodSpecificId = this.selectedDid.did.split(':')[3],
+            this.selectedKeyTypes= this.selectedDid?.didDocument?.verificationMethod.map((vm)=>vm.type)
+          }
+        this.openSlider();
     },
+    createDid(){
+      this.isEditing= false;
+      this.openSlider()
+    },
+  openSlider() {
+   if (!this.isEditing) { 
+      this.counter = 0;
+      this.clearAll();
+      this.generateRandomMethodSepcificId();
+    }
+  this.$root.$emit("bv::toggle::collapse", "sidebar-right");
+},
     clearAll() {
       this.visible = false
+      this.selectedKeyTypes= ['Ed25519VerificationKey2020']
       this.did = {
         name: "",
         namespace: "testnet",
         methodSpecificId: "",
         options: {
-          keyType: "",
+          keyType: [],
           chainId: "",
           publicKey: "",
           walletAddress: "",
@@ -546,15 +605,17 @@ export default {
           ]
         }
       },
-        // EventBus.$emit("resetOption", this.selected.attributeTypes)
-        this.attributes = []
+      this.shouldRegister = false
+      this.attributes = [],
+      this.isEditing= false,
+      this.selectedDid= null
     },
 
     async createDID() {
       try {
 
-        this.isLoading = true
-        console.log('Inside createDID methot................................')
+        this.isLoading = true;
+        console.log('Inside createDID method................................')
         delete this.did.name
         if (this.did.options.publicKey == "") {
           delete this.did.options.publicKey
@@ -572,18 +633,117 @@ export default {
           delete this.did.options.chainId
         }
 
+        this.did.options.keyType = this.selectedKeyTypes
+        this.did.options.verificationRelationships = this.selectedVerificationRelationships
+         
 
-        this.did.options.verificationRelationships = this.did.options.verificationRelationships.map(x => x.value)
+        // this.did.options.verificationRelationships = this.did.options.verificationRelationships.map(x => x.value)
         // console.log(JSON.stringify(this.did))
         console.log('Before calling createDIDsForAService')
-
-        await this.createDIDsForAService(this.did)
+        const json = await this.createDIDsForAService(this.did)
         console.log('After calling createDIDsForAService')
+
+        this.notifySuccess('DID created successfully')
+        
+        if(this.shouldRegister == true){
+          this.notifySuccess('Proceeding to register the DID...')
+          const verificationMethodIds = json.metaData.didDocument.verificationMethod || [];
+          const signInfos = verificationMethodIds.map((vm) => ({
+            verification_method_id: vm.id,
+          }));
+          const payload = {
+              didDocument: json.metaData.didDocument,
+              signInfos
+          }
+          this.registerDIDsForAService(payload).then((registerAsyncResponse) => {
+            if(registerAsyncResponse){
+              this.updateADID({
+                did: registerAsyncResponse.did,
+                status: 'Please wait..',
+              })
+              this.checkRegistrationStatus(registerAsyncResponse.did)
+            }
+          })  
+        }
         this.isLoading = false;
         this.openSlider();
       } catch (e) {
         console.error(e.message)
         this.isLoading = false
+        this.notifyErr(e.message)
+      }
+    },
+    async updateDID(){
+      try{
+      this.isLoading= true
+      if(!this.selectedDid.name && !this.shouldRegister){
+        this.notifyErr('Please pass name or tick the checkbox to register the did')
+      }
+      const payload={
+        did: this.selectedDid.did,
+        name:this.selectedDid.name
+      }
+      if(this.selectedDid.name){
+        this.updateDIDsForAService(payload)
+      }
+        if(this.shouldRegister && this.selectedDid.status!=='Registered'){
+          this.notifySuccess('Proceeding to register the DID...')
+          const verificationMethodIds = this.selectedDid?.didDocument?.verificationMethod||[];
+          const signInfos = verificationMethodIds.map((vm) => ({
+            verification_method_id: vm.id,
+          }));
+          const payload = {
+              didDocument: this.selectedDid.didDocument,
+              signInfos
+          }
+          this.registerDIDsForAService(payload).then((registerAsyncResponse) => {
+            if(registerAsyncResponse){
+              this.updateADID({
+                did: registerAsyncResponse.did,
+                status: 'Please wait..',
+              })
+              this.checkRegistrationStatus(registerAsyncResponse.did)
+            }
+          })  
+        }
+        this.notifySuccess('DID updated successfully')
+        this.isLoading = false;
+        this.clearAll();
+        this.$root.$emit("bv::toggle::collapse", "sidebar-right");
+      }catch(e){
+       this.isLoading = false
+        this.notifyErr(e.message)
+      }
+    },
+    async checkRegistrationStatus(id_to_check_status){
+      try{
+        const maxrtries = 6 // after 30 sec abort            
+        const interval = 5
+        let i = 0
+        const statusCheckInterval = setInterval(async () => {
+          //this.notifySuccess('Please wait, checking status of registration from blockchain...')
+          i = i + 1;
+          const response = await this.checkBlockchainStatusOfSSI(id_to_check_status)
+          if(response && response.data && response.data.length > 0 && response.data[0]){
+            if(response.data[0].status == 0){
+              this.notifySuccess('DID successfully registerd on the blockchain, txHash: '+ response.data[0].txnHash)
+              this.updateADID({
+                did: id_to_check_status,
+                status: 'Registered',
+              })
+              clearInterval(statusCheckInterval)
+            } else {
+              this.notifyErr('Sorry we could not register your DID, txHash: '+ response.data[0].txnHash)
+            }
+          }
+          if(i == maxrtries){
+            this.notifyErr('All atempts failed to check the status on blockchain. Please check it manually')
+            clearInterval(statusCheckInterval)
+          }
+        }, interval * 1000)
+      }catch(e){
+        console.error(e.message)
+        this.notifyErr(e.message)
       }
     },
 
@@ -603,7 +763,7 @@ export default {
     generateRandomMethodSepcificId() {
       this.did.methodSpecificId = self.crypto.randomUUID()
     }
-  },
+   },
   mixins: [UtilsMixin],
 
 };
