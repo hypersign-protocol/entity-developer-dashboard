@@ -161,7 +161,27 @@ h5 span {
               <th class="sticky-header">Session Id</th>
               <th class="sticky-header">User Id (Hash)</th>
               <th class="sticky-header">Steps</th>
-              <th class="sticky-header">Status</th>
+              <th class="sticky-header" style="position: relative;">
+                Status
+              <b-dropdown
+                size="sm"
+                variant="light"
+                toggle-class="p-1 ml-2"
+                menu-class="dropDownPopup"
+                no-caret
+                right
+              >
+              <template #button-content>
+                <i class="fa fa-filter text-muted"></i>
+              </template>
+
+              <b-dropdown-item @click="handleSessionFilter('')">All</b-dropdown-item>
+              <b-dropdown-item @click="handleSessionFilter('Pending')">In Progress</b-dropdown-item>
+              <b-dropdown-item @click="handleSessionFilter('Success')">Completed</b-dropdown-item>
+              <b-dropdown-item @click="handleSessionFilter('Expired')">Expired</b-dropdown-item>
+              <b-dropdown-item @click="handleSessionFilter('Failed')">Failed</b-dropdown-item>
+            </b-dropdown>
+            </th>
             </tr>
           </thead>
           <tbody>
@@ -360,7 +380,16 @@ export default {
         this.notifyErr(e)
       }
     },
-
+    async handleSessionFilter(status){
+      try{
+      this.isLoading = true
+            await this.fetchAppsUsersSessions({ appId: "", status: status })
+            this.isLoading = false
+          } catch (e) {
+            this.isLoading = false
+            this.notifyErr(e)
+      }
+    },
     async filterSessions(filterText) {
       try {
         if (filterText) {
