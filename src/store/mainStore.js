@@ -445,7 +445,7 @@ const mainStore = {
         createARole: async ({ getters, dispatch }, payload) => {
 
             const url = `${apiServerBaseUrl}/roles`;
-]
+
             const resp = await RequestHandler(url,
                 'POST',
                 payload,
@@ -475,7 +475,6 @@ const mainStore = {
                 throw new Error(resp?.message?.join(',') || resp?.message);
             } else if ('statusCode' in resp && resp.statusCode !== 200 && resp.statusCode !== 201) {
                 throw new Error(resp.message)
-]
             }
 
             dispatch('getMyRolesAction')
@@ -485,7 +484,7 @@ const mainStore = {
 
         updateARole: async ({ getters, dispatch }, payload) => {
             const url = `${apiServerBaseUrl}/roles/${payload._id}`;
-]
+
             const resp = await RequestHandler(url, 'PATCH', payload, UtilsMixin.methods.getHeader(getters.getAuthToken))
             if (!resp && Array.isArray(resp.message)) {
                 throw new Error(resp?.message?.join(',') || resp?.message);
