@@ -294,6 +294,7 @@ const mainStore = {
                 throw new Error(resp?.message?.join(',') || resp?.message);
             } else if ('statusCode' in resp && resp.statusCode !== 200 && resp.statusCode !== 201) {
                 throw new Error(resp.message)
+
             }
 
             dispatch('getPeopleMembers')
@@ -305,6 +306,7 @@ const mainStore = {
         acceptInvition: async ({ getters, dispatch }, payload) => {
             const url = `${apiServerBaseUrl}/people/invite/accept/${payload}`;
             const resp = await RequestHandler(url, 'POST', {}, UtilsMixin.methods.getHeader(getters.getAuthToken))
+
 
             if (!resp || Array.isArray(resp.message)) {
                 throw new Error(resp?.message?.join(',') || resp?.message);
@@ -323,6 +325,7 @@ const mainStore = {
                 'DELETE',
                 {
                     emailId: payload
+
                 },
                 UtilsMixin.methods.getHeader(getters.getAuthToken),
             )
@@ -330,6 +333,7 @@ const mainStore = {
                 throw new Error(resp?.message?.join(',') || resp?.message);
             } else if ('statusCode' in resp && resp.statusCode !== 200 && resp.statusCode !== 201) {
                 throw new Error(resp.message)
+
             }
             await dispatch('getPeopleMembers');
             return resp;
@@ -338,12 +342,14 @@ const mainStore = {
 
         getPeopleMembers: async ({ getters, commit }) => {
             const url = `${apiServerBaseUrl}/people`;
+
             const response = await RequestHandler(url, 'GET', {},
                 UtilsMixin.methods.getHeader(getters.getAuthToken)
             )
             if (Array.isArray(response)) {
                 commit('setAdminMembers', response)
                 return response;
+
             }
             const message = Array.isArray(response?.message)
                 ? response.message.join(', ')
@@ -355,10 +361,12 @@ const mainStore = {
 
         getInvitions: async ({ getters, commit }) => {
             const url = `${apiServerBaseUrl}/people/invites`;
+
             const resp = await RequestHandler(url, 'GET', {}, UtilsMixin.methods.getHeader(getters.getAuthToken))
             if (Array.isArray(resp)) {
                 commit('setMyInvitions', resp)
                 return resp;
+
             }
 
             const message = Array.isArray(resp?.message)
@@ -373,6 +381,7 @@ const mainStore = {
         attachMemberToARole: async ({ getters, dispatch }, payload) => {
 
             const url = `${apiServerBaseUrl}/people/roles/attach`;
+
             const resp = await RequestHandler(url,
                 'POST',
                 payload,
@@ -384,6 +393,7 @@ const mainStore = {
                 throw new Error(resp?.message?.join(',') || resp?.message);
             } else if ('statusCode' in resp && resp?.statusCode !== 200 && resp?.statusCode !== 201) {
                 throw new Error(resp.message)
+
             }
 
             dispatch('getPeopleMembers')
@@ -393,6 +403,7 @@ const mainStore = {
         switchToAdmin: async ({ getters }, payload) => {
 
             const url = `${apiServerBaseUrl}/people/admin/login`;
+
             const resp = await RequestHandler(url,
                 'POST',
                 payload,
@@ -402,6 +413,7 @@ const mainStore = {
                 throw new Error(resp?.message?.join(',') || resp?.message);
             } else if ('statusCode' in resp && (resp.statusCode !== 200 || 201)) {
                 throw new Error(resp.message)
+
             }
             return resp;
         },
@@ -410,6 +422,7 @@ const mainStore = {
 
         getMyRolesAction: async ({ getters, commit }) => {
             const url = `${apiServerBaseUrl}/roles`;
+
             const resp = await RequestHandler(url,
                 'GET',
                 {},
@@ -418,6 +431,7 @@ const mainStore = {
             if (Array.isArray(resp)) {
                 commit('setAllRoles', resp)
                 return resp;
+
             }
             const message = Array.isArray(resp?.message)
                 ? resp.message.join(', ')
@@ -431,6 +445,7 @@ const mainStore = {
         createARole: async ({ getters, dispatch }, payload) => {
 
             const url = `${apiServerBaseUrl}/roles`;
+]
             const resp = await RequestHandler(url,
                 'POST',
                 payload,
@@ -441,6 +456,7 @@ const mainStore = {
                 throw new Error(resp?.message?.join(',') || resp?.message);
             } else if ('statusCode' in resp && resp.statusCode !== 200 && resp.statusCode !== 201) {
                 throw new Error(resp.message)
+
             }
 
             dispatch('getMyRolesAction')
@@ -459,6 +475,7 @@ const mainStore = {
                 throw new Error(resp?.message?.join(',') || resp?.message);
             } else if ('statusCode' in resp && resp.statusCode !== 200 && resp.statusCode !== 201) {
                 throw new Error(resp.message)
+]
             }
 
             dispatch('getMyRolesAction')
@@ -468,11 +485,13 @@ const mainStore = {
 
         updateARole: async ({ getters, dispatch }, payload) => {
             const url = `${apiServerBaseUrl}/roles/${payload._id}`;
+]
             const resp = await RequestHandler(url, 'PATCH', payload, UtilsMixin.methods.getHeader(getters.getAuthToken))
             if (!resp && Array.isArray(resp.message)) {
                 throw new Error(resp?.message?.join(',') || resp?.message);
             } else if ('statusCode' in resp && resp?.statusCode !== 200 && resp?.statusCode !== 201) {
                 throw new Error(resp.message)
+
             }
             dispatch('getMyRolesAction')
             return resp;
@@ -539,6 +558,7 @@ const mainStore = {
 
                 if (!twoFactorAuthenticationCode) throw new Error('MFA PIN must be provided')
                 const url = `${apiServerBaseUrl}/auth/mfa/verify`;
+
                 const resp = await RequestHandler(url, 'POST', {
                     authenticatorType,
                     twoFactorAuthenticationCode
@@ -548,6 +568,7 @@ const mainStore = {
 
                 if (!resp || Array.isArray(resp.message)) {
                     throw new Error(resp.message.join(','));
+
                 }
 
                 return resp;
@@ -564,7 +585,8 @@ const mainStore = {
                 fetch(url, {
                     method: 'POST',
                     headers,
-                    body: JSON.stringify(payload)
+                    body: JSON.stringify(payload),
+                    credentials: 'include', 
                 })
                     .then(response => response.json())
                     .then(json => {
@@ -604,7 +626,8 @@ const mainStore = {
                 fetch(url, {
                     method: 'PUT',
                     headers,
-                    body: JSON.stringify(payload)
+                    body: JSON.stringify(payload),
+                    credentials: 'include', 
                 }).then(response => {
                     return response.json()
                 }).then(json => {
@@ -634,6 +657,7 @@ const mainStore = {
                 fetch(url, {
                     method: 'DELETE',
                     headers,
+                    credentials: 'include', 
                 }).then(response => response.json()).then(json => {
                     if (json.error) {
                         return reject(new Error(json.message.join(' ')))
@@ -694,6 +718,7 @@ const mainStore = {
                     throw new Error(`Could not fetch accesstoken for service   ${serviceId}`)
                 }
 
+
             } catch (e) {
                 throw new Error(`Error while updating an app: ${e.message}`);
             }
@@ -728,6 +753,7 @@ const mainStore = {
                 fetch(url, {
                     method: 'POST',
                     headers,
+                    credentials: 'include', 
                 })
                     .then(response => response.json())
                     .then(json => {
@@ -792,7 +818,7 @@ const mainStore = {
                     headers
                 }).then(response => response.json()).then(json => {
                     if (json.error) {
-                        return reject(new Error(json.error.join(' ')))
+                        return reject(new Error(json.error?.details.join(' ') || json.error.join(' ')))
                     }
                     commit('insertSessions', json.data.sessionDetails);
                     resolve()
@@ -843,7 +869,7 @@ const mainStore = {
                     body: JSON.stringify(payload),
                 }).then(response => response.json()).then(json => {
                     if (json.error) {
-                        return reject(new Error(json.error.join(' ')))
+                        return reject(new Error(json.error?.details.join(' ') || json.error.join(' ')))
                     }
                     commit('setOnChainConfig', json.data);
                     resolve(json.data)
@@ -868,7 +894,7 @@ const mainStore = {
                     body: JSON.stringify(payload),
                 }).then(response => response.json()).then(json => {
                     if (json.error) {
-                        return reject(new Error(json.error.join(' ')))
+                        return reject(new Error(json.error?.details.join(' ') || json.error.join(' ')))
                     }
                     // restting
                     commit('setOnChainConfig', {});
@@ -893,7 +919,7 @@ const mainStore = {
                     headers,
                 }).then(response => response.json()).then(json => {
                     if (json.error) {
-                        return reject(new Error(json.error.details.join(' ')))
+                        return reject(new Error(json.error?.details.join(' ') || json.error.join(' ')))
                     }
                     dispatch('fetchAppsOnChainConfigs')
                     resolve(json)
@@ -923,7 +949,7 @@ const mainStore = {
                     body: JSON.stringify(data),
                 }).then(response => response.json()).then(json => {
                     if (json.error) {
-                        return reject(new Error(json.error.join(' ')))
+                        return reject(new Error(json.error?.details.join(' ') || json.error.join(' ')))
                     }
                     commit('setWidgetConfig', json.data);
                     resolve(json.data)
@@ -948,7 +974,7 @@ const mainStore = {
                 }).then(response => response.json()).then(json => {
                     if (json) {
                         if (json.error) {
-                            return reject(new Error(json.error.join(' ')))
+                            return reject(new Error(json.error?.details.join(' ') || json.error.join(' ')))
                         } else {
                             commit('setWidgetConfig', json.data);
                             return resolve()
@@ -980,7 +1006,7 @@ const mainStore = {
                     body: JSON.stringify(data),
                 }).then(response => response.json()).then(json => {
                     if (json.error) {
-                        return reject(new Error(json.error.join(' ')))
+                        return reject(new Error(json.error?.details.join(' ') || json.error.join(' ')))
                     }
                     // restting
                     commit('setWidgetConfig', json.data);
@@ -1145,7 +1171,7 @@ const mainStore = {
                     headers
                 }).then(response => response.json()).then(json => {
                     if (json.error) {
-                        return reject(new Error(json.error.join(' ')))
+                        return reject(new Error(json.error?.details.join(' ') || json.error.join(' ')))
                     }
 
                     if (json.data && Object.keys(json.data)?.length > 0) {

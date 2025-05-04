@@ -38,7 +38,7 @@
     </div>
 
     <div class="">
-      <v-card class="p-3">
+      <div class=" serviceCard p-3">
         <form>
           <!-- <div class="form-group">
             <label for="exampleFormControlInput1">Name<span class="mandatory">*</span></label>
@@ -65,7 +65,7 @@
               Header</b-button>
           </b-form-group>
         </form>
-      </v-card>
+      </div>
     </div>
 
   </div>
