@@ -1,4 +1,7 @@
-export async function RequestHandler(url, method = 'GET', body = {}, headers = {}) {
+import config from '../config';
+import EventBus from '../eventbus'
+let isRefreshing = false;
+export async function RequestHandler(url, method = 'GET', body = {}, headers = {}, retry = true) {
 
     if (!url) {
         throw new Error('url must be passed to RequestHandler')
@@ -7,16 +10,24 @@ export async function RequestHandler(url, method = 'GET', body = {}, headers = {
     const options = {
         method,
         credentials: 'include', 
-
     }
 
     if (headers && Object.keys(headers).length > 0) {
-        headers["content-type"] = "application/json"
-        headers['Origin'] = window.location.origin
-
-        options['headers'] = headers;
+        const normalizedKeys = Object.keys(headers).map(key => key.toLowerCase());
+        const finalHeaders = { ...headers };
+        if (!normalizedKeys.includes('content-type')) {
+            finalHeaders['Content-Type'] = 'application/json';
+        }
+        if (!normalizedKeys.includes('origin')) {
+            finalHeaders['Origin'] = window.location.origin;
+        }
+        options['headers'] = finalHeaders;
+    } else {
+        options['headers'] = {
+            'Content-Type': 'application/json',
+            'Origin': window.location.origin,
+        };
     }
-
     if (body && Object.keys(body).length > 0) {
         options['body'] = JSON.stringify(body)
     }
@@ -28,27 +39,37 @@ export async function RequestHandler(url, method = 'GET', body = {}, headers = {
 
     // error handling
     if (!response.ok) {
-        console.log({ ok: response.ok, status: response.status })
-        if (response.status != 200) {
+        if ((response.status === 401 || response.status === 403) && retry) {
+            if (!isRefreshing) {
+                isRefreshing = true;
+                try {
+                    const refreshRes = await fetch(`${config.studioServer.BASE_URL}api/v1/auth/refresh`, {
+                        method: 'POST',
+                        credentials: 'include',
+                    });
 
-            if (response.status == 403) {
-                throw new Error("Unauthorized, please try login again")
-            }
+                    if (refreshRes.ok) {
+                        return await RequestHandler(url, method, body, headers, false);
+                    } else {
+                        throw new Error(refreshRes?.message?.[0]?.message || `Refresh failed with status ${refreshRes.status}`)
+                    }
+                } catch (e) {
+                    if (e?.message?.includes("403")) {
+                        EventBus.$emit("logoutAll");
+                        throw new Error("Unauthorized, please try login again");
+                    } else if (e?.message?.includes("401")) {
+                        EventBus.$emit("logoutAll");
+                        throw new Error("Unauthenticated, please try login again");
+                    } else {
+                        throw new Error(e?.message || "Error during token refresh");
+                    }
+                } finally {
+                    isRefreshing = false;
 
-            if (response.status == 401) {
-                throw new Error("Unauthenticated, please try login again")
-            }
-
-            if (json.error) {
-                const erro = json.message[0].message
-                throw new Error(erro)
-            } else {
-                // throw new Error(response.status)
-                throw new Error(response.status)
+                }
             }
         }
     }
-
     // success handling
     if (json) {
         return json;

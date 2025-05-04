@@ -362,7 +362,8 @@ export default {
   const userDetails = localStorage.getItem("user");
   if (userDetails) {
     try {
-      this.userDetails = JSON.parse(userDetails);
+       const parsed = JSON.parse(userDetails);
+      Object.assign(this.userDetails, parsed);
       this.user = this.userDetails;
       this.loggedInUserEmailId = this.user?.accessAccount?.email;
       this.setIsLoggedOut(true);
@@ -483,7 +484,8 @@ export default {
       try {
             const userDetails = localStorage.getItem("user");
         if (userDetails) {
-            this.userDetails = JSON.parse(userDetails);
+            const parsed = JSON.parse(userDetails);
+            Object.assign(this.userDetails, parsed);
             this.parseAuthToken= this.userDetails
            this.setIsLoggedOut(true)
            const redirectPath=localStorage.getItem("postLoginRedirect")||'/studio/dashboard'
