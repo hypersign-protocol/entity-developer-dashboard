@@ -13,12 +13,21 @@ export async function RequestHandler(url, method = 'GET', body = {}, headers = {
     }
 
     if (headers && Object.keys(headers).length > 0) {
-        headers["content-type"] = "application/json"
-        headers['Origin'] = window.location.origin
-
-        options['headers'] = headers;
+        const normalizedKeys = Object.keys(headers).map(key => key.toLowerCase());
+        const finalHeaders = { ...headers };
+        if (!normalizedKeys.includes('content-type')) {
+            finalHeaders['Content-Type'] = 'application/json';
+        }
+        if (!normalizedKeys.includes('origin')) {
+            finalHeaders['Origin'] = window.location.origin;
+        }
+        options['headers'] = finalHeaders;
+    } else {
+        options['headers'] = {
+            'Content-Type': 'application/json',
+            'Origin': window.location.origin,
+        };
     }
-
     if (body && Object.keys(body).length > 0) {
         options['body'] = JSON.stringify(body)
     }
