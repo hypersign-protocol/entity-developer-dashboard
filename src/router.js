@@ -209,8 +209,8 @@ router.beforeEach(async (to, from, next) => {
     next(false)
     return router.push('/404')
   }
-  document.title = to.meta.title;
   if (to.matched.some(record => record.meta.requiresAuth)) {
+    document.title = to.meta.title;
     try {
       const response = await fetch(`${config.studioServer.BASE_URL}api/v1/auth`, {
         method: "POST",
