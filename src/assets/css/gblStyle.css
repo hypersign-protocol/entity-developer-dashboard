@@ -146,11 +146,18 @@ a {
     background-color: #fff;
     background-clip: border-box;
     border: 1px solid rgba(0, 0, 0, .125);
-}  
-
+    max-height: 80vh;
+    overflow-y: auto;
+    }
+    
+    .serviceCard.v-card,
+    .serviceCard.v-sheet {
+        border-radius: 8px !important;
+        box-shadow: 0 0 2rem 0 rgba(136, 152, 170, 0.15) !important;
+    }
 .dropDownPopup {
     box-shadow: var(--dropdown-menu-elevation, 0 1px 10px 0 rgba(0, 0, 0, .25));
     border-radius: 8px;
     border: 0px solid grey;
 }
-  
+
