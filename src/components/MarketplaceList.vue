@@ -10,7 +10,7 @@
 <template>
     <div class="row">
         <div class="col-md-6 mb-2" v-for="eachOrg in services" :key="eachOrg.appId">
-            <v-card class="" max-width="400">
+            <v-card class="serviceCard" max-width="400">
                 <v-card-actions>
                     <v-list-item class="grow">
                         <v-list-item-avatar color="grey darken-3">
