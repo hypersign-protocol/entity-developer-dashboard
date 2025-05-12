@@ -5,24 +5,20 @@
 
 <script>
 // import EventBus from "../eventbus";
+import { checkAuth } from '../authService'
 export default {
     name: "HomePage",
-    created() {
-        const authorizationToken = this.$route.query.token
-        if (authorizationToken) {
-            console.log('Redirecting to dashboard')
-            localStorage.setItem("authToken", authorizationToken);
-            // this.$emit("initializeStore", "login");
+   async created() {
+    try{
+        const user=  await checkAuth()
+        console.log("User is authenticated:", user);
+          this.$router.push("mfa");
 
-            console.log('Before emiting event bus event....')
-            // EventBus.$emit('HelloEvent', 'hi');
-            this.$router.push("mfa");
-
-
-        } else {
-            console.log('Redirecting to login')
-            this.$router.push("login");
-        }
+    }catch(e){
+         console.log("User is not authenticated:", e.message);
+         console.log('Redirecting to login')
+         this.$router.push("login");
+    }     
     }
 }
 </script>

@@ -1100,10 +1100,10 @@ export default {
     this.setMainSideNavBar(false);
     this.initializeStore();
     this.setSelectedAppId("");
-    this.$root.$emit("recomputeParseAuthTokenEvent");
   },
   data() {
     return {
+      userDetails:{},
       linkedAppErrorMessage:"",
       issuerConfigVisible: false,
       items: [
@@ -1183,15 +1183,15 @@ export default {
 
     async initializeStore() {
       try {
-        this.authToken = localStorage.getItem("authToken");
-        if (this.authToken) {
-          // this.showIcon = true;
+        const userDetails = localStorage.getItem("user");
+        if (userDetails) {
+           this.userDetails = JSON.parse(userDetails);
           this.isLoading = true;
           await this.fetchAppsListFromServer();
           await this.fetchServicesList();
           this.isLoading = false;
         } else {
-          throw new Error("No auth token");
+          throw new Error("No user details found in localStorage");
         }
       } catch (e) {
         // this.showIcon = false
