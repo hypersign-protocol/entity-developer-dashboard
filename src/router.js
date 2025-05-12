@@ -211,10 +211,8 @@ router.beforeEach(async (to, from, next) => {
   }
   if (to.matched.some(record => record.meta.requiresAuth)) {
     document.title = to.meta.title;
-    const url = `${config.studioServer.BASE_URL}api/v1/auth`
     try {
-
-      const response = await fetch(url, {
+      const response = await fetch(`${config.studioServer.BASE_URL}api/v1/auth`, {
         method: "POST",
         credentials: "include",
       });
@@ -225,20 +223,34 @@ router.beforeEach(async (to, from, next) => {
         localStorage.setItem("user", JSON.stringify(json.message));
         store.commit('playgroundStore/addUserDetailsToProfile', json.message)
         next()
-      } else {
-        throw new Error("Unexpected response");
       }
     } catch (e) {
-      console.log(e)
-      store.commit('mainStore/setMainSideNavBar', false)
-      next({
-        path: '/studio/login',
-        query: { redirect: to.fullPath }
-      })
-
+      try {
+        const refreshResponse = await fetch(`${config.studioServer.BASE_URL}api/v1/auth/refresh`, {
+          method: "POST",
+          credentials: "include",
+        });
+        if (!refreshResponse.ok) {
+          throw new Error('Refresh failed');
+        }
+        const authResponse = await fetch(`${config.studioServer.BASE_URL}api/v1/auth`, {
+          method: "POST",
+          credentials: "include",
+        });
+        if (authResponse.ok) {
+          const user = await authResponse.json();
+          localStorage.setItem("user", JSON.stringify(user.message));
+          store.commit('playgroundStore/addUserDetailsToProfile', user.message);
+          next();
+        } else {
+          throw new Error('Refresh token invalid');
+        }
+      } catch (refreshError) {
+        store.commit('mainStore/setMainSideNavBar', false);
+        next({ path: '/studio/login', query: { redirect: to.fullPath } });
+      }
     }
   } else {
-    console.log(to.path)
     if (to.path === '/studio/login') {
       store.commit('mainStore/setIsLoggedOut', false)
     }

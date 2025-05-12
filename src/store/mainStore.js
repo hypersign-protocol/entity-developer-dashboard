@@ -283,234 +283,217 @@ const mainStore = {
 
         // eslint-disable-next-line no-empty-pattern
         inviteMember: async ({ getters, dispatch }, payload) => {
-
             const url = `${apiServerBaseUrl}/people/invite`;
-            const resp = await fetch(url, {
-                method: 'POST',
-                body: JSON.stringify({
-                    emailId: payload
-                }),
-                headers: UtilsMixin.methods.getHeader(getters.getAuthToken)
-            })
-            const json = await resp.json();
+            const resp = await RequestHandler(url, 'POST', {
+                emailId: payload
+            },
+                UtilsMixin.methods.getHeader(getters.getAuthToken))
 
-            if (!resp.ok && Array.isArray(json.message)) {
-                console.log(json.message)
-                throw new Error(json.message.join(','));
-            } else if (!resp.ok && (json.statusCode !== 200 || 201)) {
-                throw new Error(json.message)
+            if (!resp || Array.isArray(resp.message)) {
+                console.log(resp.message)
+                throw new Error(resp?.message?.join(',') || resp?.message);
+            } else if ('statusCode' in resp && resp.statusCode !== 200 && resp.statusCode !== 201) {
+                throw new Error(resp.message)
+
             }
 
             dispatch('getPeopleMembers')
-            return json;
+            return resp;
 
         },
 
         // eslint-disable-next-line no-empty-pattern
         acceptInvition: async ({ getters, dispatch }, payload) => {
-
             const url = `${apiServerBaseUrl}/people/invite/accept/${payload}`;
-            const resp = await fetch(url, {
-                method: 'POST',
-                headers: UtilsMixin.methods.getHeader(getters.getAuthToken)
-            })
-            const json = await resp.json();
+            const resp = await RequestHandler(url, 'POST', {}, UtilsMixin.methods.getHeader(getters.getAuthToken))
 
-            if (!resp.ok && Array.isArray(json.message)) {
-                console.log(json.message)
-                throw new Error(json.message.join(','));
-            } else if (!resp.ok && (json.statusCode !== 200 || 201)) {
-                throw new Error(json.message)
+
+            if (!resp || Array.isArray(resp.message)) {
+                throw new Error(resp?.message?.join(',') || resp?.message);
+            } else if ('statusCode' in resp && resp.statusCode !== 200 && resp.statusCode !== 201) {
+                throw new Error(resp.message)
             }
-
-            dispatch('getInvitions')
-            return json;
+            await dispatch('getInvitions');
+            return resp;
 
         },
 
         // eslint-disable-next-line no-empty-pattern
         deleteMember: async ({ getters, dispatch }, payload) => {
-
             const url = `${apiServerBaseUrl}/people/`;
-            const resp = await fetch(url, {
-                method: 'DELETE',
-                body: JSON.stringify({
+            const resp = await RequestHandler(url,
+                'DELETE',
+                {
                     emailId: payload
-                }),
-                headers: UtilsMixin.methods.getHeader(getters.getAuthToken)
-            })
-            const json = await resp.json();
 
-            if (!resp.ok && Array.isArray(json.message)) {
-                console.log(json.message)
-                throw new Error(json.message.join(','));
-            } else if (!resp.ok && (json.statusCode !== 200 || 201)) {
-                throw new Error(json.message)
+                },
+                UtilsMixin.methods.getHeader(getters.getAuthToken),
+            )
+            if (!resp || Array.isArray(resp.message)) {
+                throw new Error(resp?.message?.join(',') || resp?.message);
+            } else if ('statusCode' in resp && resp.statusCode !== 200 && resp.statusCode !== 201) {
+                throw new Error(resp.message)
+
             }
-
-            dispatch('getPeopleMembers')
-            return json;
+            await dispatch('getPeopleMembers');
+            return resp;
 
         },
 
         getPeopleMembers: async ({ getters, commit }) => {
             const url = `${apiServerBaseUrl}/people`;
-            const resp = await fetch(url, {
-                method: 'GET',
-                headers: UtilsMixin.methods.getHeader(getters.getAuthToken)
-            })
-            const json = await resp.json();
 
-            if (!resp.ok && Array.isArray(json.message)) {
-                throw new Error(json.message.join(','));
+            const response = await RequestHandler(url, 'GET', {},
+                UtilsMixin.methods.getHeader(getters.getAuthToken)
+            )
+            if (Array.isArray(response)) {
+                commit('setAdminMembers', response)
+                return response;
+
             }
-            commit('setAdminMembers', json)
-            return json;
+            const message = Array.isArray(response?.message)
+                ? response.message.join(', ')
+                : response?.message || 'Unknown error';
+
+            throw new Error(message);
 
         },
 
         getInvitions: async ({ getters, commit }) => {
             const url = `${apiServerBaseUrl}/people/invites`;
-            const resp = await fetch(url, {
-                method: 'GET',
-                headers: UtilsMixin.methods.getHeader(getters.getAuthToken)
-            })
-            let json = await resp.json();
 
-            if (!resp.ok && Array.isArray(json.message)) {
-                throw new Error(json.message.join(','));
+            const resp = await RequestHandler(url, 'GET', {}, UtilsMixin.methods.getHeader(getters.getAuthToken))
+            if (Array.isArray(resp)) {
+                commit('setMyInvitions', resp)
+                return resp;
+
             }
 
-            // sample invitions
-            commit('setMyInvitions', json)
-            return json;
+            const message = Array.isArray(resp?.message)
+                ? resp.message.join(', ')
+                : resp?.message || 'Unknown error';
+
+            throw new Error(message);
+
 
         },
 
         attachMemberToARole: async ({ getters, dispatch }, payload) => {
 
             const url = `${apiServerBaseUrl}/people/roles/attach`;
-            const resp = await fetch(url, {
-                method: 'POST',
-                body: JSON.stringify(payload),
-                headers: UtilsMixin.methods.getHeader(getters.getAuthToken)
-            })
-            const json = await resp.json();
 
-            if (!resp.ok && Array.isArray(json.message)) {
-                console.log(json.message)
-                throw new Error(json.message.join(','));
-            } else if (!resp.ok && (json.statusCode !== 200 || 201)) {
-                throw new Error(json.message)
+            const resp = await RequestHandler(url,
+                'POST',
+                payload,
+                UtilsMixin.methods.getHeader(getters.getAuthToken)
+            )
+
+            if (!resp && Array.isArray(resp.message)) {
+                console.log(resp.message)
+                throw new Error(resp?.message?.join(',') || resp?.message);
+            } else if ('statusCode' in resp && resp?.statusCode !== 200 && resp?.statusCode !== 201) {
+                throw new Error(resp.message)
+
             }
 
             dispatch('getPeopleMembers')
-            return json;
+            return resp;
 
         },
-
-        switchToAdmin: async ({ getters, commit }, payload) => {
+        switchToAdmin: async ({ getters }, payload) => {
 
             const url = `${apiServerBaseUrl}/people/admin/login`;
-            const resp = await fetch(url, {
-                method: 'POST',
-                body: JSON.stringify(payload),
-                headers: UtilsMixin.methods.getHeader(getters.getAuthToken)
-            })
-            const json = await resp.json();
 
-            if (!resp.ok && Array.isArray(json.message)) {
-                console.log(json.message)
-                throw new Error(json.message.join(','));
-            } else if (!resp.ok && (json.statusCode !== 200 || 201)) {
-                throw new Error(json.message)
+            const resp = await RequestHandler(url,
+                'POST',
+                payload,
+                UtilsMixin.methods.getHeader(getters.getAuthToken),
+            )
+            if (!resp || Array.isArray(resp.message)) {
+                throw new Error(resp?.message?.join(',') || resp?.message);
+            } else if ('statusCode' in resp && (resp.statusCode !== 200 || 201)) {
+                throw new Error(resp.message)
+
             }
-
-            //dispatch('getPeopleMembers')
-
-            if (json.authToken) commit('setAuthToken', json.authToken)
-            return json;
-
+            return resp;
         },
 
         /// Roles
 
         getMyRolesAction: async ({ getters, commit }) => {
             const url = `${apiServerBaseUrl}/roles`;
-            const resp = await fetch(url, {
-                method: 'GET',
-                headers: UtilsMixin.methods.getHeader(getters.getAuthToken)
-            })
-            let json = await resp.json();
 
-            if (!resp.ok && Array.isArray(json.message)) {
-                throw new Error(json.message.join(','));
+            const resp = await RequestHandler(url,
+                'GET',
+                {},
+                UtilsMixin.methods.getHeader(getters.getAuthToken)
+            )
+            if (Array.isArray(resp)) {
+                commit('setAllRoles', resp)
+                return resp;
+
             }
-            commit('setAllRoles', json)
-            return json;
+            const message = Array.isArray(resp?.message)
+                ? resp.message.join(', ')
+                : resp?.message || 'Unknown error';
+
+            throw new Error(message);
+
 
         },
 
         createARole: async ({ getters, dispatch }, payload) => {
 
             const url = `${apiServerBaseUrl}/roles`;
-            const resp = await fetch(url, {
-                method: 'POST',
-                body: JSON.stringify(payload),
-                headers: UtilsMixin.methods.getHeader(getters.getAuthToken)
-            })
-            const json = await resp.json();
 
-            if (!resp.ok && Array.isArray(json.message)) {
-                console.log(json.message)
-                throw new Error(json.message.join(','));
-            } else if (!resp.ok && (json.statusCode !== 200 || 201)) {
-                throw new Error(json.message)
+            const resp = await RequestHandler(url,
+                'POST',
+                payload,
+                UtilsMixin.methods.getHeader(getters.getAuthToken)
+            )
+
+            if (!resp || Array.isArray(resp.message)) {
+                throw new Error(resp?.message?.join(',') || resp?.message);
+            } else if ('statusCode' in resp && resp.statusCode !== 200 && resp.statusCode !== 201) {
+                throw new Error(resp.message)
+
             }
 
             dispatch('getMyRolesAction')
-            return json;
+            return resp;
 
         },
 
         deleteARole: async ({ getters, dispatch }, payload) => {
             const url = `${apiServerBaseUrl}/roles/${payload}`;
-            const resp = await fetch(url, {
-                method: 'DELETE',
-                headers: UtilsMixin.methods.getHeader(getters.getAuthToken)
-            })
-            const json = await resp.json();
+            const resp = await RequestHandler(url,
+                'DELETE', {},
+                UtilsMixin.methods.getHeader(getters.getAuthToken)
+            )
 
-            if (!resp.ok && Array.isArray(json.message)) {
-                console.log(json.message)
-                throw new Error(json.message.join(','));
-            } else if (!resp.ok && (json.statusCode !== 200 || 201)) {
-                throw new Error(json.message)
+            if (!resp && Array.isArray(resp.message)) {
+                throw new Error(resp?.message?.join(',') || resp?.message);
+            } else if ('statusCode' in resp && resp.statusCode !== 200 && resp.statusCode !== 201) {
+                throw new Error(resp.message)
             }
 
             dispatch('getMyRolesAction')
-            return json;
+            return resp;
 
         },
 
         updateARole: async ({ getters, dispatch }, payload) => {
             const url = `${apiServerBaseUrl}/roles/${payload._id}`;
-            const resp = await fetch(url, {
-                method: 'PATCH',
-                body: JSON.stringify(payload),
-                headers: UtilsMixin.methods.getHeader(getters.getAuthToken)
-            })
-            const json = await resp.json();
 
-            if (!resp.ok && Array.isArray(json.message)) {
-                console.log(json.message)
-                throw new Error(json.message.join(','));
-            } else if (!resp.ok && (json.statusCode !== 200 || 201)) {
-                throw new Error(json.message)
+            const resp = await RequestHandler(url, 'PATCH', payload, UtilsMixin.methods.getHeader(getters.getAuthToken))
+            if (!resp && Array.isArray(resp.message)) {
+                throw new Error(resp?.message?.join(',') || resp?.message);
+            } else if ('statusCode' in resp && resp?.statusCode !== 200 && resp?.statusCode !== 201) {
+                throw new Error(resp.message)
+
             }
-
             dispatch('getMyRolesAction')
-            return json;
+            return resp;
 
         },
 
@@ -553,52 +536,41 @@ const mainStore = {
             try {
                 const { authenticatorType } = payload
                 if (!authenticatorType) throw new Error('Authenticator type must be provided')
-
                 const url = `${apiServerBaseUrl}/auth/mfa/generate`;
-                const resp = await fetch(url, {
-                    method: 'POST',
-                    body: JSON.stringify({
-                        authenticatorType
-                    }),
-                    headers: UtilsMixin.methods.getHeader(getters.getAuthToken)
-                })
-
-                const json = await resp.json();
-
-                if (!resp.ok && Array.isArray(json.message)) {
-                    throw new Error(json.message.join(','));
+                const resp = await RequestHandler(url, 'POST', { authenticatorType }, UtilsMixin.methods.getHeader(getters.getAuthToken))
+                if (!resp || Array.isArray(resp.message)) {
+                    throw new Error(resp?.message?.join(',') || resp?.message);
+                } else if ('statusCode' in resp && resp?.statusCode !== 200 && resp?.statusCode !== 201) {
+                    throw new Error(resp.message)
                 }
-
-                return json;
+                return resp;
             } catch (e) {
                 throw new Error(e)
             }
         },
 
+        // eslint-disable-next-line no-empty-pattern
         mfaVerify: async ({ getters }, payload) => {
             try {
                 const { authenticatorType, twoFactorAuthenticationCode } = payload
                 if (!authenticatorType) throw new Error('Authenticator type must be provided')
 
                 if (!twoFactorAuthenticationCode) throw new Error('MFA PIN must be provided')
-
                 const url = `${apiServerBaseUrl}/auth/mfa/verify`;
-                const resp = await fetch(url, {
-                    method: 'POST',
-                    body: JSON.stringify({
-                        authenticatorType,
-                        twoFactorAuthenticationCode
-                    }),
-                    headers: UtilsMixin.methods.getHeader(getters.getAuthToken)
-                })
 
-                const json = await resp.json();
+                const resp = await RequestHandler(url, 'POST', {
+                    authenticatorType,
+                    twoFactorAuthenticationCode
+                },
+                    UtilsMixin.methods.getHeader(getters.getAuthToken)
+                )
 
-                if (!resp.ok && Array.isArray(json.message)) {
-                    throw new Error(json.message.join(','));
+                if (!resp || Array.isArray(resp.message)) {
+                    throw new Error(resp.message.join(','));
+
                 }
 
-                return json;
+                return resp;
             } catch (e) {
                 throw new Error(e)
             }
@@ -612,7 +584,8 @@ const mainStore = {
                 fetch(url, {
                     method: 'POST',
                     headers,
-                    body: JSON.stringify(payload)
+                    body: JSON.stringify(payload),
+                    credentials: 'include', 
                 })
                     .then(response => response.json())
                     .then(json => {
@@ -652,7 +625,8 @@ const mainStore = {
                 fetch(url, {
                     method: 'PUT',
                     headers,
-                    body: JSON.stringify(payload)
+                    body: JSON.stringify(payload),
+                    credentials: 'include', 
                 }).then(response => {
                     return response.json()
                 }).then(json => {
@@ -682,6 +656,7 @@ const mainStore = {
                 fetch(url, {
                     method: 'DELETE',
                     headers,
+                    credentials: 'include', 
                 }).then(response => response.json()).then(json => {
                     if (json.error) {
                         return reject(new Error(json.message.join(' ')))
@@ -728,32 +703,24 @@ const mainStore = {
         },
 
 
-        keepAccessTokenReadyForApp: ({ commit, getters }, payload) => {
-            return new Promise((resolve, reject) => {
+        keepAccessTokenReadyForApp: async ({ commit, getters }, payload) => {
+            try {
                 const { serviceId, grant_type } = payload
                 const url = `${apiServerBaseUrl}/app/access-control/token?serviceId=${serviceId}&grant_type=${grant_type}`;
-
                 const headers = UtilsMixin.methods.getHeader(localStorage.getItem('authToken'));
-                fetch(url, {
-                    method: 'GET',
-                    headers,
-                })
-                    .then(response => response.json())
-                    .then(json => {
+                const json = await RequestHandler(url, 'GET', {}, headers);
+                if (json?.access_token) {
+                    const app = getters.getAppByAppId(serviceId)
+                    app['access_token'] = json.access_token
+                    commit('insertAnApp', app);
+                } else {
+                    throw new Error(`Could not fetch accesstoken for service   ${serviceId}`)
+                }
 
-                        if (json.access_token) {
-                            const app = getters.getAppByAppId(serviceId)
-                            app['access_token'] = json.access_token
-                            commit('insertAnApp', app);
-                            resolve()
-                        } else {
-                            reject(new Error(`Could not fetch accesstoken for service   ${serviceId}`))
-                        }
 
-                    }).catch((e) => {
-                        reject(new Error(`while updating an app  ${e}`))
-                    })
-            })
+            } catch (e) {
+                throw new Error(`Error while updating an app: ${e.message}`);
+            }
         },
 
         fetchServicesList: async ({ commit }) => {
@@ -785,6 +752,7 @@ const mainStore = {
                 fetch(url, {
                     method: 'POST',
                     headers,
+                    credentials: 'include', 
                 })
                     .then(response => response.json())
                     .then(json => {
@@ -826,7 +794,10 @@ const mainStore = {
                 if (payload.sessionIds) {
                     paramsObject['sessionIds'] = payload.sessionIds
                 }
+                if (payload.status) {
+                    paramsObject['status'] = payload.status
 
+                }
                 if (Object.keys(paramsObject).length > 0) {
                     const params = new URLSearchParams({ ...paramsObject });
                     url = url + '?' + params.toString();

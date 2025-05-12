@@ -1185,7 +1185,8 @@ export default {
       try {
         const userDetails = localStorage.getItem("user");
         if (userDetails) {
-           this.userDetails = JSON.parse(userDetails);
+            const parsed = JSON.parse(userDetails);
+            Object.assign(this.userDetails, parsed);
           this.isLoading = true;
           await this.fetchAppsListFromServer();
           await this.fetchServicesList();

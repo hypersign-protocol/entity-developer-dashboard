@@ -120,6 +120,21 @@ h5 span {
 .scrollit:hover {
   overflow-y: auto;
 }
+.custom-active {
+  background-color: #e0e0e0 !important;
+  color: #000 !important;
+}
+
+
+::v-deep(.dropdown-item.custom-active:hover) {
+  background-color: #cfcfcf !important;
+  color: #000 !important;
+}
+
+::v-deep(.dropdown-item:hover) {
+  background-color: #f0f0f0 !important;
+  color: #000 !important;
+}
 </style>
 <template>
   <div :class="isContainerShift ? 'homeShift' : 'home'">
@@ -146,13 +161,13 @@ h5 span {
           <hf-upgrade-plan></hf-upgrade-plan>
         </div>
 
-        <div v-else style="text-align: left;">
+        <!-- <div v-else style="text-align: left;">
           <h3>No session found!</h3>
-        </div>
+        </div> -->
       </div>
     </div>
 
-    <div class="scrollit" v-if="sessionList.length > 0">
+    <div class="scrollit" >
       <div class="">
         <table class="table table-hover event-card" style="background:#FFFF">
           <thead class="thead-light">
@@ -161,7 +176,27 @@ h5 span {
               <th class="sticky-header">Session Id</th>
               <th class="sticky-header">User Id (Hash)</th>
               <th class="sticky-header">Steps</th>
-              <th class="sticky-header">Status</th>
+              <th class="sticky-header">
+                Status
+              <b-dropdown
+                size="sm"
+                variant="light"
+                toggle-class="p-1 ml-2"
+                menu-class="dropDownPopup"
+                no-caret
+                right
+              >
+              <template #button-content>
+                <i class="fa fa-filter text-muted"></i>
+              </template>
+
+              <b-dropdown-item   :class="{ 'custom-active':selectedSessionStatus === 'All'}" @click="handleSessionFilter('')">All</b-dropdown-item>
+              <b-dropdown-item :class="{ 'custom-active': selectedSessionStatus === 'Pending' }"  @click="handleSessionFilter('Pending')">In Progress</b-dropdown-item>
+              <b-dropdown-item :class="{ 'custom-active':selectedSessionStatus === 'Success'}" @click="handleSessionFilter('Success')">Completed</b-dropdown-item>
+              <b-dropdown-item :class="{ 'custom-active':selectedSessionStatus === 'Expired'}" @click="handleSessionFilter('Expired')">Expired</b-dropdown-item>
+              <b-dropdown-item :class="{ 'custom-active':selectedSessionStatus === 'Failed'}" @click="handleSessionFilter('Failed')">Failed</b-dropdown-item>
+            </b-dropdown>
+            </th>
             </tr>
           </thead>
           <tbody>
@@ -288,6 +323,8 @@ export default {
       isLoading: false,
       sessionIdTemp: null,
       hasPermission: false,
+      selectedSessionStatus: 'All',
+      currentPage: 1
     }
   },
   async created() {
@@ -295,7 +332,9 @@ export default {
       const usrStr = localStorage.getItem("user");
       this.user = JSON.parse(usrStr);
       this.updateSideNavStatus(true)
-
+      const storedStatus = localStorage.getItem('selectedSessionStatus');
+      this.selectedSessionStatus = storedStatus !== null ? storedStatus : '';
+      this.handleSessionFilter(this.selectedSessionStatus);
       // appId
       this.isLoading = true
       this.checkIfHasPermission()
@@ -311,6 +350,7 @@ export default {
     }
   },
   beforeRouteEnter(to, from, next) {
+     localStorage.removeItem('selectedSessionStatus');
     next((vm) => {
       vm.prevRoute = from;
     });
@@ -353,14 +393,27 @@ export default {
     async handleGetPageNumberEvent(pageNumber) {
       try {
         this.isLoading = true
-        await this.fetchAppsUsersSessions({ appId: "", page: pageNumber })
+         this.currentPage = pageNumber;
+        await this.fetchAppsUsersSessions({ appId: "", page: pageNumber, status: this.selectedSessionStatus || ''
+ })
         this.isLoading = false
       } catch (e) {
         this.isLoading = false
         this.notifyErr(e)
       }
     },
-
+    async handleSessionFilter(status){
+      try{
+      this.isLoading = true
+      this.selectedSessionStatus = status || 'All';
+       localStorage.setItem('selectedSessionStatus', status);
+            await this.fetchAppsUsersSessions({ appId: "",  page: this.currentPage, status: status })
+            this.isLoading = false
+          } catch (e) {
+            this.isLoading = false
+            this.notifyErr(e)
+      }
+    },
     async filterSessions(filterText) {
       try {
         if (filterText) {

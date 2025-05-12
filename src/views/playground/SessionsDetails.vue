@@ -181,7 +181,7 @@ h3 {
         </div>
 
         <div>
-            <div class="serviceCard">
+            <v-card class="serviceCard">
                     <div class="card-body f-sm">
                         <div class="row">
                             <div class="col-md-4 ">
@@ -208,12 +208,12 @@ h3 {
                             </div>
                         </div>
                     </div>
-            </div>
+            </v-card>
         </div>
 
         <div>
             <!-- Timelines -->
-            <div  class="serviceCard dataCard float-md-end">
+            <v-card  class="serviceCard dataCard float-">
                 <v-list-item three-line>
                     <v-list-item-content>
                         <v-list-item-title class="text-h5 mb-1">
@@ -255,10 +255,10 @@ h3 {
                         </div>
                     </v-list-item-content>
                 </v-list-item> 
-            </div>
+            </v-card>
 
                 <!-- Personal Information -->
-                <div class="serviceCard dataCard float-" style="max-height: 439px; overflow-y: scroll; max-width: 400px;"
+                <v-card class="serviceCard dataCard float-" style="max-height: 439px; overflow-y: scroll; max-width: 400px;"
                     v-if="userPersonalDataFromUserConsent && Object.keys(userPersonalDataFromUserConsent).length > 0">
                     <v-list-item three-line>
                         <v-list-item-content>
@@ -283,9 +283,9 @@ h3 {
                             </div>
                         </v-list-item-content>
                     </v-list-item> 
-                </div>
+                </v-card>
 
-                <div class="serviceCard dataCard float-" style="max-height: 439px; overflow-y: scroll; max-width: 400px;"
+                <v-card class="serviceCard dataCard float-" style="max-height: 439px; overflow-y: scroll; max-width: 400px;"
                     v-if="userPersonalDataGovIdFromUserConsent && Object.keys(userPersonalDataGovIdFromUserConsent).length > 0">
                     <v-list-item three-line>
                         <v-list-item-content>
@@ -310,10 +310,10 @@ h3 {
                     </div>
                 </v-list-item-content>
                 </v-list-item> 
-                </div>
+                </v-card>
 
                 <!-- Device Information -->
-                <div class="serviceCard dataCard float-" v-if="deviceDetails && Object.keys(deviceDetails).length > 0">
+                <v-card class="serviceCard dataCard float-" v-if="deviceDetails && Object.keys(deviceDetails).length > 0">
                     <v-list-item three-line>
                         <v-list-item-content>
                             <v-list-item-title class="text-h5 mb-1">
@@ -356,10 +356,10 @@ h3 {
                     </div>
                 </v-list-item-content>
             </v-list-item> 
-                </div>
+                </v-card>
 
                 <!-- Face Verification -->
-                <div class="serviceCard dataCard float-" :style="{ 'border': getStatusColor }"
+                <v-card class="serviceCard dataCard float-" :style="{ 'border': getStatusColor }"
                     v-if="session.selfiDetails && Object.keys(session.selfiDetails).length > 0 && session.ocriddocsDetails.tokenFaceImage">
                     <v-list-item three-line>
                         <v-list-item-content>
@@ -401,10 +401,10 @@ h3 {
                     </div>
                 </v-list-item-content>
             </v-list-item>
-                </div>
+                </v-card>
 
                 <!-- Liveliness Check -->
-                <div class="serviceCard dataCard float-" :style="{ 'border': passiveLivelinessData.borderColor }"
+                 <v-card class="serviceCard dataCard float-" :style="{ 'border': passiveLivelinessData.borderColor }"
                     v-if="session.selfiDetails && session.selfiDetails.createdAt && Object.keys(session.selfiDetails).length > 0">
                     <v-list-item three-line>
                         <v-list-item-content>
@@ -432,10 +432,10 @@ h3 {
                     </div>
                 </v-list-item-content>
             </v-list-item>
-                </div>
+                </v-card>
 
                 <!-- Location Information -->
-                <div class="serviceCard dataCard float-" v-if="locationDetails && Object.keys(locationDetails).length > 0">
+                <v-card class="serviceCard dataCard float-" v-if="locationDetails && Object.keys(locationDetails).length > 0">
                     <v-list-item three-line>
                         <v-list-item-content>
                             <v-list-item-title class="text-h5 mb-1">
@@ -465,10 +465,10 @@ h3 {
                     </div>
                 </v-list-item-content>
             </v-list-item>
-                </div>
+                </v-card>
 
                 <!-- Images / Documentation -->
-                <div class="serviceCard dataCard float-" v-if="selfiDataFound || idDocDataFound">
+                <v-card class="serviceCard dataCard float-" v-if="selfiDataFound || idDocDataFound">
                     <v-list-item three-line>
                         <v-list-item-content>
                             <v-list-item-title class="text-h5 mb-1">
@@ -527,10 +527,10 @@ h3 {
                     </div> -->
                 </v-list-item-content>
             </v-list-item>
-                </div>
+                </v-card>
 
                 <!-- SBT Minting -->  <div v-for="eachSbtMintData in allSbtMintData" v-bind:key="eachSbtMintData">
-                    <div class="serviceCard dataCard float-"
+                    <v-card class="serviceCard dataCard float-"
                         v-if="eachSbtMintData">
                         <v-list-item three-line>
                         <v-list-item-content>
@@ -597,7 +597,7 @@ h3 {
                         </div>
                     </v-list-item-content>
                 </v-list-item>
-                    </div>
+                    </v-card>
                 </div>
               
         </div>
