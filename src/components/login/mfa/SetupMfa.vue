@@ -4,7 +4,7 @@
         <load-ing :active.sync="isLoading" :can-cancel="true" :is-full-page="true"></load-ing>
 
         <h4>Setup Authenticator as a MFA method</h4>
-        <div style="width: 50%;" class="sericeCard">
+        <div style="width: 50%;" class="serviceCard">
             <ul  >
                 <li style="padding: 15px;">
                     <div>

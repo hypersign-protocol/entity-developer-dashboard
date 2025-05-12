@@ -153,7 +153,7 @@ ul {
       </v-col>
     </v-row>
 
-    <v-card>
+    <div class="serviceCard">
       <ul class="list-group list-group-flush">
         <li class="list-group-item">
           <b-form-checkbox switch size="lg" v-model="widgetConfigTemp.faceRecog" disabled>{{
@@ -296,7 +296,7 @@ ul {
                   <div class="row">
                     <div class="col">
                       <label for=""><strong>Reason For KYC: </strong></label>
-                      <textarea type="text" rows="7" class="form-control" id=""
+                      <textarea type="text" rows="7" class="serviceCard form-control" id=""
                         v-model="widgetConfigTemp.userConsent.reason"
                         placeholder="The app is requesting the following information to verify your identity" />
                     </div>
@@ -325,7 +325,7 @@ ul {
           <!-- <TrustedIssuer @selectedServiceEventFromTrustedIssuer="selectedServiceEventHandler" /> -->
         </li>
       </ul>
-    </v-card>
+    </div>
 
 
 

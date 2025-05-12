@@ -118,7 +118,7 @@
             <i class="fas fa-book-open nav-icon" style="height: 18px; font-size: 18px; width: 18px;"></i>
           </b-nav-item>
 
-          <b-nav-item-dropdown right v-if="getIsLoggedOut" title="Profile">
+          <b-nav-item-dropdown right v-if="getIsLoggedOut" title="Profile" menu-class="dropDownPopup">
            <template #button-content>
              <img
               v-if="userDetails?.profileIcon"
