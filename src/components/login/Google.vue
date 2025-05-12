@@ -47,7 +47,9 @@ export default {
                 }
             })
                 .then((json) => {
-                    window.location.href = json.authUrl
+                    if(json){
+                        window.location.href = json.authUrl
+                    }
                 })
                 .catch((e) => {
                     throw new Error(`${e.message}`)
