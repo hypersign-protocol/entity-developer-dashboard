@@ -213,7 +213,7 @@ h3 {
 
         <div>
             <!-- Timelines -->
-            <v-card  class="serviceCard dataCard float-md-end">
+            <v-card  class="serviceCard dataCard float-">
                 <v-list-item three-line>
                     <v-list-item-content>
                         <v-list-item-title class="text-h5 mb-1">

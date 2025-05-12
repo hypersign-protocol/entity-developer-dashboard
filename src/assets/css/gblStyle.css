@@ -150,8 +150,8 @@ a {
     overflow-y: auto;
     }
     
-    .serviceCard.v-card,
-    .serviceCard.v-sheet {
+.serviceCard.v-card,
+.serviceCard.v-sheet {
         border-radius: 8px !important;
         box-shadow: 0 0 2rem 0 rgba(136, 152, 170, 0.15) !important;
     }
