@@ -135,7 +135,7 @@ h5 span {
                 <datalist id="subjectDidList" v-if="associatedSSIServiceDIDs && associatedSSIServiceDIDs.length > 0">
                   <option
                     v-for="did in associatedSSIServiceDIDs"
-                    :value="did.split('|')[1].trim()"
+                    :value="did.split('|')[1]?.trim()"
                     :key="did"
                   >
                     {{ did }}
@@ -1337,7 +1337,7 @@ export default {
 
         else if (isEmpty(this.selected)) {
           return this.notifyErr(message.CREDENTIAL.SELECT_SCHEMA);
-        } else if (this.holderDid.trim() == this.issuerDid) {
+        } else if (this.holderDid?.trim() == this.issuerDid) {
           return this.notifyErr(message.CREDENTIAL.ISSUER_HOLDER_NOT_SAME);
         }
         // generateAttributeMap
@@ -1353,10 +1353,10 @@ export default {
         }
         this.isLoading = true;
         this.creadData.fields = attributeMap;
-        this.creadData.schemaId = this.selected.trim(),
-        this.creadData.issuerDid = this.issuerDid.trim(),
-        this.creadData.verificationMethodId = this.issuerVerificationMethodId.trim(),
-        this.creadData.subjectDid = this.holderDid.trim(),
+        this.creadData.schemaId = this.selected?.trim(),
+        this.creadData.issuerDid = this.issuerDid?.trim(),
+        this.creadData.verificationMethodId = this.issuerVerificationMethodId?.trim(),
+        this.creadData.subjectDid = this.holderDid?.trim(),
         this.creadData.expirationDate = this.expiryDateTime,
 
           // this.QrData.data = creadData;
