@@ -585,7 +585,7 @@ const mainStore = {
                     method: 'POST',
                     headers,
                     body: JSON.stringify(payload),
-                    credentials: 'include', 
+                    credentials: 'include',
                 })
                     .then(response => response.json())
                     .then(json => {
@@ -626,7 +626,7 @@ const mainStore = {
                     method: 'PUT',
                     headers,
                     body: JSON.stringify(payload),
-                    credentials: 'include', 
+                    credentials: 'include',
                 }).then(response => {
                     return response.json()
                 }).then(json => {
@@ -656,7 +656,7 @@ const mainStore = {
                 fetch(url, {
                     method: 'DELETE',
                     headers,
-                    credentials: 'include', 
+                    credentials: 'include',
                 }).then(response => response.json()).then(json => {
                     if (json.error) {
                         return reject(new Error(json.message.join(' ')))
@@ -752,7 +752,7 @@ const mainStore = {
                 fetch(url, {
                     method: 'POST',
                     headers,
-                    credentials: 'include', 
+                    credentials: 'include',
                 })
                     .then(response => response.json())
                     .then(json => {
@@ -820,7 +820,7 @@ const mainStore = {
                         return reject(new Error(json.error?.details.join(' ') || json.error.join(' ')))
                     }
                     commit('insertSessions', json.data.sessionDetails);
-                    resolve()
+                    resolve(json.data.sessionDetails)
                 }).catch((e) => {
                     return reject(`Error while fetching apps ` + e.message);
                 })

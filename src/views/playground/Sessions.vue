@@ -339,7 +339,7 @@ export default {
       this.isLoading = true
       this.checkIfHasPermission()
       if (this.hasPermission) {
-        await this.fetchAppsUsersSessions({ appId: "" })
+        await this.fetchsession({ appId: "" })
       }
       this.isLoading = false
 
@@ -398,13 +398,23 @@ export default {
       this.hasPermission = true;
     },
 
+    async fetchsession(filter){
+      const t = await this.fetchAppsUsersSessions(filter)
+      console.log({t })
+      if(t && t.length == 0){
+        localStorage.setItem('selectedSessionStatus', 'All');
+        localStorage.setItem('selectedPage', 1);
+        this.fetchAppsUsersSessions({ appId: "" })
+      }
+    },
+
     async handleGetPageNumberEvent(pageNumber) {
       try {
         this.isLoading = true
         this.currentPage = pageNumber;
         const status = this.selectedSessionStatus ? (this.selectedSessionStatus == 'All' ? '' : this.selectedSessionStatus) : '';
         localStorage.setItem('selectedPage', this.currentPage);
-        await this.fetchAppsUsersSessions({ appId: "", page: pageNumber, status })
+        await this.fetchsession({ appId: "", page: pageNumber, status })
         this.isLoading = false
       } catch (e) {
         this.isLoading = false
@@ -415,9 +425,14 @@ export default {
       try{
         this.isLoading = true
         this.selectedSessionStatus = status || 'All';
+
+        if(this.selectedSessionStatus == '' || this.selectedSessionStatus == 'All'){
+          this.currentPage = 1
+        }
+
         localStorage.setItem('selectedSessionStatus', status);
         localStorage.setItem('selectedPage', this.currentPage);
-        await this.fetchAppsUsersSessions({ appId: "", page: this.currentPage, status: status })
+        await this.fetchsession({ appId: "", page: this.currentPage, status: status })
         this.isLoading = false
       } catch (e) {
         this.isLoading = false
@@ -437,7 +452,7 @@ export default {
           }
 
           this.isLoading = true
-          await this.fetchAppsUsersSessions({ appId: "", ...filter })
+          await this.fetchsession({ appId: "", ...filter })
           this.isLoading = false
         }
 
