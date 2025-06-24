@@ -346,7 +346,7 @@ export default {
 
       const storedStatus = localStorage.getItem('selectedSessionStatus');
       this.selectedSessionStatus = storedStatus  ? storedStatus : '';
-      this.currentPage = localStorage.getItem('selectedPage');
+      this.currentPage = localStorage.getItem('selectedPage') || 1;
       this.handleSessionFilter(this.selectedSessionStatus);
       
       

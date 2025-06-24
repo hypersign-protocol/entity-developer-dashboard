@@ -132,7 +132,7 @@ h5 span {
                     placeholder="Enter or select a DID"
                     v-model="holderDid"
                   />
-                <datalist id="subjectDidList">
+                <datalist id="subjectDidList" v-if="associatedSSIServiceDIDs && associatedSSIServiceDIDs.length > 0">
                   <option
                     v-for="did in associatedSSIServiceDIDs"
                     :value="did.split('|')[1].trim()"
