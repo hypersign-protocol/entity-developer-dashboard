@@ -149,7 +149,7 @@ h5 span {
           <div class="col-md-4">
             <div class="input-group mb-3">
               <input type="text" class="form-control" placeholder="Search by session Id or user Id"
-                aria-label="Search by session Id or user Id" aria-describedby="basic-addon2" v-model="sessionIdTemp">
+                aria-label="Search by session Id or user Id" aria-describedby="basic-addon2" v-model="sessionIdTemp" @keyup.enter="filterSessions(sessionIdTemp)">
               <div class="input-group-append" style="cursor: grab;">
                 <span class="input-group-text" id="basic-addon2" @click="filterSessions(sessionIdTemp)"><i
                     class="fa fa-search" aria-hidden="true"></i></span>
@@ -332,9 +332,9 @@ export default {
       const usrStr = localStorage.getItem("user");
       this.user = JSON.parse(usrStr);
       this.updateSideNavStatus(true)
-      const storedStatus = localStorage.getItem('selectedSessionStatus');
-      this.selectedSessionStatus = storedStatus !== null ? storedStatus : '';
-      this.handleSessionFilter(this.selectedSessionStatus);
+
+
+
       // appId
       this.isLoading = true
       this.checkIfHasPermission()
@@ -343,6 +343,14 @@ export default {
       }
       this.isLoading = false
 
+
+      const storedStatus = localStorage.getItem('selectedSessionStatus');
+      this.selectedSessionStatus = storedStatus  ? storedStatus : '';
+      this.currentPage = localStorage.getItem('selectedPage');
+      this.handleSessionFilter(this.selectedSessionStatus);
+      
+      
+
     } catch (e) {
       this.isLoading = false
       this.notifyErr(e)
@@ -350,7 +358,7 @@ export default {
     }
   },
   beforeRouteEnter(to, from, next) {
-     localStorage.removeItem('selectedSessionStatus');
+    //  localStorage.removeItem('selectedSessionStatus');
     next((vm) => {
       vm.prevRoute = from;
     });
@@ -393,9 +401,10 @@ export default {
     async handleGetPageNumberEvent(pageNumber) {
       try {
         this.isLoading = true
-         this.currentPage = pageNumber;
-        await this.fetchAppsUsersSessions({ appId: "", page: pageNumber, status: this.selectedSessionStatus || ''
- })
+        this.currentPage = pageNumber;
+        const status = this.selectedSessionStatus ? (this.selectedSessionStatus == 'All' ? '' : this.selectedSessionStatus) : '';
+        localStorage.setItem('selectedPage', this.currentPage);
+        await this.fetchAppsUsersSessions({ appId: "", page: pageNumber, status })
         this.isLoading = false
       } catch (e) {
         this.isLoading = false
@@ -404,14 +413,15 @@ export default {
     },
     async handleSessionFilter(status){
       try{
-      this.isLoading = true
-      this.selectedSessionStatus = status || 'All';
-       localStorage.setItem('selectedSessionStatus', status);
-            await this.fetchAppsUsersSessions({ appId: "",  page: this.currentPage, status: status })
-            this.isLoading = false
-          } catch (e) {
-            this.isLoading = false
-            this.notifyErr(e)
+        this.isLoading = true
+        this.selectedSessionStatus = status || 'All';
+        localStorage.setItem('selectedSessionStatus', status);
+        localStorage.setItem('selectedPage', this.currentPage);
+        await this.fetchAppsUsersSessions({ appId: "", page: this.currentPage, status: status })
+        this.isLoading = false
+      } catch (e) {
+        this.isLoading = false
+        this.notifyErr(e)
       }
     },
     async filterSessions(filterText) {
