@@ -135,7 +135,7 @@ h5 span {
                 <datalist id="subjectDidList" v-if="associatedSSIServiceDIDs && associatedSSIServiceDIDs.length > 0">
                   <option
                     v-for="did in associatedSSIServiceDIDs"
-                    :value="did.split('|')[1]?.trim()"
+                    :value="did.includes('|') ? did.split('|')[1].trim() : did.trim()"
                     :key="did"
                   >
                     {{ did }}
@@ -168,7 +168,7 @@ h5 span {
                     </strong></label>
                   <select class="custom-select" id="selectService" v-model="issuerDid" @change="resolveDid($event)">
                     <option value="">Select a DID</option>
-                    <option v-for="did in associatedSSIServiceDIDs" :value="did.split('|')[1]" :key="did">
+                    <option v-for="did in associatedSSIServiceDIDs"  :value="did.includes('|') ? did.split('|')[1].trim() : did.trim()" :key="did">
                       {{ did }}
                     </option>
                   </select>

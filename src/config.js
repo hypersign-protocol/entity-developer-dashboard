@@ -19,7 +19,7 @@ const config = {
     },
     nodeServer: {
         BASE_URL: process.env.VUE_APP_NODE_SERVER_BASE_URL,
-        BASE_URL_REST: process.env.VUE_APP_NODE_SERVER_BASE_URL_REST || 'https://api.jagrat.hypersign.id/',
+        BASE_URL_REST: sanitizeUrl(process.env.VUE_APP_NODE_SERVER_BASE_URL_REST || 'https://api.jagrat.hypersign.id/', true),
         SCHEMA_GET_REST: process.env.VUE_APP_SCHEMA_GET_EP_REST || 'hypersign-protocol/hidnode/ssi/schema/',
         NETWORK_STATUS_EP: process.env.NODE_SERVER_NETWORK_STATUS_EP || "net_info",
         SCHEMA_LIST_EP: process.env.NODE_SERVER_SCHEMA_LIST_EP || "api/schema/list",

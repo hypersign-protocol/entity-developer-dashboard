@@ -230,7 +230,7 @@ h5 span {
               <td>
                 <div>
                   <span style="float:left" class="badge badge-info"
-                    v-for="eachKey in row.didDocument.verificationMethod" v-bind:key="eachKey.id">
+                    v-for="eachKey in row?.didDocument?.verificationMethod" v-bind:key="eachKey.id">
                     {{ eachKey.type }}
 
                   </span>

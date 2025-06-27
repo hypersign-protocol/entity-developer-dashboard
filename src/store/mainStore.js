@@ -2243,6 +2243,17 @@ const mainStore = {
                             status = 'Error'
                             error = json.metadata.transactionStatus
                         }
+                    } else if (json?.metadata?.registerCredentialStatus) { // this is temporary fix as our transaction server is down. This may lead to incorrect daat in case of registration failure
+                        // make call to rpc and check if it is registered
+                        const url = `${config.nodeServer.BASE_URL_REST}hypersign-protocol/hidnode/ssi/credential/${payload.credentialId}`
+                        const res = await fetch(url);
+                        if (!res.ok) {
+                            status = 'Created'
+                        } else {
+                            const data = await res.json();
+                            if (data) status = 'Registered'
+
+                        }
                     } else {
                         status = 'Created'
                     }
