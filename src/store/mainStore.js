@@ -2230,7 +2230,7 @@ const mainStore = {
                 const response = await fetch(url, {
                     headers: options.headers
                 })
-                const json = await response.json()
+                let json = await response.json()
 
 
                 if (json && json.metadata) {
@@ -2251,6 +2251,11 @@ const mainStore = {
                             status = 'Created'
                         } else {
                             const data = await res.json();
+                            json = {
+                                credentialDocument: json.credentialDocument,
+                                credentialStatus: data?.credentialStatus?.credentialStatusDocument,
+                                metadata: json?.metadata
+                            }
                             if (data) status = 'Registered'
 
                         }
