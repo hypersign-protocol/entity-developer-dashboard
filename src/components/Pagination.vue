@@ -29,15 +29,12 @@
 export default {
     name: 'PagiNation',
     props: {
-        pagesCount: { type: String, default: '3' }
+        pagesCount: { type: [String, Number], default: '3' }
     },
     computed: {
-        pages() {
-            if (this.pagesCount) {
-                return parseInt(this.pagesCount);
-            } else {
-                return 3
-            }
+    pages() {
+        const parsedPages = parseInt(this.pagesCount);
+        return isNaN(parsedPages) || parsedPages < 1 ? 1 : parsedPages;
         }
     },
     data() {

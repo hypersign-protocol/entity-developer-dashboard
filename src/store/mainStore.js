@@ -28,6 +28,7 @@ const mainStore = {
         onchainconfigs: [],
         onChainConfig: {},
         isLoggedOut: false,
+        totalSessionCount: 0,
         widgetConfig: {
 
         },
@@ -193,7 +194,8 @@ const mainStore = {
             // }
         },
         insertSessions(state, payload) {
-            state.sessionList = payload
+            state.sessionList = payload.sessionList;
+            state.totalSessionCount = payload.totalCount
         },
 
         insertAppsOnChainConfigs(state, payload) {
@@ -819,7 +821,10 @@ const mainStore = {
                     if (json.error) {
                         return reject(new Error(json.error?.details.join(' ') || json.error.join(' ')))
                     }
-                    commit('insertSessions', json.data.sessionDetails);
+                    commit('insertSessions', {
+                        sessionList: json.data.sessionDetails,
+                        totalCount: json.data.totalCount || 0
+                    });
                     resolve(json.data.sessionDetails)
                 }).catch((e) => {
                     return reject(`Error while fetching apps ` + e.message);
@@ -2269,7 +2274,7 @@ const mainStore = {
                         credentialDocument: json.credentialDocument,
                         credentialStatus: json.credentialStatus,
                         credentialMetadata: json.metadata,
-                        status: status, //json.metadata.transactionStatus && Object.keys(json.metadata.transactionStatus).length > 0 ? 'Registered' : 'Created',
+                        status: status,
                         error
                     }
                     commit('updateACredential', data);
