@@ -291,7 +291,7 @@ h5 span {
 
     <div class="row mt-2" v-if="sessionList.length > 0">
       <div class="col-md-12 d-flex justify-content-center align-items-center">
-        <PagiNation pagesCount="5" @event-page-number="handleGetPageNumberEvent" />
+        <PagiNation :pagesCount="pages" @event-page-number="handleGetPageNumberEvent" />
       </div>
     </div>
   </div>
@@ -308,12 +308,16 @@ export default {
   computed: {
     ...mapGetters('mainStore', ['sessionList', 'getUserAccessList']),
     ...mapState({
+      totalSessionCount:state=>state.mainStore.totalSessionCount,
       sessionList: state => state.mainStore.sessionList,
       containerShift: state => state.playgroundStore.containerShift,
     }),
     isContainerShift() {
       return this.containerShift
-    }
+    },
+    pages() {
+        return Math.ceil(parseInt(this.totalSessionCount) / this.pageLimit);
+      },
   },
   data() {
     return {
@@ -324,7 +328,8 @@ export default {
       sessionIdTemp: null,
       hasPermission: false,
       selectedSessionStatus: 'All',
-      currentPage: 1
+      currentPage: 1,
+      pageLimit:50,
     }
   },
   async created() {
@@ -425,14 +430,14 @@ export default {
       try{
         this.isLoading = true
         this.selectedSessionStatus = status || 'All';
-
+        const apiStatus = (status === 'All' || !status) ? '' : status;
         if(this.selectedSessionStatus == '' || this.selectedSessionStatus == 'All'){
           this.currentPage = 1
         }
 
         localStorage.setItem('selectedSessionStatus', status);
         localStorage.setItem('selectedPage', this.currentPage);
-        await this.fetchsession({ appId: "", page: this.currentPage, status: status })
+        await this.fetchsession({ appId: "", page: this.currentPage, status: apiStatus })
         this.isLoading = false
       } catch (e) {
         this.isLoading = false
