@@ -33,13 +33,20 @@ export default {
     },
     computed: {
     pages() {
-        const parsedPages = parseInt(this.pagesCount);
-        return isNaN(parsedPages) || parsedPages < 1 ? 1 : parsedPages;
+        const total = parseInt(this.pagesCount);
+        const pages=[];
+        const endPage = Math.min(this.startPage + this.maxVisible - 1, total);
+        for (let i = this.startPage; i <= endPage; i++) {
+            pages.push(i);
+            }
+            return pages
         }
     },
     data() {
         return {
-            currentPageNumber: 1
+            currentPageNumber: 1,
+            startPage: 1,
+            maxVisible: 5,
         }
     },
     methods: {
@@ -57,10 +64,20 @@ export default {
             this.currentPageNumber = this.currentPageNumber + 1
             this.$emit('event-page-number', this.currentPageNumber)
         },
-        setPageNumer(pageNumber) {
-            this.$emit('event-page-number', pageNumber)
-            this.currentPageNumber = pageNumber;
-        }
+       setPageNumer(clickedPage) {
+            const total = parseInt(this.pagesCount);
+            const maxVisible = this.maxVisible;
+            const lastPageInWindow = this.startPage + maxVisible - 1;
+            if (clickedPage === lastPageInWindow && clickedPage < total) {
+                this.startPage = Math.min(clickedPage - 1, total - maxVisible + 1);
+            }
+            else if (clickedPage === this.startPage && clickedPage > 1) {
+                this.startPage = Math.max(clickedPage - (maxVisible - 2), 1);
+            }
+
+            this.currentPageNumber = clickedPage;
+            this.$emit('event-page-number', clickedPage);
+}
     }
 }
 
