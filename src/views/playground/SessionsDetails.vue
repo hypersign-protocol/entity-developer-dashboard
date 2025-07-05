@@ -88,8 +88,8 @@ ul.timeline>li:before {
     display: inline-block;
     position: absolute;
     border-radius: 50%;
-    border: 3px solid #22c0e8;
-    background-color: #339af0;
+    border: 2px solid rgb(164, 163, 163);
+    background-color: rgba(36, 35, 35, 0.819);
     left: 20px;
     width: 20px;
     height: 20px;
@@ -174,9 +174,9 @@ h3 {
         <loadIng :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loadIng>
         <div>
             <!-- <v-breadcrumbs :items="[{text: 'Session', disabled: false, href: '/'}, {text: this.sessionId, disabled: true}]"></v-breadcrumbs> -->
-            <h4 style="color: #8080808f;">
-                <a @click="$router.go(-1)" href="#">Sessions</a> <i class="fa fa-angle-double-right"
-                    aria-hidden="true"></i><span @click="copyToClip(sessionId, 'SessionId')">{{ sessionId }}</span>
+            <h4 style="color: #8080808f;cursor: pointer;">
+                <a @click="$router.go(-1)" href="#">Users</a> <i class="fa fa-angle-double-right"
+                    aria-hidden="true"></i><span @click="copyToClip(sessionId, 'UserId')">{{ sessionId }}</span>
             </h4>
         </div>
 
@@ -185,23 +185,27 @@ h3 {
                 <v-card class="serviceCard" id="header-info">
                     <div class="card-body f-sm">
                         <div class="row">
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                                 <label><strong>Date:</strong> {{ session ? formatDate(session.createdAt) : "-"
                                     }}</label>
                             </div>
-                            <div class="col-md-4 ">
-                                <label><strong>UserId:</strong> <span @click="copyToClip(session.appUserId, 'UserId')"> {{ session ?  stringShortner(session.appUserId, 32) : "-"
+                            <div class="col-md-3" >
+                                <label style="cursor: pointer;"><strong>Email Id:</strong> <span @click="copyToClip(session.email, 'Email')"> {{ session ?  stringShortner(session.email, 32) : "-"
                                     }}</span></label>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-3 ">
+                                <label><strong>Attempts:</strong> <span> {{ session ?  session.retryAttempts : "-"
+                                    }}</span></label>
+                            </div>
+                            <div class="col-md-3">
                                 <div class="row">
                                     <div class="col">
                                         <label><strong>Verified In:</strong> <span class="badge badge-info"> {{
                                                 startFinishDiffInSeconds }}m</span></label>
                                     </div>
                                     <div class="col text-align-right">
-                                        <span v-html="getStatus(session)"></span>
-                                        <span class="fa-stack fa-sm" title="Download report" style="cursor: grab"
+                                        <span v-html="getUserStatus(session.status)"></span>
+                                        <span class="fa-stack fa-sm" title="Download report" style="cursor: pointer"
                                             @click="downloadKYCReport()">
                                             <i class="fa fa-download"></i>
                                         </span>
@@ -236,7 +240,7 @@ h3 {
                                             formatDate(session.selfiDetails.createdAt) : "-" }}</a>
                                     </li>
                                     <li v-if="idDocDataFound && session.ocriddocsDetails.createdAt">
-                                        <a target="_blank" class="mx-2"><strong>ID Document uploaded</strong></a>
+                                        <a target="_blank" class="mx-2"><strong>Document uploaded</strong></a>
                                         <a href="#" class="float-right greyFont">{{ session ?
                                             formatDate(session.ocriddocsDetails.createdAt) : "-" }}</a>
                                     </li>
@@ -704,14 +708,14 @@ export default {
             return {
                 success: status,
                 result: ServiceLivenessResultEnum[this.session.selfiDetails.serviceLivenessResult],
-                borderColor: status ? '1px solid rgb(81, 137, 81)' : '1px solid indianred'
+                borderColor: status ? '5px solid rgb(81 137 81 / 35%)' : '5px solid #cd5c5c5e'
             }
         },
         getStatusColor() {
             if (this.isFacialAuthenticationSuccess.success) {
-                return '1px solid rgb(81, 137, 81)'
+                return '5px solid rgb(81 137 81 / 35%)'
             } else {
-                return '1px solid indianred'
+                return '5px solid #cd5c5c5e'
             }
         },
         isContainerShift() {
@@ -809,6 +813,7 @@ export default {
     },
 
     async created() {
+        console.log("Session Details View Created")
         this.appId = this.$route.params.appId
         this.sessionId = this.$route.params.sessionId
         // this.session = this.getSessionDetailsBySessionId(this.sessionId);
@@ -816,13 +821,11 @@ export default {
         try {
 
             this.isLoading = true
-
+            console.log("USer ID: ", this.sessionId)
+            console.log("Before fetching session details...")
             this.session = await this.fetchSessionsDetailsById({ sessionId: this.sessionId })
-
-            console.log({
-                session: this.session
-            })
-
+            console.log("After fetching session details...")
+            
             this.isLoading = false
             this.getCredentialSubjectByType()
 
@@ -880,7 +883,7 @@ export default {
 
                 const metadata = {
                     date: this.formatDate(this.session.createdAt),
-                    userId: this.session.appUserId,
+                    userId: this.session.userId,
                     verifiedIn: this.startFinishDiffInSeconds + ' m',
                     // status: this.getStatus(this.session)
                 };
@@ -970,7 +973,7 @@ export default {
                     pdf.text('Back Side', margin, yOffset);
                     pdf.addImage(backImage, 'JPEG', margin, yOffset + 5, imgWidth, imgHeight);
                 }
-                pdf.save(`${this.session.sessionId}-${(new Date()).getTime()}.pdf`);
+                pdf.save(`${this.session.userId}-${(new Date()).getTime()}.pdf`);
                 this.isLoading = false
             } catch (err) {
                 this.isLoading = false

@@ -35,7 +35,7 @@
   margin: 0;
   width: 100%;
   min-height: 100vh;
-  /* background: #f6f6f687; */
+  background: #f6f6f687;
 }
 
 .subtitle {
@@ -51,7 +51,7 @@
 }
 
 .container {
-  max-width: 1300px
+  max-width: 1446px
 }
 
 .far {
@@ -78,7 +78,7 @@
   <div id="app" data-app>
     <load-ing :active.sync="isLoading" :can-cancel="true" :is-full-page="true"></load-ing>
 
-    <b-navbar toggleable="lg" type="dark" variant="white" class="navStyle" v-if="getIsLoggedOut" sticky>
+    <!-- <b-navbar toggleable="lg" type="dark" variant="white" class="navStyle" v-if="getIsLoggedOut" sticky>
       <b-navbar-brand href="#">
         <a href="#" @click="route('dashboard')">
           <img src="./assets/Entity_full.png" alt="" style="height: 3vh; opacity: 80%;" />
@@ -127,77 +127,163 @@
             />
             <i v-else class="fas fa-user-circle nav-icon" style="height: 18px; font-size: 18px; width: 18px;"></i> 
             </template>
-            <b-dropdown-group style="text-align: left;">
-              <b-dropdown-item-button style="text-align: center; font-size: 0.9rem;">
-                <span>
-                 <span style="font-size: 0.8rem;">Welcome, </span>
-                   <strong style="font-size: 0.9rem;">{{ userDetails.name || 'User' }}</strong>
-                 </span>
-              </b-dropdown-item-button>
-              <b-dropdown-item-button style="text-align: left" :title="userDetails.email"
-                @click="copyToClip(userDetails.email, 'Email')">
-                {{ shorten(userDetails.email) }}
-              </b-dropdown-item-button>
+<b-dropdown-group style="text-align: left;">
+  <b-dropdown-item-button style="text-align: center; font-size: 0.9rem;">
+    <span>
+      <span style="font-size: 0.8rem;">Welcome, </span>
+      <strong style="font-size: 0.9rem;">{{ userDetails.name || 'User' }}</strong>
+    </span>
+  </b-dropdown-item-button>
+  <b-dropdown-item-button style="text-align: left" :title="userDetails.email"
+    @click="copyToClip(userDetails.email, 'Email')">
+    {{ shorten(userDetails.email) }}
+  </b-dropdown-item-button>
 
-              <b-dropdown-item-button style="text-align: left" @click="goTo('/studio/settings')" title="Teams">
-                <i class="fa fa-cog nav-icon" style="cursor: pointer; font-size: 1.3rem"></i>
-                Settings
-              </b-dropdown-item-button>
+  <b-dropdown-item-button style="text-align: left" @click="goTo('/studio/settings')" title="Teams">
+    <i class="fa fa-cog nav-icon" style="cursor: pointer; font-size: 1.3rem"></i>
+    Settings
+  </b-dropdown-item-button>
 
-              <b-dropdown-item-button style="text-align: left" @click="goTo('/studio/dashboard')" title="Teams">
-                <i class="fa fa-home nav-icon" style="cursor: pointer; font-size: 1.3rem"></i>
-                Home
-              </b-dropdown-item-button>
-              <b-dropdown-divider></b-dropdown-divider>
+  <b-dropdown-item-button style="text-align: left" @click="goTo('/studio/dashboard')" title="Teams">
+    <i class="fa fa-home nav-icon" style="cursor: pointer; font-size: 1.3rem"></i>
+    Home
+  </b-dropdown-item-button>
+  <b-dropdown-divider></b-dropdown-divider>
 
-              <b-dropdown-item-button style="text-align: left" @click="logoutAll()" title="Logout">
-                <i class="fas fa-sign-out-alt nav-icon" style="cursor: pointer; font-size: 1.3rem"></i>
-                Logout
-              </b-dropdown-item-button>
-            </b-dropdown-group>
-          </b-nav-item-dropdown>
-        </b-navbar-nav>
-      </b-collapse>
-    </b-navbar>
+  <b-dropdown-item-button style="text-align: left" @click="logoutAll()" title="Logout">
+    <i class="fas fa-sign-out-alt nav-icon" style="cursor: pointer; font-size: 1.3rem"></i>
+    Logout
+  </b-dropdown-item-button>
+</b-dropdown-group>
+</b-nav-item-dropdown>
+</b-navbar-nav>
+</b-collapse>
+</b-navbar> -->
 
-    <div :class="[
+
+    <v-app-bar app dense color="whitesmoke" class="navStyle" v-if="getIsLoggedOut" elevation="2" style="height: 58px;">
+      <!-- Brand -->
+      <v-toolbar-title class="pl-2">
+        <a href="#" @click.prevent="route('dashboard')">
+          <img src="./assets/Entity_full.png" alt="logo" style="height: 5vh; opacity: 90%;" />
+        </a>
+      </v-toolbar-title>
+
+      <v-spacer></v-spacer>
+
+      <!-- Admin Access Info -->
+      <template v-if="user.accessAccount?.email && user.accessAccount.userId !== user.userId">
+        <div class="d-flex align-center mr-4">
+          <span>Accessing Account Of:</span>
+          <v-chip class="ml-2" small outlined color="black">{{ loggedInUserEmailId }}</v-chip>
+          <v-icon small class="ml-2" @click="switchBackToAdminAccount">mdi-login</v-icon>
+        </div>
+      </template>
+
+      <!-- MFA Setup Prompt -->
+      <template v-if="userDetails?.isTwoFactorEnabled === false">
+        <router-link to="/studio/mfa">
+          <v-chip outlined class="ma-2" color="black" style="cursor: pointer; font-size: 10px; height: 26px;">
+            <!-- <v-progress-circular indeterminate size="14" width="2" color="black" class="mr-1" /> -->
+            <span class="spinner-grow spinner-grow-sm"></span>
+            Setup MFA
+          </v-chip>
+        </router-link>
+      </template>
+
+      <!-- Dev Links -->
+      <v-btn icon :href="$config.studioServer.BASE_URL" target="_blank" title="Developer Dashboard API">
+        <v-icon color="grey darken-2">mdi-code-tags</v-icon>
+      </v-btn>
+
+      <v-btn icon href="https://docs.hypersign.id/entity-studio/developer-dashboard" target="_blank"
+        title="Documentation">
+        <v-icon color="grey darken-2">mdi-book-open-variant</v-icon>
+      </v-btn>
+
+      <!-- Profile Menu -->
+      <v-menu offset-y bottom right v-if="userDetails">
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn icon v-bind="attrs" v-on="on">
+            <v-avatar v-if="userDetails.profileIcon" size="24">
+              <img :src="userDetails.profileIcon" />
+            </v-avatar>
+            <v-icon v-else>mdi-account-circle</v-icon>
+          </v-btn>
+        </template>
+
+        <v-list class="dropDownPopup">
+          <v-list-item>
+            <v-list-item-content class="text-center">
+              <div style="font-size: 0.8rem;">Welcome,</div>
+              <strong>{{ userDetails.name || 'User' }}</strong>
+            </v-list-item-content>
+          </v-list-item>
+
+          <v-list-item @click="copyToClip(userDetails.email, 'Email')" :title="userDetails.email">
+            <v-list-item-title>{{ shorten(userDetails.email) }}</v-list-item-title>
+          </v-list-item>
+
+          <v-list-item @click="goTo('/studio/settings')" title="Settings">
+            <v-icon left>mdi-cog</v-icon>
+            <v-list-item-title>Settings</v-list-item-title>
+          </v-list-item>
+
+          <v-list-item @click="goTo('/studio/dashboard')" title="Home">
+            <v-icon left>mdi-home</v-icon>
+            <v-list-item-title>Home</v-list-item-title>
+          </v-list-item>
+
+          <v-divider></v-divider>
+
+          <v-list-item @click="logoutAll()" title="Logout">
+            <v-icon left>mdi-logout</v-icon>
+            <v-list-item-title>Logout</v-list-item-title>
+          </v-list-item>
+        </v-list>
+      </v-menu>
+    </v-app-bar>
+
+    <sidebar-menu :relative="false" class="sidebar-wrapper" v-if="userDetails && showSideNavbar && getSelectedService"
+      @toggle-collapse="onToggleCollapse" :collapsed="isSidebarCollapsed" :theme="'white-theme'" width="220px"
+      :menu="getSideMenu()">
+      <div slot="header" style="border-bottom: 1px solid rgba(0,0,0,.12);">
+        <v-list>
+          <v-list-item>
+            <v-list-item-avatar>
+              <v-img :src="getSelectedService.logoUrl ||
+                getProfileIcon(formattedAppName(getSelectedService.appName))
+                "></v-img>
+            </v-list-item-avatar>
+            <v-list-item-content class="mx-1">
+              <v-list-item-title class="text-h7">
+                {{ getSelectedService ? getSelectedService.appName : "" }}
+              </v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+        </v-list>
+      </div>
+    </sidebar-menu>
+    
+    <v-main class="mt-2">
+      <div :class="[ isSidebarCollapsed ? 'container-collapsed-not' : 'container-collapsed' ]">
+        <router-view class="container containerData" />
+      </div>
+
+      <notifications group="foo" />
+
+    
+    </v-main>
+
+    <!-- <div :class="[
       isSidebarCollapsed ? 'container-collapsed-not' : 'container-collapsed',
     ]">
       <router-view class="container containerData" />
-    </div>
-    <notifications group="foo" />
+    </div> -->
 
-    <sidebar-menu :relative="false" class="sidebar-wrapper" v-if="userDetails && showSideNavbar && getSelectedService" @toggle-collapse="onToggleCollapse"
-      :collapsed="isSidebarCollapsed" :theme="'white-theme'" width="220px" :menu="getSideMenu()">
-      <div slot="header" style="border-bottom: 1px solid rgba(0,0,0,.12);">
-        <v-list>
-      <v-list-item>
-        <v-list-item-avatar>
-          <v-img :src="getSelectedService.logoUrl ||
-                getProfileIcon(formattedAppName(getSelectedService.appName))
-                "></v-img>
-        </v-list-item-avatar>
-        <v-list-item-content class="mx-1">
-          <v-list-item-title class="text-h7">
-            {{ getSelectedService ? getSelectedService.appName : "" }}
-          </v-list-item-title>
-        </v-list-item-content>
-      </v-list-item>
-
-      
-    </v-list>
     
 
-      </div>
-    </sidebar-menu>
-
-    <!-- <sidebar-menu-nav v-if="showSideNavbar && getSelectedService" 
-      :collapsed="isSidebarCollapsed" 
-      :menus="getSideMenu()"
-      :avatar="getSelectedService.logoUrl || getProfileIcon(formattedAppName(getSelectedService.appName))"
-      :service_name="getSelectedService ? getSelectedService.appName : ''"
-      >
-    </sidebar-menu-nav> -->
+    
   </div>
 </template>
 
@@ -276,13 +362,6 @@
   padding-left: 350px;
 }
 
-.sidebar-wrapper {
-  min-width: 70px;
-  margin-top: 5.8vh;
-  /* box-shadow: 0 0 15px 0 rgba(34, 41, 47, 0.05); */
-  box-shadow: 0 2px 6px 0 rgba(32, 33, 37, .1);
-  border-right: 1px solid rgba(128, 128, 128, 0.21);
-}
 
 .v-sidebar-menu.vsm_white-theme .vsm--mobile-bg {
   background: grey;
@@ -352,54 +431,54 @@ export default {
       schema_page: 1,
       authRoutes: ["register", "PKIIdLogin"],
       user: {},
-      loggedInUserEmailId:"",
+      loggedInUserEmailId: "",
       parseAuthToken: null,
-      authToken:null
+      authToken: null
     };
   },
 
- mounted() {
-  const userDetails = localStorage.getItem("user");
-  if (userDetails) {
-    try {
-       const parsed = JSON.parse(userDetails);
-      Object.assign(this.userDetails, parsed);
-      this.user = this.userDetails;
-      this.loggedInUserEmailId = this.user?.accessAccount?.email;
-      this.setIsLoggedOut(true);
-    } catch (e) {
-      console.error("Invalid user JSON:", e);
-      this.userDetails = {};
+  mounted() {
+    const userDetails = localStorage.getItem("user");
+    if (userDetails) {
+      try {
+        const parsed = JSON.parse(userDetails);
+        Object.assign(this.userDetails, parsed);
+        this.user = this.userDetails;
+        this.loggedInUserEmailId = this.user?.accessAccount?.email;
+        this.setIsLoggedOut(true);
+      } catch (e) {
+        console.error("Invalid user JSON:", e);
+        this.userDetails = {};
+      }
     }
-  }
 
-  this.$root.$on("clearAppData", () => {
-    this.userDetails = {};
-    this.setIsLoggedOut(false);
-  });
+    this.$root.$on("clearAppData", () => {
+      this.userDetails = {};
+      this.setIsLoggedOut(false);
+    });
 
-  this.$root.$on("closeSideNav", () => {
-    this.isSidebarCollapsed = true;
-  });
+    this.$root.$on("closeSideNav", () => {
+      this.isSidebarCollapsed = true;
+    });
 
-  if (localStorage.getItem("selectedOrg")) {
-    const selectedOrgId = localStorage.getItem("selectedOrg");
-    this.selectAnOrg(selectedOrgId);
-    this.getList(selectedOrgId);
-    this.getCredList(selectedOrgId);
-    this.fetchTemplates(selectedOrgId);
-  }
-  this.$root.$on("initializeStore", () => {
-    console.log("Inside initializeStore ... event");
-    this.initializeStore();
-  });
+    if (localStorage.getItem("selectedOrg")) {
+      const selectedOrgId = localStorage.getItem("selectedOrg");
+      this.selectAnOrg(selectedOrgId);
+      this.getList(selectedOrgId);
+      this.getCredList(selectedOrgId);
+      this.fetchTemplates(selectedOrgId);
+    }
+    this.$root.$on("initializeStore", () => {
+      console.log("Inside initializeStore ... event");
+      this.initializeStore();
+    });
 
-  EventBus.$on("logoutAll", () => {
-    this.logoutAll();
-  });
-},
+    EventBus.$on("logoutAll", () => {
+      this.logoutAll();
+    });
+  },
   methods: {
-    ...mapActions("mainStore", ["fetchAppsListFromServer", "fetchServicesList",'switchToAdmin']),
+    ...mapActions("mainStore", ["fetchAppsListFromServer", "fetchServicesList", 'switchToAdmin']),
     ...mapMutations("mainStore", ["resetMainStore", "setIsLoggedOut"]),
     ...mapActions("playgroundStore", [
       "insertAschema",
@@ -466,13 +545,13 @@ export default {
       }).join(''));
       const parsedjsonPayload = JSON.parse(jsonPayload);
       const { exp } = parsedjsonPayload
-      if(!this.checkIfDateExpired(exp)){
+      if (!this.checkIfDateExpired(exp)) {
         this.parseAuthToken = parsedjsonPayload
       } else {
         this.parseAuthToken = null
       }
     },
-    checkIfDateExpired(datetimestamp){
+    checkIfDateExpired(datetimestamp) {
       const currentTime = Math.floor(Date.now() / 1000);
       if (datetimestamp < currentTime) {
         return true
@@ -482,19 +561,19 @@ export default {
     },
     async initializeStore() {
       try {
-            const userDetails = localStorage.getItem("user");
+        const userDetails = localStorage.getItem("user");
         if (userDetails) {
-            const parsed = JSON.parse(userDetails);
-            Object.assign(this.userDetails, parsed);
-            this.parseAuthToken= this.userDetails
-           this.setIsLoggedOut(true)
-           const redirectPath=localStorage.getItem("postLoginRedirect")||'/studio/dashboard'
-           localStorage.removeItem("postLoginRedirect");
-           this.$router.push(redirectPath).then(() => {
-          setTimeout(() => {
-            this.$router.go(0);
-          }, 500);
-        });
+          const parsed = JSON.parse(userDetails);
+          Object.assign(this.userDetails, parsed);
+          this.parseAuthToken = this.userDetails
+          this.setIsLoggedOut(true)
+          const redirectPath = localStorage.getItem("postLoginRedirect") || '/studio/dashboard'
+          localStorage.removeItem("postLoginRedirect");
+          this.$router.push(redirectPath).then(() => {
+            setTimeout(() => {
+              this.$router.go(0);
+            }, 500);
+          });
         } else {
           throw new Error("No user details found in localStorage")
         }
@@ -521,9 +600,14 @@ export default {
           if (id == 'CAVACH_API') {
             menu.push({
               href: "/studio/sessions/" + this.getSelectedService.appId,
-              title: "Verifications",
+              title: "Sessions",
               icon: "fa fa-check",
             })
+
+
+
+
+
 
             menu.push({
               href: "/studio/usage/" + this.getSelectedService.appId,
@@ -581,7 +665,7 @@ export default {
               href: "/studio/ssi/usage/" + this.getSelectedService.appId,
               title: "Usages",
               icon: "fa fa-chart-bar",
-                      })
+            })
 
             menu.push({
               href: "/studio/ssi/credit/" + this.getSelectedService.appId,
@@ -661,11 +745,11 @@ export default {
         this.insertAcredential(credential);
       });
     },
-  async logout() {
-      try{
-      await RequestHandler(`${config.studioServer.BASE_URL}api/v1/auth/logout`, 'POST', {})
-      }catch(e){
-        console.error('Logout error:', e); 
+    async logout() {
+      try {
+        await RequestHandler(`${config.studioServer.BASE_URL}api/v1/auth/logout`, 'POST', {})
+      } catch (e) {
+        console.error('Logout error:', e);
       }
       localStorage.removeItem("authToken");
       localStorage.removeItem("user");
@@ -683,10 +767,10 @@ export default {
       if (appName == "" || appName == undefined) appName = "No app name";
       return this.truncate(appName, 25);
     },
-    async switchBackToAdminAccount(){
-      try{
-        this.isLoding= true
-         await this.switchToAdmin({
+    async switchBackToAdminAccount() {
+      try {
+        this.isLoding = true
+        await this.switchToAdmin({
           adminId: this.userDetails.userId
         })
         this.isLoading = false
@@ -697,21 +781,21 @@ export default {
         } else {
           await this.fetchLoggedInUser()
           this.$forceUpdate();
-          this.$router.go(0); 
+          this.$router.go(0);
         }
       } catch (e) {
         this.notifyErr(e.message)
         this.isLoading = false
       }
-      },
-    async fetchLoggedInUser(){
+    },
+    async fetchLoggedInUser() {
       if (localStorage.getItem("user")) {
-      const usrStr = localStorage.getItem("user");
-      this.user = JSON.parse(usrStr);
-      this.loggedInUserEmailId=this.user?.accessAccount?.email
-      this.setIsLoggedOut(true)
-    }
-    
+        const usrStr = localStorage.getItem("user");
+        this.user = JSON.parse(usrStr);
+        this.loggedInUserEmailId = this.user?.accessAccount?.email
+        this.setIsLoggedOut(true)
+      }
+
     },
   },
   mixins: [UtilsMixin],

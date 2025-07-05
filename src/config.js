@@ -80,4 +80,34 @@ config['AUTH_PROVIDERS'] = Object.freeze({
     METAMASK: 'metamask',
 })
 
+config['LivelinessError'] = {
+    4: 'Bad quality of image detected.',
+    5: 'Face is too close to the camera.',
+    6: 'Face not found in the image.',
+    7: 'Face size is too small in image used.',
+    8: 'Face angle is too large.',
+    9: 'Could not  evaluate due to the format of the images used.',
+    10: 'Could not evalute due to internal error',
+    11: 'Error occurred during image preprocessing.',
+    12: 'Multiple faces detected, only one is allowed.',
+    0: 'Proof of life could not be assessed.',
+    1: 'Face appears to be a spoof.',
+    2: 'Uncertain error message in a particular field.',
+    17: 'No life has been detected.',
+    18: 'The person has his eyes closed',
+    16: 'The face is obstructed',
+    15: 'The license error occurred',
+    14: 'The face is cropped',
+    13: 'The face is too close to border',
+};
+
+config['FaicalAuthenticationError'] = {
+    0: 'Face check could not be performed',
+    1: 'Faces does not match',
+    2: 'Face not found in the image',
+    4: 'Rejected, to perform face check due to the pose of the face',
+    5: 'Rejected, due to problems in the extraction of the facial pattern',
+    6: 'Rejected, because document has already been verified in some other account with this service',
+}
+
 export default config

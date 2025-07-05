@@ -23,6 +23,8 @@ const mainStore = {
         showMainSideNavBar: true,
         serviceList: [],
         sessionList: [],
+        userList: [],
+        totalUserCount: 0,
         selectedServiceId: "",
         didList: [],
         onchainconfigs: [],
@@ -196,6 +198,10 @@ const mainStore = {
         insertSessions(state, payload) {
             state.sessionList = payload.sessionList;
             state.totalSessionCount = payload.totalCount
+        },
+        insertUsers(state, payload) {
+            state.userList = payload.userList;
+            state.totalUserCount = payload.totalCount
         },
 
         insertAppsOnChainConfigs(state, payload) {
@@ -833,6 +839,123 @@ const mainStore = {
 
         },
 
+
+        fetchAppsUsers: ({ commit, getters }, payload) => {
+            return new Promise((resolve, reject) => {
+                if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
+                    return reject(new Error('Tenant url is null or empty, service is not selected'))
+                }
+
+                // let url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/session`;
+                let url = 'http://localhost:3001/api/v1/user'
+
+                const paramsObject = {}
+
+                // page
+                if (payload.page) {
+                    paramsObject['page'] = payload.page
+                }
+
+                if (payload.limit) {
+                    paramsObject['limit'] = payload.limit
+                }
+
+                if (payload.userId) {
+                    paramsObject['userId'] = payload.userId
+                }
+
+                if (payload.sessionIds) {
+                    paramsObject['sessionIds'] = payload.sessionIds
+                }
+
+                if (payload.status) {
+                    paramsObject['status'] = payload.status
+
+                }
+
+                if (Object.keys(paramsObject).length > 0) {
+                    const params = new URLSearchParams({ ...paramsObject });
+                    url = url + '?' + params.toString();
+                }
+
+                const authToken = getters.getSelectedService.access_token
+                if (!authToken) {
+                    return reject(new Error('authToken is invalid, service is not selected'))
+                }
+                const headers = UtilsMixin.methods.getHeader(authToken);
+                fetch(url, {
+                    method: 'GET',
+                    headers
+                }).then(response => response.json()).then(json => {
+                    if (json.error) {
+                        return reject(new Error(json.error?.details.join(' ') || json.error.join(' ')))
+                    }
+
+
+                    // this operation can be pushed to backend
+                    const flattenedUserData = json.data.users?.map(user => {
+                        const sessions = user.sessions;
+
+                        // Initialize ORed values to '0'
+                        const steps = {
+                            step_start: '0',
+                            step_liveliness: '0',
+                            step_ocrIdVerification: '0',
+                            step_userConsent: '0',
+                            step_finish: '0',
+                        };
+
+                        // Sort sessions by createdAt
+                        const sortedSessions = [...sessions].sort(
+                            (a, b) => new Date(a.createdAt) - new Date(b.createdAt)
+                        );
+
+                        sortedSessions.forEach(session => {
+                            for (let key in steps) {
+                                steps[key] =
+                                    String(Number(steps[key]) | Number(session[key] || '0'));
+                            }
+
+                        });
+
+                        let failureInfo = null
+                        const lastSession = sortedSessions[sortedSessions.length - 1]
+                        if (lastSession.status == 'Failed') {
+                            failureInfo = {
+                                failureStep: lastSession.failureInfo?.failureStep,
+                                failureReason: lastSession.failureInfo?.failureReason
+                            }
+
+                            // special case where document was verified in first attempt and then again he is trying to reverify - duplicate error will come
+                            if (failureInfo.failureStep == 'step_ocrIdVerification' && steps['step_ocrIdVerification'] == 1) {
+                                steps['step_ocrIdVerification'] = 0
+                            }
+                        }
+
+                        return {
+                            userId: user.userId,
+                            createdAt: sortedSessions[0].createdAt, // oldest
+                            completedAt: lastSession.createdAt,
+                            retries: sessions.length,
+                            ...steps,
+                            status: lastSession.status,
+                            failureInfo// latest session status,
+                        };
+                    });
+
+
+                    commit('insertUsers', {
+                        userList: flattenedUserData,
+                        totalCount: json.data.totalCount || 0
+                    });
+                    resolve(flattenedUserData)
+                }).catch((e) => {
+                    return reject(`Error while fetching apps ` + e.message);
+                })
+            })
+
+        },
+
         // Onchain config --------------------------------
         fetchAppsOnChainConfigs: ({ commit, getters }) => {
             return new Promise((resolve, reject) => {
@@ -1160,7 +1283,7 @@ const mainStore = {
         },
 
 
-        fetchSessionsDetailsById: ({ commit, getters }, payload) => {
+        fetchSessionsDetailsById2: ({ commit, getters }, payload) => {
             return new Promise((resolve, reject) => {
                 const { sessionId } = payload
                 if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
@@ -1183,6 +1306,38 @@ const mainStore = {
                         return resolve(json.data)
                     } else {
                         return reject(new Error('Invalid session Id or details not found'))
+                    }
+
+                }).catch((e) => {
+                    reject(new Error(`Error while fetching apps ` + e.message));
+                })
+            })
+        },
+
+
+        fetchSessionsDetailsById: ({ getters }, payload) => {
+            return new Promise((resolve, reject) => {
+                const { sessionId } = payload
+                if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
+                    return reject(new Error('Tenant url is null or empty, service is not selected'))
+                }
+                // const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/session/${sessionId}`;
+                const url = `http://localhost:3001/api/v1/user/${sessionId}`;
+                const authToken = getters.getSelectedService.access_token
+                const headers = UtilsMixin.methods.getHeader(authToken);
+                fetch(url, {
+                    method: 'GET',
+                    headers
+                }).then(response => response.json()).then(json => {
+                    if (json.error) {
+                        return reject(new Error(json.error?.details.join(' ') || json.error.join(' ')))
+                    }
+
+                    if (json.data && Object.keys(json.data)?.length > 0) {
+                        // commit('updateSessionDetails', json.data);
+                        return resolve(json.data)
+                    } else {
+                        return reject(new Error('Invalid user Id or details not found'))
                     }
 
                 }).catch((e) => {

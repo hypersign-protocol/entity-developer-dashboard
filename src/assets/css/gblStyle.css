@@ -8,6 +8,7 @@
     font-family: Roboto, sans-serif;
 }
 
+
 .logo-container{
     border: 1px solid rgba(48, 60, 48, 0.16);
     border-radius: 51px;
@@ -160,3 +161,41 @@ a {
     border: 0px solid grey;
 }
 
+
+.badge-outline-success {
+  color: #4ec96b;
+  background-color: transparent;
+  border: 1px solid #4ec96b;
+}
+
+.badge-outline-danger {
+  color: rgba(243, 6, 6, 0.736);
+  background-color: transparent;
+  border: 1px solid rgba(243, 6, 6, 0.736);
+}
+
+.badge-outline-warning {
+  color: #ffc107;
+  background-color: transparent;
+  border: 1px solid #ffc107;
+}
+
+.badge-outline-secondary {
+  color: #6c757d;
+  background-color: transparent;
+  border: 1px solid #6c757d;
+}
+
+
+.sidebar-wrapper {
+  position: fixed;
+  min-width: 70px;
+  height: calc(100% - 40px);
+  z-index: 1001;
+  /* top: 40px;  */
+  /* background-color: #f5f5f5; */
+  /* box-shadow: 0 0 15px 0 rgba(34, 41, 47, 0.05); */
+  /* -webkit-box-shadow: 0 2px 4px -1px rgba(0, 0, 0, .2), 0 4px 5px 0 rgba(0, 0, 0, .14), 0 1px 10px 0 rgba(0, 0, 0, .12); */
+  box-shadow: 0 2px 6px 0 rgba(32, 33, 37, .1);
+  border-right: 1px solid rgba(128, 128, 128, 0.21);
+}
