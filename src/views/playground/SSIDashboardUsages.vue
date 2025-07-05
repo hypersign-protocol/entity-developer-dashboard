@@ -127,7 +127,7 @@ h5 span {
 
     <div :class="isContainerShift ? 'homeShift' : 'home'">
 
-        <loading :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loading>
+        <loadIng :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loadIng>
 
 
         <!-- -------- -->
@@ -237,15 +237,11 @@ import Chart from 'chart.js/auto';
 import { mapState, mapActions, mapMutations } from "vuex";
 import { mapGetters } from 'vuex/dist/vuex.common.js';
 
-import Loading from "vue-loading-overlay";
 import UtilsMixin from '../../mixins/utils';
 export default {
     name: "SSIDashboardCredit",
     components: {
-        
-        Loading
     },
-
     computed: {
 
         ...mapState({

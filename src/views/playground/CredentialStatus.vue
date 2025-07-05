@@ -104,7 +104,7 @@ h5 span {
 </style>
 <template>
   <div :class="isContainerShift ? 'homeShift' : 'home'">
-    <loading :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loading>
+    <loadIng :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loadIng>
     <div class="">
       <div class="" style="text-align: left">
         <!-- <Info :message="description" /> -->
@@ -396,7 +396,7 @@ h5 span {
             </code> 
           </pre>
         </hf-pop-up>
-        <loading :active.sync="isLoading" :can-cancel="true" :is-full-page="false"></loading>
+        <loadIng :active.sync="isLoading" :can-cancel="true" :is-full-page="false"></loadIng>
         <hf-pop-up Header="Send Credential">
           <Info
             message="Scan QR code or Copy the link and send it to the credential owner so that they can accept in their wallet" />
@@ -473,7 +473,6 @@ h5 span {
 import fetch from "node-fetch";
 import UtilsMixin from "../../mixins/utils";
 import HfPopUp from "../../components/element/hfPopup.vue";
-import Loading from "vue-loading-overlay";
 import StudioSideBar from "../../components/element/StudioSideBar.vue";
 import HfButtons from "../../components/element/HfButtons.vue";
 import EventBus from "../../eventbus";
@@ -492,7 +491,6 @@ export default {
   name: "CredentialStatus",
   components: {
     HfPopUp,
-    Loading,
     StudioSideBar,
     HfButtons,
     ToolTip,

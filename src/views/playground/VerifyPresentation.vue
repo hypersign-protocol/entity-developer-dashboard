@@ -85,7 +85,7 @@ background-color: #905ab0;
 
 <template>
     <div :class="isContainerShift ?'homeShift':'home'">
-    <loading :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loading>
+    <loadIng :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loadIng>
 
     <div class="row">
         <div class="col-md-12" style="text-align: left">
@@ -195,16 +195,14 @@ background-color: #905ab0;
 <script>
 import UtilsMixin from '../../mixins/utils';
 import HfPopUp from "../../components/element/hfPopup.vue";
-import Loading from "vue-loading-overlay";
 import HfSelectDropDown from "../../components/element/HfSelectDropDown.vue"
-import VueQr from "vue-qr";
 import HfButtons from "../../components/element/HfButtons.vue"
 import EventBus from "../../eventbus"
 import { mapState, mapGetters } from "vuex"
 
 export default {
     name: "VerifyPresentation",
-    components: { HfPopUp, Loading, VueQr, HfButtons, HfSelectDropDown }, 
+    components: { HfPopUp, HfButtons, HfSelectDropDown }, 
     computed:{
         ...mapState({
             containerShift: state => state.playgroundStore.containerShift,

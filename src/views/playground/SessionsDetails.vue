@@ -171,7 +171,7 @@ h3 {
 </style>
 <template>
     <div :class="isContainerShift ? 'homeShift' : 'home'">
-        <loading :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loading>
+        <loadIng :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loadIng>
         <div>
             <!-- <v-breadcrumbs :items="[{text: 'Session', disabled: false, href: '/'}, {text: this.sessionId, disabled: true}]"></v-breadcrumbs> -->
             <h4 style="color: #8080808f;">
@@ -638,7 +638,6 @@ h3 {
 <script>
 
 import UtilsMixin from '../../mixins/utils';
-import Loading from "vue-loading-overlay";
 import { mapState, mapGetters, mapActions } from "vuex";
 import UAParser from 'ua-parser-js'
 import CountryFlag from 'vue-country-flag'
@@ -683,7 +682,7 @@ const FaicalAuthenticationError = {
 export default {
     name: "sessionDetails",
     components: {
-        Loading, CountryFlag,
+        CountryFlag,
         HfPopUp,
     },
     computed: {

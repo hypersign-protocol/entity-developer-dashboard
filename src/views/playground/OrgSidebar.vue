@@ -202,13 +202,10 @@
 </style>
 
 <script>
-import HfPopUp from "../../components/element/hfPopup.vue";
 import StudioSideBar from "../../components/element/StudioSideBar.vue";
 import UtilsMixin from '../../mixins/utils';
 import { isEmpty, isValidURL } from '../../mixins/fieldValidation'
-import 'vue-loading-overlay/dist/vue-loading.css';
 import validator from 'validator';
-import Loading from "vue-loading-overlay";
 import HfButtons from '../../components/element/HfButtons.vue'
 import ToolTip from '../../components/element/ToolTip.vue'
 import messages from '../../mixins/messages';
@@ -248,7 +245,7 @@ export default {
       }
     }
   },
-  components: { HfPopUp, Loading, StudioSideBar, HfButtons, ToolTip },
+  components: { StudioSideBar, HfButtons, ToolTip },
   methods: {
     ...mapActions('playgroundStore', ['fetchAllOrgDataOnOrgSelect']),
     ...mapMutations('playgroundStore', ['shiftContainer', 'updateSideNavStatus', 'increaseOrgCount', 'selectAnOrg', 'insertAnOrg', 'updateAnOrg']),
@@ -294,7 +291,7 @@ export default {
     getProfileIcon(name) {
       return "https://api.dicebear.com/7.x/identicon/svg?seed=" + name
     },
-    ssePopulateOrg(id, store) {
+    ssePopulateOrg(id) {
       const sse = new EventSource(`${this.$config.studioServer.ORG_SSE}${id}`);
       sse.onmessage = (event) => {
         const data = JSON.parse(event.data);

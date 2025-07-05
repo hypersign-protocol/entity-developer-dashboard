@@ -29,13 +29,9 @@
 </style>
 
 <script>
-import HfPopUp from "../../components/element/hfPopup.vue";
-import StudioSideBar from "../../components/element/StudioSideBar.vue";
 import UtilsMixin from '../../mixins/utils';
-import 'vue-loading-overlay/dist/vue-loading.css';
-import Loading from "vue-loading-overlay";
 import OrgContent from './OrgSidebar.vue';
-import { mapActions, mapState, mapMutations } from "vuex";
+import { mapState, mapMutations } from "vuex";
 export default {
   computed: {
     ...mapState({
@@ -65,7 +61,7 @@ export default {
       }
     }
   },
-  components: { HfPopUp, Loading, StudioSideBar, OrgContent },
+  components: { OrgContent },
   created() {
     this.updateSideNavStatus(true)
   },

@@ -115,7 +115,7 @@ h5 span {
 </style>
 <template>
   <div :class="isContainerShift ? 'homeShift' : 'home'">
-    <loading :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loading>
+    <loadIng :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loadIng>
     <div class="">
       <div class="" style="text-align: left">
         <!-- <Info :message="description" /> -->
@@ -303,7 +303,6 @@ h5 span {
 <script>
 import UtilsMixin from '../../mixins/utils';
 import HfPopUp from "../../components/element/hfPopup.vue";
-import Loading from "vue-loading-overlay";
 import StudioSideBar from "../../components/element/StudioSideBar.vue";
 import HfButtons from "../../components/element/HfButtons.vue"
 import ToolTip from "../../components/element/ToolTip.vue"
@@ -311,7 +310,7 @@ import DomainLinkage from '@hypersign-protocol/domain-linkage-verifier'
 import { mapState, mapGetters, mapActions, mapMutations } from "vuex";
 export default {
   name: "DIDs",
-  components: { HfPopUp, Loading, StudioSideBar, HfButtons, ToolTip, },
+  components: { HfPopUp, StudioSideBar, HfButtons, ToolTip, },
   watch: {
   selectedDid: {
     handler(newValue) {

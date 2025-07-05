@@ -12,13 +12,13 @@ import "@mdi/font/css/materialdesignicons.css";
 import "@mdi/light-font/css/materialdesignicons-light.css";
 import './assets/css/gblStyle.css';
 import store from './store';
-import Loading from "vue-loading-overlay";
 import HfButtons from './components/element/HfButtons.vue'
 import HFUpgradePlan from './components/element/UpgradePlan.vue'
 import HFComingSoon from './components/element/FeatureCommingSoon.vue'
 import vuetify from './vuetify'
 import StudioSideBarNav from './components/element/StudioSideBarNav.vue'
 import WaitSpinner from './components/element/WaitSpinner.vue'
+import LoadIng from './components/element/LoadIng.vue'
 Vue.config.productionTip = false
 Vue.use(VueSidebarMenu);
 Vue.use(BootstrapVue);
@@ -26,7 +26,7 @@ Vue.use(BootstrapVueIcons);
 Vue.use(Notifications)
 Vue.config.devtools = true;
 Vue.prototype.$config = config
-Vue.component("load-ing", Loading);
+Vue.component("loadIng", LoadIng);
 Vue.component("hf-buttons", HfButtons);
 Vue.component("hf-upgrade-plan", HFUpgradePlan)
 Vue.component("hf-feature-soon", HFComingSoon)

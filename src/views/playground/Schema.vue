@@ -139,7 +139,7 @@
 </style>
 <template>
   <div :class="isContainerShift ? 'homeShift' : 'home'">
-    <loading :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loading>
+    <loadIng :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loadIng>
     <div class="">
       <div class="" style="text-align: left">
         <!-- <Info :message="description" /> -->
@@ -401,7 +401,6 @@
 
 <script>
 import UtilsMixin from '../../mixins/utils';
-import Loading from "vue-loading-overlay";
 import HfPopUp from "../../components/element/hfPopup.vue";
 import StudioSideBar from "../../components/element/StudioSideBar.vue";
 import HfButtons from "../../components/element/HfButtons.vue"
@@ -413,7 +412,7 @@ import message from '../../mixins/messages'
 import { mapGetters, mapState, mapActions, mapMutations } from "vuex";
 export default {
   name: "SchemaS",
-  components: { Loading, HfPopUp, StudioSideBar, HfButtons, HfSelectDropDown, ToolTip },
+  components: { HfPopUp, StudioSideBar, HfButtons, HfSelectDropDown, ToolTip },
   computed: {
     ...mapState({
       schemaList: state => state.mainStore.schemaList,

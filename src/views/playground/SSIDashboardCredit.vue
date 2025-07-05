@@ -133,7 +133,7 @@ h5 span {
 </style>
 <template>
     <div>
-        <loading :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loading>
+        <loadIng :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loadIng>
         <!-- Credits -->
           <div class="row">
             <div class="col-md-6" style="text-align: left">
@@ -417,7 +417,6 @@ h5 span {
 import Chart from 'chart.js/auto';
 import HfPopUp from "../../components/element/hfPopup.vue";
 import { mapActions, mapGetters } from "vuex";
-import Loading from "vue-loading-overlay";
 import UtilsMixin from '../../mixins/utils';
 
 export default {
@@ -425,7 +424,6 @@ export default {
     components: {
         // CChart,
         HfPopUp,
-        Loading
     },
     computed: {
         ...mapGetters('mainStore', ['getSsiCredits']),

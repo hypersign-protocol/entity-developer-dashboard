@@ -48,7 +48,7 @@
 </style>
 <template>
   <div :class="isContainerShift ? 'homeShift' : 'home'">
-    <loading :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loading>
+    <loadIng :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loadIng>
 
     <div class="row">
       <div class="col-md-12" style="text-align: left">
@@ -234,11 +234,6 @@ import StudioSideBar from "../../components/element/StudioSideBar.vue";
 import HfButtons from "../../components/element/HfButtons.vue"
 import conf from '../../config';
 const { hypersignSDK } = conf;
-import QrcodeVue from "qrcode.vue";
-// import Info from '@/components/Info.vue'
-import Loading from "vue-loading-overlay";
-import "vue-loading-overlay/dist/vue-loading.css";
-import HfSelectDropDown from "../../components/element/HfSelectDropDown.vue"
 import EventBus from "../../eventbus"
 import ToolTip from "../../components/element/ToolTip.vue"
 import message from '../../mixins/messages'
@@ -246,7 +241,7 @@ import { isEmpty, isValidURL, isValidDid } from '../../mixins/fieldValidation'
 import { mapGetters, mapState, mapActions } from "vuex";
 export default {
   name: "Presentation",
-  components: { QrcodeVue, StudioSideBar, HfButtons, Loading, HfSelectDropDown, ToolTip, HfPopUp },
+  components: {  StudioSideBar, HfButtons, ToolTip, HfPopUp },
   computed: {
     ...mapGetters('playgroundStore', ['listOfAllSchemaOptions', 'getSelectedOrg']),
     ...mapState({
