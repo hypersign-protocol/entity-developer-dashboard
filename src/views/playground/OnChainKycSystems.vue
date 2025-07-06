@@ -121,7 +121,7 @@ h5 span {
 
 <template>
   <div :class="isContainerShift ? 'homeShift' : 'home'">
-    <loading :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loading>
+    <loadIng :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loadIng>
     <!-- <div class="row mb-1">
       <div class="col-12 bg-warning">
         <b-navbar style="border-radius: 5px;">
@@ -231,7 +231,6 @@ h5 span {
 <script>
 // import fetch from "node-fetch";
 import UtilsMixin from '../../mixins/utils';
-import Loading from "vue-loading-overlay";
 import HfButtons from "../../components/element/HfButtons.vue"
 import StudioSideBar from "../../components/element/StudioSideBar.vue";
 import DeployOnChainKYC from "../../components/deploy-onchain-kyc-popup/deploy.vue";
@@ -242,7 +241,7 @@ import { mapState, mapActions, mapMutations } from "vuex";
 
 export default {
   name: "UsageS",
-  components: { Loading, HfButtons, StudioSideBar, DeployOnChainKYC, HFBeta },
+  components: { HfButtons, StudioSideBar, DeployOnChainKYC, HFBeta },
   computed: {
     ...mapState({
       containerShift: state => state.playgroundStore.containerShift,

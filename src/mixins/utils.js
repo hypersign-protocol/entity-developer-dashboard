@@ -151,6 +151,55 @@ export default {
             return `${months > 0 ? months + ' month ' : ''}${days > 0 ? days + ' day ' : ''}${hours} hr ${minutes} min ${seconds} sec`;
         },
 
+        getUserStatus(status) {
+            // Sucess, Expired, Pending
+            if (status == 'Success') {
+                return `<span class="badge badge-pill p-2 badge-outline-success">
+  <i class="mdi mdi-check-circle-outline mr-1"></i>
+  Approved
+</span>`
+            }
+
+            if (status == 'Failed') {
+                return `<span class="badge badge-pill badge-outline-danger p-2">
+  <i class="mdi mdi-close-circle-outline mr-1"></i>
+  Rejected
+</span>`
+            }
+
+            if (status == 'Expired') {
+                return `<span class="badge badge-pill badge-outline-secondary p-2">
+  <i class="mdi mdi-clock-remove-outline mr-1"></i>
+  Expired
+</span>`
+            }
+
+            if (status == 'Pending') {
+                return `<span class="badge badge-pill badge-outline-warning p-2">
+  <i class="mdi mdi-timer-sand mr-1"></i>
+  Pending
+</span>`
+            }
+
+            return `<span class="badge badge-pill badge-outline-warning p-2">
+  <i class="mdi mdi-timer-sand mr-1"></i>
+  Pending
+</span>`
+        },
+
+        isValidEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        },
+
+        async generateSHA256Hash(text) {
+            const encoder = new TextEncoder();
+            const data = encoder.encode(text);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+            return hashHex;
+        },
         getStatus(sessionDetails) {
             // Sucess, Expired, Pending
             const { expiresAt, step_finish, ocriddocsDetails, selfiDetails } = sessionDetails

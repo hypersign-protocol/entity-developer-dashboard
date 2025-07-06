@@ -1,6 +1,6 @@
 <template>
   <div>
-    <loading :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loading>
+    <loadIng :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loadIng>
     <div>
       <v-row  dense v-if="appList.length > 0">
         <v-col>
@@ -1017,8 +1017,6 @@ import HfPopUp from "../components/element/hfPopup.vue";
 import StudioSideBar from "../components/element/StudioSideBar.vue";
 import UtilsMixin from "../mixins/utils";
 import { isEmpty } from "../mixins/fieldValidation";
-import "vue-loading-overlay/dist/vue-loading.css";
-import Loading from "vue-loading-overlay";
 import HfButtons from "../components/element/HfButtons.vue";
 import ToolTip from "../components/element/ToolTip.vue";
 import messages from "../mixins/messages";
@@ -1159,12 +1157,10 @@ export default {
   },
   components: {
     HfPopUp,
-    Loading,
     StudioSideBar,
     HfButtons,
     ToolTip,
     HfFlashNotification,
-    // DeployOnChainKYC
   },
   methods: {
     ...mapMutations("mainStore", ["updateAnApp", "setMainSideNavBar"]),

@@ -40,11 +40,11 @@ h5 span {
 <template>
     <div class="row" style="margin-top: 3%; ">
         <!-- <h4 >Admin Login</h4> -->
-        <loading
+        <loadIng
         :active.sync="isLoading"
         :can-cancel="true"
         :is-full-page="fullPage"
-      ></loading>
+      ></loadIng>
         <div v-if="QRRefresh" class="QRRefresh">
           <i
             @click="reloadQR"
@@ -105,14 +105,11 @@ h5 span {
 
 <script>
 import VueQr from "vue-qr";
-import Loading from "vue-loading-overlay";
-import "vue-loading-overlay/dist/vue-loading.css";
 import config from "../../config";
 import EventBus from "../../eventbus";
 export default {
   name: "HypersignLogin",
   components: {
-    Loading,
     VueQr,
   },
   data() {

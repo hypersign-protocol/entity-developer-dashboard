@@ -119,7 +119,7 @@ h5 span {
 </style>
 <template>
   <div :class="isContainerShift ? 'homeShift' : 'home'">
-    <loading :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loading>
+    <loadIng :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loadIng>
 
 
     <div class="row mb-3">
@@ -219,18 +219,13 @@ h5 span {
 </template>
 
 <script>
-// import fetch from "node-fetch";
 import Chart from 'chart.js/auto';
 import UtilsMixin from '../../mixins/utils';
-import Loading from "vue-loading-overlay";
-// import HfButtons from "../../components/element/HfButtons.vue"
-// import ChartData from './test.json'
 import { mapState, mapActions, mapMutations } from "vuex";
 import { mapGetters } from 'vuex/dist/vuex.common.js';
 
 export default {
   name: "UsageS",
-  components: { Loading, },
   computed: {
     ...mapState({
       containerShift: state => state.playgroundStore.containerShift,

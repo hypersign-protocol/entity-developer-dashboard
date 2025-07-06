@@ -13,7 +13,11 @@
 }
 
 .step-notStarted {
-  background-color: #afb8cc;
+  background-color: #e1e1e3;
+}
+
+.step-failed {
+  background-color: rgba(252, 94, 94, 0.736);
 }
 
 .step-finished {
@@ -114,12 +118,13 @@ h5 span {
 
 .scrollit {
   overflow: hidden;
-  height: 600px;
+  height: 800px;
 }
 
 .scrollit:hover {
   overflow-y: auto;
 }
+
 .custom-active {
   background-color: #e0e0e0 !important;
   color: #000 !important;
@@ -135,192 +140,252 @@ h5 span {
   background-color: #f0f0f0 !important;
   color: #000 !important;
 }
+
+.overview-card {
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  min-height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.overview-value {
+  font-size: 38px;
+  font-weight: 700;
+  color: #212121;
+}
+
+.overview-title {
+  font-size: 14px;
+  color: #757575;
+  margin-top: 6px;
+}
+
+.v-tooltip__content {
+  font-size: 12px;
+  max-width: 200px;
+  text-align: center;
+}
+
+.steps-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1px;
+}
+
+
+.user-avatar {
+  background-color: #888;
+  /* or your theme color */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 </style>
 <template>
   <div :class="isContainerShift ? 'homeShift' : 'home'">
-    <loading :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loading>
+    <loadIng :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loadIng>
 
-    <div class="">
-      <div class="" style="text-align: left">
-        <div class="row" v-if="sessionList.length > 0" style="text-align: left;">
-          <div class="col-md-8">
-            <h3>Sessions</h3>
-          </div>
-          <div class="col-md-4">
-            <div class="input-group mb-3">
-              <input type="text" class="form-control" placeholder="Search by session Id or user Id"
-                aria-label="Search by session Id or user Id" aria-describedby="basic-addon2" v-model="sessionIdTemp" @keyup.enter="filterSessions(sessionIdTemp)">
-              <div class="input-group-append" style="cursor: grab;">
-                <span class="input-group-text" id="basic-addon2" @click="filterSessions(sessionIdTemp)"><i
-                    class="fa fa-search" aria-hidden="true"></i></span>
+    <!-- <v-row class="mb-0" dense>
+      <v-col v-for="(value, key) in overviewData" :key="key" cols="12" sm="6" md="3">
+        <v-card class="overview-card" outlined>
+          <v-card-text class="text-center pa-4">
+            <div class="overview-value mb-3">
+              {{ formatNumber(value) }}<span v-if="isPercentageKey(key)">%</span>
+            </div>
+            <div class="overview-title-wrapper">
+              <span class="overview-title">
+                {{ formatKey(key) }}
+              </span>
+              <v-tooltip bottom>
+                <template v-slot:activator="{ on, attrs }">
+                  <v-icon v-bind="attrs" v-on="on" small color="grey darken-1" class="ml-1">
+                    mdi-information
+                  </v-icon>
+                </template>
+                <span>{{ getTooltipText(key) }}</span>
+              </v-tooltip>
+            </div>
+          </v-card-text>
+        </v-card>
+      </v-col>
+    </v-row> -->
+
+    <v-row class="mb-0">
+      <v-col cols="12">
+        <div class="">
+          <div class="" style="text-align: left">
+            <div class="row" v-if="userList.length > 0" style="text-align: left;">
+              <div class="col-md-8">
+                <h3>Users Verifications</h3>
               </div>
+              <div class="col-md-4">
+                <div class="input-group mb-1">
+                  <input type="text" class="form-control" placeholder="Search by user Id or email" aria-label="Search by user Id"
+                    aria-describedby="basic-addon2" v-model="sessionIdTemp"
+                    @keyup.enter="viewSessionDetails(sessionIdTemp)">
+                  <div class="input-group-append" style="cursor: grab;">
+                    <span class="input-group-text" id="basic-addon2" @click="viewSessionDetails(sessionIdTemp)"><i
+                        class="fa fa-search" aria-hidden="true"></i></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div v-else-if="!hasPermission" style="text-align: left;">
+              <hf-upgrade-plan></hf-upgrade-plan>
             </div>
           </div>
         </div>
-        <div v-else-if="!hasPermission" style="text-align: left;">
-          <hf-upgrade-plan></hf-upgrade-plan>
+
+        <div class="scrollit">
+          <div class="card">
+            <table class="table table-hover" >
+              <thead class="thead-light">
+                <tr>
+                  <th class="sticky-header" v-for="header in headers" v-bind:key="header.value">
+                    {{  header.text  }}
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="row in userList" v-bind:key="row.userId" style="cursor: pointer" @click="viewSessionDetails(row.userId)">
+                   
+
+                  
+  <td>
+  <div class="d-flex align-center">
+    <v-avatar  :style="getAvatarStyle()" size="37" class="font-weight-bold">
+      {{ (row.name || row.email || row.userId || 'U').charAt(0).toUpperCase() }}
+    </v-avatar>
+    <div class="ml-3 d-flex flex-column justify-center" style="line-height: 1.2;">
+      <span class="font-weight-bold" v-if="row.email || row.name">
+        {{ row.name || row.email || 'Unnamed User' }}
+      </span>
+      <span style="color: grey; font-size: 12px;" class="mt-1">
+        {{ row.userId ? stringShortner(row.userId, 28) : '-' }}
+      </span>
+    </div>
+  </div>
+</td>
+
+                  <td>
+                    {{ row.createdAt ? new Date(row.createdAt).toLocaleString('en-us') : "-" }}
+                  </td>
+                  <td>
+                    {{ row.completedAt ? new Date(row.completedAt).toLocaleString('en-us') : "-" }}
+                  </td>
+                  <td>
+                    {{ row.retries ? row.retries : 0 }}
+                  </td>
+                  <td>
+                    <div class="steps-wrapper">
+                      
+                      <span class="stepSpan" v-for="step in filteredSteps(row)" :key="step.field" :title="step.title">
+                          <div
+                          class="step step UI--c-dhzjXW UI--c-dhzjXW-iexswVt-css UI--c-kbgiPT UI--c-kbgiPT-ihMjrWH-css"
+                          :class="{
+                            'step-finished': row[step.field] == 1,
+                            'step-notStarted': row[step.field] == 0,
+                            'step-failed': row.status === 'Failed' && step.field === row.failureInfo?.failureStep
+                          }">
+                          <span class="fa-stack fa-sm">
+                            <i class="fa fa-circle fa-stack-2x fa-inverse" style="color: #f4f3f39c;"></i>
+                            <i :class="'fa ' + step.icon + ' fa-stack-1x'"></i>
+                          </span>
+                        </div>  
+                      </span>
+
+                    </div>
+                  </td>
+                  <td>
+                    <span v-html="getUserStatus(row.status)"></span>
+                    <span v-if="row.status == 'Failed'">
+                      <span >
+                        
+                      </span>
+                      <span>
+                        <v-tooltip bottom>
+                          <template v-slot:activator="{ on, attrs }">
+                            <v-icon v-bind="attrs" v-on="on" small color="red darken-1" class="ml-1" style="color:red">
+                              mdi-alert-circle-outline
+                            </v-icon>
+                          </template>
+                          <span>{{ getFailureReason(row.failureInfo?.failureReason, row.failureInfo?.failureStep) }}</span>
+                          
+                        </v-tooltip>
+                      </span>
+                    </span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
 
-        <!-- <div v-else style="text-align: left;">
-          <h3>No session found!</h3>
-        </div> -->
-      </div>
-    </div>
+        <div class="row mt-2" v-if="userList.length > 0">
+          <div class="col-md-12 d-flex justify-content-center align-items-center">
+            <PagiNation :pagesCount="pages" @event-page-number="handleGetPageNumberEvent" />
+          </div>
+        </div>
+      </v-col>
+    </v-row>
 
-    <div class="scrollit" >
-      <div class="">
-        <table class="table table-hover event-card" style="background:#FFFF">
-          <thead class="thead-light">
-            <tr>
-              <th class="sticky-header">Date</th>
-              <th class="sticky-header">Session Id</th>
-              <th class="sticky-header">User Id (Hash)</th>
-              <th class="sticky-header">Steps</th>
-              <th class="sticky-header">
-                Status
-              <b-dropdown
-                size="sm"
-                variant="light"
-                toggle-class="p-1 ml-2"
-                menu-class="dropDownPopup"
-                no-caret
-                right
-              >
-              <template #button-content>
-                <i class="fa fa-filter text-muted"></i>
-              </template>
-
-              <b-dropdown-item   :class="{ 'custom-active':selectedSessionStatus === 'All'}" @click="handleSessionFilter('')">All</b-dropdown-item>
-              <b-dropdown-item :class="{ 'custom-active': selectedSessionStatus === 'Pending' }"  @click="handleSessionFilter('Pending')">In Progress</b-dropdown-item>
-              <b-dropdown-item :class="{ 'custom-active':selectedSessionStatus === 'Success'}" @click="handleSessionFilter('Success')">Completed</b-dropdown-item>
-              <b-dropdown-item :class="{ 'custom-active':selectedSessionStatus === 'Expired'}" @click="handleSessionFilter('Expired')">Expired</b-dropdown-item>
-              <b-dropdown-item :class="{ 'custom-active':selectedSessionStatus === 'Failed'}" @click="handleSessionFilter('Failed')">Failed</b-dropdown-item>
-            </b-dropdown>
-            </th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="row in sessionList" v-bind:key="row._id" @click="viewSessionDetails(row.sessionId)"
-              style="cursor: pointer">
-              <td>
-                {{ row.createdAt ? new Date(row.createdAt).toLocaleString('en-us') : "-" }}
-              </td>
-              <td>
-                {{ row.sessionId ? row.sessionId : "-" }}
-              </td>
-              <td>
-                {{ row.appUserId ? stringShortner(row.appUserId, 32) : "-" }}
-              </td>
-              <td>
-                <span class="stepSpan" title="Start">
-                  <div :class="{ 'step-finished': row.step_start == 1, 'step-notStarted': row.step_start == 0 }"
-                    class="step UI--c-dhzjXW UI--c-dhzjXW-iexswVt-css UI--c-kbgiPT UI--c-kbgiPT-bUORwj-isFirst-true UI--c-kbgiPT-iehgGlf-css step">
-                    <span class="fa-stack fa-sm">
-                      <i class="fa fa-circle fa-stack-2x fa-inverse" style="color: #f4f3f39c;"></i>
-                      <i class="fa fa-flag fa-stack-1x"></i>
-                    </span>
-                  </div>
-                </span>
-                <span class="stepSpan" title="Selfi" v-if="row.step_liveliness != null">
-                  <div
-                    :class="{ 'step-finished': row.step_liveliness == 1, 'step-notStarted': row.step_liveliness == 0 }"
-                    class="step UI--c-dhzjXW UI--c-dhzjXW-iexswVt-css UI--c-kbgiPT UI--c-kbgiPT-ihMjrWH-css ">
-
-                    <span class="fa-stack fa-sm">
-                      <i class="fa fa-circle fa-stack-2x fa-inverse" style="color: #f4f3f39c;"></i>
-                      <i class="fa fa-user fa-stack-1x"></i>
-                    </span>
-
-                  </div>
-
-
-                </span>
-                <span class="stepSpan" title="ID Document" v-if="row.step_ocrIdVerification != null">
-                  <div
-                    :class="{ 'step-finished': row.step_ocrIdVerification == 1, 'step-notStarted': row.step_ocrIdVerification == 0 }"
-                    class="step UI--c-dhzjXW UI--c-dhzjXW-iexswVt-css UI--c-kbgiPT UI--c-kbgiPT-ihMjrWH-css ">
-                    <span class="fa-stack fa-sm">
-                      <i class="fa fa-circle fa-stack-2x fa-inverse" style="color: #f4f3f39c;"></i>
-                      <i class="fa fa-address-card fa-stack-1x"></i>
-                    </span>
-                  </div>
-                </span>
-
-                <span class="stepSpan" title="Mint SBT" v-if="row.step_mintSbt != null">
-                  <div :class="{ 'step-finished': row.step_mintSbt == 1, 'step-notStarted': row.step_mintSbt == 0 }"
-                    class="step UI--c-dhzjXW UI--c-dhzjXW-iexswVt-css UI--c-kbgiPT UI--c-kbgiPT-ihMjrWH-css ">
-                    <span class="fa-stack fa-sm">
-                      <i class="fa fa-circle fa-stack-2x fa-inverse" style="color: #f4f3f39c;"></i>
-                      <i class="fa fa-address-book fa-stack-1x"></i>
-                    </span>
-                  </div>
-                </span>
-
-                <span class="stepSpan" title="User Consent">
-                  <div
-                    :class="{ 'step-finished': row.step_userConsent == 1, 'step-notStarted': (row.step_userConsent == 0 || row.step_userConsent == null) }"
-                    class="step UI--c-dhzjXW UI--c-dhzjXW-iexswVt-css UI--c-kbgiPT UI--c-kbgiPT-ijmsATZ-css ">
-                    <span class="fa-stack fa-sm">
-                      <i class="fa fa-circle fa-stack-2x fa-inverse" style="color: #f4f3f39c;"></i>
-                      <i class="fa fa-thumbs-up fa-stack-1x"></i>
-                    </span>
-                  </div>
-                </span>
-
-                <span class="stepSpan" title="Finished">
-                  <div :class="{ 'step-finished': row.step_finish == 1, 'step-notStarted': row.step_finish == 0 }"
-                    class="step UI--c-dhzjXW UI--c-dhzjXW-iexswVt-css UI--c-kbgiPT UI--c-kbgiPT-ijmsATZ-css ">
-
-                    <span class="fa-stack fa-sm">
-                      <i class="fa fa-circle fa-stack-2x fa-inverse" style="color: #f4f3f39c;"></i>
-                      <i class="fa fa-check fa-stack-1x"></i>
-                    </span>
-
-                  </div>
-                </span>
-              </td>
-              <td>
-                <span v-html="getStatus(row)"></span>
-              </td>
-
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <div class="row mt-2" v-if="sessionList.length > 0">
-      <div class="col-md-12 d-flex justify-content-center align-items-center">
-        <PagiNation :pagesCount="pages" @event-page-number="handleGetPageNumberEvent" />
-      </div>
-    </div>
   </div>
 </template>
 
 <script>
 import UtilsMixin from '../../mixins/utils';
-import Loading from "vue-loading-overlay";
 import { mapState, mapGetters, mapActions, mapMutations } from "vuex";
 import PagiNation from '../../components/Pagination.vue';
+import Config from "../../config"
 export default {
   name: "SessionsPage",
-  components: { Loading, PagiNation },
+  components: { PagiNation },
   computed: {
-    ...mapGetters('mainStore', ['sessionList', 'getUserAccessList']),
+    ...mapGetters('mainStore', ['userList', 'getUserAccessList']),
     ...mapState({
-      totalSessionCount:state=>state.mainStore.totalSessionCount,
-      sessionList: state => state.mainStore.sessionList,
+      totalUserCount: state => state.mainStore.totalUserCount,
+      userList: state => state.mainStore.userList,
       containerShift: state => state.playgroundStore.containerShift,
     }),
     isContainerShift() {
       return this.containerShift
     },
     pages() {
-        return Math.ceil(parseInt(this.totalSessionCount) / this.pageLimit);
-      },
+      return Math.ceil(parseInt(this.totalUserCount) / this.pageLimit);
+    },
   },
   data() {
     return {
+      allSteps: [
+        { field: 'step_start', icon: 'fa-flag', title: 'Started' },
+        { field: 'step_liveliness', icon: 'fa-user', title: 'Liveliness Check' },
+        { field: 'step_ocrIdVerification', icon: 'fa-address-card', title: 'Document Verification' },
+        { field: 'step_mintSbt', icon: 'fa-address-book', title: 'Mint SBT' },
+        { field: 'step_userConsent', icon: 'fa-thumbs-up', title: 'User Consent' },
+        { field: 'step_finish', icon: 'fa-check', title: 'Finished' },
+      ],
+      overviewData: {
+        totalVerifications: 1000,
+        completionRate: 80,
+        successRate: 40,
+        dropOfRate: 0.5,
+        // avgSessionPerUser: 2,
+      },
+
+      // Table column headers
+      headers: [
+      { text: 'User ID', value: 'userId' },  
+      { text: 'Start Date', value: 'start_date' },
+      { text: 'End Date', value: 'end_date' },
+      { text: 'Attempts', value: 'attempts' },
+        { text: 'Steps', value: 'steps' },
+        { text: 'Status', value: 'status' },
+      ],
+
       authToken: localStorage.getItem('authToken'),
       user: {},
       fullPage: true,
@@ -329,7 +394,7 @@ export default {
       hasPermission: false,
       selectedSessionStatus: 'All',
       currentPage: 1,
-      pageLimit:50,
+      pageLimit: 50,
     }
   },
   async created() {
@@ -337,8 +402,6 @@ export default {
       const usrStr = localStorage.getItem("user");
       this.user = JSON.parse(usrStr);
       this.updateSideNavStatus(true)
-
-
 
       // appId
       this.isLoading = true
@@ -350,11 +413,9 @@ export default {
 
 
       const storedStatus = localStorage.getItem('selectedSessionStatus');
-      this.selectedSessionStatus = storedStatus  ? storedStatus : '';
+      this.selectedSessionStatus = storedStatus ? storedStatus : '';
       this.currentPage = localStorage.getItem('selectedPage') || 1;
       this.handleSessionFilter(this.selectedSessionStatus);
-      
-      
 
     } catch (e) {
       this.isLoading = false
@@ -363,117 +424,104 @@ export default {
     }
   },
   beforeRouteEnter(to, from, next) {
-    //  localStorage.removeItem('selectedSessionStatus');
     next((vm) => {
       vm.prevRoute = from;
     });
   },
   methods: {
-    ...mapActions('mainStore', ['fetchAppsUsersSessions']),
+    ...mapActions('mainStore', ['fetchAppsUsers']),
     ...mapMutations('playgroundStore', ['updateSideNavStatus', 'shiftContainer']),
-
-    checkIfHasPermission() {
-      const accessList = this.getUserAccessList("CAVACH_API");
-      if (accessList && accessList.length > 0) {
-        /// Either he should have ALL access
-        const allAccess = accessList.find((x) => x.access == "ALL");
-        if (!allAccess) {
-
-          // Or he should have READ_SESSION access
-          const readSessionAccess = accessList.find(
-            (x) => x.access == "READ_SESSION"
-          );
-          if (!readSessionAccess) {
-            this.hasPermission = false
-            return this.notifyErr(
-              "You do not have access to KYC dashboard, kindly contact the Hypersign Team"
-            );
-          } else {
-            this.hasPermission = true
-          }
-        } else {
-          this.hasPermission = true
-        }
-      } else {
-        this.hasPermission = false
-        return this.notifyErr(
-          "You do not have access to KYC dashboard, kindly contact the admin"
-        );
+    filteredSteps(row) {
+      return this.allSteps.filter(step => row[step.field] !== null && row[step.field] !== undefined);
+    },
+    getFailureReason(errorCode, errorType = 'step_liveliness') {
+      if (errorType == 'step_liveliness') {
+        return Config['LivelinessError'][errorCode] || 'Unknown error';
       }
+
+      if (errorType == 'step_ocrIdVerification') {
+        return Config['FaicalAuthenticationError'][errorCode] || 'Unknown error';
+      }
+    },
+    getAvatarStyle() {
+      // const colors = ['#607d8b', '#3f51b5', '#009688', '#ff5722', '#795548', '#673ab7', '#e91e63'];
+      const colors = ['#b0bec5', '#9fa8da', '#80cbc4', '#ffab91', '#bcaaa4', '#b39ddb', '#f48fb1'];
+      const seed = Math.floor(Math.random() * colors.length);
+      const color = colors[seed % colors.length];
+      return {
+        backgroundColor: color,
+        color: 'white'
+      };
+    },
+    getTooltipText(key) {
+      const descriptions = {
+        totalVerifications: 'Total number of user verification attempts (UVAs).',
+        completionRate: 'Percentage of verifications that reached the final step.',
+        successRate: 'Percentage of verifications that were successful (verified).',
+        dropOfRate: 'Percentage of sessions that expired or were abandoned.',
+        avgSessionPerUser: 'Average number of verification attempts per user.',
+      };
+      return descriptions[key] || 'Metric description not available.';
+    },
+    formatNumber(val) {
+      return typeof val === 'number' ? val.toLocaleString() : val;
+    },
+    formatKey(key) {
+      const map = {
+        totalVerifications: 'Total User Verifications Attempts',
+        completionRate: 'Completion Rate',
+        successRate: 'Success Rate',
+        dropOfRate: 'Drop-off Rate',
+        // avgSessionPerUser: 'Avg Session per User',
+      };
+      return map[key] || key;
+    },
+    isPercentageKey(key) {
+      return ['completionRate', 'successRate', 'dropOfRate'].includes(key);
+    },
+    checkIfHasPermission() {
       this.hasPermission = true;
     },
 
-    async fetchsession(filter){
-      const t = await this.fetchAppsUsersSessions(filter)
-      console.log({t })
-      if(t && t.length == 0){
+    async fetchsession(filter) {
+      const t = await this.fetchAppsUsers(filter)
+      if (t && t.length == 0) {
         localStorage.setItem('selectedSessionStatus', 'All');
         localStorage.setItem('selectedPage', 1);
-        this.fetchAppsUsersSessions({ appId: "" })
+        this.fetchAppsUsers({ appId: "" })
       }
     },
 
-    async handleGetPageNumberEvent(pageNumber) {
-      try {
-        this.isLoading = true
-        this.currentPage = pageNumber;
-        const status = this.selectedSessionStatus ? (this.selectedSessionStatus == 'All' ? '' : this.selectedSessionStatus) : '';
-        localStorage.setItem('selectedPage', this.currentPage);
-        await this.fetchsession({ appId: "", page: pageNumber, status })
-        this.isLoading = false
-      } catch (e) {
-        this.isLoading = false
-        this.notifyErr(e)
-      }
-    },
-    async handleSessionFilter(status){
-      try{
-        this.isLoading = true
-        this.selectedSessionStatus = status || 'All';
-        const apiStatus = (status === 'All' || !status) ? '' : status;
-        if(this.selectedSessionStatus == '' || this.selectedSessionStatus == 'All'){
-          this.currentPage = 1
-        }
 
-        localStorage.setItem('selectedSessionStatus', status);
-        localStorage.setItem('selectedPage', this.currentPage);
-        await this.fetchsession({ appId: "", page: this.currentPage, status: apiStatus })
-        this.isLoading = false
-      } catch (e) {
-        this.isLoading = false
-        this.notifyErr(e)
-      }
-    },
-    async filterSessions(filterText) {
-      try {
-        if (filterText) {
-          const filter = {
-
-          }
-          if (filterText.split('-').length >= 5) {// UUID sessions
-            filter.sessionIds = filterText
-          } else {
-            filter.userId = filterText
-          }
-
-          this.isLoading = true
-          await this.fetchsession({ appId: "", ...filter })
-          this.isLoading = false
-        }
-
-      } catch (e) {
-        this.isLoading = false
-        this.notifyErr(e)
-      }
-    },
-
-    async viewSessionDetails(sessionId) {
+     async viewSessionDetails(sessionId) {
       if (!sessionId) {
-        return this.notifyErr('Session Id is required')
+        return this.notifyErr('User Id or Email  is required')
       }
+
+      if(this.isValidEmail(sessionId.trim())) {
+        sessionId = await this.generateSHA256Hash(sessionId)
+      } 
+
+      console.log(sessionId)
       this.$router.push({ name: "sessionDetails", params: { appId: this.$route.params.appId, sessionId: sessionId.trim() } });
       this.shiftContainer(false);
       this.sessionIdTemp = null
+    },
+
+    handleGetPageNumberEvent(pageNumber) {
+      this.currentPage = pageNumber;
+      localStorage.setItem('selectedPage', pageNumber);
+      this.fetchsession({ appId: "", page: this.currentPage, limit: this.pageLimit });
+    },
+    async handleSessionFilter(status) {
+      try {
+        console.log({ status })
+        this.isLoading = true
+        this.isLoading = false
+      } catch (e) {
+        this.isLoading = false
+        this.notifyErr(e)
+      }
     },
   },
   mixins: [UtilsMixin],
