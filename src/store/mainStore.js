@@ -846,8 +846,8 @@ const mainStore = {
                     return reject(new Error('Tenant url is null or empty, service is not selected'))
                 }
 
-                // let url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/user`;
-                let url = 'http://localhost:3001/api/v1/user'
+                let url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/user`;
+                // let url = 'http://localhost:3001/api/v1/user'
 
                 const paramsObject = {}
 
@@ -890,59 +890,6 @@ const mainStore = {
                     if (json.error) {
                         return reject(new Error(json.error?.details.join(' ') || json.error.join(' ')))
                     }
-
-
-                    // this operation can be pushed to backend
-                    // const flattenedUserData = json.data.users?.map(user => {
-                    //     const sessions = user.sessions;
-
-                    //     // Initialize ORed values to '0'
-                    //     const steps = {
-                    //         step_start: '0',
-                    //         step_liveliness: '0',
-                    //         step_ocrIdVerification: '0',
-                    //         step_userConsent: '0',
-                    //         step_finish: '0',
-                    //     };
-
-                    //     // Sort sessions by createdAt
-                    //     const sortedSessions = [...sessions].sort(
-                    //         (a, b) => new Date(a.createdAt) - new Date(b.createdAt)
-                    //     );
-
-                    //     sortedSessions.forEach(session => {
-                    //         for (let key in steps) {
-                    //             steps[key] =
-                    //                 String(Number(steps[key]) | Number(session[key] || '0'));
-                    //         }
-
-                    //     });
-
-                    //     let failureInfo = null
-                    //     const lastSession = sortedSessions[sortedSessions.length - 1]
-                    //     if (lastSession.status == 'Failed') {
-                    //         failureInfo = {
-                    //             failureStep: lastSession.failureInfo?.failureStep,
-                    //             failureReason: lastSession.failureInfo?.failureReason
-                    //         }
-
-                    //         // special case where document was verified in first attempt and then again he is trying to reverify - duplicate error will come
-                    //         if (failureInfo.failureStep == 'step_ocrIdVerification' && steps['step_ocrIdVerification'] == 1) {
-                    //             steps['step_ocrIdVerification'] = 0
-                    //         }
-                    //     }
-
-                    //     return {
-                    //         userId: user.userId,
-                    //         createdAt: sortedSessions[0].createdAt, // oldest
-                    //         completedAt: lastSession.createdAt,
-                    //         retries: sessions.length,
-                    //         ...steps,
-                    //         status: lastSession.status,
-                    //         failureInfo// latest session status,
-                    //     };
-                    // });
-
 
                     commit('insertUsers', {
                         userList: json.data.users,
@@ -1321,8 +1268,8 @@ const mainStore = {
                 if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
                     return reject(new Error('Tenant url is null or empty, service is not selected'))
                 }
-                // const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/user/${sessionId}`;
-                let url = `http://localhost:3001/api/v1/user/${sessionId}`
+                const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/user/${sessionId}`;
+                // let url = `http://localhost:3001/api/v1/user/${sessionId}`
                 const authToken = getters.getSelectedService.access_token
                 const headers = UtilsMixin.methods.getHeader(authToken);
                 fetch(url, {
