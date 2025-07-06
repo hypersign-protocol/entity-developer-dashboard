@@ -224,7 +224,7 @@ h5 span {
               </div>
               <div class="col-md-4">
                 <div class="input-group mb-1">
-                  <input type="text" class="form-control" placeholder="Search by user Id" aria-label="Search by user Id"
+                  <input type="text" class="form-control" placeholder="Search by user Id or email" aria-label="Search by user Id"
                     aria-describedby="basic-addon2" v-model="sessionIdTemp"
                     @keyup.enter="viewSessionDetails(sessionIdTemp)">
                   <div class="input-group-append" style="cursor: grab;">
@@ -252,17 +252,25 @@ h5 span {
               </thead>
               <tbody>
                 <tr v-for="row in userList" v-bind:key="row.userId" style="cursor: pointer" @click="viewSessionDetails(row.userId)">
-                  <td>
-                    <!-- <v-btn class="btn btn-secondary" icon small>
-                      <v-avatar size="37" class="user-avatar">
-                        <v-icon color="white">mdi-account</v-icon>
-                      </v-avatar>
-                    </v-btn> -->
-                    <span class="mx-1">
-                      {{ row.userId ? stringShortner(row.userId, 28) : "-" }}
-                      <!-- {{ row.userId ? stringShortner(row.userId, row.userId.length) : "-" }} -->
-                    </span>
-                  </td>
+                   
+
+                  
+  <td>
+  <div class="d-flex align-center">
+    <v-avatar  :style="getAvatarStyle()" size="37" class="font-weight-bold">
+      {{ (row.name || row.email || row.userId || 'U').charAt(0).toUpperCase() }}
+    </v-avatar>
+    <div class="ml-3 d-flex flex-column justify-center" style="line-height: 1.2;">
+      <span class="font-weight-bold" v-if="row.email || row.name">
+        {{ row.name || row.email || 'Unnamed User' }}
+      </span>
+      <span style="color: grey; font-size: 12px;" class="mt-1">
+        {{ row.userId ? stringShortner(row.userId, 28) : '-' }}
+      </span>
+    </div>
+  </div>
+</td>
+
                   <td>
                     {{ row.createdAt ? new Date(row.createdAt).toLocaleString('en-us') : "-" }}
                   </td>
@@ -276,108 +284,22 @@ h5 span {
                     <div class="steps-wrapper">
                       
                       <span class="stepSpan" v-for="step in filteredSteps(row)" :key="step.field" :title="step.title">
-                        <div
+                          <div
                           class="step step UI--c-dhzjXW UI--c-dhzjXW-iexswVt-css UI--c-kbgiPT UI--c-kbgiPT-ihMjrWH-css"
                           :class="{
                             'step-finished': row[step.field] == 1,
                             'step-notStarted': row[step.field] == 0,
-                            'step-failed': row.status === 'Failed' && step.field === row.failureInfo.failureStep
+                            'step-failed': row.status === 'Failed' && step.field === row.failureInfo?.failureStep
                           }">
                           <span class="fa-stack fa-sm">
                             <i class="fa fa-circle fa-stack-2x fa-inverse" style="color: #f4f3f39c;"></i>
                             <i :class="'fa ' + step.icon + ' fa-stack-1x'"></i>
                           </span>
-                        </div>
+                        </div>  
                       </span>
 
                     </div>
                   </td>
-                  <!-- <td>
-                    <div class="steps-wrapper">
-                      <span class="stepSpan" title="Start">
-                        <div :class="{
-                          'step-finished': row.step_start == 1,
-                          'step-notStarted': row.step_start == 0,
-                          'step-failed': row.status == 'Failed' && 'step_start' == row.failedStep
-                        }"
-                          class="step UI--c-dhzjXW UI--c-dhzjXW-iexswVt-css UI--c-kbgiPT UI--c-kbgiPT-bUORwj-isFirst-true UI--c-kbgiPT-iehgGlf-css step">
-                          <span class="fa-stack fa-sm">
-                            <i class="fa fa-circle fa-stack-2x fa-inverse" style="color: #f4f3f39c;"></i>
-                            <i class="fa fa-flag fa-stack-1x"></i>
-                          </span>
-                        </div>
-                      </span>
-                      <span class="stepSpan" title="Liveliness Check" v-if="row.step_liveliness != null">
-                        <div :class="{
-                          'step-finished': row.step_liveliness == 1, 'step-notStarted': row.step_liveliness == 0,
-                          'step-failed': row.status == 'Failed' && 'step_liveliness' == row.failedStep
-                        }"
-                          class="step UI--c-dhzjXW UI--c-dhzjXW-iexswVt-css UI--c-kbgiPT UI--c-kbgiPT-ihMjrWH-css ">
-
-                          <span class="fa-stack fa-sm">
-                            <i class="fa fa-circle fa-stack-2x fa-inverse" style="color: #f4f3f39c;"></i>
-                            <i class="fa fa-user fa-stack-1x"></i>
-                          </span>
-
-                        </div>
-
-
-                      </span>
-                      <span class="stepSpan" title="ID Document" v-if="row.step_ocrIdVerification != null">
-                        <div :class="{
-                          'step-finished': row.step_ocrIdVerification == 1, 'step-notStarted': row.step_ocrIdVerification == 0,
-                          'step-failed': row.status == 'Failed' && 'step_ocrIdVerification' == row.failedStep
-                        }"
-                          class="step UI--c-dhzjXW UI--c-dhzjXW-iexswVt-css UI--c-kbgiPT UI--c-kbgiPT-ihMjrWH-css ">
-                          <span class="fa-stack fa-sm">
-                            <i class="fa fa-circle fa-stack-2x fa-inverse" style="color: #f4f3f39c;"></i>
-                            <i class="fa fa-address-card fa-stack-1x"></i>
-                          </span>
-                        </div>
-                      </span>
-
-                      <span class="stepSpan" title="Mint SBT" v-if="row.step_mintSbt != null">
-                        <div :class="{
-                          'step-finished': row.step_mintSbt == 1, 'step-notStarted': row.step_mintSbt == 0,
-                          'step-failed': row.status == 'Failed' && 'step_mintSbt' == row.failedStep
-                        }"
-                          class="step UI--c-dhzjXW UI--c-dhzjXW-iexswVt-css UI--c-kbgiPT UI--c-kbgiPT-ihMjrWH-css ">
-                          <span class="fa-stack fa-sm">
-                            <i class="fa fa-circle fa-stack-2x fa-inverse" style="color: #f4f3f39c;"></i>
-                            <i class="fa fa-address-book fa-stack-1x"></i>
-                          </span>
-                        </div>
-                      </span>
-
-                      <span class="stepSpan" title="User Consent">
-                        <div :class="{
-                          'step-finished': row.step_userConsent == 1, 'step-notStarted': (row.step_userConsent == 0 || row.step_userConsent == null),
-                          'step-failed': row.status == 'Failed' && 'step_userConsent' == row.failedStep
-                        }"
-                          class="step UI--c-dhzjXW UI--c-dhzjXW-iexswVt-css UI--c-kbgiPT UI--c-kbgiPT-ijmsATZ-css ">
-                          <span class="fa-stack fa-sm">
-                            <i class="fa fa-circle fa-stack-2x fa-inverse" style="color: #f4f3f39c;"></i>
-                            <i class="fa fa-thumbs-up fa-stack-1x"></i>
-                          </span>
-                        </div>
-                      </span>
-
-                      <span class="stepSpan" title="Finished">
-                        <div :class="{
-                          'step-finished': row.step_finish == 1, 'step-notStarted': row.step_finish == 0,
-                          'step-failed': row.status == 'Failed' && 'step_finish' == row.failedStep
-                        }"
-                          class="step UI--c-dhzjXW UI--c-dhzjXW-iexswVt-css UI--c-kbgiPT UI--c-kbgiPT-ijmsATZ-css ">
-
-                          <span class="fa-stack fa-sm">
-                            <i class="fa fa-circle fa-stack-2x fa-inverse" style="color: #f4f3f39c;"></i>
-                            <i class="fa fa-check fa-stack-1x"></i>
-                          </span>
-
-                        </div>
-                      </span>
-                    </div>
-                  </td> -->
                   <td>
                     <span v-html="getUserStatus(row.status)"></span>
                     <span v-if="row.status == 'Failed'">
@@ -391,7 +313,7 @@ h5 span {
                               mdi-alert-circle-outline
                             </v-icon>
                           </template>
-                          <span>{{ getFailureReason(row.failureInfo.failureReason, row.failureInfo.failureStep) }}</span>
+                          <span>{{ getFailureReason(row.failureInfo?.failureReason, row.failureInfo?.failureStep) }}</span>
                           
                         </v-tooltip>
                       </span>
@@ -521,6 +443,16 @@ export default {
         return Config['FaicalAuthenticationError'][errorCode] || 'Unknown error';
       }
     },
+    getAvatarStyle() {
+      // const colors = ['#607d8b', '#3f51b5', '#009688', '#ff5722', '#795548', '#673ab7', '#e91e63'];
+      const colors = ['#b0bec5', '#9fa8da', '#80cbc4', '#ffab91', '#bcaaa4', '#b39ddb', '#f48fb1'];
+      const seed = Math.floor(Math.random() * colors.length);
+      const color = colors[seed % colors.length];
+      return {
+        backgroundColor: color,
+        color: 'white'
+      };
+    },
     getTooltipText(key) {
       const descriptions = {
         totalVerifications: 'Total number of user verification attempts (UVAs).',
@@ -560,10 +492,17 @@ export default {
       }
     },
 
+
      async viewSessionDetails(sessionId) {
       if (!sessionId) {
-        return this.notifyErr('Session Id is required')
+        return this.notifyErr('User Id or Email  is required')
       }
+
+      if(this.isValidEmail(sessionId.trim())) {
+        sessionId = await this.generateSHA256Hash(sessionId)
+      } 
+
+      console.log(sessionId)
       this.$router.push({ name: "sessionDetails", params: { appId: this.$route.params.appId, sessionId: sessionId.trim() } });
       this.shiftContainer(false);
       this.sessionIdTemp = null
