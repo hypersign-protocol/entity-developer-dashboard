@@ -96,19 +96,50 @@
     }, {
       "id": "bd494dd9-56b8-462b-8116-2664b7046a61",
       "comment": "",
-      "command": "click",
+      "command": "clickAt",
       "target": "css=.v-btn__content",
-      "targets": [
-        ["css=.v-btn__content", "css:finder"],
-        ["xpath=//div[@id='app']/div[2]/div/div/div[3]/button/span", "xpath:idRelative"],
-        ["xpath=//span", "xpath:position"]
-      ],
+      "targets": [],
       "value": ""
     }, {
       "id": "ce6a6417-9af0-4269-ac14-3044625e3e24",
       "comment": "",
       "command": "pause",
       "target": "3000",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "ceda9f73-5941-4ffa-9c57-39cc0c79ec78",
+      "comment": "",
+      "command": "executeScript",
+      "target": "return document.querySelector(\"img[src*='https://lh3.googleusercontent.com/']\") != null;",
+      "targets": [],
+      "value": "isAvatar"
+    }, {
+      "id": "d909b58b-eefd-44db-b793-e19e9a06e1cd",
+      "comment": "",
+      "command": "if",
+      "target": "${isAvatar}",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "fbdf90b7-f2f4-489d-b820-f186af46ac07",
+      "comment": "",
+      "command": "clickAt",
+      "target": "xpath=//img[contains(@src,'https://lh3.googleusercontent.com/a/ACg8ocLhURJcR4MqLElbhyXUjIwY5NBgOO92m3Gd_EZYF0nucuQp3w=s96-c')]",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "cce930c4-0295-4769-97cc-7140dc7aeca7",
+      "comment": "",
+      "command": "clickAt",
+      "target": "css=li:nth-child(6) > .dropdown-item",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "8351ea89-8962-4836-a898-a442791d856d",
+      "comment": "",
+      "command": "else",
+      "target": "",
       "targets": [],
       "value": ""
     }, {
@@ -126,7 +157,7 @@
       "id": "884bcc28-df17-45af-92ff-dc6dc871c415",
       "comment": "",
       "command": "click",
-      "target": "css=li:nth-child(5) > .dropdown-item",
+      "target": "css=li:nth-child(6) > .dropdown-item",
       "targets": [
         ["css=li:nth-child(5) > .dropdown-item", "css:finder"],
         ["xpath=(//button[@type='button'])[4]", "xpath:attributes"],
@@ -134,6 +165,13 @@
         ["xpath=//li[5]/button", "xpath:position"],
         ["xpath=//button[contains(.,' Logout')]", "xpath:innerText"]
       ],
+      "value": ""
+    }, {
+      "id": "e153f626-b1bb-4c2e-a3d7-29cbe297cdca",
+      "comment": "",
+      "command": "end",
+      "target": "",
+      "targets": [],
       "value": ""
     }]
   }],

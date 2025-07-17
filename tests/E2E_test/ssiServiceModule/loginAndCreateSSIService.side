@@ -2,7 +2,7 @@
   "id": "5919f94f-c285-473c-ba96-2681f0e13d4f",
   "version": "2.0",
   "name": "Developer dashboard2",
-  "url": "https://entity.dashboard.hypersign.id",
+  "url": "https://entity.dashboard.hypersign.id/",
   "tests": [{
     "id": "c8fe19b8-26be-4184-825d-543f410c1be4",
     "name": "login and create ssi app",
@@ -125,11 +125,25 @@
       "targets": [],
       "value": ""
     }, {
+      "id": "2b297ab2-b80c-4564-be12-c74d3fcda8a0",
+      "comment": "",
+      "command": "//click",
+      "target": "id=__BVID__35__BV_button_",
+      "targets": [],
+      "value": ""
+    }, {
       "id": "e7a33128-b93b-4615-addf-ec9340d48785",
       "comment": "",
       "command": "clickAt",
-      "target": "css=.v-btn__content",
-      "targets": [],
+      "target": "xpath=//button[contains(.,'Create Service')]",
+      "targets": [
+        ["id=__BVID__35__BV_button_", "id"],
+        ["css=#\\__BVID__35__BV_button_", "css:finder"],
+        ["xpath=//button[@id='__BVID__35__BV_button_']", "xpath:attributes"],
+        ["xpath=//div[@id='__BVID__35']/button", "xpath:idRelative"],
+        ["xpath=//div/button", "xpath:position"],
+        ["xpath=//button[contains(.,'Create Service')]", "xpath:innerText"]
+      ],
       "value": ""
     }, {
       "id": "2bb70965-f3c7-455c-8101-66439271488f",
@@ -374,6 +388,46 @@
       ],
       "value": ""
     }, {
+      "id": "71e4ffb2-fba3-4c54-a7c1-c36fdbdab619",
+      "comment": "",
+      "command": "executeScript",
+      "target": "return document.querySelector(\"img[src*='https://lh3.googleusercontent.com/']\") != null",
+      "targets": [],
+      "value": "isAvatar"
+    }, {
+      "id": "62e8b83d-4a6d-43ae-9749-484f29f12ad5",
+      "comment": "",
+      "command": "if",
+      "target": "${isAvatar}",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "4a908c5c-34ab-48f3-9c73-ed396a55ccf5",
+      "comment": "",
+      "command": "clickAt",
+      "target": "xpath=//img[contains(@src,'https://lh3.googleusercontent.com/a/ACg8ocLhURJcR4MqLElbhyXUjIwY5NBgOO92m3Gd_EZYF0nucuQp3w=s96-c')]",
+      "targets": [
+        ["css=#\\__BVID__19__BV_toggle_ > img", "css:finder"],
+        ["xpath=//img[contains(@src,'https://lh3.googleusercontent.com/a/ACg8ocLhURJcR4MqLElbhyXUjIwY5NBgOO92m3Gd_EZYF0nucuQp3w=s96-c')]", "xpath:img"],
+        ["xpath=//a[@id='__BVID__19__BV_toggle_']/img", "xpath:idRelative"],
+        ["xpath=//li[4]/a/img", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "3524a156-bfe7-47f0-a8ec-1fa7ff6fa1ed",
+      "comment": "",
+      "command": "clickAt",
+      "target": "css=li:nth-child(6) > .dropdown-item",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "25810210-8819-40ab-bd69-a8e5b56dc564",
+      "comment": "",
+      "command": "else",
+      "target": "",
+      "targets": [],
+      "value": ""
+    }, {
       "id": "f57e1318-5297-4d91-91c5-9ec4de0a56b6",
       "comment": "",
       "command": "click",
@@ -384,7 +438,14 @@
       "id": "bde7f787-5752-42de-9e95-be814fc62985",
       "comment": "",
       "command": "clickAt",
-      "target": "css=li:nth-child(5) > .dropdown-item",
+      "target": "css=li:nth-child(6) > .dropdown-item",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "84386da6-04c1-4a08-b491-a7dbeadde3af",
+      "comment": "",
+      "command": "end",
+      "target": "",
       "targets": [],
       "value": ""
     }]
@@ -397,6 +458,6 @@
     "timeout": 300,
     "tests": ["c8fe19b8-26be-4184-825d-543f410c1be4"]
   }],
-  "urls": ["https://entity.dashboard.hypersign.id/"],
+  "urls": ["https://entity.dashboard.hypersign.id/", "http://localhost:9001/"],
   "plugins": []
 }
