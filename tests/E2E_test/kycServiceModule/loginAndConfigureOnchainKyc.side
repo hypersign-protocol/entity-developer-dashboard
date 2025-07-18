@@ -75,7 +75,7 @@
       "id": "6acb6db0-fc87-48fe-9f60-040960afbae6",
       "comment": "",
       "command": "store",
-      "target": "seleniumide609@gmail.com",
+      "target": "seleniumtest963@gmail.com",
       "targets": [],
       "value": "adminEmailId"
     }, {
@@ -143,14 +143,9 @@
     }, {
       "id": "d60545ac-1f4d-4efd-b9b2-a3c7e2a83e94",
       "comment": "",
-      "command": "assertElementPresent",
+      "command": "//assertElementPresent",
       "target": "xpath=//li[2]/a/strong",
-      "targets": [
-        ["css=#\\__BVID__134___BV_tab_button__ > strong", "css:finder"],
-        ["xpath=//a[@id='__BVID__134___BV_tab_button__']/strong", "xpath:idRelative"],
-        ["xpath=//li[2]/a/strong", "xpath:position"],
-        ["xpath=//strong[contains(.,' Know Your Customer (10)')]", "xpath:innerText"]
-      ],
+      "targets": [],
       "value": ""
     }, {
       "id": "8332b3a0-7505-430c-888f-a76e334229ea",
@@ -1162,6 +1157,48 @@
       ],
       "value": ""
     }, {
+      "id": "b2118162-323b-443e-b24b-29a60ece2ae2",
+      "comment": "",
+      "command": "executeScript",
+      "target": "return document.querySelector(\"img[src*='https://lh3.googleusercontent.com/']\") != null;",
+      "targets": [],
+      "value": "isAvatar"
+    }, {
+      "id": "f4bc1683-ed09-4898-bea1-13030fcdea63",
+      "comment": "",
+      "command": "if",
+      "target": "${isAvatar}",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "fc0e1fe1-0beb-49ee-bf64-d7cbfe19c57f",
+      "comment": "",
+      "command": "clickAt",
+      "target": "xpath=//img[contains(@src,'https://lh3.googleusercontent.com/a/ACg8ocLhURJcR4MqLElbhyXUjIwY5NBgOO92m3Gd_EZYF0nucuQp3w=s96-c')]",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "c93e8e87-6e7e-4fc3-b212-76bfc1792abc",
+      "comment": "",
+      "command": "clickAt",
+      "target": "css=li:nth-child(6) > .dropdown-item",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "5fb8f768-7ac5-4ddb-a87b-0dd5e64fdf13",
+      "comment": "",
+      "command": "else",
+      "target": "",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "372975a3-8c6b-46dd-8e01-56c1673c0a9d",
+      "comment": "",
+      "command": "",
+      "target": "",
+      "targets": [],
+      "value": ""
+    }, {
       "id": "0a841f24-8da4-44b2-b0a6-7638d35d8b39",
       "comment": "",
       "command": "clickAt",
@@ -1173,6 +1210,13 @@
       "comment": "",
       "command": "click",
       "target": "css=li:nth-child(5) > .dropdown-item",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "b34ee2e4-87a5-46a8-a96e-31644ac02a2d",
+      "comment": "",
+      "command": "end",
+      "target": "",
       "targets": [],
       "value": ""
     }]

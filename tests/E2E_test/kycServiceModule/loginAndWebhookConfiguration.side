@@ -5,7 +5,7 @@
   "url": "https://entity.dashboard.hypersign.id",
   "tests": [{
     "id": "b563f6a8-8116-47d8-9337-12d7977ac5a3",
-    "name": "Login and configure onchain",
+    "name": "Login and configure webhook",
     "commands": [{
       "id": "1a46c8db-1818-4372-a2a3-22d12076aeab",
       "comment": "",
@@ -712,6 +712,41 @@
       ],
       "value": ""
     }, {
+      "id": "77b7ee15-f6cf-4e9e-91a2-ead864a6ed4d",
+      "comment": "",
+      "command": "executeScript",
+      "target": "return document.querySelector(\"img[src*='https://lh3.googleusercontent.com/']\") != null;",
+      "targets": [],
+      "value": "isAvatar"
+    }, {
+      "id": "85fc5b70-bf47-4668-b5cf-ce179b5a56ff",
+      "comment": "",
+      "command": "if",
+      "target": "${isAvatar}",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "ef2d497d-25c2-465c-a4df-471d14175914",
+      "comment": "",
+      "command": "clickAt",
+      "target": "xpath=//img[contains(@src,'https://lh3.googleusercontent.com/a/ACg8ocLhURJcR4MqLElbhyXUjIwY5NBgOO92m3Gd_EZYF0nucuQp3w=s96-c')]",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "d0376d92-26e6-486c-ab00-74b0fa5fd8f6",
+      "comment": "",
+      "command": "clickAt",
+      "target": " css=li:nth-child(6) > .dropdown-item",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "4c5563dc-df82-4fcf-be6f-faeee1fee5d2",
+      "comment": "",
+      "command": "else",
+      "target": "",
+      "targets": [],
+      "value": ""
+    }, {
       "id": "f22d07a2-66a1-43d1-8d53-f612147d4eb5",
       "comment": "",
       "command": "clickAt",
@@ -723,6 +758,13 @@
       "comment": "",
       "command": "clickAt",
       "target": "css=li:nth-child(5) > .dropdown-item",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "a1f9759f-746d-47da-956e-96d6856e5a06",
+      "comment": "",
+      "command": "end",
+      "target": "",
       "targets": [],
       "value": ""
     }]
