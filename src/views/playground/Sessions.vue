@@ -206,13 +206,13 @@ h5 span {
                     mdi-information
                   </v-icon>
                 </template>
-                <span>{{ getTooltipText(key) }}</span>
-              </v-tooltip>
-            </div>
-          </v-card-text>
-        </v-card>
-      </v-col>
-    </v-row> -->
+<span>{{ getTooltipText(key) }}</span>
+</v-tooltip>
+</div>
+</v-card-text>
+</v-card>
+</v-col>
+</v-row> -->
 
     <v-row class="mb-0">
       <v-col cols="12">
@@ -224,8 +224,8 @@ h5 span {
               </div>
               <div class="col-md-4">
                 <div class="input-group mb-1">
-                  <input type="text" class="form-control" placeholder="Search by user Id or email" aria-label="Search by user Id"
-                    aria-describedby="basic-addon2" v-model="sessionIdTemp"
+                  <input type="text" class="form-control" placeholder="Search by user Id or email"
+                    aria-label="Search by user Id" aria-describedby="basic-addon2" v-model="sessionIdTemp"
                     @keyup.enter="viewSessionDetails(sessionIdTemp)">
                   <div class="input-group-append" style="cursor: grab;">
                     <span class="input-group-text" id="basic-addon2" @click="viewSessionDetails(sessionIdTemp)"><i
@@ -239,38 +239,34 @@ h5 span {
             </div>
           </div>
         </div>
-
         <div class="scrollit">
           <div class="card">
-            <table class="table table-hover" >
+            <table class="table table-hover">
               <thead class="thead-light">
                 <tr>
                   <th class="sticky-header" v-for="header in headers" v-bind:key="header.value">
-                    {{  header.text  }}
+                    {{ header.text }}
                   </th>
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="row in userList" v-bind:key="row.userId" style="cursor: pointer" @click="viewSessionDetails(row.userId)">
-                   
-
-                  
-  <td>
-  <div class="d-flex align-center">
-    <v-avatar  :style="getAvatarStyle()" size="37" class="font-weight-bold">
-      {{ (row.name || row.email || row.userId || 'U').charAt(0).toUpperCase() }}
-    </v-avatar>
-    <div class="ml-3 d-flex flex-column justify-center" style="line-height: 1.2;">
-      <span class="font-weight-bold" v-if="row.email || row.name">
-        {{ row.name || row.email || 'Unnamed User' }}
-      </span>
-      <span style="color: grey; font-size: 12px;" class="mt-1">
-        {{ row.userId ? stringShortner(row.userId, 28) : '-' }}
-      </span>
-    </div>
-  </div>
-</td>
-
+                <tr v-for="row in userList" v-bind:key="row.userId" style="cursor: pointer"
+                  @click="viewSessionDetails(row.userId)">
+                  <td>
+                    <div class="d-flex align-center">
+                      <v-avatar :style="getAvatarStyle()" size="37" class="font-weight-bold">
+                        {{ (row.name || row.email || row.userId || 'U').charAt(0).toUpperCase() }}
+                      </v-avatar>
+                      <div class="ml-3 d-flex flex-column justify-center" style="line-height: 1.2;">
+                        <span class="font-weight-bold" v-if="row.email || row.name">
+                          {{ row.name || row.email || 'Unnamed User' }}
+                        </span>
+                        <span style="color: grey; font-size: 12px;" class="mt-1">
+                          {{ row.userId ? stringShortner(row.userId, 28) : '-' }}
+                        </span>
+                      </div>
+                    </div>
+                  </td>
                   <td>
                     {{ row.createdAt ? new Date(row.createdAt).toLocaleString('en-us') : "-" }}
                   </td>
@@ -282,9 +278,8 @@ h5 span {
                   </td>
                   <td>
                     <div class="steps-wrapper">
-                      
                       <span class="stepSpan" v-for="step in filteredSteps(row)" :key="step.field" :title="step.title">
-                          <div
+                        <div
                           class="step step UI--c-dhzjXW UI--c-dhzjXW-iexswVt-css UI--c-kbgiPT UI--c-kbgiPT-ihMjrWH-css"
                           :class="{
                             'step-finished': row[step.field] == 1,
@@ -295,17 +290,14 @@ h5 span {
                             <i class="fa fa-circle fa-stack-2x fa-inverse" style="color: #f4f3f39c;"></i>
                             <i :class="'fa ' + step.icon + ' fa-stack-1x'"></i>
                           </span>
-                        </div>  
+                        </div>
                       </span>
-
                     </div>
                   </td>
                   <td>
                     <span v-html="getUserStatus(row.status)"></span>
                     <span v-if="row.status == 'Failed'">
-                      <span >
-                        
-                      </span>
+                      <span></span>
                       <span>
                         <v-tooltip bottom>
                           <template v-slot:activator="{ on, attrs }">
@@ -313,8 +305,9 @@ h5 span {
                               mdi-alert-circle-outline
                             </v-icon>
                           </template>
-                          <span>{{ getFailureReason(row.failureInfo?.failureReason, row.failureInfo?.failureStep) }}</span>
-                          
+                          <span>{{ getFailureReason(row.failureInfo?.failureReason, row.failureInfo?.failureStep)
+                          }}</span>
+
                         </v-tooltip>
                       </span>
                     </span>
@@ -324,7 +317,6 @@ h5 span {
             </table>
           </div>
         </div>
-
         <div class="row mt-2" v-if="userList.length > 0">
           <div class="col-md-12 d-flex justify-content-center align-items-center">
             <PagiNation :pagesCount="pages" @event-page-number="handleGetPageNumberEvent" />
@@ -332,7 +324,6 @@ h5 span {
         </div>
       </v-col>
     </v-row>
-
   </div>
 </template>
 
@@ -378,10 +369,10 @@ export default {
 
       // Table column headers
       headers: [
-      { text: 'User ID', value: 'userId' },  
-      { text: 'Start Date', value: 'start_date' },
-      { text: 'End Date', value: 'end_date' },
-      { text: 'Attempts', value: 'attempts' },
+        { text: 'User ID', value: 'userId' },
+        { text: 'Start Date', value: 'start_date' },
+        { text: 'End Date', value: 'end_date' },
+        { text: 'Attempts', value: 'attempts' },
         { text: 'Steps', value: 'steps' },
         { text: 'Status', value: 'status' },
       ],
@@ -493,14 +484,14 @@ export default {
     },
 
 
-     async viewSessionDetails(sessionId) {
+    async viewSessionDetails(sessionId) {
       if (!sessionId) {
         return this.notifyErr('User Id or Email  is required')
       }
 
-      if(this.isValidEmail(sessionId.trim())) {
+      if (this.isValidEmail(sessionId.trim())) {
         sessionId = await this.generateSHA256Hash(sessionId)
-      } 
+      }
 
       console.log(sessionId)
       this.$router.push({ name: "sessionDetails", params: { appId: this.$route.params.appId, sessionId: sessionId.trim() } });

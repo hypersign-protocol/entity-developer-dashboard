@@ -236,7 +236,7 @@ h3 {
                     <v-list-item three-line>
                         <v-list-item-content>
                             <v-list-item-title class="text-h6 font-weight-bold mb-3">
-                                <i class="fa fa-hourglass-end mr-2" aria-hidden="true"></i>TILELINES
+                                <i class="fa fa-hourglass-end mr-2" aria-hidden="true"></i>TIMELINES
                             </v-list-item-title>
                             <div>
 
