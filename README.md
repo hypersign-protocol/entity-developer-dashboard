@@ -6,7 +6,7 @@ A VueJs based dashboard for developers to manage their tenants and API keys
 
 ### Install
 
-Node Version:  `14.21.3`
+Node Version:  `v20.10.0`
 
 ```bash
 git clone https://github.com/hypersign-protocol/entity-developer-dashboard #Pull the repo
