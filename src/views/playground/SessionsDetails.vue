@@ -356,10 +356,10 @@ h3 {
                             <div class="p-2">
                                 <table class="table">
                                     <tbody>
-                                        <tr>
+                                        <!-- <tr>
                                             <td class="greyFont">IP</td>
                                             <td style="text-align: right;">{{ this.deviceDetails.ip }}</td>
-                                        </tr>
+                                        </tr> -->
                                         <tr>
                                             <td class="greyFont">Operating system</td>
                                             <td style="text-align: right;">{{ this.deviceDetails.os }}</td>
@@ -484,20 +484,28 @@ h3 {
                                 <table class="table">
                                     <tbody>
                                         <tr>
+                                            <td class="greyFont">IP</td>
+                                            <td style="text-align: right;">{{ this.locationDetails.ip }}</td>
+                                        </tr>
+                                         <tr>
+                                            <td class="greyFont">Continent</td>
+                                            <td style="text-align: right;">{{ this.locationDetails.continentName }}</td>
+                                        </tr>
+                                        <tr>
                                             <td class="greyFont">Country</td>
-                                            <td style="text-align: right;">{{ this.locationDetails.country_name }} <span
-                                                    v-if="this.locationDetails.country_code"><country-flag
-                                                        :country="this.locationDetails.country_code"
+                                            <td style="text-align: right;">{{ this.locationDetails.countryName }} <span
+                                                    v-if="this.locationDetails.countryCode"><country-flag
+                                                        :country="this.locationDetails.countryCode"
                                                         size='normal' /></span>
                                             </td>
                                         </tr>
-                                        <tr>
+                                        <!-- <tr>
                                             <td class="greyFont">Time Zone</td>
-                                            <td style="text-align: right;">{{ this.locationDetails.timezones[0] }}</td>
-                                        </tr>
+                                            <td style="text-align: right;">{{ this.locationDetails.timeZone }}</td>
+                                        </tr> -->
                                         <tr>
                                             <td class="greyFont">Region</td>
-                                            <td style="text-align: right;">{{ this.locationDetails.region_name }}</td>
+                                            <td style="text-align: right;">{{ this.locationDetails.region }}</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -854,21 +862,11 @@ export default {
 
             if (this.session.deviceDetails) {
                 const userAgentString = this.session.deviceDetails.userAgent
-                console.log(userAgentString)
+                
                 if (userAgentString) {
-                    let ip = this.session.deviceDetails.ip
-                    if (this.session.deviceDetails.ip) {
-                        const ips = this.session.deviceDetails.ip.split(',')
-                        if (ips.length > 0) {
-                            ip = ips[0]
-                        }
-                    }
-                    await this.getLocationFromIp(ip)
                     const uaparser = new UAParser()
                     uaparser.setUA(userAgentString)
-
                     const details = {
-                        ip,
                         os: uaparser.getOS().name,
                         osVer: uaparser.getOS().version,
                         browser: uaparser.getBrowser().name,
@@ -876,6 +874,10 @@ export default {
                         cpu: uaparser.getCPU().architecture
                     }
                     Object.assign(this.deviceDetails, { ...details })
+
+                    if(this.session.deviceDetails.locationDetail){
+                        Object.assign(this.locationDetails, { ...this.session.deviceDetails.locationDetail })
+                    }
                 }
             }
 
@@ -1072,29 +1074,6 @@ export default {
                 }
             }
             this.$root.$emit("bv::show::modal", "zoom-doc");
-        },
-        async getLocationFromIp(ip) {
-            try {
-                if (!ip) {
-                    throw new Error('Ip is required')
-                }
-
-                console.log('Before getting location details for ip')
-                const url = 'https://api.apilayer.com/ip_to_location/' + ip //
-                const resp = await fetch(url, {
-                    methods: 'GET',
-                    headers: {
-                        'apikey': 'BiLxYABdIfUL6qwMgBerrLzp9ptXNH8i'
-                    }
-                })
-                const json = await resp.json()
-
-                console.log(json)
-
-                Object.assign(this.locationDetails, { ...json })
-            } catch (e) {
-                this.notifyErr(e.message)
-            }
         }
     },
     mixins: [UtilsMixin],
