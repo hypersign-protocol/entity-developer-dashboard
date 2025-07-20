@@ -183,7 +183,7 @@ h3 {
 <template>
     <div :class="isContainerShift ? 'homeShift' : 'home'">
         <loadIng :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loadIng>
-        <div>
+        <div class="row">
             <!-- <v-breadcrumbs :items="[{text: 'Session', disabled: false, href: '/'}, {text: this.sessionId, disabled: true}]"></v-breadcrumbs> -->
             <h4 style="color: #8080808f;cursor: pointer;">
                 <a @click="$router.go(-1)" href="#">Users</a> <i class="fa fa-angle-double-right"
@@ -191,475 +191,472 @@ h3 {
             </h4>
         </div>
 
-        <div id="kyc-report">
-            <div>
-                <v-card class="serviceCard" id="header-info">
-                    <div class="card-body f-sm">
-                        <div class="row">
-                            <div class="col-md-3">
-                                <label><strong>Date:</strong> {{ session ? formatDate(session.createdAt) : "-"
-                                }}</label>
-                            </div>
-                            <div class="col-md-3">
-                                <label style="cursor: pointer;"><strong>Email Id:</strong> <span
-                                        @click="copyToClip(session.email, 'Email')"> {{ session ?
-                                            stringShortner(session.email, 32) : "-"
-                                        }}</span></label>
-                            </div>
-                            <div class="col-md-3 ">
-                                <label><strong>Attempts:</strong> <span> {{ session ? session.retryAttempts : "-"
-                                        }}</span></label>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="row">
-                                    <div class="col">
-                                        <label><strong>Verified In:</strong> <span class="badge badge-info"> {{
-                                            startFinishDiffInSeconds }}m</span></label>
-                                    </div>
-                                    <div class="col text-align-right">
-                                        <span v-html="getUserStatus(session.status)"></span>
-                                        <span class="fa-stack fa-sm" title="Download report" style="cursor: pointer"
-                                            @click="downloadKYCReport()">
-                                            <i class="fa fa-download"></i>
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </v-card>
+
+    <!-- Info Bar Row -->
+    <div class="row">
+      <!-- <div class="col-md-12"> -->
+        <v-card class="serviceCard py-2 px-4 w-100" id="header-info" flat>
+          <div class="row align-items-center">
+            <div class="col-md-3">
+              <label><strong>Date:</strong> {{ session ? formatDate(session.createdAt) : "-" }}</label>
             </div>
+            <div class="col-md-3">
+              <label style="cursor: pointer;">
+                <strong>Email Id:</strong>
+                <span @click="copyToClip(session.email, 'Email')">
+                  {{ session ? stringShortner(session.email, 32) : "-" }}
+                </span>
+              </label>
+            </div>
+            <div class="col-md-3">
+              <label><strong>Attempts:</strong> <span>{{ session ? session.retryAttempts : "-" }}</span></label>
+            </div>
+            <div class="col-md-3">
+              <div class="d-flex justify-content-between align-items-center">
+                <label><strong>Verified In:</strong>
+                  <span class="badge badge-info">{{ startFinishDiffInSeconds }}m</span>
+                </label>
+                <div>
+                  <span v-html="getUserStatus(session.status)"></span>
+                  <span class="fa-stack fa-sm ml-2" title="Download report" style="cursor: pointer"
+                        @click="downloadKYCReport()">
+                    <i class="fa fa-download"></i>
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </v-card>
+      <!-- </div> -->
+    </div>
 
-            <div>
-                <!-- Timelines -->
-                <v-card id="timelines-info" class="serviceCard dataCard float-">
-                    <v-list-item three-line>
-                        <v-list-item-content>
-                            <v-list-item-title class="text-h6 font-weight-bold mb-3">
-                                <i class="fa fa-hourglass-end mr-2" aria-hidden="true"></i>TIMELINES
-                            </v-list-item-title>
-                            <div>
+    <!-- Next Row (Your content goes here) -->
+    <div class="row">
+                    <!-- <div class="col-md-12"> -->
+                        <!-- Personal Information -->
+                        <v-card id="personal-info" class="serviceCard dataCard float-"
+                            v-if="userPersonalDataFromUserConsent && Object.keys(userPersonalDataFromUserConsent).length > 0">
+                            <v-list-item three-line>
+                                <v-list-item-content>
+                                    <v-list-item-title class="text-h6 font-weight-bold mb-3">
+                                        <i class="fa fa-id-badge mr-2" aria-hidden="true"></i>PERSONAL INFORMATION
+                                    </v-list-item-title>
+                                    <div class="p-2">
+                                        <table class="table">
+                                            <tbody>
+                                                <tr v-for="eachkey in Object.keys(userPersonalDataFromUserConsent)"
+                                                    v-bind:key="userPersonalDataFromUserConsent[eachkey]">
+                                                    <td class="greyFont text-start"
+                                                        v-if="userPersonalDataFromUserConsent[eachkey]">{{
+                                                            eachkey
+                                                                ? eachkey.charAt(0).toUpperCase() +
+                                                                eachkey.substring(1, eachkey.length) : eachkey }}</td>
+                                                    <td v-if="userPersonalDataFromUserConsent[eachkey]" class="text-end">
+                                                        <span v-if="eachkey == 'issuingStateCode'">
+                                                            {{ userPersonalDataFromUserConsent[eachkey] }} <country-flag
+                                                                :country="userPersonalDataFromUserConsent[eachkey]"
+                                                                size='normal' />
+                                                        </span>
+                                                        <span v-else>
+                                                            {{ userPersonalDataFromUserConsent[eachkey] }}
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </v-list-item-content>
+                            </v-list-item>
+                        </v-card>
 
-                                <ul class="timeline">
-                                    <li>
-                                        <a target="_blank" class="mx-2"><strong>Start</strong></a>
-                                        <a href="#" class="float-right greyFont">{{ session ?
-                                            formatDate(session.createdAt) : "-"
-                                        }}</a>
-                                    </li>
-                                    <li v-if="selfiDataFound && session.selfiDetails.createdAt">
-                                        <a target="_blank" class="mx-2"><strong>Selfie uploaded</strong></a>
-                                        <a href="#" class="float-right greyFont">{{ session ?
-                                            formatDate(session.selfiDetails.createdAt) : "-" }}</a>
-                                    </li>
-                                    <li v-if="idDocDataFound && session.ocriddocsDetails.createdAt">
-                                        <a target="_blank" class="mx-2"><strong>Document uploaded</strong></a>
-                                        <a href="#" class="float-right greyFont">{{ session ?
-                                            formatDate(session.ocriddocsDetails.createdAt) : "-" }}</a>
-                                    </li>
-                                    <li v-if="userConsentDataFound && session.userConsentDetails.createdAt">
-                                        <a target="_blank" class="mx-2" style=""><strong>User Consent</strong></a>
-                                        <a href="#" class="float-right greyFont">{{ session ?
-                                            formatDate(session.userConsentDetails.createdAt) : "-"
-                                        }}</a>
-                                    </li>
-                                    <li v-if="userConsentDataFound">
-                                        <a target="_blank" class="mx-2"><strong>Finished</strong></a>
-                                        <a href="#" class="float-right greyFont">{{ session ?
-                                            formatDate(session.userConsentDetails.createdAt) : "-"
-                                        }}</a>
-                                    </li>
-
-                                </ul>
-                            </div>
-                        </v-list-item-content>
-                    </v-list-item>
-                </v-card>
-
-                <!-- Personal Information -->
-                <v-card id="personal-info" class="serviceCard dataCard float-"
-                    v-if="userPersonalDataFromUserConsent && Object.keys(userPersonalDataFromUserConsent).length > 0">
-                    <v-list-item three-line>
-                        <v-list-item-content>
-                            <v-list-item-title class="text-h6 font-weight-bold mb-3">
-                                <i class="fa fa-id-badge mr-2" aria-hidden="true"></i>PERSONAL INFORMATION
-                            </v-list-item-title>
-                            <div class="p-2">
-                                <table class="table">
-                                    <tbody>
-                                        <tr v-for="eachkey in Object.keys(userPersonalDataFromUserConsent)"
-                                            v-bind:key="userPersonalDataFromUserConsent[eachkey]">
-                                            <td class="greyFont text-start"
-                                                v-if="userPersonalDataFromUserConsent[eachkey]">{{
-                                                    eachkey
-                                                        ? eachkey.charAt(0).toUpperCase() +
+                        <v-card class="serviceCard dataCard float-"
+                            style="max-height: 439px; overflow-y: scroll; max-width: 400px;"
+                            v-if="userPersonalDataGovIdFromUserConsent && Object.keys(userPersonalDataGovIdFromUserConsent).length > 0">
+                            <v-list-item three-line>
+                                <v-list-item-content>
+                                    <!-- <v-list-item-title class="text-h5 mb-1">
+                                        <i class="fa fa-id-badge" aria-hidden="true"></i>{{ "Personal Information".toUpperCase()
+                                        }}
+                                    </v-list-item-title> -->
+                                    <v-list-item-title class="text-h6 font-weight-bold mb-3">
+                                        <i class="fa fa-id-badge mr-2" aria-hidden="true"></i>PERSONAL INFORMATION
+                                    </v-list-item-title>
+                                    <div class="p-2">
+                                        <table class="table">
+                                            <tbody>
+                                                <tr v-for="eachkey in Object.keys(userPersonalDataGovIdFromUserConsent)"
+                                                    v-bind:key="userPersonalDataGovIdFromUserConsent[eachkey]">
+                                                    <td class="greyFont">{{ eachkey ? eachkey.charAt(0).toUpperCase() +
                                                         eachkey.substring(1, eachkey.length) : eachkey }}</td>
-                                            <td v-if="userPersonalDataFromUserConsent[eachkey]" class="text-end">
-                                                <span v-if="eachkey == 'issuingStateCode'">
-                                                    {{ userPersonalDataFromUserConsent[eachkey] }} <country-flag
-                                                        :country="userPersonalDataFromUserConsent[eachkey]"
-                                                        size='normal' />
-                                                </span>
-                                                <span v-else>
-                                                    {{ userPersonalDataFromUserConsent[eachkey] }}
-                                                </span>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </v-list-item-content>
-                    </v-list-item>
-                </v-card>
-
-                <v-card class="serviceCard dataCard float-"
-                    style="max-height: 439px; overflow-y: scroll; max-width: 400px;"
-                    v-if="userPersonalDataGovIdFromUserConsent && Object.keys(userPersonalDataGovIdFromUserConsent).length > 0">
-                    <v-list-item three-line>
-                        <v-list-item-content>
-                            <!-- <v-list-item-title class="text-h5 mb-1">
-                                <i class="fa fa-id-badge" aria-hidden="true"></i>{{ "Personal Information".toUpperCase()
-                                }}
-                            </v-list-item-title> -->
-                            <v-list-item-title class="text-h6 font-weight-bold mb-3">
-                                <i class="fa fa-id-badge mr-2" aria-hidden="true"></i>PERSONAL INFORMATION
-                            </v-list-item-title>
-                            <div class="p-2">
-                                <table class="table">
-                                    <tbody>
-                                        <tr v-for="eachkey in Object.keys(userPersonalDataGovIdFromUserConsent)"
-                                            v-bind:key="userPersonalDataGovIdFromUserConsent[eachkey]">
-                                            <td class="greyFont">{{ eachkey ? eachkey.charAt(0).toUpperCase() +
-                                                eachkey.substring(1, eachkey.length) : eachkey }}</td>
-                                            <td v-if="eachkey == 'issuingStateCode'" class="text-end">
-                                                {{ userPersonalDataGovIdFromUserConsent[eachkey] }} <country-flag
-                                                    :country="userPersonalDataGovIdFromUserConsent[eachkey]"
-                                                    size='normal' />
-                                            </td>
-                                            <td v-else>{{ userPersonalDataGovIdFromUserConsent[eachkey] }}</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </v-list-item-content>
-                    </v-list-item>
-                </v-card>
-
-                <!-- Device Information -->
-                <v-card id="device-info" class="serviceCard dataCard float-"
-                    v-if="deviceDetails && Object.keys(deviceDetails).length > 0">
-                    <v-list-item three-line>
-                        <v-list-item-content>
-                            <v-list-item-title class="text-h6 font-weight-bold mb-3">
-                                <i class="fa fa-laptop mr-2" aria-hidden="true"></i>DEVICE INFORMATION
-                            </v-list-item-title>
-                            <div class="p-2">
-                                <table class="table">
-                                    <tbody>
-                                        <!-- <tr>
-                                            <td class="greyFont">IP</td>
-                                            <td style="text-align: right;">{{ this.deviceDetails.ip }}</td>
-                                        </tr> -->
-                                        <tr>
-                                            <td class="greyFont">Operating system</td>
-                                            <td style="text-align: right;">{{ this.deviceDetails.os }}</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="greyFont">OS Version</td>
-                                            <td style="text-align: right;">{{ this.deviceDetails.osVer }}</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="greyFont">Browser</td>
-                                            <td style="text-align: right;">{{ this.deviceDetails.browser }}</td>
-                                        </tr>
-
-                                        <tr>
-                                            <td class="greyFont">Device</td>
-                                            <td style="text-align: right;">{{ this.deviceDetails.device }}</td>
-                                        </tr>
-
-                                        <!-- <tr>
-                                    <td class="greyFont">CPU</td>
-                                    <td style="text-align: right;">{{  this.deviceDetails.cpu }}</td>
-                                </tr>
-                                 -->
-                                    </tbody>
-
-                                </table>
-
-                            </div>
-                        </v-list-item-content>
-                    </v-list-item>
-                </v-card>
-
-                <!-- Face Verification -->
-                <v-card id="face-auth-info" class="serviceCard dataCard float-" :style="{ 'border': getStatusColor }"
-                    v-if="session.selfiDetails && Object.keys(session.selfiDetails).length > 0 && session.ocriddocsDetails.tokenFaceImage">
-                    <v-list-item three-line>
-                        <v-list-item-content>
-                            <v-list-item-title class="text-h6 font-weight-bold mb-3">
-                                <i class="fa fa-smile mr-2" aria-hidden="true"></i>FACE AUTHENTICATION
-                            </v-list-item-title>
-                            <div class="">
-                                <div class="row">
-                                    <div class="col-md-5 centered-container" style="">
-                                        <span class=""><img style="height:100px;"
-                                                :src="session.selfiDetails.tokenSelfiImage" /></span>
+                                                    <td v-if="eachkey == 'issuingStateCode'" class="text-end">
+                                                        {{ userPersonalDataGovIdFromUserConsent[eachkey] }} <country-flag
+                                                            :country="userPersonalDataGovIdFromUserConsent[eachkey]"
+                                                            size='normal' />
+                                                    </td>
+                                                    <td v-else>{{ userPersonalDataGovIdFromUserConsent[eachkey] }}</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
                                     </div>
-                                    <div class="col-md-2 centered-container" style=""
-                                        v-if="isFacialAuthenticationSuccess.success">
-                                        <span class="" style="font-size: 50px; color: green;"><i
-                                                class="fa fa-check-circle" aria-hidden="true"></i></span>
-                                    </div>
-                                    <div class="col-md-2 centered-container" style="" v-else>
-                                        <span class="" style="font-size: 50px; color: indianred;"><i
-                                                class="fa fa-times-circle" aria-hidden="true"></i></span>
-                                    </div>
+                                </v-list-item-content>
+                            </v-list-item>
+                        </v-card>
 
-                                    <div class="col-md-5 centered-container" style="">
-                                        <span class=""><img style="height:100px;"
-                                                :src="session.ocriddocsDetails.tokenFaceImage" /></span>
-                                    </div>
-                                </div>
-                                <div class="mt-5">
-                                    <div class="alert alert-success" role="alert"
-                                        v-if="isFacialAuthenticationSuccess.success">
-                                        <span><i class="fa fa-info-circle" aria-hidden="true"></i></span>
-                                        {{ isFacialAuthenticationSuccess.result }}
-                                    </div>
-                                    <div class="alert alert-danger" role="alert" v-else>
-                                        <span><i class="fa fa-info-circle" aria-hidden="true"></i></span>
-                                        {{ isFacialAuthenticationSuccess.result }}
-                                    </div>
-                                </div>
-                            </div>
-                        </v-list-item-content>
-                    </v-list-item>
-                </v-card>
+                        <!-- Device Information -->
+                        <v-card id="device-info" class="serviceCard dataCard float-"
+                            v-if="deviceDetails && Object.keys(deviceDetails).length > 0">
+                            <v-list-item three-line>
+                                <v-list-item-content>
+                                    <v-list-item-title class="text-h6 font-weight-bold mb-3">
+                                        <i class="fa fa-laptop mr-2" aria-hidden="true"></i>DEVICE INFORMATION
+                                    </v-list-item-title>
+                                    <div class="p-2">
+                                        <table class="table">
+                                            <tbody>
+                                                <!-- <tr>
+                                                    <td class="greyFont">IP</td>
+                                                    <td style="text-align: right;">{{ this.deviceDetails.ip }}</td>
+                                                </tr> -->
+                                                <tr>
+                                                    <td class="greyFont">Operating system</td>
+                                                    <td style="text-align: right;">{{ this.deviceDetails.os }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="greyFont">OS Version</td>
+                                                    <td style="text-align: right;">{{ this.deviceDetails.osVer }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="greyFont">Browser</td>
+                                                    <td style="text-align: right;">{{ this.deviceDetails.browser }}</td>
+                                                </tr>
 
+                                                <tr>
+                                                    <td class="greyFont">Device</td>
+                                                    <td style="text-align: right;">{{ this.deviceDetails.device }}</td>
+                                                </tr>
 
-                <!-- Liveliness Check -->
-                <v-card id="liveliness-info" class="serviceCard dataCard float-"
-                    :style="{ 'border': passiveLivelinessData.borderColor }"
-                    v-if="session.selfiDetails && session.selfiDetails.createdAt && Object.keys(session.selfiDetails).length > 0">
-                    <v-list-item three-line>
-                        <v-list-item-content>
-                            <v-list-item-title class="text-h6 font-weight-bold mb-3">
-                                <i class="fa fa-heartbeat mr-2" aria-hidden="true"></i>LIVELINESS CHECK
-                            </v-list-item-title>
-                            <div>
-                                <div class="row">
-                                    <div class="col-md-12 centered-container" style="">
-                                        <span class="">
-                                            <img style="height:200px; width: 200px;"
-                                                :src="session.selfiDetails.tokenSelfiImage" /></span>
-                                    </div>
-                                </div>
-                                <div class="mt-3">
-                                    <div class="alert alert-success" role="alert" v-if="passiveLivelinessData.success">
-                                        <span><i class="fa fa-info-circle" aria-hidden="true"></i></span> Liveliness
-                                        Check
-                                        Passed
-                                    </div>
-                                    <div class="alert alert-danger" role="alert" v-else>
-                                        <span><i class="fa fa-info-circle" aria-hidden="true"></i></span>
-                                        {{ passiveLivelinessData.result }}
-                                    </div>
-                                </div>
-                            </div>
-                        </v-list-item-content>
-                    </v-list-item>
-                </v-card>
-
-                <!-- Location Information -->
-                <v-card id="location-info" class="serviceCard dataCard float-"
-                    v-if="locationDetails && Object.keys(locationDetails).length > 0">
-                    <v-list-item three-line>
-                        <v-list-item-content>
-                            <v-list-item-title class="text-h6 font-weight-bold mb-3">
-                                <i class="fa fa-map-marker mr-2" aria-hidden="true"></i>LOCATION INFORMATION
-                            </v-list-item-title>
-
-                            <div class="p-2">
-                                <table class="table">
-                                    <tbody>
-                                        <tr>
-                                            <td class="greyFont">IP</td>
-                                            <td style="text-align: right;">{{ this.locationDetails.ip }}</td>
+                                                <!-- <tr>
+                                            <td class="greyFont">CPU</td>
+                                            <td style="text-align: right;">{{  this.deviceDetails.cpu }}</td>
                                         </tr>
-                                         <tr>
-                                            <td class="greyFont">Continent</td>
-                                            <td style="text-align: right;">{{ this.locationDetails.continentName }}</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="greyFont">Country</td>
-                                            <td style="text-align: right;">{{ this.locationDetails.countryName }} <span
-                                                    v-if="this.locationDetails.countryCode"><country-flag
-                                                        :country="this.locationDetails.countryCode"
-                                                        size='normal' /></span>
-                                            </td>
-                                        </tr>
-                                        <!-- <tr>
-                                            <td class="greyFont">Time Zone</td>
-                                            <td style="text-align: right;">{{ this.locationDetails.timeZone }}</td>
-                                        </tr> -->
-                                        <tr>
-                                            <td class="greyFont">Region</td>
-                                            <td style="text-align: right;">{{ this.locationDetails.region }}</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </v-list-item-content>
-                    </v-list-item>
-                </v-card>
+                                        -->
+                                            </tbody>
 
-                <!-- Images / Documentation -->
-                <v-card class="serviceCard dataCard float-" v-if="selfiDataFound || idDocDataFound">
-                    <v-list-item three-line>
-                        <v-list-item-content>
-                            <!-- <v-list-item-title class="text-h5 mb-1">
-                                <i class="fa fa-file" aria-hidden="true"></i>{{ " Images / Documents".toUpperCase() }}
-                            </v-list-item-title> -->
-                            <v-list-item-title class="text-h6 font-weight-bold mb-3">
-                                <i class="fa fa-file mr-2" aria-hidden="true"></i>DOCUMENTS
-                            </v-list-item-title>
+                                        </table>
 
-                            <div class="p-2" v-if="selfiDataFound || idDocDataFound">
-                                <div class="p-2"
-                                    style="margin-top: 0%; border: 1px solid rgb(228, 228, 228); border-radius: 10px;"
-                                    v-if="selfiDataFound">
-                                    <div class="row">
-                                        <div class="col-md-3">
-                                            <img style="height:35px;" :src="session.selfiDetails.tokenSelfiImage" />
+                                    </div>
+                                </v-list-item-content>
+                            </v-list-item>
+                        </v-card>
+
+                        <!-- Face Verification -->
+                        <v-card id="face-auth-info" class="serviceCard dataCard float-" :style="{ 'border': getStatusColor }"
+                            v-if="session.selfiDetails && Object.keys(session.selfiDetails).length > 0 && session.ocriddocsDetails.tokenFaceImage">
+                            <v-list-item three-line>
+                                <v-list-item-content>
+                                    <v-list-item-title class="text-h6 font-weight-bold mb-3">
+                                        <i class="fa fa-smile mr-2" aria-hidden="true"></i>FACE AUTHENTICATION
+                                    </v-list-item-title>
+                                    <div class="">
+                                        <div class="row">
+                                            <div class="col-md-5 centered-container" style="">
+                                                <span class=""><img style="height:100px;"
+                                                        :src="session.selfiDetails.tokenSelfiImage" /></span>
+                                            </div>
+                                            <div class="col-md-2 centered-container" style=""
+                                                v-if="isFacialAuthenticationSuccess.success">
+                                                <span class="" style="font-size: 50px; color: green;"><i
+                                                        class="fa fa-check-circle" aria-hidden="true"></i></span>
+                                            </div>
+                                            <div class="col-md-2 centered-container" style="" v-else>
+                                                <span class="" style="font-size: 50px; color: indianred;"><i
+                                                        class="fa fa-times-circle" aria-hidden="true"></i></span>
+                                            </div>
+
+                                            <div class="col-md-5 centered-container" style="">
+                                                <span class=""><img style="height:100px;"
+                                                        :src="session.ocriddocsDetails.tokenFaceImage" /></span>
+                                            </div>
                                         </div>
-                                        <div class="col-md-7">
-                                            <span style="font-size: small;">Selfie</span>
-                                        </div>
-                                        <div class="col-md-2 zoomin" title="Zoom" @click="zoomDocument('Selfie')">
-                                            <i class="fa fa-search-plus" aria-hidden="true"></i>
+                                        <div class="mt-5">
+                                            <div class="alert alert-success" role="alert"
+                                                v-if="isFacialAuthenticationSuccess.success">
+                                                <span><i class="fa fa-info-circle" aria-hidden="true"></i></span>
+                                                {{ isFacialAuthenticationSuccess.result }}
+                                            </div>
+                                            <div class="alert alert-danger" role="alert" v-else>
+                                                <span><i class="fa fa-info-circle" aria-hidden="true"></i></span>
+                                                {{ isFacialAuthenticationSuccess.result }}
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
+                                </v-list-item-content>
+                            </v-list-item>
+                        </v-card>
 
-                                <div class="p-2"
-                                    style="margin-top: 2%; border: 1px solid rgb(228, 228, 228); border-radius: 10px;"
-                                    v-if="idDocDataFound">
-                                    <div class="row">
-                                        <div class="col-md-3">
-                                            <img style="height:35px;"
-                                                :src="session.ocriddocsDetails.tokenFrontDocumentImage" />
+
+                        <!-- Liveliness Check -->
+                        <v-card id="liveliness-info" class="serviceCard dataCard float-"
+                            :style="{ 'border': passiveLivelinessData.borderColor }"
+                            v-if="session.selfiDetails && session.selfiDetails.createdAt && Object.keys(session.selfiDetails).length > 0">
+                            <v-list-item three-line>
+                                <v-list-item-content>
+                                    <v-list-item-title class="text-h6 font-weight-bold mb-3">
+                                        <i class="fa fa-heartbeat mr-2" aria-hidden="true"></i>LIVELINESS CHECK
+                                    </v-list-item-title>
+                                    <div>
+                                        <div class="row">
+                                            <div class="col-md-12 centered-container" style="">
+                                                <span class="">
+                                                    <img style="height:200px; width: 200px;"
+                                                        :src="session.selfiDetails.tokenSelfiImage" /></span>
+                                            </div>
                                         </div>
-                                        <div class="col-md-7">
-                                            <span style="font-size: medium;">Document Front</span>
-                                        </div>
-                                        <div class="col-md-2 zoomin" title="Zoom"
-                                            @click="zoomDocument('Document Front')">
-                                            <i class="fa fa-search-plus" aria-hidden="true"></i>
+                                        <div class="mt-3">
+                                            <div class="alert alert-success" role="alert" v-if="passiveLivelinessData.success">
+                                                <span><i class="fa fa-info-circle" aria-hidden="true"></i></span> Liveliness
+                                                Check
+                                                Passed
+                                            </div>
+                                            <div class="alert alert-danger" role="alert" v-else>
+                                                <span><i class="fa fa-info-circle" aria-hidden="true"></i></span>
+                                                {{ passiveLivelinessData.result }}
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                                <div class="p-2 mt-2" style="border: 1px solid rgb(228, 228, 228); border-radius: 10px;"
-                                    v-if="session.ocriddocsDetails.tokenBackDocumentImage">
-                                    <div class="row">
-                                        <div class="col-md-3">
-                                            <img style="height:35px;"
-                                                :src="session.ocriddocsDetails.tokenBackDocumentImage" />
+                                </v-list-item-content>
+                            </v-list-item>
+                        </v-card>
+
+                        <!-- Location Information -->
+                        <v-card id="location-info" class="serviceCard dataCard float-"
+                            v-if="locationDetails && Object.keys(locationDetails).length > 0">
+                            <v-list-item three-line>
+                                <v-list-item-content>
+                                    <v-list-item-title class="text-h6 font-weight-bold mb-3">
+                                        <i class="fa fa-map-marker mr-2" aria-hidden="true"></i>LOCATION INFORMATION
+                                    </v-list-item-title>
+
+                                    <div class="p-2">
+                                        <table class="table">
+                                            <tbody>
+                                                <tr>
+                                                    <td class="greyFont">IP</td>
+                                                    <td style="text-align: right;">{{ this.locationDetails.ip }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="greyFont">Continent</td>
+                                                    <td style="text-align: right;">{{ this.locationDetails.continentName }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="greyFont">Country</td>
+                                                    <td style="text-align: right;">{{ this.locationDetails.countryName }} <span
+                                                            v-if="this.locationDetails.countryCode"><country-flag
+                                                                :country="this.locationDetails.countryCode"
+                                                                size='normal' /></span>
+                                                    </td>
+                                                </tr>
+                                                <!-- <tr>
+                                                    <td class="greyFont">Time Zone</td>
+                                                    <td style="text-align: right;">{{ this.locationDetails.timeZone }}</td>
+                                                </tr> -->
+                                                <tr>
+                                                    <td class="greyFont">Region</td>
+                                                    <td style="text-align: right;">{{ this.locationDetails.region }}</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </v-list-item-content>
+                            </v-list-item>
+                        </v-card>
+
+                        <!-- Images / Documentation -->
+                        <v-card class="serviceCard dataCard float-" v-if="selfiDataFound || idDocDataFound">
+                            <v-list-item three-line>
+                                <v-list-item-content>
+                                    <!-- <v-list-item-title class="text-h5 mb-1">
+                                        <i class="fa fa-file" aria-hidden="true"></i>{{ " Images / Documents".toUpperCase() }}
+                                    </v-list-item-title> -->
+                                    <v-list-item-title class="text-h6 font-weight-bold mb-3">
+                                        <i class="fa fa-file mr-2" aria-hidden="true"></i>DOCUMENTS
+                                    </v-list-item-title>
+
+                                    <div class="p-2" v-if="selfiDataFound || idDocDataFound">
+                                        <div class="p-2"
+                                            style="margin-top: 0%; border: 1px solid rgb(228, 228, 228); border-radius: 10px;"
+                                            v-if="selfiDataFound">
+                                            <div class="row">
+                                                <div class="col-md-3">
+                                                    <img style="height:35px;" :src="session.selfiDetails.tokenSelfiImage" />
+                                                </div>
+                                                <div class="col-md-7">
+                                                    <span style="font-size: small;">Selfie</span>
+                                                </div>
+                                                <div class="col-md-2 zoomin" title="Zoom" @click="zoomDocument('Selfie')">
+                                                    <i class="fa fa-search-plus" aria-hidden="true"></i>
+                                                </div>
+                                            </div>
                                         </div>
-                                        <div class="col-md-7">
-                                            <span style="font-size: medium;">Document Back</span>
+
+                                        <div class="p-2"
+                                            style="margin-top: 2%; border: 1px solid rgb(228, 228, 228); border-radius: 10px;"
+                                            v-if="idDocDataFound">
+                                            <div class="row">
+                                                <div class="col-md-3">
+                                                    <img style="height:35px;"
+                                                        :src="session.ocriddocsDetails.tokenFrontDocumentImage" />
+                                                </div>
+                                                <div class="col-md-7">
+                                                    <span style="font-size: medium;">Document Front</span>
+                                                </div>
+                                                <div class="col-md-2 zoomin" title="Zoom"
+                                                    @click="zoomDocument('Document Front')">
+                                                    <i class="fa fa-search-plus" aria-hidden="true"></i>
+                                                </div>
+                                            </div>
                                         </div>
-                                        <div class="col-md-2 zoomin" title="Zoom"
-                                            @click="zoomDocument('Document Back')">
-                                            <i class="fa fa-search-plus" aria-hidden="true"></i>
+                                        <div class="p-2 mt-2" style="border: 1px solid rgb(228, 228, 228); border-radius: 10px;"
+                                            v-if="session.ocriddocsDetails.tokenBackDocumentImage">
+                                            <div class="row">
+                                                <div class="col-md-3">
+                                                    <img style="height:35px;"
+                                                        :src="session.ocriddocsDetails.tokenBackDocumentImage" />
+                                                </div>
+                                                <div class="col-md-7">
+                                                    <span style="font-size: medium;">Document Back</span>
+                                                </div>
+                                                <div class="col-md-2 zoomin" title="Zoom"
+                                                    @click="zoomDocument('Document Back')">
+                                                    <i class="fa fa-search-plus" aria-hidden="true"></i>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            </div>
-                            <!-- <div class="card-body" v-else>
-                        <h4>No record found</h4>
-                    </div> -->
-                        </v-list-item-content>
-                    </v-list-item>
-                </v-card>
+                                    <!-- <div class="card-body" v-else>
+                                <h4>No record found</h4>
+                            </div> -->
+                                </v-list-item-content>
+                            </v-list-item>
+                        </v-card>
 
-                <!-- SBT Minting -->
-                <div v-for="eachSbtMintData in allSbtMintData" v-bind:key="eachSbtMintData">
-                    <v-card class="serviceCard dataCard float-" v-if="eachSbtMintData">
-                        <v-list-item three-line>
-                            <v-list-item-content>
-                                <!-- <v-list-item-title class="text-h5 mb-1">
-                                    <i class="fa fa-address-book" aria-hidden="true"></i>{{ " SBTInformation".toUpperCase()
-                                    }}
-                                </v-list-item-title> -->
+                        <!-- SBT Minting -->
+                        <div v-for="eachSbtMintData in allSbtMintData" v-bind:key="eachSbtMintData">
+                            <v-card class="serviceCard dataCard float-" v-if="eachSbtMintData">
+                                <v-list-item three-line>
+                                    <v-list-item-content>
+                                        <!-- <v-list-item-title class="text-h5 mb-1">
+                                            <i class="fa fa-address-book" aria-hidden="true"></i>{{ " SBTInformation".toUpperCase()
+                                            }}
+                                        </v-list-item-title> -->
 
-                                <v-list-item-title class="text-h6 font-weight-bold mb-3">
-                                    <i class="fa fa-address-book mr-2" aria-hidden="true"></i>SOUL BOUND TOKEN
-                                </v-list-item-title>
+                                        <v-list-item-title class="text-h6 font-weight-bold mb-3">
+                                            <i class="fa fa-address-book mr-2" aria-hidden="true"></i>SOUL BOUND TOKEN
+                                        </v-list-item-title>
 
 
-                                <div>
-                                    <table class="table">
-                                        <tbody>
-                                            <tr>
-                                                <td class="greyFont">Credential Type</td>
-                                                <td style="text-align: right;word-break: break-word;">
-                                                    {{ `${eachSbtMintData.proofType}SbtCredential` }}
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td class="greyFont">Blockchain</td>
-                                                <td style="text-align: right;">
-                                                    <span>
-                                                        <b-avatar :style="{ 'background-color': 'white' }"
-                                                            :src="getChainDetail(eachSbtMintData.blockchainLabel).logoUrl"
-                                                            size="20"></b-avatar>
-                                                    </span>
-                                                    {{ getChainDetail(eachSbtMintData.blockchainLabel).chainName
-                                                    }}
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td class="greyFont">User's Wallet Address</td>
-                                                <td @click="copyToClip(eachSbtMintData.ownerWalletAddress, 'Wallet Address')"
-                                                    style="text-align: right;cursor: pointer;">{{
-                                                        stringShortner(eachSbtMintData.ownerWalletAddress, 15) }}
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td class="greyFont">User's DID</td>
-                                                <td @click="copyToClip(eachSbtMintData.did, 'User Id')"
-                                                    style="text-align: right;cursor: pointer;">{{
-                                                        stringShortner(eachSbtMintData.did, 15) }} </td>
-                                            </tr>
-                                            <tr v-if="eachSbtMintData.tokenId">
-                                                <td class="greyFont">Token Id</td>
-                                                <td style="text-align: right;">{{
-                                                    eachSbtMintData.tokenId }} </td>
-                                            </tr>
-                                            <tr v-if="eachSbtMintData.sbtContractAddress">
-                                                <td class="greyFont">Contract Address</td>
-                                                <td @click="copyToClip(eachSbtMintData.sbtContractAddress, 'SBT Contract Address')"
-                                                    style="text-align: right;cursor: pointer;">{{
-                                                        stringShortner(eachSbtMintData.sbtContractAddress, 15) }}
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td class="greyFont">TransactionHash</td>
-                                                <td @click="copyToClip(eachSbtMintData.transactionHash, 'Transaction hash')"
-                                                    style="text-align: right;cursor: pointer;">{{
-                                                        stringShortner(eachSbtMintData.transactionHash, 15) }} </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </v-list-item-content>
-                        </v-list-item>
-                    </v-card>
+                                        <div>
+                                            <table class="table">
+                                                <tbody>
+                                                    <tr>
+                                                        <td class="greyFont">Credential Type</td>
+                                                        <td style="text-align: right;word-break: break-word;">
+                                                            {{ `${eachSbtMintData.proofType}SbtCredential` }}
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="greyFont">Blockchain</td>
+                                                        <td style="text-align: right;">
+                                                            <span>
+                                                                <b-avatar :style="{ 'background-color': 'white' }"
+                                                                    :src="getChainDetail(eachSbtMintData.blockchainLabel).logoUrl"
+                                                                    size="20"></b-avatar>
+                                                            </span>
+                                                            {{ getChainDetail(eachSbtMintData.blockchainLabel).chainName
+                                                            }}
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="greyFont">User's Wallet Address</td>
+                                                        <td @click="copyToClip(eachSbtMintData.ownerWalletAddress, 'Wallet Address')"
+                                                            style="text-align: right;cursor: pointer;">{{
+                                                                stringShortner(eachSbtMintData.ownerWalletAddress, 15) }}
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="greyFont">User's DID</td>
+                                                        <td @click="copyToClip(eachSbtMintData.did, 'User Id')"
+                                                            style="text-align: right;cursor: pointer;">{{
+                                                                stringShortner(eachSbtMintData.did, 15) }} </td>
+                                                    </tr>
+                                                    <tr v-if="eachSbtMintData.tokenId">
+                                                        <td class="greyFont">Token Id</td>
+                                                        <td style="text-align: right;">{{
+                                                            eachSbtMintData.tokenId }} </td>
+                                                    </tr>
+                                                    <tr v-if="eachSbtMintData.sbtContractAddress">
+                                                        <td class="greyFont">Contract Address</td>
+                                                        <td @click="copyToClip(eachSbtMintData.sbtContractAddress, 'SBT Contract Address')"
+                                                            style="text-align: right;cursor: pointer;">{{
+                                                                stringShortner(eachSbtMintData.sbtContractAddress, 15) }}
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="greyFont">TransactionHash</td>
+                                                        <td @click="copyToClip(eachSbtMintData.transactionHash, 'Transaction hash')"
+                                                            style="text-align: right;cursor: pointer;">{{
+                                                                stringShortner(eachSbtMintData.transactionHash, 15) }} </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </v-list-item-content>
+                                </v-list-item>
+                            </v-card>
+                        </div>
+
+                    <!-- </div> -->
                 </div>
 
-            </div>
-        </div>
+  
+
+
+        <div class="row">
+  
+    <v-card id="timelines-info" class="serviceCard w-100 mt-3" style="max-height: 300px;">
+      <v-list-item three-line>
+        <v-list-item-content>
+          <v-list-item-title class="text-h6 font-weight-bold mb-3">
+            <i class="fa fa-hourglass-end mr-2" aria-hidden="true"></i>TIMELINES
+          </v-list-item-title>
+          <div>
+            <ul class="timeline">
+              <li v-for="(step, index) in sortedTimelineDetails" :key="index">
+                <div class="d-flex justify-space-between align-center">
+                  <a target="_blank" class="mx-2">
+                    <strong>{{ step.stepName }}</strong>
+                  </a>
+                  <div class="ml-auto d-flex align-center">
+                    <span v-if="step.error" class="badge badge-pill badge-outline-danger px-2 mr-2">
+                      <i class="mdi mdi-close-circle-outline mr-1"></i>
+                      Failed: {{ step.error }}
+                    </span>
+                    <a href="#" class="greyFont">
+                      {{ formatDate(step.createdAt) }}
+                    </a>
+                  </div>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </v-list-item-content>
+      </v-list-item>
+    </v-card>
+  
+</div>
+
+        
+
 
         <hf-pop-up id="zoom-doc" :Header="popupHeader">
             <div class="center">
@@ -810,7 +807,13 @@ export default {
                 sbtMintData = this.session.mintsbtsDetails
             }
             return sbtMintData
-        }
+        },
+        sortedTimelineDetails() {
+      // eslint-disable-next-line vue/no-side-effects-in-computed-properties
+      return this.timeLineDetails.sort(
+        (a, b) => new Date(a.createdAt) - new Date(b.createdAt)
+      );
+    }
     },
     data() {
         return {
@@ -831,6 +834,7 @@ export default {
                 cpu: ''
             },
             locationDetails: {},
+            timeLineDetails: [],
             locationMap: {
                 url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
                 attribution:
@@ -881,6 +885,38 @@ export default {
                 }
             }
 
+            if(this.session.timeLineDetails){
+                this.timeLineDetails = this.session.timeLineDetails.map(item => {
+                    const newItem = { ...item };
+
+                    if (newItem.step_name === 'liveliness' || newItem.stepName === 'liveliness') {
+                        newItem.stepName = 'Selfie uploaded';
+                        if ('result' in newItem) {
+                            if(newItem.result != 3) newItem.error = ServiceLivenessResultEnum[newItem.result] || null;
+                        }
+                    }
+
+                    if (newItem.step_name === 'start' || newItem.stepName === 'start') {
+                        newItem.stepName = 'Start';
+                    }
+
+                    if (newItem.step_name === 'userConsent' || newItem.stepName === 'userConsent') {
+                        newItem.stepName = 'User Consent';
+                    }
+
+                    if (newItem.step_name === 'ocrIdDoc' || newItem.stepName === 'ocrIdDoc') {
+                        newItem.stepName = 'Document uploaded';
+                        if ('result' in newItem) {
+                            newItem.error = FaicalAuthenticationError[newItem.result] || null;
+                        }
+                    }
+
+                    return newItem;
+                });
+
+                console.log(JSON.stringify(this.timeLineDetails))
+            }
+
         } catch (e) {
             this.notifyErr(e.message)
             this.isLoading = false
@@ -894,7 +930,11 @@ export default {
     },
     methods: {
         ...mapActions('mainStore', ['fetchSessionsDetailsById']),
-
+formatDate(date) {
+      if (!date) return '-';
+      const d = new Date(date);
+      return d.toLocaleString(); // Customize formatting if needed
+    },
         async downloadKYCReport() {
             try {
                 this.isLoading = true
@@ -913,7 +953,7 @@ export default {
                 };
 
                 const cardIds = [
-                    'timelines-info',
+                    // 'timelines-info',
                     'personal-info',
                     'device-info',
                     'location-info',
