@@ -18,6 +18,7 @@ const UsageS = () => import('./views/playground/Usage.vue')
 const OnChainKycSystems = () => import('./views/playground/OnChainKycSystems.vue')
 const WidgetConfig = () => import('./views/playground/WidgetConfig/Index.vue')
 const WebhookConfig = () => import('./views/playground/WebhookConfig.vue')
+const KYCWebpageGenerator = () => import('./views/playground/KYCWebpageGenerator.vue')
 const MFA = () => import('./components/login/mfa/MFA.vue')
 const SettingConfig = () => import('./views/SettingConfig.vue')
 Vue.use(Router)
@@ -179,6 +180,15 @@ const router = new Router({
       meta: {
         requiresAuth: true,
         title: `${config.app.name} - WebhookConfig`
+      }
+    },
+    {
+      path: '/studio/kyc-webpage-generator/:appId',
+      name: 'KYCWebpageGenerator',
+      component: KYCWebpageGenerator,
+      meta: {
+        requiresAuth: true,
+        title: `${config.app.name} - KYC Webpage Generator`
       }
     },
     {
