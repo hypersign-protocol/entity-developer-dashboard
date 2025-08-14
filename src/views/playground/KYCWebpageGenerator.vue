@@ -781,7 +781,7 @@ textarea.form-control {
 
     <v-card class="serviceCard">
       <!-- Header Section with Logo, Status, Company Name, and URL -->
-      <div class="form-header" v-if="kycWebpageConfigTemp._id">
+      <div class="form-header">
         <div class="header-left">
           <div class="logo-status">
             <div class="logo-container">
@@ -801,11 +801,14 @@ textarea.form-control {
         </div>
         <div class="header-right">
           <div class="url-section">
-            <div class="link-display">
+            <div class="link-display" v-if="kycWebpageConfigTemp._id">
               <span class="link-text">{{ kycWebpageConfigTemp.generatedUrl || 'No URL generated' }}</span>
               <button class="copy-btn" @click="copyToClipboard" v-if="kycWebpageConfigTemp.generatedUrl" title="Copy URL">
                 <i class="fa fa-copy"></i>
               </button>
+            </div>
+            <div class="link-display" v-else>
+              <span class="link-text">URL will be generated after saving</span>
             </div>
           </div>
         </div>
@@ -1057,10 +1060,10 @@ export default {
     },
 
     generateUrl() {
-      if (!this.getSelectedService || !this.getSelectedService.appName) return "";
-      const businessSlug = this.getSelectedService.appName.toLowerCase().replace(/[^a-z0-9]/g, '');
+      if (!this.getSelectedService || !this.getSelectedService.appId) return "";
       this.kycWebpageConfigTemp.uniqueId = this.generateUniqueId();
-      return `https://kyc.${businessSlug}.hypersign.id/${this.kycWebpageConfigTemp.uniqueId}`;
+      // Use account-level domain for KYC webpage URLs
+      return `https://kyc.hypersign.id/${this.getSelectedService.appId}/${this.kycWebpageConfigTemp.uniqueId}`;
     },
 
     copyToClipboard() {
