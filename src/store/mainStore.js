@@ -1236,107 +1236,102 @@ const mainStore = {
             })
         },
 
-        // KYC webpage config
-        createKYCWebpageConfig: ({ commit, getters }, payload) => {
+        // KYC webpage config - DUMMY IMPLEMENTATION (Backend calls commented out)
+        createKYCWebpageConfig: ({ commit }, payload) => {
             return new Promise((resolve, reject) => {
-                if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
-                    return reject(new Error('Tenant url is null or empty, service is not selected'))
+                try {
+                    // Generate unique ID for the webpage
+                    const webpageId = 'kyc_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                    const newWebpage = {
+                        ...payload,
+                        _id: webpageId,
+                        createdAt: new Date().toISOString(),
+                        updatedAt: new Date().toISOString(),
+                        status: 'active'
+                    };
+                    
+                    // Save to local storage
+                    localStorage.setItem('kycWebpageConfig', JSON.stringify(newWebpage));
+                    
+                    // Update Vuex state
+                    commit('setKYCWebpageConfig', newWebpage);
+                    
+                    resolve(newWebpage);
+                } catch (error) {
+                    reject(new Error(`Error while creating KYC webpage: ${error.message}`));
                 }
-                const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/kyc-webpage-config`;
-                const authToken = getters.getSelectedService.access_token
-                const headers = UtilsMixin.methods.getHeader(authToken);
-
-                fetch(url, {
-                    method: 'POST',
-                    headers,
-                    body: JSON.stringify(payload)
-                }).then(response => response.json())
-                    .then(json => {
-                        if (json.error) {
-                            return reject(new Error(json.error.details.join(' ')))
-                        }
-                        commit('setKYCWebpageConfig', json.data);
-                        resolve(json.data)
-                    }).catch((e) => {
-                        return reject(`Error while creating KYC webpage config ` + e.message);
-                    })
-            })
+            });
         },
 
-        fetchKYCWebpageConfig: ({ commit, getters }) => {
+        fetchKYCWebpageConfig: ({ commit }) => {
             return new Promise((resolve, reject) => {
-                if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
-                    return reject(new Error('Tenant url is null or empty, service is not selected'))
-                }
-                const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/kyc-webpage-config`;
-                const authToken = getters.getSelectedService.access_token
-                const headers = UtilsMixin.methods.getHeader(authToken);
-                return fetch(url, {
-                    method: 'GET',
-                    headers
-                }).then(response => response.json()).then(json => {
-                    if (json) {
-                        if (json.error) {
-                            return reject(new Error(json.error.details.join(' ')))
-                        } else {
-                            commit('setKYCWebpageConfig', json.data);
-                            return resolve()
-                        }
+                try {
+                    // Load from local storage
+                    const webpageConfig = JSON.parse(localStorage.getItem('kycWebpageConfig') || '{}');
+                    
+                    // If no webpage config exists, create dummy data
+                    if (!webpageConfig._id) {
+                        const dummyWebpage = {
+                            _id: 'kyc_dummy_1',
+                            pageTitle: 'KYC Verification Portal',
+                            pageDescription: 'Complete your identity verification to access our services',
+                            expiryType: '3months',
+                            customExpiryDate: '',
+                            selectedTheme: 'vibrant',
+                            contactEmail: 'support@example.com',
+                            generatedUrl: 'https://kyc.example.hypersign.id/kyc_dummy_1',
+                            uniqueId: 'kyc_dummy_1',
+                            createdAt: new Date().toISOString(),
+                            updatedAt: new Date().toISOString(),
+                            status: 'active'
+                        };
+                        
+                        localStorage.setItem('kycWebpageConfig', JSON.stringify(dummyWebpage));
+                        commit('setKYCWebpageConfig', dummyWebpage);
                     } else {
-                        return resolve()
+                        commit('setKYCWebpageConfig', webpageConfig);
                     }
-
-                }).catch((e) => {
-                    return reject(`Error while fetching KYC webpage configuration ` + e.message);
-                })
-            })
+                    
+                    resolve();
+                } catch (error) {
+                    reject(new Error(`Error while fetching KYC webpage config: ${error.message}`));
+                }
+            });
         },
 
-        updateKYCWebpageConfig: ({ commit, getters }, payload) => {
+        updateKYCWebpageConfig: ({ commit }, payload) => {
             return new Promise((resolve, reject) => {
-                if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
-                    return reject(new Error('Tenant url is null or empty, service is not selected'))
+                try {
+                    const updatedWebpage = {
+                        ...payload,
+                        updatedAt: new Date().toISOString()
+                    };
+                    
+                    // Update in local storage
+                    localStorage.setItem('kycWebpageConfig', JSON.stringify(updatedWebpage));
+                    
+                    // Update Vuex state
+                    commit('setKYCWebpageConfig', updatedWebpage);
+                    resolve(updatedWebpage);
+                } catch (error) {
+                    reject(new Error(`Error while updating KYC webpage: ${error.message}`));
                 }
-                const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/kyc-webpage-config/${payload._id}`;
-                const authToken = getters.getSelectedService.access_token
-                const headers = UtilsMixin.methods.getHeader(authToken);
-                fetch(url, {
-                    method: 'PATCH',
-                    headers,
-                    body: JSON.stringify(payload),
-                }).then(response => response.json()).then(json => {
-                    if (json.error) {
-                        return reject(new Error(json.error.details.join(' ')))
-                    }
-                    commit('setKYCWebpageConfig', json.data);
-                    resolve(json)
-                }).catch((e) => {
-                    return reject(`Error while updating KYC webpage config ` + e.message);
-                })
-            })
+            });
         },
 
-        deleteKYCWebpageConfig: ({ commit, getters }, payload) => {
+        deleteKYCWebpageConfig: ({ commit }) => {
             return new Promise((resolve, reject) => {
-                if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
-                    return reject(new Error('Tenant url is null or empty, service is not selected'))
-                }
-                const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/kyc-webpage-config/${payload._id}`;
-                const authToken = getters.getSelectedService.access_token
-                const headers = UtilsMixin.methods.getHeader(authToken);
-                fetch(url, {
-                    method: 'DELETE',
-                    headers,
-                }).then(response => response.json()).then(json => {
-                    if (json.error) {
-                        return reject(new Error(json.error.details.join(' ')))
-                    }
+                try {
+                    // Clear from local storage
+                    localStorage.removeItem('kycWebpageConfig');
+                    
+                    // Update Vuex state
                     commit('setKYCWebpageConfig', {});
-                    resolve(json)
-                }).catch((e) => {
-                    return reject(`Error while deleting KYC webpage config ` + e.message);
-                })
-            })
+                    resolve({ success: true });
+                } catch (error) {
+                    reject(new Error(`Error while deleting KYC webpage: ${error.message}`));
+                }
+            });
         },
 
 
