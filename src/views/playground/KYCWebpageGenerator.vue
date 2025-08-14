@@ -1140,13 +1140,12 @@ export default {
           pageDescription: this.kycWebpageConfigTemp.pageDescription,
           expiryType: this.kycWebpageConfigTemp.expiryType,
           customExpiryDate: this.kycWebpageConfigTemp.customExpiryDate,
-          selectedTheme: this.kycWebpageConfigTemp.selectedTheme,
+          themeColor: this.kycWebpageConfigTemp.selectedTheme,
           contactEmail: this.kycWebpageConfigTemp.contactEmail,
           generatedUrl: this.generateUrl(),
           uniqueId: this.kycWebpageConfigTemp.uniqueId,
           status: 'active'
         };
-
         await this.createKYCWebpageConfig(config);
         this.notifySuccess('KYC webpage configuration saved successfully!');
         await this.fetchKYCWebpageConfig();
