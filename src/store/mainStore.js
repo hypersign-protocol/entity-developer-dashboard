@@ -35,6 +35,7 @@ const mainStore = {
 
         },
         webhookConfig: {},
+        kycWebpageConfig: {},
         marketPlaceApps: [],
         adminMembers: [],
         myInvitions: [],
@@ -125,6 +126,9 @@ const mainStore = {
         getWebhookConfig: (state) => {
             return state.webhookConfig
         },
+        getKYCWebpageConfig: (state) => {
+            return state.kycWebpageConfig
+        },
         getMarketPlaceApps: (state) => {
             return state.marketPlaceApps
         },
@@ -166,6 +170,9 @@ const mainStore = {
         },
         setWebhookConfig: (state, payload) => {
             state.webhookConfig = { ...payload }
+        },
+        setKYCWebpageConfig: (state, payload) => {
+            state.kycWebpageConfig = { ...payload }
         },
         setMainSideNavBar: (state, payload) => {
             state.showMainSideNavBar = payload ? payload : false;
@@ -1227,6 +1234,116 @@ const mainStore = {
                     return reject(`Error while fetching apps ` + e.message);
                 })
             })
+        },
+
+        // KYC webpage config - DUMMY IMPLEMENTATION (Backend calls commented out)
+        createKYCWebpageConfig: ({ commit, getters }, payload) => {
+            return new Promise((resolve, reject) => {
+                if (!getters.getSelectedService || !getters.getSelectedService.appId) {
+                    return reject(new Error('App ID is not available, service is not selected'))
+                }
+                const url = `${apiServerBaseUrl}/app/${getters.getSelectedService.appId}/kyc-webpage-config`;
+                const headers = UtilsMixin.methods.getHeader(localStorage.getItem('authToken'));
+
+                fetch(url, {
+                    method: 'POST',
+                    headers,
+                    body: JSON.stringify(payload),
+                    credentials: 'include'
+                }).then(response => response.json())
+                    .then(json => {
+                        if (json.error) {
+                            return reject(new Error(json.message))
+                        }
+                        commit('setKYCWebpageConfig', json);
+                        resolve(json)
+                    }).catch((e) => {
+                        return reject(`Error while creating KYC webpage configuration: ` + e.message);
+                    })
+            });
+        },
+
+        fetchKYCWebpageConfig: ({ commit, getters }) => {
+            return new Promise((resolve, reject) => {
+                if (!getters.getSelectedService || !getters.getSelectedService.appId) {
+                    return reject(new Error('App ID is not available, service is not selected'))
+                }
+                const url = `${apiServerBaseUrl}/app/${getters.getSelectedService.appId}/kyc-webpage-config`;
+                const headers = UtilsMixin.methods.getHeader(localStorage.getItem('authToken'));
+
+                return fetch(url, {
+                    method: 'GET',
+                    headers,
+                    credentials: 'include'
+                }).then(response => response.json()).then(json => {
+                    if (json) {
+                        if (json.error) {
+                            return reject(new Error(json.message))
+                        } else {
+                            if (json.expiryType === 'custom' && json.expiryDate) {
+                                json.customExpiryDate = json.expiryDate.split('T')[0];
+                            }
+                            commit('setKYCWebpageConfig', json);
+                            return resolve()
+                        }
+                    } else {
+                        return resolve()
+                    }
+                }).catch((e) => {
+                    return reject(`Error while fetching KYC webpage configuration: ` + e.message);
+                })
+            });
+        },
+
+        updateKYCWebpageConfig: ({ commit, getters }, payload) => {
+            return new Promise((resolve, reject) => {
+                if (!getters.getSelectedService || !getters.getSelectedService.appId) {
+                    return reject(new Error('App ID is not available, service is not selected'))
+                }
+                const url = `${apiServerBaseUrl}/app/${getters.getSelectedService.appId}/kyc-webpage-config/${payload._id}`;
+                const headers = UtilsMixin.methods.getHeader(localStorage.getItem('authToken'));
+
+                fetch(url, {
+                    method: 'PATCH',
+                    headers,
+                    body: JSON.stringify(payload),
+                    credentials: 'include'
+                }).then(response => response.json())
+                    .then(json => {
+                        if (json.error) {
+                            return reject(new Error(json.message))
+                        }
+                        commit('setKYCWebpageConfig', json);
+                        resolve(json)
+                    }).catch((e) => {
+                        return reject(`Error while updating KYC webpage configuration: ` + e.message);
+                    })
+            });
+        },
+
+        deleteKYCWebpageConfig: ({ commit, getters }, payload) => {
+            return new Promise((resolve, reject) => {
+                if (!getters.getSelectedService || !getters.getSelectedService.appId) {
+                    return reject(new Error('App ID is not available, service is not selected'))
+                }
+                const url = `${apiServerBaseUrl}/app/${getters.getSelectedService.appId}/kyc-webpage-config/${payload._id}`;
+                const headers = UtilsMixin.methods.getHeader(localStorage.getItem('authToken'));
+
+                fetch(url, {
+                    method: 'DELETE',
+                    headers,
+                    credentials: 'include'
+                }).then(response => response.json())
+                    .then(json => {
+                        if (json.error) {
+                            return reject(new Error(json.message))
+                        }
+                        commit('setKYCWebpageConfig', {});
+                        resolve({ success: true })
+                    }).catch((e) => {
+                        return reject(`Error while deleting KYC webpage configuration: ` + e.message);
+                    })
+            });
         },
 
 
