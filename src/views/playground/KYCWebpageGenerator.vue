@@ -334,6 +334,35 @@ textarea.form-control {
   color: white;
 }
 
+.preview-light-theme .webpage-header {
+  background: linear-gradient(135deg, #ecf0f1 0%, #bdc3c7 100%);
+  color: #2c3e50;
+}
+
+.preview-light-theme .webpage-content {
+  background: white;
+  color: #2c3e50;
+}
+
+.preview-light-theme .webpage-title {
+  color: #2c3e50;
+}
+
+.preview-light-theme .webpage-description {
+  color: #7f8c8d !important;
+}
+
+.preview-light-theme .kyc-start-button {
+  background: #ecf0f1 !important;
+  color: #2c3e50 !important;
+  border: 1px solid #bdc3c7;
+}
+
+.preview-light-theme .webpage-footer {
+  background: rgba(236, 240, 241, 0.5);
+  color: #2c3e50;
+}
+
 /* Full Width Preview Container */
 .preview-container {
   border: none;
@@ -718,7 +747,7 @@ textarea.form-control {
 /* List Group Improvements */
 .list-group-item {
   padding: 10px 15px;
-  border-bottom: 1px solid #f1f3f4;
+  border-bottom: none;
 }
 
 .list-group-item:last-child {
@@ -1163,6 +1192,7 @@ export default {
         
         const config = {
           ...this.kycWebpageConfigTemp,
+          themeColor: this.kycWebpageConfigTemp.selectedTheme, // Map selectedTheme to themeColor
           updatedAt: new Date().toISOString()
         };
 
@@ -1181,7 +1211,11 @@ export default {
     getKYCWebpageConfig: {
       handler(newValue) {
         if (newValue && Object.keys(newValue).length > 0) {
-          this.kycWebpageConfigTemp = { ...newValue };
+          // Map backend fields to frontend fields
+          this.kycWebpageConfigTemp = {
+            ...newValue,
+            selectedTheme: newValue.themeColor || "vibrant" // Map themeColor to selectedTheme
+          };
         } else {
           // Reset to default values if no config exists
           this.kycWebpageConfigTemp = {
