@@ -41,6 +41,46 @@
   border: 1px solid #ffeaa7;
 }
 
+/* Modal styles */
+.hf-modal .modal-content.hf-modal-content {
+  border-radius: 12px;
+  border: 1px solid #e9ecef;
+}
+.hf-modal-header {
+  border-bottom: 1px solid #f1f3f4;
+}
+.hf-modal-title {
+  display: flex;
+  align-items: center;
+  font-weight: 600;
+  font-size: 16px;
+}
+.confirm-body {
+  padding: 8px 6px 0 6px;
+}
+.confirm-url {
+  display: grid;
+  grid-template-columns: 60px 1fr;
+  align-items: center;
+  gap: 8px;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 6px;
+  padding: 8px 10px;
+}
+.confirm-url code {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 12px;
+}
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 16px;
+}
+
 /* Link Display Styles */
 .link-display {
   display: flex;
@@ -1011,8 +1051,12 @@ textarea.form-control {
       <v-col>
         <HfButtons name="Save Configuration" @executeAction="saveConfiguration()" v-if="!this.kycWebpageConfigTemp._id"
           style="float:right"></HfButtons>
-        <HfButtons name="Update Configuration" @executeAction="updateConfiguration()" style="float:right" v-else>
-        </HfButtons>
+        <div v-else>
+          <b-button variant="link" class="danger" @click="openDeleteModal()" style="float:right;"
+            title="Delete Configuration"><i class="fa fa-trash"></i></b-button>
+          <HfButtons name="Update Configuration" @executeAction="updateConfiguration()" style="float:right" class="mx-1">
+          </HfButtons>
+        </div>
       </v-col>
     </v-row>
 
@@ -1050,6 +1094,40 @@ textarea.form-control {
           </div>
         </div>
       </div>
+
+      <!-- Delete confirmation modal -->
+      <b-modal
+        v-model="showDeleteModal"
+        hide-footer
+        centered
+        size="md"
+        dialog-class="hf-modal"
+        content-class="hf-modal-content"
+        header-class="hf-modal-header"
+      >
+        <template #modal-title>
+          <div class="hf-modal-title">
+            <i class="fa fa-exclamation-triangle" style="color:#dc3545;margin-right:8px;"></i>
+            Delete KYC Page?
+          </div>
+        </template>
+        <div class="confirm-body">
+          <p class="mb-2">You're about to remove this KYC page configuration.</p>
+          <div class="confirm-url" v-if="kycWebpageConfigTemp.generatedUrl">
+            <span>URL</span>
+            <code>{{ kycWebpageConfigTemp.generatedUrl }}</code>
+          </div>
+          <div class="confirm-url" v-else>
+            <span>URL</span>
+            <code>Not generated yet</code>
+          </div>
+          <p class="mt-2" style="color:#6b7280;">This action cannot be undone.</p>
+        </div>
+        <div class="modal-actions">
+          <b-button variant="outline-secondary" @click="showDeleteModal=false">Cancel</b-button>
+          <b-button variant="danger" @click="confirmDelete"><i class="fa fa-trash mr-1"></i>Delete</b-button>
+        </div>
+      </b-modal>
 
       <!-- Expiry Warning -->
       <div v-if="showExpiryWarning" class="warning-alert">
@@ -1277,6 +1355,7 @@ export default {
       fullPage: true,
       isLoading: false,
       previewMode: "desktop",
+      showDeleteModal: false,
       kycWebpageConfigTemp: {
         pageTitle: "KYC Verification",
         pageDescription: "",
@@ -1301,6 +1380,14 @@ export default {
     
     selectTheme(theme) {
       this.kycWebpageConfigTemp.selectedTheme = theme;
+    },
+
+    openDeleteModal() {
+      this.showDeleteModal = true;
+    },
+
+    async confirmDelete() {
+      await this.deleteConfiguration();
     },
 
     generateUniqueId() {
@@ -1417,6 +1504,22 @@ export default {
 
         await this.updateKYCWebpageConfig(config);
         this.notifySuccess('KYC webpage configuration updated successfully!');
+        await this.fetchKYCWebpageConfig();
+        this.isLoading = false;
+      } catch (e) {
+        this.isLoading = false;
+        this.notifyErr(e);
+      }
+    },
+
+    async deleteConfiguration() {
+      try {
+        if (!this.kycWebpageConfigTemp || !this.kycWebpageConfigTemp._id) {
+          return this.notifyErr('No configuration to delete');
+        }
+        this.isLoading = true;
+        await this.deleteKYCWebpageConfig({ _id: this.kycWebpageConfigTemp._id });
+        this.notifySuccess('KYC webpage configuration deleted successfully!');
         await this.fetchKYCWebpageConfig();
         this.isLoading = false;
       } catch (e) {
