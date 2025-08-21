@@ -188,7 +188,7 @@ const router = new Router({
       component: KYCWebpageGenerator,
       meta: {
         requiresAuth: true,
-        title: `${config.app.name} - KYC Webpage Generator`
+        title: `${config.app.name} - KYC Verifier Configuration`
       }
     },
     {

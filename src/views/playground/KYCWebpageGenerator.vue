@@ -167,6 +167,17 @@ textarea.form-control {
   box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.25);
 }
 
+/* Inline expiry layout */
+.expiry-inline {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.expiry-date-input {
+  width: 180px;
+}
+
 /* Round Theme Options */
 .theme-options {
   display: flex;
@@ -268,10 +279,7 @@ textarea.form-control {
   color: #7f8c8d !important;
 }
 
-.preview-vibrant-theme .kyc-start-button {
-  background: #667eea !important;
-  color: white !important;
-}
+.preview-vibrant-theme .kyc-start-button { color: #ffffff !important; }
 
 .preview-vibrant-theme .webpage-footer {
   background: rgba(102, 126, 234, 0.1);
@@ -296,10 +304,7 @@ textarea.form-control {
   color: #7f8c8d !important;
 }
 
-.preview-dark-theme .kyc-start-button {
-  background: #2c3e50 !important;
-  color: white !important;
-}
+.preview-dark-theme .kyc-start-button { background: #334155 !important; color: #ffffff !important; box-shadow: 0 10px 18px rgba(0,0,0,0.35); }
 
 .preview-dark-theme .webpage-footer {
   background: #2c3e50;
@@ -324,14 +329,36 @@ textarea.form-control {
   color: #7f8c8d !important;
 }
 
-.preview-grey-theme .kyc-start-button {
-  background: #95a5a6 !important;
-  color: white !important;
-}
+.preview-grey-theme .kyc-start-button { background: #7f8c8d !important; color: #ffffff !important; }
 
 .preview-grey-theme .webpage-footer {
   background: #95a5a6;
   color: white;
+}
+
+.preview-light-theme .webpage-header {
+  background: linear-gradient(135deg, #ecf0f1 0%, #bdc3c7 100%);
+  color: #2c3e50;
+}
+
+.preview-light-theme .webpage-content {
+  background: white;
+  color: #2c3e50;
+}
+
+.preview-light-theme .webpage-title {
+  color: #2c3e50;
+}
+
+.preview-light-theme .webpage-description {
+  color: #7f8c8d !important;
+}
+
+.preview-light-theme .kyc-start-button { background: #e7ebff !important; color: #2c3e50 !important; border: 1px solid #c9d1ff; box-shadow: 0 10px 18px rgba(102, 126, 234, 0.18); }
+
+.preview-light-theme .webpage-footer {
+  background: rgba(236, 240, 241, 0.5);
+  color: #2c3e50;
 }
 
 /* Full Width Preview Container */
@@ -342,6 +369,111 @@ textarea.form-control {
   margin-top: 0;
   width: 100%;
   max-width: none;
+}
+
+/* New consolidated preview layout */
+.kyc-preview {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 24px 12px 16px;
+}
+
+.kyc-preview-card {
+  width: 100%;
+  max-width: 300px;
+  background: #ffffff;
+  border: 1px solid #eef1f4;
+  border-radius: 12px;
+  box-shadow: 0 16px 40px rgba(0,0,0,0.12);
+  padding: 22px 24px;
+  margin: 16px auto 0;
+}
+
+.preview-brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 8px;
+}
+
+.preview-logo {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.brand-name {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.brand-subtitle {
+  margin: 2px 0 0 0;
+  font-size: 12px;
+  color: #4b5563;
+}
+
+.preview-desc {
+  margin: 12px 0 8px 0;
+  color: #475569;
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+.steps-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin: 12px 0 8px 0;
+}
+
+.step-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.step-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: rgba(102, 126, 234, 0.12);
+  color: #667eea;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+}
+
+.step-title {
+  font-weight: 700;
+  font-size: 10px;
+  color: #1f2937;
+}
+
+.step-sub {
+  margin-top: 4px;
+  font-size: 10px;
+  color: #6b7280;
+}
+
+.contact-line {
+  margin-top: 18px;
+  font-size: 10px;
+  color: #374151;
+}
+
+.powered-by {
+  margin-top: 16px;
+  font-size: 12px;
+  color: #6c757d;
+  text-align: center;
 }
 
 .webpage-preview {
@@ -392,23 +524,24 @@ textarea.form-control {
 }
 
 .kyc-start-button {
-  background: #667eea;
+  background: linear-gradient(180deg, #6f66f2 0%, #5a47d8 100%);
   color: white;
   border: none;
-  padding: 10px 20px;
-  border-radius: 6px;
-  font-size: 14px;
+  padding: 10px 18px;
+  border-radius: 10px;
+  font-size: 10px;
   cursor: pointer;
   transition: all 0.3s;
-  min-height: 40px;
+  min-height: 38px;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
+  box-shadow: 0 10px 18px rgba(102, 126, 234, 0.35);
 }
 
 .kyc-start-button:hover {
-  background: #5a6fd8;
+  filter: brightness(1.03);
   transform: translateY(-1px);
 }
 
@@ -446,17 +579,28 @@ textarea.form-control {
   width: 100%;
 }
 
+/* Constrain desktop preview frame width and center it */
+.desktop-preview .browser-frame,
+.browser-frame.desktop-preview {
+  max-width: 1040px;
+  margin: 0 auto;
+}
+
 .mobile-preview {
   width: 100%;
   max-width: 320px;
   margin: 0 auto;
 }
 
-.mobile-preview .browser-frame {
+.mobile-preview .browser-frame,
+.browser-frame.mobile-preview {
   border-radius: 25px;
   overflow: hidden;
   border: 3px solid #333;
   background: #333;
+  height: 620px;
+  max-width: 360px;
+  margin: 0 auto;
 }
 
 .mobile-preview .browser-header {
@@ -494,6 +638,35 @@ textarea.form-control {
   font-size: 13px;
   min-height: 35px;
 }
+
+/* Theme variants for new preview layout */
+.preview-vibrant-theme .brand-name { color: #1f2937; }
+.preview-vibrant-theme .brand-subtitle { color: #4b5563; }
+.preview-vibrant-theme .step-icon { background: rgba(102,126,234,0.12); color: #667eea; }
+.preview-vibrant-theme .kyc-preview {
+  background: linear-gradient(180deg, rgba(102,126,234,0.08) 0%, rgba(118,75,162,0.05) 100%);
+}
+.preview-vibrant-theme .powered-by { color: #667eea; opacity: 0.9; }
+
+.preview-dark-theme .kyc-preview { background: #0f172a; }
+.preview-dark-theme .kyc-preview-card { background: #1f2937; border-color: rgba(255,255,255,0.06); }
+.preview-dark-theme .brand-name { color: #e5e7eb; }
+.preview-dark-theme .brand-subtitle { color: #cbd5e1; }
+.preview-dark-theme .preview-desc { color: #cbd5e1; }
+.preview-dark-theme .step-title { color: #e5e7eb; }
+.preview-dark-theme .step-sub { color: #cbd5e1; }
+.preview-dark-theme .step-icon { background: rgba(255,255,255,0.08); color: #cbd5e1; }
+.preview-dark-theme .powered-by { color: #cbd5e1; opacity: 0.75; }
+
+.preview-grey-theme .kyc-preview { background: linear-gradient(180deg, rgba(127,140,141,0.08) 0%, rgba(189,195,199,0.06) 100%); }
+.preview-grey-theme .step-icon { background: rgba(127,140,141,0.15); color: #7f8c8d; }
+.preview-grey-theme .powered-by { color: #7f8c8d; }
+
+.preview-light-theme .kyc-preview { background: #f5f7fb; }
+.preview-light-theme .step-icon { background: rgba(189,195,199,0.25); color: #2c3e50; }
+.preview-light-theme .brand-name { color: #2c3e50; }
+.preview-light-theme .brand-subtitle { color: #7f8c8d; }
+.preview-light-theme .powered-by { color: #2c3e50; opacity: 0.8; }
 
 /* Header Section Styles */
 .form-header {
@@ -614,9 +787,10 @@ textarea.form-control {
   border: 1px solid #e9ecef;
   border-radius: 8px;
   padding: 15px;
-  height: fit-content;
+  height: 70vh;
   position: sticky;
   top: 20px;
+  overflow: auto;
 }
 
 .preview-section h6 {
@@ -643,17 +817,17 @@ textarea.form-control {
 
 /* Browser Design for Preview */
 .browser-frame {
-  border: 1px solid #ddd;
-  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
   overflow: hidden;
-  background: white;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  background: #ffffff;
+  box-shadow: 0 14px 40px rgba(0,0,0,0.12);
 }
 
 .browser-header {
-  background: #f8f9fa;
-  border-bottom: 1px solid #e9ecef;
-  padding: 8px 12px;
+  background: #f8f9fb;
+  border-bottom: 1px solid #eef1f4;
+  padding: 10px 14px;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -677,11 +851,11 @@ textarea.form-control {
 
 .browser-url {
   flex: 1;
-  background: white;
+  background: #ffffff;
   border: 1px solid #e9ecef;
-  border-radius: 4px;
-  padding: 4px 8px;
-  font-size: 11px;
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 12px;
   color: #666;
   text-align: center;
   margin: 0 8px;
@@ -718,7 +892,7 @@ textarea.form-control {
 /* List Group Improvements */
 .list-group-item {
   padding: 10px 15px;
-  border-bottom: 1px solid #f1f3f4;
+  border-bottom: none;
 }
 
 .list-group-item:last-child {
@@ -757,6 +931,69 @@ textarea.form-control {
     justify-content: center;
   }
 }
+
+/* Tablet-friendly stacking and preview visibility */
+@media (max-width: 1024px) {
+  .form-layout {
+    flex-direction: column;
+  }
+  .preview-column {
+    width: 100%;
+  }
+  .preview-section {
+    position: static;
+    top: auto;
+    height: auto;
+    max-height: 70vh;
+    overflow: auto;
+  }
+  .desktop-preview .browser-frame {
+    max-width: 100%;
+  }
+}
+
+/* Small mobile tweaks for card scale and spacing */
+@media (max-width: 600px) {
+  .browser-content {
+    padding: 10px;
+  }
+  .kyc-preview {
+    padding: 16px 8px 12px;
+  }
+  .kyc-preview-card {
+    max-width: 300px;
+    padding: 18px 20px;
+  }
+  .preview-logo {
+    width: 30px;
+    height: 30px;
+  }
+  .brand-name {
+    font-size: 14px;
+  }
+  .brand-subtitle {
+    font-size: 11px;
+  }
+  .preview-desc {
+    font-size: 10px;
+  }
+  .step-icon {
+    width: 26px;
+    height: 26px;
+    font-size: 10px;
+  }
+  .step-title {
+    font-size: 10px;
+  }
+  .step-sub {
+    font-size: 9.5px;
+  }
+  .kyc-start-button {
+    padding: 9px 16px;
+    font-size: 10.5px;
+    min-height: 34px;
+  }
+}
 </style>
 
 <template>
@@ -767,7 +1004,7 @@ textarea.form-control {
       <v-col>
         <div class="form-group" style="display:flex">
           <h3 style="text-align: left;">
-            KYC Webpage Configuration
+            KYC Verifier Configuration
           </h3>
         </div>
       </v-col>
@@ -828,19 +1065,10 @@ textarea.form-control {
             <!-- Page Title -->
             <li class="list-group-item">
               <div class="form-group">
-                <label for="pageTitle">Page Title<span class="mandatory">*</span></label>
+                <label for="pageTitle">Page Sub-Heading<span class="mandatory">*</span></label>
                 <input type="text" class="form-control" v-model="kycWebpageConfigTemp.pageTitle" placeholder="KYC Verification" required>
               </div>
             </li>
-
-            <!-- Contact Email -->
-            <li class="list-group-item">
-              <div class="form-group">
-                <label for="contactEmail">Contact Email</label>
-                <input type="email" class="form-control" v-model="kycWebpageConfigTemp.contactEmail" placeholder="support@yourbusiness.com">
-              </div>
-            </li>
-
             <!-- Page Description -->
             <li class="list-group-item">
               <div class="form-group">
@@ -849,48 +1077,53 @@ textarea.form-control {
               </div>
             </li>
 
-            <!-- Page Expiry and Theme Selection Combined -->
-            <li class="list-group-item">
-              <div class="expiry-theme-section">
-                <!-- Page Expiry -->
-                <div class="expiry-section">
-                  <div class="form-group">
-                    <label>Page Expiry<span class="mandatory">*</span></label>
-                    <div class="expiry-select">
-                      <select v-model="kycWebpageConfigTemp.expiryType">
-                        <option value="1month">1 Month</option>
-                        <option value="3months">3 Months</option>
-                        <option value="6months">6 Months</option>
-                        <option value="custom">Custom Date</option>
-                      </select>
-                    </div>
-                    
-                    <input v-if="kycWebpageConfigTemp.expiryType === 'custom'" type="date" class="form-control mt-2" v-model="kycWebpageConfigTemp.customExpiryDate" style="width: 180px;">
-                  </div>
-                </div>
 
-                <!-- Choose Theme -->
-                <div class="theme-section">
-                  <div class="form-group">
-                    <label>Choose Theme</label>
-                    <div class="theme-options">
-                      <div class="theme-option" :class="{ active: kycWebpageConfigTemp.selectedTheme === 'vibrant' }" @click="selectTheme('vibrant')">
-                        <div class="theme-preview vibrant-theme"></div>
-                        <small>Vibrant</small>
-                      </div>
-                      <div class="theme-option" :class="{ active: kycWebpageConfigTemp.selectedTheme === 'dark' }" @click="selectTheme('dark')">
-                        <div class="theme-preview dark-theme"></div>
-                        <small>Dark</small>
-                      </div>
-                      <div class="theme-option" :class="{ active: kycWebpageConfigTemp.selectedTheme === 'grey' }" @click="selectTheme('grey')">
-                        <div class="theme-preview grey-theme"></div>
-                        <small>Grey</small>
-                      </div>
-                      <div class="theme-option" :class="{ active: kycWebpageConfigTemp.selectedTheme === 'light' }" @click="selectTheme('light')">
-                        <div class="theme-preview light-theme"></div>
-                        <small>Light</small>
-                      </div>
-                    </div>
+            <!-- Contact Email -->
+            <li class="list-group-item">
+              <div class="form-group">
+                <label for="contactEmail">Admin Contact Email</label>
+                <input type="email" class="form-control" v-model="kycWebpageConfigTemp.contactEmail" placeholder="support@yourbusiness.com">
+              </div>
+            </li>
+
+
+            <!-- Page Expiry and Theme Selection (Theme below, custom date inline) -->
+            <li class="list-group-item">
+              <!-- Page Expiry -->
+              <div class="form-group">
+                <label>Page Expiry<span class="mandatory">*</span></label>
+                <div class="expiry-inline">
+                  <div class="expiry-select">
+                    <select v-model="kycWebpageConfigTemp.expiryType">
+                      <option value="1month">1 Month</option>
+                      <option value="3months">3 Months</option>
+                      <option value="6months">6 Months</option>
+                      <option value="custom">Custom Date</option>
+                    </select>
+                  </div>
+                  <input v-if="kycWebpageConfigTemp.expiryType === 'custom'" type="date" class="form-control expiry-date-input" v-model="kycWebpageConfigTemp.customExpiryDate">
+                </div>
+              </div>
+
+              <!-- Choose Theme (below expiry) -->
+              <div class="form-group">
+                <label>Choose Theme</label>
+                <div class="theme-options">
+                  <div class="theme-option" :class="{ active: kycWebpageConfigTemp.selectedTheme === 'vibrant' }" @click="selectTheme('vibrant')">
+                    <div class="theme-preview vibrant-theme"></div>
+                    <small>Vibrant</small>
+                  </div>
+                  <div class="theme-option" :class="{ active: kycWebpageConfigTemp.selectedTheme === 'dark' }" @click="selectTheme('dark')">
+                    <div class="theme-preview dark-theme"></div>
+                    <small>Dark</small>
+                  </div>
+                  <div class="theme-option" :class="{ active: kycWebpageConfigTemp.selectedTheme === 'grey' }" @click="selectTheme('grey')">
+                    <div class="theme-preview grey-theme"></div>
+                    <small>Grey</small>
+                  </div>
+                  <div class="theme-option" :class="{ active: kycWebpageConfigTemp.selectedTheme === 'light' }" @click="selectTheme('light')">
+                    <div class="theme-preview light-theme"></div>
+                    <small>Light</small>
                   </div>
                 </div>
               </div>
@@ -935,31 +1168,46 @@ textarea.form-control {
               </div>
               <div class="browser-content">
                 <div class="preview-container" :class="`preview-${kycWebpageConfigTemp.selectedTheme}-theme`">
-                  <div class="webpage-preview">
-                    <!-- Webpage Header -->
-                    <div class="webpage-header">
-                      <div style="display: flex; align-items: center; gap: 15px;">
-                        <img v-if="getSelectedService && getSelectedService.logoUrl" :src="getSelectedService.logoUrl" class="webpage-logo" alt="Logo">
-                        <div v-else class="webpage-logo" style="background: #ddd; display: flex; align-items: center; justify-content: center;">
+                  <div class="kyc-preview">
+                    <div class="kyc-preview-card">
+                      <div class="preview-brand">
+                        <img v-if="getSelectedService && getSelectedService.logoUrl" :src="getSelectedService.logoUrl" class="preview-logo" alt="Logo">
+                        <div v-else class="preview-logo" style="background: #ddd; display: flex; align-items: center; justify-content: center;">
                           <i class="fa fa-building" style="font-size: 18px; color: #666;"></i>
                         </div>
                         <div>
-                          <h4 style="margin: 0; font-size: 16px;">{{ getSelectedService ? getSelectedService.appName : 'Your Business Name' }}</h4>
-                          <p style="margin: 5px 0 0 0; font-size: 13px; opacity: 0.8;">{{ kycWebpageConfigTemp.pageTitle || 'KYC Verification' }}</p>
+                          <h3 class="brand-name">{{ getSelectedService ? getSelectedService.appName : 'Your Business Name' }}</h3>
+                          <div class="brand-subtitle">Identity Verification Platform</div>
                         </div>
                       </div>
-                    </div>
 
-                    <!-- Webpage Content -->
-                    <div class="webpage-content">
-                      <!-- Info Badge for Description -->
-                      <div v-if="kycWebpageConfigTemp.pageDescription" class="info-badge">
-                        <i class="fa fa-info-circle"></i>
-                        {{ kycWebpageConfigTemp.pageDescription }}
+                      <div class="preview-desc">
+                        <span v-if="kycWebpageConfigTemp.pageDescription">{{ kycWebpageConfigTemp.pageDescription }}</span>
+                        <span v-else>Complete your KYC verification to proceed with our services.</span>
                       </div>
-                      <div v-else class="info-badge">
-                        <i class="fa fa-info-circle"></i>
-                        Complete your KYC verification to proceed with our services.
+
+                      <div class="steps-list">
+                        <div class="step-item">
+                          <div class="step-icon"><i class="fa fa-camera"></i></div>
+                          <div>
+                            <div class="step-title">Take Selfie</div>
+                            <div class="step-sub">Capture a clear photo of yourself.</div>
+                          </div>
+                        </div>
+                        <div class="step-item">
+                          <div class="step-icon"><i class="fa fa-id-card"></i></div>
+                          <div>
+                            <div class="step-title">Verify ID Document</div>
+                            <div class="step-sub">Upload your ID for verification.</div>
+                          </div>
+                        </div>
+                        <div class="step-item">
+                          <div class="step-icon"><i class="fa fa-check-square"></i></div>
+                          <div>
+                            <div class="step-title">Provide Consent</div>
+                            <div class="step-sub">Agree to securely share your information.</div>
+                          </div>
+                        </div>
                       </div>
 
                       <div class="kyc-button-container">
@@ -968,13 +1216,13 @@ textarea.form-control {
                           Start KYC Verification
                         </button>
                       </div>
+
+                      <div class="contact-line" v-if="kycWebpageConfigTemp.contactEmail">
+                        Contact: {{ kycWebpageConfigTemp.contactEmail }}
+                      </div>
                     </div>
 
-                    <!-- Webpage Footer -->
-                    <div class="webpage-footer">
-                      <p v-if="kycWebpageConfigTemp.contactEmail" style="margin: 0 0 5px 0;">Contact: {{ kycWebpageConfigTemp.contactEmail }}</p>
-                      <p style="margin: 0;">Powered by Hypersign</p>
-                    </div>
+                    <div class="powered-by">Powered by Hypersign</div>
                   </div>
                 </div>
               </div>
@@ -1163,6 +1411,7 @@ export default {
         
         const config = {
           ...this.kycWebpageConfigTemp,
+          themeColor: this.kycWebpageConfigTemp.selectedTheme, // Map selectedTheme to themeColor
           updatedAt: new Date().toISOString()
         };
 
@@ -1181,7 +1430,11 @@ export default {
     getKYCWebpageConfig: {
       handler(newValue) {
         if (newValue && Object.keys(newValue).length > 0) {
-          this.kycWebpageConfigTemp = { ...newValue };
+          // Map backend fields to frontend fields
+          this.kycWebpageConfigTemp = {
+            ...newValue,
+            selectedTheme: newValue.themeColor || "vibrant" // Map themeColor to selectedTheme
+          };
         } else {
           // Reset to default values if no config exists
           this.kycWebpageConfigTemp = {

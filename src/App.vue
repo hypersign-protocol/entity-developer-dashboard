@@ -558,7 +558,7 @@ export default {
                 },
                 {
                   href: "/studio/kyc-webpage-generator/" + this.getSelectedService.appId,
-                  title: "KYC Webpage",
+                  title: "KYC Verifier Configuration",
                   icon: "fa fa-globe",
                 },
               ]
