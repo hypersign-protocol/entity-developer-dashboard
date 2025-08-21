@@ -793,9 +793,10 @@ textarea.form-control {
 
 .url-section {
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  align-items: flex-end;
   justify-content: flex-end;
-  gap: 10px;
+  gap: 6px;
 }
 
 .url-section h6 {
@@ -803,6 +804,11 @@ textarea.form-control {
   font-size: 14px;
   font-weight: 600;
   color: #2c3e50;
+}
+
+.url-section .status-badge {
+  align-self: flex-end;
+  margin-top: 4px;
 }
 
 /* Two Column Layout */
@@ -1071,9 +1077,6 @@ textarea.form-control {
                 <i class="fa fa-building"></i>
               </div>
             </div>
-            <span class="status-badge" :class="getStatusClass()">
-              {{ getStatusText() }}
-            </span>
             <div class="company-info">
               <h4>{{ getSelectedService ? getSelectedService.appName : 'Your Business Name' }}</h4>
               <p>{{ kycWebpageConfigTemp.pageTitle || 'KYC Verification' }}</p>
@@ -1091,6 +1094,9 @@ textarea.form-control {
             <div class="link-display" v-else>
               <span class="link-text">URL will be generated after saving</span>
             </div>
+            <span class="status-badge" :class="getStatusClass()">
+              {{ getStatusText() }}
+            </span>
           </div>
         </div>
       </div>
@@ -1255,7 +1261,7 @@ textarea.form-control {
                         </div>
                         <div>
                           <h3 class="brand-name">{{ getSelectedService ? getSelectedService.appName : 'Your Business Name' }}</h3>
-                          <div class="brand-subtitle">Identity Verification Platform</div>
+                          <div class="brand-subtitle">{{ kycWebpageConfigTemp.pageTitle || 'Identity Verification Platform' }}</div>
                         </div>
                       </div>
 
@@ -1519,6 +1525,7 @@ export default {
         }
         this.isLoading = true;
         await this.deleteKYCWebpageConfig({ _id: this.kycWebpageConfigTemp._id });
+        this.showDeleteModal = false;
         this.notifySuccess('KYC webpage configuration deleted successfully!');
         await this.fetchKYCWebpageConfig();
         this.isLoading = false;
