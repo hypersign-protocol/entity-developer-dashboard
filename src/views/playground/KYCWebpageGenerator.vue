@@ -1363,7 +1363,7 @@ export default {
       previewMode: "desktop",
       showDeleteModal: false,
       kycWebpageConfigTemp: {
-        pageTitle: "KYC Verification",
+        pageTitle: "",
         pageDescription: "",
         expiryType: "3months",
         customExpiryDate: "",
@@ -1548,9 +1548,9 @@ export default {
         } else {
           // Reset to default values if no config exists
           this.kycWebpageConfigTemp = {
-            pageTitle: "KYC Verification",
+            pageTitle: "",
             pageDescription: "",
-            expiryType: "3months",
+            expiryType: "1months",
             customExpiryDate: "",
             selectedTheme: "vibrant",
             contactEmail: "",
