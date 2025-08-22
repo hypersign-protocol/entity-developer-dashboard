@@ -226,7 +226,7 @@
 
           <v-list-item @click="goTo('/studio/settings')" title="Settings">
             <v-icon left>mdi-cog</v-icon>
-            <v-list-item-title>Settings</v-list-item-title>
+            <v-list-item-title>Settings1</v-list-item-title>
           </v-list-item>
 
           <v-list-item @click="goTo('/studio/dashboard')" title="Home">
