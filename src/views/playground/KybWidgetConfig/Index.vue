@@ -163,12 +163,12 @@ ul {
         <li class="list-group-item">
           <div class="row">
             <div class="col-md-6">
-              <b-form-checkbox switch size="lg" v-model="kybWidgetConfigTemp.collectZkProof.enable">
+              <b-form-checkbox switch size="lg" v-model="kybWidgetConfigTemp.collectZkProof.enable" v-if="kybWidgetConfigTemp.collectZkProof">
                 {{ kybWidgetConfigUI.collectZkProof.label }}
               </b-form-checkbox>
               <small v-html="kybWidgetConfigUI.collectZkProof.description"></small>
             </div>
-            <div class="col" v-if="kybWidgetConfigTemp.collectZkProof.enable">
+            <div class="col" v-if="kybWidgetConfigTemp.collectZkProof && kybWidgetConfigTemp.collectZkProof.enable">
               <div class="row">
                 <div class="col">
                   <label><strong>Proof Type:</strong></label>
@@ -233,12 +233,12 @@ ul {
         <li class="list-group-item">
           <div class="row">
             <div class="col-md-6">
-              <b-form-checkbox switch size="lg" v-model="kybWidgetConfigTemp.checkMinimumDocumentValidity.enable">
+              <b-form-checkbox switch size="lg" v-model="kybWidgetConfigTemp.checkMinimumDocumentValidity.enable" v-if="kybWidgetConfigTemp.checkMinimumDocumentValidity">
                 {{ kybWidgetConfigUI.checkMinimumDocumentValidity.label }}
               </b-form-checkbox>
               <small v-html="kybWidgetConfigUI.checkMinimumDocumentValidity.description"></small>
             </div>
-            <div class="col" v-if="kybWidgetConfigTemp.checkMinimumDocumentValidity.enable">
+            <div class="col" v-if="kybWidgetConfigTemp.checkMinimumDocumentValidity && kybWidgetConfigTemp.checkMinimumDocumentValidity.enable">
               <div class="row">
                 <div class="col-md-6">
                   <label><strong>Value:</strong></label>
@@ -286,7 +286,10 @@ export default {
       this.isLoading = false
 
       if (Object.keys(this.kybWidgetConfig).length > 0) {
-        this.kybWidgetConfigTemp = { ...this.kybWidgetConfig }
+        this.kybWidgetConfigTemp = { 
+          ...this.kybWidgetConfigTemp,
+          ...this.kybWidgetConfig 
+        }
       }
 
       this.appId = this.$route.params.appId;
