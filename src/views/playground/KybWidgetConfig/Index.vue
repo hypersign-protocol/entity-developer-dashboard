@@ -156,11 +156,11 @@ ul {
         </li>
 
         <!-- ZK Proof Section -->
-        <li class="list-group-item">
+        <!-- <li class="list-group-item">
           <h5><span>Zero Knowledge Proof</span></h5>
-        </li>
+        </li> -->
         
-        <li class="list-group-item">
+        <!-- <li class="list-group-item">
           <div class="row">
             <div class="col-md-6">
               <b-form-checkbox switch size="lg" v-model="kybWidgetConfigTemp.collectZkProof.enable" v-if="kybWidgetConfigTemp.collectZkProof">
@@ -183,21 +183,21 @@ ul {
               </div>
             </div>
           </div>
-        </li>
+        </li> -->
 
         <!-- Compliance Checks Section -->
-        <li class="list-group-item">
+        <!-- <li class="list-group-item">
           <h5><span>Compliance Checks</span></h5>
-        </li>
+        </li> -->
         
-        <li class="list-group-item">
+        <!-- <li class="list-group-item">
           <b-form-checkbox switch size="lg" v-model="kybWidgetConfigTemp.checkAmlPep">
             {{ kybWidgetConfigUI.checkAmlPep.label }}
           </b-form-checkbox>
           <small v-html="kybWidgetConfigUI.checkAmlPep.description"></small>
-        </li>
+        </li> -->
         
-        <li class="list-group-item">
+        <!-- <li class="list-group-item">
           <b-form-checkbox switch size="lg" v-model="kybWidgetConfigTemp.checkAmlAdversemedia">
             {{ kybWidgetConfigUI.checkAmlAdversemedia.label }}
           </b-form-checkbox>
@@ -209,10 +209,10 @@ ul {
             {{ kybWidgetConfigUI.checkBusinessRegistry.label }}
           </b-form-checkbox>
           <small v-html="kybWidgetConfigUI.checkBusinessRegistry.description"></small>
-        </li>
+        </li> -->
 
         <!-- Document Validation Section -->
-        <li class="list-group-item">
+        <!-- <li class="list-group-item">
           <h5><span>Document Validation</span></h5>
         </li>
         
@@ -221,9 +221,9 @@ ul {
             {{ kybWidgetConfigUI.checkDuplicateDocument.label }}
           </b-form-checkbox>
           <small v-html="kybWidgetConfigUI.checkDuplicateDocument.description"></small>
-        </li>
+        </li> -->
         
-        <li class="list-group-item">
+        <!-- <li class="list-group-item">
           <b-form-checkbox switch size="lg" v-model="kybWidgetConfigTemp.checkDocumentExpiry">
             {{ kybWidgetConfigUI.checkDocumentExpiry.label }}
           </b-form-checkbox>
@@ -251,7 +251,7 @@ ul {
               </div>
             </div>
           </div>
-        </li>
+        </li> -->
       </ul>
     </v-card>
   </div>
