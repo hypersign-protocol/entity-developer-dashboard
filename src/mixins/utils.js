@@ -33,17 +33,11 @@ export default {
             }
         },
         getKycServiceHeader(authToken = '') {
-            if (authToken != '') {
-                // TODO: Remove this userId later
-                return {
-                    "Content-Type": "application/json",
-                    "x-kyc-access-token": `${authToken}`,
-                }
-            } else {
-                return {
-                    "Content-Type": "application/json",
-                }
-            }
+          const headers = { "Content-Type": "application/json" };
+          if (authToken) {
+              headers["x-kyc-access-token"] = authToken;
+          }
+            return headers;
         },
         stringShortner(str, size) {
             if (!str) {
