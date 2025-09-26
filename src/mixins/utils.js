@@ -32,6 +32,13 @@ export default {
                 }
             }
         },
+        getKycServiceHeader(authToken = '') {
+          const headers = { "Content-Type": "application/json" };
+          if (authToken) {
+              headers["x-kyc-access-token"] = authToken;
+          }
+            return headers;
+        },
         stringShortner(str, size) {
             if (!str) {
                 return "-"

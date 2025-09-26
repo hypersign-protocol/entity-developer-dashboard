@@ -826,7 +826,7 @@ const mainStore = {
                 if (!authToken) {
                     return reject(new Error('authToken is invalid, service is not selected'))
                 }
-                const headers = UtilsMixin.methods.getHeader(authToken);
+                const headers = UtilsMixin.methods.getKycServiceHeader(authToken);
                 fetch(url, {
                     method: 'GET',
                     headers
@@ -889,7 +889,7 @@ const mainStore = {
                 if (!authToken) {
                     return reject(new Error('authToken is invalid, service is not selected'))
                 }
-                const headers = UtilsMixin.methods.getHeader(authToken);
+                const headers = UtilsMixin.methods.getKycServiceHeader(authToken);
                 fetch(url, {
                     method: 'GET',
                     headers
@@ -919,7 +919,7 @@ const mainStore = {
                 const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/onchainkyc-config`;
                 // const url = `http://localhost:3001/api/v1/e-kyc/verification/onchainkyc-config`
                 const authToken = getters.getSelectedService.access_token
-                const headers = UtilsMixin.methods.getHeader(authToken);
+                const headers = UtilsMixin.methods.getKycServiceHeader(authToken);
                 fetch(url, {
                     method: 'GET',
                     headers
@@ -943,7 +943,7 @@ const mainStore = {
                 const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/onchainkyc-config`;
                 //const url = `http://localhost:3001/api/v1/e-kyc/verification/onchainkyc-config`
                 const authToken = getters.getSelectedService.access_token
-                const headers = UtilsMixin.methods.getHeader(authToken);
+                const headers = UtilsMixin.methods.getKycServiceHeader(authToken);
                 fetch(url, {
                     method: 'POST',
                     headers,
@@ -968,7 +968,7 @@ const mainStore = {
                 const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/onchainkyc-config`;
                 // const url = `http://localhost:3001/api/v1/e-kyc/verification/onchainkyc-config`
                 const authToken = getters.getSelectedService.access_token
-                const headers = UtilsMixin.methods.getHeader(authToken);
+                const headers = UtilsMixin.methods.getKycServiceHeader(authToken);
                 fetch(url, {
                     method: 'PATCH',
                     headers,
@@ -994,7 +994,7 @@ const mainStore = {
                 }
                 const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/onchainkyc-config/${payload._id}`;
                 const authToken = getters.getSelectedService.access_token
-                const headers = UtilsMixin.methods.getHeader(authToken);
+                const headers = UtilsMixin.methods.getKycServiceHeader(authToken);
                 fetch(url, {
                     method: 'DELETE',
                     headers,
@@ -1021,7 +1021,7 @@ const mainStore = {
                 const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/widget-config`;
                 // const url = `http://localhost:3001/api/v1/e-kyc/verification/widget-config`
                 const authToken = getters.getSelectedService.access_token
-                const headers = UtilsMixin.methods.getHeader(authToken);
+                const headers = UtilsMixin.methods.getKycServiceHeader(authToken);
                 const data = getters.getWidgetnConfig;
                 data['issuerVerificationMethodId'] = getters.getWidgetnConfig.issuerDID + '#key-1';
                 fetch(url, {
@@ -1048,7 +1048,7 @@ const mainStore = {
                 const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/widget-config`;
                 // const url = `http://localhost:3001/api/v1/e-kyc/verification/widget-config/`
                 const authToken = getters.getSelectedService.access_token
-                const headers = UtilsMixin.methods.getHeader(authToken);
+                const headers = UtilsMixin.methods.getKycServiceHeader(authToken);
                 return fetch(url, {
                     method: 'GET',
                     headers
@@ -1078,7 +1078,7 @@ const mainStore = {
                 const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/widget-config`;
                 // const url = `http://localhost:3001/api/v1/e-kyc/verification/widget-config`
                 const authToken = getters.getSelectedService.access_token
-                const headers = UtilsMixin.methods.getHeader(authToken);
+                const headers = UtilsMixin.methods.getKycServiceHeader(authToken);
                 const data = getters.getWidgetnConfig;
                 data['issuerVerificationMethodId'] = getters.getWidgetnConfig.issuerDID + '#key-1';
                 fetch(url, {
@@ -1108,7 +1108,7 @@ const mainStore = {
                 const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/webhook-config`;
                 // const url = `http://localhost:3001/api/v1/e-kyc/verification/webhook-config`
                 const authToken = getters.getSelectedService.access_token
-                const headers = UtilsMixin.methods.getHeader(authToken);
+                const headers = UtilsMixin.methods.getKycServiceHeader(authToken);
 
                 fetch(url, {
                     method: 'POST',
@@ -1135,7 +1135,7 @@ const mainStore = {
                 const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/wallet`;
                 // const url = `http://localhost:3001/api/v1/wallet`
                 const authToken = getters.getSelectedService.access_token
-                const headers = UtilsMixin.methods.getHeader(authToken);
+                const headers = UtilsMixin.methods.getKycServiceHeader(authToken);
 
                 fetch(url, {
                     method: 'POST',
@@ -1162,7 +1162,7 @@ const mainStore = {
                 const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/webhook-config`;
                 // const url = `http://localhost:3001/api/v1/e-kyc/verification/webhook-config/`
                 const authToken = getters.getSelectedService.access_token
-                const headers = UtilsMixin.methods.getHeader(authToken);
+                const headers = UtilsMixin.methods.getKycServiceHeader(authToken);
                 return fetch(url, {
                     method: 'GET',
                     headers
@@ -1192,7 +1192,7 @@ const mainStore = {
                 const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/webhook-config/${payload._id}`;
                 // const url = `http://localhost:3001/api/v1/e-kyc/verification/webhook-config/${payload._id}`
                 const authToken = getters.getSelectedService.access_token
-                const headers = UtilsMixin.methods.getHeader(authToken);
+                const headers = UtilsMixin.methods.getKycServiceHeader(authToken);
                 fetch(url, {
                     method: 'PATCH',
                     headers,
@@ -1219,7 +1219,7 @@ const mainStore = {
                 const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/webhook-config/${payload._id}`;
                 // const url = `http://localhost:3001/api/v1/e-kyc/verification/webhook-config/${payload._id}`
                 const authToken = getters.getSelectedService.access_token
-                const headers = UtilsMixin.methods.getHeader(authToken);
+                const headers = UtilsMixin.methods.getKycServiceHeader(authToken);
                 fetch(url, {
                     method: 'DELETE',
                     headers,
@@ -1356,7 +1356,7 @@ const mainStore = {
                 const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/session/${sessionId}`;
                 // const url = `http://localhost:3001/api/v1/e-kyc/verification/session/${sessionId}`;
                 const authToken = getters.getSelectedService.access_token
-                const headers = UtilsMixin.methods.getHeader(authToken);
+                const headers = UtilsMixin.methods.getKycServiceHeader(authToken);
                 fetch(url, {
                     method: 'GET',
                     headers
@@ -1388,7 +1388,7 @@ const mainStore = {
                 const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/user/${sessionId}`;
                 // let url = `http://localhost:3001/api/v1/user/${sessionId}`
                 const authToken = getters.getSelectedService.access_token
-                const headers = UtilsMixin.methods.getHeader(authToken);
+                const headers = UtilsMixin.methods.getKycServiceHeader(authToken);
                 fetch(url, {
                     method: 'GET',
                     headers
@@ -1418,7 +1418,7 @@ const mainStore = {
             const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/usage?serviceId=${getters.getSelectedService.appId}&startDate=${startDate}&endDate=${endDate}`;
             // const url = `http://localhost:3001/api/v1/usage?serviceId=${getters.getSelectedService.appId}&startDate=${startDate}&endDate=${endDate}`;
             const authToken = getters.getSelectedService.access_token
-            const headers = UtilsMixin.methods.getHeader(authToken);
+            const headers = UtilsMixin.methods.getKycServiceHeader(authToken);
             const resp = await fetch(url, {
                 method: 'GET',
                 headers
@@ -1438,7 +1438,7 @@ const mainStore = {
             }
             const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/usage/detail?serviceId=${getters.getSelectedService.appId}&startDate=${startDate}&endDate=${endDate}`;
             const authToken = getters.getSelectedService.access_token
-            const headers = UtilsMixin.methods.getHeader(authToken);
+            const headers = UtilsMixin.methods.getKycServiceHeader(authToken);
             const resp = await fetch(url, {
                 method: 'GET',
                 headers
@@ -1461,7 +1461,7 @@ const mainStore = {
             }
             const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/credit`;
             const authToken = getters.getSelectedService.access_token
-            const headers = UtilsMixin.methods.getHeader(authToken);
+            const headers = UtilsMixin.methods.getKycServiceHeader(authToken);
             const resp = await fetch(url, {
                 method: 'GET',
                 headers
@@ -1492,7 +1492,7 @@ const mainStore = {
                         method: "POST",
                         headers: {
                             "Content-Type": "application/json",
-                            "Authorization": `Bearer ${getters.getSelectedService.access_token}`,
+                            "x-kyc-access-token": `${getters.getSelectedService.access_token}`,
                             "Origin": '*'
                         }
                     }
