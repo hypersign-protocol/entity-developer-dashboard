@@ -563,7 +563,11 @@ export default {
                 },
               ]
             })
-
+            menu.push({
+              href:"/studio/business/"+this.getSelectedService.appId,
+              title:"Business Verifications",
+              icon:"fa fa-briefcase"
+            })
           } else if (id == 'SSI_API') {
             menu.push({
               href: "/studio/ssi/did/" + this.getSelectedService.appId,

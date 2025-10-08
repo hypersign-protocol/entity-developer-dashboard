@@ -45,7 +45,8 @@ const mainStore = {
         ssiCredits: [],
 
         schemaList: [],
-        credentialList: []
+        credentialList: [],
+        companies: []
     },
     getters: {
         getIsLoggedOut: (state) => {
@@ -142,6 +143,9 @@ const mainStore = {
         },
         getSsiCredits: (state) => {
             return state.ssiCredits
+        },
+        getCompanies: (state) => {
+            return state.companies
         }
     },
     mutations: {
@@ -289,6 +293,9 @@ const mainStore = {
         },
         setSSICredits: (state, payload) => {
             state.ssiCredits = payload
+        },
+        setCompanies: (state, payload) => {
+            state.companies = payload
         }
     },
 
@@ -694,11 +701,24 @@ const mainStore = {
             if (json) {
                 commit('insertAllApps', json);
                 json.data.map(x => {
-                    if (x.services[0].id != config.SERVICE_TYPES.QUEST) {
+                    if (x.services[0].id == config.SERVICE_TYPES.SSI_API) {                        
                         return dispatch('keepAccessTokenReadyForApp', {
                             serviceId: x.appId,
                             grant_type: config.GRANT_TYPES_ENUM[x.services[0].id]
                         })
+                    }
+                    // For CAVACH_API services, we need to set up tokens for both KYC and KYB operations
+                    // KYC (Know Your Customer) and KYB (Know Your Business) are separate verification processes
+                    if(x.services[0].id == config.SERVICE_TYPES.CAVACH_API){
+                         dispatch('keepAccessTokenReadyForApp', {
+                            serviceId: x.appId,
+                            grant_type: config.GRANT_TYPES_ENUM[x.services[0].id]
+                        })
+                        return dispatch('keepAccessTokenReadyForApp', {
+                            serviceId: x.appId,
+                            grant_type: config.GRANT_TYPES_ENUM["CAVACH_KYB_API"]
+                        })
+
                     }
                 })
             } else {
@@ -718,7 +738,9 @@ const mainStore = {
         },
 
 
-        keepAccessTokenReadyForApp: async ({ commit, getters }, payload) => {
+        keepAccessTokenReadyForApp: async ({ commit, getters }, payload) => {  
+            console.log(payload);
+                      
             try {
                 const { serviceId, grant_type } = payload
                 const url = `${apiServerBaseUrl}/app/access-control/token?serviceId=${serviceId}&grant_type=${grant_type}`;
@@ -726,7 +748,15 @@ const mainStore = {
                 const json = await RequestHandler(url, 'GET', {}, headers);
                 if (json?.access_token) {
                     const app = getters.getAppByAppId(serviceId)
-                    app['access_token'] = json.access_token
+                    // Handle different access token types based on grant type:
+                    // - For CAVACH_KYB_API grant type: store as 'kyb_access_token'
+                    // - For all other grant types (SSI_API, CAVACH_API): store as 'access_token'
+                    // This allows KYC services to have separate tokens for KYC and KYB operations
+                    if(grant_type != config.GRANT_TYPES_ENUM.CAVACH_KYB_API){
+                        app['access_token'] = json.access_token
+                    }else{
+                        app['kyb_access_token'] = json.access_token
+                    }
                     commit('insertAnApp', app);
                 } else {
                     throw new Error(`Could not fetch accesstoken for service   ${serviceId}`)
@@ -779,6 +809,61 @@ const mainStore = {
                     }).catch((e) => {
                         return reject(new Error(`while generating new secret key app  ${e}`))
                     })
+            })
+        },
+        fetchAppKybs: ({ commit, getters }) => {
+            return new Promise((resolve, reject) => {
+                if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
+                    return reject(new Error('Tenant url is null or empty, service is not selected'))
+                }
+
+                let url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyb/verification/company`;
+                const headers = UtilsMixin.methods.getKycServiceHeader(getters.getSelectedService.kyb_access_token);
+                fetch(url, {
+                    method: 'GET',
+                    headers,
+                    credentials: 'include',
+                }).then(response => response.json()).then(json => {
+                    if (json.error) {
+                        return reject(new Error(json.error?.details?.join(' ') || json.error?.join?.(' ') || json.error || 'Unknown error'))
+                    }
+                    
+                    const companiesData = json.data || json;
+                    
+                    // Transform the data to match component structure
+                    const transformedCompanies = Array.isArray(companiesData) ? 
+                        companiesData.map(company => ({
+                            id: company._id || company.id,
+                            companyId: company._id || company.id,
+                            countryCode: company.countryOfRegistration || company.address?.country || 'IN',
+                            companyName: company.name || 'Unknown Company',
+                            registrationNumber: company.registrationNumber || 'N/A',
+                            representative: company.representative?.name || 'N/A',
+                            startDate: company.createdAt ? new Date(company.createdAt).toISOString().split('T')[0] : 'N/A',
+                            status: company.status || 'Submitted',
+                            statusReasons: company.statusReason || [],
+                            steps: {
+                                flag: true,
+                                building: true,
+                                document: company.documents && company.documents.length > 0,
+                                user: ['Submitted', 'InProgress', 'Approved'].includes(company.status),
+                                verification: ['Approved', 'Completed'].includes(company.status)
+                            },
+                            region: company.region || 'Unknown',
+                            domain: company.domain || 'N/A',
+                            registrationNumberType: company.registrationNumberType || 'Unknown',
+                            address: company.address || {},
+                            documents: company.documents || [],
+                            createdAt: company.createdAt,
+                            updatedAt: company.updatedAt
+                        })) : [];
+                    
+                    // Commit the transformed companies data to store
+                    commit('setCompanies', transformedCompanies);
+                    resolve(transformedCompanies);
+                }).catch((e) => {
+                    return reject(new Error(`Error while fetching KYB companies: ${e.message}`));
+                })
             })
         },
 

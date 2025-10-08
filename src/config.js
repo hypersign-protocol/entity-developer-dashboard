@@ -71,7 +71,18 @@ config['SERVICE_TYPES'] = Object.freeze({
 
 config['GRANT_TYPES_ENUM'] = Object.freeze({
     'SSI_API': 'access_service_ssi',
-    'CAVACH_API': 'access_service_kyc'
+    'CAVACH_API': 'access_service_kyc',
+    // CAVACH_KYB_API uses the same grant type as CAVACH_API but is treated separately 
+    // in the application logic to handle KYB (Know Your Business) operations distinctly from KYC
+    'CAVACH_KYB_API': 'access_service_kyb',
+})
+
+config['COMPLIANCE_CHECK_FAILURE_REASONS'] = Object.freeze({
+    'COMPANY_NOT_FOUND_REGISTRY': 'The company could not be found in the official registry.',
+    'COMPANY_INACTIVE': 'The company is marked as inactive in the official registry.',
+    'COMPANY_FIELDS_MISMATCH': 'There is a mismatch between the provided company details and those in the official registry.',
+    'COMPANY_ADVERSE_MEDIA_FOUND': 'Adverse media related to the company was found during the check.',
+    'COMPANY_SANCTION_LIST_FOUND': 'The company appears on one or more sanction lists.'
 })
 
 config['AUTH_PROVIDERS'] = Object.freeze({
