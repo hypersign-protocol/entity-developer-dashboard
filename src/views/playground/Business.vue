@@ -498,6 +498,8 @@ h5 span {
   margin-top: 1rem;
   padding-top: 0.75rem;
   border-top: 1px solid #f3f4f6;
+  background: #fff;
+
 }
 
 .verification-steps {
@@ -514,12 +516,12 @@ h5 span {
 
 .step-icon.active {
   color: #059669;
-  background: #d1fae5;
+  background: #fff;
 }
 
 .step-icon.inactive {
   color: #9ca3af;
-  background: #f3f4f6;
+  background: #fff;
 }
 
 /* Status badges */
