@@ -431,10 +431,10 @@ export default {
             // appId
             this.isLoading = true
             this.setDate()
-            await this.fetchUsageForAService({ startDate: this.startDate, endDate: this.endDate }).then((data) => {
+            await this.fetchUsageForASSIService({ startDate: this.startDate, endDate: this.endDate }).then((data) => {
                 this.usageDetails = data;
             })
-            await this.fetchUsageDetailsForAService({ startDate: this.startDate, endDate: this.endDate });
+            await this.fetchUsageDetailsForASSIService({ startDate: this.startDate, endDate: this.endDate });
             this.renderUsageDetailsChart()
 
             this.isLoading = false
@@ -467,7 +467,7 @@ export default {
     },
     methods: {
         ...mapActions('mainStore', ['ssiDashboardTxStats', 'ssiDashboardAllowanceStats', 'ssiDashboardGrantsStats']),
-        ...mapActions('mainStore', ['fetchUsageForAService', 'fetchUsageDetailsForAService']),
+        ...mapActions('mainStore', ['fetchUsageForASSIService', 'fetchUsageDetailsForASSIService']),
 
         ...mapMutations('playgroundStore', ['updateSideNavStatus', 'shiftContainer']),
 
@@ -676,8 +676,8 @@ export default {
                 this.endDate = (new Date(this.endDate));
 
                 this.isLoading = true
-                this.usageDetails = await this.fetchUsageForAService({ startDate: this.startDate, endDate: this.endDate })
-                await this.fetchUsageDetailsForAService({ startDate: this.startDate, endDate: this.endDate });
+                this.usageDetails = await this.fetchUsageForASSIService({ startDate: this.startDate, endDate: this.endDate })
+                await this.fetchUsageDetailsForASSIService({ startDate: this.startDate, endDate: this.endDate });
                 this.isLoading = false
 
                 this.didChart.destroy()

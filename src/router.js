@@ -22,6 +22,7 @@ const KYCWebpageGenerator = () => import('./views/playground/KYCWebpageGenerator
 const MFA = () => import('./components/login/mfa/MFA.vue')
 const SettingConfig = () => import('./views/SettingConfig.vue')
 const Business=() => import('./views/playground/Business.vue')
+const BusinessDetails=() => import('./views/playground/BusinessDetails.vue')
 Vue.use(Router)
 
 const router = new Router({
@@ -99,6 +100,15 @@ const router = new Router({
       meta: {
         requiresAuth: true,
         title: `${config.app.name} - Business`
+      }
+    },
+    {
+      path: '/studio/business/:appId/details/:companyId/:tab?',
+      name: 'BusinessDetails',
+      component: BusinessDetails,
+      meta: {
+        requiresAuth: true,
+        title: `${config.app.name} - Business Details`
       }
     },
     {

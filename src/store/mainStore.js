@@ -46,7 +46,9 @@ const mainStore = {
 
         schemaList: [],
         credentialList: [],
-        companies: []
+        companies: [],
+        companyExecutives: [],
+        complianceData: null
     },
     getters: {
         getIsLoggedOut: (state) => {
@@ -146,6 +148,12 @@ const mainStore = {
         },
         getCompanies: (state) => {
             return state.companies
+        },
+        getCompanyExecutives: (state) => {
+            return state.companyExecutives
+        },
+        getComplianceData: (state) => {
+            return state.complianceData
         }
     },
     mutations: {
@@ -296,6 +304,21 @@ const mainStore = {
         },
         setCompanies: (state, payload) => {
             state.companies = payload
+        },
+        clearCompanies: (state) => {
+            state.companies = []
+        },
+        setCompanyExecutives: (state, payload) => {
+            state.companyExecutives = payload
+        },
+        clearCompanyExecutives: (state) => {
+            state.companyExecutives = []
+        },
+        setComplianceData: (state, payload) => {
+            state.complianceData = payload
+        },
+        clearComplianceData: (state) => {
+            state.complianceData = null
         }
     },
 
@@ -701,7 +724,7 @@ const mainStore = {
             if (json) {
                 commit('insertAllApps', json);
                 json.data.map(x => {
-                    if (x.services[0].id == config.SERVICE_TYPES.SSI_API) {                        
+                    if (x.services[0].id == config.SERVICE_TYPES.SSI_API) {
                         return dispatch('keepAccessTokenReadyForApp', {
                             serviceId: x.appId,
                             grant_type: config.GRANT_TYPES_ENUM[x.services[0].id]
@@ -709,8 +732,8 @@ const mainStore = {
                     }
                     // For CAVACH_API services, we need to set up tokens for both KYC and KYB operations
                     // KYC (Know Your Customer) and KYB (Know Your Business) are separate verification processes
-                    if(x.services[0].id == config.SERVICE_TYPES.CAVACH_API){
-                         dispatch('keepAccessTokenReadyForApp', {
+                    if (x.services[0].id == config.SERVICE_TYPES.CAVACH_API) {
+                        dispatch('keepAccessTokenReadyForApp', {
                             serviceId: x.appId,
                             grant_type: config.GRANT_TYPES_ENUM[x.services[0].id]
                         })
@@ -738,9 +761,7 @@ const mainStore = {
         },
 
 
-        keepAccessTokenReadyForApp: async ({ commit, getters }, payload) => {  
-            console.log(payload);
-                      
+        keepAccessTokenReadyForApp: async ({ commit, getters }, payload) => {
             try {
                 const { serviceId, grant_type } = payload
                 const url = `${apiServerBaseUrl}/app/access-control/token?serviceId=${serviceId}&grant_type=${grant_type}`;
@@ -752,9 +773,9 @@ const mainStore = {
                     // - For CAVACH_KYB_API grant type: store as 'kyb_access_token'
                     // - For all other grant types (SSI_API, CAVACH_API): store as 'access_token'
                     // This allows KYC services to have separate tokens for KYC and KYB operations
-                    if(grant_type != config.GRANT_TYPES_ENUM.CAVACH_KYB_API){
+                    if (grant_type != config.GRANT_TYPES_ENUM.CAVACH_KYB_API) {
                         app['access_token'] = json.access_token
-                    }else{
+                    } else {
                         app['kyb_access_token'] = json.access_token
                     }
                     commit('insertAnApp', app);
@@ -827,11 +848,11 @@ const mainStore = {
                     if (json.error) {
                         return reject(new Error(json.error?.details?.join(' ') || json.error?.join?.(' ') || json.error || 'Unknown error'))
                     }
-                    
+
                     const companiesData = json.data || json;
-                    
+
                     // Transform the data to match component structure
-                    const transformedCompanies = Array.isArray(companiesData) ? 
+                    const transformedCompanies = Array.isArray(companiesData) ?
                         companiesData.map(company => ({
                             id: company._id || company.id,
                             companyId: company._id || company.id,
@@ -857,7 +878,7 @@ const mainStore = {
                             createdAt: company.createdAt,
                             updatedAt: company.updatedAt
                         })) : [];
-                    
+
                     // Commit the transformed companies data to store
                     commit('setCompanies', transformedCompanies);
                     resolve(transformedCompanies);
@@ -1494,6 +1515,27 @@ const mainStore = {
                 })
             })
         },
+        async fetchUsageForASSIService({ getters }, payload) {
+            const { startDate, endDate } = payload
+            if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
+                throw new Error('Tenant url is null or empty, service is not selected')
+            }
+            const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/usage?serviceId=${getters.getSelectedService.appId}&startDate=${startDate}&endDate=${endDate}`;
+            // const url = `http://localhost:3001/api/v1/usage?serviceId=${getters.getSelectedService.appId}&startDate=${startDate}&endDate=${endDate}`;            
+            const authToken = getters.getSelectedService.access_token
+            const headers = UtilsMixin.methods.getHeader(authToken);
+            const resp = await fetch(url, {
+                method: 'GET',
+                headers
+            })
+            const json = await resp.json()
+            if (json?.data) {
+                return json?.data
+            } else {
+                return json
+            }
+        },
+
 
         async fetchUsageForAService({ getters }, payload) {
             const { startDate, endDate } = payload
@@ -1501,7 +1543,7 @@ const mainStore = {
                 throw new Error('Tenant url is null or empty, service is not selected')
             }
             const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/usage?serviceId=${getters.getSelectedService.appId}&startDate=${startDate}&endDate=${endDate}`;
-            // const url = `http://localhost:3001/api/v1/usage?serviceId=${getters.getSelectedService.appId}&startDate=${startDate}&endDate=${endDate}`;
+            // const url = `http://localhost:3001/api/v1/usage?serviceId=${getters.getSelectedService.appId}&startDate=${startDate}&endDate=${endDate}`;            
             const authToken = getters.getSelectedService.access_token
             const headers = UtilsMixin.methods.getKycServiceHeader(authToken);
             const resp = await fetch(url, {
@@ -1515,7 +1557,57 @@ const mainStore = {
                 return json
             }
         },
+        async fetchUsageDetailsForASSIService({ getters, commit }, payload) {
+            const { startDate, endDate } = payload
+            if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
+                throw new Error('Tenant url is null or empty, service is not selected')
+            }
+            const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/usage/detail?serviceId=${getters.getSelectedService.appId}&startDate=${startDate}&endDate=${endDate}`;
+            const authToken = getters.getSelectedService.access_token
+            const headers = UtilsMixin.methods.getHeader(authToken);
+            const resp = await fetch(url, {
+                method: 'GET',
+                headers
+            })
+            const json = await resp.json()
+            if (json?.data) {
+                commit('setUsageDetails', json?.data)
+                return json?.data
+            } else {
+                commit('setUsageDetails', json)
+                return json
+            }
+        },
 
+        async downloadKybUploadedFile({ getters }, payload) {
+            const { fileId } = payload
+            if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
+                throw new Error('Tenant url is null or empty, service is not selected')
+            }
+            const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/document/download/${fileId}`;
+            
+            const headers = UtilsMixin.methods.getKycServiceHeader(getters.getSelectedService.kyb_access_token);
+            
+
+
+            const resp = await fetch(url, {
+                method: 'GET',
+                headers
+            })
+
+            if (!resp.ok) {
+                const errorText = await resp.text();
+                console.error('Download error response:', errorText);
+                throw new Error(`Download failed: ${resp.status} ${resp.statusText} - ${errorText}`);
+            }
+ 
+            
+            const blob = await resp.blob();
+
+            
+            return blob;
+
+        },
         async fetchUsageDetailsForAService({ getters, commit }, payload) {
             const { startDate, endDate } = payload
             if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
@@ -1537,7 +1629,56 @@ const mainStore = {
                 return json
             }
         },
+        async fetchCompanyExecutives({ getters, commit }, payload) {
+            const { companyId } = payload
+            if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
+                throw new Error('Tenant url is null or empty, service is not selected')
+            }
+            if (!companyId) {
+                throw new Error('Company Id is null or empty')
+            }
+            const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyb/verification/company/${companyId}/company-executives`;
+            const authToken = getters.getSelectedService.kyb_access_token
+            const headers = UtilsMixin.methods.getKycServiceHeader(authToken);
+            const resp = await fetch(url, {
+                method: 'GET',
+                headers
+            })
+            const json = await resp.json()
+            if (json?.data) {
+                commit('setCompanyExecutives', json?.data)
+                return json?.data
+            } else {
+                commit('setCompanyExecutives', [])
+                return []
+            }
 
+        },
+        async checkComplianceStatus({ getters, commit }, payload) {
+            const { companyId } = payload
+            if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
+                throw new Error('Tenant url is null or empty, service is not selected')
+            }
+            if (!companyId) {
+                throw new Error('Company Id is null or empty')
+            }
+            const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/compliance?entityId=${companyId}`;
+            const authToken = getters.getSelectedService.kyb_access_token
+            const headers = UtilsMixin.methods.getKycServiceHeader(authToken);
+            const resp = await fetch(url, {
+                method: 'GET',
+                headers
+            })
+            const json = await resp.json()
+            if (json?.data) {
+                commit('setComplianceData', json?.data)
+                return json?.data
+            } else {
+                commit('setComplianceData', null)
+                return json
+            }
+
+        },
         // - KYC Credit
         async fetchKYCCredits({ getters, commit }) {
 

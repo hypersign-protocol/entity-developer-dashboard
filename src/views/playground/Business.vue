@@ -8,46 +8,7 @@
   width: 80vw;
 }
 
-.UI--c-kbgiPT-iehgGlf-css {
-  background-color: #9cb5f9;
-}
-
-.step-notStarted {
-  background-color: #e1e1e3;
-}
-
-.step-failed {
-  background-color: rgba(252, 94, 94, 0.736);
-}
-
-.step-finished {
-  background-color: #673ab76e;
-}
-
-
-.UI--c-dhzjXW-iexswVt-css {
-  align-items: center;
-  justify-content: center;
-}
-
-.UI--c-kbgiPT-bUORwj-isFirst-true {
-  padding: 0px 0.4rem 0px 0px;
-  clip-path: polygon(75% 0%, 100% 50%, 75% 100%, 0% 100%, 0% 100%, 0% 0%);
-}
-
-.UI--c-kbgiPT {
-  height: 100%;
-  width: 4.8rem;
-  clip-path: polygon(75% 0%, 100% 50%, 75% 100%, 0% 100%, 25% 50%, 0% 0%);
-  margin-left: -0.9rem;
-  padding: 0px 0.4rem 0px 0.8rem;
-}
-
-.UI--c-dhzjXW {
-  display: flex;
-}
-
-.stepSpan {
+h5 {
   cursor: pointer;
   margin: 3px;
   padding: 0px;
@@ -116,40 +77,9 @@ h5 span {
   padding: 0 10px;
 }
 
-.scrollit {
-  overflow: hidden;
-  height: 800px;
-}
-
-.scrollit:hover {
-  overflow-y: auto;
-}
-
-.custom-active {
-  background-color: #e0e0e0 !important;
-  color: #000 !important;
-}
-
-
-::v-deep(.dropdown-item.custom-active:hover) {
-  background-color: #cfcfcf !important;
-  color: #000 !important;
-}
-
 ::v-deep(.dropdown-item:hover) {
   background-color: #f0f0f0 !important;
   color: #000 !important;
-}
-
-.overview-card {
-  background-color: white;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
-  min-height: 120px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 /* Main layout */
@@ -403,6 +333,71 @@ h5 span {
   color: #374151;
 }
 
+/* Dropdown styles */
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  z-index: 1000;
+  display: none;
+  min-width: 12rem;
+  padding: 0.75rem 0;
+  margin: 0.5rem 0 0;
+  background: #ffffff;
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  border-radius: 12px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(20px);
+}
+
+.dropdown-menu.show {
+  display: block;
+  animation: fadeInUp 0.2s ease;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.75rem 1.25rem;
+  color: #475569;
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-radius: 0;
+}
+
+.dropdown-item:hover {
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  color: #1e293b;
+  text-decoration: none;
+  transform: translateX(4px);
+}
+
+.dropdown-item i {
+  color: #3b82f6;
+  font-size: 0.9rem;
+}
+
 /* Card details section */
 .card-details {
   margin-bottom: 1rem;
@@ -630,18 +625,6 @@ h5 span {
   }
 }
 
-.overview-value {
-  font-size: 38px;
-  font-weight: 700;
-  color: #212121;
-}
-
-.overview-title {
-  font-size: 14px;
-  color: #757575;
-  margin-top: 6px;
-}
-
 .v-tooltip__content {
   font-size: 12px;
   max-width: 200px;
@@ -652,15 +635,6 @@ h5 span {
   display: flex;
   flex-wrap: wrap;
   gap: 1px;
-}
-
-
-.user-avatar {
-  background-color: #888;
-  /* or your theme color */
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 </style>
 <template>
@@ -725,9 +699,17 @@ h5 span {
                 <p>{{ company.registrationNumber }}</p>
               </div>
             </div>
-            <button class="menu-btn">
-              <i class="fas fa-ellipsis-v"></i>
-            </button>
+            <div class="dropdown">
+              <button class="menu-btn" type="button" @click="toggleDropdown(company.companyId)">
+                <i class="fas fa-ellipsis-v"></i>
+              </button>
+              <div class="dropdown-menu dropdown-menu-right" :class="{ 'show': openDropdownId === company.companyId }">
+                <a class="dropdown-item" href="#" @click="viewBusinessDetails(company)">
+                  <i class="fas fa-eye"></i>
+                  View Details
+                </a>
+              </div>
+            </div>
           </div>
 
           <!-- Company Details -->
@@ -784,7 +766,7 @@ h5 span {
 </template>
 
 <script>
-import { mapState, mapActions } from "vuex";
+import { mapState, mapActions, mapMutations } from "vuex";
 import loadIng from '../../components/element/LoadIng.vue';
 import config from '@/config.js';
 
@@ -797,7 +779,9 @@ export default {
       statusFilter: 'all',
       isLoading: false,
       fullPage: true,
-      error: null
+      error: null,
+      currentAppId: null,
+      openDropdownId: null
     }
   },
   computed: {
@@ -823,14 +807,29 @@ export default {
       return filtered;
     }
   },
+
   mounted() {
+    // Set the current appId when component mounts
+    this.currentAppId = this.$route.params.appId;
     this.fetchCompanies();
+    
+    // Add event listener to close dropdown when clicking outside
+    document.addEventListener('click', this.handleOutsideClick);
+  },
+  beforeDestroy() {
+    // Remove event listener to prevent memory leaks
+    document.removeEventListener('click', this.handleOutsideClick);
   },
   methods: {
     ...mapActions('mainStore', ['fetchAppKybs']),
+    ...mapMutations('mainStore', ['clearCompanies']),
+    
+    
     async fetchCompanies() {
       try {
         this.isLoading = true;
+        // Clear existing companies data before fetching new data
+        this.clearCompanies();
         await this.fetchAppKybs();
         this.isLoading = false;
       } catch (error) {
@@ -865,10 +864,6 @@ export default {
       }
     },
 
-    getStatusMessageClass(status) {
-      return this.getStatusBadgeClass(status);
-    },
-
     getCompanyStatusIcon(status) {
       switch (status) {
         case "Approved":
@@ -884,6 +879,36 @@ export default {
         default:
           return 'fas fa-info-circle';
       }
+    },
+
+    toggleDropdown(companyId) {
+      // Toggle dropdown - if it's already open, close it, otherwise open it
+      this.openDropdownId = this.openDropdownId === companyId ? null : companyId;
+    },
+
+    closeDropdown() {
+      this.openDropdownId = null;
+    },
+
+    handleOutsideClick(event) {
+      // Close dropdown if clicking outside of any dropdown
+      if (!event.target.closest('.dropdown')) {
+        this.closeDropdown();
+      }
+    },
+
+    viewBusinessDetails(company) {
+      // Close the dropdown first
+      this.closeDropdown();
+      
+      // Navigate to business details page
+      this.$router.push({
+        name: 'BusinessDetails',
+        params: {
+          appId: this.$route.params.appId,
+          companyId: company.companyId
+        }
+      });
     },
 
     getStatusTooltip(company) {
