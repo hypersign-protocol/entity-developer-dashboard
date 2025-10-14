@@ -85,6 +85,21 @@ config['COMPLIANCE_CHECK_FAILURE_REASONS'] = Object.freeze({
     'COMPANY_SANCTION_LIST_FOUND': 'The company appears on one or more sanction lists.'
 })
 
+config['COMPLIANCE_RECOMMENDATIONS'] = Object.freeze({
+    REGISTRY_CHECK: {
+        SUCCESS: ["Maintain current registration status"],
+        FAILED: ["Contact registry office for clarification", "Update business registration if required"]
+    },
+    SANCTIONS_CHECK: {
+        SUCCESS: ["Continue regular monitoring"],
+        FAILED: ["Review sanctions compliance", "Seek legal counsel if needed"]
+    },
+    ADVERSE_MEDIA_CHECK: {
+        SUCCESS: ["Continue media monitoring"],
+        FAILED: ["Review media coverage", "Assess reputational impact", "Consider risk mitigation strategies"]
+    }
+})
+
 config['AUTH_PROVIDERS'] = Object.freeze({
     GOOGLE: 'google',
     KEPLR: 'keplr',

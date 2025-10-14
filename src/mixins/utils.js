@@ -39,6 +39,7 @@ export default {
           }
             return headers;
         },
+           
         stringShortner(str, size) {
             if (!str) {
                 return "-"
