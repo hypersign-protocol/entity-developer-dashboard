@@ -1,9 +1,9 @@
 <template>
   <div class="business-information">
-    <div class="section-header">
+    <!-- <div class="section-header">
       <h2 class="section-title">Business Information</h2>
       <p class="section-description">Complete business details and registration information</p>
-    </div>
+    </div> -->
 
     <div class="info-grid">
       <!-- Basic Information Card -->
@@ -30,6 +30,14 @@
             <span class="value">{{ company?.registrationNumberType || 'N/A' }}</span>
           </div>
           <div class="info-row">
+            <span class="label">Representative:</span>
+            <span class="value">{{ company?.representative || 'N/A' }}</span>
+          </div>
+          <div class="info-row">
+            <span class="label">Domain:</span>
+            <span class="value">{{ company?.domain || 'N/A' }}</span>
+          </div>
+          <div class="info-row">
             <span class="label">Country:</span>
             <span class="value">
               {{ countryCodeToFlag(company?.countryCode) }} {{ company?.countryCode || 'N/A' }}
@@ -42,23 +50,7 @@
         </div>
       </div>
 
-      <!-- Contact Information -->
-      <div class="info-card">
-        <h3 class="card-title">
-          <i class="fas fa-user"></i>
-          Representative Information
-        </h3>
-        <div class="info-rows">
-          <div class="info-row">
-            <span class="label">Representative:</span>
-            <span class="value">{{ company?.representative || 'N/A' }}</span>
-          </div>
-          <div class="info-row">
-            <span class="label">Domain:</span>
-            <span class="value">{{ company?.domain || 'N/A' }}</span>
-          </div>
-        </div>
-      </div>
+
 
       <!-- Status Information -->
       <div class="info-card">
@@ -84,10 +76,7 @@
             <span class="label">Last Updated:</span>
             <span class="value">{{ formatDate(company?.updatedAt) }}</span>
           </div>
-          <div class="info-row">
-            <span class="label">Start Date:</span>
-            <span class="value">{{ company?.startDate || 'N/A' }}</span>
-          </div>
+
         </div>
       </div>
 
@@ -116,13 +105,13 @@
           </div>
           <div class="info-row">
             <span class="label">Country:</span>
-            <span class="value">{{ company.address.country || 'N/A' }}</span>
+            <span class="value"> {{ countryCodeToFlag(company?.address?.country) }} {{ company.address.country || 'N/A' }}</span>
           </div>
         </div>
       </div>
 
       <!-- Verification Steps -->
-      <div class="info-card full-width">
+      <div class="info-card full-width" style="display: none;">
         <h3 class="card-title">
           <i class="fas fa-tasks"></i>
           Verification Progress
@@ -201,7 +190,7 @@ export default {
     getStatusBadgeClass(status) {
       const statusMap = {
         "Submitted": 'status-submitted',
-        "InProgress": 'status-inprogress', 
+        "InProgress": 'status-inprogress',
         "Approved": 'status-approved',
         "Rejected": 'status-rejected',
         "Completed": 'status-completed'
@@ -438,13 +427,13 @@ export default {
   .info-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .info-row {
     flex-direction: column;
     align-items: flex-start;
     gap: 0.25rem;
   }
-  
+
   .value {
     text-align: left;
   }

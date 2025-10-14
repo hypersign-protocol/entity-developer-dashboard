@@ -1,52 +1,9 @@
 <template>
     <div class="document-uploaded">
-        <div class="section-header">
+        <!-- <div class="section-header">
             <h2 class="section-title">Document Uploaded</h2>
             <p class="section-description">View and manage uploaded business documents</p>
-        </div>
-
-        <!-- Document Categories Summary -->
-        <div class="document-summary" v-if="documents && documents.length > 0">
-            <h3 class="summary-title">Document Summary</h3>
-            <div class="summary-grid">
-                <div class="summary-card">
-                    <div class="summary-icon">
-                        <i class="fas fa-file-alt"></i>
-                    </div>
-                    <div class="summary-info">
-                        <span class="summary-count">{{ documents.length }}</span>
-                        <span class="summary-label">Total Documents</span>
-                    </div>
-                </div>
-                <div class="summary-card">
-                    <div class="summary-icon verified">
-                        <i class="fas fa-check-circle"></i>
-                    </div>
-                    <div class="summary-info">
-                        <span class="summary-count">{{ verifiedDocuments }}</span>
-                        <span class="summary-label">Verified</span>
-                    </div>
-                </div>
-                <div class="summary-card">
-                    <div class="summary-icon pending">
-                        <i class="fas fa-clock"></i>
-                    </div>
-                    <div class="summary-info">
-                        <span class="summary-count">{{ pendingDocuments }}</span>
-                        <span class="summary-label">Pending</span>
-                    </div>
-                </div>
-                <div class="summary-card">
-                    <div class="summary-icon rejected">
-                        <i class="fas fa-times-circle"></i>
-                    </div>
-                    <div class="summary-info">
-                        <span class="summary-count">{{ rejectedDocuments }}</span>
-                        <span class="summary-label">Rejected</span>
-                    </div>
-                </div>
-            </div>
-        </div>
+        </div> -->
 
         <!-- Documents Grid -->
 
@@ -109,15 +66,6 @@ export default {
                 status: this.getDocumentStatus(),
                 description: this.getDocumentDescription(doc.documentType)
             }));
-        },
-        verifiedDocuments() {
-            return this.documents.filter(doc => doc.status === 'verified').length;
-        },
-        pendingDocuments() {
-            return this.documents.filter(doc => doc.status === 'pending').length;
-        },
-        rejectedDocuments() {
-            return this.documents.filter(doc => doc.status === 'rejected').length;
         }
     },
     methods: {
@@ -339,8 +287,6 @@ export default {
     box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
 }
 
-/* Status badges - used in summary icons */
-
 /* Empty State */
 .empty-state {
     text-align: center;
@@ -365,95 +311,6 @@ export default {
     margin: 0 0 1.5rem 0;
     line-height: 1.5;
 }
-
-
-
-
-/* Document Summary */
-.document-summary {
-    background-color: #f9fafb;
-    border-radius: 8px;
-    padding: 1.5rem;
-    margin-bottom: 2rem;
-    border: 1px solid #e5e7eb;
-}
-
-.summary-title {
-    font-size: 1.125rem;
-    font-weight: 600;
-    color: #111827;
-    margin: 0 0 1rem 0;
-}
-
-.summary-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 1rem;
-}
-
-.summary-card {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    background-color: white;
-    padding: 1rem;
-    border-radius: 8px;
-    border: 1px solid #e5e7eb;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    transition: all 0.2s ease;
-}
-
-.summary-card:hover {
-    border-color: #3b82f6;
-    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
-}
-
-.summary-icon {
-    width: 2.5rem;
-    height: 2.5rem;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1rem;
-    background-color: #f3f4f6;
-    color: #6b7280;
-}
-
-.summary-icon.verified {
-    background-color: #f0fdf4;
-    color: #16a34a;
-}
-
-.summary-icon.pending {
-    background-color: #fffbeb;
-    color: #d97706;
-}
-
-.summary-icon.rejected {
-    background-color: #fef2f2;
-    color: #dc2626;
-}
-
-.summary-info {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-}
-
-.summary-count {
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: #111827;
-    line-height: 1;
-}
-
-.summary-label {
-    font-size: 0.75rem;
-    color: #6b7280;
-    font-weight: 600;
-}
-
 /* Responsive Design */
 @media (max-width: 768px) {
     .documents-grid {

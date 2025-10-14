@@ -1,9 +1,6 @@
 <template>
   <div class="checks-regulations">
-    <div class="section-header">
-      <h2 class="section-title">Checks & Regulations</h2>
-      <p class="section-description">Compliance checks, sanctions screening, and regulatory status</p>
-    </div>
+
 
     <!-- Loading State -->
     <div v-if="isLoading" class="loading-state">
@@ -66,7 +63,6 @@
 
     <!-- Compliance Checks List -->
     <div class="compliance-checks">
-      <h3 class="checks-title">Compliance Checks</h3>
       <div class="checks-list">
         <div v-for="(check, index) in complianceChecks" :key="index" class="check-card">
           <div class="check-header">
@@ -413,6 +409,7 @@ export default {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 1rem;
+  display: none;
   margin-bottom: 2rem;
 }
 
