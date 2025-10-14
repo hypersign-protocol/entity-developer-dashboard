@@ -21,6 +21,7 @@ const WebhookConfig = () => import('./views/playground/WebhookConfig.vue')
 const KYCWebpageGenerator = () => import('./views/playground/KYCWebpageGenerator.vue')
 const MFA = () => import('./components/login/mfa/MFA.vue')
 const SettingConfig = () => import('./views/SettingConfig.vue')
+const Business=() => import('./views/playground/Business.vue')
 Vue.use(Router)
 
 const router = new Router({
@@ -89,6 +90,15 @@ const router = new Router({
       meta: {
         requiresAuth: true,
         title: `${config.app.name} - Sessions`
+      }
+    },
+    {
+      path: '/studio/business/:appId',
+      name: 'Business',
+      component: Business,
+      meta: {
+        requiresAuth: true,
+        title: `${config.app.name} - Business`
       }
     },
     {
