@@ -822,7 +822,6 @@ const mainStore = {
                 fetch(url, {
                     method: 'GET',
                     headers,
-                    credentials: 'include',
                 }).then(response => response.json()).then(json => {
                     if (json.error) {
                         return reject(new Error(json.error?.details?.join(' ') || json.error?.join?.(' ') || json.error || 'Unknown error'))
