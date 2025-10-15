@@ -202,6 +202,7 @@
 </template>
 
 <style>
+
 .v-sidebar-menu .vsm--link_level-1 .vsm--icon {
   font-size: 16px;
   width: 40px !important;
@@ -558,7 +559,7 @@ export default {
                 },
                 {
                   href: "/studio/kyc-webpage-generator/" + this.getSelectedService.appId,
-                  title: "KYC Verifier Configuration",
+                  title: "KYC Verifier ",
                   icon: "fa fa-globe",
                 },
               ]

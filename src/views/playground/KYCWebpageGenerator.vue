@@ -92,6 +92,84 @@
   border-radius: 4px;
   margin-bottom: 0;
   min-width: 280px;
+  position: relative;
+}
+
+/* Status Icon Styles */
+.status-icon {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-left: 8px;
+  position: relative;
+  cursor: help;
+  animation: pulse 2s infinite;
+}
+
+.status-icon.active {
+  background-color: #28a745;
+  box-shadow: 0 0 8px rgba(40, 167, 69, 0.6);
+}
+
+.status-icon.expired {
+  background-color: #dc3545;
+  box-shadow: 0 0 8px rgba(220, 53, 69, 0.6);
+}
+
+.status-icon.warning {
+  background-color: #ffc107;
+  box-shadow: 0 0 8px rgba(255, 193, 7, 0.6);
+}
+
+.status-icon.not-created {
+  background-color: #6c757d;
+  box-shadow: 0 0 8px rgba(108, 117, 125, 0.6);
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 6px rgba(0, 0, 0, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
+  }
+}
+
+/* Status Tooltip */
+.status-tooltip {
+  position: fixed;
+  background: #333;
+  color: white;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s, visibility 0.3s;
+  z-index: 99999;
+  pointer-events: none;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  transform: translateX(-50%);
+}
+
+.status-tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: #333;
+}
+
+.status-icon:hover + .status-tooltip {
+  opacity: 1;
+  visibility: visible;
 }
 
 .link-text {
@@ -419,6 +497,7 @@ textarea.form-control {
   align-items: center;
   justify-content: flex-start;
   padding: 24px 12px 16px;
+  min-height: 100%;
 }
 
 .kyc-preview-card {
@@ -507,6 +586,7 @@ textarea.form-control {
   margin-top: 18px;
   font-size: 10px;
   color: #374151;
+  text-align: center;
 }
 
 .powered-by {
@@ -637,17 +717,69 @@ textarea.form-control {
   border-radius: 25px;
   overflow: hidden;
   border: 3px solid #333;
-  background: #333;
+  background: transparent;
   height: 620px;
   max-width: 360px;
   margin: 0 auto;
+  position: relative;
+}
+
+/* Mobile preview theme backgrounds - apply to browser frame for consistent background */
+.mobile-preview .preview-vibrant-theme .browser-frame {
+  background: linear-gradient(180deg, rgba(102,126,234,0.08) 0%, rgba(118,75,162,0.05) 100%) !important;
+}
+
+.mobile-preview .preview-dark-theme .browser-frame {
+  background: #0f172a !important;
+}
+
+.mobile-preview .preview-grey-theme .browser-frame {
+  background: linear-gradient(180deg, rgba(127,140,141,0.08) 0%, rgba(189,195,199,0.06) 100%) !important;
+}
+
+.mobile-preview .preview-light-theme .browser-frame {
+  background: #f5f7fb !important;
+}
+
+/* Mobile preview theme backgrounds - apply to browser content for full height */
+.mobile-preview .preview-vibrant-theme .browser-content {
+  background: linear-gradient(180deg, rgba(102,126,234,0.08) 0%, rgba(118,75,162,0.05) 100%) !important;
+  min-height: calc(100% - 40px); /* Subtract header height */
+  height: calc(100% - 40px);
+}
+
+.mobile-preview .preview-dark-theme .browser-content {
+  background: #0f172a !important;
+  min-height: calc(100% - 40px);
+  height: calc(100% - 40px);
+}
+
+.mobile-preview .preview-grey-theme .browser-content {
+  background: linear-gradient(180deg, rgba(127,140,141,0.08) 0%, rgba(189,195,199,0.06) 100%) !important;
+  min-height: calc(100% - 40px);
+  height: calc(100% - 40px);
+}
+
+.mobile-preview .preview-light-theme .browser-content {
+  background: #f5f7fb !important;
+  min-height: calc(100% - 40px);
+  height: calc(100% - 40px);
+}
+
+/* Mobile preview specific styles for full height */
+.mobile-preview .kyc-preview {
+  min-height: calc(100% - 40px); /* Match browser-content height */
+  padding: 16px 8px 12px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 .mobile-preview .browser-header {
   padding: 8px;
   border-radius: 22px 22px 0 0;
-  background: #333;
-  border-bottom: 1px solid #555;
+  background: #f8f9fb;
+  border-bottom: 1px solid #eef1f4;
 }
 
 .mobile-preview .browser-dots {
@@ -655,9 +787,9 @@ textarea.form-control {
 }
 
 .mobile-preview .browser-url {
-  background: #444;
-  border: 1px solid #555;
-  color: #ccc;
+  background: #ffffff;
+  border: 1px solid #e9ecef;
+  color: #666;
   font-size: 10px;
   padding: 3px 6px;
 }
@@ -1086,6 +1218,8 @@ textarea.form-control {
         <div class="header-right">
           <div class="url-section">
             <div class="link-display" v-if="kycWebpageConfigTemp._id">
+              <span class="status-icon" :class="getStatusIconClass()" @mouseenter="showStatusTooltip($event, getStatusText())" @mouseleave="hideStatusTooltip($event)"></span>
+              <span class="status-tooltip"></span>
               <span class="link-text">{{ kycWebpageConfigTemp.generatedUrl || 'No URL generated' }}</span>
               <button class="copy-btn" @click="copyToClipboard" v-if="kycWebpageConfigTemp.generatedUrl" title="Copy URL">
                 <i class="fa fa-copy"></i>
@@ -1093,10 +1227,9 @@ textarea.form-control {
             </div>
             <div class="link-display" v-else>
               <span class="link-text">URL will be generated after saving</span>
+                                            <span class="status-icon not-created" @mouseenter="showStatusTooltip($event, 'Not Created')" @mouseleave="hideStatusTooltip($event)"></span>
+               <span class="status-tooltip"></span>
             </div>
-            <span class="status-badge" :class="getStatusClass()">
-              {{ getStatusText() }}
-            </span>
           </div>
         </div>
       </div>
@@ -1241,7 +1374,7 @@ textarea.form-control {
               </div>
             </div>
             
-            <div class="browser-frame" :class="`${previewMode}-preview`">
+            <div class="browser-frame" :class="`${previewMode}-preview preview-${kycWebpageConfigTemp.selectedTheme}-theme`">
               <div class="browser-header">
                 <div class="browser-dots">
                   <span class="browser-dot red"></span>
@@ -1363,7 +1496,7 @@ export default {
       previewMode: "desktop",
       showDeleteModal: false,
       kycWebpageConfigTemp: {
-        pageTitle: "KYC Verification",
+        pageTitle: "",
         pageDescription: "",
         expiryType: "3months",
         customExpiryDate: "",
@@ -1431,6 +1564,9 @@ export default {
         case 'custom':
           if (this.kycWebpageConfigTemp.customExpiryDate) {
             expiry = new Date(this.kycWebpageConfigTemp.customExpiryDate);
+          } else {
+            // No custom date chosen yet – signal undefined to avoid treating as expired
+            return undefined;
           }
           break;
       }
@@ -1445,6 +1581,7 @@ export default {
       if (!this.kycWebpageConfigTemp._id) return 'Not Created';
       
       const daysRemaining = this.getDaysRemaining();
+      if (daysRemaining === undefined) return 'Active';
       if (daysRemaining === 0) return 'Expired';
       if (daysRemaining <= 7) return 'Expiring Soon';
       return 'Active';
@@ -1454,9 +1591,39 @@ export default {
       if (!this.kycWebpageConfigTemp._id) return 'status-warning';
       
       const daysRemaining = this.getDaysRemaining();
+      if (daysRemaining === undefined) return 'status-active';
       if (daysRemaining === 0) return 'status-expired';
       if (daysRemaining <= 7) return 'status-warning';
       return 'status-active';
+    },
+
+    getStatusIconClass() {
+      if (!this.kycWebpageConfigTemp._id) return 'not-created';
+      
+      const daysRemaining = this.getDaysRemaining();
+      if (daysRemaining === undefined) return 'active';
+      if (daysRemaining === 0) return 'expired';
+      if (daysRemaining <= 7) return 'warning';
+      return 'active';
+    },
+
+    showStatusTooltip(event, statusText) {
+      const tooltip = event.target.nextElementSibling;
+      if (tooltip && tooltip.classList.contains('status-tooltip')) {
+        tooltip.textContent = statusText;
+        tooltip.style.left = event.pageX + 'px';
+        tooltip.style.top = (event.pageY - 40) + 'px';
+        tooltip.style.opacity = '1';
+        tooltip.style.visibility = 'visible';
+      }
+    },
+
+    hideStatusTooltip(event) {
+      const tooltip = event.target.nextElementSibling;
+      if (tooltip && tooltip.classList.contains('status-tooltip')) {
+        tooltip.style.opacity = '0';
+        tooltip.style.visibility = 'hidden';
+      }
     },
 
     validateField() {
@@ -1548,9 +1715,9 @@ export default {
         } else {
           // Reset to default values if no config exists
           this.kycWebpageConfigTemp = {
-            pageTitle: "KYC Verification",
+            pageTitle: "",
             pageDescription: "",
-            expiryType: "3months",
+            expiryType: "1months",
             customExpiryDate: "",
             selectedTheme: "vibrant",
             contactEmail: "",
