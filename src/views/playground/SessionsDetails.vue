@@ -186,7 +186,7 @@ h3 {
         <div class="row">
             <!-- <v-breadcrumbs :items="[{text: 'Session', disabled: false, href: '/'}, {text: this.sessionId, disabled: true}]"></v-breadcrumbs> -->
             <h4 style="color: #8080808f;cursor: pointer;">
-                <a @click="$router.go(-1)" href="#">Users</a> <i class="fa fa-angle-double-right"
+                <a @click="goBack" href="#">Users</a> <i class="fa fa-angle-double-right"
                     aria-hidden="true"></i><span @click="copyToClip(sessionId, 'UserId')">{{ sessionId }}</span>
             </h4>
         </div>
@@ -1044,6 +1044,11 @@ formatDate(date) {
                 console.error('Error generating PDF:', err);
                 this.notifyErr(err.message)
             }
+        },
+        goBack() {
+            this.$router.push({
+                name: 'playgroundCredential',
+            });
         },
 
         getChainDetail(blockchainlabel = 'cosmos:comdex:test') {

@@ -92,7 +92,7 @@ h5 span {
 .content-box {
   background-color: white;
   border-radius: 0.5rem;
-  padding: 2rem;
+  /* padding: 2rem; */
 }
 
 /* Header section */
@@ -104,7 +104,7 @@ h5 span {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
 }
 
 .title-group {
@@ -114,9 +114,9 @@ h5 span {
 }
 
 .page-title {
-  font-size: 1.5rem;
+  font-size: 1.75rem;
   line-height: 2rem;
-  font-weight: 600;
+  font-weight: 500;
   color: #111827;
   margin: 0;
 }
@@ -278,7 +278,7 @@ h5 span {
 }
 
 .company-card:hover {
-  border-color: #3b82f6;
+  border-color: #66666a;
   box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
 }
 
@@ -638,13 +638,13 @@ h5 span {
 }
 </style>
 <template>
-  <div class="business-container">
+  <div class="business-container" >
     <!-- Loading overlay -->
     <loadIng :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loadIng>
 
     <!-- Main Content -->
     <!-- Content Container -->
-    <div class="content-box">
+    <div class="content-box" >
       <!-- Header Section -->
       <div class="header-section">
         <div class="header-row">
@@ -687,7 +687,7 @@ h5 span {
 
       <!-- Company Cards Grid -->
       <div v-else-if="filteredCompanies.length > 0" class="company-grid">
-        <div v-for="company in filteredCompanies" :key="company.id" class="company-card">
+        <div v-for="company in filteredCompanies" :key="company.id" class="company-card" @click="viewBusinessDetails(company)">
           <!-- Company Header -->
           <div class="card-header">
             <div class="company-info">
@@ -699,7 +699,7 @@ h5 span {
                 <p>{{ company.registrationNumber }}</p>
               </div>
             </div>
-            <div class="dropdown">
+            <!-- <div class="dropdown">
               <button class="menu-btn" type="button" @click="toggleDropdown(company.companyId)">
                 <i class="fas fa-ellipsis-v"></i>
               </button>
@@ -709,7 +709,7 @@ h5 span {
                   View Details
                 </a>
               </div>
-            </div>
+            </div> -->
           </div>
 
           <!-- Company Details -->
