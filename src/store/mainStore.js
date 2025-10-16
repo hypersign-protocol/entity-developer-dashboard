@@ -1653,6 +1653,64 @@ const mainStore = {
             }
 
         },
+        async approveOrRejectVerification({ getters, dispatch }, payload) {
+            return new Promise((resolve, reject) => {
+                const { companyId, reason, status } = payload;
+                if(reason){
+                    // For future use, currently not sent to backend
+                    console.log('Reason for rejection:', reason);
+                }
+                
+                
+                if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
+                    return reject(new Error('Tenant url is null or empty, service is not selected'))
+                }
+
+                if (!companyId) {
+                    return reject(new Error('Company ID is required'))
+                }
+
+                if (!['Approved', 'Rejected'].includes(status)) {
+                    return reject(new Error('Invalid status'))
+                }
+
+                let url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyb/verification/company/${companyId}`;
+                let headers = UtilsMixin.methods.getKycServiceHeader(getters.getSelectedService.kyb_access_token);
+                const requestBody = { status };
+                
+                const dependentServiceId = getters.getSelectedService.dependentServices[0];
+                const ssiService = getters.getAppsWithSSIServices.find(s => s.appId === dependentServiceId);                
+                const ssiServiceAccessToken = ssiService.access_token
+                headers = {
+                    ...headers,
+                    "X-Ssi-Access-Token": ssiServiceAccessToken
+                }
+
+                fetch(url, {
+                    method: 'PATCH',
+                    headers: {
+                        ...headers,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestBody)
+                }).then(response => response.json()).then(json => {
+                    if (json.error) {
+                        return reject(new Error(json.error?.details?.join(' ') || json.error?.join?.(' ') || json.error || 'Unknown error'))
+                    }
+
+                    // Refresh the companies list after approval/rejection
+                    dispatch('fetchAppKybs').then(() => {
+                        resolve(json);
+                    }).catch((error) => {
+                        console.warn('Failed to refresh companies list:', error);
+                        resolve(json); // Still resolve the main action
+                    });
+                }).catch((e) => {
+                    return reject(new Error(`Error while company verification: ${e.message}`));
+                })
+            })
+
+        },
         async checkComplianceStatus({ getters, commit }, payload) {
             const { companyId } = payload
             if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
