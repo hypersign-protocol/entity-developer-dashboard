@@ -18,13 +18,14 @@
             <span class="value">{{ company?.companyName || 'N/A' }}</span>
           </div>
           <div class="info-row">
+            <span class="label">ID:</span>
+            <span class="value mono">{{ company?.companyId || 'N/A' }}</span>
+          </div>
+          <div class="info-row">
             <span class="label">Registration Number:</span>
             <span class="value mono">{{ company?.registrationNumber || 'N/A' }}</span>
           </div>
-          <div class="info-row">
-            <span class="label">Company ID:</span>
-            <span class="value mono">{{ company?.companyId || 'N/A' }}</span>
-          </div>
+
           <div class="info-row">
             <span class="label">Registration Type:</span>
             <span class="value">{{ company?.registrationNumberType || 'N/A' }}</span>
@@ -105,7 +106,8 @@
           </div>
           <div class="info-row">
             <span class="label">Country:</span>
-            <span class="value"> {{ countryCodeToFlag(company?.address?.country) }} {{ company.address.country || 'N/A' }}</span>
+            <span class="value"> {{ countryCodeToFlag(company?.address?.country) }} {{ company.address.country || 'N/A'
+              }}</span>
           </div>
         </div>
       </div>
@@ -276,7 +278,7 @@ export default {
 }
 
 .card-title i {
-  color: #3b82f6;
+  color: #66666a  !important;
   font-size: 0.9rem;
 }
 

@@ -2,6 +2,15 @@
     <div class="business-details-container">
         <!-- Loading overlay -->
         <loadIng :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loadIng>
+        <!-- Breadcrumb Navigation -->
+        <div class="breadcrumb-nav">
+            <h4 class="breadcrumb-text">
+                <a @click="goBack" href="#" class="breadcrumb-link">Business Verification</a>
+                <i class="fa fa-angle-double-right breadcrumb-separator" aria-hidden="true"></i>
+                <span @click="copyToClip(companyName, 'Company Name')" class="breadcrumb-id">{{ companyName }}</span>
+            </h4>
+        </div>
+
 
         <div class="details-layout">
             <!-- Sidebar Navigation -->
@@ -73,6 +82,8 @@ import BusinessInformation from '../../components/business-details/BusinessInfor
 import DocumentUploaded from '../../components/business-details/DocumentUploaded.vue';
 import UboDetails from '../../components/business-details/UboDetails.vue';
 import ChecksRegulations from '../../components/business-details/ChecksRegulations.vue';
+import UtilsMixin from '../../mixins/utils';
+
 
 export default {
     name: "BusinessDetails",
@@ -94,6 +105,9 @@ export default {
         ...mapState('mainStore', {
             companies: 'companies'
         }),
+        companyName() {
+            return this.company?.companyName ?? this.$route.params.companyId;
+        },
         companyId() {
             return this.$route.params.companyId;
         },
@@ -178,8 +192,10 @@ export default {
 
         goBack() {
             this.$router.push({ name: 'Business' });
-        }
-    }
+        },
+    },
+    mixins: [UtilsMixin],
+
 }
 </script>
 
@@ -197,14 +213,15 @@ export default {
 
 /* Sidebar Styles */
 .sidebar {
-    width: 300px;
+    width: 250px;
     background-color: #f8f9fa;
-    border-right: 1px solid #e5e7eb;
+    border: 1px solid #e5e7eb;
     flex-shrink: 0;
+    border-radius: 0.5rem 0 0 0.5rem;
 }
 
 .sidebar-nav {
-    padding: 0.75rem 0;
+    padding: 0rem;
 }
 
 .nav-list {
@@ -214,41 +231,50 @@ export default {
 }
 
 .nav-item {
-    margin: 0;
+    padding: 0;
 }
 
 .nav-link {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
-    padding: 0.75rem 1.25rem;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
     color: #475569;
     text-decoration: none;
     font-size: 0.9rem;
     font-weight: 500;
     transition: all 0.2s ease;
-    margin: 0.25rem 0;
     position: relative;
     border-radius: 0;
+
+}
+/* nav link icon */
+.nav-link i {
+    color: #66666a  !important;
+    font-size: 0.9rem;
+    width: 1.25rem;
+    text-align: center;
 }
 
 .nav-link:hover {
-    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    background: linear-gradient(135deg, #f8fafc 0%, #475569 100%);
     color: #475569;
     text-decoration: none;
     transform: translateX(4px);
 }
 
 .nav-link.active {
-    background-color: #475569;
+    background-color: #000000;
     color: #ffffff;
     font-weight: 600;
+    border-radius: 0.25rem 0 0 0.25rem;
 }
 
 .nav-link.active:hover {
     background-color: #1f2937;
     color: #ffffff;
     transform: translateX(0);
+
 }
 
 .nav-link i {
@@ -265,17 +291,67 @@ export default {
 /* Main Content Styles */
 .main-content {
     flex: 1;
-    padding: 2rem;
+    /* padding: 2rem; */
     overflow-y: auto;
     background-color: #fff;
 }
 
+/* Breadcrumb Navigation */
+.breadcrumb-nav {
+    margin-bottom: 0.5rem;
+    background-color: #fff;
+}
+
+.breadcrumb-text {
+    color: #8080808f;
+    font-size: 1.5rem;
+    font-weight: 500;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.breadcrumb-link {
+    color: #8080808f;
+    text-decoration: none;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.breadcrumb-link:hover {
+    color: #66666a;
+    text-decoration: none;
+}
+
+.breadcrumb-separator {
+    color: #8080808f;
+    font-size: 0.875rem;
+    margin: 0 0.25rem;
+}
+
+.breadcrumb-id {
+    color: #374151;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.breadcrumb-id:hover {
+    background-color: #f3f4f6;
+    color: #1f2937;
+}
+
 .content-section {
     background-color: #fff;
-    border-radius: 0.5rem;
+    /* border-radius: 0.5rem; */
     padding: 2rem;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    /* box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); */
+    min-height: 100vh;
     border: 1px solid #e5e7eb;
+    border-radius: 0 0.5rem 0.5rem 0;
 }
 
 /* Responsive Design */
@@ -291,7 +367,22 @@ export default {
 
     .main-content {
         order: 1;
-        padding: 1rem;
+        /* padding: 1rem; */
+    }
+
+    .breadcrumb-nav {
+        margin-bottom: 1rem;
+        padding-bottom: 0.75rem;
+    }
+
+    .breadcrumb-text {
+        font-size: 0.875rem;
+        flex-wrap: wrap;
+    }
+
+    .breadcrumb-id {
+        padding: 0.125rem 0.375rem;
+        font-size: 0.875rem;
     }
 
     .sidebar-nav {

@@ -2,7 +2,7 @@
   <div class="ubo-details">
 
     <!-- Ownership Structure Chart (moved to top) -->
-    <div class="ownership-structure" v-if="ubos && ubos.length > 0" >
+    <div class="ownership-structure" v-if="ubos && ubos.length > 0">
       <h3 class="structure-title">Ownership Structure</h3>
       <div class="structure-chart">
         <div class="company-node">
@@ -35,9 +35,8 @@
 
     <!-- Individual UBO Cards -->
     <div v-if="!loading && ubos && ubos.length > 0" class="info-grid">
-      <div v-for="(ubo, index) in ubos" :key="index" 
-           class="info-card ubo-card clickable-card" 
-           @click="navigateToVerificationDetails(ubo)">
+      <div v-for="(ubo, index) in ubos" :key="index" class="info-card ubo-card clickable-card"
+        @click="navigateToVerificationDetails(ubo)">
         <h3 class="card-title">
           <div class="ubo-avatar-title">
             {{ getInitials(ubo.name) }}
@@ -50,7 +49,7 @@
             </span>
           </div>
         </h3>
-        
+
         <div class="info-rows">
           <div class="info-row">
             <span class="label">Type:</span>
@@ -72,54 +71,46 @@
             <span class="label">Progress:</span>
             <span class="value">{{ getUboProgress(ubo) }}%</span>
           </div>
-          <div v-if="ubo.kycSteps && ubo.kycSteps.retries > 0" class="info-row">
+          <div  class="info-row">
             <span class="label">Retries:</span>
-            <span class="value">{{ ubo.kycSteps.retries }}</span>
+            <span class="value">{{ ubo.kycSteps?.retries ?? 'N/A' }}</span>
           </div>
         </div>
 
         <!-- KYC Verification Steps - Horizontal Icons -->
         <div class="verification-steps-horizontal">
-          <div v-if="!ubo.kycSteps" class="no-kyc-horizontal">
-            <span class="no-kyc-text">KYC Not Started</span>
-          </div>
-          
-          <div v-else class="steps-icons-horizontal">
-            <div class="step-icon-horizontal" 
-                 :class="{ completed: isStepCompleted('start', ubo.kycSteps) }" 
-                 :title="'Verification Started'">
+
+          <div class="steps-icons-horizontal">
+            <div class="step-icon-horizontal" :class="{ completed: isStepCompleted('start', ubo.kycSteps) }"
+              :title="'Verification Started'">
               <i class="fas fa-flag"></i>
             </div>
 
             <div class="step-connector" :class="{ active: isStepCompleted('start', ubo.kycSteps) }"></div>
 
-            <div class="step-icon-horizontal" 
-                 :class="{ completed: isStepCompleted('liveliness', ubo.kycSteps) }" 
-                 :title="'Liveliness Check'">
+            <div class="step-icon-horizontal" :class="{ completed: isStepCompleted('liveliness', ubo.kycSteps) }"
+              :title="'Liveliness Check'">
               <i class="fas fa-user"></i>
             </div>
 
             <div class="step-connector" :class="{ active: isStepCompleted('liveliness', ubo.kycSteps) }"></div>
 
-            <div class="step-icon-horizontal" 
-                 :class="{ completed: isStepCompleted('document', ubo.kycSteps) }" 
-                 :title="'Document Verification'">
+            <div class="step-icon-horizontal" :class="{ completed: isStepCompleted('document', ubo.kycSteps) }"
+              :title="'Document Verification'">
               <i class="fas fa-id-card"></i>
             </div>
 
             <div class="step-connector" :class="{ active: isStepCompleted('document', ubo.kycSteps) }"></div>
 
-            <div class="step-icon-horizontal" 
-                 :class="{ completed: isStepCompleted('consent', ubo.kycSteps) }" 
-                 :title="'User Consent'">
+            <div class="step-icon-horizontal" :class="{ completed: isStepCompleted('consent', ubo.kycSteps) }"
+              :title="'User Consent'">
               <i class="fas fa-check-square"></i>
             </div>
 
             <div class="step-connector" :class="{ active: isStepCompleted('consent', ubo.kycSteps) }"></div>
 
-            <div class="step-icon-horizontal" 
-                 :class="{ completed: isStepCompleted('finish', ubo.kycSteps) }" 
-                 :title="'Verification Complete'">
+            <div class="step-icon-horizontal" :class="{ completed: isStepCompleted('finish', ubo.kycSteps) }"
+              :title="'Verification Complete'">
               <i class="fas fa-check"></i>
             </div>
           </div>
@@ -293,35 +284,35 @@ export default {
 
     getUboProgress(ubo) {
       if (!ubo.kycSteps) return 0;
-      
+
       const steps = ['step_start', 'step_liveliness', 'step_ocrIdVerification', 'step_userConsent', 'step_finish'];
       let completedSteps = 0;
-      
+
       // Count completed steps (value = 1)
       steps.forEach(step => {
         if (ubo.kycSteps[step] === 1) {
           completedSteps++;
         }
       });
-      
+
       return Math.round((completedSteps / steps.length) * 100);
     },
 
     getStepStatus(stepName, kycSteps) {
       if (!kycSteps) return 'not-started';
-      
+
       // Map frontend step names to backend property names
       const stepMapping = {
         'start': 'step_start',
-        'liveliness': 'step_liveliness', 
+        'liveliness': 'step_liveliness',
         'document': 'step_ocrIdVerification',
         'consent': 'step_userConsent',
         'finish': 'step_finish'
       };
-      
+
       const stepProperty = stepMapping[stepName];
       if (!stepProperty || !(stepProperty in kycSteps)) return 'not-started';
-      
+
       // 1 = completed, 0 = not started/failed
       if (kycSteps[stepProperty] === 1) {
         return 'completed';
@@ -329,7 +320,7 @@ export default {
         // If status is pending and step is 0, it might be in progress
         return 'in-progress';
       }
-      
+
       return 'not-started';
     },
 
@@ -345,42 +336,42 @@ export default {
 
     isStepCompleted(stepName, kycSteps) {
       if (!kycSteps) return false;
-      
+
       const stepMapping = {
         'start': 'step_start',
-        'liveliness': 'step_liveliness', 
+        'liveliness': 'step_liveliness',
         'document': 'step_ocrIdVerification',
         'consent': 'step_userConsent',
         'finish': 'step_finish'
       };
-      
+
       const stepProperty = stepMapping[stepName];
       if (!stepProperty) return false;
-      
+
       return kycSteps[stepProperty] === 1;
     },
 
     isStepInProgress(stepName, kycSteps) {
       if (!kycSteps) return false;
-      
+
       const stepMapping = {
         'start': 'step_start',
         'liveliness': 'step_liveliness',
-        'document': 'step_ocrIdVerification', 
+        'document': 'step_ocrIdVerification',
         'consent': 'step_userConsent',
         'finish': 'step_finish'
       };
-      
+
       const stepProperty = stepMapping[stepName];
       if (!stepProperty) return false;
-      
+
       // Consider it in progress if step is 0 but overall status is Pending
       return kycSteps[stepProperty] === 0 && kycSteps.status === 'Pending';
     },
 
     getKycStatusText(kycSteps) {
       if (!kycSteps) return 'Not Started';
-      
+
       const statusTextMap = {
         'Success': 'Completed',
         'Pending': 'In Progress',
@@ -388,26 +379,26 @@ export default {
         'Failure': 'Failed',
         'Expired': 'Expired'
       };
-      
+
       return statusTextMap[kycSteps.status] || 'Unknown';
     },
 
     getKycStatusDetails(kycSteps) {
       if (!kycSteps) return null;
-      
+
       const details = {
         retries: kycSteps.retries || 0,
         createdAt: kycSteps.createdAt,
         completedAt: kycSteps.completedAt,
         failureInfo: kycSteps.failureInfo
       };
-      
+
       return details;
     },
 
     formatDate(dateString) {
       if (!dateString) return 'N/A';
-      
+
       try {
         const date = new Date(dateString);
         return date.toLocaleDateString('en-US', {
@@ -565,8 +556,8 @@ export default {
 }
 
 .ubo-node:hover {
-  border-color: #3b82f6;
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+  border-color: #66666a;
+  box-shadow: 0 4px 12px rgba(102, 102, 106, 0.15);
 }
 
 .ubo-node.status-verified {
@@ -707,7 +698,7 @@ export default {
 
 .loading-spinner {
   font-size: 2rem;
-  color: #3b82f6;
+  color: #66666a;
   margin-bottom: 1rem;
 }
 
@@ -801,7 +792,7 @@ export default {
 
 .info-card.ubo-card.clickable-card:hover {
   box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
-  border-color: #3b82f6;
+  /* border-color: #3b82f6; */
 }
 
 .card-title {
@@ -820,7 +811,7 @@ export default {
   width: 24px;
   height: 24px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #66666a;
   color: white;
   display: flex;
   align-items: center;
@@ -904,11 +895,11 @@ export default {
 
 /* Horizontal Verification Steps - Smaller */
 .verification-steps-horizontal {
-  margin-bottom: 0.75rem;
   padding: 0.5rem;
-  background-color: #f9fafb;
-  border-radius: 6px;
-  border: 1px solid #f3f4f6;
+  margin-bottom: -0.75rem;
+
+
+
 }
 
 .no-kyc-horizontal {
@@ -979,23 +970,23 @@ export default {
     grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
     gap: 0.5rem;
   }
-  
+
   .info-row {
     flex-direction: column;
     align-items: flex-start;
     gap: 0.125rem;
   }
-  
+
   .value {
     text-align: left;
   }
-  
+
   .card-title {
     flex-wrap: wrap;
     gap: 0.5rem;
     font-size: 0.8rem;
   }
-  
+
   .title-status {
     margin-left: 0;
   }
@@ -1003,13 +994,13 @@ export default {
   .steps-icons-horizontal {
     padding: 0.125rem 0;
   }
-  
+
   .step-icon-horizontal {
     width: 24px;
     height: 24px;
     font-size: 0.625rem;
   }
-  
+
   .step-connector {
     margin: 0 0.0625rem;
     height: 1px;
@@ -1018,7 +1009,7 @@ export default {
   .info-card {
     padding: 0.5rem;
   }
-  
+
   .verification-steps-horizontal {
     padding: 0.375rem;
     margin-bottom: 0.5rem;
@@ -1029,7 +1020,7 @@ export default {
   .info-grid {
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   }
-  
+
   .step-icon-horizontal {
     width: 20px;
     height: 20px;
@@ -1178,17 +1169,17 @@ export default {
     grid-template-columns: 1fr;
     gap: 1rem;
   }
-  
+
   .ubo-card {
     padding: 1rem;
   }
-  
+
   .ubo-card-header {
     flex-direction: column;
     align-items: flex-start;
     gap: 0.75rem;
   }
-  
+
   .summary-stats {
     grid-template-columns: 1fr;
   }
@@ -1210,8 +1201,8 @@ export default {
 }
 
 .ubo-card:hover {
-  border-color: #3b82f6;
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+  border-color: #66666a;
+  box-shadow: 0 4px 12px rgba(102, 102, 106, 0.15);
 }
 
 .ubo-header {

@@ -207,8 +207,8 @@ export default {
 }
 
 .document-card:hover {
-    border-color: #3b82f6;
-    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+    border-color: #66666a;
+    box-shadow: 0 4px 12px rgba(102, 102, 106, 0.15);
 }
 
 .document-icon {
@@ -224,7 +224,7 @@ export default {
 
 .document-icon i {
     font-size: 1rem;
-    color: #3b82f6;
+    color: #66666a  !important;
 }
 
 .document-content {
@@ -280,11 +280,11 @@ export default {
 }
 
 .download-btn:hover {
-    background: #3b82f6;
-    border-color: #3b82f6;
+    background: #66666a;
+    border-color: #66666a;
     color: white;
     transform: translateY(-1px);
-    box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
+    box-shadow: 0 2px 4px rgba(102, 102, 106, 0.2);
 }
 
 /* Empty State */

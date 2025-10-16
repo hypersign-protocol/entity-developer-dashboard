@@ -67,7 +67,7 @@
         <div v-for="(check, index) in complianceChecks" :key="index" class="check-card">
           <div class="check-header">
             <div class="check-icon" :class="getCheckStatusClass(check.status)">
-              <i :class="getCheckStatusIcon(check.status)"></i>
+              <i :class="getVerificationIcon(check)"></i>
             </div>
             <div class="check-info">
               <h4 class="check-name">{{ check.name }}</h4>
@@ -288,13 +288,14 @@ export default {
       return classMap[status] || 'check-pending';
     },
 
-    getCheckStatusIcon(status) {
+    getVerificationIcon(checks) {
+      
       const iconMap = {
-        'passed': 'fas fa-check-circle',
-        'failed': 'fas fa-times-circle',
-        'pending': 'fas fa-clock'
+        'Registry Check': 'fas fa-building',
+        'Media Check': 'fas fa-newspaper',
+        'Sanctions Check': 'fas fa-ban'
       };
-      return iconMap[status] || 'fas fa-clock';
+      return iconMap[checks.type] || 'fas fa-shield-alt';
     },
 
     getCheckStatusBadgeClass(status) {
@@ -510,10 +511,6 @@ export default {
   transition: all 0.2s ease;
 }
 
-.check-card:hover {
-  border-color: #3b82f6;
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
-}
 
 .check-header {
   display: flex;
@@ -534,8 +531,8 @@ export default {
 }
 
 .check-passed {
-  background-color: #f0fdf4;
-  color: #16a34a;
+  background-color: #0000001c;
+  color: #66666a;
 }
 
 .check-failed {
