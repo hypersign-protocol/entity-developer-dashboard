@@ -192,6 +192,15 @@ const router = new Router({
         title: `${config.app.name} - WidgetConfig`
       }
     },
+    {
+      path: '/studio/kyb-widget-config/:appId',
+      name: 'KybWidgetConfig',
+      component: () => import('./views/playground/KybWidgetConfig/Index.vue'),
+      meta: {
+        requiresAuth: true,
+        title: `${config.app.name} - KybWidgetConfig`
+      }
+    },
 
     {
       path: '/studio/webhook-config/:appId',
