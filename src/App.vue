@@ -321,6 +321,7 @@ import EventBus from "./eventbus";
 import { mapActions, mapMutations, mapGetters, mapState } from "vuex";
 import { RequestHandler } from './utils/utils'
 import config from './config'
+import * as EN from './language/en'
 export default {
   computed: {
     ...mapGetters("playgroundStore", ["userDetails", "getSelectedOrg"]),
@@ -521,53 +522,57 @@ export default {
           if (id == 'CAVACH_API') {
             menu.push({
               href: "/studio/sessions/" + this.getSelectedService.appId,
-              title: "Verifications",
+              title: EN.NAV.USERS,
               icon: "fa fa-check",
             })
 
             menu.push({
+              href:"/studio/business/"+this.getSelectedService.appId,
+              title: EN.NAV.BUSINESSES,
+              icon:"fa fa-briefcase"
+            })
+
+            menu.push({
               href: "/studio/usage/" + this.getSelectedService.appId,
-              title: "Usages",
+              title: EN.NAV.USAGES,
               icon: "fa fa-chart-bar",
             })
 
             menu.push({
               href: "/studio/onchainkyc/credit/" + this.getSelectedService.appId,
-              title: "Credits",
+              title: EN.NAV.CREDIT,
               icon: "fas fa-hand-holding-usd",
             })
 
             menu.push({
               href: '#',
-              title: 'Settings',
+              title: EN.NAV.SETTINGS.TITLE,
               icon: 'fa fa-cogs',
               child: [
                 {
-                  href: "/studio/onchainkyc/" + this.getSelectedService.appId,
-                  title: "OnChain KYC",
-                  icon: "fas fa-network-wired",
-                },
-                {
                   href: "/studio/widget-config/" + this.getSelectedService.appId,
-                  title: "KYC Widget",
+                  title: EN.NAV.SETTINGS.KYC_WIDGET,
                   icon: "fa fa-puzzle-piece",
-                },                 {
-                  href: "/studio/webhook-config/" + this.getSelectedService.appId,
-                  title: "Webhook",
-                  icon: "fa fa-anchor",
-                },
+                },                 
+                // {
+                //   href: "/studio/webhook-config/" + this.getSelectedService.appId,
+                //   title: "Webhook",
+                //   icon: "fa fa-anchor",
+                // },
                 {
                   href: "/studio/kyc-webpage-generator/" + this.getSelectedService.appId,
-                  title: "KYC Verifier Configuration",
+                  title: EN.NAV.SETTINGS.KYC_VERIFIER_CONFIGURATION,
                   icon: "fa fa-globe",
                 },
+
+                // {
+                //   href: "/studio/onchainkyc/" + this.getSelectedService.appId,
+                //   title: "OnChain KYC",
+                //   icon: "fas fa-network-wired",
+                // },
               ]
             })
-            menu.push({
-              href:"/studio/business/"+this.getSelectedService.appId,
-              title:"Business Verifications",
-              icon:"fa fa-briefcase"
-            })
+            
           } else if (id == 'SSI_API') {
             menu.push({
               href: "/studio/ssi/did/" + this.getSelectedService.appId,
