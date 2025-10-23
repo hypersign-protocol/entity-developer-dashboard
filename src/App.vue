@@ -521,9 +521,15 @@ export default {
           const id = this.getSelectedService.services[0].id
           if (id == 'CAVACH_API') {
             menu.push({
+              href: "/studio/id/getting-started",
+              title: EN.NAV.GETTING_STARTED,
+              icon: "fa fa-flag-checkered",
+            })
+
+            menu.push({
               href: "/studio/sessions/" + this.getSelectedService.appId,
               title: EN.NAV.USERS,
-              icon: "fa fa-check",
+              icon: "fa fa-users",
             })
 
             menu.push({

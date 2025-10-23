@@ -3,6 +3,7 @@ export const NAV = {
     BUSINESSES: "Businesses",
     USAGES: "Usages",
     CREDIT: "Credit",
+    GETTING_STARTED: "Getting Started",
     SETTINGS: {
         TITLE: "Settings",
         KYC_WIDGET: "KYC Widget",

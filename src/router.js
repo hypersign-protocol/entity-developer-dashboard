@@ -21,8 +21,9 @@ const WebhookConfig = () => import('./views/playground/WebhookConfig.vue')
 const KYCWebpageGenerator = () => import('./views/playground/KYCWebpageGenerator.vue')
 const MFA = () => import('./components/login/mfa/MFA.vue')
 const SettingConfig = () => import('./views/SettingConfig.vue')
-const Business=() => import('./views/playground/Business.vue')
-const BusinessDetails=() => import('./views/playground/BusinessDetails.vue')
+const Business = () => import('./views/playground/Business.vue')
+const BusinessDetails = () => import('./views/playground/BusinessDetails.vue')
+const GettingStarted = () => import('./views/GettingStarted.vue')
 Vue.use(Router)
 
 const router = new Router({
@@ -50,6 +51,11 @@ const router = new Router({
       path: '/studio/home',
       name: 'Home',
       component: Home
+    },
+    {
+      path: '/studio/id/getting-started',
+      name: 'GettingStarted',
+      component: GettingStarted
     },
     {
       path: '/studio/login',
