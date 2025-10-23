@@ -105,7 +105,7 @@ export default {
         },
         {
           title: "Go Live",
-          icon: "mdi-chart-line",
+          icon: "mdi-rocket-launch-outline",
           description:
             "After successful testing, move to production and start verifying real users securely.",
           link: "https://docs.hypersign.id",
