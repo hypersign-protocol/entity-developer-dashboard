@@ -1219,7 +1219,7 @@ const mainStore = {
                 }
                 const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyb/verification/widget-config`;
                 const authToken = getters.getSelectedService.access_token
-                const headers = UtilsMixin.methods.getHeader(authToken);
+                const headers = UtilsMixin.methods.getKycServiceHeader(authToken);
                 const data = getters.getKybWidgetConfig;
                 data['issuerVerificationMethodId'] = getters.getKybWidgetConfig.issuerDID + '#key-1';
                 fetch(url, {
@@ -1245,7 +1245,7 @@ const mainStore = {
                 }
                 const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyb/verification/widget-config`;
                 const authToken = getters.getSelectedService.access_token
-                const headers = UtilsMixin.methods.getHeader(authToken);
+                const headers = UtilsMixin.methods.getKycServiceHeader(authToken);
                 return fetch(url, {
                     method: 'GET',
                     headers
@@ -1273,7 +1273,7 @@ const mainStore = {
                 }
                 const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyb/verification/widget-config`;
                 const authToken = getters.getSelectedService.access_token
-                const headers = UtilsMixin.methods.getHeader(authToken);
+                const headers = UtilsMixin.methods.getKycServiceHeader(authToken);
                 const data = getters.getKybWidgetConfig;
                 data['issuerVerificationMethodId'] = getters.getKybWidgetConfig.issuerDID + '#key-1';
                 fetch(url, {

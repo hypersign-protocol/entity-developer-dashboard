@@ -73,17 +73,36 @@
   cursor: pointer;
 }
 
-h5 {
-  width: 100%;
-  text-align: center;
-  border-bottom: 1px solid #80808045;
-  line-height: 0.1em;
-  margin: 10px 0 20px;
+.section-header {
+  background-color: rgba(128, 128, 128, 0.074) !important;
+  border-left: 4px solid gray !important;
+  font-weight: 600;
 }
 
-h5 span {
-  background: #fff;
-  padding: 0 10px;
+.section-header h5 {
+  color: #333;
+  font-weight: 600;
+  margin: 0;
+}
+
+.section-header .fas {
+  font-size: 1.2em;
+}
+
+.color-input {
+  height: 38px;
+  border-radius: 4px;
+  border: 1px solid #ced4da;
+  cursor: pointer;
+}
+
+.color-input::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+.color-input::-webkit-color-swatch {
+  border: none;
+  border-radius: 3px;
 }
 
 .scrollit {
@@ -129,9 +148,69 @@ ul {
 
     <v-card class="serviceCard">
       <ul class="list-group list-group-flush">
-        <!-- Document Collection Section -->
+        <!-- Branding Configuration Section -->
+        <li class="list-group-item section-header">
+          <div class="d-flex align-items-center">
+            <i class="fas fa-cog text-muted mr-3"></i>
+            <div>
+              <h5 class="mb-0">Branding Configuration</h5>
+              <small class="text-muted">Customize widget appearance and branding</small>
+            </div>
+          </div>
+        </li>
+        
         <li class="list-group-item">
-          <h5><span>Document Collection</span></h5>
+          <div class="row">
+            <div class="col-md-6">
+              <label><strong>Business Name:</strong></label>
+              <b-form-input v-model="kybWidgetConfigTemp.branding.businessName" placeholder="Enter business name"></b-form-input>
+              <small class="text-muted">{{ kybWidgetConfigUI.branding.businessName.description }}</small>
+            </div>
+            <div class="col-md-6">
+              <label><strong>Widget Title:</strong></label>
+              <b-form-input v-model="kybWidgetConfigTemp.branding.title" placeholder="Enter widget title"></b-form-input>
+              <small class="text-muted">{{ kybWidgetConfigUI.branding.title.description }}</small>
+            </div>
+          </div>
+        </li>
+        
+        <li class="list-group-item">
+          <div class="row">
+            <div class="col-md-6">
+              <label><strong>Logo URL:</strong></label>
+              <b-form-input v-model="kybWidgetConfigTemp.branding.logoUrl" placeholder="https://example.com/logo.png"></b-form-input>
+              <small class="text-muted">{{ kybWidgetConfigUI.branding.logoUrl.description }}</small>
+            </div>
+            <div class="col-md-6">
+              <label><strong>Contact Email:</strong></label>
+              <b-form-input v-model="kybWidgetConfigTemp.branding.businessContactEmail" placeholder="support@company.com"></b-form-input>
+              <small class="text-muted">{{ kybWidgetConfigUI.branding.businessContactEmail.description }}</small>
+            </div>
+          </div>
+        </li>
+        
+        <li class="list-group-item">
+          <div class="row">
+            <div class="col-md-6">
+              <label><strong>Theme Color:</strong></label>
+              <div class="d-flex align-items-center">
+                <input type="color" v-model="kybWidgetConfigTemp.branding.themeColor" class="form-control color-input mr-2" style="width: 60px;">
+                <b-form-input v-model="kybWidgetConfigTemp.branding.themeColor" placeholder="#1A73E8"></b-form-input>
+              </div>
+              <small class="text-muted">{{ kybWidgetConfigUI.branding.themeColor.description }}</small>
+            </div>
+          </div>
+        </li>
+
+        <!-- Document Collection Section -->
+        <li class="list-group-item section-header">
+          <div class="d-flex align-items-center">
+            <i class="fas fa-file text-muted mr-3"></i>
+            <div>
+              <h5 class="mb-0">Document Collection</h5>
+              <small class="text-muted">Configure required business documents</small>
+            </div>
+          </div>
         </li>
         
         <li class="list-group-item">
@@ -155,12 +234,18 @@ ul {
           <small v-html="kybWidgetConfigUI.collectAddressProofDoc.description"></small>
         </li>
 
-        <!-- ZK Proof Section -->
-        <!-- <li class="list-group-item">
-          <h5><span>Zero Knowledge Proof</span></h5>
-        </li> -->
+        <!-- Zero Knowledge Proof Section -->
+        <li class="list-group-item section-header">
+          <div class="d-flex align-items-center">
+            <i class="fas fa-shield-alt text-muted mr-3"></i>
+            <div>
+              <h5 class="mb-0">Zero Knowledge Proof</h5>
+              <small class="text-muted">Privacy-preserving verification options</small>
+            </div>
+          </div>
+        </li>
         
-        <!-- <li class="list-group-item">
+        <li class="list-group-item">
           <div class="row">
             <div class="col-md-6">
               <b-form-checkbox switch size="lg" v-model="kybWidgetConfigTemp.collectZkProof.enable" v-if="kybWidgetConfigTemp.collectZkProof">
@@ -183,21 +268,27 @@ ul {
               </div>
             </div>
           </div>
-        </li> -->
+        </li>
 
         <!-- Compliance Checks Section -->
-        <!-- <li class="list-group-item">
-          <h5><span>Compliance Checks</span></h5>
-        </li> -->
+        <li class="list-group-item section-header">
+          <div class="d-flex align-items-center">
+            <i class="fas fa-check-circle text-muted mr-3"></i>
+            <div>
+              <h5 class="mb-0">Compliance Checks</h5>
+              <small class="text-muted">AML, PEP and regulatory screening</small>
+            </div>
+          </div>
+        </li>
         
-        <!-- <li class="list-group-item">
+        <li class="list-group-item">
           <b-form-checkbox switch size="lg" v-model="kybWidgetConfigTemp.checkAmlPep">
             {{ kybWidgetConfigUI.checkAmlPep.label }}
           </b-form-checkbox>
           <small v-html="kybWidgetConfigUI.checkAmlPep.description"></small>
-        </li> -->
+        </li>
         
-        <!-- <li class="list-group-item">
+        <li class="list-group-item">
           <b-form-checkbox switch size="lg" v-model="kybWidgetConfigTemp.checkAmlAdversemedia">
             {{ kybWidgetConfigUI.checkAmlAdversemedia.label }}
           </b-form-checkbox>
@@ -209,49 +300,9 @@ ul {
             {{ kybWidgetConfigUI.checkBusinessRegistry.label }}
           </b-form-checkbox>
           <small v-html="kybWidgetConfigUI.checkBusinessRegistry.description"></small>
-        </li> -->
+        </li>
 
-        <!-- Document Validation Section -->
-        <!-- <li class="list-group-item">
-          <h5><span>Document Validation</span></h5>
-        </li>
-        
-        <li class="list-group-item">
-          <b-form-checkbox switch size="lg" v-model="kybWidgetConfigTemp.checkDuplicateDocument">
-            {{ kybWidgetConfigUI.checkDuplicateDocument.label }}
-          </b-form-checkbox>
-          <small v-html="kybWidgetConfigUI.checkDuplicateDocument.description"></small>
-        </li> -->
-        
-        <!-- <li class="list-group-item">
-          <b-form-checkbox switch size="lg" v-model="kybWidgetConfigTemp.checkDocumentExpiry">
-            {{ kybWidgetConfigUI.checkDocumentExpiry.label }}
-          </b-form-checkbox>
-          <small v-html="kybWidgetConfigUI.checkDocumentExpiry.description"></small>
-        </li>
-        
-        <li class="list-group-item">
-          <div class="row">
-            <div class="col-md-6">
-              <b-form-checkbox switch size="lg" v-model="kybWidgetConfigTemp.checkMinimumDocumentValidity.enable" v-if="kybWidgetConfigTemp.checkMinimumDocumentValidity">
-                {{ kybWidgetConfigUI.checkMinimumDocumentValidity.label }}
-              </b-form-checkbox>
-              <small v-html="kybWidgetConfigUI.checkMinimumDocumentValidity.description"></small>
-            </div>
-            <div class="col" v-if="kybWidgetConfigTemp.checkMinimumDocumentValidity && kybWidgetConfigTemp.checkMinimumDocumentValidity.enable">
-              <div class="row">
-                <div class="col-md-6">
-                  <label><strong>Value:</strong></label>
-                  <b-form-input type="number" v-model="kybWidgetConfigTemp.checkMinimumDocumentValidity.value" placeholder="3"></b-form-input>
-                </div>
-                <div class="col-md-6">
-                  <label><strong>Unit:</strong></label>
-                  <b-form-select v-model="kybWidgetConfigTemp.checkMinimumDocumentValidity.unit" :options="validityUnitOptions"></b-form-select>
-                </div>
-              </div>
-            </div>
-          </div>
-        </li> -->
+
       </ul>
     </v-card>
   </div>
@@ -341,21 +392,32 @@ export default {
           label: "AML Adverse Media Check",
           description: 'Enable adverse media screening to identify negative news coverage about the business entity.'
         },
-        checkDuplicateDocument: {
-          label: "Check Duplicate Documents",
-          description: 'Enable verification to prevent submission of duplicate business documents.'
-        },
-        checkDocumentExpiry: {
-          label: "Check Document Expiry",
-          description: 'Enable verification of business document expiration dates.'
-        },
-        checkMinimumDocumentValidity: {
-          label: "Check Minimum Document Validity",
-          description: 'Enable verification that business documents have minimum remaining validity period.'
-        },
+
         checkBusinessRegistry: {
           label: "Business Registry Check",
           description: 'Enable verification against official business registries to confirm business legitimacy.'
+        },
+        branding: {
+          businessName: {
+            label: "Business Name",
+            description: "Display name for your business in the KYB widget"
+          },
+          title: {
+            label: "Widget Title",
+            description: "Title displayed on the KYB verification portal"
+          },
+          logoUrl: {
+            label: "Logo URL",
+            description: "URL of your business logo to display in the widget"
+          },
+          businessContactEmail: {
+            label: "Contact Email",
+            description: "Business contact email for support inquiries"
+          },
+          themeColor: {
+            label: "Theme Color",
+            description: "Primary color theme for the widget interface"
+          }
         }
       },
       fullPage: true,
@@ -375,14 +437,14 @@ export default {
         },
         checkAmlPep: false,
         checkAmlAdversemedia: false,
-        checkDuplicateDocument: false,
-        checkDocumentExpiry: false,
-        checkMinimumDocumentValidity: {
-          enable: false,
-          value: 3,
-          unit: "Month"
-        },
-        checkBusinessRegistry: false
+        checkBusinessRegistry: false,
+        branding: {
+          businessName: "",
+          title: "",
+          logoUrl: "",
+          businessContactEmail: "",
+          themeColor: "#1A73E8"
+        }
       },
       zkProofTypeOptions: [
         {
@@ -392,16 +454,6 @@ export default {
         {
           value: "COMPANY_DENY_LIST",
           text: "Company Deny List"
-        }
-      ],
-      validityUnitOptions: [
-        {
-          value: "Month",
-          text: "Month"
-        },
-        {
-          value: "Year", 
-          text: "Year"
         }
       ]
     }
@@ -424,11 +476,7 @@ export default {
         }
       }
 
-      if (this.kybWidgetConfigTemp.checkMinimumDocumentValidity.enable) {
-        if (!this.kybWidgetConfigTemp.checkMinimumDocumentValidity.value || this.kybWidgetConfigTemp.checkMinimumDocumentValidity.value <= 0) {
-          throw new Error('Valid minimum document validity value is required')
-        }
-      }
+
     },
 
     async saveConfiguration() {
