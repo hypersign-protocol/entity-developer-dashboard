@@ -23,11 +23,11 @@
     </div>
     <div class="row" v-if="getAdminMembersgetter.length > 0">
       <table class="table">
-        <thead class="thead-light">
+        <!-- <thead class="thead-light">
           <tr>
             <th scope="col">Members</th>
           </tr>
-        </thead>
+        </thead> -->
         <tbody>
           <tr v-for="person in getAdminMembersgetter" :key="person.userId">
             <TeamUser :email="person.userEmailId" :twoFactor="person.authenticatorEnabled"
