@@ -578,6 +578,24 @@ export default {
                 // },
               ]
             })
+
+            menu.push({
+              href:"#",
+              title: EN.NAV.DEVELOPERS.TITLE,
+              icon:"fa fa-code",
+              child:[
+                {
+                  href:"/studio/developer/api-key/"+this.getSelectedService.appId,
+                  title: EN.NAV.DEVELOPERS.API_KEY,
+                  icon:"fa fa-key",
+                },
+                {
+                  href:"/studio/developer/webhook/"+this.getSelectedService.appId,
+                  title: EN.NAV.DEVELOPERS.WEBHOOK,
+                  icon:"fa fa-anchor",
+                }
+              ]
+            })
             
           } else if (id == 'SSI_API') {
             menu.push({

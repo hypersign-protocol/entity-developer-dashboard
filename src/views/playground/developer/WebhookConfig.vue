@@ -73,10 +73,10 @@
 
 <script>
 
-import UtilsMixin from '../../mixins/utils';
+import UtilsMixin from '../../../mixins/utils.js';
 import { mapGetters, mapActions } from "vuex";
-import HfButtons from '../../components/element/HfButtons.vue';
-import { isValidURL } from '../../mixins/fieldValidation.js'
+import HfButtons from '../../../components/element/HfButtons.vue';
+import { isValidURL } from '../../../mixins/fieldValidation.js'
 export default {
   name: "WEbhookConfig",
   mixins: [UtilsMixin],

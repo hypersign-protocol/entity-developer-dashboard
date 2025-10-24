@@ -17,7 +17,8 @@ const KYCCreditDashboard = () => import('./views/playground/KYCDashboardCredit.v
 const UsageS = () => import('./views/playground/Usage.vue')
 const OnChainKycSystems = () => import('./views/playground/OnChainKycSystems.vue')
 const WidgetConfig = () => import('./views/playground/WidgetConfig/Index.vue')
-const WebhookConfig = () => import('./views/playground/WebhookConfig.vue')
+const WebhookConfig = () => import('./views/playground/developer/WebhookConfig.vue')
+const APIKey = () => import('./views/playground/developer/APIKey.vue')
 const KYCWebpageGenerator = () => import('./views/playground/KYCWebpageGenerator.vue')
 const MFA = () => import('./components/login/mfa/MFA.vue')
 const SettingConfig = () => import('./views/SettingConfig.vue')
@@ -200,12 +201,21 @@ const router = new Router({
     },
 
     {
-      path: '/studio/webhook-config/:appId',
+      path: '/studio/developer/webhook/:appId',
       name: 'WebhookConfig',
       component: WebhookConfig,
       meta: {
         requiresAuth: true,
         title: `${config.app.name} - WebhookConfig`
+      }
+    },
+    {
+      path: '/studio/developer/api-key/:appId',
+      name: 'APIKey',
+      component: APIKey,
+      meta: {
+        requiresAuth: true,
+        title: `${config.app.name} - API Key`
       }
     },
     {
