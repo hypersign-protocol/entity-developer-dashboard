@@ -70,6 +70,7 @@
 </template>
 
 <script>
+import {mapMutations } from "vuex";
 export default {
   name: "GettingStarted",
   data() {
@@ -113,6 +114,13 @@ export default {
       ],
     };
   },
+  created(){
+    this.updateSideNavStatus(true)
+  },
+  methods:{
+    // eslint-disable-next-line no-undef
+    ...mapMutations('playgroundStore', ['updateSideNavStatus', 'shiftContainer']),
+  }
 };
 </script>
 

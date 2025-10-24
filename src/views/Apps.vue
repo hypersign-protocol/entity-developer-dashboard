@@ -1094,9 +1094,17 @@ export default {
     },
   },
 
-  mounted() {
+  async mounted() {
     this.setMainSideNavBar(false);
-    this.initializeStore();
+    await this.initializeStore();
+    const firstKycService = this.getAppsWithKYCServices && this.getAppsWithKYCServices.length > 0 ? this.getAppsWithKYCServices[0] : {}
+    // console.log("firstKycService", firstKycService)
+    if(firstKycService && Object.keys(firstKycService).length > 0){
+      console.log("firstKycServiceId", firstKycService.appId)
+      this.setSelectedAppId(firstKycService.appId);
+      this.switchOrg(firstKycService.appId, 'CAVACH_API');  
+      return 
+    }
     this.setSelectedAppId("");
   },
   data() {
@@ -1249,9 +1257,12 @@ export default {
           // }
 
 
-          this.$router.push({
-            name: "playgroundCredential",
-            params: { appId },
+          // this.$router.push({
+          //   name: "playgroundCredential",
+          //   params: { appId },
+          // });
+            this.$router.push({
+            name: "GettingStarted",
           });
           break;
         }
