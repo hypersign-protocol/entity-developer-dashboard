@@ -7,12 +7,8 @@
 
         <b-card no-body class="mb-3" v-for="(item, i) in guideItems" :key="i">
           <b-card-header class="p-0">
-            <b-button
-              v-b-toggle="'accordion-' + i"
-              block
-              class="text-left d-flex align-items-center justify-content-between py-3 px-3"
-              variant="light"
-            >
+            <b-button v-b-toggle="'accordion-' + i" block
+              class="text-left d-flex align-items-center justify-content-between py-3 px-3" variant="light">
               <div class="d-flex align-items-center">
                 <v-icon left class="mr-2">{{ item.icon }}</v-icon>
                 <span class="font-weight-500">{{ item.title }}</span>
@@ -36,7 +32,7 @@
       <v-col cols="12" md="4">
         <!-- Helpful Links -->
         <b-card class="mb-3">
-          <h6 class="font-weight-bold mb-3">Helpful Links</h6>
+          <h6 class="font-weight-bold mb-3"><v-icon>mdi-lifebuoy</v-icon> Helpful Links</h6>
           <ul class="list-unstyled mb-0">
             <li class="mb-2"><a href="#" class="text-primary">Concepts</a></li>
             <li class="mb-2">
@@ -48,21 +44,21 @@
 
         <!-- Explore Flows -->
         <b-card class="mb-3">
-          <h6 class="font-weight-bold mb-2">Explore Flows</h6>
+          <h6 class="font-weight-bold mb-2"><v-icon>mdi-school-outline</v-icon> Tutorials</h6>
           <p class="mb-0 text-muted">
-            See other verification flows and templates available in Hypersign.
+            Learn by doing — follow quick, step-by-step guides to get started with Hypersign KYC. From integrating the KYC widget in minutes to creating your custom verifier URL, these tutorials walk you through real examples. <a target="_blank" class="text-primary" href="https://docs.hypersign.id/hypersign-kyc/tutorials">Let's go!</a>
           </p>
         </b-card>
 
         <!-- Invite Team -->
         <b-card>
-          <h6 class="font-weight-bold mb-2">Invite Team</h6>
+          <h6 class="font-weight-bold mb-2"><v-icon>mdi-file-chart-outline</v-icon> Read Case Studies</h6>
           <p class="text-muted mb-3">
-            Invite your colleagues to collaborate and manage your Hypersign workspace together.
+            Discover how leading companies are using Hypersign to streamline KYC and KYB verification. Learn from real-world implementations, challenges solved, and measurable business impact. <a target="_blank" class="text-primary" href="https://www.hypersign.id/blogs">Ready to dive in?</a>
           </p>
-          <b-button disabled variant="light" class="text-muted font-weight-medium">
+          <!-- <b-button disabled variant="light" class="text-muted font-weight-medium">
             Coming Soon
-          </b-button>
+          </b-button> -->
         </b-card>
       </v-col>
     </v-row>
@@ -70,7 +66,7 @@
 </template>
 
 <script>
-import {mapMutations } from "vuex";
+import { mapMutations } from "vuex";
 export default {
   name: "GettingStarted",
   data() {
@@ -80,44 +76,44 @@ export default {
           title: "Understand Hypersign Basics",
           icon: "mdi-book-open-page-variant-outline",
           description:
-            "Learn the fundamental concepts of Hypersign and how it helps you build secure and compliant identity verification flows.",
-          link: "https://docs.hypersign.id",
+            "Start by learning how Hypersign KYC works — from identity capture to verification and issuance. This guide explains each component and how it ensures secure, compliant onboarding.",
+          link: "https://docs.hypersign.id/hypersign-kyc/introduction",
         },
         {
-          title: "Test Crypto KYC Flow",
-          icon: "mdi-account-check-outline",
-          description:
-            "Simulate the KYC process and understand the verification flow for crypto users using Hypersign APIs.",
-          link: "https://docs.hypersign.id",
-        },
-        {
-          title: "Configure Capture Flow",
+          title: "Configure Your KYC Widget",
           icon: "mdi-cog-outline",
           description:
-            "Customize your capture flow to include liveliness, document, or consent checks before integrating with your app.",
-          link: "https://docs.hypersign.id",
+            "Set up your KYC widget according to your needs — choose between liveliness checks, ID document verification, and consent capture. You’ll also learn how to customize branding and themes.",
+          link: "https://docs.hypersign.id/hypersign-kyc/integrations/widget-configuration",
         },
         {
-          title: "Integrate into your App",
-          icon: "mdi-link-variant",
+          title: "Create Your Custom KYC Verifier URL",
+          icon: "mdi-web-check",
           description:
-            "Embed the Hypersign KYC widget into your web or mobile app for a seamless verification experience.",
-          link: "https://docs.hypersign.id",
+            "Quickly test your KYC flow by creating a Verifier page. Just add a title, description, and theme — and you’ll get a sharable KYC URL to test the end-to-end verification process with sample users.",
+          link: "https://docs.hypersign.id/hypersign-kyc/integrations/widget-configuration", // (or replace with your verifier setup doc)
+        },
+        {
+          title: "Integrate into Your App",
+          icon: "mdi-code-tags",
+          description:
+            "Developers can embed the KYC widget directly into their web or mobile apps. Learn how to authenticate via backend APIs, generate session IDs, prepare the widget URL, and handle verification events.",
+          link: "https://docs.hypersign.id/hypersign-kyc/kyc-widget/integrations",
         },
         {
           title: "Go Live",
           icon: "mdi-rocket-launch-outline",
           description:
-            "After successful testing, move to production and start verifying real users securely.",
-          link: "https://docs.hypersign.id",
+            "Once you’re satisfied with testing, verify your domain and switch from the Dev to Production environment. This step ensures real user verification in a secure, compliant setting.",
+          link: "https://docs.hypersign.id/hypersign-kyc/integrations/environments",
         },
-      ],
+      ]
     };
   },
-  created(){
+  created() {
     this.updateSideNavStatus(true)
   },
-  methods:{
+  methods: {
     // eslint-disable-next-line no-undef
     ...mapMutations('playgroundStore', ['updateSideNavStatus', 'shiftContainer']),
   }
