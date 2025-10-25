@@ -124,7 +124,7 @@ export default {
         notifyErr(msg) {
             this.$bvToast.toast(msg, {
                 title: 'Error',
-                variant: 'error',
+                variant: 'danger',
                 solid: true,
             });
         },

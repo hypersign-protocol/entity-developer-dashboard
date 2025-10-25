@@ -47,9 +47,9 @@
     <div class="">
       <v-card class=" serviceCard p-3">
         <div>
-          Enter Service Id: 
+          Enter App Id: 
           <input type="text" class="form-control" id="appId" v-model="appIdToGenerateSecret"
-            aria-describedby="selected App Id" placeholder="Enter Service Id" />
+            aria-describedby="selected App Id" placeholder="13f70faf7f5c5d03520b71181136b595f7c6" />
           
           <p style="color: #ff5400de">
             Warning: You are regenerating a new API Secret Key. The old key will

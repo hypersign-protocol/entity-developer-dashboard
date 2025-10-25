@@ -3,7 +3,7 @@
         <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap">
             <h3 class="mb-0 d-flex align-items-center">
                 <i class="mdi mdi-cog-outline text-primary mr-2"></i>
-                Service Configuration
+                App Configuration
             </h3>
 
             <div class="d-flex align-items-center flex-wrap mt-2 mt-md-0">
@@ -151,10 +151,10 @@
 
 
                     <!-- Services Section -->
-                    <b-col cols="12" class="mt-3">
+                    <!--<b-col cols="12" class="mt-3">
                         <h5><i class="mdi mdi-api mr-1"></i>Services</h5>
                         <b-table small bordered hover :items="formData.services" :fields="serviceFields" />
-                    </b-col>
+                    </b-col>-->
 
                     <!-- Dependent Services -->
                     <b-col cols="12" class="mt-3">

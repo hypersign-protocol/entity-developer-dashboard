@@ -3,7 +3,7 @@
     <v-row>
       <!-- Left Column -->
       <v-col cols="12" md="8">
-        <h4 class="mb-4 font-weight-bold">Getting Started Guide</h4>
+        <h4 class="mb-4 font-weight-bold">Getting Started</h4>
 
         <b-card no-body class="mb-3" v-for="(item, i) in guideItems" :key="i">
           <b-card-header class="p-0">
@@ -34,7 +34,7 @@
         <b-card class="mb-3">
           <h6 class="font-weight-bold mb-3"><v-icon>mdi-lifebuoy</v-icon> Helpful Links</h6>
           <ul class="list-unstyled mb-0">
-            <li class="mb-2"><a href="#" class="text-primary">Concepts</a></li>
+            <li class="mb-2"><a href="#" class="text-primary">Core Concepts</a></li>
             <li class="mb-2">
               <a href="https://docs.hypersign.id" target="_blank" class="text-primary">Docs</a>
             </li>

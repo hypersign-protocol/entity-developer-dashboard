@@ -1,6 +1,6 @@
 <template>
   <div v-if="!hasService" class="container onboarding-stepper">
-    <b-card>
+    <div>
       <div class="text-center mb-4">
         <h4><i class="mdi mdi-account-plus-outline mr-2"></i>Customer Onboarding</h4>
         <p class="text-muted">Follow the steps below to set up your SSI and KYC/KYB services.</p>
@@ -172,7 +172,7 @@
           </div>
         </div>
       </div>
-    </b-card>
+    </div>
   </div>
 </template>
 

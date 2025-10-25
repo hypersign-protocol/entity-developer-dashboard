@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import Vue from 'vue';
 import Vuex from 'vuex';
 import config from '../config'
@@ -154,6 +155,10 @@ const mainStore = {
         },
         getComplianceData: (state) => {
             return state.complianceData
+        },
+        getUserDetails: (state) => {
+            const userDetails = localStorage.getItem("user");
+            return JSON.parse(userDetails)
         }
     },
     mutations: {
@@ -717,7 +722,7 @@ const mainStore = {
 
         fetchAppsListFromServer: async ({ commit, dispatch }) => {
             // TODO: Get list of orgs 
-            const url = `${apiServerBaseUrl}/app?limit=2`;
+            const url = `${apiServerBaseUrl}/app?limit=50`;
             // TODO: // use proper authToken
             const headers = UtilsMixin.methods.getHeader(localStorage.getItem('authToken'));
             const json = await RequestHandler(url, 'GET', {}, headers)
