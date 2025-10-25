@@ -10,6 +10,7 @@ export const NAV = {
         WEBHOOK: "Webhook",
         KYC_VERIFIER_CONFIGURATION: "KYC Verifier",
         ONCHAIN_KYC: "OnChain KYC",
+        SERVICE_CONFIGURATION: "Config",
     },
     DEVELOPERS: {
         TITLE: "Developers",

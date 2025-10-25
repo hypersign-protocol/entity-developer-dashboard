@@ -33,13 +33,13 @@ export default {
             }
         },
         getKycServiceHeader(authToken = '') {
-          const headers = { "Content-Type": "application/json" };
-          if (authToken) {
-              headers["x-kyc-access-token"] = authToken;
-          }
+            const headers = { "Content-Type": "application/json" };
+            if (authToken) {
+                headers["x-kyc-access-token"] = authToken;
+            }
             return headers;
         },
-           
+
         stringShortner(str, size) {
             if (!str) {
                 return "-"
@@ -115,19 +115,17 @@ export default {
                 .catch((e) => this.notifyErr(`Error: ${e.message}`));
         },
         notifySuccess(msg) {
-            this.$notify({
-                group: 'foo',
-                title: 'Information',
-                type: 'success',
-                text: msg
+            this.$bvToast.toast(msg, {
+                title: 'Success',
+                variant: 'success',
+                solid: true,
             });
         },
         notifyErr(msg) {
-            this.$notify({
-                group: 'foo',
+            this.$bvToast.toast(msg, {
                 title: 'Error',
-                type: 'error',
-                text: msg
+                variant: 'error',
+                solid: true,
             });
         },
         formatDate(dateString) {

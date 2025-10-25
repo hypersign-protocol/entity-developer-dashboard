@@ -509,11 +509,7 @@ export default {
     getSideMenu() {
 
       const menu = [
-        {
-          href: "/studio/dashboard",
-          title: "Home",
-          icon: "fa fa-home",
-        },
+        
       ];
 
       if (this.getSelectedService) {
@@ -570,6 +566,11 @@ export default {
                   title: EN.NAV.SETTINGS.KYC_VERIFIER_CONFIGURATION,
                   icon: "fa fa-globe",
                 },
+                {
+                  href: "/studio/service-config/" + this.getSelectedService.appId,
+                  title: EN.NAV.SETTINGS.SERVICE_CONFIGURATION,
+                  icon: "fa fa-cog",
+                }
 
                 // {
                 //   href: "/studio/onchainkyc/" + this.getSelectedService.appId,
@@ -580,7 +581,7 @@ export default {
             })
 
             menu.push({
-              href:"#",
+              href:"#/code",
               title: EN.NAV.DEVELOPERS.TITLE,
               icon:"fa fa-code",
               child:[
