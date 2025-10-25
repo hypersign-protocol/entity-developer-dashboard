@@ -8,11 +8,9 @@
             <b-icon icon="person-square" aria-hidden="true" small></b-icon>
             <strong> Profile</strong>
           </template>
-          <b-tabs card vertical justified small v-model="activeProfileSubTab">
-            <b-tab>
-              <template #title>
-                <b-icon icon="shield-shaded"></b-icon> Multi Factor Authentication (MFA)
-              </template>
+          <UserProfile></UserProfile>
+          <!-- <b-tabs card vertical justified small v-model="activeProfileSubTab">
+             
               <SetupMFA v-if="!isTwoFactorEnabled.isTwoFactorEnabled" />
               <div v-else>
                 <h3>
@@ -25,9 +23,12 @@
                   </li>
                 </ul>
               </div>
-            </b-tab>
-          </b-tabs>
+            
+              
+          </b-tabs> -->
         </b-tab>
+
+
 
         <!-- Members & Roles Tab -->
         <b-tab>
@@ -58,6 +59,16 @@
             </b-tab>
           </b-tabs>
         </b-tab>
+
+
+        <!-- SSI Services -->
+        <b-tab>
+          <template #title>
+            <b-icon icon="shield-check" aria-hidden="true" small></b-icon>
+            <strong> SSI</strong>
+          </template>
+          <OnlySSIApps />
+        </b-tab>
       </b-tabs>
     </div>
 
@@ -72,7 +83,8 @@ import TeamMembers from '../components/teams/TeamMembers.vue';
 import MyInvitions from '../components/teams/MyInvitions.vue';
 import AdminTeams from '../components/teams/AdminTeams.vue';
 import { mapMutations, mapGetters } from "vuex";
-import SetupMFA from '../components/login/mfa/SetupMfa.vue';
+import OnlySSIApps from '../components/settings/OnlySSIApps.vue';
+import UserProfile from '../components/settings/UserProfile.vue';
 
 export default {
   name: "SettingConfig",
@@ -80,22 +92,17 @@ export default {
     TeamMembers,
     AdminTeams,
     MyInvitions,
-    SetupMFA
+    UserProfile,
+    OnlySSIApps
   },
   computed: {
     ...mapGetters('mainStore', ['getAuthToken']),
-    isTwoFactorEnabled() {
-      const payload = localStorage.getItem('user');
-      if (payload) {
-        return JSON.parse(payload);
-      }
-      return {};
-    }
+    
   },
   data() {
     return {
       isFeatureImplemented: true,
-      activeMainTab: 1, // Default to Members tab
+      activeMainTab: 0, // Default to Members tab
       activeProfileSubTab: 0,
       activeMembersSubTab: 0
     };

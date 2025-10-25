@@ -717,7 +717,7 @@ const mainStore = {
 
         fetchAppsListFromServer: async ({ commit, dispatch }) => {
             // TODO: Get list of orgs 
-            const url = `${apiServerBaseUrl}/app?limit=50`;
+            const url = `${apiServerBaseUrl}/app?limit=2`;
             // TODO: // use proper authToken
             const headers = UtilsMixin.methods.getHeader(localStorage.getItem('authToken'));
             const json = await RequestHandler(url, 'GET', {}, headers)
@@ -1584,9 +1584,9 @@ const mainStore = {
                 throw new Error('Tenant url is null or empty, service is not selected')
             }
             const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/document/download/${fileId}`;
-            
+
             const headers = UtilsMixin.methods.getKycServiceHeader(getters.getSelectedService.kyb_access_token);
-            
+
 
 
             const resp = await fetch(url, {
@@ -1599,11 +1599,11 @@ const mainStore = {
                 console.error('Download error response:', errorText);
                 throw new Error(`Download failed: ${resp.status} ${resp.statusText} - ${errorText}`);
             }
- 
-            
+
+
             const blob = await resp.blob();
 
-            
+
             return blob;
 
         },
@@ -1656,12 +1656,12 @@ const mainStore = {
         async approveOrRejectVerification({ getters, dispatch }, payload) {
             return new Promise((resolve, reject) => {
                 const { companyId, reason, status } = payload;
-                if(reason){
+                if (reason) {
                     // For future use, currently not sent to backend
                     console.log('Reason for rejection:', reason);
                 }
-                
-                
+
+
                 if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
                     return reject(new Error('Tenant url is null or empty, service is not selected'))
                 }
@@ -1677,9 +1677,9 @@ const mainStore = {
                 let url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyb/verification/company/${companyId}`;
                 let headers = UtilsMixin.methods.getKycServiceHeader(getters.getSelectedService.kyb_access_token);
                 const requestBody = { status };
-                
+
                 const dependentServiceId = getters.getSelectedService.dependentServices[0];
-                const ssiService = getters.getAppsWithSSIServices.find(s => s.appId === dependentServiceId);                
+                const ssiService = getters.getAppsWithSSIServices.find(s => s.appId === dependentServiceId);
                 const ssiServiceAccessToken = ssiService.access_token
                 headers = {
                     ...headers,

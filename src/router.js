@@ -25,6 +25,7 @@ const SettingConfig = () => import('./views/SettingConfig.vue')
 const Business = () => import('./views/playground/Business.vue')
 const BusinessDetails = () => import('./views/playground/BusinessDetails.vue')
 const GettingStarted = () => import('./views/GettingStarted.vue')
+const ServiceConfig = () => import('./views/ServiceConfig.vue')
 Vue.use(Router)
 
 const router = new Router({
@@ -109,6 +110,16 @@ const router = new Router({
         title: `${config.app.name} - Business`
       }
     },
+    {
+      path: '/studio/service-config/:appId',
+      name: 'ServiceConfig',
+      component: ServiceConfig,
+      meta: {
+        requiresAuth: true,
+        title: `${config.app.name} - Config`
+      }
+    },
+
     {
       path: '/studio/business/:appId/details/:companyId/:tab?',
       name: 'BusinessDetails',

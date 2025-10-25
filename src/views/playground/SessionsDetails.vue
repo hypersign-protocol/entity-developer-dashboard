@@ -208,13 +208,14 @@ h3 {
                 </span>
               </label>
             </div>
-            <div class="col-md-3">
+            <div class="col-md-4">
               <label><strong>Attempts:</strong> <span>{{ session ? session.retryAttempts : "-" }}</span></label>
             </div>
-            <div class="col-md-3">
+            <div class="col-md-2">
               <div class="d-flex justify-content-between align-items-center">
-                <label><strong>Verified In:</strong>
-                  <span class="badge badge-info">{{ startFinishDiffInSeconds }}m</span>
+                <label>
+                  <!-- <strong>Verified In:</strong> -->
+                  <!-- <span class="badge badge-info">{{ startFinishDiffInSeconds }}m</span> -->
                 </label>
                 <div>
                   <span v-html="getUserStatus(session.status)"></span>

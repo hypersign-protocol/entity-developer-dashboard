@@ -1,26 +1,7 @@
 <template>
   <div>
     <loadIng :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loadIng>
-    <div>
-      <v-row  dense v-if="appList.length > 0">
-        <v-col>
-          <h4 style="float: left">
-            <i class="fa fa-cogs mr-2" aria-hidden="true"></i>Your Services
-          </h4>
-          <!-- <hf-buttons name=" Create" iconClass="fa fa-plus"  class="ml-auto" @executeAction="openSlider('SSI_API')"
-            style="float: right">
-          </hf-buttons> -->
-          <b-dropdown split  text="Create Service" variant="outline-dark" style="float: right" @click="openSlider('SSI_API')" menu-class="dropDownPopup">
-            <b-dropdown-item @click="openSlider('SSI_API')">SSI Service</b-dropdown-item>
-            <b-dropdown-item @click="openSlider('CAVACH_API')">KYC Service</b-dropdown-item>
-            <b-dropdown-item @click="openSlider('QUEST')">Quest Service</b-dropdown-item>
-          </b-dropdown>
-        </v-col>
-      </v-row>
-      <v-row v-else>
-        <OnboardingStepper/>
-      </v-row>
-    </div>
+    
 
     <hf-pop-up id="entity-secret-confirmation-popup" Header="API Secret Key Confirmation">
       <div>
@@ -275,83 +256,8 @@
           <small>{{ serviceDescrition }}</small>
         </div>
 
-        <!-- <div v-if="selectedServiceId == 'CAVACH_API'" class="container mb-2" style="border: 1px solid #80808038;border-radius: 5px;"> -->
-          
-          <div class="form-group card" v-if="selectedServiceId == 'CAVACH_API'">
-              <b-card-header header-tag="header" class="p-1 border-0 accordin-header theme-color" role="tab" >
-                <b-button block v-b-toggle.accordion-1 style="text-decoration:none; color:#212529;" variant="secondary"
-                  :aria-expanded="issuerConfigVisible ? 'true' : 'false'"
-                  @click="issuerConfigVisible = !issuerConfigVisible" aria-controls="collapse-1"
-                  class="text-left border-0 theme-color bg-transparant" title="Create schema configuration">Issuer
-                  Configurations
-                  <i :class="!issuerConfigVisible ? 'fa fa-arrow-down' : 'fa fa-arrow-up'" style="float:right;"></i>
-                </b-button>
-              </b-card-header>
-
-              <b-collapse id="collapse-1" class="mt-2" v-model="issuerConfigVisible" style="padding:10px">
-                <div class="form-group" v-if="
-            selectedServiceId == 'CAVACH_API' ||
-            (appModel.services &&
-              appModel.services.length > 0 &&
-              appModel.services[0].id == 'CAVACH_API')
-          ">
-            <tool-tip infoMessage="KYC service need to be associated with a SSI service"></tool-tip>
-            <label for="selectService"><strong>SSI Service<span style="color: red">*</span>:
-              </strong></label>
-            <select class="custom-select" id="selectSSIService" v-model="selectedAssociatedSSIAppId"
-              @change="onSSIServiceChange($event)">
-              <option value="" disabled>Select SSI Service</option>
-              <option :value="eachSSIApp.appId" v-for="eachSSIApp in getAppsWithSSIServices"
-                v-bind:key="eachSSIApp.appId">
-                <div>{{ eachSSIApp.appName }} ( {{ eachSSIApp.appId }} )</div>
-              </option>
-            </select>
-            <!-- <small>{{ serviceDescrition }}</small> -->
-          </div>
-
-          <div class="form-group" v-if="
-            (selectedServiceId == 'CAVACH_API' ||
-              (appModel.services &&
-                appModel.services.length > 0 &&
-                appModel.services[0].id == 'CAVACH_API')) &&
-            selectedAssociatedSSIAppId
-          ">
-            <tool-tip infoMessage="Select issuer DID for this app"></tool-tip>
-            <label for="selectService"><strong>Select Issuer DID<span style="color: red">*</span>:
-              </strong></label>
-            <select class="custom-select" id="selectService" v-model="appModel.issuerDid" @change="resolveDid($event)">
-              <option value="">Select a DID</option>
-              <option v-for="did in associatedSSIServiceDIDs" :value="did" :key="did">
-                {{ did }}
-              </option>
-            </select>
-          </div>
-
-          <div class="form-group" v-if="
-            (selectedServiceId == 'CAVACH_API' ||
-              (appModel.services &&
-                appModel.services.length > 0 &&
-                appModel.services[0].id == 'CAVACH_API')) &&
-            selectedAssociatedSSIAppId && appModel.issuerDid
-          ">
-            <tool-tip infoMessage="Choose a signing key"></tool-tip>
-            <label for="selectService"><strong>Signing Key<span style="color: red">*</span>:
-              </strong></label>
-            <select class="custom-select" id="selectService" v-model="appModel.issuerVerificationMethodId">
-              <option value="">Select a Signing Key</option>
-              <option v-for="vm in issuerVerificationMethodIds" :value="vm.id" :key="vm.id">
-                {{ truncate(vm.id, 40) + ' (' +vm.type+')' }}
-              </option>
-            </select>
-           
-          </div>
-
-              </b-collapse>
-            </div>
+       
          
-
-        <!-- </div> -->
-
         <div class="form-group" v-if="edit === true">
           <tool-tip infoMessage="Select an environment"></tool-tip>
           <label for="selectService"><strong>Select Environment<span style="color: red">*</span>:
@@ -361,14 +267,6 @@
             <option value="prod">Production</option>
           </select>
         </div>
-
-        <!-- <div class="form-group">
-          <tool-tip
-            infoMessage="Listed origins allowed to make CORS requests. Enter comman seperated URLs to whitelist"></tool-tip>
-          <label for="orgName"><strong>Allowed Origins (CORS):</strong></label>
-          <textarea class="form-control" v-model="appModel.whitelistedCors" rows="3"
-            placeholder="*,http://your-domain.com,http://test.com"></textarea>
-        </div> -->
 
         <div class="form-group" v-if="edit">
           <hf-buttons name="Update" class="btn btn-primary"
@@ -383,9 +281,6 @@
     <v-row  dense v-if="appList.length > 0" class="mt-2">
       <v-col>
 
-      
-      <b-tabs content-class="mt-0">
-        <b-tab active class="bg-white p-2">
           <template #title>
             <b-icon icon="credit-card" aria-hidden="true" small></b-icon><strong> {{ 'Self Sovereign Identity (' +
               getAppsWithSSIServices.length + ')' }}</strong>
@@ -472,297 +367,7 @@
               @executeAction="openSlider('SSI_API')">
             </hf-buttons>
           </div>
-        </b-tab>
-
-        <b-tab class="bg-white p-2">
-
-          <template #title>
-            <b-icon icon="person-fill" aria-hidden="true" small></b-icon><strong> {{ 'Know Your Customer (' +
-              getAppsWithKYCServices.length + ')'
-              }}</strong>
-          </template>
-
-          <v-row dense v-if="getAppsWithKYCServices.length > 0">
-            <v-col v-for="eachOrg in getAppsWithKYCServices" :key="eachOrg.appId" cols="3">
-              <v-card max-width="344" outlined @click="switchOrg(eachOrg.appId, 'CAVACH_API')" class="serviceCard">
-                <v-list-item three-line>
-                  <v-list-item-content>
-                    <div class="text-overline mb-4">
-                      {{ formattedAppName(eachOrg.appName).toUpperCase() }}
-                    </div>
-                    <v-list-item-subtitle>{{
-                      truncate(
-                        eachOrg.description ||
-                        "No description for this app..",
-                        70
-                      )
-                    }}</v-list-item-subtitle>
-                  </v-list-item-content>
-                  <v-list-item-avatar class="logo-container" size="60" color="grey"><v-img :src="eachOrg.logoUrl || getProfileIcon(formattedAppName(eachOrg.appId))"></v-img></v-list-item-avatar>
-                </v-list-item>
-
-                <v-list-item-content style="padding: 10px">
-                  <b-card-text>
-                    <small class="card-field-label">Service Id:</small>
-                    <div class="apiKeySecret" @click.stop="copyToClip(eachOrg.appId, 'Service Id')"
-                      title="Copy Service Id">
-                      {{ truncate(eachOrg.appId, 30) }}
-                      <i class="far fa-copy" style="float: right"></i>
-                    </div>
-                  </b-card-text>
-                  <b-card-text>
-                    <small class="card-field-label">Tenant Url:</small>
-                    <div class="apiKeySecret" @click.stop="
-                      copyToClip(eachOrg.tenantUrl, 'Tenant Url')
-                      " title="Copy Tenant Url">
-                      {{ truncate(eachOrg.tenantUrl, 30) }}
-                      <i class="far fa-copy" style="float: right"></i>
-                    </div>
-                  </b-card-text>
-                </v-list-item-content>
-
-                <div style="text-align: end;display: block;">
-                        <!-- <span class="badge rounded-pill bg-danger mx-1" title="Click to generate a new API Secret Key"
-                          style="cursor: pointer; color: white" @click.stop="openSecretkeyPopUp(eachOrg.appId)">
-                          <i class="fa fa-key"></i> Secret
-                        </span>
-
-                        <span class="badge rounded-pill bg-info mx-1" @click.stop="editOrg(eachOrg.appId)"
-                          title="Click to edit the app" style="cursor: pointer; color: white">
-                          <i class="fas fa-pencil-alt"></i>
-                          Edit</span>
-
-                        <span class="mx-1" @click.stop="openDeleteServicePopUp(eachOrg.appId)"
-                          title="Click to delete the app" style="cursor: pointer; color: red">
-                          <i class="fa fa-trash-alt" aria-hidden="true"></i>
-                        </span> -->
-
-                        <span class="badge bg-secondary text-white mx-1" v-if="eachOrg.env == 'dev'">{{ eachOrg.env
-                          }}</span>
-                        <span class="badge bg-success text-white mx-1" v-else>{{ eachOrg.env }}</span>
-                        <span class="badge rounded-pill bg-warning text-dark"
-                          @click.stop="verifyDomainOpenPopup(eachOrg)" title="Click to verify your domain" v-if="
-                            !eachOrg.hasDomainVerified &&
-                            eachOrg.dependentServices[0]
-                          ">
-                          <i class="fa fa-check"></i>
-                          Domain</span>
-                        <b-dropdown size="sm" variant="link" toggle-class="text-decoration-none" no-caret dropright menu-class="dropDownPopup">
-                          <template #button-content>
-                            <b-icon size="sm" style="color: grey" icon="list" aria-hidden="true"></b-icon>
-                          </template>
-
-                          <b-dropdown-item-button  style="text-align: left" @click.stop="openSecretkeyPopUp(eachOrg.appId)"><i
-                              class="fa fa-key mt-1" aria-hidden="true"></i> Generate API Secret
-                          </b-dropdown-item-button>
-                          <b-dropdown-item-button style="text-align: left" @click.stop="editOrg(eachOrg.appId)"><i
-                              class="fas fa-pencil-alt mt-1" aria-hidden="true"></i> Edit Service
-                          </b-dropdown-item-button>
-                          <b-dropdown-item-button   style="text-align: left" @click.stop="openDeleteServicePopUp(eachOrg.appId)"><i
-                              class="fa fa-trash-alt mt-1"></i> Delete Service</b-dropdown-item-button>  
-                        </b-dropdown>
-                </div>
-
-                <!-- <v-card-actions>
-                  <div>
-                    <span style="float: left">
-                        <span class="badge bg-secondary text-white mx-1" v-if="eachOrg.env == 'dev'">{{ eachOrg.env
-                          }}</span>
-                        <span class="badge bg-success text-white mx-1" v-else>{{ eachOrg.env }}</span>
-
-                        <span class="badge rounded bg-light mx-1" v-if="eachOrg.domain && eachOrg.hasDomainVerified">
-                          <a @click.stop :href="eachOrg.domain" target="_blank" style="text-decoration: none">{{
-                            domainFromOrigin(eachOrg.domain) }}</a>
-                        </span>
-                      </span>
-                      <span class=" " style="float: right">
-                        <span class="badge rounded-pill bg-warning text-dark mx-1"
-                          @click.stop="verifyDomainOpenPopup(eachOrg)" title="Click to verify your domain" v-if="
-                            !eachOrg.hasDomainVerified &&
-                            eachOrg.dependentServices[0]
-                          ">
-                          <i class="fa fa-check"></i>
-                          Domain</span>
-
-                        <span class="badge rounded-pill bg-danger mx-1" @click.stop="openSecretkeyPopUp(eachOrg.appId)"
-                          title="Click to generate a new API Secret Key" style="cursor: pointer; color: white">
-                          <i class="fa fa-key"></i>
-                          Secret</span>
-
-                        <span class="badge rounded-pill bg-info mx-1" @click.stop="editOrg(eachOrg.appId)"
-                          title="Click to edit the app" style="cursor: pointer; color: white">
-                          <i class="fas fa-pencil-alt"></i>
-                          Edit
-                        </span>
-
-                        <span class="mx-1" @click.stop="openDeleteServicePopUp(eachOrg.appId)"
-                          title="Click to delete the app" style="cursor: pointer; color: red">
-                          <i class="fa fa-trash-alt" aria-hidden="true"></i>
-                        </span>
-                      </span>
-                  </div>
-                </v-card-actions> -->
-              </v-card>
-            </v-col>
-          </v-row>
-          <div class="new-service-popup" v-else>
-            <h3 style="text-align: left">Spin up your KYC service!</h3>
-            <hf-buttons name=" Create" iconClass="fa fa-plus" style="text-align: right" class="ml-auto mt-2"
-              @executeAction="openSlider('CAVACH_API')">
-            </hf-buttons>
-          </div>
-        </b-tab>
-
-        <b-tab class="bg-white p-2">
-
-          <template #title>
-            <b-icon icon="list-task" aria-hidden="true" small></b-icon><strong> {{ 'Quest (' +
-              getAppsWithQuestServices.length + ')'
-              }}</strong>
-          </template>
-
-
-          <v-row dense v-if="getAppsWithQuestServices.length > 0">
-            <v-col v-for="eachOrg in getAppsWithQuestServices" :key="eachOrg.appId" cols="3">
-              <v-card max-width="344" outlined @click="switchOrg(eachOrg.appId, 'CAVACH_API')" class="serviceCard">
-                <v-list-item three-line>
-                  <v-list-item-content>
-                    <div class="text-overline mb-4">
-                      {{ formattedAppName(eachOrg.appName).toUpperCase() }}
-                    </div>
-                    <v-list-item-subtitle>{{
-                      truncate(
-                        eachOrg.description ||
-                        "No description for this app..",
-                        70
-                      )
-                    }}</v-list-item-subtitle>
-                  </v-list-item-content>
-                  <v-list-item-avatar class="logo-container" size="60" color="grey"><v-img :src="eachOrg.logoUrl || getProfileIcon(formattedAppName(eachOrg.appId))"></v-img></v-list-item-avatar>
-                </v-list-item>
-
-                <v-list-item-content style="padding: 10px">
-                  <b-card-text>
-                    <small class="card-field-label">Service Id:</small>
-                    <div class="apiKeySecret" @click.stop="copyToClip(eachOrg.appId, 'Service Id')"
-                      title="Copy Service Id">
-                      {{ truncate(eachOrg.appId, 30) }}
-                      <i class="far fa-copy" style="float: right"></i>
-                    </div>
-                  </b-card-text>
-                  <b-card-text>
-                    <small class="card-field-label">Tenant Url:</small>
-                    <div class="apiKeySecret" @click.stop="
-                      copyToClip(eachOrg.tenantUrl, 'Tenant Url')
-                      " title="Copy Tenant Url">
-                      {{ truncate(eachOrg.tenantUrl, 30) }}
-                      <i class="far fa-copy" style="float: right"></i>
-                    </div>
-                  </b-card-text>
-                </v-list-item-content>
-
-
-                <div style="text-align: end;display: block;">
-                        <!-- <span class="badge rounded-pill bg-danger mx-1" title="Click to generate a new API Secret Key"
-                          style="cursor: pointer; color: white" @click.stop="openSecretkeyPopUp(eachOrg.appId)">
-                          <i class="fa fa-key"></i> Secret
-                        </span>
-
-                        <span class="badge rounded-pill bg-info mx-1" @click.stop="editOrg(eachOrg.appId)"
-                          title="Click to edit the app" style="cursor: pointer; color: white">
-                          <i class="fas fa-pencil-alt"></i>
-                          Edit</span>
-
-                        <span class="mx-1" @click.stop="openDeleteServicePopUp(eachOrg.appId)"
-                          title="Click to delete the app" style="cursor: pointer; color: red">
-                          <i class="fa fa-trash-alt" aria-hidden="true"></i>
-                        </span> -->
-
-                        <span class="badge bg-secondary text-white mx-1" v-if="eachOrg.env == 'dev'">{{ eachOrg.env
-                          }}</span>
-                        <span class="badge bg-success text-white mx-1" v-else>{{ eachOrg.env }}</span>
-                        <span class="badge rounded-pill bg-warning text-dark"
-                          @click.stop="verifyDomainOpenPopup(eachOrg)" title="Click to verify your domain" v-if="
-                            !eachOrg.hasDomainVerified &&
-                            eachOrg.dependentServices[0]
-                          ">
-                          <i class="fa fa-check"></i>
-                          Domain</span>
-                        <b-dropdown size="sm" variant="link" toggle-class="text-decoration-none" no-caret dropright menu-class="dropDownPopup">
-                          <template #button-content>
-                            <b-icon size="sm" style="color: grey" icon="list" aria-hidden="true"></b-icon>
-                          </template>
-
-                          <b-dropdown-item-button  style="text-align: left" @click.stop="openSecretkeyPopUp(eachOrg.appId)"><i
-                              class="fa fa-key mt-1" aria-hidden="true"></i> Generate API Secret
-                          </b-dropdown-item-button>
-                          <b-dropdown-item-button style="text-align: left" @click.stop="editOrg(eachOrg.appId)"><i
-                              class="fas fa-pencil-alt mt-1" aria-hidden="true"></i> Edit Service
-                          </b-dropdown-item-button>
-                          <b-dropdown-item-button   style="text-align: left" @click.stop="openDeleteServicePopUp(eachOrg.appId)"><i
-                              class="fa fa-trash-alt mt-1"></i> Delete Service</b-dropdown-item-button>  
-                        </b-dropdown>
-                </div>
-
-                <!-- <v-card-actions>
-                  <div>
-                    <span style="float: left">
-                        <span class="badge bg-secondary text-white mx-1" v-if="eachOrg.env == 'dev'">{{ eachOrg.env
-                          }}</span>
-                        <span class="badge bg-success text-white mx-1" v-else>{{ eachOrg.env }}</span>
-
-                        <span class="badge rounded bg-light mx-1" v-if="eachOrg.domain && eachOrg.hasDomainVerified">
-                          <a @click.stop :href="eachOrg.domain" target="_blank" style="text-decoration: none">{{
-                            domainFromOrigin(eachOrg.domain) }}</a>
-                        </span>
-                      </span>
-                      <span class=" " style="float: right">
-                        <span class="badge rounded-pill bg-warning text-dark mx-1"
-                          @click.stop="verifyDomainOpenPopup(eachOrg)" title="Click to verify your domain" v-if="
-                            !eachOrg.hasDomainVerified &&
-                            eachOrg.dependentServices[0]
-                          ">
-                          <i class="fa fa-check"></i>
-                          Domain</span>
-
-                        <span class="badge rounded-pill bg-danger mx-1" @click.stop="openSecretkeyPopUp(eachOrg.appId)"
-                          title="Click to generate a new API Secret Key" style="cursor: pointer; color: white">
-                          <i class="fa fa-key"></i>
-                          Secret</span>
-
-                        <span class="badge rounded-pill bg-info mx-1" @click.stop="editOrg(eachOrg.appId)"
-                          title="Click to edit the app" style="cursor: pointer; color: white">
-                          <i class="fas fa-pencil-alt"></i>
-                          Edit
-                        </span>
-
-                        <span class="mx-1" @click.stop="openDeleteServicePopUp(eachOrg.appId)"
-                          title="Click to delete the app" style="cursor: pointer; color: red">
-                          <i class="fa fa-trash-alt" aria-hidden="true"></i>
-                        </span>
-                      </span>
-                  </div>
-                </v-card-actions> -->
-              </v-card>
-            </v-col>
-          </v-row>
-          <div class="new-service-popup" v-else>
-            <b-skeleton-wrapper :loading="isLoading">
-              <template #loading>
-                <b-card>
-                  <b-skeleton width="85%"></b-skeleton>
-                  <b-skeleton width="55%"></b-skeleton>
-                  <b-skeleton width="70%"></b-skeleton>
-                </b-card>
-              </template>
-            </b-skeleton-wrapper>
-            <h3 class="" style="text-align: left">Spin up your Quest service!</h3>
-            <hf-buttons name=" Create" iconClass="fa fa-plus" style="text-align: right" class="ml-auto mt-2"
-              @executeAction="openSlider('QUEST')">
-            </hf-buttons>
-          </div>
-        </b-tab>
-      </b-tabs>
+          
     </v-col>
     </v-row>
     
@@ -931,21 +536,20 @@
 </style>
 
 <script>
-import HfPopUp from "../components/element/hfPopup.vue";
-import StudioSideBar from "../components/element/StudioSideBar.vue";
-import UtilsMixin from "../mixins/utils";
-import { isEmpty } from "../mixins/fieldValidation";
-import HfButtons from "../components/element/HfButtons.vue";
-import ToolTip from "../components/element/ToolTip.vue";
-import messages from "../mixins/messages";
-import EventBus from "../eventbus";
+import HfPopUp from "../../components/element/hfPopup.vue";
+import StudioSideBar from "../../components/element/StudioSideBar.vue";
+import UtilsMixin from "../../mixins/utils";
+import { isEmpty } from "../../mixins/fieldValidation";
+import HfButtons from "../../components/element/HfButtons.vue";
+import ToolTip from "../../components/element/ToolTip.vue";
+import messages from "../../mixins/messages";
+import EventBus from "../../eventbus";
 import { mapGetters, mapState, mapActions, mapMutations } from "vuex";
-import HfFlashNotification from "../components/element/HfFlashNotification.vue";
-import { sanitizeUrl } from "../utils/common";
-import OnboardingStepper from "../components/stepper/OnboardingStepper.vue";
-// import DeployOnChainKYC from "../components/deploy-onchain-kyc-popup/deploy.vue";
+import HfFlashNotification from "../../components/element/HfFlashNotification.vue";
+import { sanitizeUrl } from "../../utils/common";
+
 import DomainLinkage from "@hypersign-protocol/domain-linkage-verifier";
-import config from "../config";
+import config from "../../config";
 export default {
   name: "AppList",
   computed: {
@@ -1015,17 +619,7 @@ export default {
 
   async mounted() {
     this.setMainSideNavBar(false);
-    await this.initializeStore();
-    const firstKycService = this.getAppsWithKYCServices && this.getAppsWithKYCServices.length > 0 ? this.getAppsWithKYCServices[0] : {}
-    // console.log("firstKycService", firstKycService)
-    if(firstKycService && Object.keys(firstKycService).length > 0){
-      console.log("firstKycServiceId", firstKycService.appId)
-      this.setSelectedAppId(firstKycService.appId);
-      this.switchOrg(firstKycService.appId, 'CAVACH_API');  
-      return 
-    } else {
-      /// take user to onboaring stepper
-    }
+    this.initializeStore();
     this.setSelectedAppId("");
   },
   data() {
@@ -1090,7 +684,6 @@ export default {
     HfButtons,
     ToolTip,
     HfFlashNotification,
-    OnboardingStepper
   },
   methods: {
     ...mapMutations("mainStore", ["updateAnApp", "setMainSideNavBar"]),
@@ -1114,8 +707,8 @@ export default {
             const parsed = JSON.parse(userDetails);
             Object.assign(this.userDetails, parsed);
           this.isLoading = true;
-          await this.fetchAppsListFromServer();
-          await this.fetchServicesList();
+          // await this.fetchAppsListFromServer();
+          // await this.fetchServicesList();
           this.isLoading = false;
         } else {
           throw new Error("No user details found in localStorage");
