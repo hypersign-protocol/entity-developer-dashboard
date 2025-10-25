@@ -104,7 +104,7 @@ ul.timeline>li:before {
     float: left;
     margin-top: 1%;
     margin-right: 1%;
-    padding: 5px;
+    /* padding: 5px; */
     min-height: 360px;
     max-height: 360px;
     max-width: 350px;
@@ -195,7 +195,7 @@ h3 {
     <!-- Info Bar Row -->
     <div class="row">
       <!-- <div class="col-md-12"> -->
-        <v-card class="serviceCard py-2 px-4 w-100" id="header-info" flat>
+        <b-card class=" serviceCard w-100" id="header-info" flat>
           <div class="row align-items-center">
             <div class="col-md-3">
               <label><strong>Date:</strong> {{ session ? formatDate(session.createdAt) : "-" }}</label>
@@ -227,7 +227,7 @@ h3 {
               </div>
             </div>
           </div>
-        </v-card>
+        </b-card>
       <!-- </div> -->
     </div>
 

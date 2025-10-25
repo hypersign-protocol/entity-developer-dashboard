@@ -31,7 +31,7 @@
       <!-- Right Column -->
       <v-col cols="12" md="4">
         <!-- Helpful Links -->
-        <b-card class="mb-3">
+        <v-card class="serviceCard mb-3 p-3">
           <h6 class="font-weight-bold mb-3"><v-icon>mdi-lifebuoy</v-icon> Helpful Links</h6>
           <ul class="list-unstyled mb-0">
             <li class="mb-2"><a href="#" class="text-primary">Core Concepts</a></li>
@@ -40,18 +40,18 @@
             </li>
             <li><a href="#" class="text-primary">Support</a></li>
           </ul>
-        </b-card>
+        </v-card>
 
         <!-- Explore Flows -->
-        <b-card class="mb-3">
+        <v-card class="serviceCard mb-3 p-3">
           <h6 class="font-weight-bold mb-2"><v-icon>mdi-school-outline</v-icon> Tutorials</h6>
           <p class="mb-0 text-muted">
             Learn by doing — follow quick, step-by-step guides to get started with Hypersign KYC. From integrating the KYC widget in minutes to creating your custom verifier URL, these tutorials walk you through real examples. <a target="_blank" class="text-primary" href="https://docs.hypersign.id/hypersign-kyc/tutorials">Let's go!</a>
           </p>
-        </b-card>
+        </v-card>
 
         <!-- Invite Team -->
-        <b-card>
+        <v-card class="serviceCard mb-3 p-3">
           <h6 class="font-weight-bold mb-2"><v-icon>mdi-file-chart-outline</v-icon> Read Case Studies</h6>
           <p class="text-muted mb-3">
             Discover how leading companies are using Hypersign to streamline KYC and KYB verification. Learn from real-world implementations, challenges solved, and measurable business impact. <a target="_blank" class="text-primary" href="https://www.hypersign.id/blogs">Ready to dive in?</a>
@@ -59,7 +59,7 @@
           <!-- <b-button disabled variant="light" class="text-muted font-weight-medium">
             Coming Soon
           </b-button> -->
-        </b-card>
+        </v-card>
       </v-col>
     </v-row>
   </v-container>
