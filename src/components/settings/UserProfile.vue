@@ -2,7 +2,7 @@
   
     <v-row justify="center">
       <v-col cols="12" md="6">
-        <v-card  class="serviceCard my-2">
+        <div  class="serviceCard my-2">
           <!-- Profile Avatar -->
           <v-card-title class="justify-center">
             <v-avatar size="96">
@@ -91,7 +91,7 @@
             </v-btn>
             
           </v-card-actions>
-        </v-card>
+        </div>
       </v-col>
 
       <hf-pop-up id="setup-mfa-popup" Header="MFA">

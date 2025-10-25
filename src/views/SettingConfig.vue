@@ -50,16 +50,17 @@
               </template>
               <AdminTeams />
             </b-tab>
-            <b-tab>
-              <template #title>
-                <i class="fa fa-envelope" aria-hidden="true"></i>
-                Invitions
-              </template>
-              <MyInvitions />
-            </b-tab>
           </b-tabs>
         </b-tab>
 
+
+        <b-tab>
+          <template #title>
+            <b-icon icon="envelope" aria-hidden="true" small></b-icon>
+            <strong> My Invitions</strong>
+          </template>
+          <MyInvitions/>
+        </b-tab>
 
         <!-- SSI Services -->
         <b-tab>

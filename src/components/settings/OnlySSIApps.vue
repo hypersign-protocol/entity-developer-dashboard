@@ -1,8 +1,6 @@
 <template>
   <div>
     <loadIng :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loadIng>
-    
-
     <hf-pop-up id="entity-secret-confirmation-popup" Header="API Secret Key Confirmation">
       <div>
         <p style="color: #ff5400de">
@@ -15,63 +13,6 @@
           <hf-buttons name="Continue" class="btn btn-primary text-center"
             @executeAction="reGenerateSecretKey"></hf-buttons>
         </div>
-      </div>
-    </hf-pop-up>
-
-    <hf-pop-up id="domain-verificaiton-popup" Header="Verify Your Domain">
-      <div class="border p-2">
-        <div class="form-group">
-          <tool-tip infoMessage="Your Domain Name"></tool-tip>
-          <label for="orgDid"><strong>Domain (origin): </strong></label>
-          <input type="text" class="form-control" id="orgDid" placeholder="hypersign.id" v-model="appModel.domain"
-            aria-describedby="orgNameHelp" />
-          <small>{{ domainFromOriginComputed }}</small>
-        </div>
-
-        <div class="form-group" v-if="appModel.domain && appModel.dependentServices">
-          <tool-tip infoMessage="Associated SSI Service Id"></tool-tip>
-          <label for="orgDid"><strong>SSI Service Id: </strong></label>
-          <input type="text" class="form-control" id="orgDid" v-model="appModel.dependentServices[0]" disabled
-            aria-describedby="orgNameHelp" />
-        </div>
-
-        <div class="form-group" v-if="appModel.domain">
-          <tool-tip infoMessage="Select issuer DID"></tool-tip>
-          <label for="selectService"><strong>Select Issuer DID<span style="color: red">*</span>:
-            </strong></label>
-          <select class="custom-select" id="selectService" v-model="appModel.issuerDid" v-if="!appModel.issuerDid">
-            <option value="" selected>Select a DID</option>
-            <option v-for="did in associatedSSIServiceDIDs" :value="did" :key="did">
-              {{ did }}
-            </option>
-          </select>
-          <input type="text" class="form-control" id="orgDid" v-model="appModel.issuerDid" disabled
-            aria-describedby="orgNameHelp" />
-        </div>
-        <div class="form-group" v-if="appModel.domain && appModel.issuerDid">
-          <tool-tip infoMessage="Txt Record"></tool-tip>
-          <label for="tenant"><strong>TXT Record: </strong></label>
-          <div class="input-group mb-1">
-            <input type="text" class="form-control" id="tenant" v-model="txtRecord" aria-describedby="orgNameHelp"
-              disabled />
-            <div class="input-group-append">
-              <span class="input-group-text" id="basic-addon2">
-                <i class="far fa-copy mt-1" @click="copyToClip(txtRecord, 'TXT Record')">
-                </i>
-              </span>
-            </div>
-          </div>
-          <small><a target="_blank">{{
-            `Please add the above TXT record in your domain (${domainFromOriginComputed}) for
-              DNS-01
-              validation. If you have any trouble setting the TXT record, contact your domain service provider for
-              help. Once updated, kindly click on 'Verify' button to verify your domain.`
-              }}
-            </a></small>
-        </div>
-      </div>
-      <div class="text-center mt-3" v-if="txtRecord">
-        <hf-buttons name="Verify" class="btn btn-primary text-center" @executeAction="verifyDNS01"></hf-buttons>
       </div>
     </hf-pop-up>
 
@@ -105,6 +46,7 @@
         </div>
       </div>
     </hf-pop-up>
+
     <hf-pop-up id="entity-linked-service-detail-popup" Header="Linked Service Detail">
       <div>
         <p  style="color: #ff5400de;" v-html="formattedErrorMessage"></p>
@@ -362,15 +304,18 @@
             </v-col>
           </v-row>
           <div class="new-service-popup" v-else>
-            <h3 class="" style="text-align: left">Spin up your SSI service!</h3>
+            <empty-container title="No SSI Service Found" icon="fa fa-user-shield" />
+            <!-- <h3 class="" style="text-align: left">Spin up your SSI service!</h3>
             <hf-buttons name=" Create" iconClass="fa fa-plus" style="text-align: right" class="ml-auto mt-2"
               @executeAction="openSlider('SSI_API')">
-            </hf-buttons>
+            </hf-buttons> -->
           </div>
           
-    </v-col>
+      </v-col>
     </v-row>
-    
+    <v-row v-else>
+      <empty-container title="No SSI Service Found" icon="fa fa-user-shield" />
+    </v-row>
   </div>
 </template>
 
@@ -528,11 +473,6 @@
   height: 490px;
 }
 
-.new-service-popup {
-  padding: 20px;
-  background: #8080801c;
-  border-radius: 10px;
-}
 </style>
 
 <script>

@@ -48,7 +48,7 @@
             </table>
         </div>
         <div v-else>
-            <h4>No Role(s) Found!</h4>
+            <empty-container title="No Role Found" icon="fa fa-shield-alt" />
         </div>
 
         <StudioSideBar :title="edit ? 'Edit Role' : 'Add Role'">

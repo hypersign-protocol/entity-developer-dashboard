@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="my-3">
     <load-ing :active.sync="isLoading" :can-cancel="true" :is-full-page="true"></load-ing>
     <div class="row">
       <div class="col-md-4">
@@ -27,7 +27,7 @@
       </table>
     </div>
     <div v-else>
-      <h4>No Invition(s) Found!</h4>
+      <empty-container title="No Invitition Found" icon="fa fa-envelope" />
     </div>
 
     <!-- <div class="row mb-3" style="padding: 20px">No member found, please invite a member to your account!</div> -->

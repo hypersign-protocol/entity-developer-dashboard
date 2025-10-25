@@ -218,11 +218,11 @@ h5 span {
       <v-col cols="12">
         <div class="">
           <div class="" style="text-align: left">
-            <div class="row" v-if="userList.length > 0" style="text-align: left;">
+            <div class="row" style="text-align: left;">
               <div class="col-md-8">
                 <h3>Users Verifications</h3>
               </div>
-              <div class="col-md-4">
+              <div class="col-md-4" v-if="userList.length > 0">
                 <div class="input-group mb-1">
                   <input type="text" class="form-control" placeholder="Search by user Id or email"
                     aria-label="Search by user Id" aria-describedby="basic-addon2" v-model="sessionIdTemp"
@@ -234,11 +234,10 @@ h5 span {
                 </div>
               </div>
             </div>
-            <div v-else-if="!hasPermission" style="text-align: left;">
-              <hf-upgrade-plan></hf-upgrade-plan>
-            </div>
+            
           </div>
         </div>
+        <div v-if="userList.length > 0">
         <div class="scrollit">
           <div class="card">
             <table class="table table-hover">
@@ -317,10 +316,17 @@ h5 span {
             </table>
           </div>
         </div>
-        <div class="row mt-2" v-if="userList.length > 0">
+        <div class="row mt-2">
           <div class="col-md-12 d-flex justify-content-center align-items-center">
             <PagiNation :pagesCount="pages" @event-page-number="handleGetPageNumberEvent" />
           </div>
+        </div>
+        </div>
+        <div v-else-if="!hasPermission" style="text-align: left;">
+          <hf-upgrade-plan></hf-upgrade-plan>
+        </div>
+        <div v-else>
+          <empty-container title="No User Found" icon="fa fa-users" />
         </div>
       </v-col>
     </v-row>
