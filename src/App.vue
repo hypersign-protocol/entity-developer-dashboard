@@ -111,12 +111,12 @@
           
           </b-nav-item>
 
-          <b-nav-item :href="$config.studioServer.BASE_URL" target="_blank" title="Developer Dashboard API">
-            <i class="fa fa-code" style=" color: #707070;height: 18px; font-size: 18px; width: 18px;"></i></b-nav-item>
-          <b-nav-item href="https://docs.hypersign.id/entity-studio/developer-dashboard" target="_blank"
+          <!-- <b-nav-item :href="$config.studioServer.BASE_URL" target="_blank" title="Developer Dashboard API">
+            <i class="fa fa-code" style=" color: #707070;height: 18px; font-size: 18px; width: 18px;"></i></b-nav-item> -->
+          <!-- <b-nav-item href="https://docs.hypersign.id/entity-studio/developer-dashboard" target="_blank"
             title="Documentation">
             <i class="fas fa-book-open nav-icon" style="height: 18px; font-size: 18px; width: 18px;"></i>
-          </b-nav-item>
+          </b-nav-item> -->
 
           <b-nav-item-dropdown right v-if="getIsLoggedOut" title="Profile" menu-class="dropDownPopup">
            <template #button-content>
