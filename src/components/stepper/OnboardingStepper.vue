@@ -1,227 +1,132 @@
 <template>
   <div v-if="!hasService" class="container onboarding-stepper">
-    <div>
-      <div class="text-center mb-4">
-        <h4><i class="mdi mdi-account-plus-outline mr-2"></i>Customer Onboarding</h4>
-        <p class="text-muted">Follow the steps below to set up your SSI and KYC/KYB services.</p>
+    <div class="text-center mb-4">
+      <h4><i class="mdi mdi-account-plus-outline mr-2"></i>Customer Onboarding</h4>
+      <p class="text-muted">Follow the steps below to set up your SSI and KYC/KYB services.</p>
+    </div>
+
+    <!-- Stepper Header -->
+    <!-- <div class="d-flex justify-content-between align-items-center mb-4 stepper-header">
+      <div v-for="(step, index) in steps" :key="index" class="step-item text-center"
+        :class="{ active: currentStep === index + 1, completed: currentStep > index + 1 }">
+        <div class="step-circle">
+          <span v-if="currentStep > index + 1"><i class="mdi mdi-check"></i></span>
+          <span v-else>{{ index + 1 }}</span>
+        </div>
+        <div class="step-label mt-2">{{ step.label }}</div>
       </div>
+    </div> -->
 
-      <!-- Stepper Header -->
-      <div class="d-flex justify-content-between align-items-center mb-4 stepper-header">
-        <div
-          v-for="(step, index) in steps"
-          :key="index"
-          class="step-item text-center"
-          :class="{ active: currentStep === index + 1, completed: currentStep > index + 1 }"
-        >
-          <div class="step-circle">
-            <span v-if="currentStep > index + 1"><i class="mdi mdi-check"></i></span>
-            <span v-else>{{ index + 1 }}</span>
-          </div>
-          <div class="step-label mt-2">{{ step.label }}</div>
-        </div>
-      </div>
+    <!-- Stepper Header -->
+<div class="progress-stepper d-flex justify-content-center align-items-center mb-4">
+  <div
+    v-for="(step, index) in steps"
+    :key="index"
+    class="step-bar mx-1"
+    :class="{ active: currentStep > index }"
+  ></div>
+</div>
 
-      <!-- Step Content -->
-      <div class="step-content">
-        <!-- Step 1: Company Details -->
-        <div v-if="currentStep === 1">
-          <h5>Enter Company Details</h5>
-          <b-form @submit.prevent="submitCompanyDetails">
-            <b-form-group label="Company Name">
-              <b-form-input v-model="company.name" required></b-form-input>
-            </b-form-group>
-            <b-form-group label="Company Logo URL">
-              <b-form-input v-model="company.logo"></b-form-input>
-            </b-form-group>
-            <b-form-group label="Domain">
-              <b-form-input v-model="company.domain" required></b-form-input>
-            </b-form-group>
-
-            <div class="text-right">
-              <b-button variant="primary" type="submit">Next</b-button>
-            </div>
-          </b-form>
-        </div>
-
-        <!-- Step 2: Create SSI Service -->
-        <div v-else-if="currentStep === 2">
-          <h5>Create SSI Service</h5>
-          <p class="text-muted">
-            Request credit and create your SSI Service. Issuer DID will be registered automatically.
-          </p>
-
-          <b-form-group label="Select Network Type">
-            <b-form-radio-group
-              v-model="networkType"
-              :options="[
-                { text: 'Testnet', value: 'testnet' },
-                { text: 'Mainnet', value: 'mainnet' },
-              ]"
-              buttons
-              button-variant="outline-primary"
-              name="networkType"
-            />
-          </b-form-group>
-
-          <div class="mt-3">
-            <div v-if="!isSimulating">
-              <b-button
-                v-if="networkType === 'testnet'"
-                variant="info"
-                :disabled="isSimulating"
-                @click="simulateCreditProcess"
-              >
-                Request Credit
-              </b-button>
-
-              <b-button
-                v-if="networkType === 'mainnet'"
-                variant="info"
-                @click="goToBilling"
-              >
-                Go to Billing Page
-              </b-button>
-            </div>
-
-            <!-- Stepwise loader -->
-            <div v-if="isSimulating" class="simulation-box mt-3 p-3 bg-light rounded">
-              <b-spinner small type="grow" v-if="!simulationComplete"></b-spinner>
-              <ul class="list-unstyled mt-2 mb-0">
-                <li
-                  v-for="(log, index) in simulationLogs"
-                  :key="index"
-                  :class="['simulation-log', { done: log.done }]"
-                >
-                  <span v-if="log.done" class="text-success">
-                    <i class="mdi mdi-check-circle-outline mr-1"></i>
-                  </span>
-                  {{ log.message }}
-                </li>
-              </ul>
-            </div>
-
-            <!-- Continue Button -->
-            <div class="text-right mt-3">
-              <b-button variant="secondary" @click="prevStep" :disabled="isSimulating">Back</b-button>
-              <b-button
-                variant="primary"
-                :disabled="!simulationComplete"
-                @click="nextStep"
-              >
-                Next
-              </b-button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Step 3: Setup ID Service -->
-        <div v-else-if="currentStep === 3">
-          <h5>Setup ID Service</h5>
-          <p class="text-muted">
-            Your ID service pod will now be initialized and access granted automatically.
-          </p>
-
-          <!-- Stepwise loader for ID Service -->
-          <div class="mt-3">
-            <div v-if="!isSimulatingID">
-              <b-button
-                variant="info"
-                :disabled="isSimulatingID"
-                @click="simulateIDServiceSetup"
-              >
-                Setup ID Service
-              </b-button>
-            </div>
-
-            <div v-if="isSimulatingID" class="simulation-box mt-3 p-3 bg-light rounded">
-              <b-spinner small type="grow" v-if="!simulationCompleteID"></b-spinner>
-              <ul class="list-unstyled mt-2 mb-0">
-                <li
-                  v-for="(log, index) in idSimulationLogs"
-                  :key="index"
-                  :class="['simulation-log', { done: log.done }]"
-                >
-                  <span v-if="log.done" class="text-success">
-                    <i class="mdi mdi-check-circle-outline mr-1"></i>
-                  </span>
-                  {{ log.message }}
-                </li>
-              </ul>
-            </div>
-
-            <div class="text-right mt-3">
-              <b-button variant="secondary" @click="prevStep" :disabled="isSimulatingID">Back</b-button>
-              <b-button
-                variant="success"
-                :disabled="!simulationCompleteID"
-                @click="finishOnboarding"
-              >
-                Finish
-              </b-button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Completion -->
-        <div v-else>
-          <div class="text-center">
-            <h5>🎉 Setup Complete!</h5>
-            <p>You can now create and manage your KYC/KYB services.</p>
-            <b-button variant="primary" @click="goToDashboard">Go to Dashboard</b-button>
-          </div>
-        </div>
-      </div>
+    <!-- Step Content -->
+    <div class="step-content">
+      <component :is="currentComponent" :company="company" :network-type="networkType" 
+        :is-simulating="isSimulating"
+        :isSimulatingID="isSimulatingID"
+        :simulation-logs="simulationLogs" 
+        :idSimulationLogs="idSimulationLogs"
+        :simulation-complete="simulationComplete" 
+        :simulationCompleteID="simulationCompleteID"
+        @update:company="company = $event" @update:network-type="networkType = $event" @next-step="nextStep"
+        @prev-step="prevStep" @simulate-credit="simulateCreditProcess" @simulate-id-service="simulateIDServiceSetup"
+        @finish="finishOnboarding" />
     </div>
   </div>
 </template>
 
 <script>
+import StepCompanyDetails from "./StepCompanyDetails.vue";
+import StepCreateSSIService from "./StepCreateSSIService.vue";
+import StepSetupIDService from "./StepSetupIDService.vue";
+import StepCompletion from "./StepCompletion.vue";
+import StepCompanyPreview from "./StepCompanyPreview.vue";
+import StepCreateBusinessIdentity from './StepCreateBusinessIdentity.vue'
+import StepAddTeam from './StepAddTeam.vue'
+import config from '../../config'
 export default {
   name: "OnboardingStepper",
+  components: {
+    StepCompanyDetails,
+    StepCreateSSIService,
+    StepSetupIDService,
+    StepCompletion,
+    StepCompanyPreview,
+    StepCreateBusinessIdentity,
+    StepAddTeam
+  },
   data() {
     return {
       hasService: false,
       currentStep: 1,
-      company: { name: "", logo: "", domain: "" },
+      company: { 
+        name: "", 
+        logo: "", 
+        domain: "", 
+        type: config.BUSINESS_TYPE.BUSINESS, 
+        contact_email: "", 
+        billing_address:"", 
+        twitter_profile: "", 
+        linkedIn_profile: "", 
+        phone_no: "" , 
+        country: "",
+        interests: [],
+        yearly_volume: "",
+        fields: [],
+       },
       networkType: "testnet",
       steps: [
         { label: "Company Details" },
+        { label: "Preview Company Details"},
         { label: "Create SSI Service" },
-        { label: "Setup ID Service" },
+        { label: "Setup Business Identity" },
+        { label: "Create Team" },
       ],
-
-      // Step 2 simulation
+      // simulation states
       isSimulating: false,
       simulationLogs: [],
       simulationComplete: false,
-
-      // Step 3 simulation
       isSimulatingID: false,
       idSimulationLogs: [],
       simulationCompleteID: false,
     };
   },
-  methods: {
-    submitCompanyDetails() {
-      this.currentStep++;
+  computed: {
+    currentComponent() {
+      switch (this.currentStep) {
+        case 1:
+          return StepCompanyDetails;
+        case 2:
+          return StepCompanyPreview;
+        case 3:
+          return StepCreateSSIService;
+        case 4:
+          return StepCreateBusinessIdentity;
+        case 5:
+          return StepAddTeam;
+        default:
+          return StepCompletion;
+      }
     },
-    goToBilling() {
-      console.log("Redirecting to billing page...");
+  },
+  methods: {
+    nextStep() {
+      if (this.currentStep < this.steps.length + 1) this.currentStep++;
     },
     prevStep() {
       if (this.currentStep > 1) this.currentStep--;
     },
-    nextStep() {
-      if (this.currentStep < this.steps.length + 1) this.currentStep++;
-    },
     finishOnboarding() {
       this.currentStep++;
     },
-    goToDashboard() {
-      console.log("Redirecting to dashboard...");
-    },
-
     async simulateCreditProcess() {
       this.isSimulating = true;
       this.simulationComplete = false;
@@ -238,15 +143,14 @@ export default {
         },
       ];
 
-      for (let step of steps) {
-        await new Promise((resolve) => setTimeout(resolve, step.delay));
+      for (const step of steps) {
+        await new Promise((r) => setTimeout(r, step.delay));
         this.simulationLogs.push({ message: step.message, done: true });
       }
-
       this.simulationComplete = true;
     },
-
     async simulateIDServiceSetup() {
+      console.log('simulateIDServiceSetup button clicked...')
       this.isSimulatingID = true;
       this.simulationCompleteID = false;
       this.idSimulationLogs = [];
@@ -258,18 +162,40 @@ export default {
         { message: "Finish", delay: 800 },
       ];
 
+      // Wait for DOM to update
+      await this.$nextTick();
+
       for (let step of steps) {
         await new Promise((resolve) => setTimeout(resolve, step.delay));
         this.idSimulationLogs.push({ message: step.message, done: true });
       }
 
       this.simulationCompleteID = true;
-    },
+    }
   },
 };
 </script>
 
 <style scoped>
+
+/* Minimal Progress Bar Stepper */
+.progress-stepper {
+  height: 8px;
+}
+
+.step-bar {
+  width: 70px;
+  height: 8px;
+  border-radius: 4px;
+  background-color: #e0e0e0;
+  transition: all 0.3s ease;
+}
+
+.step-bar.active {
+  background-color: #007bff; /* or your brand color */
+}
+
+
 .onboarding-stepper {
   max-width: 700px;
 }
@@ -278,10 +204,12 @@ export default {
 .stepper-header {
   position: relative;
 }
+
 .step-item {
   flex: 1;
   position: relative;
 }
+
 .step-item:not(:last-child)::after {
   content: "";
   position: absolute;
@@ -292,9 +220,11 @@ export default {
   background: #dee2e6;
   z-index: 0;
 }
+
 .step-item.completed:not(:last-child)::after {
   background: #28a745;
 }
+
 .step-circle {
   width: 40px;
   height: 40px;
@@ -307,26 +237,32 @@ export default {
   position: relative;
   z-index: 1;
 }
+
 .step-item.active .step-circle {
   background: #007bff;
   color: #fff;
 }
+
 .step-item.completed .step-circle {
   background: #28a745;
   color: #fff;
 }
+
 .step-label {
   font-size: 0.9rem;
   font-weight: 500;
 }
+
 .simulation-box {
   min-height: 100px;
 }
+
 .simulation-log {
   font-size: 0.9rem;
   color: #6c757d;
   margin-bottom: 4px;
 }
+
 .simulation-log.done {
   color: #28a745;
   font-weight: 500;

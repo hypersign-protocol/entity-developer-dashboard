@@ -1,6 +1,39 @@
 
 import { sanitizeUrl } from './utils/common'
 const hsdk = require('lds-sdk')
+
+
+const BUSINESS_TYPE = {
+    BUSINESS: 0,
+    INDIVIDUAL: 1,
+    COMMUNITY: 2
+}
+
+const BUSINESS_INTERESTED_IN = {
+    ID_VERIFICATION: "ID Verification",
+    AML_SCREEN: "AML Screening",
+    BIOMETRIC_VERIFCATION: "Biometric Verification",
+    PROOF_OF_ADDRESS: "Proof Of Address"
+}
+
+const BUSINESS_EST_YEARLY_VOLUME = {
+    ZERO_ONEK: "0 - 1,000",
+    ONEKONE_TWENTYK: "1,001 - 20,000",
+    TWENTYKONE_FIFTYK: "20,000 - 50,000",
+    PLUS_FIFTYK: "+50,000"
+}
+
+const BUSINESS_FIELDS = {
+    FINTECH: "Fintech",
+    CRYPTO: "Crypto",
+    GAMBLING: "Gambling",
+    MARKETPLACES: "Marketplaces",
+    ONLINE_TRAVEL: "Online travel",
+    TELCO: "Telco",
+    E_COMM: "E-commerce",
+
+}
+
 const config = {
     studioServer: {
         SCHEMA_SSE: `${process.env.VUE_APP_SSE}api/v1/schema/sse/`,
@@ -42,8 +75,11 @@ const config = {
     apiServer: {
         host: sanitizeUrl(process.env.VUE_APP_STUDIO_SERVER_BASE_URL || 'http://localhost:3001', false),
         basePath: '/api/v1',
-    }
-
+    },
+    BUSINESS_TYPE,
+    BUSINESS_INTERESTED_IN,
+    BUSINESS_EST_YEARLY_VOLUME,
+    BUSINESS_FIELDS
 }
 const websocketUrl = process.env.VUE_APP_STUDIO_SERVER_BASE_WS
 const webWalletAddress = process.env.VUE_APP_WEB_WALLET_ADDRESS;//"http://localhost:4999/chrome/popup/popup#"
@@ -135,5 +171,6 @@ config['FaicalAuthenticationError'] = {
     5: 'Rejected, due to problems in the extraction of the facial pattern',
     6: 'Rejected, because document has already been verified in some other account with this service',
 }
+
 
 export default config
