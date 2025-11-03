@@ -91,10 +91,10 @@ export default {
       this.invite.role = null;
     },
     onSkip() {
-      this.$emit("skip");
+       this.$emit("next-step");
     },
     onContinue() {
-      this.$emit("continue");
+       this.$emit("next-step");
     },
   },
 };

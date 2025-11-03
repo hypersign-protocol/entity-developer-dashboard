@@ -49,7 +49,6 @@ import StepCreateSSIService from "./StepCreateSSIService.vue";
 import StepSetupIDService from "./StepSetupIDService.vue";
 import StepCompletion from "./StepCompletion.vue";
 import StepCompanyPreview from "./StepCompanyPreview.vue";
-import StepCreateBusinessIdentity from './StepCreateBusinessIdentity.vue'
 import StepAddTeam from './StepAddTeam.vue'
 import config from '../../config'
 export default {
@@ -60,7 +59,6 @@ export default {
     StepSetupIDService,
     StepCompletion,
     StepCompanyPreview,
-    StepCreateBusinessIdentity,
     StepAddTeam
   },
   data() {
@@ -109,8 +107,6 @@ export default {
         case 3:
           return StepCreateSSIService;
         case 4:
-          return StepCreateBusinessIdentity;
-        case 5:
           return StepAddTeam;
         default:
           return StepCompletion;
