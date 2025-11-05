@@ -142,7 +142,7 @@ ul {
       <v-col>
         <div class="form-group" style="display:flex">
           <h3 style="text-align: left;">
-            Widget Configuration </h3>
+            KYC Widget Configuration </h3>
         </div>
       </v-col>
       <v-col>

@@ -551,6 +551,11 @@ export default {
                   href: "/studio/widget-config/" + this.getSelectedService.appId,
                   title: "KYC Widget",
                   icon: "fa fa-puzzle-piece",
+                },
+                {
+                  href: "/studio/kyb-widget-config/" + this.getSelectedService.appId,
+                  title: "KYB Widget",
+                  icon: "fa fa-building",
                 },                 {
                   href: "/studio/webhook-config/" + this.getSelectedService.appId,
                   title: "Webhook",

@@ -34,6 +34,9 @@ const mainStore = {
         widgetConfig: {
 
         },
+        kybWidgetConfig: {
+
+        },
         webhookConfig: {},
         kycWebpageConfig: {},
         marketPlaceApps: [],
@@ -126,6 +129,9 @@ const mainStore = {
         getWidgetnConfig: (state) => {
             return state.widgetConfig
         },
+        getKybWidgetConfig: (state) => {
+            return state.kybWidgetConfig
+        },
         getWebhookConfig: (state) => {
             return state.webhookConfig
         },
@@ -179,6 +185,9 @@ const mainStore = {
         },
         setWidgetConfig: (state, payload) => {
             state.widgetConfig = { ...payload }
+        },
+        setKybWidgetConfig: (state, payload) => {
+            state.kybWidgetConfig = { ...payload }
         },
         setWebhookConfig: (state, payload) => {
             state.webhookConfig = { ...payload }
@@ -1199,6 +1208,86 @@ const mainStore = {
                     resolve(json)
                 }).catch((e) => {
                     return reject(`Error while fetching apps ` + e.message);
+                })
+            })
+        },
+
+        createAppsKybWidgetConfig: ({ commit, getters }) => {
+            return new Promise((resolve, reject) => {
+                if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
+                    return reject(new Error('Tenant url is null or empty, service is not selected'))
+                }
+                const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyb/verification/widget-config`;
+                const authToken = getters.getSelectedService.access_token
+                const headers = UtilsMixin.methods.getKycServiceHeader(authToken);
+                const data = getters.getKybWidgetConfig;
+                data['issuerVerificationMethodId'] = getters.getKybWidgetConfig.issuerDID + '#key-1';
+                fetch(url, {
+                    method: 'POST',
+                    headers,
+                    body: JSON.stringify(data),
+                }).then(response => response.json()).then(json => {
+                    if (json.error) {
+                        return reject(new Error(json.error?.details.join(' ') || json.error.join(' ')))
+                    }
+                    commit('setKybWidgetConfig', json.data);
+                    resolve(json.data)
+                }).catch((e) => {
+                    return reject(`Error while creating KYB widget config ` + e.message);
+                })
+            })
+        },
+
+        fetchAppsKybWidgetConfig: ({ commit, getters }) => {
+            return new Promise((resolve, reject) => {
+                if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
+                    return reject(new Error('Tenant url is null or empty, service is not selected'))
+                }
+                const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyb/verification/widget-config`;
+                const authToken = getters.getSelectedService.access_token
+                const headers = UtilsMixin.methods.getKycServiceHeader(authToken);
+                return fetch(url, {
+                    method: 'GET',
+                    headers
+                }).then(response => response.json()).then(json => {
+                    if (json) {
+                        if (json.error) {
+                            return reject(new Error(json.error?.details.join(' ') || json.error.join(' ')))
+                        } else {
+                            commit('setKybWidgetConfig', json.data);
+                            return resolve()
+                        }
+                    } else {
+                        return resolve()
+                    }
+                }).catch((e) => {
+                    return reject(`Error while fetching KYB widget configuration ` + e.message);
+                })
+            })
+        },
+
+        updateAppsKybWidgetConfig: ({ commit, getters }) => {
+            return new Promise((resolve, reject) => {
+                if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
+                    return reject(new Error('Tenant url is null or empty, service is not selected'))
+                }
+                const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyb/verification/widget-config`;
+                const authToken = getters.getSelectedService.access_token
+                const headers = UtilsMixin.methods.getKycServiceHeader(authToken);
+                const data = getters.getKybWidgetConfig;
+                data['issuerVerificationMethodId'] = getters.getKybWidgetConfig.issuerDID + '#key-1';
+                fetch(url, {
+                    method: 'PATCH',
+                    headers,
+                    body: JSON.stringify(data),
+                }).then(response => response.json()).then(json => {
+                    if (json.error) {
+                        return reject(new Error(json.error?.details.join(' ') || json.error.join(' ')))
+                    }
+                    commit('setKybWidgetConfig', json.data);
+                    resolve(json)
+                }).catch((e) => {
+                    return reject(`Error while updating KYB widget config ` + e.message);
                 })
             })
         },
