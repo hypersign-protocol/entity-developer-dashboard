@@ -6,39 +6,63 @@
     </div>
 
     <!-- Stepper Header -->
-    <!-- <div class="d-flex justify-content-between align-items-center mb-4 stepper-header">
-      <div v-for="(step, index) in steps" :key="index" class="step-item text-center"
-        :class="{ active: currentStep === index + 1, completed: currentStep > index + 1 }">
-        <div class="step-circle">
-          <span v-if="currentStep > index + 1"><i class="mdi mdi-check"></i></span>
-          <span v-else>{{ index + 1 }}</span>
-        </div>
-        <div class="step-label mt-2">{{ step.label }}</div>
-      </div>
-    </div> -->
+    <div class="progress-stepper d-flex justify-content-center align-items-center mb-4">
+      <div
+        v-for="(step, index) in steps"
+        :key="index"
+        class="step-bar mx-1"
+        :class="{ active: currentStep > index }"
+      ></div>
+    </div>
 
-    <!-- Stepper Header -->
-<div class="progress-stepper d-flex justify-content-center align-items-center mb-4">
-  <div
-    v-for="(step, index) in steps"
-    :key="index"
-    class="step-bar mx-1"
-    :class="{ active: currentStep > index }"
-  ></div>
-</div>
+    <!-- Onboarding Logs Section - Only show on credit request step -->
+    <div v-if="company.logs && company.logs.length > 0 && currentStep === 3" class="mb-4">
+      <div class="card">
+        <div class="card-header">
+          <h6 class="mb-0"><i class="mdi mdi-history mr-2"></i>Onboarding Process Logs</h6>
+        </div>
+        <div class="card-body">
+          <div class="logs-container" style="max-height: 200px; overflow-y: auto;">
+            <div v-for="(log, index) in company.logs" :key="index" class="log-entry mb-2 p-2 rounded" :class="{
+              'bg-success text-white': log.status === 'SUCCESS',
+              'bg-danger text-white': log.status === 'FAILED',
+              'bg-warning text-dark': log.status !== 'SUCCESS' && log.status !== 'FAILED'
+            }">
+              <div class="d-flex justify-content-between align-items-start">
+                <div>
+                  <strong>{{ formatStepName(log.step) }}</strong>
+                  <div class="small mt-1">
+                    <i class="mdi mdi-clock-outline mr-1"></i>{{ formatDate(log.time) }}
+                  </div>
+                  <div v-if="log.failureReason" class="small mt-1 text-danger">
+                    <i class="mdi mdi-alert-circle-outline mr-1"></i>{{ log.failureReason }}
+                  </div>
+                </div>
+                <div>
+                  <span class="badge" :class="{
+                    'badge-success': log.status === 'SUCCESS',
+                    'badge-danger': log.status === 'FAILED',
+                    'badge-warning': log.status !== 'SUCCESS' && log.status !== 'FAILED'
+                  }">
+                    {{ log.status }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <!-- Step Content -->
     <div class="step-content">
-      <component :is="currentComponent" :company="company" :network-type="networkType" 
-        :is-simulating="isSimulating"
-        :isSimulatingID="isSimulatingID"
-        :simulation-logs="simulationLogs" 
-        :idSimulationLogs="idSimulationLogs"
-        :simulation-complete="simulationComplete" 
-        :simulationCompleteID="simulationCompleteID"
+      <component :is="currentComponent" :company="company" :network-type="networkType"
+        :is-processing-credit="isProcessingCredit" :is-processing-id="isProcessingID"
+        :credit-process-complete="creditProcessComplete" :id-process-complete="idProcessComplete"
+        :error-message="creditErrorMessage"
         @update:company="company = $event" @update:network-type="networkType = $event" @next-step="nextStep"
-        @prev-step="prevStep" @simulate-credit="simulateCreditProcess" @simulate-id-service="simulateIDServiceSetup"
-        @finish="finishOnboarding" />
+        @prev-step="prevStep" @process-credit="processCreditRequest" @process-id-service="processIDServiceSetup"
+        @finish="finishOnboarding" @clear-error="clearCreditError" />
     </div>
   </div>
 </template>
@@ -65,115 +89,282 @@ export default {
     return {
       hasService: false,
       currentStep: 1,
-      company: { 
-        name: "", 
-        logo: "", 
-        domain: "", 
-        type: config.BUSINESS_TYPE.BUSINESS, 
-        contact_email: "", 
-        billing_address:"", 
-        twitter_profile: "", 
-        linkedIn_profile: "", 
-        phone_no: "" , 
+      company: {
+        name: "",
+        logo: "",
+        domain: "",
+        type: config.BUSINESS_TYPE.BUSINESS,
+        service_types: [], // Changed from service_type string to service_types array
+        contact_email: "",
+        billing_address: "",
+        twitter_profile: "",
+        linkedIn_profile: "",
+        phone_no: "",
         country: "",
         interests: [],
         yearly_volume: "",
         fields: [],
-       },
+      },
       networkType: "testnet",
       steps: [
         { label: "Company Details" },
-        { label: "Preview Company Details"},
+        { label: "Preview Company Details" },
         { label: "Create SSI Service" },
-        { label: "Setup Business Identity" },
         { label: "Create Team" },
+        { label: "Complete Setup" },
       ],
-      // simulation states
-      isSimulating: false,
-      simulationLogs: [],
-      simulationComplete: false,
-      isSimulatingID: false,
-      idSimulationLogs: [],
-      simulationCompleteID: false,
+      // onboarding states
+      isProcessingCredit: false,
+      creditProcessComplete: false,
+      isProcessingID: false,
+      idProcessComplete: false,
+      creditErrorMessage: null,
     };
   },
   computed: {
     currentComponent() {
-      switch (this.currentStep) {
-        case 1:
-          return StepCompanyDetails;
-        case 2:
-          return StepCompanyPreview;
-        case 3:
-          return StepCreateSSIService;
-        case 4:
-          return StepAddTeam;
-        default:
-          return StepCompletion;
+      const components = [
+        StepCompanyDetails,
+        StepCompanyPreview,
+        StepCreateSSIService,
+        StepAddTeam,
+        StepCompletion
+      ];
+      return components[this.currentStep - 1] || StepCompletion;
+    },
+
+    areAllLogsSuccessful() {
+      
+      // Check if logs exist and all have SUCCESS status
+      if (!this.company || !Array.isArray(this.company.logs) || this.company.logs.length === 0) {
+        return false;
       }
+      if(this.company.logs.length === 0) {
+        return false;
+      }
+      return this.company.logs.every(log => log.status === 'SUCCESS');
     },
   },
+  mounted() {
+    this.checkExistingOnboarding();
+  },
+  watch: {
+    // Watch for changes in logs and update UI reactivity
+    'company.logs': {
+      handler(newLogs) {
+        console.log('Logs changed:', newLogs);
+      },
+      deep: true
+    }
+  },
   methods: {
-    nextStep() {
-      if (this.currentStep < this.steps.length + 1) this.currentStep++;
+    checkExistingOnboarding() {
+      this.$store.dispatch('mainStore/checkIfAlreadyExistOnBoarding')
+        .then((existingOnboarding) => {
+          if (existingOnboarding && existingOnboarding._id) {
+            this.populateCompanyFromOnboarding(existingOnboarding);
+            this.setCompletionStatus(existingOnboarding);
+          }
+        })
+        .catch(() => {
+          
+        });
     },
+
+    setCompletionStatus(onboardingData) {
+      const status = (onboardingData.onboardingStatus || onboardingData.status || '').toUpperCase();
+      this.creditProcessComplete = ['APPROVED', 'INITIATED'].includes(status);
+        
+      // Stay on step 3 (Create SSI Service) even if credit is complete
+      // Only allow progression to step 4 when user clicks next and all logs are successful
+      this.currentStep = this.creditProcessComplete ? 3 : 1;
+      console.log('Current step set to:', this.currentStep);
+    },
+
+    populateCompanyFromOnboarding(onboardingData) {
+      // Create a completely new object to ensure Vue reactivity
+      const newCompany = {
+        name: onboardingData.companyName || '',
+        logo: onboardingData.companyLogo || '',
+        contact_email: onboardingData.customerEmail || '',
+        domain: onboardingData.domain || '',
+        type: onboardingData.type || config.BUSINESS_TYPE.BUSINESS,
+        country: onboardingData.country || '',
+        registration_number: onboardingData.registrationNumber || '',
+        billing_address: onboardingData.billingAddress || '',
+        twitter_profile: onboardingData.twitterUrl || '',
+        linkedIn_profile: onboardingData.linkedinUrl || '',
+        phone_no: onboardingData.phoneNumber || '',
+        interests: onboardingData.interestedService || [],
+        logs: onboardingData.logs || [],
+        yearly_volume: onboardingData.yearlyVolume || '',
+        fields: onboardingData.businessField || [],
+        onboardingStatus: onboardingData.onboardingStatus || onboardingData.status || null,
+        service_types: this.determineServiceTypes(onboardingData)
+      };
+      
+      // Replace the entire company object to trigger reactivity
+      this.company = newCompany;
+      
+      console.log('Company data updated, logs count:', this.company.logs.length);
+    },
+
+    determineServiceTypes(onboardingData) {
+      if (onboardingData.isKycAndKyb) return ['KYC', 'KYB'];
+      const services = [];
+      if (onboardingData.isKyc) services.push('KYC');
+      if (onboardingData.isKyb) services.push('KYB');
+      return services;
+    },
+
+    nextStep() {
+      // Check if we're trying to move from step 3 (Create SSI Service) to step 4 (Add Team)
+      if (this.currentStep === 3) {
+        // Only allow progression if credit is approved
+        const status = (this.company.onboardingStatus || '').toUpperCase();
+        if (status !== 'APPROVED') {
+          console.log('OnboardingStepper: Cannot proceed to Add Team step - credit not approved yet');
+          return;
+        }
+      }
+      
+      if (this.currentStep < this.steps.length) this.currentStep++;
+    },
+
     prevStep() {
       if (this.currentStep > 1) this.currentStep--;
     },
+
     finishOnboarding() {
-      this.currentStep++;
+      console.log('OnboardingStepper: finishOnboarding called, emitting onboarding-complete');
+      // Don't change currentStep, just emit the completion event
+      this.$emit('onboarding-complete');
     },
-    async simulateCreditProcess() {
-      this.isSimulating = true;
-      this.simulationComplete = false;
-      this.simulationLogs = [];
 
-      const steps = [
-        { message: "Credit is being given...", delay: 1200 },
-        { message: "Token credited - <100 $HID>", delay: 1200 },
-        { message: "Issuer DID is being created...", delay: 1500 },
-        {
-          message:
-            "Issuer DID is registered on blockchain - did:hid:testnet:abc123xyz",
-          delay: 1800,
-        },
-      ];
+    async processCreditRequest() {
+      try {
+        this.isProcessingCredit = true;
+        this.creditProcessComplete = false;
 
-      for (const step of steps) {
-        await new Promise((r) => setTimeout(r, step.delay));
-        this.simulationLogs.push({ message: step.message, done: true });
+        const payload = this.buildCreditRequestPayload();
+
+        // Check for existing onboarding data
+        try {
+          const existingOnboarding = await this.$store.dispatch('mainStore/checkIfAlreadyExistOnBoarding');
+          if (existingOnboarding && existingOnboarding._id) {
+            this.mergeExistingData(payload, existingOnboarding);
+          }
+        } catch (error) {
+          // Continue without existing data
+        }
+
+        const result = await this.$store.dispatch('mainStore/onboardCustomer', payload);
+        
+        // Process successful response
+        this.creditProcessComplete = true;
+        
+        // Immediately update the onboarding status to INITIATED using Vue.set for reactivity
+        this.$set(this.company, 'onboardingStatus', 'INITIATED');
+        
+        // Update company data with response if available
+        if (result) {
+          // Refresh the onboarding status once to get the complete data
+          await this.checkExistingOnboarding();
+        }
+        
+        // Force component re-render to ensure UI updates
+        this.$forceUpdate();
+        
+      } catch (error) {
+        console.log('Error processing credit request:', error);
+        
+        // Handle different error types
+        let errorMessage = 'Failed to process credit request';
+        
+          // Set error message for display
+        this.creditErrorMessage = errorMessage;
+        
+      } finally {
+        this.isProcessingCredit = false;
       }
-      this.simulationComplete = true;
     },
-    async simulateIDServiceSetup() {
-      console.log('simulateIDServiceSetup button clicked...')
-      this.isSimulatingID = true;
-      this.simulationCompleteID = false;
-      this.idSimulationLogs = [];
 
-      const steps = [
-        { message: "ID service pod is being setup...", delay: 1200 },
-        { message: "ID service pod started.", delay: 1200 },
-        { message: "Admin user is given access to ID dashboard.", delay: 1500 },
-        { message: "Finish", delay: 800 },
-      ];
+    buildCreditRequestPayload() {
+      const hasKyc = this.company.service_types.includes('KYC');
+      const hasKyb = this.company.service_types.includes('KYB');
+      const hasBoth = hasKyc && hasKyb;
 
-      // Wait for DOM to update
-      await this.$nextTick();
+      return {
+        companyName: this.company.name,
+        companyLogo: this.company.logo || 'https://via.placeholder.com/150',
+        customerEmail: this.company.contact_email,
+        domain: this.company.domain,
+        type: this.company.type,
+        country: this.company.country || '',
+        registrationNumber: this.company.registration_number || '',
+        billingAddress: this.company.billing_address || '',
+        twitterUrl: this.company.twitter_profile || '',
+        linkedinUrl: this.company.linkedIn_profile || '',
+        phoneNumber: this.company.phone_no || '',
+        interestedService: this.company.interests || [],
+        yearlyVolume: this.company.yearly_volume || '',
+        businessField: this.company.fields || [],
+        isKyc: hasBoth ? false : hasKyc,
+        isKyb: hasBoth ? false : hasKyb,
+        isKycAndKyb: hasBoth
+      };
+    },
 
-      for (let step of steps) {
-        await new Promise((resolve) => setTimeout(resolve, step.delay));
-        this.idSimulationLogs.push({ message: step.message, done: true });
+    mergeExistingData(payload, existingOnboarding) {
+      payload.companyName = payload.companyName || existingOnboarding.companyName;
+      payload.customerEmail = payload.customerEmail || existingOnboarding.customerEmail;
+      payload.domain = payload.domain || existingOnboarding.domain;
+    },
+
+    async processIDServiceSetup() {
+      try {
+        this.isProcessingID = true;
+        this.idProcessComplete = false;
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        this.idProcessComplete = true;
+      } catch (error) {
+        console.error('Error processing ID service setup:', error);
+        throw error;
+      } finally {
+        this.isProcessingID = false;
       }
+    },
 
-      this.simulationCompleteID = true;
+    formatStepName(step) {
+      const stepNames = {
+        'CREATE_TEAM_ROLE': 'Create Team & Roles',
+        'CREATE_SSI_SERVICE': 'Create SSI Service',
+        'CREDIT_SSI_SERVICE': 'Credit SSI Service',
+        'CREATE_DID': 'Create DID',
+        'REGISTER_DID': 'Register DID',
+        'CREATE_KYC_SERVICE': 'Create KYC Service',
+        'GIVE_KYC_DASHBOARD_ACCESS': 'Grant KYC Dashboard Access',
+        'CREDIT_KYC_SERVICE': 'Credit KYC Service',
+        'SETUP_KYC_WIDGET': 'Setup KYC Widget',
+        'CONFIGURE_KYC_VERIFIER_PAGE': 'Configure KYC Verifier Page',
+        'COMPLETED': 'Onboarding Completed'
+      };
+      return stepNames[step] || step;
+    },
+
+    formatDate(dateString) {
+      if (!dateString) return '';
+      return new Date(dateString).toLocaleString();
+    },
+
+    clearCreditError() {
+      this.creditErrorMessage = null;
     }
   },
 };
 </script>
 
 <style scoped>
-
 /* Minimal Progress Bar Stepper */
 .progress-stepper {
   height: 8px;
@@ -188,79 +379,30 @@ export default {
 }
 
 .step-bar.active {
-  background-color: #007bff; /* or your brand color */
+  background-color: #007bff;
 }
-
 
 .onboarding-stepper {
   max-width: 700px;
 }
 
-/* Stepper Styles */
-.stepper-header {
-  position: relative;
-}
-
-.step-item {
-  flex: 1;
-  position: relative;
-}
-
-.step-item:not(:last-child)::after {
-  content: "";
-  position: absolute;
-  top: 20px;
-  right: -50%;
-  height: 2px;
-  width: 100%;
-  background: #dee2e6;
-  z-index: 0;
-}
-
-.step-item.completed:not(:last-child)::after {
-  background: #28a745;
-}
-
-.step-circle {
-  width: 40px;
-  height: 40px;
-  line-height: 38px;
-  border-radius: 50%;
-  background: #dee2e6;
-  color: #6c757d;
-  margin: 0 auto;
-  font-weight: bold;
-  position: relative;
-  z-index: 1;
-}
-
-.step-item.active .step-circle {
-  background: #007bff;
-  color: #fff;
-}
-
-.step-item.completed .step-circle {
-  background: #28a745;
-  color: #fff;
-}
-
-.step-label {
-  font-size: 0.9rem;
-  font-weight: 500;
-}
-
-.simulation-box {
+.processing-box {
   min-height: 100px;
 }
 
-.simulation-log {
-  font-size: 0.9rem;
-  color: #6c757d;
-  margin-bottom: 4px;
+.logs-container .log-entry {
+  border-left: 4px solid;
 }
 
-.simulation-log.done {
-  color: #28a745;
-  font-weight: 500;
+.logs-container .log-entry.bg-success {
+  border-left-color: #28a745;
+}
+
+.logs-container .log-entry.bg-danger {
+  border-left-color: #dc3545;
+}
+
+.logs-container .log-entry.bg-warning {
+  border-left-color: #ffc107;
 }
 </style>

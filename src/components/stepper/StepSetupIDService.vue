@@ -6,33 +6,24 @@
     </p>
 
     <div class="mt-3">
-      <div v-if="!isSimulatingID">
-        <b-button variant="info" @click="$emit('simulate-id-service')">
+      <div v-if="!isProcessingID">
+        <b-button variant="info" @click="$emit('process-id-service')">
           Setup ID Service
         </b-button>
       </div>
 
-      <div v-if="isSimulatingID" class="simulation-box mt-3 p-3 bg-light rounded">
-        <b-spinner small type="grow" v-if="!simulationCompleteID"></b-spinner>
-        <ul class="list-unstyled mt-2 mb-0">
-          <li
-            v-for="(log, index) in idSimulationLogs"
-            :key="index"
-            :class="['simulation-log', { done: log.done }]"
-          >
-            <span v-if="log.done" class="text-success">
-              <i class="mdi mdi-check-circle-outline mr-1"></i>
-            </span>
-            {{ log.message }}
-          </li>
-        </ul>
+      <div v-if="isProcessingID" class="processing-box mt-3 p-3 bg-light rounded">
+        <b-spinner small type="grow" v-if="!idProcessComplete"></b-spinner>
+        <div class="mt-2">
+          <p class="mb-0">Setting up your ID service...</p>
+        </div>
       </div>
 
       <div class="text-right mt-3">
         <b-button variant="secondary" @click="$emit('prev-step')">Back</b-button>
         <b-button
           variant="success"
-          :disabled="!simulationCompleteID"
+          :disabled="!idProcessComplete"
           @click="$emit('finish')"
         >
           Finish
@@ -46,9 +37,8 @@
 export default {
   name: "StepSetupIDService",
   props: [
-    "isSimulatingID",
-    "idSimulationLogs",
-    "simulationCompleteID",
+    "isProcessingID",
+    "idProcessComplete",
   ],
 };
 </script>

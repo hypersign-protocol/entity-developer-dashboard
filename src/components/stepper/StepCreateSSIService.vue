@@ -5,6 +5,15 @@
       Request credit and create your SSI Service. Issuer DID will be registered automatically.
     </p>
 
+    <!-- Error Message Display -->
+    <div v-if="errorMessage" class="alert alert-danger mt-3" role="alert">
+      <i class="mdi mdi-alert-circle-outline mr-2"></i>
+      {{ errorMessage }}
+      <button type="button" class="close" @click="$emit('clear-error')" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+
     <!-- <b-form-group label="Select Network Type">
       <b-form-radio-group
         v-model="localNetworkType"
@@ -19,48 +28,42 @@
     </b-form-group> -->
 
     <div class="mt-3">
-      <div v-if="!isSimulating">
-        <b-button
-          v-if="localNetworkType === 'testnet'"
-          variant="info"
-          @click="$emit('simulate-credit')"
-        >
+      <div v-if="!isProcessingCredit && !isCreditAlreadyRequested">
+        <b-button v-if="localNetworkType === 'testnet'" variant="info" @click="$emit('process-credit')">
           Request Credit
         </b-button>
 
-        <b-button
-          v-if="localNetworkType === 'mainnet'"
-          variant="info"
-          @click="goToBilling"
-        >
+        <b-button v-if="localNetworkType === 'mainnet'" variant="info" @click="goToBilling">
           Go to Billing Page
         </b-button>
       </div>
 
-      <div v-if="isSimulating" class="simulation-box mt-3 p-3 bg-light rounded">
-        <b-spinner small type="grow" v-if="!simulationComplete"></b-spinner>
-        <ul class="list-unstyled mt-2 mb-0">
-          <li
-            v-for="(log, index) in simulationLogs"
-            :key="index"
-            :class="['simulation-log', { done: log.done }]"
-          >
-            <span v-if="log.done" class="text-success">
-              <i class="mdi mdi-check-circle-outline mr-1"></i>
-            </span>
-            {{ log.message }}
-          </li>
-        </ul>
+      <div v-if="isProcessingCredit" class="processing-box mt-3 p-3 bg-light rounded">
+        <b-spinner small type="grow" v-if="!creditProcessComplete"></b-spinner>
+        <div class="mt-2">
+          <p class="mb-0">Processing your credit request...</p>
+        </div>
+      </div>
+
+      <!-- Completion Message -->
+      <div v-if="!isProcessingCredit && isCreditAlreadyRequested" class="mt-3 p-3 bg-info text-white rounded">
+        <h6 class="mb-2">
+          <i class="mdi mdi-check-circle-outline mr-2"></i>
+          {{ getCreditStatusTitle() }}
+        </h6>
+        <p class="mb-0">
+          {{ getCreditStatusMessage() }}
+        </p>
       </div>
 
       <div class="text-right mt-3">
         <b-button variant="secondary" @click="$emit('prev-step')">Back</b-button>
-        <b-button
-          variant="primary"
-          :disabled="!simulationComplete"
-          @click="$emit('update:network-type', localNetworkType), $emit('next-step')"
-        >
-          Next
+        <b-button v-if="!isCreditApproved" variant="primary" disabled>
+          Add Team
+        </b-button>
+        <b-button v-else variant="primary" @click="$emit('next-step')">
+          <i class="mdi mdi-check-circle-outline mr-1"></i>
+          Add Team
         </b-button>
       </div>
     </div>
@@ -72,16 +75,105 @@ export default {
   name: "StepCreateSSIService",
   props: [
     "networkType",
-    "isSimulating",
-    "simulationLogs",
-    "simulationComplete",
+    "isProcessingCredit",
+    "creditProcessComplete",
+    "company",
+    "errorMessage",
   ],
   data() {
     return {
       localNetworkType: this.networkType,
     };
   },
+  computed: {
+    isCreditAlreadyRequested() {
+      if (!this.company) return false;
+
+      // Check onboarding status first
+      if (this.company.onboardingStatus) {
+        const status = this.getNormalizedStatus();
+        if(status === '') {
+          return false;
+        }
+        
+        return ['INITIATED', 'APPROVED'].includes(status);
+      }
+
+      // Fallback: Check logs for credit-related steps
+      if (!Array.isArray(this.company.logs)) return false;
+
+      const creditSteps = ['CREDIT_SSI_SERVICE', 'CREDIT_KYC_SERVICE'];
+      return this.company.logs.some(log =>
+        creditSteps.includes(log.step) &&
+        ['SUCCESS', 'FAILED'].includes(log.status)
+      );
+    },
+
+    isCreditApproved() {
+      if (!this.company) return false;
+
+      // Check onboarding status for APPROVED
+      const status = this.getNormalizedStatus();
+      return status === 'APPROVED';
+    },
+  },
+  watch: {
+    // Watch for changes in company onboarding status
+    'company.onboardingStatus': {
+      handler(newStatus, oldStatus) {
+        console.log('StepCreateSSIService: Onboarding status changed from', oldStatus, 'to:', newStatus);
+        
+        // If status changed to APPROVED, log for user feedback
+        if (newStatus && newStatus.toUpperCase() === 'APPROVED') {
+          console.log('StepCreateSSIService: Credit approved! Add Team button should now be enabled');
+        }
+      },
+      immediate: true
+    },
+
+    // Watch for changes in the computed property
+    isCreditApproved: {
+      handler(isApproved) {
+        console.log('StepCreateSSIService: isCreditApproved changed to:', isApproved);
+      },
+      immediate: true
+    }
+  },
   methods: {
+    getNormalizedStatus() {
+      return this.company?.onboardingStatus?.toUpperCase() || '';
+    },
+
+    getCreditStatusTitle() {
+      const status = this.getNormalizedStatus();
+      console.log('StepCreateSSIService: Current status for title:', status);
+      
+      if(status === '') {
+        return 'Credit Request Not Initiated';
+      }
+
+      const statusTitles = {
+        'APPROVED': 'Credit Request Approved',
+        'INITIATED': 'Onboarding Submitted',
+      };
+
+      return statusTitles[status] || 'Credit Request Already Initiated';
+    },
+
+    getCreditStatusMessage() {
+      const status = this.getNormalizedStatus();
+      if(status === '') {
+        return 'Request Credit to proceed with the onboarding.';
+      }
+
+      const statusMessages = {
+        'APPROVED': 'Your credit request has been approved. You can now proceed to add team members.',
+        'INITIATED': 'Your credit request has been submitted and is being processed. The "Add Team" button will be enabled once your credit is approved.',
+      };
+
+      return statusMessages[status] || 'Your credit request has been submitted and is being processed';
+    },
+
     goToBilling() {
       console.log("Redirecting to billing...");
     },

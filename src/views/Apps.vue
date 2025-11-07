@@ -19,7 +19,9 @@
         </v-col>
       </v-row>
       <v-row v-else>
-        <OnboardingStepper v-if="getAppsWithKYCServices.length == 0" />
+        <OnboardingStepper 
+          @onboarding-complete="handleOnboardingComplete"
+        />
       </v-row>
     </div>
 
@@ -984,28 +986,31 @@ export default {
 
   async mounted() {
     try {
-      const userDetails = localStorage.getItem("user");
+      const userDetails = localStorage.getItem("user");      
       if (!userDetails) {
         console.warn('User details not found in localstore')
         return
       }
       this.userDetails = JSON.parse(userDetails)
       this.setMainSideNavBar(false);
-      await this.initializeStore();
-      const firstKycService = this.getAppsWithKYCServices && this.getAppsWithKYCServices.length > 0 ? this.getAppsWithKYCServices[0] : {}
-      if (firstKycService && Object.keys(firstKycService).length > 0) {
+      
+        await this.initializeStore();
+        const firstKycService = this.getAppsWithKYCServices && this.getAppsWithKYCServices.length > 0 ? this.getAppsWithKYCServices[0] : {}
         
-        if(this.userDetails.role === "SUPER_ADMIN"){
+        if (firstKycService && Object.keys(firstKycService).length > 0) {
+          
+     
+            this.setSelectedAppId(firstKycService.appId);
+            console.log(firstKycService);
+            
+            this.switchOrg(firstKycService.appId, 'CAVACH_API');
+          
+          return
+        } else { // User has no kyc service
           this.setSelectedAppId("");
-        } else {
-          this.setSelectedAppId(firstKycService.appId);
-          this.switchOrg(firstKycService.appId, 'CAVACH_API');
+          /// take user to onboaring stepper
         }
-        return
-      } else { // User has no kyc service
-        this.setSelectedAppId("");
-        /// take user to onboaring stepper
-      }      
+      
     } catch (e) {
       this.notifyErr(e.message)
     }
@@ -1015,6 +1020,7 @@ export default {
       userDetails: {},
       linkedAppErrorMessage: "",
       issuerConfigVisible: false,
+      onboardingCompleted: localStorage.getItem('onboardingCompleted') === 'true',
       items: [
         {
           src: 'https://cdn.vuetifyjs.com/images/carousel/squirrel.jpg',
@@ -1092,11 +1098,10 @@ export default {
     async initializeStore() {
       try {
         if (this.userDetails) {
-          // const parsed = JSON.parse(userDetails);
-          // Object.assign(this.userDetails, parsed);
           this.isLoading = true;
           await this.fetchAppsListFromServer();
           await this.fetchServicesList();
+          
           this.isLoading = false;
         } else {
           throw new Error("No user details found in localStorage");
@@ -1113,6 +1118,17 @@ export default {
           // emit logout
           EventBus.$emit("logoutAll");
         }
+      }
+    },
+
+    async handleOnboardingComplete() {
+      try {
+        this.isLoading = true;
+        await this.initializeStore();
+      } catch (e) {
+        this.notifyErr(`Error refreshing services: ${e.message}`);
+      } finally {
+        this.isLoading = false;
       }
     },
 
@@ -1137,33 +1153,6 @@ export default {
         }
         case "CAVACH_API": {
 
-
-          // const accessList = this.getUserAccessList("CAVACH_API");
-          // if (accessList && accessList.length > 0) {
-          //   const allAccess = accessList.find((x) => x.access == "ALL");
-          //   if (!allAccess) {
-          //     // Check if he has dashboard access
-          //     const readSessionAccess = accessList.find(
-          //       (x) => x.access == "READ_SESSION"
-          //     );
-          //     if (!readSessionAccess) {
-          //       return this.notifyErr(
-          //         "You do not have access to KYC dashboard, kindly contact the Hypersign Team"
-          //       );
-          //     }
-          //   }
-
-          // } else {
-          //   return this.notifyErr(
-          //     "You do not have access to KYC dashboard, kindly contact the admin"
-          //   );
-          // }
-
-
-          // this.$router.push({
-          //   name: "playgroundCredential",
-          //   params: { appId },
-          // });
           this.$router.push({
             name: "GettingStarted",
           });
