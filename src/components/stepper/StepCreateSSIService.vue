@@ -57,13 +57,17 @@
       </div>
 
       <div class="text-right mt-3">
-        <b-button variant="secondary" @click="$emit('prev-step')">Back</b-button>
+        <b-button v-if="isCreditAlreadyRequested || isCreditApproved" variant="secondary" @click="$emit('prev-step')"
+          disabled>Back</b-button>
+
+
+        <b-button v-else variant="secondary" @click="$emit('prev-step')">Back</b-button>
         <b-button v-if="!isCreditApproved" variant="primary" disabled>
-          Add Team
+          Finish
         </b-button>
-        <b-button v-else variant="primary" @click="$emit('next-step')">
+        <b-button v-else variant="primary" @click="$emit('finish')">
           <i class="mdi mdi-check-circle-outline mr-1"></i>
-          Add Team
+          Finish
         </b-button>
       </div>
     </div>
@@ -92,10 +96,10 @@ export default {
       // Check onboarding status first
       if (this.company.onboardingStatus) {
         const status = this.getNormalizedStatus();
-        if(status === '') {
+        if (status === '') {
           return false;
         }
-        
+
         return ['INITIATED', 'APPROVED'].includes(status);
       }
 
@@ -122,10 +126,10 @@ export default {
     'company.onboardingStatus': {
       handler(newStatus, oldStatus) {
         console.log('StepCreateSSIService: Onboarding status changed from', oldStatus, 'to:', newStatus);
-        
+
         // If status changed to APPROVED, log for user feedback
         if (newStatus && newStatus.toUpperCase() === 'APPROVED') {
-          console.log('StepCreateSSIService: Credit approved! Add Team button should now be enabled');
+          console.log('StepCreateSSIService: Credit approved!');
         }
       },
       immediate: true
@@ -135,6 +139,9 @@ export default {
     isCreditApproved: {
       handler(isApproved) {
         console.log('StepCreateSSIService: isCreditApproved changed to:', isApproved);
+        if (isApproved) {
+          this.$emit('finish');
+        }
       },
       immediate: true
     }
@@ -147,8 +154,8 @@ export default {
     getCreditStatusTitle() {
       const status = this.getNormalizedStatus();
       console.log('StepCreateSSIService: Current status for title:', status);
-      
-      if(status === '') {
+
+      if (status === '') {
         return 'Credit Request Not Initiated';
       }
 
@@ -162,13 +169,13 @@ export default {
 
     getCreditStatusMessage() {
       const status = this.getNormalizedStatus();
-      if(status === '') {
+      if (status === '') {
         return 'Request Credit to proceed with the onboarding.';
       }
 
       const statusMessages = {
         'APPROVED': 'Your credit request has been approved. You can now proceed to add team members.',
-        'INITIATED': 'Your credit request has been submitted and is being processed. The "Add Team" button will be enabled once your credit is approved.',
+        'INITIATED': 'Your credit request has been submitted and is being processed.',
       };
 
       return statusMessages[status] || 'Your credit request has been submitted and is being processed';

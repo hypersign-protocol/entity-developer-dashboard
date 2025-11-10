@@ -489,12 +489,10 @@ export default {
             Object.assign(this.userDetails, parsed);
             this.parseAuthToken= this.userDetails
            this.setIsLoggedOut(true)
-           const redirectPath=localStorage.getItem("postLoginRedirect")||'/studio/dashboard'
+           const redirectPath=localStorage.getItem("postLoginRedirect")||'/studio/dashboard';
            localStorage.removeItem("postLoginRedirect");
            this.$router.push(redirectPath).then(() => {
-          setTimeout(() => {
-            this.$router.go(0);
-          }, 500);
+          // Removed forced reload to prevent double page reload
         });
         } else {
           throw new Error("No user details found in localStorage")
@@ -715,8 +713,7 @@ export default {
       localStorage.removeItem("selectedOrg");
       this.resetStore();
       this.resetMainStore();
-      this.$router.go();
-      localStorage.removeItem('vuex')
+      // Removed forced reload to prevent double page reload
     },
 
     formattedAppName(appName) {
@@ -733,11 +730,10 @@ export default {
         this.notifySuccess('Succefully switch to admin account')
         await this.fetchLoggedInUser()
         if (this.$route.path !== "/studio/dashboard") {
-          this.$router.push("dashboard").then(() => { this.$router.go(0) })
+          this.$router.push("dashboard")
         } else {
           await this.fetchLoggedInUser()
           this.$forceUpdate();
-          this.$router.go(0); 
         }
       } catch (e) {
         this.notifyErr(e.message)

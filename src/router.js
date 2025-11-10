@@ -5,6 +5,7 @@ import config from './config'
 import store from './store'
 import Schema from './views/playground/Schema.vue'
 import CredentialStatus from './views/playground/CredentialStatus.vue'
+import OnboardingStepper from './components/stepper/OnboardingStepper.vue'
 const Home = () => import('./views/Home.vue');
 const PKIIdLogin = () => import('./views/PKIIdLogin.vue')
 const MainDashboard = () => import('./views/Dashboard.vue')
@@ -48,6 +49,11 @@ const router = new Router({
     {
       path: '/home',
       redirect: '/studio/home'
+    },
+    {
+      path: '/studio/onboarding',
+      name: 'Onboarding',
+      component: OnboardingStepper
     },
     {
       path: '/studio/home',

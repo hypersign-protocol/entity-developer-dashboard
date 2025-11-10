@@ -68,9 +68,9 @@
 
         <b-row>
           <b-col md="6">
-            <b-form-group label="Company Logo">
-              <b-form-file v-model="logoFile" accept="image/*" @change="previewLogo" required />
-              <small class="text-muted">Please upload a company logo (required)</small>
+            <b-form-group label="Company Logo (URL or Base64)">
+              <b-form-input v-model="localCompany.logo" placeholder="https://example.com/logo.png or data:image/png;base64,..." required />
+              <small class="text-muted">Please enter a hosted image URL or base64 encoded image (required)</small>
             </b-form-group>
           </b-col>
           <b-col md="6">
@@ -85,7 +85,7 @@
         <b-row>
           <b-col md="6">
             <b-form-group label="Twitter Profile">
-              <b-form-input v-model="localCompany.twitter_profile" placeholder="https://twitter.com/yourcompany" required />
+              <b-form-input v-model="localCompany.twitter_profile" placeholder="https://twitter.com/username or https://x.com/username" required />
             </b-form-group>
           </b-col>
 
@@ -241,7 +241,6 @@ export default {
         service_types: this.company.service_types || [], // Change from service_type to service_types array
       },
       selectedBusinessType: null,
-      logoFile: null,
     };
   },
   computed: {
@@ -267,15 +266,6 @@ export default {
       this.selectedBusinessType = type;
     },
     resetStep() { this.selectedBusinessType = null; },
-    previewLogo(event) {
-      const file = event.target.files[0];
-      if (file) {
-        // For preview, create blob URL
-        this.localCompany.logo = URL.createObjectURL(file);
-        // Store the file for later upload if needed
-        this.logoFile = file;
-      }
-    },
     goToPreview() {
       this.$emit("update:company", this.localCompany);
       // this.showPreview = true;
@@ -287,9 +277,9 @@ export default {
       }
     },
     validateForm() {
-      // Check if logo is uploaded
-      if (!this.logoFile) {
-        this.$bvToast.toast('Please upload a company logo', {
+      // Check if logo is provided
+      if (!this.localCompany.logo || this.localCompany.logo.trim() === '') {
+        this.$bvToast.toast('Please enter a company logo URL or base64', {
           title: 'Validation Error',
           variant: 'danger',
           solid: true
@@ -320,7 +310,16 @@ export default {
 
       // Check Twitter URL
       if (!this.localCompany.twitter_profile || this.localCompany.twitter_profile.trim() === '') {
-        this.$bvToast.toast('Please enter a Twitter profile URL', {
+        this.$bvToast.toast('Please enter a Twitter/X profile URL', {
+          title: 'Validation Error',
+          variant: 'danger',
+          solid: true
+        });
+        return false;
+      }
+      const twitterRegex = /^https?:\/\/(twitter\.com|x\.com)\/[a-zA-Z0-9_]+\/?$/;
+      if (!twitterRegex.test(this.localCompany.twitter_profile.trim())) {
+        this.$bvToast.toast('Please enter a valid Twitter/X profile URL (e.g., https://twitter.com/username or https://x.com/username)', {
           title: 'Validation Error',
           variant: 'danger',
           solid: true
@@ -337,9 +336,48 @@ export default {
         });
         return false;
       }
+      const linkedinRegex = /^https?:\/\/(www\.)?linkedin\.com\/(in|company)\/[a-zA-Z0-9_-]+\/?$/;
+      if (!linkedinRegex.test(this.localCompany.linkedIn_profile.trim())) {
+        this.$bvToast.toast('Please enter a valid LinkedIn profile URL (e.g., https://linkedin.com/in/username or https://linkedin.com/company/companyname)', {
+          title: 'Validation Error',
+          variant: 'danger',
+          solid: true
+        });
+        return false;
+      }
 
       // Country-specific phone number validation
       if (!this.validatePhoneNumber()) {
+        return false;
+      }
+
+      // Check if at least one interest is selected
+      if (!this.localCompany.interests || this.localCompany.interests.length === 0) {
+        this.$bvToast.toast('Please select at least one service you are interested in', {
+          title: 'Validation Error',
+          variant: 'danger',
+          solid: true
+        });
+        return false;
+      }
+
+      // Check if at least one industry field is selected
+      if (!this.localCompany.fields || this.localCompany.fields.length === 0) {
+        this.$bvToast.toast('Please select at least one industry your business belongs to', {
+          title: 'Validation Error',
+          variant: 'danger',
+          solid: true
+        });
+        return false;
+      }
+
+      // Check if yearly volume is selected
+      if (!this.localCompany.yearly_volume) {
+        this.$bvToast.toast('Please select your estimated yearly verification volume', {
+          title: 'Validation Error',
+          variant: 'danger',
+          solid: true
+        });
         return false;
       }
 

@@ -83,7 +83,6 @@ export default {
     StepSetupIDService,
     StepCompletion,
     StepCompanyPreview,
-    StepAddTeam
   },
   data() {
     return {
@@ -110,8 +109,6 @@ export default {
         { label: "Company Details" },
         { label: "Preview Company Details" },
         { label: "Create SSI Service" },
-        { label: "Create Team" },
-        { label: "Complete Setup" },
       ],
       // onboarding states
       isProcessingCredit: false,
@@ -131,18 +128,6 @@ export default {
         StepCompletion
       ];
       return components[this.currentStep - 1] || StepCompletion;
-    },
-
-    areAllLogsSuccessful() {
-      
-      // Check if logs exist and all have SUCCESS status
-      if (!this.company || !Array.isArray(this.company.logs) || this.company.logs.length === 0) {
-        return false;
-      }
-      if(this.company.logs.length === 0) {
-        return false;
-      }
-      return this.company.logs.every(log => log.status === 'SUCCESS');
     },
   },
   mounted() {
@@ -206,7 +191,6 @@ export default {
       // Replace the entire company object to trigger reactivity
       this.company = newCompany;
       
-      console.log('Company data updated, logs count:', this.company.logs.length);
     },
 
     determineServiceTypes(onboardingData) {
@@ -239,6 +223,7 @@ export default {
       console.log('OnboardingStepper: finishOnboarding called, emitting onboarding-complete');
       // Don't change currentStep, just emit the completion event
       this.$emit('onboarding-complete');
+      this.$router.push('/studio/dashboard');
     },
 
     async processCreditRequest() {
@@ -404,5 +389,114 @@ export default {
 
 .logs-container .log-entry.bg-warning {
   border-left-color: #ffc107;
+}
+</style>
+
+<style>
+/* Custom button styles for onboarding stepper */
+.onboarding-stepper .btn-primary {
+  background: #667eea;
+  border: none;
+  color: white;
+  font-weight: 600;
+  padding: 8px 20px;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+.onboarding-stepper .btn-primary:not(:disabled):hover {
+  background: #5a6fd8;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+  color: white;
+}
+
+.onboarding-stepper .btn-primary:disabled {
+  background: #cccccc;
+  box-shadow: none;
+  transform: none;
+  opacity: 0.6;
+  color: #666666;
+}
+
+.onboarding-stepper .btn-info:disabled {
+  background: #cccccc;
+  box-shadow: none;
+  transform: none;
+  opacity: 0.6;
+  color: #666666;
+}
+
+.onboarding-stepper .btn-secondary {
+  background: #f8f9fa;
+  border: 2px solid #e9ecef;
+  color: #6c757d;
+  font-weight: 600;
+  padding: 8px 20px;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+}
+
+.onboarding-stepper .btn-secondary:not(:disabled):hover {
+  background: #e9ecef;
+  border-color: #dee2e6;
+  color: #495057;
+  transform: translateY(-1px);
+}
+
+.onboarding-stepper .btn-info {
+  background: #17a2b8;
+  border: none;
+  color: white;
+  font-weight: 600;
+  padding: 8px 20px;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(23, 162, 184, 0.3);
+}
+
+.onboarding-stepper .btn-info:not(:disabled):hover {
+  background: #138496;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(23, 162, 184, 0.4);
+  color: white;
+}
+
+.onboarding-stepper .btn-info:disabled {
+  background: #cccccc;
+  box-shadow: none;
+  transform: none;
+  opacity: 0.6;
+  color: #666666;
+}
+
+.onboarding-stepper .btn-light {
+  background: #ffffff;
+  border: 2px solid #e9ecef;
+  color: #6c757d;
+  font-weight: 600;
+  padding: 8px 20px;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.onboarding-stepper .btn-secondary:disabled {
+  background: #cccccc;
+  border-color: #cccccc;
+  box-shadow: none;
+  transform: none;
+  opacity: 0.6;
+  color: #666666;
+}
+
+.onboarding-stepper .btn-light:disabled {
+  background: #cccccc;
+  border-color: #cccccc;
+  box-shadow: none;
+  transform: none;
+  opacity: 0.6;
+  color: #666666;
 }
 </style>
