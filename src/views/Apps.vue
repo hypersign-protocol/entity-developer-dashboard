@@ -19,7 +19,20 @@
         </v-col>
       </v-row>
       <v-row v-else>
-        <OnboardingStepper v-if="getAppsWithKYCServices.length == 0" />
+        <!-- display  No Application found -->
+        <v-col>
+          <div class="no-apps-container">
+            <h3 class="" style="text-align: center;">You have no services yet!</h3>
+            <p style="max-width: 500px; margin: 0 auto; text-align: center;">
+              Services help you manage your applications and APIs. Create your first
+              service to get started.
+            </p>
+
+          </div>
+        </v-col>
+
+
+
       </v-row>
     </div>
 
@@ -396,7 +409,7 @@
                           "No description for this app..",
                           70
                         )
-                        }}</v-list-item-subtitle>
+                      }}</v-list-item-subtitle>
                     </v-list-item-content>
                     <v-list-item-avatar class="logo-container" size="60" color="grey">
                       <v-img :src="eachOrg.logoUrl || getProfileIcon(formattedAppName(eachOrg.appId))"></v-img>
@@ -473,7 +486,7 @@
             <template #title>
               <b-icon icon="person-fill" aria-hidden="true" small></b-icon><strong> {{ 'Know Your Customer (' +
                 getAppsWithKYCServices.length + ')'
-                }}</strong>
+              }}</strong>
             </template>
 
             <v-row dense v-if="getAppsWithKYCServices.length > 0">
@@ -490,7 +503,7 @@
                           "No description for this app..",
                           70
                         )
-                        }}</v-list-item-subtitle>
+                      }}</v-list-item-subtitle>
                     </v-list-item-content>
                     <v-list-item-avatar class="logo-container" size="60" color="grey"><v-img
                         :src="eachOrg.logoUrl || getProfileIcon(formattedAppName(eachOrg.appId))"></v-img></v-list-item-avatar>
@@ -533,7 +546,7 @@
                         </span> -->
 
                     <span class="badge bg-secondary text-white mx-1" v-if="eachOrg.env == 'dev'">{{ eachOrg.env
-                    }}</span>
+                      }}</span>
                     <span class="badge bg-success text-white mx-1" v-else>{{ eachOrg.env }}</span>
                     <span class="badge rounded-pill bg-warning text-dark" @click.stop="verifyDomainOpenPopup(eachOrg)"
                       title="Click to verify your domain" v-if="
@@ -576,7 +589,7 @@
             <template #title>
               <b-icon icon="list-task" aria-hidden="true" small></b-icon><strong> {{ 'Quest (' +
                 getAppsWithQuestServices.length + ')'
-                }}</strong>
+              }}</strong>
             </template>
 
 
@@ -594,7 +607,7 @@
                           "No description for this app..",
                           70
                         )
-                        }}</v-list-item-subtitle>
+                      }}</v-list-item-subtitle>
                     </v-list-item-content>
                     <v-list-item-avatar class="logo-container" size="60" color="grey"><v-img
                         :src="eachOrg.logoUrl || getProfileIcon(formattedAppName(eachOrg.appId))"></v-img></v-list-item-avatar>
@@ -638,7 +651,7 @@
                         </span> -->
 
                     <span class="badge bg-secondary text-white mx-1" v-if="eachOrg.env == 'dev'">{{ eachOrg.env
-                    }}</span>
+                      }}</span>
                     <span class="badge bg-success text-white mx-1" v-else>{{ eachOrg.env }}</span>
                     <span class="badge rounded-pill bg-warning text-dark" @click.stop="verifyDomainOpenPopup(eachOrg)"
                       title="Click to verify your domain" v-if="
@@ -894,6 +907,12 @@
   background: #8080801c;
   border-radius: 10px;
 }
+
+.no-apps-container {
+  text-align: center;
+  padding: 40px 20px;
+}
+
 </style>
 
 <script>
@@ -908,7 +927,6 @@ import EventBus from "../eventbus";
 import { mapGetters, mapState, mapActions, mapMutations } from "vuex";
 import HfFlashNotification from "../components/element/HfFlashNotification.vue";
 import { sanitizeUrl } from "../utils/common";
-import OnboardingStepper from "../components/stepper/OnboardingStepper.vue";
 // import DeployOnChainKYC from "../components/deploy-onchain-kyc-popup/deploy.vue";
 import DomainLinkage from "@hypersign-protocol/domain-linkage-verifier";
 import config from "../config";
@@ -928,7 +946,7 @@ export default {
       "getAppsWithQuestServices",
       "getUserAccessList",
     ]),
-    aSuperAdminUser(){
+    aSuperAdminUser() {
       return this.userDetails.role === "SUPER_ADMIN"
     },
     domainFromOriginComputed() {
@@ -991,21 +1009,23 @@ export default {
       }
       this.userDetails = JSON.parse(userDetails)
       this.setMainSideNavBar(false);
+
       await this.initializeStore();
+      
+      
       const firstKycService = this.getAppsWithKYCServices && this.getAppsWithKYCServices.length > 0 ? this.getAppsWithKYCServices[0] : {}
+      
       if (firstKycService && Object.keys(firstKycService).length > 0) {
-        
-        if(this.userDetails.role === "SUPER_ADMIN"){
-          this.setSelectedAppId("");
-        } else {
-          this.setSelectedAppId(firstKycService.appId);
-          this.switchOrg(firstKycService.appId, 'CAVACH_API');
-        }
+        this.setSelectedAppId(firstKycService.appId);
+        this.switchOrg(firstKycService.appId, 'CAVACH_API');
+
         return
       } else { // User has no kyc service
         this.setSelectedAppId("");
+        this.$router.push("/studio/onboarding");
         /// take user to onboaring stepper
-      }      
+      }
+
     } catch (e) {
       this.notifyErr(e.message)
     }
@@ -1015,6 +1035,7 @@ export default {
       userDetails: {},
       linkedAppErrorMessage: "",
       issuerConfigVisible: false,
+      onboardingCompleted: localStorage.getItem('onboardingCompleted') === 'true',
       items: [
         {
           src: 'https://cdn.vuetifyjs.com/images/carousel/squirrel.jpg',
@@ -1072,7 +1093,6 @@ export default {
     HfButtons,
     ToolTip,
     HfFlashNotification,
-    OnboardingStepper
   },
   methods: {
     ...mapMutations("mainStore", ["updateAnApp", "setMainSideNavBar"]),
@@ -1092,11 +1112,10 @@ export default {
     async initializeStore() {
       try {
         if (this.userDetails) {
-          // const parsed = JSON.parse(userDetails);
-          // Object.assign(this.userDetails, parsed);
           this.isLoading = true;
           await this.fetchAppsListFromServer();
           await this.fetchServicesList();
+
           this.isLoading = false;
         } else {
           throw new Error("No user details found in localStorage");
@@ -1104,7 +1123,6 @@ export default {
       } catch (e) {
         // this.showIcon = false
         this.isLoading = false;
-        this.notifyErr(`Error:  ${e.message}`);
 
         if (
           e.message.includes("Unauthenticated") ||
@@ -1113,8 +1131,13 @@ export default {
           // emit logout
           EventBus.$emit("logoutAll");
         }
+        this.notifyErr(`Error:  ${e.message}`);
+
+
       }
     },
+
+
 
     ...mapMutations("playgroundStore", ["shiftContainer"]),
 
@@ -1137,33 +1160,6 @@ export default {
         }
         case "CAVACH_API": {
 
-
-          // const accessList = this.getUserAccessList("CAVACH_API");
-          // if (accessList && accessList.length > 0) {
-          //   const allAccess = accessList.find((x) => x.access == "ALL");
-          //   if (!allAccess) {
-          //     // Check if he has dashboard access
-          //     const readSessionAccess = accessList.find(
-          //       (x) => x.access == "READ_SESSION"
-          //     );
-          //     if (!readSessionAccess) {
-          //       return this.notifyErr(
-          //         "You do not have access to KYC dashboard, kindly contact the Hypersign Team"
-          //       );
-          //     }
-          //   }
-
-          // } else {
-          //   return this.notifyErr(
-          //     "You do not have access to KYC dashboard, kindly contact the admin"
-          //   );
-          // }
-
-
-          // this.$router.push({
-          //   name: "playgroundCredential",
-          //   params: { appId },
-          // });
           this.$router.push({
             name: "GettingStarted",
           });

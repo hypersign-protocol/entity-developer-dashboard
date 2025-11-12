@@ -191,12 +191,13 @@
 
 <script>
 import UtilsMixin from '../mixins/utils'
-import { mapGetters } from 'vuex/dist/vuex.common.js';
+import { mapGetters, mapActions } from 'vuex/dist/vuex.common.js';
 export default {
     name: "ServiceConfig",
     data() {
         return {
             isEditing: false,
+            isProd: false,
             formData: {
                 
             },
@@ -224,9 +225,10 @@ export default {
         },
     },
     created() {
-        this.formData =  {...this.getSelectedService};
+        this.formData = { ...this.getSelectedService };
     },
     methods: {
+         ...mapActions("mainStore", ["updateAnAppOnServer"]),
         startEdit() {
             this.backupData = JSON.parse(JSON.stringify(this.formData));
             this.isEditing = true;
@@ -235,9 +237,15 @@ export default {
             this.formData = JSON.parse(JSON.stringify(this.backupData));
             this.isEditing = false;
         },
-        saveChanges() {
+        setEnv(flag) {
+            // toggle environment and update formData.env
+            this.isProd = !!flag;
+            this.formData.env = this.isProd ? 'prod' : 'dev';
+        },
+        async saveChanges() {
             console.log("Updated Config:", this.formData);
             this.isEditing = false;
+            await this.updateAnAppOnServer({...this.formData})
             this.$bvToast.toast("Service configuration updated successfully!", {
                 title: "Success",
                 variant: "success",

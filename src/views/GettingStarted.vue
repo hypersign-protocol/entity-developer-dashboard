@@ -20,7 +20,13 @@
           <b-collapse :id="'accordion-' + i" accordion="guide-accordion" role="tabpanel">
             <b-card-body>
               <p class="mb-2">{{ item.description }}</p>
-              <a :href="item.link" target="_blank" class="text-primary font-weight-medium">
+              <router-link v-if="item.title === 'Create Your Custom KYC Verifier URL' && appId()"
+                :to="{ name: 'KYCWebpageGenerator', params: { appId: appId() } }"
+                class="text-primary font-weight-medium">
+                Go to KYC Verifier
+              </router-link>
+
+              <a v-else :href="item.link" target="_blank" class="text-primary font-weight-medium">
                 Read Documentation
               </a>
             </b-card-body>
@@ -66,7 +72,7 @@
 </template>
 
 <script>
-import { mapMutations } from "vuex";
+import { mapMutations, mapGetters } from "vuex";
 export default {
   name: "GettingStarted",
   data() {
@@ -113,9 +119,15 @@ export default {
   created() {
     this.updateSideNavStatus(true)
   },
+  computed: {
+    ...mapGetters('mainStore', ['getSelectedService'])
+  },
   methods: {
     // eslint-disable-next-line no-undef
     ...mapMutations('playgroundStore', ['updateSideNavStatus', 'shiftContainer']),
+    appId() {
+      return this.getSelectedService ? this.getSelectedService.appId : ''
+    }
   }
 };
 </script>

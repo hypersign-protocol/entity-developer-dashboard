@@ -19,6 +19,19 @@
     </b-row>
 
     <b-row>
+        <!-- Service Type -->
+        <b-col md="12" sm="12" class="mb-3">
+        <b-card class="h-100 shadow-sm">
+          <div class="d-flex align-items-center mb-2">
+            <i class="mdi mdi-cog-outline text-success mr-2"></i>
+            <h6 class="mb-0">Service Type</h6>
+          </div>
+          <p class="text-muted mb-0">{{ formatServiceTypeLabel(company.service_types) }}</p>
+        </b-card>
+        </b-col>
+    </b-row>
+
+    <b-row>
       
      
 
@@ -165,6 +178,22 @@ export default {
         COMMUNITY: "Community",
       };
       return labels[type] || type || "-";
+    },
+    formatServiceTypeLabel(serviceTypes) {
+      if (!serviceTypes || serviceTypes.length === 0) return "-";
+      
+      const labels = {
+        KYC: "Know Your Customer (KYC)",
+        KYB: "Know Your Business (KYB)",
+      };
+      
+      // If it's an array, join the labels
+      if (Array.isArray(serviceTypes)) {
+        return serviceTypes.map(type => labels[type] || type).join(", ");
+      }
+      
+      // Fallback for old string format
+      return labels[serviceTypes] || serviceTypes;
     },
   },
 };
