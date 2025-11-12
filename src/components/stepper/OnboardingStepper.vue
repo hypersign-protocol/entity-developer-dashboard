@@ -158,7 +158,7 @@ export default {
 
     setCompletionStatus(onboardingData) {
       const status = (onboardingData.onboardingStatus || onboardingData.status || '').toUpperCase();
-      this.creditProcessComplete = ['APPROVED', 'INITIATED'].includes(status);
+      this.creditProcessComplete = ['APPROVED', 'INITIATED','FAILED'].includes(status);
         
       // Stay on step 3 (Create SSI Service) even if credit is complete
       // Only allow progression to step 4 when user clicks next and all logs are successful

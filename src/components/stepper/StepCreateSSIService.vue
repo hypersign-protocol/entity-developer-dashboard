@@ -100,7 +100,7 @@ export default {
           return false;
         }
 
-        return ['INITIATED', 'APPROVED'].includes(status);
+        return ['INITIATED', 'APPROVED','FAILED'].includes(status);
       }
 
       // Fallback: Check logs for credit-related steps
