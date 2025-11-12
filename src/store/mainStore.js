@@ -246,6 +246,10 @@ const mainStore = {
         },
         setSelectedAppId: (state, payload) => {
             state.selectedServiceId = payload;
+            // Clear app-specific configs when switching apps
+            state.kycWebpageConfig = {};
+            state.webhookConfig = {};
+            state.onChainConfig = {};
         },
 
         setDIDList(state, payload) {
