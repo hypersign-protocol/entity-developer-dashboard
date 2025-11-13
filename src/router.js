@@ -61,7 +61,7 @@ const router = new Router({
       component: Home
     },
     {
-      path: '/studio/id/getting-started',
+      path: '/studio/getting-started/:appId',
       name: 'GettingStarted',
       component: GettingStarted
     },

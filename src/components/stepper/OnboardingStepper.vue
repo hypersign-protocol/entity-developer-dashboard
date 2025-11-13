@@ -321,20 +321,20 @@ export default {
     },
 
     formatStepName(step) {
-      const stepNames = {
-        'CREATE_TEAM_ROLE': 'Create Team & Roles',
-        'CREATE_SSI_SERVICE': 'Create SSI Service',
-        'CREDIT_SSI_SERVICE': 'Credit SSI Service',
-        'CREATE_DID': 'Create DID',
-        'REGISTER_DID': 'Register DID',
-        'CREATE_KYC_SERVICE': 'Create KYC Service',
-        'GIVE_KYC_DASHBOARD_ACCESS': 'Grant KYC Dashboard Access',
-        'CREDIT_KYC_SERVICE': 'Credit KYC Service',
-        'SETUP_KYC_WIDGET': 'Setup KYC Widget',
-        'CONFIGURE_KYC_VERIFIER_PAGE': 'Configure KYC Verifier Page',
-        'COMPLETED': 'Onboarding Completed'
-      };
-      return stepNames[step] || step;
+    const stepNames = {
+      'CREATE_TEAM_ROLE': 'Setting up Team & Roles',
+      'CREATE_SSI_SERVICE': 'Creating SSI Service',
+      'CREDIT_SSI_SERVICE': 'Crediting SSI Service',
+      'CREATE_DID': 'Creating Business Identity',
+      'REGISTER_DID': 'Registering Business Identity on Blockchain',
+      'CREATE_KYC_SERVICE': 'Creating ID Service',
+      'GIVE_KYC_DASHBOARD_ACCESS': 'Granting ID Dashboard Access',
+      'CREDIT_KYC_SERVICE': 'Crediting ID Service',
+      'SETUP_KYC_WIDGET': 'Setting up KYC Widget',
+      'CONFIGURE_KYC_VERIFIER_PAGE': 'Configuring KYC Verifier Page',
+      'COMPLETED': 'Onboarding Complete'
+    };
+    return stepNames[step] || step;
     },
 
     formatDate(dateString) {

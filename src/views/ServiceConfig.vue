@@ -8,27 +8,32 @@
 
             <div class="d-flex align-items-center flex-wrap mt-2 mt-md-0">
                 <!-- Environment toggle buttons -->
+
+
                 <div class="d-flex align-items-center mr-3">
-                    <b-button-group size="sm">
-                        <b-button :variant="!isProd ? 'secondary' : 'outline-secondary'" @click="setEnv(true)">
-                            Prod
-                        </b-button>
-                        <b-button :variant="isProd ? 'secondary' : 'outline-secondary'" @click="setEnv(false)">
-                            Dev
-                        </b-button>
-                    </b-button-group>
+                    <!-- Show radio buttons only when not editing -->
+                    <b-form-radio-group v-if="isEditing" v-model="isProd" :options="[
+                        { text: 'Prod', value: true },
+                        { text: 'Dev', value: false }
+                    ]" size="sm" name="env-toggle" class="mb-0 d-flex align-items-center"></b-form-radio-group>
+
+                    <!-- Show chip when editing -->
+                    <b-badge v-else :variant="isProd ? 'success' : 'info'" pill class="px-3 py-2">
+                        {{ isProd ? 'Prod' : 'Dev' }}
+                    </b-badge>
                 </div>
+
 
                 <!-- Edit / Save / Cancel buttons -->
                 <div>
-                    <b-button v-if="!isEditing" variant="primary" size="sm" @click="startEdit">
+                    <b-button v-if="!isEditing" variant="outline-primary" size="sm" @click="startEdit">
                         <i class="mdi mdi-pencil mr-1"></i>Edit
                     </b-button>
                     <template v-else>
-                        <b-button variant="success" size="sm" class="mr-2" @click="saveChanges">
+                        <b-button variant="outline-success" size="sm" class="mr-2" @click="saveChanges">
                             <i class="mdi mdi-content-save mr-1"></i>Save
                         </b-button>
-                        <b-button variant="danger" size="sm" @click="cancelEdit">
+                        <b-button variant="outline-danger" size="sm" @click="cancelEdit">
                             <i class="mdi mdi-close mr-1"></i>Cancel
                         </b-button>
                     </template>
@@ -199,7 +204,7 @@ export default {
             isEditing: false,
             isProd: false,
             formData: {
-                
+
             },
             backupData: null,
             serviceFields: [
@@ -226,9 +231,17 @@ export default {
     },
     created() {
         this.formData = { ...this.getSelectedService };
+        this.isProd = this.formData.env === "prod";
+
+        console.log(this.isProd)
+    },
+    watch: {
+        isProd(newVal) {
+            this.setEnv(newVal);
+        }
     },
     methods: {
-         ...mapActions("mainStore", ["updateAnAppOnServer"]),
+        ...mapActions("mainStore", ["updateAnAppOnServer"]),
         startEdit() {
             this.backupData = JSON.parse(JSON.stringify(this.formData));
             this.isEditing = true;
@@ -245,7 +258,7 @@ export default {
         async saveChanges() {
             console.log("Updated Config:", this.formData);
             this.isEditing = false;
-            await this.updateAnAppOnServer({...this.formData})
+            await this.updateAnAppOnServer({ ...this.formData })
             this.$bvToast.toast("Service configuration updated successfully!", {
                 title: "Success",
                 variant: "success",

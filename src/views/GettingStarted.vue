@@ -20,14 +20,8 @@
           <b-collapse :id="'accordion-' + i" accordion="guide-accordion" role="tabpanel">
             <b-card-body>
               <p class="mb-2">{{ item.description }}</p>
-              <router-link v-if="item.title === 'Create Your Custom KYC Verifier URL' && appId()"
-                :to="{ name: 'KYCWebpageGenerator', params: { appId: appId() } }"
-                class="text-primary font-weight-medium">
-                Go to KYC Verifier
-              </router-link>
-
-              <a v-else :href="item.link" target="_blank" class="text-primary font-weight-medium">
-                Read Documentation
+              <a :href="item.link" :target="!item.openInNewTab ? '' : '_blank'" class="text-primary font-weight-medium">
+                {{ item.anchorText || "Read Documentation" }}
               </a>
             </b-card-body>
           </b-collapse>
@@ -84,6 +78,7 @@ export default {
           description:
             "Start by learning how Hypersign KYC works — from identity capture to verification and issuance. This guide explains each component and how it ensures secure, compliant onboarding.",
           link: "https://docs.hypersign.id/hypersign-kyc/introduction",
+          openInNewTab: true,
         },
         {
           title: "Configure Your KYC Widget",
@@ -91,13 +86,16 @@ export default {
           description:
             "Set up your KYC widget according to your needs — choose between liveliness checks, ID document verification, and consent capture. You’ll also learn how to customize branding and themes.",
           link: "https://docs.hypersign.id/hypersign-kyc/integrations/widget-configuration",
+          openInNewTab: true,
         },
         {
           title: "Create Your Custom KYC Verifier URL",
           icon: "mdi-web-check",
           description:
             "Quickly test your KYC flow by creating a Verifier page. Just add a title, description, and theme — and you’ll get a sharable KYC URL to test the end-to-end verification process with sample users.",
-          link: "https://docs.hypersign.id/hypersign-kyc/integrations/widget-configuration", // (or replace with your verifier setup doc)
+          link: `#/studio/kyc-webpage-generator/${this.appId()}`, 
+          anchorText: "Go to KYC Verifier Setup",
+          openInNewTab: false,
         },
         {
           title: "Integrate into Your App",
@@ -105,6 +103,7 @@ export default {
           description:
             "Developers can embed the KYC widget directly into their web or mobile apps. Learn how to authenticate via backend APIs, generate session IDs, prepare the widget URL, and handle verification events.",
           link: "https://docs.hypersign.id/hypersign-kyc/kyc-widget/integrations",
+          openInNewTab: true,
         },
         {
           title: "Go Live",
@@ -112,6 +111,7 @@ export default {
           description:
             "Once you’re satisfied with testing, verify your domain and switch from the Dev to Production environment. This step ensures real user verification in a secure, compliant setting.",
           link: "https://docs.hypersign.id/hypersign-kyc/integrations/environments",
+          openInNewTab: true,
         },
       ]
     };
@@ -126,7 +126,8 @@ export default {
     // eslint-disable-next-line no-undef
     ...mapMutations('playgroundStore', ['updateSideNavStatus', 'shiftContainer']),
     appId() {
-      return this.getSelectedService ? this.getSelectedService.appId : ''
+      console.log(this.$route)
+      return this.getSelectedService ? this.getSelectedService.appId : this.$route.params.appId
     }
   }
 };

@@ -22,7 +22,7 @@
           </div>
 
           <p class="text-warning">
-            Warning: Regenerating a new API Secret Key will invalidate the old one.
+            ⚠️ Note: Generating a new API Secret Key will deactivate your existing one. You can find your App ID on the <a :href="'#/studio/service-config/'+getSelectedService.appId">App Configuration</a> page.
           </p>
 
           <div class="text-center">
