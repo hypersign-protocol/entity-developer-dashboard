@@ -5,7 +5,7 @@ const hsdk = require('lds-sdk')
 
 const BUSINESS_TYPE = {
     BUSINESS: 0,
-    INDIVIDUAL: 1,
+    // INDIVIDUAL: 1,
     COMMUNITY: 2
 }
 

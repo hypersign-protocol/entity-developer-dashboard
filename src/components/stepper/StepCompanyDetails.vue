@@ -21,16 +21,16 @@
     </div>
     <!-- Step 2: Company Details Form -->
     <div v-else-if="selectedBusinessType">
-      <h5 class="mb-3">Enter Company Details</h5>
+      <h5 class="mb-3">Enter {{ localCompany.type }} Details</h5>
       <b-form @submit.prevent="nextStep">
         <b-row>
           <b-col md="6">
-            <b-form-group label="Company Name">
+            <b-form-group :label="localCompany.type == BUSINESS_TYPE.BUSINESS? 'Company Name': 'Community Name'">
               <b-form-input v-model="localCompany.name" required />
             </b-form-group>
           </b-col>
 
-          <b-col md="6">
+          <b-col md="6" v-if="localCompany.type == BUSINESS_TYPE.BUSINESS">
             <b-form-group label="Domain">
               <b-form-input v-model="localCompany.domain" required />
             </b-form-group>
@@ -44,7 +44,7 @@
             </b-form-group>
           </b-col>
 
-          <b-col md="6">
+          <b-col md="6" v-if="localCompany.type == BUSINESS_TYPE.BUSINESS">
             <b-form-group label="Registration Number">
               <b-form-input v-model="localCompany.registration_number" />
             </b-form-group>
@@ -68,9 +68,10 @@
 
         <b-row>
           <b-col md="6">
-            <b-form-group label="Company Logo (URL or Base64)">
-              <b-form-input v-model="localCompany.logo" placeholder="https://example.com/logo.png or data:image/png;base64,..." required />
-              <small class="text-muted">Please enter a hosted image URL or base64 encoded image (required)</small>
+            <b-form-group label="Logo URL">
+              <b-form-input v-model="localCompany.logo"
+                placeholder="https://example.com/logo.png or data:image/png;base64,..." required />
+              <small class="text-muted">Please enter a hosted image URL</small>
             </b-form-group>
           </b-col>
           <b-col md="6">
@@ -85,14 +86,15 @@
         <b-row>
           <b-col md="6">
             <b-form-group label="Twitter Profile">
-              <b-form-input v-model="localCompany.twitter_profile" placeholder="https://twitter.com/username or https://x.com/username" required />
+              <b-form-input v-model="localCompany.twitter_profile"
+                placeholder="https://twitter.com/username or https://x.com/username" />
             </b-form-group>
           </b-col>
 
           <b-col md="6">
             <b-form-group label="LinkedIn Profile">
               <b-form-input v-model="localCompany.linkedIn_profile"
-                placeholder="https://linkedin.com/company/yourcompany" required />
+                placeholder="https://linkedin.com/company/yourcompany" />
             </b-form-group>
           </b-col>
         </b-row>
@@ -112,10 +114,6 @@
         <h6 class="mt-4">Which industry does your business belong to?</h6>
         <b-form-checkbox-group v-model="localCompany.fields" :options="fieldOptions" stacked />
 
-        <!-- Service Type Selection -->
-        <hr />
-        <h6 class="mt-4">Select Service Type</h6>
-        <b-form-checkbox-group v-model="localCompany.service_types" :options="serviceTypeOptions" stacked />
 
         <!-- Actions -->
         <div class="text-right mt-4">
@@ -126,17 +124,6 @@
         </div>
       </b-form>
     </div>
-
-    <!-- Inline Preview Step (Child Component) -->
-    <!-- <transition name="fade">
-      <div v-if="showPreview">
-        <StepCompanyPreview
-          :company="localCompany"
-          @prev-step="showPreview = false"
-          @next-step="emitNextStep"
-        />
-      </div>
-    </transition> -->
   </div>
 </template>
 
@@ -180,14 +167,15 @@ export default {
       showPreview: false,
       BUSINESS_TYPE: {
         BUSINESS: "Business",
-        INDIVIDUAL: "Individual",
         COMMUNITY: "Community",
       },
       BUSINESS_INTERESTED_IN: {
-        ID_VERIFICATION: "ID Verification",
         AML_SCREEN: "AML Screening",
-        BIOMETRIC_VERIFCATION: "Biometric Verification",
         PROOF_OF_ADDRESS: "Proof Of Address",
+        KYB: "Know Your Business (KYB)",
+        KYC: "Know Your Customer (KYC)",
+        AGE_VERIFICATION: "Age Verification",
+        FRAUD_PREVENTION: "Fraud Prevention",
       },
       BUSINESS_EST_YEARLY_VOLUME: {
         ZERO_ONEK: "0 - 1,000",
@@ -203,10 +191,23 @@ export default {
         ONLINE_TRAVEL: "Online Travel",
         TELCO: "Telco",
         E_COMM: "E-commerce",
+        BANKING: "Banking",
+        INSURANCE: "Insurance",
+        HEALTHCARE: "Healthcare",
+        GOVERNMENT: "Government / Public Sector",
+        EDUCATION: "Education / EdTech",
+        REAL_ESTATE: "Real Estate",
+        TRANSPORT: "Transport / Mobility",
+        SOCIAL_MEDIA: "Social Media / Community Platforms",
+        ENTERTAINMENT: "Entertainment / Streaming",
+        GAMING: "Gaming / Esports",
+        LEGAL: "Legal / Compliance Services",
+        SUPPLY_CHAIN: "Supply Chain / Logistics",
+        NFT_WEB3: "NFT / Web3 Projects"
       },
       COUNTRY_OPTIONS: {
         IN: "India",
-        SG: "Singapore", 
+        SG: "Singapore",
         CN: "China",
         JP: "Japan",
         HK: "Hong Kong",
@@ -245,7 +246,7 @@ export default {
   },
   computed: {
     serviceTypeOptions() {
-      return Object.values(this.SERVICE_KYC_KYB_TYPE_SELECTOR); 
+      return Object.values(this.SERVICE_KYC_KYB_TYPE_SELECTOR);
     },
     interestOptions() {
       return Object.values(this.BUSINESS_INTERESTED_IN);
@@ -309,16 +310,17 @@ export default {
       }
 
       // Check Twitter URL
-      if (!this.localCompany.twitter_profile || this.localCompany.twitter_profile.trim() === '') {
-        this.$bvToast.toast('Please enter a Twitter/X profile URL', {
-          title: 'Validation Error',
-          variant: 'danger',
-          solid: true
-        });
-        return false;
-      }
+      // if (!this.localCompany.twitter_profile || this.localCompany.twitter_profile.trim() === '') {
+      //   this.$bvToast.toast('Please enter a Twitter/X profile URL', {
+      //     title: 'Validation Error',
+      //     variant: 'danger',
+      //     solid: true
+      //   });
+      //   return false;
+      // }
+
       const twitterRegex = /^https?:\/\/(twitter\.com|x\.com)\/[a-zA-Z0-9_]+\/?$/;
-      if (!twitterRegex.test(this.localCompany.twitter_profile.trim())) {
+      if (this.localCompany.twitter_profile  && !twitterRegex.test(this.localCompany.twitter_profile.trim())) {
         this.$bvToast.toast('Please enter a valid Twitter/X profile URL (e.g., https://twitter.com/username or https://x.com/username)', {
           title: 'Validation Error',
           variant: 'danger',
@@ -328,16 +330,16 @@ export default {
       }
 
       // Check LinkedIn URL
-      if (!this.localCompany.linkedIn_profile || this.localCompany.linkedIn_profile.trim() === '') {
-        this.$bvToast.toast('Please enter a LinkedIn profile URL', {
-          title: 'Validation Error',
-          variant: 'danger',
-          solid: true
-        });
-        return false;
-      }
+      // if (!this.localCompany.linkedIn_profile || this.localCompany.linkedIn_profile.trim() === '') {
+      //   this.$bvToast.toast('Please enter a LinkedIn profile URL', {
+      //     title: 'Validation Error',
+      //     variant: 'danger',
+      //     solid: true
+      //   });
+      //   return false;
+      // }
       const linkedinRegex = /^https?:\/\/(www\.)?linkedin\.com\/(in|company)\/[a-zA-Z0-9_-]+\/?$/;
-      if (!linkedinRegex.test(this.localCompany.linkedIn_profile.trim())) {
+      if (this.localCompany.linkedIn_profile  && !linkedinRegex.test(this.localCompany.linkedIn_profile.trim())) {
         this.$bvToast.toast('Please enter a valid LinkedIn profile URL (e.g., https://linkedin.com/in/username or https://linkedin.com/company/companyname)', {
           title: 'Validation Error',
           variant: 'danger',
@@ -382,26 +384,26 @@ export default {
       }
 
       // Check if at least one service type is selected
-      if (!this.localCompany.service_types || this.localCompany.service_types.length === 0) {
-        this.$bvToast.toast('Please select at least one service type (KYC or KYB)', {
-          title: 'Validation Error',
-          variant: 'danger',
-          solid: true
-        });
-        return false;
-      }
+      // if (!this.localCompany.service_types || this.localCompany.service_types.length === 0) {
+      //   this.$bvToast.toast('Please select at least one service type (KYC or KYB)', {
+      //     title: 'Validation Error',
+      //     variant: 'danger',
+      //     solid: true
+      //   });
+      //   return false;
+      // }
 
       return true;
     },
     validatePhoneNumber() {
-  const rawPhone = this.localCompany.phone_no;
-  const country = this.localCompany.country;
+      const rawPhone = this.localCompany.phone_no;
+      const country = this.localCompany.country;
 
-  
-  
 
-  const phone = rawPhone ? rawPhone.trim() : '';
-  const rule = PhoneRegexMap[country];
+
+
+      const phone = rawPhone ? rawPhone.trim() : '';
+      const rule = PhoneRegexMap[country];
 
       if (rule) {
         if (!rule.test(phone)) {
