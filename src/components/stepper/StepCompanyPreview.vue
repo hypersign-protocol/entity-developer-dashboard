@@ -1,46 +1,32 @@
 <template>
   <div>
-    <h5 class="mb-3">Review Company Information</h5>
+    
+    <h5 class="mb-3">Review {{ formatTypeLabel(company.type) }} Information</h5>
+    
     <p class="text-muted">
       Please confirm the details below before proceeding. Click <b>Back</b> to make changes if needed.
     </p>
 
-    <b-row>
+    <div class="rol mb-2">
         <!-- Account Type -->
-        <b-col md="12" sm="12" class="mb-3">
-        <b-card class="h-100 shadow-sm">
+        
+        <b-card class="h-100 serviceCard">
           <div class="d-flex align-items-center mb-2">
             <i class="mdi mdi-account-circle-outline text-primary mr-2"></i>
-            <h6 class="mb-0">Account Type</h6>
+            <h6 class="mb-0">Business Type</h6>
           </div>
           <p class="text-muted mb-0">{{ formatTypeLabel(company.type) }}</p>
         </b-card>
-        </b-col>
-    </b-row>
+        
+      </div>
 
-    <b-row>
-        <!-- Service Type -->
-        <b-col md="12" sm="12" class="mb-3">
-        <b-card class="h-100 shadow-sm">
-          <div class="d-flex align-items-center mb-2">
-            <i class="mdi mdi-cog-outline text-success mr-2"></i>
-            <h6 class="mb-0">Service Type</h6>
-          </div>
-          <p class="text-muted mb-0">{{ formatServiceTypeLabel(company.service_types) }}</p>
-        </b-card>
-        </b-col>
-    </b-row>
-
-    <b-row>
-      
-     
-
+    <div class="rol mb-2">
       <!-- Company Info -->
-      <b-col md="12" sm="12" class="mb-3">
-        <b-card class="h-100 shadow-sm">
+      
+        <b-card class="h-100 serviceCard">
           <div class="d-flex align-items-center mb-3">
             <i class="mdi mdi-domain text-primary mr-2"></i>
-            <h6 class="mb-0">Company Information</h6>
+            <h6 class="mb-0">Business Details</h6>
           </div>
 
           <b-row>
@@ -106,16 +92,17 @@
             </b-col>
           </b-row>
         </b-card>
-      </b-col>
-    </b-row>
+      
+    </div>
 
-    <b-row>
+
+    <div class="rol mb-2">
       <!-- Business Details -->
-      <b-col md="12">
-        <b-card class="h-100 shadow-sm">
+      
+        <b-card class="h-100 serviceCard">
           <div class="d-flex align-items-center mb-3">
             <i class="mdi mdi-briefcase-outline text-primary mr-2"></i>
-            <h6 class="mb-0">Business Details</h6>
+            <h6 class="mb-0">Business Requirements</h6>
           </div>
 
           <b-row>
@@ -153,12 +140,15 @@
             </b-col>
           </b-row>
         </b-card>
-      </b-col>
-    </b-row>
+      
+    </div>
 
     <div class="text-right mt-4">
-      <b-button variant="secondary" @click="$emit('prev-step')">Back</b-button>
-      <b-button variant="primary" @click="$emit('next-step')">Next</b-button>
+      <!-- <b-button variant="secondary" @click="$emit('prev-step')">Back</b-button>
+      <b-button variant="primary" @click="$emit('next-step')">Next</b-button> -->
+
+      <b-button variant="link" @click="$emit('prev-step')">Back</b-button>
+      <v-btn class="btn btn-outline-secondary" @click="$emit('next-step')">Next</v-btn>
     </div>
   </div>
 </template>
@@ -174,7 +164,7 @@ export default {
     formatTypeLabel(type) {
       const labels = {
         BUSINESS: "Business",
-        INDIVIDUAL: "Individual",
+        // INDIVIDUAL: "Individual",
         COMMUNITY: "Community",
       };
       return labels[type] || type || "-";

@@ -1,12 +1,12 @@
 <template>
   <div>
-    <h5 v-if="!selectedBusinessType">Select Your Business Type</h5>
-
-    <!-- Step 1: Choose Business Type -->
-    <div v-if="!selectedBusinessType" class="business-type-select">
+    <!-- STEP 1: Select Business Type -->
+    <div v-if="step === 1">
+      <h5>Select Your Business Type</h5>
       <b-row>
         <b-col v-for="(label, key) in BUSINESS_TYPE" :key="key" cols="12" md="4" class="mb-3">
-          <b-card class="text-center selectable-card" :class="{ selected: localCompany.type === key }"
+          <b-card class="text-center selectable-card"
+            :class="{ selected: localCompany.type === key }"
             @click="selectBusinessType(key)">
             <div class="py-4">
               <i v-if="key === 'BUSINESS'" class="mdi mdi-domain text-primary mb-3" style="font-size: 2rem;"></i>
@@ -19,18 +19,22 @@
         </b-col>
       </b-row>
     </div>
-    <!-- Step 2: Company Details Form -->
-    <div v-else-if="selectedBusinessType">
-      <h5 class="mb-3">Enter {{ localCompany.type }} Details</h5>
-      <b-form @submit.prevent="nextStep">
+
+    <!-- STEP 2: Business / Community Basic Info -->
+    <div v-else-if="step === 2">
+      <h5 class="mb-3">
+        Enter {{ localCompany.type == BUSINESS_TYPE.BUSINESS.toUpperCase() ? "Company" : "Community" }} Details
+      </h5>
+      <b-form @submit.prevent="goToStep3">
         <b-row>
           <b-col md="6">
-            <b-form-group :label="localCompany.type == BUSINESS_TYPE.BUSINESS? 'Company Name': 'Community Name'">
+            <b-form-group
+              :label="localCompany.type == BUSINESS_TYPE.BUSINESS.toUpperCase() ? 'Company Name' : 'Community Name'">
               <b-form-input v-model="localCompany.name" required />
             </b-form-group>
           </b-col>
 
-          <b-col md="6" v-if="localCompany.type == BUSINESS_TYPE.BUSINESS">
+          <b-col md="6" v-if="localCompany.type == BUSINESS_TYPE.BUSINESS.toUpperCase()">
             <b-form-group label="Domain">
               <b-form-input v-model="localCompany.domain" required />
             </b-form-group>
@@ -44,7 +48,7 @@
             </b-form-group>
           </b-col>
 
-          <b-col md="6" v-if="localCompany.type == BUSINESS_TYPE.BUSINESS">
+          <b-col md="6" v-if="localCompany.type == BUSINESS_TYPE.BUSINESS.toUpperCase()">
             <b-form-group label="Registration Number">
               <b-form-input v-model="localCompany.registration_number" />
             </b-form-group>
@@ -61,17 +65,16 @@
           <b-col md="6">
             <b-form-group label="Phone Number">
               <b-form-input v-model="localCompany.phone_no" required />
-              <small class="text-muted">Enter phone number with country code (e.g., +91 for India, +1 for US)</small>
             </b-form-group>
           </b-col>
         </b-row>
 
         <b-row>
           <b-col md="6">
-            <b-form-group label="Logo URL">
+            <b-form-group
+              :label="localCompany.type == BUSINESS_TYPE.BUSINESS.toUpperCase() ? 'Company Logo URL' : 'Community Logo URL'">
               <b-form-input v-model="localCompany.logo"
-                placeholder="https://example.com/logo.png or data:image/png;base64,..." required />
-              <small class="text-muted">Please enter a hosted image URL</small>
+                placeholder="https://example.com/logo.png" required />
             </b-form-group>
           </b-col>
           <b-col md="6">
@@ -79,19 +82,24 @@
               <img :src="localCompany.logo" class="logo-preview" alt="Logo Preview" />
             </div>
           </b-col>
-
         </b-row>
 
-
         <b-row>
-          <b-col md="6">
+          <b-col md="4">
             <b-form-group label="Twitter Profile">
               <b-form-input v-model="localCompany.twitter_profile"
-                placeholder="https://twitter.com/username or https://x.com/username" />
+                placeholder="https://twitter.com/username" />
             </b-form-group>
           </b-col>
 
-          <b-col md="6">
+          <b-col md="4">
+            <b-form-group label="Telegram Profile">
+              <b-form-input v-model="localCompany.telegram_profile"
+                placeholder="https://t.me/username" />
+            </b-form-group>
+          </b-col>
+
+          <b-col md="4">
             <b-form-group label="LinkedIn Profile">
               <b-form-input v-model="localCompany.linkedIn_profile"
                 placeholder="https://linkedin.com/company/yourcompany" />
@@ -99,76 +107,91 @@
           </b-col>
         </b-row>
 
-        <!-- Interests -->
-        <hr />
-        <h6 class="mt-4">What services are you interested in?</h6>
-        <b-form-checkbox-group v-model="localCompany.interests" :options="interestOptions" stacked />
-
-        <!-- Yearly Volume -->
-        <hr />
-        <h6 class="mt-4">Estimated Yearly Verification Volume</h6>
-        <b-form-radio-group v-model="localCompany.yearly_volume" :options="volumeOptions" stacked />
-
-        <!-- Business Fields -->
-        <hr />
-        <h6 class="mt-4">Which industry does your business belong to?</h6>
-        <b-form-checkbox-group v-model="localCompany.fields" :options="fieldOptions" stacked />
-
-
-        <!-- Actions -->
         <div class="text-right mt-4">
-          <b-button variant="secondary" @click="resetStep">Back</b-button>
-          <!-- <b-button variant="primary" type="submit">Next</b-button> -->
-          <b-button variant="primary" type="submit" @click="$emit('update:company', localCompany)"> Next
-          </b-button>
+          <b-button variant="link" @click="handleBack()">Back</b-button>
+          <v-btn class="btn btn-outline-secondary" type="submit">Next</v-btn>
         </div>
       </b-form>
+    </div>
+
+    <!-- STEP 3: Progressive Questions -->
+    <div v-else-if="step === 3">
+      <div v-if="subStep === 1">
+        <h6 class="mt-4">What services are you interested in?</h6>
+        <b-form-checkbox-group v-model="localCompany.interests" :options="interestOptions" stacked />
+        <div class="text-right mt-4">
+          <!-- <b-button variant="secondary" @click="handleBack()">Back</b-button>
+          <b-button variant="primary" @click="handleNext">Next</b-button> -->
+          <b-button variant="link" @click="handleBack()">Back</b-button>
+          <v-btn class="btn btn-outline-secondary" @click="handleNext()">Next</v-btn>
+        </div>
+      </div>
+
+      <div v-else-if="subStep === 2">
+        <h6 class="mt-4">Estimated Yearly Verification Volume</h6>
+        <b-form-radio-group v-model="localCompany.yearly_volume" :options="volumeOptions" stacked />
+        <div class="text-right mt-4">
+          <!-- <b-button variant="secondary" @click="handleBack()">Back</b-button>
+          <b-button variant="primary" @click="handleNext">Next</b-button> -->
+          <b-button variant="link" @click="handleBack()">Back</b-button>
+          <v-btn class="btn btn-outline-secondary" @click="handleNext()">Next</v-btn>
+        </div>
+      </div>
+
+      <div v-else-if="subStep === 3">
+        <h6 class="mt-4">Which industry does your business belong to?</h6>
+        <b-form-checkbox-group v-model="localCompany.fields" :options="fieldOptions" stacked />
+        <div class="text-right mt-4">
+          <!-- <b-button variant="secondary" @click="handleBack()">Back</b-button>
+          <b-button variant="primary" @click="handleNext">Next</b-button> -->
+          <b-button variant="link" @click="handleBack()">Back</b-button>
+          <v-btn class="btn btn-outline-secondary" @click="handleNext()">Next</v-btn>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
-
-// Phone number validation patterns per-country. These are tested against the
-// raw phone string the user provides (no blanket requirement to start with +).
-// Patterns allow national formats where appropriate.
 export const PhoneRegexMap = {
-  IN: /^[6-9]\d{9}$/, // India: 10 digits, starts with 6-9
-  SG: /^[689]\d{7}$/, // Singapore: 8 digits, starts with 6, 8, or 9
-  JP: /^\d{10,11}$/, // Japan: 10 or 11 digits
-  CN: /^1[3-9]\d{9}$/, // China: 11 digits, starts with 13–19
-  ID: /^(\+62|62|0)8[1-9][0-9]{6,9}$/, // Indonesia
-  VN: /^(0|\+84)(3|5|7|8|9)[0-9]{8}$/, // Vietnam
-  TH: /^0[689]\d{8}$/, // Thailand: 10 digits, starts with 06/08/09
-  MY: /^01[0-46-9]-?[0-9]{7,8}$/, // Malaysia: 9–10 digits
-  PH: /^(09|\+639)\d{9}$/, // Philippines: 11 digits
-  KR: /^01[016789]\d{7,8}$/, // South Korea: 10–11 digits
-  AU: /^(\+61|0)[2-478](\d{8})$/, // Australia: 9–10 digits
-  NZ: /^(\+64|0)[2-9]\d{7,9}$/, // New Zealand: 8–10 digits
-  BD: /^(?:\+?88)?01[3-9]\d{8}$/, // Bangladesh: 11 digits
-  PK: /^03[0-9]{9}$/, // Pakistan: 11 digits, starts with 03
-  LK: /^(?:\+94|0)?7\d{8}$/, // Sri Lanka: 10 digits
-  NP: /^(?:\+977|0)?9[78]\d{8}$/, // Nepal: 10 digits
-  KH: /^(?:\+855|0)?[1-9]\d{7,8}$/, // Cambodia: 8–9 digits
-  MM: /^(?:\+95|0)?9\d{7,9}$/, // Myanmar: 8–10 digits
-  BN: /^(\+673)?[2-8]\d{6}$/, // Brunei: 7 digits
-  LA: /^(?:\+856|0)?(20)\d{8}$/, // Laos: 10 digits
-  MN: /^(\+976|0)?[89]\d{7}$/, // Mongolia: 8 digits
-  UK: /^(\+44|0)7\d{9}$/, // UK mobile: starts with 07, total 11 digits
-  HK: /^(\+852)?[5,6,9]\d{7}$/, // Hong Kong: 8 digits, starts with 5,6,9
-  US: /^(\+1)?\d{10}$/, // USA: 10 digits, optional +1
+  IN: /^[6-9]\d{9}$/,
+  SG: /^[689]\d{7}$/,
+  JP: /^\d{10,11}$/,
+  CN: /^1[3-9]\d{9}$/,
+  ID: /^(\+62|62|0)8[1-9][0-9]{6,9}$/,
+  VN: /^(0|\+84)(3|5|7|8|9)[0-9]{8}$/,
+  TH: /^0[689]\d{8}$/,
+  MY: /^01[0-46-9]-?[0-9]{7,8}$/,
+  PH: /^(09|\+639)\d{9}$/,
+  KR: /^01[016789]\d{7,8}$/,
+  AU: /^(\+61|0)[2-478](\d{8})$/,
+  NZ: /^(\+64|0)[2-9]\d{7,9}$/,
+  BD: /^(?:\+?88)?01[3-9]\d{8}$/,
+  PK: /^03[0-9]{9}$/,
+  LK: /^(?:\+94|0)?7\d{8}$/,
+  NP: /^(?:\+977|0)?9[78]\d{8}$/,
+  KH: /^(?:\+855|0)?[1-9]\d{7,8}$/,
+  MM: /^(?:\+95|0)?9\d{7,9}$/,
+  BN: /^(\+673)?[2-8]\d{6}$/,
+  LA: /^(?:\+856|0)?(20)\d{8}$/,
+  MN: /^(\+976|0)?[89]\d{7}$/,
+  UK: /^(\+44|0)7\d{9}$/,
+  HK: /^(\+852)?[5,6,9]\d{7}$/,
+  US: /^(\+1)?\d{10}$/,
 };
+
 
 export default {
   name: "StepCompanyDetails",
   props: ["company"],
   data() {
     return {
-      showPreview: false,
-      BUSINESS_TYPE: {
+      step: 1,
+      subStep: 1,
+      BUSINESS_TYPE : {
         BUSINESS: "Business",
         COMMUNITY: "Community",
-      },
+},
       BUSINESS_INTERESTED_IN: {
         AML_SCREEN: "AML Screening",
         PROOF_OF_ADDRESS: "Proof Of Address",
@@ -203,51 +226,26 @@ export default {
         GAMING: "Gaming / Esports",
         LEGAL: "Legal / Compliance Services",
         SUPPLY_CHAIN: "Supply Chain / Logistics",
-        NFT_WEB3: "NFT / Web3 Projects"
+        NFT_WEB3: "NFT / Web3 Projects",
       },
       COUNTRY_OPTIONS: {
-        IN: "India",
-        SG: "Singapore",
-        CN: "China",
-        JP: "Japan",
-        HK: "Hong Kong",
-        ID: "Indonesia",
-        VN: "Vietnam",
-        TH: "Thailand",
-        MY: "Malaysia",
-        PH: "Philippines",
-        KR: "South Korea",
-        AU: "Australia",
-        NZ: "New Zealand",
-        UK: "United Kingdom",
-        US: "United States",
-        BD: "Bangladesh",
-        PK: "Pakistan",
-        LK: "Sri Lanka",
-        NP: "Nepal",
-        KH: "Cambodia",
-        MM: "Myanmar",
-        BN: "Brunei",
-        LA: "Laos",
-        MN: "Mongolia",
-        TL: "Timor-Leste",
-        XX: "Other"
-      },
-      SERVICE_KYC_KYB_TYPE_SELECTOR: {
-        IS_KYC: "KYC",
-        IS_KYB: "KYB",
+        IN: "India", SG: "Singapore", CN: "China", JP: "Japan", HK: "Hong Kong",
+        ID: "Indonesia", VN: "Vietnam", TH: "Thailand", MY: "Malaysia",
+        PH: "Philippines", KR: "South Korea", AU: "Australia", NZ: "New Zealand",
+        UK: "United Kingdom", US: "United States", BD: "Bangladesh",
+        PK: "Pakistan", LK: "Sri Lanka", NP: "Nepal", KH: "Cambodia", 
+        MM: "Myanmar", BN: "Brunei", LA: "Laos", MN: "Mongolia",
+        TL: "Timor-Leste", XX: "Other"
       },
       localCompany: {
         ...this.company,
-        service_types: this.company.service_types || [], // Change from service_type to service_types array
+        service_types: this.company.service_types || [],
       },
       selectedBusinessType: null,
     };
   },
+
   computed: {
-    serviceTypeOptions() {
-      return Object.values(this.SERVICE_KYC_KYB_TYPE_SELECTOR);
-    },
     interestOptions() {
       return Object.values(this.BUSINESS_INTERESTED_IN);
     },
@@ -261,178 +259,134 @@ export default {
       return Object.entries(this.COUNTRY_OPTIONS).map(([value, text]) => ({ value, text }));
     },
   },
+
   methods: {
+    handleBack() {
+  if (this.step === 3) {
+    if (this.subStep > 1) {
+      this.subStep--;
+    } else {
+      this.goBackToStep2();
+    }
+  } else if (this.step === 2) {
+          this.step = 1
+
+  }
+},
     selectBusinessType(type) {
       this.localCompany.type = type;
       this.selectedBusinessType = type;
+      this.step = 2;
     },
-    resetStep() { this.selectedBusinessType = null; },
-    goToPreview() {
-      this.$emit("update:company", this.localCompany);
-      // this.showPreview = true;
+
+    goToStep3() {
+      if (this.validateStep2()) {
+        this.step = 3;
+        this.subStep = 1;
+      }
     },
-    nextStep() {
-      if (this.validateForm()) {
+
+    goBackToStep1() {
+      this.step = 1;
+    },
+
+    finishStep3() {
+      if (this.validateStep3()) {
         this.$emit("update:company", this.localCompany);
         this.$emit("next-step");
       }
     },
-    validateForm() {
-      // Check if logo is provided
-      if (!this.localCompany.logo || this.localCompany.logo.trim() === '') {
-        this.$bvToast.toast('Please enter a company logo URL or base64', {
-          title: 'Validation Error',
-          variant: 'danger',
-          solid: true
-        });
-        return false;
-      }
 
-      // Check email format - more strict validation
+    handleNext() {
+    if (this.step === 3) {
+      // validate the current subStep before moving forward / finishing
+      if (!this.validateStep3()) return;
+      if (this.subStep < 3) {
+        this.subStep++;
+      } else {
+        // last subStep -> finish
+        this.finishStep3();
+      }
+    } else if (this.step === 2) {
+      // when on step 2, validate step2 before opening step3
+      if (this.validateStep2()) {
+        this.step = 3;
+        this.subStep = 1;
+      }
+    }
+  },
+
+    // ✅ Step 2 validation
+    validateStep2() {
+      const c = this.localCompany;
+
+      if (!c.name?.trim()) return this.showToast("Please enter a company/community name");
+      if (!c.logo?.trim()) return this.showToast("Please provide a logo URL");
+      if (!c.country) return this.showToast("Please select a country");
+
       const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-      if (!emailRegex.test(this.localCompany.contact_email)) {
-        this.$bvToast.toast('Please enter a valid email address', {
-          title: 'Validation Error',
-          variant: 'danger',
-          solid: true
-        });
-        return false;
-      }
+      if (!emailRegex.test(c.contact_email)) return this.showToast("Invalid email address");
 
-      // Check if country is selected
-      if (!this.localCompany.country) {
-        this.$bvToast.toast('Please select a country', {
-          title: 'Validation Error',
-          variant: 'danger',
-          solid: true
-        });
-        return false;
-      }
+      if (!this.validatePhoneNumber()) return false;
 
-      // Check Twitter URL
-      // if (!this.localCompany.twitter_profile || this.localCompany.twitter_profile.trim() === '') {
-      //   this.$bvToast.toast('Please enter a Twitter/X profile URL', {
-      //     title: 'Validation Error',
-      //     variant: 'danger',
-      //     solid: true
-      //   });
-      //   return false;
-      // }
+      // Optional link checks
+      if (c.twitter_profile && !/^https?:\/\/(twitter\.com|x\.com)\/[A-Za-z0-9_]+\/?$/.test(c.twitter_profile.trim()))
+        return this.showToast("Invalid Twitter/X profile URL");
 
-      const twitterRegex = /^https?:\/\/(twitter\.com|x\.com)\/[a-zA-Z0-9_]+\/?$/;
-      if (this.localCompany.twitter_profile  && !twitterRegex.test(this.localCompany.twitter_profile.trim())) {
-        this.$bvToast.toast('Please enter a valid Twitter/X profile URL (e.g., https://twitter.com/username or https://x.com/username)', {
-          title: 'Validation Error',
-          variant: 'danger',
-          solid: true
-        });
-        return false;
-      }
-
-      // Check LinkedIn URL
-      // if (!this.localCompany.linkedIn_profile || this.localCompany.linkedIn_profile.trim() === '') {
-      //   this.$bvToast.toast('Please enter a LinkedIn profile URL', {
-      //     title: 'Validation Error',
-      //     variant: 'danger',
-      //     solid: true
-      //   });
-      //   return false;
-      // }
-      const linkedinRegex = /^https?:\/\/(www\.)?linkedin\.com\/(in|company)\/[a-zA-Z0-9_-]+\/?$/;
-      if (this.localCompany.linkedIn_profile  && !linkedinRegex.test(this.localCompany.linkedIn_profile.trim())) {
-        this.$bvToast.toast('Please enter a valid LinkedIn profile URL (e.g., https://linkedin.com/in/username or https://linkedin.com/company/companyname)', {
-          title: 'Validation Error',
-          variant: 'danger',
-          solid: true
-        });
-        return false;
-      }
-
-      // Country-specific phone number validation
-      if (!this.validatePhoneNumber()) {
-        return false;
-      }
-
-      // Check if at least one interest is selected
-      if (!this.localCompany.interests || this.localCompany.interests.length === 0) {
-        this.$bvToast.toast('Please select at least one service you are interested in', {
-          title: 'Validation Error',
-          variant: 'danger',
-          solid: true
-        });
-        return false;
-      }
-
-      // Check if at least one industry field is selected
-      if (!this.localCompany.fields || this.localCompany.fields.length === 0) {
-        this.$bvToast.toast('Please select at least one industry your business belongs to', {
-          title: 'Validation Error',
-          variant: 'danger',
-          solid: true
-        });
-        return false;
-      }
-
-      // Check if yearly volume is selected
-      if (!this.localCompany.yearly_volume) {
-        this.$bvToast.toast('Please select your estimated yearly verification volume', {
-          title: 'Validation Error',
-          variant: 'danger',
-          solid: true
-        });
-        return false;
-      }
-
-      // Check if at least one service type is selected
-      // if (!this.localCompany.service_types || this.localCompany.service_types.length === 0) {
-      //   this.$bvToast.toast('Please select at least one service type (KYC or KYB)', {
-      //     title: 'Validation Error',
-      //     variant: 'danger',
-      //     solid: true
-      //   });
-      //   return false;
-      // }
+      if (c.linkedIn_profile && !/^https?:\/\/(www\.)?linkedin\.com\/(in|company)\/[A-Za-z0-9_-]+\/?$/.test(c.linkedIn_profile.trim()))
+        return this.showToast("Invalid LinkedIn profile URL");
 
       return true;
     },
+
+    // ✅ Step 3 validation (based on substeps)
+    validateStep3() {
+    const c = this.localCompany;
+    if (this.subStep === 1) {
+      if (!Array.isArray(c.interests) || c.interests.length === 0) {
+        return this.showToast("Please select at least one service of interest");
+      }
+    } else if (this.subStep === 2) {
+      if (!c.yearly_volume) return this.showToast("Please select estimated yearly volume");
+    } else if (this.subStep === 3) {
+      if (!Array.isArray(c.fields) || c.fields.length === 0) {
+        return this.showToast("Please select at least one industry field");
+      }
+    }
+    return true;
+  },
+
     validatePhoneNumber() {
-      const rawPhone = this.localCompany.phone_no;
-      const country = this.localCompany.country;
-
-
-
-
-      const phone = rawPhone ? rawPhone.trim() : '';
-      const rule = PhoneRegexMap[country];
-
-      if (rule) {
-        if (!rule.test(phone)) {
-          this.$bvToast.toast(`Invalid phone number format for country ${country}`, {
-            title: 'Validation Error',
-            variant: 'danger',
-            solid: true
-          });
-          return false;
-        }
-        return true;
-      }
-
-      // Fallback: accept international numbers that start with + and have 8-15 digits
+      const c = this.localCompany;
+      if (!c.phone_no) return this.showToast("Please enter a phone number");
+      const phone = c.phone_no.trim();
+      const rule = PhoneRegexMap[c.country];
+      if (rule && !rule.test(phone))
+        return this.showToast(`Invalid phone number format for ${c.country}`);
       const fallback = /^\+?\d{8,15}$/;
-      if (!fallback.test(phone.replace(/\s/g, ''))) {
-        this.$bvToast.toast('Please enter a valid international phone number (e.g., +919876543210)', {
-          title: 'Validation Error',
-          variant: 'danger',
-          solid: true
-        });
-        return false;
-      }
-
+      if (!rule && !fallback.test(phone))
+        return this.showToast("Please enter a valid international number (e.g., +919876543210)");
       return true;
+    },
+
+    goBackToStep2() {
+    this.step = 2;
+    this.subStep = 1;
+  },
+
+
+    showToast(msg) {
+      this.$bvToast.toast(msg, {
+        title: "Validation Error",
+        variant: "danger",
+        solid: true,
+      });
+      return false;
     },
   },
 };
 </script>
+ 
 
 <style scoped>
 .selectable-card {
