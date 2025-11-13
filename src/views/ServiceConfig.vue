@@ -1,10 +1,14 @@
 <template>
     <b-container fluid class="py-3">
         <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap">
-            <h3 class="mb-0 d-flex align-items-center">
+            <!-- <h3 class="mb-0 d-flex align-items-center">
                 <i class="mdi mdi-cog-outline text-primary mr-2"></i>
                 App Configuration
-            </h3>
+            </h3> -->
+            <div style="display:flex">
+                <h3 style="text-align: left;">
+                    App Configuration </h3>
+                </div>
 
             <div class="d-flex align-items-center flex-wrap mt-2 mt-md-0">
                 <!-- Environment toggle buttons -->
@@ -17,30 +21,26 @@
                         { text: 'Dev', value: false }
                     ]" size="sm" name="env-toggle" class="mb-0 d-flex align-items-center"></b-form-radio-group>
 
-                    <!-- Show chip when editing -->
-                    <b-badge v-else :variant="isProd ? 'success' : 'info'" pill class="px-3 py-2">
-                        {{ isProd ? 'Prod' : 'Dev' }}
-                    </b-badge>
+                    <span v-else class="status-badge" :class="isProd ? 'status-active' : 'status-warning'">
+                    {{ isProd ? 'Prod' : 'Dev' }}
+                    </span>
                 </div>
 
 
                 <!-- Edit / Save / Cancel buttons -->
                 <div>
-                    <b-button v-if="!isEditing" variant="outline-primary" size="sm" @click="startEdit">
-                        <i class="mdi mdi-pencil mr-1"></i>Edit
-                    </b-button>
+                    <hf-buttons v-if="!isEditing" name="Edit" @executeAction="startEdit()" style="float:right" iconClass="mdi mdi-pencil mr-1">
+                    </hf-buttons>
                     <template v-else>
-                        <b-button variant="outline-success" size="sm" class="mr-2" @click="saveChanges">
-                            <i class="mdi mdi-content-save mr-1"></i>Save
-                        </b-button>
-                        <b-button variant="outline-danger" size="sm" @click="cancelEdit">
-                            <i class="mdi mdi-close mr-1"></i>Cancel
-                        </b-button>
+                        <hf-buttons name="Save" @executeAction="saveChanges()" iconClass="mdi mdi-content-save mr-1">
+                        </hf-buttons>
+                        <hf-buttons name="Cancel" @executeAction="cancelEdit()"  iconClass="mdi mdi-close" style="margin-left: 5px">
+                        </hf-buttons>
                     </template>
                 </div>
             </div>
         </div>
-        <b-card>
+        <b-card class="serviceCard">
             <b-form>
                 <b-row>
                     <b-col md="6">
