@@ -9,10 +9,10 @@
             :class="{ selected: localCompany.type === key }"
             @click="selectBusinessType(key)">
             <div class="py-4">
-              <i v-if="key === 'BUSINESS'" class="mdi mdi-domain text-primary mb-3" style="font-size: 2rem;"></i>
-              <i v-else-if="key === 'INDIVIDUAL'" class="mdi mdi-account-outline text-primary mb-3"
+              <i v-if="key === 'BUSINESS'" class="mdi mdi-domain text-secondary mb-3" style="font-size: 2rem;"></i>
+              <i v-else-if="key === 'INDIVIDUAL'" class="mdi mdi-account-outline text-secondary mb-3"
                 style="font-size: 2rem;"></i>
-              <i v-else class="mdi mdi-account-group-outline text-primary mb-3" style="font-size: 2rem;"></i>
+              <i v-else class="mdi mdi-account-group-outline text-secondary mb-3" style="font-size: 2rem;"></i>
               <h6 class="mt-2">{{ label }}</h6>
             </div>
           </b-card>
@@ -30,26 +30,28 @@
           <b-col md="6">
             <b-form-group
               :label="localCompany.type == BUSINESS_TYPE.BUSINESS.toUpperCase() ? 'Company Name' : 'Community Name'">
-              <b-form-input v-model="localCompany.name" required />
+              <b-form-input v-model="localCompany.name" placeholder="ABC Pvt Ltd." required />
             </b-form-group>
+
+            
           </b-col>
 
           <b-col md="6" v-if="localCompany.type == BUSINESS_TYPE.BUSINESS.toUpperCase()">
             <b-form-group label="Domain">
-              <b-form-input v-model="localCompany.domain" required />
+              <b-form-input v-model="localCompany.domain" placeholder="abc.com" required />
             </b-form-group>
           </b-col>
         </b-row>
 
-        <b-row>
+        <b-row v-if="localCompany.type == BUSINESS_TYPE.BUSINESS.toUpperCase()">
           <b-col md="6">
             <b-form-group label="Country">
               <b-form-select v-model="localCompany.country" :options="countryOptions" required />
             </b-form-group>
           </b-col>
 
-          <b-col md="6" v-if="localCompany.type == BUSINESS_TYPE.BUSINESS.toUpperCase()">
-            <b-form-group label="Registration Number">
+          <b-col md="6">
+            <b-form-group label="Company Registration Number">
               <b-form-input v-model="localCompany.registration_number" />
             </b-form-group>
           </b-col>
@@ -57,14 +59,15 @@
 
         <b-row>
           <b-col md="6">
-            <b-form-group label="Contact Email">
-              <b-form-input type="email" v-model="localCompany.contact_email" required />
+            <b-form-group label="Business Email">
+              <b-form-input type="email" v-model="localCompany.contact_email" placeholder="contact@gmail.com" required />
+              <!-- <small>We will contact you on this email</small> -->
             </b-form-group>
           </b-col>
 
           <b-col md="6">
             <b-form-group label="Phone Number">
-              <b-form-input v-model="localCompany.phone_no" required />
+              <b-form-input v-model="localCompany.phone_no" placeholder="9989212929" required />
             </b-form-group>
           </b-col>
         </b-row>
@@ -87,21 +90,21 @@
         <b-row>
           <b-col md="4">
             <b-form-group label="Twitter Profile">
-              <b-form-input v-model="localCompany.twitter_profile"
+              <b-form-input v-model="localCompany.twitterUrl"
                 placeholder="https://twitter.com/username" />
             </b-form-group>
           </b-col>
 
           <b-col md="4">
             <b-form-group label="Telegram Profile">
-              <b-form-input v-model="localCompany.telegram_profile"
+              <b-form-input v-model="localCompany.telegramUrl"
                 placeholder="https://t.me/username" />
             </b-form-group>
           </b-col>
 
           <b-col md="4">
             <b-form-group label="LinkedIn Profile">
-              <b-form-input v-model="localCompany.linkedIn_profile"
+              <b-form-input v-model="localCompany.linkedinUrl"
                 placeholder="https://linkedin.com/company/yourcompany" />
             </b-form-group>
           </b-col>
@@ -191,12 +194,13 @@ export default {
       BUSINESS_TYPE : {
         BUSINESS: "Business",
         COMMUNITY: "Community",
-},
+      },
       BUSINESS_INTERESTED_IN: {
         AML_SCREEN: "AML Screening",
         PROOF_OF_ADDRESS: "Proof Of Address",
         KYB: "Know Your Business (KYB)",
         KYC: "Know Your Customer (KYC)",
+        COLLECT_WALLET: "Collect Wallet Address",
         AGE_VERIFICATION: "Age Verification",
         FRAUD_PREVENTION: "Fraud Prevention",
       },
@@ -227,6 +231,7 @@ export default {
         LEGAL: "Legal / Compliance Services",
         SUPPLY_CHAIN: "Supply Chain / Logistics",
         NFT_WEB3: "NFT / Web3 Projects",
+        OTHER: "Other"
       },
       COUNTRY_OPTIONS: {
         IN: "India", SG: "Singapore", CN: "China", JP: "Japan", HK: "Hong Kong",
@@ -322,18 +327,20 @@ export default {
 
       if (!c.name?.trim()) return this.showToast("Please enter a company/community name");
       if (!c.logo?.trim()) return this.showToast("Please provide a logo URL");
-      if (!c.country) return this.showToast("Please select a country");
+      
+      if (c.type == this.BUSINESS_TYPE.BUSINESS && !c.country) return this.showToast("Please select a country");
+      if (c.type == this.BUSINESS_TYPE.BUSINESS && !c.registration_number) return this.showToast("Please enter your company registration number");
 
       const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
       if (!emailRegex.test(c.contact_email)) return this.showToast("Invalid email address");
 
-      if (!this.validatePhoneNumber()) return false;
+      if (c.type == this.BUSINESS_TYPE.BUSINESS && !this.validatePhoneNumber()) return false;
 
       // Optional link checks
-      if (c.twitter_profile && !/^https?:\/\/(twitter\.com|x\.com)\/[A-Za-z0-9_]+\/?$/.test(c.twitter_profile.trim()))
+      if (c.twitterUrl && !/^https?:\/\/(twitter\.com|x\.com)\/[A-Za-z0-9_]+\/?$/.test(c.twitterUrl.trim()))
         return this.showToast("Invalid Twitter/X profile URL");
 
-      if (c.linkedIn_profile && !/^https?:\/\/(www\.)?linkedin\.com\/(in|company)\/[A-Za-z0-9_-]+\/?$/.test(c.linkedIn_profile.trim()))
+      if (c.linkedinUrl && !/^https?:\/\/(www\.)?linkedin\.com\/(in|company)\/[A-Za-z0-9_-]+\/?$/.test(c.linkedinUrl.trim()))
         return this.showToast("Invalid LinkedIn profile URL");
 
       return true;
@@ -396,12 +403,12 @@ export default {
 }
 
 .selectable-card:hover {
-  border-color: #007bff;
+  border-color: rgb(168, 167, 167);
   transform: translateY(-2px);
 }
 
 .selectable-card.selected {
-  border-color: #007bff;
+  border-color: rgb(168, 167, 167);
   background-color: #e9f5ff;
 }
 

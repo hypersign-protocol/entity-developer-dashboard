@@ -1,24 +1,29 @@
 <template>
   <div>
     
+    <HfPopUp id="credit-request-confirmation-popup" Header="Credit Request Confirmation">
+      <div>
+        <p style="color: #ff5400de">
+          By proceeding, your request to activate ID Services will be formally submitted for administrative review. Our compliance team will assess the details you have provided, including company or community information and associated social profiles.
+        </p>
+        <p style="color: #ff5400de">
+          Following approval, the system will automatically provision your ID Services and allocate the corresponding KYC credits. You will be able to monitor the status of this process on the subsequent screens. Please note that the end-to-end activation may require up to 24 hours for completion.
+</p>
+<p style="color: #ff5400de">
+          An email notification will be sent once your request has been approved. You may also log in to the platform at any time to review the progress of your submission.
+        </p>
+        <div class="text-center mt-3">
+          <hf-buttons name="Continue"
+            @executeAction="$emit('next-step')"></hf-buttons>
+        </div>
+      </div>
+    </HfPopUp>
+
     <h5 class="mb-3">Review {{ formatTypeLabel(company.type) }} Information</h5>
     
     <p class="text-muted">
       Please confirm the details below before proceeding. Click <b>Back</b> to make changes if needed.
     </p>
-
-    <div class="rol mb-2">
-        <!-- Account Type -->
-        
-        <b-card class="h-100 serviceCard">
-          <div class="d-flex align-items-center mb-2">
-            <i class="mdi mdi-account-circle-outline text-primary mr-2"></i>
-            <h6 class="mb-0">Business Type</h6>
-          </div>
-          <p class="text-muted mb-0">{{ formatTypeLabel(company.type) }}</p>
-        </b-card>
-        
-      </div>
 
     <div class="rol mb-2">
       <!-- Company Info -->
@@ -27,9 +32,18 @@
           <div class="d-flex align-items-center mb-3">
             <i class="mdi mdi-domain text-primary mr-2"></i>
             <h6 class="mb-0">Business Details</h6>
+            
+              <div v-if="company.logo" class="ml-auto">
+                <img :src="company.logo" alt="Logo" class="logo-preview" />
+              </div>
+            
           </div>
 
           <b-row>
+            <b-col md="6" class="mb-2">
+              <strong>Type:</strong>
+              <p class="text-muted mb-0">{{ formatTypeLabel(company.type) }}</p>
+            </b-col>
             <b-col md="6" class="mb-2">
               <strong>Name:</strong>
               <p class="text-muted mb-0">{{ company.name || '-' }}</p>
@@ -59,12 +73,12 @@
               <strong>Twitter:</strong>
               <p class="text-muted mb-0">
                 <a
-                  v-if="company.twitter_profile"
-                  :href="company.twitter_profile"
+                  v-if="company.twitterUrl"
+                  :href="company.twitterUrl"
                   target="_blank"
                   class="text-info"
                 >
-                  {{ company.twitter_profile }}
+                  {{ company.twitterUrl }}
                 </a>
                 <span v-else>-</span>
               </p>
@@ -73,22 +87,29 @@
               <strong>LinkedIn:</strong>
               <p class="text-muted mb-0">
                 <a
-                  v-if="company.linkedIn_profile"
-                  :href="company.linkedIn_profile"
+                  v-if="company.linkedinUrl"
+                  :href="company.linkedinUrl"
                   target="_blank"
                   class="text-info"
                 >
-                  {{ company.linkedIn_profile }}
+                  {{ company.linkedinUrl }}
                 </a>
                 <span v-else>-</span>
               </p>
             </b-col>
-
-            <b-col cols="12" class="text-center mt-3">
-              <div v-if="company.logo">
-                <img :src="company.logo" alt="Logo" class="logo-preview" />
-              </div>
-              <div v-else class="text-muted">No logo uploaded</div>
+            <b-col md="6" class="mb-2">
+              <strong>Telegram:</strong>
+              <p class="text-muted mb-0">
+                <a
+                  v-if="company.telegramUrl"
+                  :href="company.telegramUrl"
+                  target="_blank"
+                  class="text-info"
+                >
+                  {{ company.telegramUrl }}
+                </a>
+                <span v-else>-</span>
+              </p>
             </b-col>
           </b-row>
         </b-card>
@@ -148,19 +169,29 @@
       <b-button variant="primary" @click="$emit('next-step')">Next</b-button> -->
 
       <b-button variant="link" @click="$emit('prev-step')">Back</b-button>
-      <v-btn class="btn btn-outline-secondary" @click="$emit('next-step')">Next</v-btn>
+      <v-btn class="btn btn-outline-secondary" @click="invokeConfirmationPopup()">Request Credit</v-btn>
     </div>
+
+
+    
   </div>
 </template>
 
 <script>
+import HfPopUp from "../../components/element/hfPopup.vue";
 export default {
   name: "StepCompanyPreview",
   props: ["company"],
+  components: {
+    HfPopUp,
+  },
   mounted(){
-    console.log(JSON.stringify(this.company, null, 2))
+    this.$root.$emit("bv::hide::modal", "credit-request-confirmation-popup");
   },
   methods: {
+    invokeConfirmationPopup(){
+      this.$root.$emit("bv::show::modal", "credit-request-confirmation-popup");
+    },
     formatTypeLabel(type) {
       const labels = {
         BUSINESS: "Business",

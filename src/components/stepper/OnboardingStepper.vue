@@ -1,10 +1,14 @@
 <template>
   <div v-if="!hasService" class="container onboarding-stepper">
     <div class="text-center mb-4">
-      <h4><i class="mdi mdi-account-plus-outline mr-2"></i>Customer Onboarding</h4>
-      <p class="text-muted">Follow the steps below to set up your SSI and KYC/KYB services.</p>
-    </div>
-
+  <h4>
+    <i class="mdi mdi-shield-account-outline mr-1"></i>
+    Configure Your Identity Service
+  </h4>
+  <p class="text-muted">
+    Complete the guided steps to set up your identity verification services.
+  </p>
+</div>
     <!-- Stepper Header -->
     <div class="progress-stepper d-flex justify-content-center align-items-center mb-4">
       <div
@@ -15,44 +19,7 @@
       ></div>
     </div>
 
-    <!-- Onboarding Logs Section - Only show on credit request step -->
-    <div v-if="company.logs && company.logs.length > 0 && currentStep === 3" class="mb-4">
-      <div class="card">
-        <div class="card-header">
-          <h6 class="mb-0"><i class="mdi mdi-history mr-2"></i>Onboarding Process Logs</h6>
-        </div>
-        <div class="card-body">
-          <div class="logs-container" style="max-height: 200px; overflow-y: auto;">
-            <div v-for="(log, index) in company.logs" :key="index" class="log-entry mb-2 p-2 rounded" :class="{
-              'bg-success text-white': log.status === 'SUCCESS',
-              'bg-danger text-white': log.status === 'FAILED',
-              'bg-warning text-dark': log.status !== 'SUCCESS' && log.status !== 'FAILED'
-            }">
-              <div class="d-flex justify-content-between align-items-start">
-                <div>
-                  <strong>{{ formatStepName(log.step) }}</strong>
-                  <div class="small mt-1">
-                    <i class="mdi mdi-clock-outline mr-1"></i>{{ formatDate(log.time) }}
-                  </div>
-                  <div v-if="log.failureReason" class="small mt-1 text-danger">
-                    <i class="mdi mdi-alert-circle-outline mr-1"></i>{{ log.failureReason }}
-                  </div>
-                </div>
-                <div>
-                  <span class="badge" :class="{
-                    'badge-success': log.status === 'SUCCESS',
-                    'badge-danger': log.status === 'FAILED',
-                    'badge-warning': log.status !== 'SUCCESS' && log.status !== 'FAILED'
-                  }">
-                    {{ log.status }}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+   
 
     <!-- Step Content -->
     <div class="step-content">
@@ -96,8 +63,9 @@ export default {
         service_types: [], // Changed from service_type string to service_types array
         contact_email: "",
         billing_address: "",
-        twitter_profile: "",
-        linkedIn_profile: "",
+        twitterUrl: "",
+        linkedinUrl: "",
+        telegramUrl: "",
         phone_no: "",
         country: "",
         interests: [],
@@ -177,8 +145,9 @@ export default {
         country: onboardingData.country || '',
         registration_number: onboardingData.registrationNumber || '',
         billing_address: onboardingData.billingAddress || '',
-        twitter_profile: onboardingData.twitterUrl || '',
-        linkedIn_profile: onboardingData.linkedinUrl || '',
+        twitterUrl: onboardingData.twitterUrl || '',
+        linkedinUrl: onboardingData.linkedinUrl || '',
+        telegramUrl: onboardingData.telegramUrl || '',
         phone_no: onboardingData.phoneNumber || '',
         interests: onboardingData.interestedService || [],
         logs: onboardingData.logs || [],
@@ -227,10 +196,12 @@ export default {
     },
 
     async processCreditRequest() {
-      try {
-        this.isProcessingCredit = true;
-        this.creditProcessComplete = false;
+      this.isProcessingCredit = true;
+      this.creditProcessComplete = false;
+      setTimeout(async () => {
 
+          try {
+        
         const payload = this.buildCreditRequestPayload();
 
         // Check for existing onboarding data
@@ -272,13 +243,15 @@ export default {
       } finally {
         this.isProcessingCredit = false;
       }
+
+      }, 2000)
+      
     },
 
     buildCreditRequestPayload() {
       const hasKyc = this.company.service_types.includes('KYC');
       const hasKyb = this.company.service_types.includes('KYB');
       const hasBoth = hasKyc && hasKyb;
-
       return {
         companyName: this.company.name,
         companyLogo: this.company.logo || 'https://via.placeholder.com/150',
@@ -288,8 +261,9 @@ export default {
         country: this.company.country || '',
         registrationNumber: this.company.registration_number || '',
         billingAddress: this.company.billing_address || '',
-        twitterUrl: this.company.twitter_profile || '',
-        linkedinUrl: this.company.linkedIn_profile || '',
+        twitterUrl: this.company.twitterUrl || '',
+        linkedinUrl: this.company.linkedinUrl || '',
+        telegramUrl: this.company.telegramUrl || '',
         phoneNumber: this.company.phone_no || '',
         interestedService: this.company.interests || [],
         yearlyVolume: this.company.yearly_volume || '',
@@ -318,28 +292,6 @@ export default {
       } finally {
         this.isProcessingID = false;
       }
-    },
-
-    formatStepName(step) {
-    const stepNames = {
-      'CREATE_TEAM_ROLE': 'Setting up Team & Roles',
-      'CREATE_SSI_SERVICE': 'Creating SSI Service',
-      'CREDIT_SSI_SERVICE': 'Crediting SSI Service',
-      'CREATE_DID': 'Creating Business Identity',
-      'REGISTER_DID': 'Registering Business Identity on Blockchain',
-      'CREATE_KYC_SERVICE': 'Creating ID Service',
-      'GIVE_KYC_DASHBOARD_ACCESS': 'Granting ID Dashboard Access',
-      'CREDIT_KYC_SERVICE': 'Crediting ID Service',
-      'SETUP_KYC_WIDGET': 'Setting up KYC Widget',
-      'CONFIGURE_KYC_VERIFIER_PAGE': 'Configuring KYC Verifier Page',
-      'COMPLETED': 'Onboarding Complete'
-    };
-    return stepNames[step] || step;
-    },
-
-    formatDate(dateString) {
-      if (!dateString) return '';
-      return new Date(dateString).toLocaleString();
     },
 
     clearCreditError() {
