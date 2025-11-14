@@ -159,14 +159,14 @@ h5 span {
 
     <div class="row">
       <div class="col-md-8">
-        <v-card class="serviceCard"  style="padding:15px; ">
+        <b-card class="serviceCard"  style="padding:15px; ">
           <canvas class="didChart"></canvas>
-        </v-card>
+        </b-card>
       </div>
       <div class="col-md-4">
-        <v-card class="serviceCard" style="padding:0px; height: 100%;">
+        <b-card class="serviceCard" style="padding:0px; height: 100%;">
           <canvas class="polarChart"></canvas>
-        </v-card>
+        </b-card>
       </div>
 
     </div>

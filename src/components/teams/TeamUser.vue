@@ -40,7 +40,7 @@
         </template>
         <b-dropdown-group id="dropdown-group-1" header="Assign Role" style="text-align: left;"
           v-if="invitationStatus && mode == 'Member'">
-          <b-dropdown-item-button style="text-align: left" v-for="eachRole in getAllRoles" v-bind:key="eachRole"
+          <b-dropdown-item-button style="text-align: left" v-for="eachRole in getAllRoles" v-bind:key="eachRole._id"
             @click="assignRole(eachRole._id, userId)">
             <!-- <button type="submit" class="btn btn-outline-secondary"> -->
             {{ eachRole.roleName }}
@@ -216,7 +216,6 @@ export default {
     },
     getYourRole() {
       const role = this.getAllRoles.filter(x => x._id == this.assignedRoleId)
-      console.log(role)
       if (role && role.length > 0) {
         return {
           ...role[0]

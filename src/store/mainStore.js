@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import Vue from 'vue';
 import Vuex from 'vuex';
 import config from '../config'
@@ -5,7 +6,7 @@ import UtilsMixin from '../mixins/utils.js'
 import { sanitizeUrl } from '../utils/common.js'
 import { RequestHandler } from '../utils/utils.js'
 
-const { apiServer } = config;
+const { apiServer, studioServer } = config;
 const apiServerBaseUrl = sanitizeUrl(apiServer.host) + apiServer.basePath;
 Vue.use(Vuex)
 
@@ -154,6 +155,10 @@ const mainStore = {
         },
         getComplianceData: (state) => {
             return state.complianceData
+        },
+        getUserDetails: (state) => {
+            const userDetails = localStorage.getItem("user");
+            return JSON.parse(userDetails)
         }
     },
     mutations: {
@@ -716,6 +721,7 @@ const mainStore = {
 
 
         fetchAppsListFromServer: async ({ commit, dispatch }) => {
+            
             // TODO: Get list of orgs 
             const url = `${apiServerBaseUrl}/app?limit=50`;
             // TODO: // use proper authToken
@@ -1065,6 +1071,69 @@ const mainStore = {
             })
         },
 
+        onboardCustomer: ({ commit, getters }, payload) => {
+            return new Promise((resolve, reject) => {
+
+                const url = `${studioServer.BASE_URL}api/v1/customer-onboarding`;
+                const headers = UtilsMixin.methods.getHeader(getters.getAuthToken);
+                const resp = RequestHandler(url, 'POST', payload, headers);
+                
+                resp.then(json => {
+                    if (json.error) {
+                        let errorMessage = 'Unknown error';
+                        
+                        // Handle different error response formats
+                        if (typeof json.error === 'string') {
+                            errorMessage = json.error;
+                        } else if (json.error.details && Array.isArray(json.error.details)) {
+                            errorMessage = json.error.details.join(' ');
+                        } else if (Array.isArray(json.error)) {
+                            errorMessage = json.error.join(' ');
+                        } else if (json.error.message) {
+                            errorMessage = json.error.message;
+                        } else if (typeof json.error === 'object') {
+                            errorMessage = JSON.stringify(json.error);
+                        }
+                        
+                        return reject(new Error(errorMessage));
+                    }
+                    resolve(json.data);
+                }).catch((error) => {
+                    return reject(`Error while onboarding customer: ` + error.message);
+                });
+            })
+        },
+        checkIfAlreadyExistOnBoarding: ({ commit, getters }, payload) => {
+            return new Promise((resolve, reject) => {
+                
+                const url = `${studioServer.BASE_URL}api/v1/customer-onboarding`;
+                const resp = RequestHandler(url, 'GET', {},{});
+                
+                resp.then(json => {
+                    if (json.error) {
+                        let errorMessage = 'Unknown error';
+                        
+                        // Handle different error response formats
+                        if (typeof json.error === 'string') {
+                            errorMessage = json.error;
+                        } else if (json.error.details && Array.isArray(json.error.details)) {
+                            errorMessage = json.error.details.join(' ');
+                        } else if (Array.isArray(json.error)) {
+                            errorMessage = json.error.join(' ');
+                        } else if (json.error.message) {
+                            errorMessage = json.error.message;
+                        } else if (typeof json.error === 'object') {
+                            errorMessage = JSON.stringify(json.error);
+                        }
+                        
+                        return reject(new Error(errorMessage));
+                    }
+                    resolve(json);
+                }).catch((error) => {
+                    return reject(`Error while checking if customer already exists: ` + error.message);
+                });
+            })
+        },
         updateAppsOnChainConfig: ({ commit, getters, dispatch }, payload) => {
             return new Promise((resolve, reject) => {
                 if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
@@ -1584,9 +1653,9 @@ const mainStore = {
                 throw new Error('Tenant url is null or empty, service is not selected')
             }
             const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/document/download/${fileId}`;
-            
+
             const headers = UtilsMixin.methods.getKycServiceHeader(getters.getSelectedService.kyb_access_token);
-            
+
 
 
             const resp = await fetch(url, {
@@ -1599,11 +1668,11 @@ const mainStore = {
                 console.error('Download error response:', errorText);
                 throw new Error(`Download failed: ${resp.status} ${resp.statusText} - ${errorText}`);
             }
- 
-            
+
+
             const blob = await resp.blob();
 
-            
+
             return blob;
 
         },
@@ -1656,12 +1725,12 @@ const mainStore = {
         async approveOrRejectVerification({ getters, dispatch }, payload) {
             return new Promise((resolve, reject) => {
                 const { companyId, reason, status } = payload;
-                if(reason){
+                if (reason) {
                     // For future use, currently not sent to backend
                     console.log('Reason for rejection:', reason);
                 }
-                
-                
+
+
                 if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
                     return reject(new Error('Tenant url is null or empty, service is not selected'))
                 }
@@ -1677,9 +1746,9 @@ const mainStore = {
                 let url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyb/verification/company/${companyId}`;
                 let headers = UtilsMixin.methods.getKycServiceHeader(getters.getSelectedService.kyb_access_token);
                 const requestBody = { status };
-                
+
                 const dependentServiceId = getters.getSelectedService.dependentServices[0];
-                const ssiService = getters.getAppsWithSSIServices.find(s => s.appId === dependentServiceId);                
+                const ssiService = getters.getAppsWithSSIServices.find(s => s.appId === dependentServiceId);
                 const ssiServiceAccessToken = ssiService.access_token
                 headers = {
                     ...headers,

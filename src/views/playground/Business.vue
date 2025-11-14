@@ -226,38 +226,6 @@ h5 span {
   color: #ef4444;
 }
 
-/* Empty state */
-.empty-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 4rem 2rem;
-}
-
-.empty-message {
-  text-align: center;
-  max-width: 400px;
-}
-
-.empty-message i {
-  font-size: 3rem;
-  color: #9ca3af;
-  margin-bottom: 1rem;
-}
-
-.empty-message h3 {
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: #374151;
-  margin-bottom: 0.5rem;
-}
-
-.empty-message p {
-  color: #6b7280;
-  margin-bottom: 1.5rem;
-  line-height: 1.5;
-}
-
 /* Company grid */
 .company-grid {
   display: grid;
@@ -647,14 +615,49 @@ h5 span {
     <div class="content-box" >
       <!-- Header Section -->
       <div class="header-section">
-        <div class="header-row">
+        <div class="row" style="text-align: left;">
+              <div class="col-md-8">
+                <h3>Business Verifications</h3>
+              </div>
+              <div class="col-md-2">
+                <!-- <div class="input-group mb-1">
+                  <input type="text" class="form-control search-input" placeholder="Search by user Id or email"
+                    aria-label="Search by user Id" aria-describedby="basic-addon2" v-model="searchQuery">
+                  <div class="input-group-append" style="cursor: grab;">
+                    <span class="input-group-text" id="basic-addon2" @click="viewSessionDetails(sessionIdTemp)"><i
+                        class="fa fa-search" aria-hidden="true"></i></span>
+                  </div>
+                </div> -->
+
+                <!-- <div class="input-group mb-1">
+                  <input type="text" class="form-control search-input" placeholder="Seach company..."
+                    aria-label="Search by user Id" aria-describedby="basic-addon2" v-model="searchQuery">
+                    <div class="input-group-append" style="cursor: grab;">
+                    <span class="input-group-text" id="basic-addon2" @click="viewSessionDetails(sessionIdTemp)"><i
+                        class="fa fa-search" aria-hidden="true"></i></span>
+                  </div>
+                </div> -->
+              </div>
+              <div class="col-md-2">
+                <select v-model="statusFilter" v-if="filteredCompanies.length > 0" class="filter-select">
+                      <option value="all">All Status</option>
+                      <option value="Approved">Approved</option>
+                      <option value="Rejected">Rejected</option>
+                      <option value="Completed">Completed</option>
+                      <option value="InProgress">In Progress</option>
+                      <option value="Submitted">Submitted</option>
+                  </select>
+              </div>
+            </div>
+
+        <!-- <div class="header-row">
           <div class="title-group">
             <h1 class="page-title">Business verification</h1>
           </div>
-        </div>
+        </div> -->
 
         <!-- Search and Filter Controls -->
-        <div class="filter-row">
+        <!-- <div class="filter-row">
           <div class="search-wrapper">
             <i class="fas fa-search search-icon"></i>
             <input type="text" placeholder="Search company....." class="search-input" v-model="searchQuery" />
@@ -669,7 +672,7 @@ h5 span {
               <option value="Submitted">Submitted</option>
             </select>
           </div>
-        </div>
+        </div> -->
       </div>
 
       <!-- Loading State -->
@@ -752,14 +755,8 @@ h5 span {
       </div>
 
       <!-- Empty State -->
-      <div v-else class="empty-container">
-        <div class="empty-message">
-          <i class="fas fa-building"></i>
-          <h3>No companies found</h3>
-          <p>{{ searchQuery || statusFilter !== 'all' ?
-            "Try adjusting your search or filter criteria." :
-            "Get started by creating your first company verification." }}</p>
-        </div>
+      <div v-else>
+        <empty-container title="No Business Found" icon="fas fa-building" />
       </div>
     </div>
   </div>
@@ -769,7 +766,6 @@ h5 span {
 import { mapState, mapActions, mapMutations } from "vuex";
 import loadIng from '../../components/element/LoadIng.vue';
 import config from '@/config.js';
-
 export default {
   name: "BusinessVerification",
   components: { loadIng },

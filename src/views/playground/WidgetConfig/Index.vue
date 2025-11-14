@@ -153,7 +153,7 @@ ul {
       </v-col>
     </v-row>
 
-    <v-card class="serviceCard">
+    <b-card class="serviceCard">
       <ul class="list-group list-group-flush">
         <li class="list-group-item">
           <b-form-checkbox switch size="lg" v-model="widgetConfigTemp.faceRecog" disabled>{{
@@ -325,7 +325,7 @@ ul {
           <!-- <TrustedIssuer @selectedServiceEventFromTrustedIssuer="selectedServiceEventHandler" /> -->
         </li>
       </ul>
-    </v-card>
+    </b-card>
 
 
 

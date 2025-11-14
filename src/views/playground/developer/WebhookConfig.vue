@@ -38,7 +38,7 @@
     </div>
 
     <div class="">
-      <v-card class=" serviceCard p-3">
+      <b-card class=" serviceCard p-1">
         <form>
           <!-- <div class="form-group">
             <label for="exampleFormControlInput1">Name<span class="mandatory">*</span></label>
@@ -65,7 +65,7 @@
               Header</b-button>
           </b-form-group>
         </form>
-      </v-card>
+      </b-card>
     </div>
 
   </div>
@@ -73,10 +73,10 @@
 
 <script>
 
-import UtilsMixin from '../../mixins/utils';
+import UtilsMixin from '../../../mixins/utils.js';
 import { mapGetters, mapActions } from "vuex";
-import HfButtons from '../../components/element/HfButtons.vue';
-import { isValidURL } from '../../mixins/fieldValidation.js'
+import HfButtons from '../../../components/element/HfButtons.vue';
+import { isValidURL } from '../../../mixins/fieldValidation.js'
 export default {
   name: "WEbhookConfig",
   mixins: [UtilsMixin],
