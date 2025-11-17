@@ -5,6 +5,7 @@ import config from './config'
 import store from './store'
 import Schema from './views/playground/Schema.vue'
 import CredentialStatus from './views/playground/CredentialStatus.vue'
+import OnboardingStepper from './components/stepper/OnboardingStepper.vue'
 const Home = () => import('./views/Home.vue');
 const PKIIdLogin = () => import('./views/PKIIdLogin.vue')
 const MainDashboard = () => import('./views/Dashboard.vue')
@@ -17,12 +18,15 @@ const KYCCreditDashboard = () => import('./views/playground/KYCDashboardCredit.v
 const UsageS = () => import('./views/playground/Usage.vue')
 const OnChainKycSystems = () => import('./views/playground/OnChainKycSystems.vue')
 const WidgetConfig = () => import('./views/playground/WidgetConfig/Index.vue')
-const WebhookConfig = () => import('./views/playground/WebhookConfig.vue')
+const WebhookConfig = () => import('./views/playground/developer/WebhookConfig.vue')
+const APIKey = () => import('./views/playground/developer/APIKey.vue')
 const KYCWebpageGenerator = () => import('./views/playground/KYCWebpageGenerator.vue')
 const MFA = () => import('./components/login/mfa/MFA.vue')
 const SettingConfig = () => import('./views/SettingConfig.vue')
-const Business=() => import('./views/playground/Business.vue')
-const BusinessDetails=() => import('./views/playground/BusinessDetails.vue')
+const Business = () => import('./views/playground/Business.vue')
+const BusinessDetails = () => import('./views/playground/BusinessDetails.vue')
+const GettingStarted = () => import('./views/GettingStarted.vue')
+const ServiceConfig = () => import('./views/ServiceConfig.vue')
 Vue.use(Router)
 
 const router = new Router({
@@ -47,9 +51,19 @@ const router = new Router({
       redirect: '/studio/home'
     },
     {
+      path: '/studio/onboarding',
+      name: 'Onboarding',
+      component: OnboardingStepper
+    },
+    {
       path: '/studio/home',
       name: 'Home',
       component: Home
+    },
+    {
+      path: '/studio/getting-started/:appId',
+      name: 'GettingStarted',
+      component: GettingStarted
     },
     {
       path: '/studio/login',
@@ -102,6 +116,16 @@ const router = new Router({
         title: `${config.app.name} - Business`
       }
     },
+    {
+      path: '/studio/service-config/:appId',
+      name: 'ServiceConfig',
+      component: ServiceConfig,
+      meta: {
+        requiresAuth: true,
+        title: `${config.app.name} - Config`
+      }
+    },
+
     {
       path: '/studio/business/:appId/details/:companyId/:tab?',
       name: 'BusinessDetails',
@@ -203,12 +227,21 @@ const router = new Router({
     },
 
     {
-      path: '/studio/webhook-config/:appId',
+      path: '/studio/developer/webhook/:appId',
       name: 'WebhookConfig',
       component: WebhookConfig,
       meta: {
         requiresAuth: true,
         title: `${config.app.name} - WebhookConfig`
+      }
+    },
+    {
+      path: '/studio/developer/api-key/:appId',
+      name: 'APIKey',
+      component: APIKey,
+      meta: {
+        requiresAuth: true,
+        title: `${config.app.name} - API Key`
       }
     },
     {

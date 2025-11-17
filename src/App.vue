@@ -111,12 +111,12 @@
           
           </b-nav-item>
 
-          <b-nav-item :href="$config.studioServer.BASE_URL" target="_blank" title="Developer Dashboard API">
-            <i class="fa fa-code" style=" color: #707070;height: 18px; font-size: 18px; width: 18px;"></i></b-nav-item>
-          <b-nav-item href="https://docs.hypersign.id/entity-studio/developer-dashboard" target="_blank"
+          <!-- <b-nav-item :href="$config.studioServer.BASE_URL" target="_blank" title="Developer Dashboard API">
+            <i class="fa fa-code" style=" color: #707070;height: 18px; font-size: 18px; width: 18px;"></i></b-nav-item> -->
+          <!-- <b-nav-item href="https://docs.hypersign.id/entity-studio/developer-dashboard" target="_blank"
             title="Documentation">
             <i class="fas fa-book-open nav-icon" style="height: 18px; font-size: 18px; width: 18px;"></i>
-          </b-nav-item>
+          </b-nav-item> -->
 
           <b-nav-item-dropdown right v-if="getIsLoggedOut" title="Profile" menu-class="dropDownPopup">
            <template #button-content>
@@ -321,6 +321,7 @@ import EventBus from "./eventbus";
 import { mapActions, mapMutations, mapGetters, mapState } from "vuex";
 import { RequestHandler } from './utils/utils'
 import config from './config'
+import * as EN from './language/en'
 export default {
   computed: {
     ...mapGetters("playgroundStore", ["userDetails", "getSelectedOrg"]),
@@ -488,12 +489,10 @@ export default {
             Object.assign(this.userDetails, parsed);
             this.parseAuthToken= this.userDetails
            this.setIsLoggedOut(true)
-           const redirectPath=localStorage.getItem("postLoginRedirect")||'/studio/dashboard'
+           const redirectPath=localStorage.getItem("postLoginRedirect")||'/studio/dashboard';
            localStorage.removeItem("postLoginRedirect");
            this.$router.push(redirectPath).then(() => {
-          setTimeout(() => {
-            this.$router.go(0);
-          }, 500);
+          // Removed forced reload to prevent double page reload
         });
         } else {
           throw new Error("No user details found in localStorage")
@@ -508,11 +507,7 @@ export default {
     getSideMenu() {
 
       const menu = [
-        {
-          href: "/studio/dashboard",
-          title: "Home",
-          icon: "fa fa-home",
-        },
+        
       ];
 
       if (this.getSelectedService) {
@@ -520,59 +515,93 @@ export default {
           const id = this.getSelectedService.services[0].id
           if (id == 'CAVACH_API') {
             menu.push({
+              href: "/studio/getting-started/" + this.getSelectedService.appId,
+              title: EN.NAV.GETTING_STARTED,
+              icon: "fa fa-flag-checkered",
+            })
+
+            menu.push({
               href: "/studio/sessions/" + this.getSelectedService.appId,
-              title: "Verifications",
-              icon: "fa fa-check",
+              title: EN.NAV.USERS,
+              icon: "fa fa-users",
+            })
+
+            menu.push({
+              href:"/studio/business/"+this.getSelectedService.appId,
+              title: EN.NAV.BUSINESSES,
+              icon:"fa fa-briefcase"
             })
 
             menu.push({
               href: "/studio/usage/" + this.getSelectedService.appId,
-              title: "Usages",
+              title: EN.NAV.USAGES,
               icon: "fa fa-chart-bar",
             })
 
             menu.push({
               href: "/studio/onchainkyc/credit/" + this.getSelectedService.appId,
-              title: "Credits",
+              title: EN.NAV.CREDIT,
               icon: "fas fa-hand-holding-usd",
+            })
+            menu.push({
+              href:"#/code",
+              title: EN.NAV.DEVELOPERS.TITLE,
+              icon:"fa fa-code",
+              child:[
+                {
+                  href:"/studio/developer/api-key/"+this.getSelectedService.appId,
+                  title: EN.NAV.DEVELOPERS.API_KEY,
+                  icon:"fa fa-key",
+                },
+                {
+                  href:"/studio/developer/webhook/"+this.getSelectedService.appId,
+                  title: EN.NAV.DEVELOPERS.WEBHOOK,
+                  icon:"fa fa-anchor",
+                }
+              ]
             })
 
             menu.push({
               href: '#',
-              title: 'Settings',
+              title: EN.NAV.SETTINGS.TITLE,
               icon: 'fa fa-cogs',
               child: [
                 {
-                  href: "/studio/onchainkyc/" + this.getSelectedService.appId,
-                  title: "OnChain KYC",
-                  icon: "fas fa-network-wired",
-                },
-                {
                   href: "/studio/widget-config/" + this.getSelectedService.appId,
-                  title: "KYC Widget",
+                  title: EN.NAV.SETTINGS.KYC_WIDGET,
                   icon: "fa fa-puzzle-piece",
                 },
                 {
                   href: "/studio/kyb-widget-config/" + this.getSelectedService.appId,
                   title: "KYB Widget",
                   icon: "fa fa-building",
-                },                 {
+                },  
+                {              
                   href: "/studio/webhook-config/" + this.getSelectedService.appId,
                   title: "Webhook",
                   icon: "fa fa-anchor",
                 },
                 {
                   href: "/studio/kyc-webpage-generator/" + this.getSelectedService.appId,
-                  title: "KYC Verifier Configuration",
+                  title: EN.NAV.SETTINGS.KYC_VERIFIER_CONFIGURATION,
                   icon: "fa fa-globe",
                 },
+                {
+                  href: "/studio/service-config/" + this.getSelectedService.appId,
+                  title: EN.NAV.SETTINGS.SERVICE_CONFIGURATION,
+                  icon: "fa fa-cog",
+                }
+
+                // {
+                //   href: "/studio/onchainkyc/" + this.getSelectedService.appId,
+                //   title: "OnChain KYC",
+                //   icon: "fas fa-network-wired",
+                // },
               ]
             })
-            menu.push({
-              href:"/studio/business/"+this.getSelectedService.appId,
-              title:"Business Verifications",
-              icon:"fa fa-briefcase"
-            })
+
+            
+            
           } else if (id == 'SSI_API') {
             menu.push({
               href: "/studio/ssi/did/" + this.getSelectedService.appId,
@@ -689,8 +718,7 @@ export default {
       localStorage.removeItem("selectedOrg");
       this.resetStore();
       this.resetMainStore();
-      this.$router.go();
-      localStorage.removeItem('vuex')
+      // Removed forced reload to prevent double page reload
     },
 
     formattedAppName(appName) {
@@ -707,11 +735,10 @@ export default {
         this.notifySuccess('Succefully switch to admin account')
         await this.fetchLoggedInUser()
         if (this.$route.path !== "/studio/dashboard") {
-          this.$router.push("dashboard").then(() => { this.$router.go(0) })
+          this.$router.push("dashboard")
         } else {
           await this.fetchLoggedInUser()
           this.$forceUpdate();
-          this.$router.go(0); 
         }
       } catch (e) {
         this.notifyErr(e.message)

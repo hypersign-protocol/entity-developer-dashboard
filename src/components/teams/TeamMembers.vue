@@ -23,11 +23,11 @@
     </div>
     <div class="row" v-if="getAdminMembersgetter.length > 0">
       <table class="table">
-        <thead class="thead-light">
+        <!-- <thead class="thead-light">
           <tr>
             <th scope="col">Members</th>
           </tr>
-        </thead>
+        </thead> -->
         <tbody>
           <tr v-for="person in getAdminMembersgetter" :key="person.userId">
             <TeamUser :email="person.userEmailId" :twoFactor="person.authenticatorEnabled"
@@ -39,7 +39,7 @@
       </table>
     </div>
     <div v-else>
-      <h4>No Member(s) Found!</h4>
+      <empty-container title="No Member Found" icon="fa fa-user-friends" />
     </div>
 
     <!-- <div class="row mb-3" style="padding: 20px">No member found, please invite a member to your account!</div> -->

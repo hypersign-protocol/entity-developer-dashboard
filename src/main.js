@@ -19,6 +19,7 @@ import vuetify from './vuetify'
 import StudioSideBarNav from './components/element/StudioSideBarNav.vue'
 import WaitSpinner from './components/element/WaitSpinner.vue'
 import LoadIng from './components/element/LoadIng.vue'
+import EmptyContainer from './components/EmptyContainer.vue'
 Vue.config.productionTip = false
 Vue.use(VueSidebarMenu);
 Vue.use(BootstrapVue);
@@ -32,6 +33,7 @@ Vue.component("hf-upgrade-plan", HFUpgradePlan)
 Vue.component("hf-feature-soon", HFComingSoon)
 Vue.component("sidebar-menu-nav", StudioSideBarNav)
 Vue.component("wait-spinner", WaitSpinner)
+Vue.component("empty-container", EmptyContainer)
 
 new Vue({
   router,

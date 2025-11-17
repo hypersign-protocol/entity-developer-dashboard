@@ -1,27 +1,10 @@
 <template>
-  <div>
+  <div class="my-3">
     <load-ing :active.sync="isLoading" :can-cancel="true" :is-full-page="true"></load-ing>
     <div class="row">
       <div class="col-md-4">
-        <!-- <div class="input-group">
-          <div class="input-group-prepend" style="cursor: grab">
-            <span class="input-group-text" id="basic-addon2"><i class="fa fa-search" aria-hidden="true"></i></span>
-          </div>
-          <input type="text" class="form-control" placeholder="Find a member" aria-label="Find a member"
-            aria-describedby="basic-addon2" v-model="sessionIdTemp" />
-        </div> -->
       </div>
       <div class="col-md-8">
-
-        <!-- <v-btn type="button" class="btn btn-outline-secondary mx-1" style="float: inline-end" @click="getInvitions()"
-          title="Reload">
-          <b-icon icon="arrow-clockwise"></b-icon>
-        </v-btn>
-
-        <v-btn type="button" class="btn btn-secondary" style="float: inline-end" @click="acceptInvitePopup()">
-          <b-icon icon="hand-thumbs-up-fill"></b-icon> Accept Invition
-        </v-btn> -->
-
         <hf-buttons name="" title="Reload" class="mx-1" :bIcon="true"  style="float: inline-end"  iconClass="arrow-clockwise" @executeAction="getInvitions">
                 </hf-buttons>
                 <hf-buttons name="Accept Invition" title="Reload" style="float: inline-end"  iconClass="fa fa-gamepad" @executeAction="acceptInvitePopup">
@@ -31,22 +14,20 @@
     </div>
     <div class="row mb-1" v-if="getMyInvitions.length > 0">
       <table class="table">
-        <thead class="thead-light">
-          <tr>
-            <th scope="col">Admins</th>
-          </tr>
-        </thead>
         <tbody>
           <tr v-for="person in getMyInvitions" :key="person.adminId">
+            
             <TeamUser :email="person.adminEmailId" :twoFactor="person.authenticatorEnabled"
               :invitationStatus="person.accepted" :createdAt="toDateTime(person.createdAt)" :acceptInvitionMenu="true"
               :inviteCode="person.inviteCode" :userId="person.adminId" :numberOfTeams="0" :mode="'Admin'" />
+              
+
           </tr>
         </tbody>
       </table>
     </div>
     <div v-else>
-      <h4>No Invition(s) Found!</h4>
+      <empty-container title="No Invitition Found" icon="fa fa-envelope" />
     </div>
 
     <!-- <div class="row mb-3" style="padding: 20px">No member found, please invite a member to your account!</div> -->
