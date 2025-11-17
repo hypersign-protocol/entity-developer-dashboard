@@ -570,12 +570,17 @@ export default {
                   href: "/studio/widget-config/" + this.getSelectedService.appId,
                   title: EN.NAV.SETTINGS.KYC_WIDGET,
                   icon: "fa fa-puzzle-piece",
-                },                 
-                // {
-                //   href: "/studio/webhook-config/" + this.getSelectedService.appId,
-                //   title: "Webhook",
-                //   icon: "fa fa-anchor",
-                // },
+                },
+                {
+                  href: "/studio/kyb-widget-config/" + this.getSelectedService.appId,
+                  title: "KYB Widget",
+                  icon: "fa fa-building",
+                },  
+                {              
+                  href: "/studio/webhook-config/" + this.getSelectedService.appId,
+                  title: "Webhook",
+                  icon: "fa fa-anchor",
+                },
                 {
                   href: "/studio/kyc-webpage-generator/" + this.getSelectedService.appId,
                   title: EN.NAV.SETTINGS.KYC_VERIFIER_CONFIGURATION,
