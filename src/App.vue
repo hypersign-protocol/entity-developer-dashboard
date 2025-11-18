@@ -577,7 +577,7 @@ export default {
                   icon: "fa fa-building",
                 },  
                 {              
-                  href: "/studio/webhook-config/" + this.getSelectedService.appId,
+                  href: "/studio/developer/webhook/" + this.getSelectedService.appId,
                   title: "Webhook",
                   icon: "fa fa-anchor",
                 },
