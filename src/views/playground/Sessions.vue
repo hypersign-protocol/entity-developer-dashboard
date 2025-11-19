@@ -394,12 +394,12 @@ export default {
       selectedSessionStatus: 'All',
       currentPage: 1,
       pageLimit: 50,
-      isProd: true,
+      isProd: false,
     }
   },
   async created() {
     try {
-      this.prod = this.getSelectedService & this.getSelectedService.env === 'prod' ? true :false;
+      this.isProd = this.getSelectedService & this.getSelectedService.env === 'prod' ? true :false;
       const usrStr = localStorage.getItem("user");
       this.user = JSON.parse(usrStr);
       this.updateSideNavStatus(true)
