@@ -50,6 +50,7 @@ const mainStore = {
 
         schemaList: [],
         credentialList: [],
+        totalCredentialCount: 0,
         companies: [],
         companyExecutives: [],
         complianceData: null
@@ -260,7 +261,8 @@ const mainStore = {
             state.schemaList = payload;
         },
         setCredentialList(state, payload) {
-            state.credentialList = payload;
+            state.credentialList = payload.credentialList;
+            state.totalCredentialCount = payload.totalCount;
         },
         insertDIDList(state, payload) {
             state.didList.unshift(payload);
@@ -730,7 +732,7 @@ const mainStore = {
 
 
         fetchAppsListFromServer: async ({ commit, dispatch }) => {
-            
+
             // TODO: Get list of orgs 
             const url = `${apiServerBaseUrl}/app?limit=50`;
             // TODO: // use proper authToken
@@ -1086,11 +1088,11 @@ const mainStore = {
                 const url = `${studioServer.BASE_URL}api/v1/customer-onboarding`;
                 const headers = UtilsMixin.methods.getHeader(getters.getAuthToken);
                 const resp = RequestHandler(url, 'POST', payload, headers);
-                
+
                 resp.then(json => {
                     if (json.error) {
                         let errorMessage = 'Unknown error';
-                        
+
                         // Handle different error response formats
                         if (typeof json.error === 'string') {
                             errorMessage = json.error;
@@ -1103,7 +1105,7 @@ const mainStore = {
                         } else if (typeof json.error === 'object') {
                             errorMessage = JSON.stringify(json.error);
                         }
-                        
+
                         return reject(new Error(errorMessage));
                     }
                     resolve(json.data);
@@ -1114,14 +1116,14 @@ const mainStore = {
         },
         checkIfAlreadyExistOnBoarding: ({ commit, getters }, payload) => {
             return new Promise((resolve, reject) => {
-                
+
                 const url = `${studioServer.BASE_URL}api/v1/customer-onboarding`;
-                const resp = RequestHandler(url, 'GET', {},{});
-                
+                const resp = RequestHandler(url, 'GET', {}, {});
+
                 resp.then(json => {
                     if (json.error) {
                         let errorMessage = 'Unknown error';
-                        
+
                         // Handle different error response formats
                         if (typeof json.error === 'string') {
                             errorMessage = json.error;
@@ -1134,7 +1136,7 @@ const mainStore = {
                         } else if (typeof json.error === 'object') {
                             errorMessage = JSON.stringify(json.error);
                         }
-                        
+
                         return reject(new Error(errorMessage));
                     }
                     resolve(json);
@@ -2804,10 +2806,11 @@ const mainStore = {
                 {
                     let tenantUrl = ''
                     let accessToken = ""
+                    let page = 1
+                    let limit = 20
                     if (payload && payload.tenantUrl && payload.accessToken) {
                         tenantUrl = payload.tenantUrl
                         accessToken = payload.accessToken
-
                     } else if (getters.getSelectedService && getters.getSelectedService.tenantUrl && getters.getSelectedService.access_token) {
                         tenantUrl = getters.getSelectedService.tenantUrl;
                         accessToken = getters.getSelectedService.access_token
@@ -2815,7 +2818,12 @@ const mainStore = {
                         return reject(new Error('Tenant url is null or empty, service is not selected'))
                     }
 
-                    const url = `${sanitizeUrl(tenantUrl)}/api/v1/credential?page=1&limit=100`;
+                    if (payload && payload.page && payload.limit) {
+                        page = payload.page
+                        limit = payload.limit
+                    }
+
+                    const url = `${sanitizeUrl(tenantUrl)}/api/v1/credential?page=${page}&limit=${limit}`;
                     const options = {
                         method: "GET",
                         headers: {
@@ -2833,7 +2841,8 @@ const mainStore = {
                                 if (json.data.length > 0) {
                                     const payload = json.data.map(x => {
                                         return {
-                                            id: x,
+                                            id: x.credentialId,
+                                            createdAt: x.createdAt,
                                             credentialDocument: {},
                                             credentialStatus: {},
                                             credentialMetadata: {},
@@ -2843,15 +2852,15 @@ const mainStore = {
 
                                     if (getters.getSelectedService) {
                                         json.data.map(x => {
-                                            dispatch('resolveCredential', { credentialId: x })
+                                            dispatch('resolveCredential', { credentialId: x.credentialId })
                                         })
-                                        commit('setCredentialList', payload)
+                                        commit('setCredentialList', { credentialList: payload, totalCount: json.totalCount })
                                     }
 
                                     resolve(json.data)
                                 } else {
-                                    resolve([])
-                                    commit('setCredentialList', [])
+                                    resolve({ credentialList: [], totalCount: 0 })
+                                    commit('setCredentialList', { credentialList: [], totalCount: 0 })
                                 }
                             } else {
                                 reject(new Error('Could not fetch DID for this service'))

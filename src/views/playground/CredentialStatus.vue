@@ -302,9 +302,9 @@ h5 span {
           <thead class="thead-light">
             <tr>
               <th class="sticky-header">Credential Id</th>
-              <th class="sticky-header">Schema</th>
+              <th class="sticky-header">Issued At</th>
+              <th class="sticky-header">Schema Id</th>
               <th class="sticky-header">Issuer DID</th>
-              <!-- <th class="sticky-header">Date</th> -->
               <!-- <th>Expiration Date</th>
               <th>Credential Hash</th> -->
               <th class="sticky-header">Status</th>
@@ -319,6 +319,9 @@ h5 span {
                    <a :href="`${$config.explorer.BASE_URL}/revocationRegistry/${row.id}`" target="_blank">{{
                   row.credentialMetadata.credentialId ? shorten(row.credentialMetadata.credentialId) : "-" }}</a>
                 </span>
+              </td>
+              <td class="grabStyle">
+                {{ row.createdAt ? new Date(row.createdAt).toLocaleString() : "-" }}
               </td>
               <td class="grabStyle" @click="copyToClip(removeUrl(row.credentialMetadata.type.schemaId), 'Schema')">
                 {{ typeof (row.credentialMetadata.type) == 'object' ? shorten(row.credentialMetadata.type.schemaId) :
@@ -466,6 +469,11 @@ h5 span {
         </hf-pop-up>
       </div>
     </div>
+     <div class="row mt-2" v-if="credentialList.length > 0">
+        <div class="col-md-12 d-flex justify-content-center align-items-center">
+          <PagiNation :pagesCount="pages" @event-page-number="handleGetPageNumberEvent" />
+        </div>
+    </div>
   </div>
 </template>
 
@@ -477,6 +485,7 @@ import StudioSideBar from "../../components/element/StudioSideBar.vue";
 import HfButtons from "../../components/element/HfButtons.vue";
 import EventBus from "../../eventbus";
 import ToolTip from "../../components/element/ToolTip.vue";
+import PagiNation from '../../components/Pagination.vue';
 import {
   isEmpty,
   isValidDid,
@@ -494,6 +503,7 @@ export default {
     StudioSideBar,
     HfButtons,
     ToolTip,
+    PagiNation,
     // Datepicker,
     VueQr,
   },
@@ -504,6 +514,9 @@ export default {
       // 15th two months prior
       return new Date(today)
     },
+    pages() {
+      return Math.ceil(parseInt(this.totalCredentialCount) / this.pageLimit);
+    },
     ...mapGetters("playgroundStore", [
       "vcList",
       "listOfAllSchemaOptions",
@@ -511,6 +524,7 @@ export default {
       "findSchemaBySchemaID",
     ]),
     ...mapState({
+      totalCredentialCount: state => state.mainStore.totalCredentialCount,
       schemaList: state => state.mainStore.schemaList,
       credentialList: state => state.mainStore.credentialList,
       didList: state => state.mainStore.didList,
@@ -623,7 +637,9 @@ export default {
       selectedAction:"",
       warningMessage: '',
       errorMessage:"",
-      selectedCredential:""
+      selectedCredential:"",
+      currentPage: 1,
+      pageLimit: 50,
     };
   },
     async mounted() {
@@ -681,11 +697,16 @@ export default {
       "increaseOrgDataCount",
       "updateSideNavStatus",
     ]),
+    handleGetPageNumberEvent(pageNumber) {
+      this.currentPage = pageNumber;
+      this.initComponent();
+    },
     async initComponent(){
       try {
       this.isLoading = true;
-      // await this.fetchSchemaList();
-      await this.fetchCredentialList();
+      await this.fetchCredentialList({ page: this.currentPage, limit: this.pageLimit });
+      console.log(this.credentialList)
+      console.log(this.totalCredentialCount)
       this.isLoading = false
     } catch (e) {
       this.isLoading = false
