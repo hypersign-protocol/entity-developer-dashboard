@@ -20,7 +20,7 @@
       </v-row>
       <v-row v-else>
         <!-- display  No Application found -->
-        <v-col>
+        <v-col v-if="!isLoading">
           <div class="no-apps-container mb-1">
             <h3 class="" style="text-align: center;">You have no services yet!</h3>
             <p style="max-width: 500px; margin: 0 auto; text-align: center;">

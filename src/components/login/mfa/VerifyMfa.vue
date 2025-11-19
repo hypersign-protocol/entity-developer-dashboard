@@ -46,9 +46,17 @@
 
         </div>
         <div class="mt-2">
-            <a type="button" class="btn btn-sm btn-light" href="mailto:support@hypersign.id" target="_blank">Lost App?
-                Contact
-                Us</a>
+            <span>Lost App?</span>
+
+            <a type="button" class="btn btn-sm btn-link p-0 ml-1" href="mailto:support@hypersign.id" target="_blank">
+                Contact Us
+            </a>
+
+            <span class="mx-1">/</span>
+
+            <button type="button" class="btn btn-sm btn-link p-0" @click="logout()">
+                Logout
+            </button>
         </div>
     </div>
 
@@ -60,7 +68,7 @@ import ToolTip from "../../element/ToolTip.vue";
 import PIN from './PIN.vue'
 import { mapMutations, mapActions } from 'vuex/dist/vuex.common.js';
 import UtilsMixin from "../../../mixins/utils";
-// import EventBus from "../../../eventbus";
+import EventBus from "../../../eventbus";
 
 export default {
     name: 'VerifyMfa',
@@ -108,6 +116,9 @@ export default {
 
         ...mapActions('mainStore', ['mfaVerify']),
         ...mapMutations('mainStore', ['setAuthToken']),
+        logout(){
+            EventBus.$emit("logoutAll");
+        },
         async pinTakenEventHandler(pin) {
             try {
                 const payload = {

@@ -344,7 +344,7 @@ export default {
   name: "SessionsPage",
   components: { PagiNation },
   computed: {
-    ...mapGetters('mainStore', ['userList', 'getUserAccessList']),
+    ...mapGetters('mainStore', ['userList', 'getUserAccessList', 'getSelectedService']),
     ...mapState({
       totalUserCount: state => state.mainStore.totalUserCount,
       userList: state => state.mainStore.userList,
@@ -394,11 +394,12 @@ export default {
       selectedSessionStatus: 'All',
       currentPage: 1,
       pageLimit: 50,
-      isProd: true,
+      isProd: false,
     }
   },
   async created() {
     try {
+      this.isProd = this.getSelectedService & this.getSelectedService.env === 'prod' ? true :false;
       const usrStr = localStorage.getItem("user");
       this.user = JSON.parse(usrStr);
       this.updateSideNavStatus(true)
@@ -407,7 +408,7 @@ export default {
       this.isLoading = true
       this.checkIfHasPermission()
       if (this.hasPermission) {
-        await this.fetchsession({ appId: "", env: this.isProd ? 'prod' : 'dev' })
+        await this.fetchsession({ appId: "", env: this.getSelectedService.env })
       }
       this.isLoading = false
 
@@ -488,7 +489,7 @@ export default {
       if (t && t.length == 0) {
         localStorage.setItem('selectedSessionStatus', 'All');
         localStorage.setItem('selectedPage', 1);
-        this.fetchAppsUsers({ appId: "" })
+        // this.fetchAppsUsers({ appId: "" })
       }
     },
 
@@ -504,7 +505,6 @@ export default {
         sessionId = await this.generateSHA256Hash(sessionId)
       }
 
-      console.log(sessionId)
       this.$router.push({ name: "sessionDetails", params: { appId: this.$route.params.appId, sessionId: sessionId.trim(), env } });
       this.shiftContainer(false);
       this.sessionIdTemp = null
