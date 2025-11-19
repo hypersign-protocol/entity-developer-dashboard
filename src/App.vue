@@ -576,11 +576,6 @@ export default {
                 //   title: "KYB Widget",
                 //   icon: "fa fa-building",
                 // },  
-                {              
-                  href: "/studio/developer/webhook/" + this.getSelectedService.appId,
-                  title: "Webhook",
-                  icon: "fa fa-anchor",
-                },
                 {
                   href: "/studio/kyc-webpage-generator/" + this.getSelectedService.appId,
                   title: EN.NAV.SETTINGS.KYC_VERIFIER_CONFIGURATION,
