@@ -526,11 +526,11 @@ export default {
               icon: "fa fa-users",
             })
 
-            menu.push({
-              href:"/studio/business/"+this.getSelectedService.appId,
-              title: EN.NAV.BUSINESSES,
-              icon:"fa fa-briefcase"
-            })
+            // menu.push({
+            //   href:"/studio/business/"+this.getSelectedService.appId,
+            //   title: EN.NAV.BUSINESSES,
+            //   icon:"fa fa-briefcase"
+            // })
 
             menu.push({
               href: "/studio/usage/" + this.getSelectedService.appId,
@@ -571,13 +571,13 @@ export default {
                   title: EN.NAV.SETTINGS.KYC_WIDGET,
                   icon: "fa fa-puzzle-piece",
                 },
-                {
-                  href: "/studio/kyb-widget-config/" + this.getSelectedService.appId,
-                  title: "KYB Widget",
-                  icon: "fa fa-building",
-                },  
+                // {
+                //   href: "/studio/kyb-widget-config/" + this.getSelectedService.appId,
+                //   title: "KYB Widget",
+                //   icon: "fa fa-building",
+                // },  
                 {              
-                  href: "/studio/webhook-config/" + this.getSelectedService.appId,
+                  href: "/studio/developer/webhook/" + this.getSelectedService.appId,
                   title: "Webhook",
                   icon: "fa fa-anchor",
                 },
