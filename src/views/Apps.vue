@@ -21,18 +21,22 @@
       <v-row v-else>
         <!-- display  No Application found -->
         <v-col>
-          <div class="no-apps-container">
+          <div class="no-apps-container mb-1">
             <h3 class="" style="text-align: center;">You have no services yet!</h3>
             <p style="max-width: 500px; margin: 0 auto; text-align: center;">
               Services help you manage your applications and APIs. Create your first
-              service to get started.
+              service to get started. 
             </p>
-
+            <div>
+              <b-dropdown split text="Create Service" variant="outline-dark"
+                @click="openSlider('SSI_API')" menu-class="dropDownPopup">
+                <b-dropdown-item @click="openSlider('SSI_API')">SSI Service</b-dropdown-item>
+                <b-dropdown-item @click="openSlider('CAVACH_API')">KYC Service</b-dropdown-item>
+                <b-dropdown-item @click="openSlider('QUEST')">Quest Service</b-dropdown-item>
+              </b-dropdown>
+            </div>
           </div>
         </v-col>
-
-
-
       </v-row>
     </div>
 
