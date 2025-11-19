@@ -488,7 +488,7 @@ export default {
       if (t && t.length == 0) {
         localStorage.setItem('selectedSessionStatus', 'All');
         localStorage.setItem('selectedPage', 1);
-        this.fetchAppsUsers({ appId: "" })
+        // this.fetchAppsUsers({ appId: "" })
       }
     },
 
