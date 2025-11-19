@@ -916,8 +916,6 @@ export default {
 
                     return newItem;
                 });
-
-                console.log(JSON.stringify(this.timeLineDetails))
             }
 
         } catch (e) {
