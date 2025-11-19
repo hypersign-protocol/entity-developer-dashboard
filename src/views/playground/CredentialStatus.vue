@@ -254,8 +254,8 @@ h5 span {
 
                   <!-- <input class="ml-2" v-if="attr.type === 'boolean'" type="radio" v-model="attr.value" id="required" >                      -->
                   <b-form-radio-group class="pl-2" style="display: inline-block" v-if="attr.type === 'boolean'"
-                    id="radio-group-1" v-model="attr.value" :options="booleanOption"
-                    name="radio-options-currency"></b-form-radio-group>
+                    :id="'radio-' + attr.name" v-model="attr.value" :options="booleanOption"
+                    :name="'radio-' + attr.name"></b-form-radio-group>
                   <input v-if="attr.type === 'integer'" type="number" class="form-control" id="schemaName"
                     v-model.number="attr.value" aria-describedby="schemaNameHelp" placeholder="Enter attribute value" />
                   <input v-if="attr.type == 'number'" type="number" step="0.01" class="form-control" id="schemaName"
@@ -548,8 +548,8 @@ export default {
       credentialDocumentToView: "",
       schemaIdsList:[],
       booleanOption: [
-        { text: true, value: true },
-        { text: false, value: false },
+        { text: "Yes", value: true },
+        { text: "No", value: false }
       ],
       selectedSchema: "",
       currentStatus: null,
