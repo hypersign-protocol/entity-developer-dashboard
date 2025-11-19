@@ -1015,16 +1015,31 @@ export default {
       
       const firstKycService = this.getAppsWithKYCServices && this.getAppsWithKYCServices.length > 0 ? this.getAppsWithKYCServices[0] : {}
       
-      if (firstKycService && Object.keys(firstKycService).length > 0) {
-        this.setSelectedAppId(firstKycService.appId);
-        this.switchOrg(firstKycService.appId, 'CAVACH_API');
-
-        return
-      } else { // User has no kyc service
+      // check if super admin user
+      if(!this.aSuperAdminUser){
+        // if not, check if user has kyc service
+        if (firstKycService && Object.keys(firstKycService).length > 0) {
+          this.setSelectedAppId(firstKycService.appId);
+          this.switchOrg(firstKycService.appId, 'CAVACH_API');
+          return
+        } else {
+          this.setSelectedAppId("");
+          this.$router.push("/studio/onboarding");
+          return 
+        } 
+      } else {
         this.setSelectedAppId("");
-        this.$router.push("/studio/onboarding");
-        /// take user to onboaring stepper
       }
+      // if (firstKycService && Object.keys(firstKycService).length > 0) {
+      //   this.setSelectedAppId(firstKycService.appId);
+      //   this.switchOrg(firstKycService.appId, 'CAVACH_API');
+
+      //   return
+      // } else { // User has no kyc service
+      //   this.setSelectedAppId("");
+      //   this.$router.push("/studio/onboarding");
+      //   /// take user to onboaring stepper
+      // }
 
     } catch (e) {
       this.notifyErr(e.message)
