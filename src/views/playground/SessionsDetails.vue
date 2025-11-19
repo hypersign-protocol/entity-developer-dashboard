@@ -823,6 +823,7 @@ export default {
             isLoading: false,
             appId: "",
             sessionId: "",
+            env: "prod",
             session: {},
             popupHeader: "",
             popupImage: "",
@@ -851,6 +852,7 @@ export default {
         console.log("Session Details View Created")
         this.appId = this.$route.params.appId
         this.sessionId = this.$route.params.sessionId
+        this.env = this.$route.params.env
         // this.session = this.getSessionDetailsBySessionId(this.sessionId);
 
         try {
@@ -858,7 +860,7 @@ export default {
             this.isLoading = true
             console.log("USer ID: ", this.sessionId)
             console.log("Before fetching session details...")
-            this.session = await this.fetchSessionsDetailsById({ sessionId: this.sessionId })
+            this.session = await this.fetchSessionsDetailsById({ sessionId: this.sessionId , env: this.env})
             console.log("After fetching session details...")
 
             this.isLoading = false

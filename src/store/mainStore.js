@@ -977,7 +977,9 @@ const mainStore = {
                 // let url = 'http://localhost:3001/api/v1/user'
 
                 const paramsObject = {}
-
+                if(payload.env) {
+                    paramsObject['env'] = payload.env
+                }
                 // page
                 if (payload.page) {
                     paramsObject['page'] = payload.page
@@ -1644,11 +1646,15 @@ const mainStore = {
 
         fetchSessionsDetailsById: ({ getters }, payload) => {
             return new Promise((resolve, reject) => {
-                const { sessionId } = payload
+                const { sessionId, env } = payload
+                let envVal=env
+                if(env==='' || env===null || env===undefined){
+                    envVal='prod'
+                }
                 if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
                     return reject(new Error('Tenant url is null or empty, service is not selected'))
                 }
-                const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/user/${sessionId}`;
+                const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/user/${sessionId}?env=${envVal}`;
                 // let url = `http://localhost:3001/api/v1/user/${sessionId}`
                 const authToken = getters.getSelectedService.access_token
                 const headers = UtilsMixin.methods.getKycServiceHeader(authToken);
