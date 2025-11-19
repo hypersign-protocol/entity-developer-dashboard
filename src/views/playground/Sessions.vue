@@ -216,111 +216,113 @@ h5 span {
 
     <v-row class="mb-0">
       <v-col cols="12">
-        <div class="">
-          <div class="" style="text-align: left">
-            <div class="row" style="text-align: left;">
-              <div class="col-md-8">
-                <h3>Users Verifications</h3>
-              </div>
-              <div class="col-md-4" v-if="userList.length > 0">
-                <div class="input-group mb-1">
-                  <input type="text" class="form-control" placeholder="Search by user Id or email"
-                    aria-label="Search by user Id" aria-describedby="basic-addon2" v-model="sessionIdTemp"
-                    @keyup.enter="viewSessionDetails(sessionIdTemp)">
-                  <div class="input-group-append" style="cursor: grab;">
-                    <span class="input-group-text" id="basic-addon2" @click="viewSessionDetails(sessionIdTemp)"><i
-                        class="fa fa-search" aria-hidden="true"></i></span>
-                  </div>
-                </div>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h3 class="mb-0">Users Verifications</h3>
+
+          <div class="d-flex align-items-center">
+            <div class="d-flex align-items-center mr-3">
+              <b-form-checkbox v-model="isProd" switch size="sm"
+                @change="handleEnvironmentChange">Prod</b-form-checkbox>
+            </div>
+
+            <div class="input-group" style="width: 350px;" v-if="userList.length > 0">
+              <input type="text" class="form-control" placeholder="Search by user Id or email"
+                aria-label="Search by user Id" aria-describedby="basic-addon2" v-model="sessionIdTemp"
+                @keyup.enter="viewSessionDetails(sessionIdTemp)">
+              <div class="input-group-append" style="cursor: pointer;">
+                <span class="input-group-text" id="basic-addon2" @click="viewSessionDetails(sessionIdTemp)">
+                  <i class="fa fa-search" aria-hidden="true"></i>
+                </span>
               </div>
             </div>
-            
           </div>
         </div>
+
         <div v-if="userList.length > 0">
-        <div class="scrollit">
-          <div class="card">
-            <table class="table table-hover">
-              <thead class="thead-light">
-                <tr>
-                  <th class="sticky-header" v-for="header in headers" v-bind:key="header.value">
-                    {{ header.text }}
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="row in userList" v-bind:key="row.userId" style="cursor: pointer"
-                  @click="viewSessionDetails(row.userId)">
-                  <td>
-                    <div class="d-flex align-center">
-                      <v-avatar :style="getAvatarStyle()" size="37" class="font-weight-bold">
-                        {{ (row.name || row.email || row.userId || 'U').charAt(0).toUpperCase() }}
-                      </v-avatar>
-                      <div class="ml-3 d-flex flex-column justify-center" style="line-height: 1.2;">
-                        <span class="font-weight-bold" v-if="row.email || row.name">
-                          {{ row.name || row.email || 'Unnamed User' }}
-                        </span>
-                        <span style="color: grey; font-size: 12px;" class="mt-1">
-                          {{ row.userId ? stringShortner(row.userId, 28) : '-' }}
-                        </span>
-                      </div>
-                    </div>
-                  </td>
-                  <td>
-                    {{ row.createdAt ? new Date(row.createdAt).toLocaleString('en-us') : "-" }}
-                  </td>
-                  <td>
-                    {{ row.completedAt ? new Date(row.completedAt).toLocaleString('en-us') : "-" }}
-                  </td>
-                  <td>
-                    {{ row.retries ? row.retries : 0 }}
-                  </td>
-                  <td>
-                    <div class="steps-wrapper">
-                      <span class="stepSpan" v-for="step in filteredSteps(row)" :key="step.field" :title="step.title">
-                        <div
-                          class="step step UI--c-dhzjXW UI--c-dhzjXW-iexswVt-css UI--c-kbgiPT UI--c-kbgiPT-ihMjrWH-css"
-                          :class="{
-                            'step-finished': row[step.field] == 1,
-                            'step-notStarted': row[step.field] == 0,
-                            'step-failed': row.status === 'Failed' && step.field === row.failureInfo?.failureStep
-                          }">
-                          <span class="fa-stack fa-sm">
-                            <i class="fa fa-circle fa-stack-2x fa-inverse" style="color: #f4f3f39c;"></i>
-                            <i :class="'fa ' + step.icon + ' fa-stack-1x'"></i>
+          <div class="scrollit">
+            <div class="card">
+              <table class="table table-hover">
+                <thead class="thead-light">
+                  <tr>
+                    <th class="sticky-header" v-for="header in headers" v-bind:key="header.value">
+                      {{ header.text }}
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="row in userList" v-bind:key="row.userId" style="cursor: pointer"
+                    @click="viewSessionDetails(row.userId)">
+                    <td>
+                      <div class="d-flex align-center">
+                        <v-avatar :style="getAvatarStyle()" size="37" class="font-weight-bold">
+                          {{ (row.name || row.email || row.userId || 'U').charAt(0).toUpperCase() }}
+                        </v-avatar>
+                        <div class="ml-3 d-flex flex-column justify-center" style="line-height: 1.2;">
+                          <span class="font-weight-bold" v-if="row.email || row.name">
+                            {{ row.name || row.email || 'Unnamed User' }}
+                          </span>
+                          <span style="color: grey; font-size: 12px;" class="mt-1">
+                            {{ row.userId ? stringShortner(row.userId, 28) : '-' }}
                           </span>
                         </div>
-                      </span>
-                    </div>
-                  </td>
-                  <td>
-                    <span v-html="getUserStatus(row.status)"></span>
-                    <span v-if="row.status == 'Failed'">
-                      <span></span>
-                      <span>
-                        <v-tooltip bottom>
-                          <template v-slot:activator="{ on, attrs }">
-                            <v-icon v-bind="attrs" v-on="on" small color="red darken-1" class="ml-1" style="color:red">
-                              mdi-alert-circle-outline
-                            </v-icon>
-                          </template>
-                          <span>{{ getFailureReason(row.failureInfo?.failureReason, row.failureInfo?.failureStep)
-                          }}</span>
+                      </div>
+                    </td>
+                    <td>
+                      {{ row.createdAt ? new Date(row.createdAt).toLocaleString('en-us') : "-" }}
+                    </td>
+                    <td>
+                      {{ row.completedAt ? new Date(row.completedAt).toLocaleString('en-us') : "-" }}
+                    </td>
+                    <td>
+                      {{ row.retries ? row.retries : 0 }}
+                    </td>
+                    <td>
+                      <div class="steps-wrapper">
+                        <span class="stepSpan" v-for="step in filteredSteps(row)" :key="step.field" :title="step.title">
+                          <div
+                            class="step step UI--c-dhzjXW UI--c-dhzjXW-iexswVt-css UI--c-kbgiPT UI--c-kbgiPT-ihMjrWH-css"
+                            :class="{
+                              'step-finished': row[step.field] == 1,
+                              'step-notStarted': row[step.field] == 0,
+                              'step-failed': row.status === 'Failed' && step.field === row.failureInfo?.failureStep
+                            }">
+                            <span class="fa-stack fa-sm">
+                              <i class="fa fa-circle fa-stack-2x fa-inverse" style="color: #f4f3f39c;"></i>
+                              <i :class="'fa ' + step.icon + ' fa-stack-1x'"></i>
+                            </span>
+                          </div>
+                        </span>
+                      </div>
+                    </td>
+                    <td>
+                      <span v-html="getUserStatus(row.status)"></span>
+                      <span v-if="row.status == 'Failed'">
+                        <span></span>
+                        <span>
+                          <v-tooltip bottom>
+                            <template v-slot:activator="{ on, attrs }">
+                              <v-icon v-bind="attrs" v-on="on" small color="red darken-1" class="ml-1"
+                                style="color:red">
+                                mdi-alert-circle-outline
+                              </v-icon>
+                            </template>
+                            <span>{{ getFailureReason(row.failureInfo?.failureReason, row.failureInfo?.failureStep)
+                              }}</span>
 
-                        </v-tooltip>
+                          </v-tooltip>
+                        </span>
                       </span>
-                    </span>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
-        </div>
-        <div class="row mt-2">
-          <div class="col-md-12 d-flex justify-content-center align-items-center">
-            <PagiNation :pagesCount="pages" @event-page-number="handleGetPageNumberEvent" />
+          <div class="row mt-2">
+            <div class="col-md-12 d-flex justify-content-center align-items-center">
+              <PagiNation :pagesCount="pages" @event-page-number="handleGetPageNumberEvent" />
+            </div>
           </div>
-        </div>
         </div>
         <div v-else-if="!hasPermission" style="text-align: left;">
           <hf-upgrade-plan></hf-upgrade-plan>
@@ -392,6 +394,7 @@ export default {
       selectedSessionStatus: 'All',
       currentPage: 1,
       pageLimit: 50,
+      isProd: true,
     }
   },
   async created() {
@@ -404,7 +407,7 @@ export default {
       this.isLoading = true
       this.checkIfHasPermission()
       if (this.hasPermission) {
-        await this.fetchsession({ appId: "" })
+        await this.fetchsession({ appId: "", env: this.isProd ? 'prod' : 'dev' })
       }
       this.isLoading = false
 
@@ -491,6 +494,8 @@ export default {
 
 
     async viewSessionDetails(sessionId) {
+      const env = this.isProd ? 'prod' : 'dev'
+
       if (!sessionId) {
         return this.notifyErr('User Id or Email  is required')
       }
@@ -500,7 +505,7 @@ export default {
       }
 
       console.log(sessionId)
-      this.$router.push({ name: "sessionDetails", params: { appId: this.$route.params.appId, sessionId: sessionId.trim() } });
+      this.$router.push({ name: "sessionDetails", params: { appId: this.$route.params.appId, sessionId: sessionId.trim(), env } });
       this.shiftContainer(false);
       this.sessionIdTemp = null
     },
@@ -508,7 +513,7 @@ export default {
     handleGetPageNumberEvent(pageNumber) {
       this.currentPage = pageNumber;
       localStorage.setItem('selectedPage', pageNumber);
-      this.fetchsession({ appId: "", page: this.currentPage, limit: this.pageLimit });
+      this.fetchsession({ appId: "", env: this.isProd ? 'prod' : 'dev' });
     },
     async handleSessionFilter(status) {
       try {
@@ -519,6 +524,9 @@ export default {
         this.isLoading = false
         this.notifyErr(e)
       }
+    },
+    handleEnvironmentChange() {
+      this.fetchsession({ appId: "", page: this.currentPage, limit: this.pageLimit, env: this.isProd ? 'prod' : 'dev' });
     },
   },
   mixins: [UtilsMixin],

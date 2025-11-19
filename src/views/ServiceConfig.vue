@@ -169,7 +169,7 @@
                         </b-badge>
                     </b-col>
 
-                    <b-col md="6">
+                    <!-- <b-col md="6">
                         <b-form-group label="Issuer DID">
                             <b-form-input v-model="formData.issuerDid" :readonly="!isEditing" />
                         </b-form-group>
@@ -179,7 +179,7 @@
                         <b-form-group label="Verification Method ID">
                             <b-form-input v-model="formData.issuerVerificationMethodId" :readonly="!isEditing" />
                         </b-form-group>
-                    </b-col>
+                    </b-col> -->
 
 
 
