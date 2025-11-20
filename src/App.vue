@@ -740,11 +740,13 @@ export default {
         this.notifySuccess('Succefully switch to admin account')
         await this.fetchLoggedInUser()
         // this.$router.push("dashboard").then(() => { this.$router.go(0) });
-        if (this.$route.path !== "/studio/dashboard") {
-          this.$router.push("/studio/dashboard")
-          this.$forceUpdate();
+        const target = "/studio/dashboard";
+
+        if (this.$route.path !== target) {
+          await this.$router.push(target);
+          window.location.reload();
         } else {
-          await this.fetchLoggedInUser()
+          await this.fetchLoggedInUser();
           this.$forceUpdate();
         }
       } catch (e) {
