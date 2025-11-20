@@ -71,21 +71,17 @@
     </b-list-group-item>
     <hf-pop-up
      v-show="showDeleteConfirm"
-      id="delete-member-confirm-popup" 
+      :id="`delete-member-confirm-popup_${email}`"
       Header="Delete Member"
       @hide="resetDeleteMember"
       :hideHeaderClose="true">
     <div>
       <span class="warning-icon">⚠️</span> 
-      <span class="warning-text"> Are you sure you want to delete this member? This action cannot be undone.</span>
+      <span class="warning-text"> Are you sure you want to remove this team member?
+      Once removed, they will no longer be able to access your dashboard, resources, or any accounts linked to your organization. This action is permanent.</span>
       <div class="text-center mt-3">
          
-        <hf-buttons
-          name="Cancel"
-          class="btn btn-light px-4 py-2 border rounded me-2"
-          iconClass="fa fa-times"
-          @executeAction="resetDeleteMember"
-        />
+        <button type="button" class="btn btn-link" @click="resetDeleteMember()">Cancel</button>
         <hf-buttons 
         name="Delete" 
         class="btn btn-primary text-center" 
@@ -183,14 +179,15 @@ export default {
     },
   async deleteAMember() {
     this.showDeleteConfirm = true;
-    this.$root.$emit("bv::show::modal", "delete-member-confirm-popup");
+    this.$root.$emit("bv::show::modal", `delete-member-confirm-popup_${this.email}`);
   },
   async confirmDeleteMember() {
     try {
       this.isLoading = true;
+      console.log('Deleting member:', this.email);
       await this.deleteMember(this.email);
       this.notifySuccess(`${this.email} successfully deleted`);
-      this.$root.$emit("bv::hide::modal", "delete-member-confirm-popup");
+      this.$root.$emit("bv::hide::modal", `delete-member-confirm-popup_${this.email}`);
     } catch (e) {
       this.notifyErr(e.message);
     } finally {
@@ -201,7 +198,7 @@ export default {
   resetDeleteMember(){
     this.showDeleteConfirm = false;
     this.isLoading = false;
-    this.$root.$emit("bv::hide::modal", "delete-member-confirm-popup");
+    this.$root.$emit("bv::hide::modal",`delete-member-confirm-popup_${this.email}`);
   },
    async acceptedInvition() {
       try {

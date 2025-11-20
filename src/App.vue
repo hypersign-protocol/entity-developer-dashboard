@@ -87,17 +87,27 @@
       <b-collapse id="nav-collapse" is-nav v-if="userDetails">
         <b-navbar-nav class="ml-auto">
 
-          <b-nav-item v-if="user.accessAccount?.email && user.accessAccount.userId !== user.userId" class="center">
-            <a href="#">
+          <b-nav-item v-if="user.accessAccount?.email && user.accessAccount.userId !== user.userId" class="center" title="Click to access your own account">
+            <!-- <a href="#">
               Accessing Account Of: <b-badge variant="dark"> {{ loggedInUserEmailId }}</b-badge>
             <b-icon icon="box-arrow-in-right" class="ml-2" @click="switchBackToAdminAccount"></b-icon>
-            </a>
+            </a> -->
+            <span class="mx-1 text-secondary">Accessing Account Of:</span>
+            <v-chip
+              @click="switchBackToAdminAccount"
+              outlined
+                class="ma-2"
+                style="cursor: grab; font-size: 10px; height: 26px;"
+              >
+              <span class="mx-1">{{ loggedInUserEmailId }}</span>
+              <b-icon icon="box-arrow-in-right" class="ml-2"></b-icon>
+            </v-chip>
           </b-nav-item>
 
           <b-nav-item v-if="userDetails.isTwoFactorEnabled == false">
             
             <router-link to="/studio/mfa">
-              <v-chip
+          <v-chip
               outlined
                 class="ma-2"
                 style="cursor: grab; font-size: 10px; height: 26px;"
@@ -729,10 +739,14 @@ export default {
         this.isLoading = false
         this.notifySuccess('Succefully switch to admin account')
         await this.fetchLoggedInUser()
-        if (this.$route.path !== "/studio/dashboard") {
-          this.$router.push("dashboard")
+        // this.$router.push("dashboard").then(() => { this.$router.go(0) });
+        const target = "/studio/dashboard";
+
+        if (this.$route.path !== target) {
+          await this.$router.push(target);
+          window.location.reload();
         } else {
-          await this.fetchLoggedInUser()
+          await this.fetchLoggedInUser();
           this.$forceUpdate();
         }
       } catch (e) {

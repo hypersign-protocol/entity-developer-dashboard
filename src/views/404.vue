@@ -14,7 +14,7 @@
 
                 <div class="row mt-3">
                     <div class="col center">
-                        <button class="btn btn-secondary" @click.prevent="$router.push('dashboard')">
+                        <button class="btn btn-secondary" @click.prevent="$router.push('/studio/dashboard')">
                             <i class="fa fa-home" aria-hidden="true"></i> Home Page
                         </button>
                     </div>
