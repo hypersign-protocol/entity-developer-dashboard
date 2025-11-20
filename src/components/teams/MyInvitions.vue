@@ -82,6 +82,12 @@ export default {
   },
   async mounted() {
     try {
+      if(this.$route.query.code){
+        this.isLoading = true;
+        this.invitionCodeToAccept = this.$route.query.code;
+        await this.acceptedInvition();
+        this.isLoading = false; 
+      }
       this.isLoading = true;
       await this.getInvitions();
       this.isLoading = false

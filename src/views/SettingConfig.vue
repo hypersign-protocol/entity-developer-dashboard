@@ -59,7 +59,7 @@
             <b-icon icon="envelope" aria-hidden="true" small></b-icon>
             <strong> My Invitions</strong>
           </template>
-          <MyInvitions/>
+          <MyInvitions />
         </b-tab>
 
         <!-- SSI Services -->
@@ -105,7 +105,8 @@ export default {
       isFeatureImplemented: true,
       activeMainTab: 0, // Default to Members tab
       activeProfileSubTab: 0,
-      activeMembersSubTab: 0
+      activeMembersSubTab: 0,
+      sentInvitiationCode: ""
     };
   },
   methods: {
@@ -115,10 +116,9 @@ export default {
     this.setMainSideNavBar(false);
     const ref = this.$route.query.ref;
     if (ref === 'invitions') {
-      this.activeMainTab = 1;
       this.$nextTick(() => {
-        this.activeMembersSubTab = 2;
-      });
+        this.activeMainTab = 2;
+      })
     } else if (ref === 'roles') {
       this.activeMainTab = 1;
       this.$nextTick(() => {
