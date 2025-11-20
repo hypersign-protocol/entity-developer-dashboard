@@ -399,7 +399,7 @@ export default {
   },
   async created() {
     try {
-      this.isProd = this.getSelectedService & this.getSelectedService.env === 'prod' ? true :false;
+      this.isProd = this.getSelectedService && this.getSelectedService.env === 'prod' ? true :false;
       const usrStr = localStorage.getItem("user");
       this.user = JSON.parse(usrStr);
       this.updateSideNavStatus(true)
@@ -416,7 +416,6 @@ export default {
       const storedStatus = localStorage.getItem('selectedSessionStatus');
       this.selectedSessionStatus = storedStatus ? storedStatus : '';
       this.currentPage = localStorage.getItem('selectedPage') || 1;
-      this.handleSessionFilter(this.selectedSessionStatus);
 
     } catch (e) {
       this.isLoading = false
@@ -514,16 +513,6 @@ export default {
       this.currentPage = pageNumber;
       localStorage.setItem('selectedPage', pageNumber);
       this.fetchsession({ appId: "", env: this.isProd ? 'prod' : 'dev' });
-    },
-    async handleSessionFilter(status) {
-      try {
-        console.log({ status })
-        this.isLoading = true
-        this.isLoading = false
-      } catch (e) {
-        this.isLoading = false
-        this.notifyErr(e)
-      }
     },
     handleEnvironmentChange() {
       this.fetchsession({ appId: "", page: this.currentPage, limit: this.pageLimit, env: this.isProd ? 'prod' : 'dev' });

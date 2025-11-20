@@ -38,8 +38,8 @@
           <div class="input-group">
             <input type="email" class="form-control" placeholder="Enter invition code" v-model="invitionCodeToAccept" />
             <div class="input-group-append">
-              <button type="submit" class="btn btn-secondary" @click="acceptedInvition">
-                <b-icon icon="hand-thumbs-up-fill"></b-icon> Accept
+              <button type="submit" class="btn btn-outline-secondary" @click="acceptedInvition">
+                 Accept
               </button>
             </div>
           </div>
@@ -82,6 +82,12 @@ export default {
   },
   async mounted() {
     try {
+      if(this.$route.query.code){
+        this.isLoading = true;
+        this.invitionCodeToAccept = this.$route.query.code;
+        await this.acceptedInvition();
+        this.isLoading = false; 
+      }
       this.isLoading = true;
       await this.getInvitions();
       this.isLoading = false

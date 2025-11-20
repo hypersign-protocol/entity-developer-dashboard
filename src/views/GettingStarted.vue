@@ -126,7 +126,6 @@ export default {
     // eslint-disable-next-line no-undef
     ...mapMutations('playgroundStore', ['updateSideNavStatus', 'shiftContainer']),
     appId() {
-      console.log(this.$route)
       return this.getSelectedService ? this.getSelectedService.appId : this.$route.params.appId
     }
   }

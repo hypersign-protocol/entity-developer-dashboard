@@ -705,8 +705,6 @@ export default {
       try {
       this.isLoading = true;
       await this.fetchCredentialList({ page: this.currentPage, limit: this.pageLimit });
-      console.log(this.credentialList)
-      console.log(this.totalCredentialCount)
       this.isLoading = false
     } catch (e) {
       this.isLoading = false
@@ -922,7 +920,6 @@ export default {
       this.credHash =
         cred.credentialStatus.credentialStatusDocument.credentialMerkleRootHash;
       const { expirationDate, issuanceDate } = cred.vc;
-      console.log({ expirationDate, issuanceDate });
       this.expiryDateTime = expirationDate;
       this.issuanceDate = issuanceDate;
       const { revoked, suspended, remarks } =
@@ -1060,7 +1057,6 @@ export default {
       }
     },
     showInputField(type) {
-      console.log(type);
       if (type !== "date" || type !== "boolean") {
         return true;
       } else {
@@ -1201,8 +1197,6 @@ export default {
               }
               return x
             });
-            this.isLoading = false;
-            console.log(JSON.stringify(this.issueCredAttributes, null, 2));
             this.isLoading = false;
           } else {
             this.issueCredAttributes = [];
@@ -1372,14 +1366,12 @@ export default {
         }
         this.isLoading = true;
         this.creadData.fields = attributeMap;
-        this.creadData.schemaId = this.selected?.trim(),
-        this.creadData.issuerDid = this.issuerDid?.trim(),
-        this.creadData.verificationMethodId = this.issuerVerificationMethodId?.trim(),
-        this.creadData.subjectDid = this.holderDid?.trim(),
-        this.creadData.expirationDate = this.expiryDateTime,
+        this.creadData.schemaId = this.selected?.trim()
+        this.creadData.issuerDid = this.issuerDid?.trim()
+        this.creadData.verificationMethodId = this.issuerVerificationMethodId?.trim()
+        this.creadData.subjectDid = this.holderDid?.trim()
+        this.creadData.expirationDate = this.expiryDateTime
 
-          // this.QrData.data = creadData;
-          console.log(this.creadData);
         const response = await this.issueCredentialForAService(this.creadData)
         if (this.creadData.registerCredentialStatus && response.id) {
           // this.updateASchema({

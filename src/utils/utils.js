@@ -35,10 +35,17 @@ export async function RequestHandler(url, method = 'GET', body = {}, headers = {
     const json = await response.json().catch(() => null);
 
     // ❗ check special cases (like 2FA)
-    const message = json?.message?.[0] || "";
+    let message = "";
+
+    if (Array.isArray(json?.message)) {
+        message = json.message.join(", ");
+    } else if (typeof json?.message === "string") {
+        message = json.message;
+    } else {
+        message = "Unknown error";
+    }
 
     if (!response.ok) {
-
         // 🚫 Don't refresh if 2FA is required
         if (message.includes("2FA authentication is required")) {
             EventBus.$emit("logoutAll");
