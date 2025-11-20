@@ -38,8 +38,8 @@
           <div class="input-group">
             <input type="email" class="form-control" placeholder="Enter invition code" v-model="invitionCodeToAccept" />
             <div class="input-group-append">
-              <button type="submit" class="btn btn-secondary" @click="acceptedInvition">
-                <b-icon icon="hand-thumbs-up-fill"></b-icon> Accept
+              <button type="submit" class="btn btn-outline-secondary" @click="acceptedInvition">
+                 Accept
               </button>
             </div>
           </div>

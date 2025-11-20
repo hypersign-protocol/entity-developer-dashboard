@@ -119,7 +119,7 @@
                     </b-col>
 
                     <b-col md="6">
-                        <b-form-group label="EDV ID">
+                        <b-form-group label="Encrypted Data Vault Id">
                             <b-form-input v-model="formData.edvId" :readonly="!isEditing" />
                         </b-form-group>
                     </b-col>
@@ -162,12 +162,12 @@
                     </b-col>-->
 
                     <!-- Dependent Services -->
-                    <b-col cols="12" class="mt-3">
+                    <!-- <b-col cols="12" class="mt-3">
                         <h5><i class="mdi mdi-link-variant mr-1"></i>Dependent Services</h5>
                         <b-badge v-for="dep in formData.dependentServices" :key="dep" variant="info" class="mr-2 mb-2">
                             {{ dep }}
                         </b-badge>
-                    </b-col>
+                    </b-col> -->
 
                     <!-- <b-col md="6">
                         <b-form-group label="Issuer DID">
