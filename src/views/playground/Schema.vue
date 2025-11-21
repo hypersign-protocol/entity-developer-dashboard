@@ -170,7 +170,7 @@
                 </strong></label>
               <select class="custom-select" id="selectService" v-model="schemaData.schema.author" @change="resolveDid($event)">
                 <option value="">Select a DID</option>
-                <option v-for="did in associatedSSIServiceDIDs" :value="did.split('|')[1]" :key="did">
+                <option v-for="did in associatedSSIServiceDIDs" :value="did" :key="did">
                   {{ did }}
                 </option>
               </select>
@@ -751,7 +751,10 @@ export default {
         this.schemaData.schema.name = this.credentialName.trim()
         this.schemaData.schema.description = this.credentialDescription.trim()
         this.schemaData.schema.fields = this.attributes
+        
+        this.schemaData.schema.author = this.schemaData.schema.author.split('|').length > 1 ? this.schemaData.schema.author.split('|')[1] : this.schemaData.schema.author
         this.schemaData.schema.author = this.schemaData.schema.author.trim()
+
         this.schemaData.verificationMethodId = this.schemaData.verificationMethodId.trim()
         const response = await this.createSchemaForAService(this.schemaData)
         if (response) {

@@ -445,10 +445,9 @@ export default {
       return "https://api.dicebear.com/7.x/identicon/svg?seed=" + name;
     },
     logoutAll() {
-      // this.showIcon = false;
       this.setIsLoggedOut(false)
-      if (this.$route.path !== '/login') this.$router.push('/login')
       this.logout();
+      if (this.$route.path !== '/login') this.$router.push('/login')
     },
 
     goTo(path) {
@@ -709,21 +708,34 @@ export default {
         this.insertAcredential(credential);
       });
     },
-  async logout() {
-      try{
-      await RequestHandler(`${config.studioServer.BASE_URL}api/v1/auth/logout`, 'POST', {})
-      }catch(e){
-        console.error('Logout error:', e); 
+    async logout() {
+      try {
+        this.isLoading = true
+        // Logout API
+        await RequestHandler(
+          `${config.studioServer.BASE_URL}api/v1/auth/logout`,
+          "POST",
+          {}
+        );
+
+        // Clear all localStorage
+        console.log('Clearing localStorage on logout...');
+        localStorage.clear();
+
+        // Reset UI state
+        this.isSidebarCollapsed = true;
+        this.collapsed = true;
+
+        // Reset stores (Pinia / Vuex)
+        this.resetStore();
+        this.resetMainStore();
+
+      } catch (err) {
+        this.isLoading = false
+        console.error("Logout error:", err);
+      } finally {
+        this.isLoading = false
       }
-      localStorage.removeItem("authToken");
-      localStorage.removeItem("user");
-      localStorage.removeItem("credentials");
-      localStorage.removeItem("userData");
-      (this.isSidebarCollapsed = true), (this.collapsed = true);
-      localStorage.removeItem("selectedOrg");
-      this.resetStore();
-      this.resetMainStore();
-      // Removed forced reload to prevent double page reload
     },
 
     formattedAppName(appName) {
