@@ -16,8 +16,8 @@
             <div class="text-subtitle-2 grey--text mb-4">{{ user.email }}</div>
 
             <!-- Chips for role and 2FA -->
-            <v-chip color="primary" text-color="white" class="ma-1" small>
-              Role: {{ user.role }}
+            <v-chip color="grey" text-color="white" class="ma-1" small>
+              Role: {{ user.role ? user.role : 'ADMIN' }}
             </v-chip>
 
             <v-chip
@@ -49,7 +49,7 @@
                 </v-list-item-content>
               </v-list-item>
 
-              <v-list-item>
+              <v-list-item v-if="user.authenticators && user.authenticators.length > 0">
                 <v-list-item-content>
                   <v-list-item-title>Authentication Methods</v-list-item-title>
                   <v-list-item-subtitle>
@@ -73,9 +73,6 @@
 
           <!-- Actions -->
           <v-card-actions class="justify-center flex-wrap">
-            <!-- <v-btn color="primary" class=" mx-1" outlined @click="onEditProfile">
-              <v-icon left>mdi-pencil</v-icon>Edit Profile
-            </v-btn> -->
             <v-btn
               v-if="!hasAny2FA"
               class="mx-1"
@@ -113,23 +110,7 @@ export default {
   },
   data() {
     return {
-      user: {
-        _id: "6601dda602eca097d7a84b9b",
-        userId: "ccebe9ce-c532-45f5-a79a-fdd4c301a9c8",
-        email: "meet.hypersign@gmail.com",
-        createdAt: "2024-03-12T07:35:56.059Z",
-        updatedAt: "2025-04-23T05:18:38.880Z",
-        authenticators: [
-          { type: "google", isTwoFactorAuthenticated: false },
-          { type: "okta", isTwoFactorAuthenticated: false },
-        ],
-        name: "Hypersign ID",
-        profileIcon:
-          "https://lh3.googleusercontent.com/a/ACg8ocJ618Y7_ImCSBSmATDnfAYpMgPhW7skW7I9r0c8vLJj9Vtfuak=s96-c",
-        isTwoFactorEnabled: false,
-        isTwoFactorAuthenticated: false,
-        role: "ADMIN",
-      },
+      user: {},
     };
   },
   mounted(){
@@ -142,7 +123,7 @@ export default {
   },
   computed: {
     hasAny2FA() {
-      return this.user.authenticators.some((a) => a.isTwoFactorAuthenticated);
+      return this.user.isTwoFactorEnabled;
     },
   },
   methods: {

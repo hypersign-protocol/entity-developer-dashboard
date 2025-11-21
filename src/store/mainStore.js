@@ -205,7 +205,36 @@ const mainStore = {
             state.showMainSideNavBar = payload ? payload : false;
         },
         resetMainStore(state) {
-            state.appList = [];
+            state.appList = []
+            state.totalAppCount = 0
+            state.showMainSideNavBar = true
+            state.serviceList = []
+            state.sessionList = []
+            state.userList = []
+            state.totalUserCount = 0
+            state.selectedServiceId = ""
+            state.didList = []
+            state.onchainconfigs = []
+            state.onChainConfig = {}
+            state.isLoggedOut = false
+            state.totalSessionCount = 0
+            state.widgetConfig = {}
+            state.kybWidgetConfig = {}
+            state.webhookConfig = {}
+            state.kycWebpageConfig = {}
+            state.marketPlaceApps = []
+            state.adminMembers = []
+            state.myInvitions = []
+            state.allRoles = []
+            state.usageDetails = {}
+            state.kycCredits = []
+            state.ssiCredits = []
+            state.schemaList = []
+            state.credentialList = []
+            state.totalCredentialCount = 0
+            state.companies = []
+            state.companyExecutives = []
+            state.complianceData = null
         },
         insertAllApps(state, payload) {
             state.appList = payload.data;
@@ -979,7 +1008,7 @@ const mainStore = {
                 // let url = 'http://localhost:3001/api/v1/user'
 
                 const paramsObject = {}
-                if(payload.env) {
+                if (payload.env) {
                     paramsObject['env'] = payload.env
                 }
                 // page
@@ -1649,9 +1678,9 @@ const mainStore = {
         fetchSessionsDetailsById: ({ getters }, payload) => {
             return new Promise((resolve, reject) => {
                 const { sessionId, env } = payload
-                let envVal=env
-                if(env==='' || env===null || env===undefined){
-                    envVal='prod'
+                let envVal = env
+                if (env === '' || env === null || env === undefined) {
+                    envVal = 'prod'
                 }
                 if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
                     return reject(new Error('Tenant url is null or empty, service is not selected'))
