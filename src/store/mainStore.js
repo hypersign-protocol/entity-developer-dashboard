@@ -180,7 +180,9 @@ const mainStore = {
         },
         setAuthToken(state, payload) {
             console.log(state.namespaced)
-            localStorage.setItem("authToken", payload);
+            if (payload) {
+                localStorage.setItem("authToken", payload);
+            }
         },
         updateAnMarketPlaceApp(state, payload) {
             const tempToUpdateIndex = state.marketPlaceApps.findIndex(x => x.appId === payload.appId);
