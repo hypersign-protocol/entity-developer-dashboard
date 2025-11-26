@@ -1129,8 +1129,8 @@ export default {
       try {
         if (this.userDetails) {
           this.isLoading = true;
-          await this.fetchAppsListFromServer();
-          await this.fetchServicesList();
+          if(!this.getAppsWithKYCServices.length > 0) await this.fetchAppsListFromServer();
+          if(!this.getAllServices.length > 0) await this.fetchServicesList();
 
           this.isLoading = false;
         } else {
