@@ -230,7 +230,7 @@ export default {
     ...mapState({
       containerShift: state => state.playgroundStore.containerShift,
     }),
-    ...mapGetters('mainStore', ['getUsageDetails']),
+    ...mapGetters('mainStore', ['getUsageDetails', 'getUserDetails']),
     isContainerShift() {
       return this.containerShift
     },
@@ -296,8 +296,8 @@ export default {
   },
   async created() {
     try {
-      const usrStr = localStorage.getItem("user");
-      this.user = JSON.parse(usrStr);
+      // const usrStr = localStorage.getItem("user");
+      this.user = this.getUserDetails
       this.updateSideNavStatus(true)
 
       // appId

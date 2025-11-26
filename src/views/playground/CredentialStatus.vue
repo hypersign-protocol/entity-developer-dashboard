@@ -523,6 +523,7 @@ export default {
       "getSelectedOrg",
       "findSchemaBySchemaID",
     ]),
+    ...mapGetters('mainStore', ['getUserDetails']),
     ...mapState({
       totalCredentialCount: state => state.mainStore.totalCredentialCount,
       schemaList: state => state.mainStore.schemaList,
@@ -664,8 +665,8 @@ export default {
   },
   async created() {
       this.debouncedSchemaChange = this.debounce(this.OnSchemaSelectDropDownChange, 400);
-      const usrStr = localStorage.getItem("user");
-      this.user = JSON.parse(usrStr);
+      // const usrStr = localStorage.getItem("user");
+      this.user = this.getUserDetails;
       this.updateSideNavStatus(true);
       this.initComponent()
     // this.fetchCredentialsForOrg();

@@ -109,6 +109,7 @@ export default {
   components: {},
   computed:{
     ...mapGetters("playgroundStore", ["allMetricsData"]),
+    ...mapGetters('mainStore', ['getUserDetails']),
   },
   data() {
     return {
@@ -126,8 +127,7 @@ export default {
     };
   },
   created() {
-    const usrStr = localStorage.getItem("user");
-    this.user = { ...JSON.parse(usrStr) };
+    this.user = this.getUserDetails;
     this.userKeys = Object.keys(this.user);
     if(this.authToken) {
       this.profile();
