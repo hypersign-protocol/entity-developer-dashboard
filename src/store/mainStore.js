@@ -203,7 +203,7 @@ const mainStore = {
             state.showMainSideNavBar = payload ? payload : false;
         },
         resetMainStore(state) {
-            state.setIfAuthenticated = false
+            state.isAuthenticated = false
             state.userDetails = {}
             state.appList = []
             state.totalAppCount = 0

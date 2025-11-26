@@ -120,7 +120,7 @@ export default {
   computed: {
     ...mapGetters('mainStore', ['getUserDetails']),
     hasAny2FA() {
-      return this.user.isTwoFactorEnabled;
+      return this.user?.authenticators?.length > 0;
     },
   },
   methods: {

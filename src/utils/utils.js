@@ -63,7 +63,7 @@ export async function RequestHandler(url, method = 'GET', body = {}, headers = {
 
                 try {
                     const refreshRes = await fetch(
-                        `${config.studioServer.BASE_URL}api/v1/auth/refresh`,
+                        `${config.studioServer.BASE_URL}api/v1/auth/tokens/refresh`,
                         { method: 'POST', credentials: 'include' }
                     );
 

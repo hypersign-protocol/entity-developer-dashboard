@@ -78,7 +78,7 @@
   <div id="app" data-app>
     <load-ing :active.sync="isLoading" :can-cancel="true" :is-full-page="true"></load-ing>
 
-    <b-navbar toggleable="lg" type="dark" variant="white" class="navStyle" v-if="getIsLoggedOut" sticky>
+    <b-navbar toggleable="lg" type="dark" variant="white" class="navStyle" v-if="getIfAuthenticated" sticky>
       <b-navbar-brand href="#">
         <a href="#" @click="route('dashboard')">
           <img src="./assets/Entity_full.png" alt="" style="height: 3vh; opacity: 80%;" />
@@ -128,7 +128,7 @@
             <i class="fas fa-book-open nav-icon" style="height: 18px; font-size: 18px; width: 18px;"></i>
           </b-nav-item> -->
 
-          <b-nav-item-dropdown right v-if="getIsLoggedOut" title="Profile" menu-class="dropDownPopup">
+          <b-nav-item-dropdown right v-if="getIfAuthenticated" title="Profile" menu-class="dropDownPopup">
            <template #button-content>
              <img
               v-if="userDetails?.profileIcon"
@@ -177,7 +177,7 @@
     </div>
     <notifications group="foo" />
 
-    <sidebar-menu :relative="false" class="sidebar-wrapper" v-if="userDetails && showSideNavbar && getSelectedService" @toggle-collapse="onToggleCollapse"
+    <sidebar-menu :relative="false" class="sidebar-wrapper" v-if="userDetails && Object.keys(userDetails).length > 0 && showSideNavbar && getSelectedService" @toggle-collapse="onToggleCollapse"
       :collapsed="isSidebarCollapsed" :theme="'white-theme'" width="220px" :menu="getSideMenu()">
       <div slot="header" style="border-bottom: 1px solid rgba(0,0,0,.12);">
         <v-list>
@@ -335,7 +335,7 @@ import * as EN from './language/en'
 export default {
   computed: {
     ...mapGetters("playgroundStore", ["getSelectedOrg"]),
-    ...mapGetters("mainStore", ["getSelectedService", "getAllServices", 'getIsLoggedOut', 'getUserDetails']),
+    ...mapGetters("mainStore", ["getSelectedService", "getAllServices", 'getIfAuthenticated', 'getUserDetails']),
     ...mapState({
       showMainSideNavBar: (state) => state.mainStore.showMainSideNavBar,
       selectedDashboard: (state) => state.globalStore.selectedDashboard,
@@ -371,6 +371,7 @@ export default {
 
  mounted() {
   
+  console.log(this.getUserDetails)
   if (this.getUserDetails) {
     try {
        
@@ -381,6 +382,8 @@ export default {
       console.error("Invalid user JSON:", e);
       this.userDetails = {};
     }
+  } else {
+    console.log('No userDetails found yet...')
   }
 
   this.$root.$on("clearAppData", () => {
@@ -497,10 +500,9 @@ export default {
            this.setIsLoggedOut(true)
            const redirectPath=localStorage.getItem("postLoginRedirect")||'/studio/dashboard';
            localStorage.removeItem("postLoginRedirect");
-           this.$router.push(redirectPath).then(() => {
-          // Removed forced reload to prevent double page reload
-        });
-        } else {
+           this.$router.push(redirectPath).then(() => { this.$router.go(0) });
+        } else {          
+          console.log('error coming from htis line')
           throw new Error("No user details found in localStorage")
         }
       } catch (e) {
@@ -709,7 +711,7 @@ export default {
       try {
         this.isLoading = true
         // Logout API
-        await RequestHandler(
+        RequestHandler(
           `${config.studioServer.BASE_URL}api/v1/auth/logout`,
           "POST",
           {}

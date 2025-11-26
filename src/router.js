@@ -35,12 +35,10 @@ const router = new Router({
     {
       path: '/',
       redirect: '/studio',
-      requiresAuth: true,
     },
     {
       path: '/studio',
       redirect: '/studio/dashboard',
-      requiresAuth: true
     },
     {
       path: '/login',
@@ -63,7 +61,11 @@ const router = new Router({
     {
       path: '/studio/getting-started/:appId',
       name: 'GettingStarted',
-      component: GettingStarted
+      component: GettingStarted,
+      meta: {
+        requiresAuth: true,
+        title: `${config.app.name} - Getting Started`
+      }
     },
     {
       path: '/studio/login',
@@ -277,24 +279,35 @@ const router = new Router({
 
 router.beforeEach(async (to, from, next) => {
   const isAuthenticated = store.getters["mainStore/getIfAuthenticated"];
+
   if (to.matched.length < 1) {
     document.title = to.meta.title;
-    next(false)
-    return router.push('/404')
+    next(false);
+    return router.push("/404");
   }
-  // Set page title if exists
+
   if (to.meta && to.meta.title) {
     document.title = to.meta.title;
   }
 
-  // If route requires auth and no token → redirect to login
-  if (to.meta.requiresAuth && !isAuthenticated) {
-    EventBus.$emit("logoutAll");
-    return next("/studio/login");
-  }
+  // console.log("BeforeEach →", {
+  //   requiresAuth: to.meta.requiresAuth,
+  //   isAuthenticated,
+  //   check: to.meta.requiresAuth && !isAuthenticated,
+  //   to: to.path
+  // });
 
+  if (to.meta.requiresAuth && !isAuthenticated) {
+    console.log("inside if to.path " + to.path);
+    EventBus.$emit("logoutAll");
+    if (to.path !== "/studio/login") {
+      return next("/studio/login");
+    } else {
+      console.log('already on login page')
+      return next()
+    }
+  }
   next();
 });
-
 
 export default router
