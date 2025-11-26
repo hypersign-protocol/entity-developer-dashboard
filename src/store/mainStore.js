@@ -19,6 +19,8 @@ const mainStore = {
     namespaced: true,
     mixin: [UtilsMixin],
     state: {
+        isAuthenticated: false,
+        userDetails: {},
         appList: [],
         totalAppCount: 0,
         showMainSideNavBar: true,
@@ -56,6 +58,7 @@ const mainStore = {
         complianceData: null
     },
     getters: {
+        getIfAuthenticated: (state) => { return state.isAuthenticated },
         getIsLoggedOut: (state) => {
             return state.isLoggedOut
         },
@@ -113,16 +116,7 @@ const mainStore = {
 
         // eslint-disable-next-line 
         getUserAccessList: (state) => (service) => {
-            const user = localStorage.getItem('user')
-            if (user) {
-                const userParse = JSON.parse(user)
-                let { accessList, accessAccount } = userParse;
-                if (accessAccount) {
-                    accessList = accessAccount.accessList
-                }
-
-                return accessList ? accessList.filter(access => access.serviceType === service) : []
-            }
+            return state.userDetails.accessList ? state.userDetails.accessList.filter(access => access.serviceType === service) : []
         },
 
         getOnChainConfig: (state) => {
@@ -164,11 +158,13 @@ const mainStore = {
             return state.complianceData
         },
         getUserDetails: (state) => {
-            const userDetails = localStorage.getItem("user");
-            return JSON.parse(userDetails)
+            return state.userDetails
         }
     },
     mutations: {
+        setIfAuthenticated: (state, payload = true) => {
+            state.isAuthenticated = payload;
+        },
         setIsLoggedOut: (state, payload = false) => {
             state.isLoggedOut = payload;
             // localStorage.removeItem("authToken");
@@ -207,6 +203,8 @@ const mainStore = {
             state.showMainSideNavBar = payload ? payload : false;
         },
         resetMainStore(state) {
+            state.setIfAuthenticated = false
+            state.userDetails = {}
             state.appList = []
             state.totalAppCount = 0
             state.showMainSideNavBar = true
@@ -366,6 +364,9 @@ const mainStore = {
         },
         clearComplianceData: (state) => {
             state.complianceData = null
+        },
+        setUserDetails: (state, payload) => {
+            state.userDetails = payload
         }
     },
 
@@ -644,13 +645,17 @@ const mainStore = {
         // eslint-disable-next-line no-empty-pattern
         mfaVerify: async ({ getters }, payload) => {
             try {
-                const { authenticatorType, twoFactorAuthenticationCode } = payload
+                const { authenticatorType, twoFactorAuthenticationCode, sessionId } = payload
                 if (!authenticatorType) throw new Error('Authenticator type must be provided')
 
                 if (!twoFactorAuthenticationCode) throw new Error('MFA PIN must be provided')
-                const url = `${apiServerBaseUrl}/auth/mfa/verify`;
+
+                if (!sessionId) throw new Error('Session ID is missing')
+
+                const url = `${apiServerBaseUrl}/auth/mfa/login/verify`;
 
                 const resp = await RequestHandler(url, 'POST', {
+                    sessionId,
                     authenticatorType,
                     twoFactorAuthenticationCode
                 },
@@ -666,6 +671,12 @@ const mainStore = {
             } catch (e) {
                 throw new Error(e)
             }
+        },
+
+        getMyUserDetails: async ({ commit }) => {
+            const resp = await RequestHandler(`${apiServerBaseUrl}/users/me`, 'POST', {})
+            commit('setUserDetails', resp?.message)
+            return resp?.message
         },
 
         saveAnAppOnServer: ({ commit, dispatch }, payload) => {

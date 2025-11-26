@@ -99,7 +99,10 @@ export default {
     props: {
         setAuthenticatorType: {
             type: String
-        }
+        },
+        sessionId: {
+            type: String
+        } 
     },
 
     watch: {
@@ -114,8 +117,8 @@ export default {
     },
     methods: {
 
-        ...mapActions('mainStore', ['mfaVerify']),
-        ...mapMutations('mainStore', ['setAuthToken']),
+        ...mapActions('mainStore', ['mfaVerify', 'getMyUserDetails']),
+        ...mapMutations('mainStore', ['setAuthToken' , 'setIfAuthenticated']),
         logout(){
             EventBus.$emit("logoutAll");
         },
@@ -123,16 +126,20 @@ export default {
             try {
                 const payload = {
                     authenticatorType: this.authenticationMethod,
-                    twoFactorAuthenticationCode: pin
+                    twoFactorAuthenticationCode: pin,
+                    sessionId: this.sessionId
                 }
                 this.isLoading = true
                 const r = await this.mfaVerify(payload)
+
+                console.log("MFA Verify Response:", r)
 
                 if (!r.isVerified) {
                     this.error = "Invalid code or expired, please try again"
                 } else {
                     this.notifySuccess(`Identity verified successfully`);
-                    this.setAuthToken(r.authToken)
+                    await this.getMyUserDetails()
+                    this.setIfAuthenticated(true)
                     this.$root.$emit("initializeStore", "login");
                 }
 
@@ -143,7 +150,8 @@ export default {
                 this.isLoading = false
                 this.notifyErr(e.message)
             }
-        }
+        },
+
     },
     mixins: [UtilsMixin],
 

@@ -942,6 +942,7 @@ export default {
       totalAppCount: (state) => state.mainStore.totalAppCount,
     }),
     ...mapGetters("mainStore", [
+      "getUserDetails",
       "getAppByAppId",
       "getAllServices",
       "getServiceById",
@@ -1006,12 +1007,8 @@ export default {
 
   async mounted() {
     try {
-      const userDetails = localStorage.getItem("user");
-      if (!userDetails) {
-        console.warn('User details not found in localstore')
-        return
-      }
-      this.userDetails = JSON.parse(userDetails)
+      
+      this.userDetails = this.getUserDetails
       this.setMainSideNavBar(false);
 
       await this.initializeStore();

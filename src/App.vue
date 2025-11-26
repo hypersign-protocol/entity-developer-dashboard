@@ -87,7 +87,7 @@
       <b-collapse id="nav-collapse" is-nav v-if="userDetails">
         <b-navbar-nav class="ml-auto">
 
-          <b-nav-item v-if="user.accessAccount?.email && user.accessAccount.userId !== user.userId" class="center" title="Click to access your own account">
+          <b-nav-item v-if="userDetails.accessAccount?.email && userDetails.accessAccount.userId !== userDetails.userId" class="center" title="Click to access your own account">
             <!-- <a href="#">
               Accessing Account Of: <b-badge variant="dark"> {{ loggedInUserEmailId }}</b-badge>
             <b-icon icon="box-arrow-in-right" class="ml-2" @click="switchBackToAdminAccount"></b-icon>
@@ -334,8 +334,8 @@ import config from './config'
 import * as EN from './language/en'
 export default {
   computed: {
-    ...mapGetters("playgroundStore", ["userDetails", "getSelectedOrg"]),
-    ...mapGetters("mainStore", ["getSelectedService", "getAllServices", 'getIsLoggedOut']),
+    ...mapGetters("playgroundStore", ["getSelectedOrg"]),
+    ...mapGetters("mainStore", ["getSelectedService", "getAllServices", 'getIsLoggedOut', 'getUserDetails']),
     ...mapState({
       showMainSideNavBar: (state) => state.mainStore.showMainSideNavBar,
       selectedDashboard: (state) => state.globalStore.selectedDashboard,
@@ -362,7 +362,7 @@ export default {
       isSidebarCollapsed: true,
       schema_page: 1,
       authRoutes: ["register", "PKIIdLogin"],
-      user: {},
+      userDetails: {},
       loggedInUserEmailId:"",
       parseAuthToken: null,
       authToken:null
@@ -370,14 +370,13 @@ export default {
   },
 
  mounted() {
-  const userDetails = localStorage.getItem("user");
-  if (userDetails) {
+  
+  if (this.getUserDetails) {
     try {
-       const parsed = JSON.parse(userDetails);
-      Object.assign(this.userDetails, parsed);
-      this.user = this.userDetails;
-      this.loggedInUserEmailId = this.user?.accessAccount?.email;
-      this.setIsLoggedOut(true);
+       
+      this.userDetails = this.getUserDetails;
+      this.loggedInUserEmailId = this.userDetails?.accessAccount?.email;
+      this.setIsLoggedOut(false);
     } catch (e) {
       console.error("Invalid user JSON:", e);
       this.userDetails = {};
@@ -492,11 +491,9 @@ export default {
     },
     async initializeStore() {
       try {
-            const userDetails = localStorage.getItem("user");
+        const userDetails = this.getUserDetails //localStorage.getItem("user");
         if (userDetails) {
-            const parsed = JSON.parse(userDetails);
-            Object.assign(this.userDetails, parsed);
-            this.parseAuthToken= this.userDetails
+           this.parseAuthToken= this.getUserDetails
            this.setIsLoggedOut(true)
            const redirectPath=localStorage.getItem("postLoginRedirect")||'/studio/dashboard';
            localStorage.removeItem("postLoginRedirect");
@@ -767,10 +764,9 @@ export default {
       }
       },
     async fetchLoggedInUser(){
-      if (localStorage.getItem("user")) {
-      const usrStr = localStorage.getItem("user");
-      this.user = JSON.parse(usrStr);
-      this.loggedInUserEmailId=this.user?.accessAccount?.email
+      if (this.getUserDetails) {
+      this.userDetails = this.this.getUserDetails
+      this.loggedInUserEmailId = this.userDetails?.accessAccount?.email
       this.setIsLoggedOut(true)
     }
     

@@ -2,7 +2,6 @@
     <form class="row">
         <v-otp-input
         v-model="otp"
-        :disabled="c"
         @finish="done"
       ></v-otp-input>
     </form>

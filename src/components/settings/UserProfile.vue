@@ -102,6 +102,7 @@
 import SetupMFA from '../../components/login/mfa/SetupMfa.vue';
 import HfPopUp from '../element/hfPopup.vue';
 import EventBus from '../../eventbus';
+import { mapGetters } from 'vuex/dist/vuex.common.js';
 export default {
   name: "UserProfileCard",
   components: {
@@ -114,14 +115,10 @@ export default {
     };
   },
   mounted(){
-    const payload = localStorage.getItem('user');
-      if (payload) {
-        this.user = JSON.parse(payload);
-      } else {
-        this.user = {};
-      }
+    this.user = this.getUserDetails
   },
   computed: {
+    ...mapGetters('mainStore', ['getUserDetails']),
     hasAny2FA() {
       return this.user.isTwoFactorEnabled;
     },
