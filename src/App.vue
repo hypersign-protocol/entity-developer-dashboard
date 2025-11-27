@@ -104,23 +104,23 @@
             </v-chip>
           </b-nav-item>
 
-          <b-nav-item v-if="userDetails.isTwoFactorEnabled == false">
-            
-            <router-link to="/studio/mfa">
+          <b-nav-item v-if="!isMFAEnabled">
+          <router-link to="/studio/settings">
           <v-chip
-              outlined
-                class="ma-2"
-                style="cursor: grab; font-size: 10px; height: 26px;"
-              >
-              <span class="spinner-grow spinner-grow-sm"></span>
-              <span class="mx-1">Setup MFA</span>
-            </v-chip>
-              
-            </router-link>
-            
-          
-          </b-nav-item>
+            outlined
+            class="ma-2"
+            style="cursor: grab; font-size: 10px; height: 26px;"
+          >
+            <b-icon
+              icon="exclamation-triangle-fill"
+              variant="warning"
+              class="mr-1"
+            ></b-icon>
 
+            <span>Setup MFA</span>
+          </v-chip>
+        </router-link>
+        </b-nav-item>
           <!-- <b-nav-item :href="$config.studioServer.BASE_URL" target="_blank" title="Developer Dashboard API">
             <i class="fa fa-code" style=" color: #707070;height: 18px; font-size: 18px; width: 18px;"></i></b-nav-item> -->
           <!-- <b-nav-item href="https://docs.hypersign.id/entity-studio/developer-dashboard" target="_blank"
@@ -335,7 +335,7 @@ import * as EN from './language/en'
 export default {
   computed: {
     ...mapGetters("playgroundStore", ["getSelectedOrg"]),
-    ...mapGetters("mainStore", ["getSelectedService", "getAllServices", 'getIfAuthenticated', 'getUserDetails']),
+    ...mapGetters("mainStore", ["getSelectedService", "getAllServices", 'getIfAuthenticated', 'getUserDetails', 'isMFAEnabled']),
     ...mapState({
       showMainSideNavBar: (state) => state.mainStore.showMainSideNavBar,
       selectedDashboard: (state) => state.globalStore.selectedDashboard,

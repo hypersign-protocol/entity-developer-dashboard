@@ -159,6 +159,9 @@ const mainStore = {
         },
         getUserDetails: (state) => {
             return state.userDetails
+        },
+        isMFAEnabled: (state) => {
+            return state.userDetails.authenticators?.some(auth => auth.isTwoFactorAuthenticated);
         }
     },
     mutations: {
@@ -376,9 +379,10 @@ const mainStore = {
 
         // eslint-disable-next-line no-empty-pattern
         inviteMember: async ({ getters, dispatch }, payload) => {
-            const url = `${apiServerBaseUrl}/people/invite`;
+            const url = `${apiServerBaseUrl}/tenants/invitations`;
             const resp = await RequestHandler(url, 'POST', {
-                emailId: payload
+                emailId: payload.emailId,
+                roleId: payload.roleId
             },
                 UtilsMixin.methods.getHeader(getters.getAuthToken))
 
@@ -397,7 +401,7 @@ const mainStore = {
 
         // eslint-disable-next-line no-empty-pattern
         acceptInvition: async ({ getters, dispatch }, payload) => {
-            const url = `${apiServerBaseUrl}/people/invite/accept/${payload}`;
+            const url = `${apiServerBaseUrl}/tenants/invitations/${payload}/accept`;
             const resp = await RequestHandler(url, 'POST', {}, UtilsMixin.methods.getHeader(getters.getAuthToken))
 
 
@@ -413,7 +417,7 @@ const mainStore = {
 
         // eslint-disable-next-line no-empty-pattern
         deleteMember: async ({ getters, dispatch }, payload) => {
-            const url = `${apiServerBaseUrl}/people/`;
+            const url = `${apiServerBaseUrl}/tenants/`;
             const resp = await RequestHandler(url,
                 'DELETE',
                 {
@@ -434,7 +438,7 @@ const mainStore = {
         },
 
         getPeopleMembers: async ({ getters, commit }) => {
-            const url = `${apiServerBaseUrl}/people`;
+            const url = `${apiServerBaseUrl}/tenants`;
 
             const response = await RequestHandler(url, 'GET', {},
                 UtilsMixin.methods.getHeader(getters.getAuthToken)
@@ -442,7 +446,6 @@ const mainStore = {
             if (Array.isArray(response)) {
                 commit('setAdminMembers', response)
                 return response;
-
             }
             const message = Array.isArray(response?.message)
                 ? response.message.join(', ')
@@ -453,7 +456,7 @@ const mainStore = {
         },
 
         getInvitions: async ({ getters, commit }) => {
-            const url = `${apiServerBaseUrl}/people/invites`;
+            const url = `${apiServerBaseUrl}/tenants/invitations`;
 
             const resp = await RequestHandler(url, 'GET', {}, UtilsMixin.methods.getHeader(getters.getAuthToken))
             if (Array.isArray(resp)) {
@@ -473,7 +476,7 @@ const mainStore = {
 
         attachMemberToARole: async ({ getters, dispatch }, payload) => {
 
-            const url = `${apiServerBaseUrl}/people/roles/attach`;
+            const url = `${apiServerBaseUrl}/tenants/roles/attach`;
 
             const resp = await RequestHandler(url,
                 'POST',
@@ -495,7 +498,7 @@ const mainStore = {
         },
         switchToAdmin: async ({ getters }, payload) => {
 
-            const url = `${apiServerBaseUrl}/people/admin/login`;
+            const url = `${apiServerBaseUrl}/tenants/admin/login`;
 
             const resp = await RequestHandler(url,
                 'POST',

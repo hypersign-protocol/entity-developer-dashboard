@@ -74,7 +74,7 @@
           <!-- Actions -->
           <v-card-actions class="justify-center flex-wrap">
             <v-btn
-              v-if="!hasAny2FA"
+              v-if="!isMFAEnabled"
               class="mx-1"
               color="success "
               outlined
@@ -118,10 +118,10 @@ export default {
     this.user = this.getUserDetails
   },
   computed: {
-    ...mapGetters('mainStore', ['getUserDetails']),
-    hasAny2FA() {
-      return this.user?.authenticators?.some(auth => auth.isTwoFactorAuthenticated);
-    },
+    ...mapGetters('mainStore', ['getUserDetails', 'isMFAEnabled']),
+    // hasAny2FA() {
+    //   return this.user?.authenticators?.some(auth => auth.isTwoFactorAuthenticated);
+    // },
   },
   methods: {
     formatDate(date) {

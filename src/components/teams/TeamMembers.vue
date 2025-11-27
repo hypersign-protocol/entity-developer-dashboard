@@ -45,50 +45,85 @@
     <!-- <div class="row mb-3" style="padding: 20px">No member found, please invite a member to your account!</div> -->
 
     <hf-pop-up id="invite-member" Header="Invite New Member">
-      <div>
-        <div  class="form-group mb-3">
-          <label v-if="invitionData.inviteCode === ''" for="exampleInputEmail1">Email:</label>
-          <div class="input-group" v-if="invitionData.inviteCode == ''">
-            <input type="email" class="form-control" placeholder="Enter Gmail address"
-              v-model="inviteeEmailId" />
-            <div class="input-group-append" v-if="checkIfValidEmail">
-              <button type="submit" class="btn btn-outline-success">
-                <b-icon icon="check-circle"></b-icon>
-              </button>
-            </div>
-            <div class="input-group-append" v-else>
-              <button type="submit" class="btn btn-outline-danger">
-                <b-icon icon="x-circle"></b-icon>
-              </button>
-            </div>
-            <div class="input-group-append">
-              <v-btn type="submit" class="btn btn-secondary"  :disabled="!checkIfValidEmail" @click="sendInvite">
-                <b-icon icon="share"></b-icon> Invite
-              </v-btn>
-            </div>
+  <div>
+    <div class="form-group mb-3">
 
-            <!-- <small style="color:grey; font-size: x-small;">Please make sure the user has an account on this
-              platform, if
-              not, ask him/her to
-              create one</small> -->
+      <!-- EMAIL INPUT (only if invitation not generated yet) -->
+      <label v-if="invitionData.inviteCode === ''">Email:</label>
 
-          </div>
-          <div class="mt-2" v-if="invitionData.inviteCode != ''">
-            <p>
-              <small>
-                  An invitation has been sent to {{ inviteeEmailId }}.
-                  The recipient may accept it via the provided email link or through their platform dashboard.
-                  This invitation is valid until{{
-                  toDateTime(invitionData.invitationValidTill) }}.
-              </small>
-            </p>
-            <HfFlashNotification class="mt-2" :text="`${invitionData.inviteCode}`" type="Invition Code"
-              description="Invition Code" @click="resetInvition()"></HfFlashNotification>
-          </div>
+      <div class="input-group" v-if="invitionData.inviteCode === ''">
+        <input
+          type="email"
+          class="form-control"
+          placeholder="user@companymail.com"
+          v-model="inviteeEmailId"
+        />
 
+        <!-- VALID / INVALID ICON -->
+        <div class="input-group-append" v-if="checkIfValidEmail">
+          <button type="submit" class="btn btn-outline-success">
+            <b-icon icon="check-circle"></b-icon>
+          </button>
+        </div>
+
+        <div class="input-group-append" v-else>
+          <button type="submit" class="btn btn-outline-danger">
+            <b-icon icon="x-circle"></b-icon>
+          </button>
         </div>
       </div>
-    </hf-pop-up>
+
+      <!-- ROLE DROPDOWN -->
+      <div class="form-group mt-3" v-if="invitionData.inviteCode === ''">
+        <label>Select Role:</label>
+        <select class="form-control" v-model="selectedRoleId">
+          <option
+            v-for="role in getAllRoles"
+            :key="role._id"
+            :value="role._id"
+          >
+            {{ role.roleName }}
+          </option>
+        </select>
+      </div>
+
+      <!-- INVITE BUTTON -->
+      <div class="input-group-append mt-3" v-if="invitionData.inviteCode === ''">
+        <v-btn
+          type="submit"
+          class="btn btn-secondary"
+          :disabled="!checkIfValidEmail || !selectedRoleId"
+          @click="sendInvite"
+        >
+          <b-icon icon="share"></b-icon> Invite
+        </v-btn>
+      </div>
+
+      <!-- AFTER INVITATION SENT BLOCK -->
+      <div class="mt-2" v-if="invitionData.inviteCode !== ''">
+        <p>
+          <small>
+            An invitation has been sent to {{ inviteeEmailId }}.
+            The recipient may accept it via the provided email link or through their platform dashboard.
+            This invitation is valid until {{
+              toDateTime(invitionData.invitationValidTill)
+            }}.
+          </small>
+        </p>
+
+        <HfFlashNotification
+          class="mt-2"
+          :text="`${invitionData.inviteCode}`"
+          type="Invitation Code"
+          description="Invitation Code"
+          @click="resetInvition()"
+        ></HfFlashNotification>
+      </div>
+
+    </div>
+  </div>
+</hf-pop-up>
+
   </div>
 </template>
 
@@ -120,6 +155,7 @@ export default {
       invitionCodeToAccept: "",
       inviteeEmailId: "",
       sessionIdTemp: "",
+      selectedRoleId: null,
       error: "",
       invitionData: {
         "invitor": "",
@@ -134,8 +170,12 @@ export default {
   async mounted() {
     try {
       this.isLoading = true;
-      await this.getPeopleMembers();
-      this.getMyRolesAction()
+      // await this.getPeopleMembers();
+      // await this.getMyRolesAction()
+
+      if (this.getAllRoles && this.getAllRoles.length > 0) {
+        this.selectedRoleId = this.getAllRoles[0]._id;
+      }
 
       this.isLoading = false
     } catch (e) {
@@ -166,7 +206,7 @@ export default {
           throw new Error('Email of a valid user must be provided');
         }
         this.isLoading = true;
-        this.invitionData = await this.inviteMember(email.trim());
+        this.invitionData = await this.inviteMember({emailId: email.trim(), roleId: this.selectedRoleId});
         this.notifySuccess('Invition successfully generated')
         this.isLoading = false;
         // this.inviteMemberPopDown();
