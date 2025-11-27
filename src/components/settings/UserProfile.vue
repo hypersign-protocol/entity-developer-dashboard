@@ -92,7 +92,7 @@
       </v-col>
 
       <hf-pop-up id="setup-mfa-popup" Header="MFA">
-            <SetupMFA  /> 
+            <SetupMFA @closePopup="onPopupClose" /> 
       </hf-pop-up>
     </v-row>
   
@@ -120,7 +120,7 @@ export default {
   computed: {
     ...mapGetters('mainStore', ['getUserDetails']),
     hasAny2FA() {
-      return this.user?.authenticators?.length > 0;
+      return this.user?.authenticators?.some(auth => auth.isTwoFactorAuthenticated);
     },
   },
   methods: {
@@ -134,6 +134,9 @@ export default {
     onSetupMFA() {
     //   this.$emit("setupMFA", this.user);
       this.$root.$emit("bv::show::modal", "setup-mfa-popup");
+    },
+    onPopupClose() {
+      this.$root.$emit("bv::hide::modal", "setup-mfa-popup");
     }
   },
 };

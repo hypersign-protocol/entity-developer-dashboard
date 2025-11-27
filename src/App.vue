@@ -371,7 +371,7 @@ export default {
 
  mounted() {
   
-  console.log(this.getUserDetails)
+  // console.log(this.getUserDetails)
   if (this.getUserDetails) {
     try {
        
@@ -502,7 +502,6 @@ export default {
            localStorage.removeItem("postLoginRedirect");
            this.$router.push(redirectPath).then(() => { this.$router.go(0) });
         } else {          
-          console.log('error coming from htis line')
           throw new Error("No user details found in localStorage")
         }
       } catch (e) {

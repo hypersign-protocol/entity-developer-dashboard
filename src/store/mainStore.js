@@ -629,13 +629,40 @@ const mainStore = {
             try {
                 const { authenticatorType } = payload
                 if (!authenticatorType) throw new Error('Authenticator type must be provided')
-                const url = `${apiServerBaseUrl}/auth/mfa/generate`;
+                const url = `${apiServerBaseUrl}/auth/mfa/setup/generate`;
                 const resp = await RequestHandler(url, 'POST', { authenticatorType }, UtilsMixin.methods.getHeader(getters.getAuthToken))
                 if (!resp || Array.isArray(resp.message)) {
                     throw new Error(resp?.message?.join(',') || resp?.message);
                 } else if ('statusCode' in resp && resp?.statusCode !== 200 && resp?.statusCode !== 201) {
                     throw new Error(resp.message)
                 }
+                return resp;
+            } catch (e) {
+                throw new Error(e)
+            }
+        },
+
+        setupmfaVerify: async ({ getters }, payload) => {
+            try {
+                const { authenticatorType, twoFactorAuthenticationCode } = payload
+                if (!authenticatorType) throw new Error('Authenticator type must be provided')
+
+                if (!twoFactorAuthenticationCode) throw new Error('MFA PIN must be provided')
+
+                const url = `${apiServerBaseUrl}/auth/mfa/setup/verify`;
+
+                const resp = await RequestHandler(url, 'POST', {
+                    authenticatorType,
+                    twoFactorAuthenticationCode
+                },
+                    {}
+                )
+
+                if (!resp || Array.isArray(resp.message)) {
+                    throw new Error(resp.message.join(','));
+
+                }
+
                 return resp;
             } catch (e) {
                 throw new Error(e)
@@ -650,7 +677,7 @@ const mainStore = {
 
                 if (!twoFactorAuthenticationCode) throw new Error('MFA PIN must be provided')
 
-                if (!sessionId) throw new Error('Session ID is missing')
+                // if (!sessionId) throw new Error('Session ID is missing')
 
                 const url = `${apiServerBaseUrl}/auth/mfa/login/verify`;
 
