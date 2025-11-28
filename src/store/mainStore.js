@@ -498,7 +498,7 @@ const mainStore = {
         },
         switchToAdmin: async ({ getters }, payload) => {
 
-            const url = `${apiServerBaseUrl}/tenants/admin/login`;
+            const url = `${apiServerBaseUrl}/tenants/access`;
 
             const resp = await RequestHandler(url,
                 'POST',
