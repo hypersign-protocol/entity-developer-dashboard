@@ -87,7 +87,7 @@
       <b-collapse id="nav-collapse" is-nav v-if="userDetails">
         <b-navbar-nav class="ml-auto">
 
-          <b-nav-item v-if="userDetails.accessAccount?.email && userDetails.accessAccount.userId !== userDetails.userId" class="center" title="Click to access your own account">
+          <b-nav-item v-if="getSwitchedTenantAccount" class="center" title="Click to access your own account">
             <!-- <a href="#">
               Accessing Account Of: <b-badge variant="dark"> {{ loggedInUserEmailId }}</b-badge>
             <b-icon icon="box-arrow-in-right" class="ml-2" @click="switchBackToAdminAccount"></b-icon>
@@ -99,7 +99,7 @@
                 class="ma-2"
                 style="cursor: grab; font-size: 10px; height: 26px;"
               >
-              <span class="mx-1">{{ loggedInUserEmailId }}</span>
+              <span class="mx-1">{{ getSwitchedTenantAccount }}</span>
               <b-icon icon="box-arrow-in-right" class="ml-2"></b-icon>
             </v-chip>
           </b-nav-item>
@@ -335,7 +335,7 @@ import * as EN from './language/en'
 export default {
   computed: {
     ...mapGetters("playgroundStore", ["getSelectedOrg"]),
-    ...mapGetters("mainStore", ["getSelectedService", "getAllServices", 'getIfAuthenticated', 'getUserDetails', 'isMFAEnabled']),
+    ...mapGetters("mainStore", ['getSwitchedTenantAccount',"getSelectedService", "getAllServices", 'getIfAuthenticated', 'getUserDetails', 'isMFAEnabled']),
     ...mapState({
       showMainSideNavBar: (state) => state.mainStore.showMainSideNavBar,
       selectedDashboard: (state) => state.globalStore.selectedDashboard,
@@ -413,7 +413,7 @@ export default {
 },
   methods: {
     ...mapActions("mainStore", ["fetchAppsListFromServer", "fetchServicesList",'switchToAdmin']),
-    ...mapMutations("mainStore", ["resetMainStore", "setIsLoggedOut"]),
+    ...mapMutations("mainStore", ["resetMainStore", "setIsLoggedOut", 'setSwitchedTenantAccount', 'insertAllApps']),
     ...mapActions("playgroundStore", [
       "insertAschema",
       "insertAcredential",
@@ -744,21 +744,24 @@ export default {
       try{
         this.isLoding= true
          await this.switchToAdmin({
-          adminId: this.userDetails.userId
+          adminId: this.userDetails._id
         })
+        
+        this.setSwitchedTenantAccount(null)
+        this.insertAllApps({ data: [], totalCount: 0 })
         this.isLoading = false
-        this.notifySuccess('Succefully switch to admin account')
-        await this.fetchLoggedInUser()
-        // this.$router.push("dashboard").then(() => { this.$router.go(0) });
-        const target = "/studio/dashboard";
+        this.$router.push("dashboard").then(() => { this.$router.go(0) });
+        // this.$forceUpdate();
+        // this.notifySuccess('Succefully switch to admin account')
+        // const target = "/studio/dashboard";
 
-        if (this.$route.path !== target) {
-          await this.$router.push(target);
-          window.location.reload();
-        } else {
-          await this.fetchLoggedInUser();
-          this.$forceUpdate();
-        }
+        // if (this.$route.path !== target) {
+        //   await this.$router.push(target);
+        //   window.location.reload();
+        // } else {
+        //   // await this.fetchLoggedInUser();
+        //   this.$forceUpdate();
+        // }
       } catch (e) {
         this.notifyErr(e.message)
         this.isLoading = false
@@ -766,7 +769,7 @@ export default {
       },
     async fetchLoggedInUser(){
       if (this.getUserDetails) {
-      this.userDetails = this.this.getUserDetails
+      this.userDetails = this.getUserDetails
       this.loggedInUserEmailId = this.userDetails?.accessAccount?.email
       this.setIsLoggedOut(true)
     }

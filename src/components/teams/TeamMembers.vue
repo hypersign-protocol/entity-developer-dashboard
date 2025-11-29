@@ -187,7 +187,6 @@ export default {
   },
   methods: {
     ...mapActions("mainStore", ["inviteMember", "getPeopleMembers", "acceptInvition", "getMyRolesAction"]),
-
     inviteMemberPopup() {
       this.resetInvition()
       this.$root.$emit("bv::show::modal", "invite-member");

@@ -99,7 +99,7 @@ export default {
   },
   computed: {
     ...mapGetters('mainStore', ['getAuthToken']),
-    ...mapActions('mainStore', ['getMyRolesAction'])
+    
     
   },
   data() {
@@ -113,6 +113,7 @@ export default {
   },
   methods: {
     ...mapMutations("mainStore", ["setMainSideNavBar"]),
+    ...mapActions('mainStore', ['getMyRolesAction', 'getPeopleMembers'])
   },
   mounted() {
     this.getMyRolesAction()

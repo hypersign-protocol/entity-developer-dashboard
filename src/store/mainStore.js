@@ -34,6 +34,7 @@ const mainStore = {
         onChainConfig: {},
         isLoggedOut: false,
         totalSessionCount: 0,
+        tenantAccount: null,
         widgetConfig: {
 
         },
@@ -162,11 +163,17 @@ const mainStore = {
         },
         isMFAEnabled: (state) => {
             return state.userDetails.authenticators?.some(auth => auth.isTwoFactorAuthenticated);
+        },
+        getSwitchedTenantAccount: (state) => {
+            return state.tenantAccount
         }
     },
     mutations: {
         setIfAuthenticated: (state, payload = true) => {
             state.isAuthenticated = payload;
+        },
+        setSwitchedTenantAccount: (state, payload) => {
+            state.tenantAccount = payload
         },
         setIsLoggedOut: (state, payload = false) => {
             state.isLoggedOut = payload;
@@ -206,6 +213,7 @@ const mainStore = {
             state.showMainSideNavBar = payload ? payload : false;
         },
         resetMainStore(state) {
+            state.tenantAccount = null
             state.isAuthenticated = false
             state.userDetails = {}
             state.appList = []
