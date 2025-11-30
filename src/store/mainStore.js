@@ -793,10 +793,10 @@ const mainStore = {
                     reject(new Error(`appId is not specified`))
                 }
                 const url = `${apiServerBaseUrl}/app/${appId}`;
-                const headers = UtilsMixin.methods.getHeader(localStorage.getItem('authToken'));
+                // const headers = UtilsMixin.methods.getHeader(localStorage.getItem('authToken'));
                 fetch(url, {
                     method: 'DELETE',
-                    headers,
+                    // headers,
                     credentials: 'include',
                 }).then(response => response.json()).then(json => {
                     if (json.error) {
