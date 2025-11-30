@@ -746,22 +746,10 @@ export default {
          await this.switchToAdmin({
           adminId: this.userDetails.userId
         })
-        
         this.setSwitchedTenantAccount(null)
         this.insertAllApps({ data: [], totalCount: 0 })
         this.isLoading = false
-        this.$router.push("dashboard").then(() => { this.$router.go(0) });
-        // this.$forceUpdate();
-        // this.notifySuccess('Succefully switch to admin account')
-        // const target = "/studio/dashboard";
-
-        // if (this.$route.path !== target) {
-        //   await this.$router.push(target);
-        //   window.location.reload();
-        // } else {
-        //   // await this.fetchLoggedInUser();
-        //   this.$forceUpdate();
-        // }
+        this.$router.push("/studio/dashboard").then(() => { this.$router.go(0) });
       } catch (e) {
         this.notifyErr(e.message)
         this.isLoading = false

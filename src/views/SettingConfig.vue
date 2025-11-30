@@ -115,9 +115,8 @@ export default {
     ...mapMutations("mainStore", ["setMainSideNavBar"]),
     ...mapActions('mainStore', ['getMyRolesAction', 'getPeopleMembers'])
   },
-  mounted() {
-    this.getMyRolesAction()
-    this.getPeopleMembers()
+  async mounted() {
+    
     this.setMainSideNavBar(false);
     const ref = this.$route.query.ref;
     if (ref === 'invitions') {
@@ -137,6 +136,14 @@ export default {
     } else {
       this.activeMainTab = 1;
       this.activeMembersSubTab = 0;
+    }
+
+    try{
+      await this.getMyRolesAction()
+      await this.getPeopleMembers()
+      
+    }catch(e){
+      console.log(e)
     }
   }
 };
