@@ -744,7 +744,7 @@ export default {
       try{
         this.isLoding= true
          await this.switchToAdmin({
-          adminId: this.userDetails._id
+          adminId: this.userDetails.userId
         })
         
         this.setSwitchedTenantAccount(null)
