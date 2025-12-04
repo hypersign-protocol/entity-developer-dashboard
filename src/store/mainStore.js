@@ -1589,7 +1589,7 @@ const mainStore = {
                 if (!getters.getSelectedService || !getters.getSelectedService.appId) {
                     return reject(new Error('App ID is not available, service is not selected'))
                 }
-                const url = `${apiServerBaseUrl}/app/${getters.getSelectedService.appId}/kyc-webpage-config`;
+                const url = `${apiServerBaseUrl}/app/verifier?appId=${getters.getSelectedService.appId}`;
                 const headers = UtilsMixin.methods.getHeader(localStorage.getItem('authToken'));
 
                 fetch(url, {
@@ -1615,7 +1615,7 @@ const mainStore = {
                 if (!getters.getSelectedService || !getters.getSelectedService.appId) {
                     return reject(new Error('App ID is not available, service is not selected'))
                 }
-                const url = `${apiServerBaseUrl}/app/${getters.getSelectedService.appId}/kyc-webpage-config`;
+                const url = `${apiServerBaseUrl}/app/${getters.getSelectedService.appId}/verifier`;
                 const headers = UtilsMixin.methods.getHeader(localStorage.getItem('authToken'));
 
                 return fetch(url, {
@@ -1647,7 +1647,7 @@ const mainStore = {
                 if (!getters.getSelectedService || !getters.getSelectedService.appId) {
                     return reject(new Error('App ID is not available, service is not selected'))
                 }
-                const url = `${apiServerBaseUrl}/app/${getters.getSelectedService.appId}/kyc-webpage-config/${payload._id}`;
+                const url = `${apiServerBaseUrl}/app/verifier/${payload._id}?appId=${getters.getSelectedService.appId}`;
                 const headers = UtilsMixin.methods.getHeader(localStorage.getItem('authToken'));
 
                 fetch(url, {
@@ -1673,7 +1673,7 @@ const mainStore = {
                 if (!getters.getSelectedService || !getters.getSelectedService.appId) {
                     return reject(new Error('App ID is not available, service is not selected'))
                 }
-                const url = `${apiServerBaseUrl}/app/${getters.getSelectedService.appId}/kyc-webpage-config/${payload._id}`;
+                const url = `${apiServerBaseUrl}/app/${getters.getSelectedService.appId}/verifier/${payload._id}`;
                 const headers = UtilsMixin.methods.getHeader(localStorage.getItem('authToken'));
 
                 fetch(url, {
