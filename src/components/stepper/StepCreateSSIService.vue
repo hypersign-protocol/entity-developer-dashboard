@@ -22,7 +22,7 @@
       </div>
 
       <!-- Completion Message -->
-      <div v-if="!isProcessingCredit && isCreditAlreadyRequested && company.logs.length == 0"
+      <div v-if="!isProcessingCredit && isCreditAlreadyRequested"
         class="mt-3 p-3 bg-info text-white rounded">
         <h6 class="mb-2">
           <i class="mdi mdi-check-circle-outline mr-2"></i>
@@ -240,10 +240,10 @@ export default {
 
       const statusMessages = {
         'APPROVED': 'Your credit request has been approved. You can now proceed to add team members.',
-        'INITIATED': 'Your credit request has been submitted and is being processed.',
+        'INITIATED': 'Your credit request has been successfully submitted and is being processed.',
       };
 
-      return statusMessages[status] || 'Your credit request has been submitted and is being processed';
+      return statusMessages[status] || 'Your credit request has been successfully submitted and is being processed';
     },
 
     goToBilling() {

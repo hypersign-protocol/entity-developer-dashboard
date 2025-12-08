@@ -1,5 +1,6 @@
 <template>
   <div v-if="!hasService" class="container onboarding-stepper">
+    <load-ing :active.sync="isLoading" :can-cancel="true" :is-full-page="true"></load-ing>
     <div class="text-center mb-4">
   <h4>
     <i class="mdi mdi-shield-account-outline mr-1"></i>
@@ -23,7 +24,7 @@
 
     <!-- Step Content -->
     <div class="step-content">
-      <component :is="currentComponent" :company="company" :network-type="networkType"
+      <component v-if="!isLoading" :is="currentComponent" :company="company" :network-type="networkType"
         :is-processing-credit="isProcessingCredit" :is-processing-id="isProcessingID"
         :credit-process-complete="creditProcessComplete" :id-process-complete="idProcessComplete"
         :error-message="creditErrorMessage"
@@ -53,6 +54,7 @@ export default {
   },
   data() {
     return {
+      isLoading:false,
       hasService: false,
       currentStep: 1,
       company: {
@@ -112,15 +114,18 @@ export default {
   },
   methods: {
     checkExistingOnboarding() {
+      this.isLoading = true
       this.$store.dispatch('mainStore/checkIfAlreadyExistOnBoarding')
         .then((existingOnboarding) => {
+          this.isLoading = false
           if (existingOnboarding && existingOnboarding._id) {
             this.populateCompanyFromOnboarding(existingOnboarding);
             this.setCompletionStatus(existingOnboarding);
           }
         })
-        .catch(() => {
-          
+        .catch((e) => {
+          this.isLoading = false
+          console.error(e.message)
         });
     },
 
