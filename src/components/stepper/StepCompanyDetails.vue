@@ -5,8 +5,7 @@
       <h5>Select Your Business Type</h5>
       <b-row>
         <b-col v-for="(label, key) in BUSINESS_TYPE" :key="key" cols="12" md="4" class="mb-3">
-          <b-card class="text-center selectable-card"
-            :class="{ selected: localCompany.type === key }"
+          <b-card class="text-center selectable-card" :class="{ selected: localCompany.type === key }"
             @click="selectBusinessType(key)">
             <div class="py-4">
               <i v-if="key === 'BUSINESS'" class="mdi mdi-domain text-secondary mb-3" style="font-size: 2rem;"></i>
@@ -33,7 +32,7 @@
               <b-form-input v-model="localCompany.name" placeholder="ABC Pvt Ltd." required />
             </b-form-group>
 
-            
+
           </b-col>
 
           <b-col md="6" v-if="localCompany.type == BUSINESS_TYPE.BUSINESS.toUpperCase()">
@@ -60,7 +59,8 @@
         <b-row>
           <b-col md="6">
             <b-form-group label="Business Email">
-              <b-form-input type="email" v-model="localCompany.contact_email" placeholder="contact@gmail.com" required />
+              <b-form-input type="email" v-model="localCompany.contact_email" placeholder="contact@gmail.com"
+                required />
               <!-- <small>We will contact you on this email</small> -->
             </b-form-group>
           </b-col>
@@ -72,40 +72,26 @@
           </b-col>
         </b-row>
 
-        <b-row>
-          <b-col md="6">
-            <b-form-group
-              :label="localCompany.type == BUSINESS_TYPE.BUSINESS.toUpperCase() ? 'Company Logo URL' : 'Community Logo URL'">
-              <b-form-input v-model="localCompany.logo"
-                placeholder="https://example.com/logo.png" required />
-            </b-form-group>
-          </b-col>
-          <b-col md="6">
-            <div v-if="localCompany.logo" class="mt-2">
-              <img :src="localCompany.logo" class="logo-preview" alt="Logo Preview" />
-            </div>
-          </b-col>
-        </b-row>
+        <b-form-group label="Upload Logo">
+          <LogoUploader v-model="localCompany.logo" />
+        </b-form-group>
 
         <b-row>
           <b-col md="4">
             <b-form-group label="Twitter Profile">
-              <b-form-input v-model="localCompany.twitterUrl"
-                placeholder="https://twitter.com/username" />
+              <b-form-input v-model="localCompany.twitterUrl" placeholder="https://twitter.com/username" />
             </b-form-group>
           </b-col>
 
           <b-col md="4">
             <b-form-group label="Telegram Profile">
-              <b-form-input v-model="localCompany.telegramUrl"
-                placeholder="https://t.me/username" />
+              <b-form-input v-model="localCompany.telegramUrl" placeholder="https://t.me/username" />
             </b-form-group>
           </b-col>
 
           <b-col md="4">
             <b-form-group label="LinkedIn Profile">
-              <b-form-input v-model="localCompany.linkedinUrl"
-                placeholder="https://linkedin.com/company/yourcompany" />
+              <b-form-input v-model="localCompany.linkedinUrl" placeholder="https://linkedin.com/company/yourcompany" />
             </b-form-group>
           </b-col>
         </b-row>
@@ -183,7 +169,8 @@ export const PhoneRegexMap = {
   US: /^(\+1)?\d{10}$/,
 };
 
-
+import { mapGetters } from 'vuex/dist/vuex.common.js';
+import LogoUploader from "../element/LogoUploader.vue";
 export default {
   name: "StepCompanyDetails",
   props: ["company"],
@@ -191,7 +178,7 @@ export default {
     return {
       step: 1,
       subStep: 1,
-      BUSINESS_TYPE : {
+      BUSINESS_TYPE: {
         BUSINESS: "Business",
         COMMUNITY: "Community",
       },
@@ -238,7 +225,7 @@ export default {
         ID: "Indonesia", VN: "Vietnam", TH: "Thailand", MY: "Malaysia",
         PH: "Philippines", KR: "South Korea", AU: "Australia", NZ: "New Zealand",
         UK: "United Kingdom", US: "United States", BD: "Bangladesh",
-        PK: "Pakistan", LK: "Sri Lanka", NP: "Nepal", KH: "Cambodia", 
+        PK: "Pakistan", LK: "Sri Lanka", NP: "Nepal", KH: "Cambodia",
         MM: "Myanmar", BN: "Brunei", LA: "Laos", MN: "Mongolia",
         TL: "Timor-Leste", XX: "Other"
       },
@@ -249,8 +236,11 @@ export default {
       selectedBusinessType: null,
     };
   },
-
+  components: {
+    LogoUploader,
+  },
   computed: {
+    ...mapGetters('mainStore', ['getUserDetails']),
     interestOptions() {
       return Object.values(this.BUSINESS_INTERESTED_IN);
     },
@@ -265,19 +255,94 @@ export default {
     },
   },
 
-  methods: {
-    handleBack() {
-  if (this.step === 3) {
-    if (this.subStep > 1) {
-      this.subStep--;
-    } else {
-      this.goBackToStep2();
+  mounted() {
+    if (this.getUserDetails) {
+      this.localCompany.contact_email = this.getUserDetails.email;
     }
-  } else if (this.step === 2) {
-          this.step = 1
+  },
 
-  }
-},
+  methods: {
+  //    triggerLogoUpload() {
+  //   this.$refs.logoInput.click();
+  // },
+
+  //   async onLogoUpload(event) {
+  //     this.localCompany.logo = "";
+  //     console.log("Logo upload event:", event.target.files);
+  //     const file = event.target.files[0];
+  //     if (!file) return;
+
+  //     // Optional: Limit file size before processing (2MB max)
+  //     if (file.size > 2 * 1024 * 1024) {
+  //       this.$bvToast.toast("File too large. Please upload below 2MB.", {
+  //         title: "Error",
+  //         variant: "danger",
+  //         solid: true,
+  //       });
+  //       return;
+  //     }
+
+  //     const base64 = await this.compressAndConvertToBase64(file);
+  //     this.localCompany.logo = base64;
+  //   },
+  //   compressAndConvertToBase64(file) {
+  //     return new Promise((resolve) => {
+  //       const reader = new FileReader();
+
+  //       reader.onload = (e) => {
+  //         const img = new Image();
+  //         img.onload = () => {
+  //           // Resize image to max 300px (good for logos)
+  //           const canvas = document.createElement("canvas");
+  //           const MAX_SIZE = 300;
+
+  //           let width = img.width;
+  //           let height = img.height;
+
+  //           if (width > height) {
+  //             if (width > MAX_SIZE) {
+  //               height *= MAX_SIZE / width;
+  //               width = MAX_SIZE;
+  //             }
+  //           } else {
+  //             if (height > MAX_SIZE) {
+  //               width *= MAX_SIZE / height;
+  //               height = MAX_SIZE;
+  //             }
+  //           }
+
+  //           canvas.width = width;
+  //           canvas.height = height;
+
+  //           const ctx = canvas.getContext("2d");
+  //           ctx.drawImage(img, 0, 0, width, height);
+
+  //           // compress to PNG base64 with Quality ~0.85
+  //           const dataUrl = canvas.toDataURL("image/png", 0.85);
+
+  //           resolve(dataUrl);
+  //         };
+  //         img.src = e.target.result;
+  //       };
+
+  //       reader.readAsDataURL(file);
+  //     });
+  //   },
+    
+  
+  
+    handleBack() {
+      if (this.step === 3) {
+        if (this.subStep > 1) {
+          this.subStep--;
+        } else {
+          this.goBackToStep2();
+        }
+      } else if (this.step === 2) {
+        this.step = 1
+
+      }
+    },
     selectBusinessType(type) {
       this.localCompany.type = type;
       this.selectedBusinessType = type;
@@ -303,23 +368,23 @@ export default {
     },
 
     handleNext() {
-    if (this.step === 3) {
-      // validate the current subStep before moving forward / finishing
-      if (!this.validateStep3()) return;
-      if (this.subStep < 3) {
-        this.subStep++;
-      } else {
-        // last subStep -> finish
-        this.finishStep3();
+      if (this.step === 3) {
+        // validate the current subStep before moving forward / finishing
+        if (!this.validateStep3()) return;
+        if (this.subStep < 3) {
+          this.subStep++;
+        } else {
+          // last subStep -> finish
+          this.finishStep3();
+        }
+      } else if (this.step === 2) {
+        // when on step 2, validate step2 before opening step3
+        if (this.validateStep2()) {
+          this.step = 3;
+          this.subStep = 1;
+        }
       }
-    } else if (this.step === 2) {
-      // when on step 2, validate step2 before opening step3
-      if (this.validateStep2()) {
-        this.step = 3;
-        this.subStep = 1;
-      }
-    }
-  },
+    },
 
     // ✅ Step 2 validation
     validateStep2() {
@@ -327,7 +392,7 @@ export default {
 
       if (!c.name?.trim()) return this.showToast("Please enter a company/community name");
       if (!c.logo?.trim()) return this.showToast("Please provide a logo URL");
-      
+
       if (c.type == this.BUSINESS_TYPE.BUSINESS && !c.country) return this.showToast("Please select a country");
       if (c.type == this.BUSINESS_TYPE.BUSINESS && !c.registration_number) return this.showToast("Please enter your company registration number");
 
@@ -348,20 +413,20 @@ export default {
 
     // ✅ Step 3 validation (based on substeps)
     validateStep3() {
-    const c = this.localCompany;
-    if (this.subStep === 1) {
-      if (!Array.isArray(c.interests) || c.interests.length === 0) {
-        return this.showToast("Please select at least one service of interest");
+      const c = this.localCompany;
+      if (this.subStep === 1) {
+        if (!Array.isArray(c.interests) || c.interests.length === 0) {
+          return this.showToast("Please select at least one service of interest");
+        }
+      } else if (this.subStep === 2) {
+        if (!c.yearly_volume) return this.showToast("Please select estimated yearly volume");
+      } else if (this.subStep === 3) {
+        if (!Array.isArray(c.fields) || c.fields.length === 0) {
+          return this.showToast("Please select at least one industry field");
+        }
       }
-    } else if (this.subStep === 2) {
-      if (!c.yearly_volume) return this.showToast("Please select estimated yearly volume");
-    } else if (this.subStep === 3) {
-      if (!Array.isArray(c.fields) || c.fields.length === 0) {
-        return this.showToast("Please select at least one industry field");
-      }
-    }
-    return true;
-  },
+      return true;
+    },
 
     validatePhoneNumber() {
       const c = this.localCompany;
@@ -377,9 +442,9 @@ export default {
     },
 
     goBackToStep2() {
-    this.step = 2;
-    this.subStep = 1;
-  },
+      this.step = 2;
+      this.subStep = 1;
+    },
 
 
     showToast(msg) {
@@ -393,7 +458,7 @@ export default {
   },
 };
 </script>
- 
+
 
 <style scoped>
 .selectable-card {
@@ -411,12 +476,7 @@ export default {
   border-color: rgb(168, 167, 167);
   background-color: #e9f5ff;
 }
-
-.logo-preview {
-  max-height: 60px;
-  border-radius: 8px;
-}
-
+ 
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.4s ease;
