@@ -707,15 +707,13 @@ export default {
       });
     },
     async logout() {
-      try {
-        this.isLoading = true
-        // Logout API
-        RequestHandler(
-          `${config.studioServer.BASE_URL}api/v1/auth/logout`,
-          "POST",
-          {}
-        );
-
+      // Logout API
+      RequestHandler(
+        `${config.studioServer.BASE_URL}api/v1/auth/logout`,
+        "POST",
+        {}
+      ).then(() => {
+        this.isLoading = false
         // Clear all localStorage
         console.log('Clearing localStorage on logout...');
         localStorage.clear();
@@ -727,13 +725,11 @@ export default {
         // Reset stores (Pinia / Vuex)
         this.resetStore();
         this.resetMainStore();
-
-      } catch (err) {
+        
+      }).catch((err) => {
         this.isLoading = false
         console.error("Logout error:", err);
-      } finally {
-        this.isLoading = false
-      }
+      });
     },
 
     formattedAppName(appName) {
