@@ -413,7 +413,7 @@ export default {
 },
   methods: {
     ...mapActions("mainStore", ["fetchAppsListFromServer", "fetchServicesList",'switchToAdmin']),
-    ...mapMutations("mainStore", ["resetMainStore", "setIsLoggedOut", 'setSwitchedTenantAccount', 'insertAllApps']),
+    ...mapMutations("mainStore", ["resetMainStore", "setIsLoggedOut", 'resetStoreForTeantSwitch']),
     ...mapActions("playgroundStore", [
       "insertAschema",
       "insertAcredential",
@@ -746,8 +746,7 @@ export default {
          await this.switchToAdmin({
           adminId: this.userDetails.userId
         })
-        this.setSwitchedTenantAccount(null)
-        this.insertAllApps({ data: [], totalCount: 0 })
+        this.resetStoreForTeantSwitch()
         this.isLoading = false
         this.$router.push("/studio/dashboard").then(() => { this.$router.go(0) });
       } catch (e) {

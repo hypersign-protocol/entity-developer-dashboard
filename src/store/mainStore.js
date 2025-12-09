@@ -212,6 +212,26 @@ const mainStore = {
         setMainSideNavBar: (state, payload) => {
             state.showMainSideNavBar = payload ? payload : false;
         },
+        resetStoreForTeantSwitch(state) {
+            state.appList = []
+            state.totalAppCount = 0
+            state.widgetConfig = {}
+            state.kybWidgetConfig = {}
+            state.webhookConfig = {}
+            state.kycWebpageConfig = {}
+            state.kycCredits = []
+            state.ssiCredits = []
+            state.tenantAccount = null
+            state.sessionList = []
+            state.userList = []
+            state.ssiCredits = []
+            state.schemaList = []
+            state.credentialList = []
+            state.totalCredentialCount = 0
+            state.companies = []
+            state.companyExecutives = []
+            state.complianceData = null
+        },
         resetMainStore(state) {
             state.tenantAccount = null
             state.isAuthenticated = false
