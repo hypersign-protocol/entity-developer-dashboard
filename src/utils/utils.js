@@ -88,10 +88,9 @@ export async function RequestHandler(url, method = 'GET', body = {}, headers = {
 
 
 export function JWTExpiredErrorMessageHandling(responseJson) {
-    console.log("Handling JWT expiration check");
     if (responseJson.error && Array.isArray(responseJson.error.details) && responseJson.error.details.length > 0) {
         const errorMsg = responseJson.error.details.join(", ");
-        if (errorMsg.includes("jwt expired")) {
+        if (errorMsg.includes("expired")) {
             EventBus.$emit("logoutAll");
             return "Session expired, please login again";
         } else {
