@@ -63,20 +63,19 @@
 
         <!-- User Access List -->
         <v-card-text>
-          <h4 class="mb-4 font-weight-medium">User Access Permissions</h4>
+          <h4 class="mb-3 font-weight-medium">Permissions ({{ totalPermissionsCount  }})</h4>
 
           <v-row dense>
             <v-col v-for="(items, serviceType) in groupedAccess" :key="serviceType" cols="12" md="6" class="maxHeight-150">
               <!-- Service Type Header -->
               <div class="d-flex align-center mb-2">
-                <v-icon color="primary" class="mr-2">mdi-shield-check</v-icon>
-                <h5 class="font-weight-medium mb-0">{{ formatServiceType(serviceType) }} ({{  items.length }})</h5>
+                <v-icon color="primary" class="mr-2" style="color: green">mdi-shield-check</v-icon>
+                <h6 class="font-weight-medium mb-0">{{ formatServiceType(serviceType) }} ({{  items.length }})</h6>
               </div>
 
               <!-- Access Chips -->
               <div class="mt-2">
-                <span class="access-pill" v-for="access in items" :key="access.access"
-                  :class="getAccessColor(access.access)">
+                <span class="access-pill" v-for="access in items" :key="access.access">
                   {{ access.access }}
                 </span>
               </div>
@@ -146,6 +145,11 @@ export default {
       });
 
       return groups;
+    }, 
+
+    totalPermissionsCount() {
+      const listwithoutQuest = this.user.accessList.filter(access => access.serviceType != config.SERVICE_TYPES.QUEST)
+      return listwithoutQuest ? listwithoutQuest.length : 0;
     }
   },
   methods: {
@@ -174,12 +178,12 @@ export default {
       return text
     },
 
-    getAccessColor(access) {
-      if (access.includes("READ")) return "info";
-      if (access.includes("WRITE")) return "warning";
-      if (access === "ALL") return "success";
-      return "grey";
-    },
+    // getAccessColor(access) {
+    //   if (access.includes("READ")) return "info";
+    //   if (access.includes("WRITE")) return "warning";
+    //   if (access === "ALL") return "success";
+    //   return "grey";
+    // },
     onLogout() {
       EventBus.$emit("logoutAll");
     },
@@ -219,6 +223,7 @@ export default {
   display: inline-block;
   font-weight: 500;
   color: white;
+  background-color: rgb(144, 143, 143);
 }
 
 .maxHeight-150 {
