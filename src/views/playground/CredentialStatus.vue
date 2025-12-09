@@ -907,7 +907,7 @@ export default {
         this.clearAll();
         this.$root.$emit("bv::hide::modal", "credentialActionPopup");
       } catch (e) {
-        this.notifyErr(e);
+        this.notifyErr(e.message);
       } finally {
         this.isLoading = false;
       }

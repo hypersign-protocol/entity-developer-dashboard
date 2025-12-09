@@ -1297,7 +1297,7 @@ const mainStore = {
                     body: JSON.stringify(data),
                 }).then(response => response.json()).then(json => {
                     if (json.error) {
-                        return reject(new Error(json.error?.details.join(' ') || json.error.join(' ')))
+                        return reject(JWTExpiredErrorMessageHandling(json))
                     }
                     commit('setWidgetConfig', json.data);
                     resolve(json.data)
@@ -1322,7 +1322,7 @@ const mainStore = {
                 }).then(response => response.json()).then(json => {
                     if (json) {
                         if (json.error) {
-                            return reject(new Error(json.error?.details.join(' ') || json.error.join(' ')))
+                            return reject(JWTExpiredErrorMessageHandling(json))
                         } else {
                             commit('setWidgetConfig', json.data);
                             return resolve()
@@ -1354,7 +1354,7 @@ const mainStore = {
                     body: JSON.stringify(data),
                 }).then(response => response.json()).then(json => {
                     if (json.error) {
-                        return reject(new Error(json.error?.details.join(' ') || json.error.join(' ')))
+                        return reject(JWTExpiredErrorMessageHandling(json))
                     }
                     // restting
                     commit('setWidgetConfig', json.data);
