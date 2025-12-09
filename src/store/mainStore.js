@@ -1129,7 +1129,7 @@ const mainStore = {
                     headers
                 }).then(response => response.json()).then(json => {
                     if (json.error) {
-                        return reject(json)
+                        return reject(new Error(json.error.details.join(' ')))
                     }
                     commit('insertAppsOnChainConfigs', json.data.reverse());
                     resolve()
@@ -1747,7 +1747,6 @@ const mainStore = {
                     if (json.error) {
                         return reject(new Error(json.error?.details.join(' ') || json.error.join(' ')))
                     }
-
                     if (json.data && Object.keys(json.data)?.length > 0) {
                         // commit('updateSessionDetails', json.data);
                         return resolve(json.data)
@@ -1815,6 +1814,9 @@ const mainStore = {
                 headers
             })
             const json = await resp.json()
+            if (json.error) {
+                return new Error(json.error?.details.join(' ') || json.error.join(' '))
+            }
             if (json?.data) {
                 commit('setUsageDetails', json?.data)
                 return json?.data
@@ -1866,6 +1868,9 @@ const mainStore = {
                 headers
             })
             const json = await resp.json()
+            if (json.error) {
+                throw new Error(json.error?.details.join(' ') || json.error.join(' '))
+            }
             if (json?.data) {
                 commit('setUsageDetails', json?.data)
                 return json?.data
@@ -1996,6 +2001,9 @@ const mainStore = {
                 headers
             })
             const json = await resp.json()
+            if (json.error) {
+                throw new Error(json.error?.details.join(' ') || json.error.join(' '))
+            }
             if (json.data) {
                 console.log('Before calling setKycCredits ')
                 commit('setKYCCredits', json.data)

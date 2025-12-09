@@ -419,8 +419,11 @@ export default {
 
     } catch (e) {
       this.isLoading = false
-      this.notifyErr(e)
-      this.$router.push({ path: '/studio/dashboard' });
+      this.notifyErr(e.message || 'An error occurred while fetching sessions.')
+      setTimeout(() => {
+        this.$router.push({ path: '/studio/dashboard' });
+      }, 1000)
+      
     }
   },
   beforeRouteEnter(to, from, next) {
