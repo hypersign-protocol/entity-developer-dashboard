@@ -1129,7 +1129,7 @@ const mainStore = {
                     headers
                 }).then(response => response.json()).then(json => {
                     if (json.error) {
-                        return reject(JWTExpiredErrorMessageHandling(json))
+                        return reject(new Error(JWTExpiredErrorMessageHandling(json)))
                     }
                     commit('insertAppsOnChainConfigs', json.data.reverse());
                     resolve()
@@ -1297,7 +1297,7 @@ const mainStore = {
                     body: JSON.stringify(data),
                 }).then(response => response.json()).then(json => {
                     if (json.error) {
-                        return reject(JWTExpiredErrorMessageHandling(json))
+                        return reject(new Error(JWTExpiredErrorMessageHandling(json)))
                     }
                     commit('setWidgetConfig', json.data);
                     resolve(json.data)
@@ -1322,7 +1322,7 @@ const mainStore = {
                 }).then(response => response.json()).then(json => {
                     if (json) {
                         if (json.error) {
-                            return reject(JWTExpiredErrorMessageHandling(json))
+                            return reject(new Error(JWTExpiredErrorMessageHandling(json)))
                         } else {
                             commit('setWidgetConfig', json.data);
                             return resolve()
@@ -1354,7 +1354,7 @@ const mainStore = {
                     body: JSON.stringify(data),
                 }).then(response => response.json()).then(json => {
                     if (json.error) {
-                        return reject(JWTExpiredErrorMessageHandling(json))
+                        return reject(new Error(JWTExpiredErrorMessageHandling(json)))
                     }
                     // restting
                     commit('setWidgetConfig', json.data);
@@ -1464,7 +1464,7 @@ const mainStore = {
                 }).then(response => response.json())
                     .then(json => {
                         if (json.error) {
-                            return reject(JWTExpiredErrorMessageHandling(json))
+                            return reject(new Error(JWTExpiredErrorMessageHandling(json)))
                         }
                         commit('setWebhookConfig', json.data);
                         resolve(json.data)
@@ -1491,7 +1491,7 @@ const mainStore = {
                 }).then(response => response.json())
                     .then(json => {
                         if (json.error) {
-                            return reject(JWTExpiredErrorMessageHandling(json))
+                            return reject(new Error(JWTExpiredErrorMessageHandling(json)))
                         }
                         // commit('setWebhookConfig', json.data);
                         resolve(json.data)
@@ -1516,7 +1516,7 @@ const mainStore = {
                 }).then(response => response.json()).then(json => {
                     if (json) {
                         if (json.error) {
-                            return reject(JWTExpiredErrorMessageHandling(json))
+                            return reject(new Error(JWTExpiredErrorMessageHandling(json)))
                         } else {
                             commit('setWebhookConfig', json.data);
                             return resolve()
@@ -1546,7 +1546,7 @@ const mainStore = {
                     body: JSON.stringify(payload),
                 }).then(response => response.json()).then(json => {
                     if (json.error) {
-                        return reject(JWTExpiredErrorMessageHandling(json))
+                        return reject(new Error(JWTExpiredErrorMessageHandling(json)))
                     }
                     // restting
                     commit('setWebhookConfig', json.data);
@@ -1572,7 +1572,7 @@ const mainStore = {
                     headers,
                 }).then(response => response.json()).then(json => {
                     if (json.error) {
-                        return reject(JWTExpiredErrorMessageHandling(json))
+                        return reject(new Error(JWTExpiredErrorMessageHandling(json)))
                     }
                     // restting
                     commit('setWebhookConfig', {});
