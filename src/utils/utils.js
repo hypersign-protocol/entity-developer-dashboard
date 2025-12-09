@@ -57,7 +57,7 @@ export async function RequestHandler(url, method = 'GET', body = {}, headers = {
         }
 
         // refresh logic
-        if ((response.status === 401 || response.status === 403) && retry) {
+        if ((response.status === 401 || response.status === 403) && retry && !url.includes('logout')) {
             if (!isRefreshing) {
                 isRefreshing = true;
 
@@ -87,3 +87,18 @@ export async function RequestHandler(url, method = 'GET', body = {}, headers = {
 }
 
 
+export function JWTExpiredErrorMessageHandling(responseJson) {
+    console.log("Handling JWT expiration check");
+    if (responseJson.error && Array.isArray(responseJson.error.details) && responseJson.error.details.length > 0) {
+        const errorMsg = responseJson.error.details.join(", ");
+        if (errorMsg.includes("jwt expired")) {
+            EventBus.$emit("logoutAll");
+            return "Session expired, please login again";
+        } else {
+            return errorMsg;
+        }
+
+    } else {
+        return "An unknown error occurred";
+    }
+}

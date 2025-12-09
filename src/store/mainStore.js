@@ -4,7 +4,7 @@ import Vuex from 'vuex';
 import config from '../config'
 import UtilsMixin from '../mixins/utils.js'
 import { sanitizeUrl } from '../utils/common.js'
-import { RequestHandler } from '../utils/utils.js'
+import { RequestHandler, JWTExpiredErrorMessageHandling } from '../utils/utils.js'
 
 const { apiServer, studioServer } = config;
 const apiServerBaseUrl = sanitizeUrl(apiServer.host) + apiServer.basePath;
@@ -1099,7 +1099,7 @@ const mainStore = {
                     headers
                 }).then(response => response.json()).then(json => {
                     if (json.error) {
-                        return reject(new Error(json.error?.details.join(' ') || json.error.join(' ')))
+                        return reject(new Error(JWTExpiredErrorMessageHandling(json)))
                     }
 
                     commit('insertUsers', {
@@ -1129,7 +1129,7 @@ const mainStore = {
                     headers
                 }).then(response => response.json()).then(json => {
                     if (json.error) {
-                        return reject(new Error(json.error.details.join(' ')))
+                        return reject(JWTExpiredErrorMessageHandling(json))
                     }
                     commit('insertAppsOnChainConfigs', json.data.reverse());
                     resolve()
@@ -1464,7 +1464,7 @@ const mainStore = {
                 }).then(response => response.json())
                     .then(json => {
                         if (json.error) {
-                            return reject(new Error(json.error.details.join(' ')))
+                            return reject(JWTExpiredErrorMessageHandling(json))
                         }
                         commit('setWebhookConfig', json.data);
                         resolve(json.data)
@@ -1491,7 +1491,7 @@ const mainStore = {
                 }).then(response => response.json())
                     .then(json => {
                         if (json.error) {
-                            return reject(new Error(json.error.details.join(' ')))
+                            return reject(JWTExpiredErrorMessageHandling(json))
                         }
                         // commit('setWebhookConfig', json.data);
                         resolve(json.data)
@@ -1516,7 +1516,7 @@ const mainStore = {
                 }).then(response => response.json()).then(json => {
                     if (json) {
                         if (json.error) {
-                            return reject(new Error(json.error.details.join(' ')))
+                            return reject(JWTExpiredErrorMessageHandling(json))
                         } else {
                             commit('setWebhookConfig', json.data);
                             return resolve()
@@ -1546,7 +1546,7 @@ const mainStore = {
                     body: JSON.stringify(payload),
                 }).then(response => response.json()).then(json => {
                     if (json.error) {
-                        return reject(new Error(json.error.details.join(' ')))
+                        return reject(JWTExpiredErrorMessageHandling(json))
                     }
                     // restting
                     commit('setWebhookConfig', json.data);
@@ -1572,7 +1572,7 @@ const mainStore = {
                     headers,
                 }).then(response => response.json()).then(json => {
                     if (json.error) {
-                        return reject(new Error(json.error.details.join(' ')))
+                        return reject(JWTExpiredErrorMessageHandling(json))
                     }
                     // restting
                     commit('setWebhookConfig', {});
@@ -1795,6 +1795,9 @@ const mainStore = {
                 headers
             })
             const json = await resp.json()
+            if (json.error) {
+                throw new Error(JWTExpiredErrorMessageHandling(json))
+            }
             if (json?.data) {
                 return json?.data
             } else {
@@ -1815,7 +1818,7 @@ const mainStore = {
             })
             const json = await resp.json()
             if (json.error) {
-                return new Error(json.error?.details.join(' ') || json.error.join(' '))
+                throw new Error(JWTExpiredErrorMessageHandling(json))
             }
             if (json?.data) {
                 commit('setUsageDetails', json?.data)
@@ -1895,6 +1898,9 @@ const mainStore = {
                 headers
             })
             const json = await resp.json()
+            if (json.error) {
+                throw new Error(JWTExpiredErrorMessageHandling(json))
+            }
             if (json?.data) {
                 commit('setCompanyExecutives', json?.data)
                 return json?.data
@@ -1978,6 +1984,9 @@ const mainStore = {
                 headers
             })
             const json = await resp.json()
+            if (json.error) {
+                throw new Error(JWTExpiredErrorMessageHandling(json))
+            }
             if (json?.data) {
                 commit('setComplianceData', json?.data)
                 return json?.data

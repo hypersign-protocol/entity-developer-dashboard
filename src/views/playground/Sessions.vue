@@ -419,7 +419,7 @@ export default {
 
     } catch (e) {
       this.isLoading = false
-      this.notifyErr(e.message || 'An error occurred while fetching sessions.')
+      this.notifyErr(e.message || 'An error occurred while fetching users.')
       setTimeout(() => {
         this.$router.push({ path: '/studio/dashboard' });
       }, 1000)
