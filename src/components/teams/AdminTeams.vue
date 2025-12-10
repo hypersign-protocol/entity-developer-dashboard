@@ -125,16 +125,11 @@ export default {
         }
     },
     mounted() {
-
         if (!this.getAllServices || this.getAllServices.length == 0) {
             this.fetchServicesList()
 
         }
-
         this.localAllServices = this.getAllServices
-        this.getMyRolesAction()
-
-
     },
     methods: {
         ...mapActions("mainStore", ["getMyRolesAction", "createARole", "deleteARole", "fetchServicesList", "updateARole",]),

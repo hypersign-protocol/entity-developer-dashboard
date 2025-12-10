@@ -34,6 +34,7 @@ export async function RequestHandler(url, method = 'GET', body = {}, headers = {
     const response = await fetch(url, options);
     const json = await response.json().catch(() => null);
 
+
     // ❗ check special cases (like 2FA)
     let message = "";
 
@@ -52,14 +53,18 @@ export async function RequestHandler(url, method = 'GET', body = {}, headers = {
             throw new Error("2FA authentication is required");
         }
 
+        if (json.eror && Array.isArray(json.error.details) && json.error.details.length > 0) {
+            throw new Error(json.error.details.join(", "));
+        }
+
         // refresh logic
-        if ((response.status === 401 || response.status === 403) && retry) {
+        if ((response.status === 401 || response.status === 403) && retry && !url.includes('logout')) {
             if (!isRefreshing) {
                 isRefreshing = true;
 
                 try {
                     const refreshRes = await fetch(
-                        `${config.studioServer.BASE_URL}api/v1/auth/refresh`,
+                        `${config.studioServer.BASE_URL}api/v1/auth/tokens/refresh`,
                         { method: 'POST', credentials: 'include' }
                     );
 
@@ -80,4 +85,24 @@ export async function RequestHandler(url, method = 'GET', body = {}, headers = {
     }
 
     return json ?? null;
+}
+
+
+export function JWTExpiredErrorMessageHandling(responseJson) {
+    // console.log("status", status);
+    if (responseJson.error && Array.isArray(responseJson.error.details) && responseJson.error.details.length > 0) {
+        const errorMsg = responseJson.error.details.join(", ");
+        const status = responseJson.error.code || 200;
+        if (errorMsg.includes("expired") || status === 401) {
+            EventBus.$emit("logoutAll");
+            return "Session expired, please login again";
+        } else if (status === 403) {
+            return errorMsg;
+        } else {
+            return errorMsg;
+        }
+
+    } else {
+        return "An unknown error occurred";
+    }
 }

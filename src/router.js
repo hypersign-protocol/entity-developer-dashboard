@@ -1,11 +1,11 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import fetch from 'node-fetch'
 import config from './config'
-import store from './store'
 import Schema from './views/playground/Schema.vue'
 import CredentialStatus from './views/playground/CredentialStatus.vue'
 import OnboardingStepper from './components/stepper/OnboardingStepper.vue'
+import EventBus from './eventbus.js';
+import store from './store'
 const Home = () => import('./views/Home.vue');
 const PKIIdLogin = () => import('./views/PKIIdLogin.vue')
 const MainDashboard = () => import('./views/Dashboard.vue')
@@ -35,12 +35,10 @@ const router = new Router({
     {
       path: '/',
       redirect: '/studio',
-      requiresAuth: true,
     },
     {
       path: '/studio',
       redirect: '/studio/dashboard',
-      requiresAuth: true
     },
     {
       path: '/login',
@@ -63,7 +61,11 @@ const router = new Router({
     {
       path: '/studio/getting-started/:appId',
       name: 'GettingStarted',
-      component: GettingStarted
+      component: GettingStarted,
+      meta: {
+        requiresAuth: true,
+        title: `${config.app.name} - Getting Started`
+      }
     },
     {
       path: '/studio/login',
@@ -75,7 +77,7 @@ const router = new Router({
       name: 'MFAPage',
       component: MFA,
       meta: {
-        requiresAuth: true,
+        requiresAuth: false,
         title: `${config.app.name} - MFA`
       }
     },
@@ -276,57 +278,36 @@ const router = new Router({
 })
 
 router.beforeEach(async (to, from, next) => {
+  const isAuthenticated = store.getters["mainStore/getIfAuthenticated"];
+
   if (to.matched.length < 1) {
     document.title = to.meta.title;
-    next(false)
-    return router.push('/404')
+    next(false);
+    return router.push("/404");
   }
-  if (to.matched.some(record => record.meta.requiresAuth)) {
+
+  if (to.meta && to.meta.title) {
     document.title = to.meta.title;
-    try {
-      const response = await fetch(`${config.studioServer.BASE_URL}api/v1/auth`, {
-        method: "POST",
-        credentials: "include",
-      });
-      const json = await response.json();
-      if (json.statusCode === 401 || json.statusCode === 403) {
-        throw new Error(json.error);
-      } else if (json.status === 200) {
-        localStorage.setItem("user", JSON.stringify(json.message));
-        store.commit('playgroundStore/addUserDetailsToProfile', json.message)
-        next()
-      }
-    } catch (e) {
-      try {
-        const refreshResponse = await fetch(`${config.studioServer.BASE_URL}api/v1/auth/refresh`, {
-          method: "POST",
-          credentials: "include",
-        });
-        if (!refreshResponse.ok) {
-          throw new Error('Refresh failed');
-        }
-        const authResponse = await fetch(`${config.studioServer.BASE_URL}api/v1/auth`, {
-          method: "POST",
-          credentials: "include",
-        });
-        if (authResponse.ok) {
-          const user = await authResponse.json();
-          localStorage.setItem("user", JSON.stringify(user.message));
-          store.commit('playgroundStore/addUserDetailsToProfile', user.message);
-          next();
-        } else {
-          throw new Error('Refresh token invalid');
-        }
-      } catch (refreshError) {
-        store.commit('mainStore/setMainSideNavBar', false);
-        next({ path: '/studio/login', query: { redirect: to.fullPath } });
-      }
-    }
-  } else {
-    if (to.path === '/studio/login') {
-      store.commit('mainStore/setIsLoggedOut', false)
-    }
-    next()
   }
-})
+
+  // console.log("BeforeEach →", {
+  //   requiresAuth: to.meta.requiresAuth,
+  //   isAuthenticated,
+  //   check: to.meta.requiresAuth && !isAuthenticated,
+  //   to: to.path
+  // });
+
+  if (to.meta.requiresAuth && !isAuthenticated) {
+    console.log("inside if to.path " + to.path);
+    EventBus.$emit("logoutAll");
+    if (to.path !== "/studio/login") {
+      return next("/studio/login");
+    } else {
+      console.log('already on login page')
+      return next()
+    }
+  }
+  next();
+});
+
 export default router

@@ -4,7 +4,7 @@ import Vuex from 'vuex';
 import config from '../config'
 import UtilsMixin from '../mixins/utils.js'
 import { sanitizeUrl } from '../utils/common.js'
-import { RequestHandler } from '../utils/utils.js'
+import { RequestHandler, JWTExpiredErrorMessageHandling } from '../utils/utils.js'
 
 const { apiServer, studioServer } = config;
 const apiServerBaseUrl = sanitizeUrl(apiServer.host) + apiServer.basePath;
@@ -19,6 +19,8 @@ const mainStore = {
     namespaced: true,
     mixin: [UtilsMixin],
     state: {
+        isAuthenticated: false,
+        userDetails: {},
         appList: [],
         totalAppCount: 0,
         showMainSideNavBar: true,
@@ -32,6 +34,7 @@ const mainStore = {
         onChainConfig: {},
         isLoggedOut: false,
         totalSessionCount: 0,
+        tenantAccount: null,
         widgetConfig: {
 
         },
@@ -56,6 +59,7 @@ const mainStore = {
         complianceData: null
     },
     getters: {
+        getIfAuthenticated: (state) => { return state.isAuthenticated },
         getIsLoggedOut: (state) => {
             return state.isLoggedOut
         },
@@ -113,16 +117,7 @@ const mainStore = {
 
         // eslint-disable-next-line 
         getUserAccessList: (state) => (service) => {
-            const user = localStorage.getItem('user')
-            if (user) {
-                const userParse = JSON.parse(user)
-                let { accessList, accessAccount } = userParse;
-                if (accessAccount) {
-                    accessList = accessAccount.accessList
-                }
-
-                return accessList ? accessList.filter(access => access.serviceType === service) : []
-            }
+            return state.userDetails.accessList ? state.userDetails.accessList.filter(access => access.serviceType === service) : []
         },
 
         getOnChainConfig: (state) => {
@@ -164,11 +159,22 @@ const mainStore = {
             return state.complianceData
         },
         getUserDetails: (state) => {
-            const userDetails = localStorage.getItem("user");
-            return JSON.parse(userDetails)
+            return state.userDetails
+        },
+        isMFAEnabled: (state) => {
+            return state.userDetails.authenticators?.some(auth => auth.isTwoFactorAuthenticated);
+        },
+        getSwitchedTenantAccount: (state) => {
+            return state.tenantAccount
         }
     },
     mutations: {
+        setIfAuthenticated: (state, payload = true) => {
+            state.isAuthenticated = payload;
+        },
+        setSwitchedTenantAccount: (state, payload) => {
+            state.tenantAccount = payload
+        },
         setIsLoggedOut: (state, payload = false) => {
             state.isLoggedOut = payload;
             // localStorage.removeItem("authToken");
@@ -180,7 +186,9 @@ const mainStore = {
         },
         setAuthToken(state, payload) {
             console.log(state.namespaced)
-            localStorage.setItem("authToken", payload);
+            if (payload) {
+                localStorage.setItem("authToken", payload);
+            }
         },
         updateAnMarketPlaceApp(state, payload) {
             const tempToUpdateIndex = state.marketPlaceApps.findIndex(x => x.appId === payload.appId);
@@ -204,7 +212,30 @@ const mainStore = {
         setMainSideNavBar: (state, payload) => {
             state.showMainSideNavBar = payload ? payload : false;
         },
+        resetStoreForTeantSwitch(state) {
+            state.appList = []
+            state.totalAppCount = 0
+            state.widgetConfig = {}
+            state.kybWidgetConfig = {}
+            state.webhookConfig = {}
+            state.kycWebpageConfig = {}
+            state.kycCredits = []
+            state.ssiCredits = []
+            state.tenantAccount = null
+            state.sessionList = []
+            state.userList = []
+            state.ssiCredits = []
+            state.schemaList = []
+            state.credentialList = []
+            state.totalCredentialCount = 0
+            state.companies = []
+            state.companyExecutives = []
+            state.complianceData = null
+        },
         resetMainStore(state) {
+            state.tenantAccount = null
+            state.isAuthenticated = false
+            state.userDetails = {}
             state.appList = []
             state.totalAppCount = 0
             state.showMainSideNavBar = true
@@ -364,6 +395,9 @@ const mainStore = {
         },
         clearComplianceData: (state) => {
             state.complianceData = null
+        },
+        setUserDetails: (state, payload) => {
+            state.userDetails = payload
         }
     },
 
@@ -373,9 +407,10 @@ const mainStore = {
 
         // eslint-disable-next-line no-empty-pattern
         inviteMember: async ({ getters, dispatch }, payload) => {
-            const url = `${apiServerBaseUrl}/people/invite`;
+            const url = `${apiServerBaseUrl}/tenants/invitations`;
             const resp = await RequestHandler(url, 'POST', {
-                emailId: payload
+                emailId: payload.emailId,
+                roleId: payload.roleId
             },
                 UtilsMixin.methods.getHeader(getters.getAuthToken))
 
@@ -394,7 +429,7 @@ const mainStore = {
 
         // eslint-disable-next-line no-empty-pattern
         acceptInvition: async ({ getters, dispatch }, payload) => {
-            const url = `${apiServerBaseUrl}/people/invite/accept/${payload}`;
+            const url = `${apiServerBaseUrl}/tenants/invitations/${payload}/accept`;
             const resp = await RequestHandler(url, 'POST', {}, UtilsMixin.methods.getHeader(getters.getAuthToken))
 
 
@@ -410,7 +445,7 @@ const mainStore = {
 
         // eslint-disable-next-line no-empty-pattern
         deleteMember: async ({ getters, dispatch }, payload) => {
-            const url = `${apiServerBaseUrl}/people/`;
+            const url = `${apiServerBaseUrl}/tenants/`;
             const resp = await RequestHandler(url,
                 'DELETE',
                 {
@@ -431,7 +466,7 @@ const mainStore = {
         },
 
         getPeopleMembers: async ({ getters, commit }) => {
-            const url = `${apiServerBaseUrl}/people`;
+            const url = `${apiServerBaseUrl}/tenants`;
 
             const response = await RequestHandler(url, 'GET', {},
                 UtilsMixin.methods.getHeader(getters.getAuthToken)
@@ -439,7 +474,6 @@ const mainStore = {
             if (Array.isArray(response)) {
                 commit('setAdminMembers', response)
                 return response;
-
             }
             const message = Array.isArray(response?.message)
                 ? response.message.join(', ')
@@ -450,7 +484,7 @@ const mainStore = {
         },
 
         getInvitions: async ({ getters, commit }) => {
-            const url = `${apiServerBaseUrl}/people/invites`;
+            const url = `${apiServerBaseUrl}/tenants/invitations`;
 
             const resp = await RequestHandler(url, 'GET', {}, UtilsMixin.methods.getHeader(getters.getAuthToken))
             if (Array.isArray(resp)) {
@@ -470,7 +504,7 @@ const mainStore = {
 
         attachMemberToARole: async ({ getters, dispatch }, payload) => {
 
-            const url = `${apiServerBaseUrl}/people/roles/attach`;
+            const url = `${apiServerBaseUrl}/tenants/roles/attach`;
 
             const resp = await RequestHandler(url,
                 'POST',
@@ -492,7 +526,7 @@ const mainStore = {
         },
         switchToAdmin: async ({ getters }, payload) => {
 
-            const url = `${apiServerBaseUrl}/people/admin/login`;
+            const url = `${apiServerBaseUrl}/tenants/access`;
 
             const resp = await RequestHandler(url,
                 'POST',
@@ -626,7 +660,7 @@ const mainStore = {
             try {
                 const { authenticatorType } = payload
                 if (!authenticatorType) throw new Error('Authenticator type must be provided')
-                const url = `${apiServerBaseUrl}/auth/mfa/generate`;
+                const url = `${apiServerBaseUrl}/auth/mfa/setup/generate`;
                 const resp = await RequestHandler(url, 'POST', { authenticatorType }, UtilsMixin.methods.getHeader(getters.getAuthToken))
                 if (!resp || Array.isArray(resp.message)) {
                     throw new Error(resp?.message?.join(',') || resp?.message);
@@ -639,16 +673,47 @@ const mainStore = {
             }
         },
 
-        // eslint-disable-next-line no-empty-pattern
-        mfaVerify: async ({ getters }, payload) => {
+        setupmfaVerify: async ({ getters }, payload) => {
             try {
                 const { authenticatorType, twoFactorAuthenticationCode } = payload
                 if (!authenticatorType) throw new Error('Authenticator type must be provided')
 
                 if (!twoFactorAuthenticationCode) throw new Error('MFA PIN must be provided')
-                const url = `${apiServerBaseUrl}/auth/mfa/verify`;
+
+                const url = `${apiServerBaseUrl}/auth/mfa/setup/verify`;
 
                 const resp = await RequestHandler(url, 'POST', {
+                    authenticatorType,
+                    twoFactorAuthenticationCode
+                },
+                    {}
+                )
+
+                if (!resp || Array.isArray(resp.message)) {
+                    throw new Error(resp.message.join(','));
+
+                }
+
+                return resp;
+            } catch (e) {
+                throw new Error(e)
+            }
+        },
+
+        // eslint-disable-next-line no-empty-pattern
+        mfaVerify: async ({ getters }, payload) => {
+            try {
+                const { authenticatorType, twoFactorAuthenticationCode, sessionId } = payload
+                if (!authenticatorType) throw new Error('Authenticator type must be provided')
+
+                if (!twoFactorAuthenticationCode) throw new Error('MFA PIN must be provided')
+
+                // if (!sessionId) throw new Error('Session ID is missing')
+
+                const url = `${apiServerBaseUrl}/auth/mfa/login/verify`;
+
+                const resp = await RequestHandler(url, 'POST', {
+                    sessionId,
                     authenticatorType,
                     twoFactorAuthenticationCode
                 },
@@ -664,6 +729,12 @@ const mainStore = {
             } catch (e) {
                 throw new Error(e)
             }
+        },
+
+        getMyUserDetails: async ({ commit }) => {
+            const resp = await RequestHandler(`${apiServerBaseUrl}/users/me`, 'POST', {})
+            commit('setUserDetails', resp?.message)
+            return resp?.message
         },
 
         saveAnAppOnServer: ({ commit, dispatch }, payload) => {
@@ -742,10 +813,10 @@ const mainStore = {
                     reject(new Error(`appId is not specified`))
                 }
                 const url = `${apiServerBaseUrl}/app/${appId}`;
-                const headers = UtilsMixin.methods.getHeader(localStorage.getItem('authToken'));
+                // const headers = UtilsMixin.methods.getHeader(localStorage.getItem('authToken'));
                 fetch(url, {
                     method: 'DELETE',
-                    headers,
+                    // headers,
                     credentials: 'include',
                 }).then(response => response.json()).then(json => {
                     if (json.error) {
@@ -1048,7 +1119,7 @@ const mainStore = {
                     headers
                 }).then(response => response.json()).then(json => {
                     if (json.error) {
-                        return reject(new Error(json.error?.details.join(' ') || json.error.join(' ')))
+                        return reject(new Error(JWTExpiredErrorMessageHandling(json)))
                     }
 
                     commit('insertUsers', {
@@ -1078,7 +1149,7 @@ const mainStore = {
                     headers
                 }).then(response => response.json()).then(json => {
                     if (json.error) {
-                        return reject(json)
+                        return reject(new Error(JWTExpiredErrorMessageHandling(json)))
                     }
                     commit('insertAppsOnChainConfigs', json.data.reverse());
                     resolve()
@@ -1246,7 +1317,7 @@ const mainStore = {
                     body: JSON.stringify(data),
                 }).then(response => response.json()).then(json => {
                     if (json.error) {
-                        return reject(new Error(json.error?.details.join(' ') || json.error.join(' ')))
+                        return reject(new Error(JWTExpiredErrorMessageHandling(json)))
                     }
                     commit('setWidgetConfig', json.data);
                     resolve(json.data)
@@ -1271,7 +1342,7 @@ const mainStore = {
                 }).then(response => response.json()).then(json => {
                     if (json) {
                         if (json.error) {
-                            return reject(new Error(json.error?.details.join(' ') || json.error.join(' ')))
+                            return reject(new Error(JWTExpiredErrorMessageHandling(json)))
                         } else {
                             commit('setWidgetConfig', json.data);
                             return resolve()
@@ -1303,7 +1374,7 @@ const mainStore = {
                     body: JSON.stringify(data),
                 }).then(response => response.json()).then(json => {
                     if (json.error) {
-                        return reject(new Error(json.error?.details.join(' ') || json.error.join(' ')))
+                        return reject(new Error(JWTExpiredErrorMessageHandling(json)))
                     }
                     // restting
                     commit('setWidgetConfig', json.data);
@@ -1413,7 +1484,7 @@ const mainStore = {
                 }).then(response => response.json())
                     .then(json => {
                         if (json.error) {
-                            return reject(new Error(json.error.details.join(' ')))
+                            return reject(new Error(JWTExpiredErrorMessageHandling(json)))
                         }
                         commit('setWebhookConfig', json.data);
                         resolve(json.data)
@@ -1440,7 +1511,7 @@ const mainStore = {
                 }).then(response => response.json())
                     .then(json => {
                         if (json.error) {
-                            return reject(new Error(json.error.details.join(' ')))
+                            return reject(new Error(JWTExpiredErrorMessageHandling(json)))
                         }
                         // commit('setWebhookConfig', json.data);
                         resolve(json.data)
@@ -1465,7 +1536,7 @@ const mainStore = {
                 }).then(response => response.json()).then(json => {
                     if (json) {
                         if (json.error) {
-                            return reject(new Error(json.error.details.join(' ')))
+                            return reject(new Error(JWTExpiredErrorMessageHandling(json)))
                         } else {
                             commit('setWebhookConfig', json.data);
                             return resolve()
@@ -1495,7 +1566,7 @@ const mainStore = {
                     body: JSON.stringify(payload),
                 }).then(response => response.json()).then(json => {
                     if (json.error) {
-                        return reject(new Error(json.error.details.join(' ')))
+                        return reject(new Error(JWTExpiredErrorMessageHandling(json)))
                     }
                     // restting
                     commit('setWebhookConfig', json.data);
@@ -1521,7 +1592,7 @@ const mainStore = {
                     headers,
                 }).then(response => response.json()).then(json => {
                     if (json.error) {
-                        return reject(new Error(json.error.details.join(' ')))
+                        return reject(new Error(JWTExpiredErrorMessageHandling(json)))
                     }
                     // restting
                     commit('setWebhookConfig', {});
@@ -1538,7 +1609,7 @@ const mainStore = {
                 if (!getters.getSelectedService || !getters.getSelectedService.appId) {
                     return reject(new Error('App ID is not available, service is not selected'))
                 }
-                const url = `${apiServerBaseUrl}/app/${getters.getSelectedService.appId}/kyc-webpage-config`;
+                const url = `${apiServerBaseUrl}/app/verifier?appId=${getters.getSelectedService.appId}`;
                 const headers = UtilsMixin.methods.getHeader(localStorage.getItem('authToken'));
 
                 fetch(url, {
@@ -1564,7 +1635,7 @@ const mainStore = {
                 if (!getters.getSelectedService || !getters.getSelectedService.appId) {
                     return reject(new Error('App ID is not available, service is not selected'))
                 }
-                const url = `${apiServerBaseUrl}/app/${getters.getSelectedService.appId}/kyc-webpage-config`;
+                const url = `${apiServerBaseUrl}/app/${getters.getSelectedService.appId}/verifier`;
                 const headers = UtilsMixin.methods.getHeader(localStorage.getItem('authToken'));
 
                 return fetch(url, {
@@ -1596,7 +1667,7 @@ const mainStore = {
                 if (!getters.getSelectedService || !getters.getSelectedService.appId) {
                     return reject(new Error('App ID is not available, service is not selected'))
                 }
-                const url = `${apiServerBaseUrl}/app/${getters.getSelectedService.appId}/kyc-webpage-config/${payload._id}`;
+                const url = `${apiServerBaseUrl}/app/verifier/${payload._id}?appId=${getters.getSelectedService.appId}`;
                 const headers = UtilsMixin.methods.getHeader(localStorage.getItem('authToken'));
 
                 fetch(url, {
@@ -1622,7 +1693,7 @@ const mainStore = {
                 if (!getters.getSelectedService || !getters.getSelectedService.appId) {
                     return reject(new Error('App ID is not available, service is not selected'))
                 }
-                const url = `${apiServerBaseUrl}/app/${getters.getSelectedService.appId}/kyc-webpage-config/${payload._id}`;
+                const url = `${apiServerBaseUrl}/app/${getters.getSelectedService.appId}/verifier/${payload._id}`;
                 const headers = UtilsMixin.methods.getHeader(localStorage.getItem('authToken'));
 
                 fetch(url, {
@@ -1696,7 +1767,6 @@ const mainStore = {
                     if (json.error) {
                         return reject(new Error(json.error?.details.join(' ') || json.error.join(' ')))
                     }
-
                     if (json.data && Object.keys(json.data)?.length > 0) {
                         // commit('updateSessionDetails', json.data);
                         return resolve(json.data)
@@ -1745,6 +1815,9 @@ const mainStore = {
                 headers
             })
             const json = await resp.json()
+            if (json.error) {
+                throw new Error(JWTExpiredErrorMessageHandling(json))
+            }
             if (json?.data) {
                 return json?.data
             } else {
@@ -1764,6 +1837,9 @@ const mainStore = {
                 headers
             })
             const json = await resp.json()
+            if (json.error) {
+                throw new Error(JWTExpiredErrorMessageHandling(json))
+            }
             if (json?.data) {
                 commit('setUsageDetails', json?.data)
                 return json?.data
@@ -1815,6 +1891,9 @@ const mainStore = {
                 headers
             })
             const json = await resp.json()
+            if (json.error) {
+                throw new Error(json.error?.details.join(' ') || json.error.join(' '))
+            }
             if (json?.data) {
                 commit('setUsageDetails', json?.data)
                 return json?.data
@@ -1839,6 +1918,9 @@ const mainStore = {
                 headers
             })
             const json = await resp.json()
+            if (json.error) {
+                throw new Error(JWTExpiredErrorMessageHandling(json))
+            }
             if (json?.data) {
                 commit('setCompanyExecutives', json?.data)
                 return json?.data
@@ -1922,6 +2004,9 @@ const mainStore = {
                 headers
             })
             const json = await resp.json()
+            if (json.error) {
+                throw new Error(JWTExpiredErrorMessageHandling(json))
+            }
             if (json?.data) {
                 commit('setComplianceData', json?.data)
                 return json?.data
@@ -1945,6 +2030,9 @@ const mainStore = {
                 headers
             })
             const json = await resp.json()
+            if (json.error) {
+                throw new Error(json.error?.details.join(' ') || json.error.join(' '))
+            }
             if (json.data) {
                 console.log('Before calling setKycCredits ')
                 commit('setKYCCredits', json.data)

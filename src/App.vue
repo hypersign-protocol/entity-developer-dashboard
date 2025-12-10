@@ -78,7 +78,7 @@
   <div id="app" data-app>
     <load-ing :active.sync="isLoading" :can-cancel="true" :is-full-page="true"></load-ing>
 
-    <b-navbar toggleable="lg" type="dark" variant="white" class="navStyle" v-if="getIsLoggedOut" sticky>
+    <b-navbar toggleable="lg" type="dark" variant="white" class="navStyle" v-if="getIfAuthenticated" sticky>
       <b-navbar-brand href="#">
         <a href="#" @click="route('dashboard')">
           <img src="./assets/Entity_full.png" alt="" style="height: 3vh; opacity: 80%;" />
@@ -87,7 +87,7 @@
       <b-collapse id="nav-collapse" is-nav v-if="userDetails">
         <b-navbar-nav class="ml-auto">
 
-          <b-nav-item v-if="user.accessAccount?.email && user.accessAccount.userId !== user.userId" class="center" title="Click to access your own account">
+          <b-nav-item v-if="getSwitchedTenantAccount" class="center" title="Click to access your own account">
             <!-- <a href="#">
               Accessing Account Of: <b-badge variant="dark"> {{ loggedInUserEmailId }}</b-badge>
             <b-icon icon="box-arrow-in-right" class="ml-2" @click="switchBackToAdminAccount"></b-icon>
@@ -99,28 +99,28 @@
                 class="ma-2"
                 style="cursor: grab; font-size: 10px; height: 26px;"
               >
-              <span class="mx-1">{{ loggedInUserEmailId }}</span>
+              <span class="mx-1">{{ getSwitchedTenantAccount }}</span>
               <b-icon icon="box-arrow-in-right" class="ml-2"></b-icon>
             </v-chip>
           </b-nav-item>
 
-          <b-nav-item v-if="userDetails.isTwoFactorEnabled == false">
-            
-            <router-link to="/studio/mfa">
+          <b-nav-item v-if="!isMFAEnabled">
+          <router-link to="/studio/settings">
           <v-chip
-              outlined
-                class="ma-2"
-                style="cursor: grab; font-size: 10px; height: 26px;"
-              >
-              <span class="spinner-grow spinner-grow-sm"></span>
-              <span class="mx-1">Setup MFA</span>
-            </v-chip>
-              
-            </router-link>
-            
-          
-          </b-nav-item>
+            outlined
+            class="ma-2"
+            style="cursor: grab; font-size: 10px; height: 26px;"
+          >
+            <b-icon
+              icon="exclamation-triangle-fill"
+              variant="warning"
+              class="mr-1"
+            ></b-icon>
 
+            <span>Setup MFA</span>
+          </v-chip>
+        </router-link>
+        </b-nav-item>
           <!-- <b-nav-item :href="$config.studioServer.BASE_URL" target="_blank" title="Developer Dashboard API">
             <i class="fa fa-code" style=" color: #707070;height: 18px; font-size: 18px; width: 18px;"></i></b-nav-item> -->
           <!-- <b-nav-item href="https://docs.hypersign.id/entity-studio/developer-dashboard" target="_blank"
@@ -128,7 +128,7 @@
             <i class="fas fa-book-open nav-icon" style="height: 18px; font-size: 18px; width: 18px;"></i>
           </b-nav-item> -->
 
-          <b-nav-item-dropdown right v-if="getIsLoggedOut" title="Profile" menu-class="dropDownPopup">
+          <b-nav-item-dropdown right v-if="getIfAuthenticated" title="Profile" menu-class="dropDownPopup">
            <template #button-content>
              <img
               v-if="userDetails?.profileIcon"
@@ -177,7 +177,7 @@
     </div>
     <notifications group="foo" />
 
-    <sidebar-menu :relative="false" class="sidebar-wrapper" v-if="userDetails && showSideNavbar && getSelectedService" @toggle-collapse="onToggleCollapse"
+    <sidebar-menu :relative="false" class="sidebar-wrapper" v-if="userDetails && Object.keys(userDetails).length > 0 && showSideNavbar && getSelectedService" @toggle-collapse="onToggleCollapse"
       :collapsed="isSidebarCollapsed" :theme="'white-theme'" width="220px" :menu="getSideMenu()">
       <div slot="header" style="border-bottom: 1px solid rgba(0,0,0,.12);">
         <v-list>
@@ -334,8 +334,8 @@ import config from './config'
 import * as EN from './language/en'
 export default {
   computed: {
-    ...mapGetters("playgroundStore", ["userDetails", "getSelectedOrg"]),
-    ...mapGetters("mainStore", ["getSelectedService", "getAllServices", 'getIsLoggedOut']),
+    ...mapGetters("playgroundStore", ["getSelectedOrg"]),
+    ...mapGetters("mainStore", ['getSwitchedTenantAccount',"getSelectedService", "getAllServices", 'getIfAuthenticated', 'getUserDetails', 'isMFAEnabled']),
     ...mapState({
       showMainSideNavBar: (state) => state.mainStore.showMainSideNavBar,
       selectedDashboard: (state) => state.globalStore.selectedDashboard,
@@ -362,7 +362,7 @@ export default {
       isSidebarCollapsed: true,
       schema_page: 1,
       authRoutes: ["register", "PKIIdLogin"],
-      user: {},
+      userDetails: {},
       loggedInUserEmailId:"",
       parseAuthToken: null,
       authToken:null
@@ -370,18 +370,20 @@ export default {
   },
 
  mounted() {
-  const userDetails = localStorage.getItem("user");
-  if (userDetails) {
+  
+  // console.log(this.getUserDetails)
+  if (this.getUserDetails) {
     try {
-       const parsed = JSON.parse(userDetails);
-      Object.assign(this.userDetails, parsed);
-      this.user = this.userDetails;
-      this.loggedInUserEmailId = this.user?.accessAccount?.email;
-      this.setIsLoggedOut(true);
+       
+      this.userDetails = this.getUserDetails;
+      this.loggedInUserEmailId = this.userDetails?.accessAccount?.email;
+      this.setIsLoggedOut(false);
     } catch (e) {
       console.error("Invalid user JSON:", e);
       this.userDetails = {};
     }
+  } else {
+    console.log('No userDetails found yet...')
   }
 
   this.$root.$on("clearAppData", () => {
@@ -411,7 +413,7 @@ export default {
 },
   methods: {
     ...mapActions("mainStore", ["fetchAppsListFromServer", "fetchServicesList",'switchToAdmin']),
-    ...mapMutations("mainStore", ["resetMainStore", "setIsLoggedOut"]),
+    ...mapMutations("mainStore", ["resetMainStore", "setIsLoggedOut", 'resetStoreForTeantSwitch']),
     ...mapActions("playgroundStore", [
       "insertAschema",
       "insertAcredential",
@@ -492,18 +494,14 @@ export default {
     },
     async initializeStore() {
       try {
-            const userDetails = localStorage.getItem("user");
+        const userDetails = this.getUserDetails //localStorage.getItem("user");
         if (userDetails) {
-            const parsed = JSON.parse(userDetails);
-            Object.assign(this.userDetails, parsed);
-            this.parseAuthToken= this.userDetails
+           this.parseAuthToken= this.getUserDetails
            this.setIsLoggedOut(true)
            const redirectPath=localStorage.getItem("postLoginRedirect")||'/studio/dashboard';
            localStorage.removeItem("postLoginRedirect");
-           this.$router.push(redirectPath).then(() => {
-          // Removed forced reload to prevent double page reload
-        });
-        } else {
+           this.$router.push(redirectPath).then(() => { this.$router.go(0) });
+        } else {          
           throw new Error("No user details found in localStorage")
         }
       } catch (e) {
@@ -709,15 +707,13 @@ export default {
       });
     },
     async logout() {
-      try {
-        this.isLoading = true
-        // Logout API
-        await RequestHandler(
-          `${config.studioServer.BASE_URL}api/v1/auth/logout`,
-          "POST",
-          {}
-        );
-
+      // Logout API
+      RequestHandler(
+        `${config.studioServer.BASE_URL}api/v1/auth/logout`,
+        "POST",
+        {}
+      ).then(() => {
+        this.isLoading = false
         // Clear all localStorage
         console.log('Clearing localStorage on logout...');
         localStorage.clear();
@@ -729,13 +725,11 @@ export default {
         // Reset stores (Pinia / Vuex)
         this.resetStore();
         this.resetMainStore();
-
-      } catch (err) {
+        
+      }).catch((err) => {
         this.isLoading = false
         console.error("Logout error:", err);
-      } finally {
-        this.isLoading = false
-      }
+      });
     },
 
     formattedAppName(appName) {
@@ -748,29 +742,18 @@ export default {
          await this.switchToAdmin({
           adminId: this.userDetails.userId
         })
+        this.resetStoreForTeantSwitch()
         this.isLoading = false
-        this.notifySuccess('Succefully switch to admin account')
-        await this.fetchLoggedInUser()
-        // this.$router.push("dashboard").then(() => { this.$router.go(0) });
-        const target = "/studio/dashboard";
-
-        if (this.$route.path !== target) {
-          await this.$router.push(target);
-          window.location.reload();
-        } else {
-          await this.fetchLoggedInUser();
-          this.$forceUpdate();
-        }
+        this.$router.push("/studio/dashboard").then(() => { this.$router.go(0) });
       } catch (e) {
         this.notifyErr(e.message)
         this.isLoading = false
       }
       },
     async fetchLoggedInUser(){
-      if (localStorage.getItem("user")) {
-      const usrStr = localStorage.getItem("user");
-      this.user = JSON.parse(usrStr);
-      this.loggedInUserEmailId=this.user?.accessAccount?.email
+      if (this.getUserDetails) {
+      this.userDetails = this.getUserDetails
+      this.loggedInUserEmailId = this.userDetails?.accessAccount?.email
       this.setIsLoggedOut(true)
     }
     

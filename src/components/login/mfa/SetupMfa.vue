@@ -69,9 +69,9 @@
 
 <script>
 import PIN from './PIN.vue'
-import { mapMutations, mapActions } from 'vuex/dist/vuex.common.js';
+import { mapActions } from 'vuex/dist/vuex.common.js';
 import UtilsMixin from "../../../mixins/utils";
-// import EventBus from "../../../eventbus";
+
 export default {
     name: 'SetupMfa',
     data() {
@@ -107,9 +107,7 @@ export default {
         console.log('Inside mounted SetupMFA.vue')
     },
     methods: {
-        ...mapActions('mainStore', ['mfaGenerate', 'mfaVerify']),
-        ...mapMutations('mainStore', ['setAuthToken']),
-
+        ...mapActions('mainStore', ['mfaGenerate', 'setupmfaVerify', 'getMyUserDetails']),
         async onSelectedAuthenticatorMethod() {
             try {
                 this.isLoading = true
@@ -137,31 +135,26 @@ export default {
                     authenticatorType: this.authenticationMethod,
                     twoFactorAuthenticationCode: pin
                 }
-                const r = await this.mfaVerify(payload)
+                const r = await this.setupmfaVerify(payload)
 
                 if (!r.isVerified) {
                     this.error = "Invalid code or expired, please try again"
                 } else {
                     this.notifySuccess(`Identity verified successfully`);
-                    await this.setAuthToken(r.authToken)
-
-                    // 
-                    this.$root.$emit("initializeStore", "login");
-
+                    this.getMyUserDetails()
+                    this.$emit("closePopup");
                 }
                 this.isLoading = false
-
-
             } catch (e) {
                 this.isLoading = false
                 this.notifyErr(e.message)
             }
-
         },
-
         skip() {
-            this.$root.$emit("initializeStore", "login");
+            // this.$root.$emit("initializeStore", "login");
             // this.$root.$emit('HelloEvent', 'hi')
+                    this.$emit("closePopup");
+
         }
     },
     mixins: [UtilsMixin],

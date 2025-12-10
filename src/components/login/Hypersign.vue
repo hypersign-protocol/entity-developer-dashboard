@@ -160,8 +160,8 @@ export default {
 
         const authorizationToken = messageData.data.hypersign.data.accessToken;
         const refreshToken = messageData.data.hypersign.data.refreshToken;
-        localStorage.setItem("authToken", authorizationToken);
-        localStorage.setItem("refreshToken", refreshToken);
+        if(authorizationToken) localStorage.setItem("authToken", authorizationToken);
+        if(refreshToken) localStorage.setItem("refreshToken", refreshToken);
         EventBus.$emit("initializeStore", "login");
 
         if (localStorage.getItem("authToken") != null) {

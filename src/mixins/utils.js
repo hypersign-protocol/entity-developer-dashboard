@@ -121,6 +121,13 @@ export default {
                 solid: true,
             });
         },
+        notifyWarn(msg) {
+            this.$bvToast.toast(msg, {
+                title: 'Information',
+                variant: 'info',
+                solid: true,
+            });
+        },
         notifyErr(msg) {
             this.$bvToast.toast(msg, {
                 title: 'Error',

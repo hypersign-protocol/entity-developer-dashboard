@@ -174,7 +174,7 @@ export default {
         this.isLoading = false
       } catch (e) {
         this.isLoading = false
-        this.notifyErr(e)
+        this.notifyErr(e.message)
       }
     },
 
@@ -205,7 +205,7 @@ export default {
         this.isLoading = false
       } catch (e) {
         this.isLoading = false
-        this.notifyErr(e)
+        this.notifyErr(e.message)
       }
     },
 
@@ -227,7 +227,7 @@ export default {
         this.isLoading = false
       } catch (e) {
         this.isLoading = false
-        this.notifyErr(e)
+        this.notifyErr(e.message)
       }
     }
   }

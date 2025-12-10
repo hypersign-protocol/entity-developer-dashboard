@@ -8,7 +8,7 @@
             <div style="display:flex">
                 <h3 style="text-align: left;">
                     App Configuration </h3>
-                </div>
+            </div>
 
             <div class="d-flex align-items-center flex-wrap mt-2 mt-md-0">
                 <!-- Environment toggle buttons -->
@@ -22,22 +22,35 @@
                     ]" size="sm" name="env-toggle" class="mb-0 d-flex align-items-center"></b-form-radio-group>
 
                     <span v-else class="status-badge" :class="isProd ? 'status-active' : 'status-warning'">
-                    {{ isProd ? 'Prod' : 'Dev' }}
+                        {{ isProd ? 'Prod' : 'Dev' }}
                     </span>
                 </div>
 
 
                 <!-- Edit / Save / Cancel buttons -->
                 <div>
-                    <hf-buttons v-if="!isEditing" name="Edit" @executeAction="startEdit()" style="float:right" iconClass="mdi mdi-pencil mr-1">
+                    <hf-buttons v-if="!isEditing" name="Edit" @executeAction="startEdit()" style="float:right"
+                        iconClass="mdi mdi-pencil mr-1">
                     </hf-buttons>
                     <template v-else>
                         <hf-buttons name="Save" @executeAction="saveChanges()" iconClass="mdi mdi-content-save mr-1">
                         </hf-buttons>
-                        <hf-buttons name="Cancel" @executeAction="cancelEdit()"  iconClass="mdi mdi-close" style="margin-left: 5px">
+                        <!-- <hf-buttons name="Cancel" @executeAction="cancelEdit()" iconClass="mdi mdi-close"
+                            style="margin-left: 5px">
+                        </hf-buttons> -->
+                        <hf-buttons name="Delete" @executeAction="openDeleteServicePopUp()" iconClass="fa fa-trash-alt"
+                            style="margin-left: 5px">
                         </hf-buttons>
+                        <button type="button" class="btn btn-link" @click="resetDeleteMember()" style="margin-left: 5px"><i class="mdi mdi-close" aria-hidden="true"></i> Cancel</button>
+                        
+                        <!-- <hf-buttons class="mx-1" @click.stop="openDeleteServicePopUp()"
+                          title="Click to delete the app" style="cursor: pointer; color: red">
+                          <i class="fa fa-trash-alt" aria-hidden="true"></i>
+                        </hf-buttons> -->
                     </template>
+                    
                 </div>
+
             </div>
         </div>
         <b-card class="serviceCard">
@@ -191,11 +204,39 @@
                 </b-row>
             </b-form>
         </b-card>
+
+        <hf-pop-up id="entity-linked-service-detail-popup" Header="Linked Service Detail">
+            <div>
+                <p style="color: #ff5400de;" v-html="formattedErrorMessage"></p>
+                <div class="text-center mt-3">
+                    <hf-buttons name="Ok" class="btn btn-primary text-center" customClass="btn btn-danger"
+                        @executeAction="closeLinkedServiceDetailPopup"></hf-buttons>
+                </div>
+            </div>
+        </hf-pop-up>
+
+        <hf-pop-up id="entity-delete-service-confirmation-popup" Header="Delete Confirmation">
+            <div>
+                <p style="color: #ff5400de">
+                    Warning: This is a destructive feature. It will clean all your metadata and delete your data vault.
+                    If you
+                    sure you want to delete this app, please enter the app Id:
+                </p>
+                <input type="text" class="form-control" id="appId" v-model="appIdToGenerateSecret"
+                    aria-describedby="selected App Id" placeholder="d7ca0fbaa178bafe94410a470f506fc387a3" />
+                <div class="text-center mt-3">
+                    <hf-buttons name="Delete" class="btn btn-primary text-center" customClass="btn btn-danger"
+                        iconClass="fa fa-trash-alt" @executeAction="deleteOrg"></hf-buttons>
+                </div>
+            </div>
+        </hf-pop-up>
     </b-container>
 </template>
 
 <script>
+import HfPopUp from "../components/element/hfPopup.vue";
 import UtilsMixin from '../mixins/utils'
+import messages from "../mixins/messages";
 import { mapGetters, mapActions } from 'vuex/dist/vuex.common.js';
 export default {
     name: "ServiceConfig",
@@ -203,6 +244,8 @@ export default {
         return {
             isEditing: false,
             isProd: false,
+            appIdToGenerateSecret: "",
+            linkedAppErrorMessage: "",
             formData: {
 
             },
@@ -217,6 +260,9 @@ export default {
     },
     computed: {
         ...mapGetters("mainStore", ["getSelectedService"]),
+        formattedErrorMessage() {
+            return this.linkedAppErrorMessage.replace(/\n/g, "<br>");
+        },
         corsDisplay: {
             get() {
                 return this.formData.whitelistedCors.join("\n");
@@ -228,6 +274,9 @@ export default {
                     .filter(Boolean);
             },
         },
+    },
+    components: {
+        HfPopUp
     },
     created() {
         this.formData = { ...this.getSelectedService };
@@ -241,7 +290,7 @@ export default {
         }
     },
     methods: {
-        ...mapActions("mainStore", ["updateAnAppOnServer"]),
+        ...mapActions("mainStore", ["updateAnAppOnServer", "deleteAnAppOnServer"]),
         startEdit() {
             this.backupData = JSON.parse(JSON.stringify(this.formData));
             this.isEditing = true;
@@ -282,6 +331,43 @@ export default {
                     solid: true,
                 });
             }, 1500);
+        },
+
+        closeLinkedServiceDetailPopup() {
+            this.linkedAppErrorMessage = '';
+            this.$root.$emit("bv::hide::modal", "entity-linked-service-detail-popup");
+        },
+        openDeleteServicePopUp() {
+            this.appIdToGenerateSecret = "";
+            this.$root.$emit("bv::show::modal", "entity-delete-service-confirmation-popup");
+        },
+        async deleteOrg() {
+            try {
+                if (this.appIdToGenerateSecret === "") {
+                    return this.notifyErr(messages.APPLICATION.ENTER_APP_ID);
+                }
+
+                if (this.appIdToGenerateSecret !== this.formData.appId) {
+                    return this.notifyErr(messages.APPLICATION.VALID_ID);
+                }
+                this.$root.$emit("bv::hide::modal", "entity-delete-service-confirmation-popup");
+
+                this.isLoading = true;
+                const appId = this.formData.appId;
+                await this.deleteAnAppOnServer({ appId })
+                this.isLoading = false
+                this.$router.push("/studio/onboarding");
+            } catch (e) {
+                const error = e?.message || e
+                if (error && error.includes('This service is linked with')) {
+                    this.linkedAppErrorMessage = error;
+                    this.$root.$emit("bv::show::modal", "entity-linked-service-detail-popup");
+                    this.isLoading = false
+                } else {
+                    this.notifyErr(error);
+                    this.isLoading = false
+                }
+            }
         },
     },
     mixins: [UtilsMixin]
