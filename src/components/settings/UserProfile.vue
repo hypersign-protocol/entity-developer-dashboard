@@ -13,14 +13,14 @@
           <div class="user-email">{{ user.email }}</div>
 
           <div class="chips-row">
-            <v-chip :color="user.isTwoFactorEnabled ? 'success' : 'grey lighten-2'"
+            <!-- <v-chip :color="user.isTwoFactorEnabled ? 'success' : 'grey lighten-2'"
                     :text-color="user.isTwoFactorEnabled ? 'white' : 'black'">
               MFA {{ user.isTwoFactorEnabled ? 'Enabled' : 'Disabled' }}
-            </v-chip>
+            </v-chip> -->
 
-            <v-chip color="grey lighten-3" text-color="black">
+            <!-- <v-chip color="grey lighten-3" text-color="black">
               {{ user.role || 'ADMIN' }}
-            </v-chip>
+            </v-chip> -->
           </div>
         </div>
 
@@ -71,6 +71,13 @@
               <v-list-item-content>
                 <v-list-item-title>Last Updated</v-list-item-title>
                 <v-list-item-subtitle>{{ formatDate(user.updatedAt) }}</v-list-item-subtitle>
+              </v-list-item-content>
+            </v-list-item>
+
+            <v-list-item>
+              <v-list-item-content>
+                <v-list-item-title>Role</v-list-item-title>
+                <v-list-item-subtitle>{{ user.role || 'ADMIN' }}</v-list-item-subtitle>
               </v-list-item-content>
             </v-list-item>
 
@@ -196,7 +203,7 @@
 
 /* permissions card separate styling to match wireframe */
 .permissions-card {
-  margin-top: 128px;
+  margin-top: 99px;
 }
 
 /* permission header */
