@@ -91,7 +91,7 @@ export async function RequestHandler(url, method = 'GET', body = {}, headers = {
 export function JWTExpiredErrorMessageHandling(responseJson) {
     // console.log("status", status);
     if (responseJson.error && Array.isArray(responseJson.error.details) && responseJson.error.details.length > 0) {
-        const errorMsg = responseJson.error.details.join(", ");
+        const errorMsg = responseJson.error?.details?.join(", ");
         const status = responseJson.error.code || 200;
         if (errorMsg.includes("expired") || status === 401) {
             EventBus.$emit("logoutAll");
@@ -102,6 +102,9 @@ export function JWTExpiredErrorMessageHandling(responseJson) {
             return errorMsg;
         }
 
+    } else if (responseJson.statusCode == 401) {
+        EventBus.$emit("logoutAll");
+        return responseJson.message?.join('');
     } else {
         return "An unknown error occurred";
     }
