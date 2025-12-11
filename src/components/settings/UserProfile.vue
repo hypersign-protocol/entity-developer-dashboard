@@ -148,7 +148,7 @@ export default {
     }, 
 
     totalPermissionsCount() {
-      const listwithoutQuest = this.user.accessList.filter(access => access.serviceType != config.SERVICE_TYPES.QUEST)
+      const listwithoutQuest = this.user.accessList?.filter(access => access.serviceType != config.SERVICE_TYPES.QUEST)
       return listwithoutQuest ? listwithoutQuest.length : 0;
     }
   },

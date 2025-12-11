@@ -1324,9 +1324,13 @@ export default {
       this.isLoading = false
     } catch (e) {
       this.isLoading = false
-      console.log(e)
       if (e.message) {
-        this.notifyErr(e.message)
+        if (e.message?.includes('No webpage configuration found for serviceId')){
+          this.notifyWarn(e.message)
+        } else {
+          this.notifyErr(e.message)
+        }
+        
       }
     }
   },

@@ -27,6 +27,7 @@ const Business = () => import('./views/playground/Business.vue')
 const BusinessDetails = () => import('./views/playground/BusinessDetails.vue')
 const GettingStarted = () => import('./views/GettingStarted.vue')
 const ServiceConfig = () => import('./views/ServiceConfig.vue')
+const AccessDenied = () => import('./views/AccessDenied.vue')
 Vue.use(Router)
 
 const router = new Router({
@@ -65,6 +66,15 @@ const router = new Router({
       meta: {
         requiresAuth: true,
         title: `${config.app.name} - Getting Started`
+      }
+    },
+    {
+      path: '/studio/access-denied',
+      name: 'AccessDenied',
+      component: AccessDenied,
+      meta: {
+        requiresAuth: true,
+        title: `${config.app.name} - Access Denied`
       }
     },
     {
