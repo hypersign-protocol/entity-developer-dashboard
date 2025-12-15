@@ -314,7 +314,9 @@
       </v-col>
     </v-row>
     <v-row v-else class="mt-2">
-      <empty-container title="No SSI Service Found" icon="fa fa-user-shield" />
+      <v-col>
+        <empty-container title="No SSI Service Found" icon="fa fa-user-shield" />
+      </v-col>
     </v-row>
   </div>
 </template>
