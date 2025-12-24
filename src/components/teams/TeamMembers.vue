@@ -45,7 +45,7 @@
     <!-- <div class="row mb-3" style="padding: 20px">No member found, please invite a member to your account!</div> -->
 
     <hf-pop-up id="invite-member" Header="Invite New Member">
-  <div>
+    <div>
     <div class="form-group mb-3">
 
       <!-- EMAIL INPUT (only if invitation not generated yet) -->
@@ -75,16 +75,18 @@
 
       <!-- ROLE DROPDOWN -->
       <div class="form-group mt-3" v-if="invitionData.inviteCode === ''">
-        <label>Select Role:</label>
-        <select class="form-control" v-model="selectedRoleId">
-          <option
-            v-for="role in getAllRoles"
-            :key="role._id"
-            :value="role._id"
-          >
-            {{ role.roleName }}
-          </option>
-        </select>
+        
+          <label>Select A Role:</label>
+          <select class="form-control" v-model="selectedRoleId" :disabled="getAllRoles.length == 0">
+            <option
+              v-for="role in getAllRoles"
+              :key="role._id"
+              :value="role._id"
+            >
+              {{ role.roleName }}
+            </option>
+          </select>
+          <small v-if="getAllRoles && getAllRoles.length == 0">No role found, please create a role to proceed</small>
       </div>
 
       <!-- INVITE BUTTON -->
@@ -166,6 +168,17 @@ export default {
         "acceptedAt": false
       },
     };
+  },
+  watch: {
+    getAllRoles(newRoles) {
+      if (
+        newRoles &&
+        newRoles.length > 0 &&
+        !this.selectedRoleId
+      ) {
+        this.selectedRoleId = newRoles[0]._id
+      }
+    }
   },
   async mounted() {
     try {

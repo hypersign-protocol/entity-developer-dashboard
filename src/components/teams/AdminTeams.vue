@@ -55,14 +55,14 @@
             <div class="container">
                 <b-form-group id="input-group-2" style="font-weight: bold;" label="Role Name:" label-for="input-1">
                     <b-form-input v-model="roleModel.roleName" id="input-2" placeholder="Admin" required></b-form-input>
-                    <small style="color: grey; font-size: x-small;">Upto 10 chars</small>
+                    <small style="color: grey; font-size: x-small;">Upto 50 chars</small>
                 </b-form-group>
 
                 <b-form-group id="input-group-2" style="font-weight: bold;" label="Role Description:"
                     label-for="textarea">
                     <b-form-textarea v-model="roleModel.roleDescription" id="textarea"
                         placeholder="To allow access to all users" rows="3" max-rows="6"></b-form-textarea>
-                    <small style="color: grey; font-size: x-small;">Upto 100 chars</small>
+                    <small style="color: grey; font-size: x-small;">Upto 200 chars</small>
                 </b-form-group>
                 <b-form-group label="Role Permissions:" style="font-weight: bold;" label-for="input-3">
                     <div id="input-3" class="card" style="padding:10px; max-height: 350px; overflow-y: auto;">
