@@ -655,12 +655,14 @@ export default {
               signInfos
           }
           this.registerDIDsForAService(payload).then((registerAsyncResponse) => {
-            if(registerAsyncResponse){
+            if(registerAsyncResponse && registerAsyncResponse.did){
               this.updateADID({
                 did: registerAsyncResponse.did,
                 status: 'Please wait..',
               })
               this.checkRegistrationStatus(registerAsyncResponse.did)
+            } else {
+              console.warn('registerAsyncResponse.did is undefined')
             }
           })  
         }

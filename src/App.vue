@@ -714,22 +714,22 @@ export default {
         {}
       ).then(() => {
         this.isLoading = false
-        // Clear all localStorage
-        console.log('Clearing localStorage on logout...');
-        localStorage.clear();
-
-        // Reset UI state
-        this.isSidebarCollapsed = true;
-        this.collapsed = true;
-
-        // Reset stores (Pinia / Vuex)
-        this.resetStore();
-        this.resetMainStore();
-        
       }).catch((err) => {
         this.isLoading = false
         console.error("Logout error:", err);
       });
+      
+      // Clear all localStorage
+      console.log('Clearing localStorage on logout...');
+      localStorage.clear();
+
+      // Reset UI state
+      this.isSidebarCollapsed = true;
+      this.collapsed = true;
+
+      // Reset stores (Pinia / Vuex)
+      this.resetStore();
+      this.resetMainStore();
     },
 
     formattedAppName(appName) {
