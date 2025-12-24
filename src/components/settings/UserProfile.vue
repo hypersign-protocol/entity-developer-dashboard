@@ -84,7 +84,7 @@
               <v-list-item-content>
                 <v-list-item-title>Role</v-list-item-title>
                 <v-list-item-subtitle>
-                  <v-chip color="grey lighten-3" text-color="black">
+                  <v-chip color="grey lighten-3" small text-color="black">
                     {{ user.role || 'Admin' }}
                   </v-chip>
                 </v-list-item-subtitle>
@@ -97,8 +97,8 @@
                 <v-list-item-subtitle>
                   <v-chip v-for="auth in user.authenticators" :key="auth.type"
                           small class="ma-1"
-                          :color="auth.isTwoFactorAuthenticated ? 'success' : 'grey lighten-1'"
-                          text-color="white">
+                          color="grey lighten-3"
+                          text-color="black">
                     {{ auth.type }}
                   </v-chip>
                 </v-list-item-subtitle>

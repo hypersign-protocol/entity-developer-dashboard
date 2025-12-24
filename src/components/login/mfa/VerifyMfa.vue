@@ -11,7 +11,7 @@
                             <label for="selectService"><strong>Select An Authentication App<span
                                         style="color: red">*</span>:
                                 </strong></label>
-                            <select class="custom-select" id="selectService" v-model="authenticationMethod">
+                            <select class="custom-select" id="selectService" v-model="authenticationMethod" :disabled="authenticationMethod != ''">
                                 <option>Authenticator App</option>
                                 <option v-for="method in authenticationMethodsList" v-bind:value="method.value"
                                     :key="method.name">{{
