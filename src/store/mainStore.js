@@ -2329,8 +2329,7 @@ const mainStore = {
                     })
                         .then(response => response.json())
                         .then(async json => {
-                            if (json) {
-                                // dispatch('resolveDIDForAService', json.did)
+                            if (json && json.did) {
                                 const data = {
                                     did: json.did,
                                     didDocument: json?.metaData?.didDocument,
@@ -2340,7 +2339,10 @@ const mainStore = {
                                 commit('updateADID', data)
                                 resolve(json)
                             } else {
-                                reject(new Error('Could not register DID for this service'))
+                                if (json && json.statusCode != 200 && json.message && json.message.length > 0) {
+                                    reject(new Error(json.message.join(',')))
+                                }
+
                             }
                         }).catch(e => {
                             reject(e)

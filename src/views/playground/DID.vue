@@ -664,6 +664,8 @@ export default {
             } else {
               console.warn('registerAsyncResponse.did is undefined')
             }
+          }).catch((error) => {
+            console.error(' Failed to register DID on the blockchain ' + error.message)
           })  
         }
         this.isLoading = false;
