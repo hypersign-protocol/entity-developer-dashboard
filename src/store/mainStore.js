@@ -1693,7 +1693,7 @@ const mainStore = {
                 if (!getters.getSelectedService || !getters.getSelectedService.appId) {
                     return reject(new Error('App ID is not available, service is not selected'))
                 }
-                const url = `${apiServerBaseUrl}/app/${getters.getSelectedService.appId}/verifier/${payload._id}`;
+                const url = `${apiServerBaseUrl}/app/verifier/${payload._id}?appId=${getters.getSelectedService.appId}`;
                 const headers = UtilsMixin.methods.getHeader(localStorage.getItem('authToken'));
 
                 fetch(url, {
@@ -1720,7 +1720,7 @@ const mainStore = {
                 if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
                     return reject(new Error('Tenant url is null or empty, service is not selected'))
                 }
-                const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/session/${sessionId}`;
+                const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)} /api/v1 / e - kyc / verification / session / ${sessionId} `;
                 // const url = `http://localhost:3001/api/v1/e-kyc/verification/session/${sessionId}`;
                 const authToken = getters.getSelectedService.access_token
                 const headers = UtilsMixin.methods.getKycServiceHeader(authToken);
