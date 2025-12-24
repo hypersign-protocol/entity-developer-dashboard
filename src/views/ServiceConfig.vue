@@ -41,7 +41,7 @@
                         <hf-buttons name="Delete" @executeAction="openDeleteServicePopUp()" iconClass="fa fa-trash-alt"
                             style="margin-left: 5px">
                         </hf-buttons>
-                        <button type="button" class="btn btn-link" @click="resetDeleteMember()" style="margin-left: 5px"><i class="mdi mdi-close" aria-hidden="true"></i> Cancel</button>
+                        <button type="button" class="btn btn-link" @click="resetDeleteServicePopUp()" style="margin-left: 5px"><i class="mdi mdi-close" aria-hidden="true"></i> Cancel</button>
                         
                         <!-- <hf-buttons class="mx-1" @click.stop="openDeleteServicePopUp()"
                           title="Click to delete the app" style="cursor: pointer; color: red">
@@ -305,31 +305,28 @@ export default {
             this.formData.env = this.isProd ? 'prod' : 'dev';
         },
         async saveChanges() {
-            console.log("Updated Config:", this.formData);
-            this.isEditing = false;
-            await this.updateAnAppOnServer({ ...this.formData })
-            this.$bvToast.toast("Service configuration updated successfully!", {
-                title: "Success",
-                variant: "success",
-                solid: true,
-            });
+            try{
+                console.log("Updated Config:", this.formData);
+                this.isEditing = false;
+                this.isLoading = true;
+                
+                await this.updateAnAppOnServer({ ...this.formData })
+                this.notifySuccess("Service configuration updated successfully!");
+            }catch(err){
+                this.notifyErr(err.message);
+            } finally {
+                this.isLoading = false;
+            }
         },
         verifyDomain() {
+            // TODO: // this need to be implemented
             // Simulate verification API call
-            this.$bvToast.toast('Verifying domain...', {
-                title: 'Verification Started',
-                variant: 'info',
-                solid: true,
-            });
+            ///
 
             // Simulate async result
             setTimeout(() => {
                 this.formData.hasDomainVerified = true;
-                this.$bvToast.toast('Domain verified successfully!', {
-                    title: 'Success',
-                    variant: 'success',
-                    solid: true,
-                });
+                this.notifySuccess('Domain verified successfully!')
             }, 1500);
         },
 
@@ -340,6 +337,10 @@ export default {
         openDeleteServicePopUp() {
             this.appIdToGenerateSecret = "";
             this.$root.$emit("bv::show::modal", "entity-delete-service-confirmation-popup");
+        },
+        resetDeleteServicePopUp(){
+            this.isEditing = false
+            this.$root.$emit("bv::hide::modal",`entity-delete-service-confirmation-popup`);
         },
         async deleteOrg() {
             try {
