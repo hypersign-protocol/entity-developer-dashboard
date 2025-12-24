@@ -190,12 +190,12 @@ export default {
                     throw new Error('Please enter a role name')
                 }
 
-                if (this.roleModel.roleName.length > 10) {
-                    throw new Error('Role name can not be greater than 20 characters')
+                if (this.roleModel.roleName.length > 50) {
+                    throw new Error('Role name can not be greater than 50 characters')
                 }
 
-                if (this.roleModel.roleDescription.length > 100) {
-                    throw new Error('Role description can not be greater than 100 characters')
+                if (this.roleModel.roleDescription.length > 200) {
+                    throw new Error('Role description can not be greater than 200 characters')
                 }
 
                 if (this.roleModel.permissions.length <= 0) {
