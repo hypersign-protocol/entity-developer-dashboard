@@ -170,7 +170,7 @@
                 </strong></label>
               <select class="custom-select" id="selectService" v-model="schemaData.schema.author" @change="resolveDid($event)">
                 <option value="">Select a DID</option>
-                <option v-for="did in associatedSSIServiceDIDs" :value="did" :key="did">
+                <option v-for="did in associatedSSIServiceDIDs" :value="did.includes('|') ? did.split('|')[1].trim() : did.trim()" :key="did">
                   {{ did }}
                 </option>
               </select>

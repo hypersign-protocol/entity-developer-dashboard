@@ -203,6 +203,7 @@ export default {
     async processCreditRequest() {
       this.isProcessingCredit = true;
       this.creditProcessComplete = false;
+      this.creditErrorMessage = null; 
       setTimeout(async () => {
 
           try {

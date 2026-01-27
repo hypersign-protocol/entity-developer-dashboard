@@ -1018,11 +1018,29 @@ export default {
       
       // check if super admin user
       if(!this.aSuperAdminUser){
-        // if not, check if user has kyc service
+        // if not, check if user has kyc service and onboarding is approved
         if (firstKycService && Object.keys(firstKycService).length > 0) {
-          this.setSelectedAppId(firstKycService.appId);
-          this.switchOrg(firstKycService.appId, 'CAVACH_API');
-          return
+          try {
+            // Check onboarding status before allowing dashboard access
+            const onboardingData = await this.$store.dispatch('mainStore/checkIfAlreadyExistOnBoarding');
+            const status = (onboardingData?.onboardingStatus || onboardingData?.status || '').toUpperCase();
+            
+            // Only allow dashboard access if onboarding is APPROVED
+            if (status === 'APPROVED') {
+              this.setSelectedAppId(firstKycService.appId);
+              this.switchOrg(firstKycService.appId, 'CAVACH_API');
+              return
+            } else {
+              // Onboarding not approved yet - redirect to onboarding
+              this.setSelectedAppId("");
+              this.$router.push("/studio/onboarding");
+              return
+            }
+          } catch (error) {
+            console.error('Error checking onboarding status:', error);
+            this.$router.push("/studio/onboarding");
+            return
+          }
         } else {
           this.setSelectedAppId("");
           this.$router.push("/studio/onboarding");
