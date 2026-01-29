@@ -1023,10 +1023,11 @@ export default {
           try {
             // Check onboarding status before allowing dashboard access
             const onboardingData = await this.$store.dispatch('mainStore/checkIfAlreadyExistOnBoarding');
-            const status = (onboardingData?.onboardingStatus || onboardingData?.status || '').toUpperCase();
+            const hasOnboarding = onboardingData && Object.keys(onboardingData).length > 0;
+            const status = (onboardingData?.onboardingStatus || '').toUpperCase();
             
             // Only allow dashboard access if onboarding is APPROVED
-            if (status === 'APPROVED') {
+            if (!hasOnboarding || status === 'APPROVED') {
               this.setSelectedAppId(firstKycService.appId);
               this.switchOrg(firstKycService.appId, 'CAVACH_API');
               return
