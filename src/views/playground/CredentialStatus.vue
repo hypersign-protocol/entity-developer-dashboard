@@ -890,7 +890,7 @@ export default {
         }
         const credPayload=
                 {
-                  "namespace": "testnet",
+                  "namespace": "",
                   "status":this.selectedAction,
                   "statusReason":this.reasonForCredentialUpdate,
                   "issuerDid": issuer,

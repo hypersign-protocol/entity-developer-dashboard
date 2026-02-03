@@ -448,7 +448,7 @@ export default {
             "additionalProperties": false,
             "fields":""
           },
-          "namespace": "testnet",
+          "namespace": "",
           "verificationMethodId": ""
       },
       options: [
