@@ -19,7 +19,7 @@
           <input type="text" class="form-control" id="orgDid" v-model="orgStore.orgDid" aria-describedby="orgNameHelp"
             disabled>
           <small id="orgNameHelp" class="form-text text-muted">
-            <a :href="`${$config.explorer.BASE_URL}identity/${orgStore.orgDid}`" target="_blank">Resolve DID</a>
+            <a :href="`${$config.explorer.BASE_URL}/identity/${orgStore.orgDid}`" target="_blank">Resolve DID</a>
           </small>
         </div>
 
@@ -100,7 +100,7 @@
             <img style="float:right;" :src="`${getProfileIcon(eachOrg.name)}`" class="mr-2" alt="center" width="70px" />
             <li class="" v-if="eachOrg.status === 'Registered'" style="">
               <i class="fa fa-user mr-2"></i>
-              <span class=""><a target="_blank" :href="`${$config.explorer.BASE_URL}identity/${eachOrg.orgDid}`">{{
+              <span class=""><a target="_blank" :href="`${$config.explorer.BASE_URL}/identity/${eachOrg.orgDid}`">{{
                 truncate(eachOrg.orgDid,25) }}</a></span>
               <span v-if="eachOrg.status === 'Registered'" @click="copyToClip(eachOrg.orgDid, 'Org DID')"><i
                   class="far fa-copy"></i></span>

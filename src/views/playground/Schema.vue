@@ -289,7 +289,7 @@
             <tr v-for="row in schemaList" :key="row._id">
               <td>
                 <div v-if="row.id" @click="copyToClip(row.id, 'Schema Id')">
-                  <a :href="`${$config.explorer.BASE_URL}/schemas/${row.id}`" target="_blank">{{ row.id ?
+                  <a :href="`${$config.explorer.BASE_URL}/identity/${row.id}`" target="_blank">{{ row.id ?
                     shorten(row.id) : "-" }}</a>
                 </div>
                 <span v-else>-</span>
@@ -448,7 +448,7 @@ export default {
             "additionalProperties": false,
             "fields":""
           },
-          "namespace": "testnet",
+          "namespace": "",
           "verificationMethodId": ""
       },
       options: [
