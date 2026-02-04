@@ -316,7 +316,7 @@ h5 span {
               <!-- {{ row }} -->
               <td class="grabStyle">
                 <span @click="copyToClip(removeUrl(row.credentialMetadata.credentialId), 'Credential Id')">
-                   <a :href="`${$config.explorer.BASE_URL}/revocationRegistry/${row.id}`" target="_blank">{{
+                   <a :href="`${$config.explorer.BASE_URL}/identity/${row.id}`" target="_blank">{{
                   row.credentialMetadata.credentialId ? shorten(row.credentialMetadata.credentialId) : "-" }}</a>
                 </span>
               </td>
