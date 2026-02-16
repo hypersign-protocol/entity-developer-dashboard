@@ -1089,11 +1089,11 @@ textarea.form-control {
         <template #modal-title>
           <div class="hf-modal-title">
             <i class="fa fa-exclamation-triangle" style="color:#dc3545;margin-right:8px;"></i>
-            Delete KYC Page?
+            Delete Verifier Page?
           </div>
         </template>
         <div class="confirm-body">
-          <p class="mb-2">You're about to remove this KYC page configuration.</p>
+          <p class="mb-2">You're about to remove this verifier page configuration.</p>
           <div class="confirm-url" v-if="kycWebpageConfigTemp.generatedUrl">
             <span>URL</span>
             <code>{{ kycWebpageConfigTemp.generatedUrl }}</code>
@@ -1324,9 +1324,13 @@ export default {
       this.isLoading = false
     } catch (e) {
       this.isLoading = false
-      console.log(e)
       if (e.message) {
-        this.notifyErr(e.message)
+        if (e.message?.includes('No webpage configuration found for serviceId')){
+          this.notifyWarn(e.message)
+        } else {
+          this.notifyErr(e.message)
+        }
+        
       }
     }
   },
@@ -1468,7 +1472,7 @@ export default {
         this.isLoading = false;
       } catch (e) {
         this.isLoading = false;
-        this.notifyErr(e);
+        this.notifyErr(e.message);
       }
     },
 
@@ -1489,7 +1493,7 @@ export default {
         this.isLoading = false;
       } catch (e) {
         this.isLoading = false;
-        this.notifyErr(e);
+        this.notifyErr(e.message);
       }
     },
 
@@ -1506,7 +1510,7 @@ export default {
         this.isLoading = false;
       } catch (e) {
         this.isLoading = false;
-        this.notifyErr(e);
+        this.notifyErr(e.message);
       }
     }
   },

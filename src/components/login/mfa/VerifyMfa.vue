@@ -77,17 +77,17 @@ export default {
             isLoading: false,
             authenticationMethodsList: [
                 {
-                    name: 'Google Authenticator',
-                    value: 'google',
-                    selected: true,
-                },
-                {
                     name: 'Okta Authenticator',
                     value: 'okta',
                     selected: false
-                }
+                },
+                {
+                    name: 'Google Authenticator',
+                    value: 'google',
+                    selected: false,
+                },
             ],
-            authenticationMethod: this.setAuthenticatorType,
+            authenticationMethod: '',
             error: "",
         }
     },
@@ -99,7 +99,10 @@ export default {
     props: {
         setAuthenticatorType: {
             type: String
-        }
+        },
+        sessionId: {
+            type: String
+        } 
     },
 
     watch: {
@@ -111,11 +114,35 @@ export default {
     },
     mounted() {
         console.log('Inside mounted MFAVerify.vue')
+        if(!this.setAuthenticatorType){
+            this.setAuthenticatorFromUrl()
+        } else {
+            this.authenticationMethod = this.setAuthenticatorType
+        }
+        
     },
     methods: {
 
-        ...mapActions('mainStore', ['mfaVerify']),
-        ...mapMutations('mainStore', ['setAuthToken']),
+        ...mapActions('mainStore', ['mfaVerify', 'getMyUserDetails']),
+        ...mapMutations('mainStore', ['setAuthToken' , 'setIfAuthenticated']),
+        setAuthenticatorFromUrl() {
+            const authenticatorsParam = this.$route.query.authenticators
+
+            if (!authenticatorsParam) return
+
+            try {
+                const authenticators = JSON.parse(authenticatorsParam)
+
+                if (
+                Array.isArray(authenticators) &&
+                authenticators.length > 0
+                ) {
+                    this.authenticationMethod = authenticators[0]
+                }
+            } catch (err) {
+                console.error('Invalid authenticators query param', err)
+            }
+        },
         logout(){
             EventBus.$emit("logoutAll");
         },
@@ -123,16 +150,20 @@ export default {
             try {
                 const payload = {
                     authenticatorType: this.authenticationMethod,
-                    twoFactorAuthenticationCode: pin
+                    twoFactorAuthenticationCode: pin,
+                    sessionId: this.sessionId
                 }
                 this.isLoading = true
                 const r = await this.mfaVerify(payload)
+
+                console.log("MFA Verify Response:", r)
 
                 if (!r.isVerified) {
                     this.error = "Invalid code or expired, please try again"
                 } else {
                     this.notifySuccess(`Identity verified successfully`);
-                    this.setAuthToken(r.authToken)
+                    await this.getMyUserDetails()
+                    this.setIfAuthenticated(true)
                     this.$root.$emit("initializeStore", "login");
                 }
 
@@ -143,7 +174,8 @@ export default {
                 this.isLoading = false
                 this.notifyErr(e.message)
             }
-        }
+        },
+
     },
     mixins: [UtilsMixin],
 

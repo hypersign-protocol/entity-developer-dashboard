@@ -230,7 +230,7 @@ export default {
     ...mapState({
       containerShift: state => state.playgroundStore.containerShift,
     }),
-    ...mapGetters('mainStore', ['getUsageDetails']),
+    ...mapGetters('mainStore', ['getUsageDetails', 'getUserDetails']),
     isContainerShift() {
       return this.containerShift
     },
@@ -296,8 +296,8 @@ export default {
   },
   async created() {
     try {
-      const usrStr = localStorage.getItem("user");
-      this.user = JSON.parse(usrStr);
+      // const usrStr = localStorage.getItem("user");
+      this.user = this.getUserDetails
       this.updateSideNavStatus(true)
 
       // appId
@@ -312,8 +312,10 @@ export default {
       this.isLoading = false
     } catch (e) {
       this.isLoading = false
-      this.notifyErr(e.message)
-      this.$router.push({ path: '/studio/dashboard' });
+      this.notifyErr(e.message || 'An error occurred while fetching sessions.')
+      setTimeout(() => {
+        this.$router.push({ path: '/studio/dashboard' });
+      }, 1000)
     }
   },
   beforeRouteEnter(to, from, next) {

@@ -942,6 +942,7 @@ export default {
       totalAppCount: (state) => state.mainStore.totalAppCount,
     }),
     ...mapGetters("mainStore", [
+      "getUserDetails",
       "getAppByAppId",
       "getAllServices",
       "getServiceById",
@@ -1006,12 +1007,8 @@ export default {
 
   async mounted() {
     try {
-      const userDetails = localStorage.getItem("user");
-      if (!userDetails) {
-        console.warn('User details not found in localstore')
-        return
-      }
-      this.userDetails = JSON.parse(userDetails)
+      
+      this.userDetails = this.getUserDetails
       this.setMainSideNavBar(false);
 
       await this.initializeStore();
@@ -1021,11 +1018,30 @@ export default {
       
       // check if super admin user
       if(!this.aSuperAdminUser){
-        // if not, check if user has kyc service
+        // if not, check if user has kyc service and onboarding is approved
         if (firstKycService && Object.keys(firstKycService).length > 0) {
-          this.setSelectedAppId(firstKycService.appId);
-          this.switchOrg(firstKycService.appId, 'CAVACH_API');
-          return
+          try {
+            // Check onboarding status before allowing dashboard access
+            const onboardingData = await this.$store.dispatch('mainStore/checkIfAlreadyExistOnBoarding');
+            const hasOnboarding = onboardingData && Object.keys(onboardingData).length > 0;
+            const status = (onboardingData?.onboardingStatus || '').toUpperCase();
+            
+            // Only allow dashboard access if onboarding is APPROVED
+            if (!hasOnboarding || status === 'APPROVED') {
+              this.setSelectedAppId(firstKycService.appId);
+              this.switchOrg(firstKycService.appId, 'CAVACH_API');
+              return
+            } else {
+              // Onboarding not approved yet - redirect to onboarding
+              this.setSelectedAppId("");
+              this.$router.push("/studio/onboarding");
+              return
+            }
+          } catch (error) {
+            console.error('Error checking onboarding status:', error);
+            this.$router.push("/studio/onboarding");
+            return
+          }
         } else {
           this.setSelectedAppId("");
           this.$router.push("/studio/onboarding");
@@ -1132,8 +1148,8 @@ export default {
       try {
         if (this.userDetails) {
           this.isLoading = true;
-          await this.fetchAppsListFromServer();
-          await this.fetchServicesList();
+          if(!this.getAppsWithKYCServices.length > 0) await this.fetchAppsListFromServer();
+          if(!this.getAllServices.length > 0) await this.fetchServicesList();
 
           this.isLoading = false;
         } else {

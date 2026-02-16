@@ -105,11 +105,14 @@
 
 
 <script>
+import { mapGetters } from 'vuex/dist/vuex.common.js';
+
 export default {
   name: "Profile",
   mounted() {},
   components: {},
   computed:{
+    ...mapGetters('mainStore', ['getUserDetails']),
     credentialCount(){
       return this.$store.getters.playgroundStore.totalCredentials;
     },
@@ -133,8 +136,7 @@ export default {
     };
   },
   created() {
-    const usrStr = localStorage.getItem("user");
-    this.user = { ...JSON.parse(usrStr) };
+    this.user = this.getUserDetails;
     this.userKeys = Object.keys(this.user);
   },
   methods: {

@@ -170,7 +170,7 @@
                 </strong></label>
               <select class="custom-select" id="selectService" v-model="schemaData.schema.author" @change="resolveDid($event)">
                 <option value="">Select a DID</option>
-                <option v-for="did in associatedSSIServiceDIDs" :value="did" :key="did">
+                <option v-for="did in associatedSSIServiceDIDs" :value="did.includes('|') ? did.split('|')[1].trim() : did.trim()" :key="did">
                   {{ did }}
                 </option>
               </select>
@@ -289,7 +289,7 @@
             <tr v-for="row in schemaList" :key="row._id">
               <td>
                 <div v-if="row.id" @click="copyToClip(row.id, 'Schema Id')">
-                  <a :href="`${$config.explorer.BASE_URL}/schemas/${row.id}`" target="_blank">{{ row.id ?
+                  <a :href="`${$config.explorer.BASE_URL}/identity/${row.id}`" target="_blank">{{ row.id ?
                     shorten(row.id) : "-" }}</a>
                 </div>
                 <span v-else>-</span>
@@ -448,7 +448,7 @@ export default {
             "additionalProperties": false,
             "fields":""
           },
-          "namespace": "testnet",
+          "namespace": "",
           "verificationMethodId": ""
       },
       options: [

@@ -22,7 +22,7 @@
       </div>
 
       <!-- Completion Message -->
-      <div v-if="!isProcessingCredit && isCreditAlreadyRequested && company.logs.length == 0"
+      <div v-if="!isProcessingCredit && isCreditAlreadyRequested"
         class="mt-3 p-3 bg-info text-white rounded">
         <h6 class="mb-2">
           <i class="mdi mdi-check-circle-outline mr-2"></i>
@@ -70,13 +70,18 @@
 
                 <!-- RIGHT SECTION -->
                 <div>
-                  <span class="badge px-3 py-1" :class="{
-                    'badge-success': log.status === 'SUCCESS',
-                    'badge-danger': log.status === 'FAILED',
-                    'badge-warning text-dark': log.status !== 'SUCCESS' && log.status !== 'FAILED'
-                  }">
-                    {{ log.status }}
-                  </span>
+
+                  <span
+  class="badge px-3 py-1"
+  :class="{
+    'badge-success': log.status === 'SUCCESS',
+    'badge-danger': log.status === 'FAILED',
+    'badge-warning text-dark': log.status === 'PENDING',
+    'badge-secondary': log.status === 'NOT STARTED'
+  }"
+>
+  {{ log.status }}
+</span>
                 </div>
 
               </div>
@@ -114,6 +119,19 @@ export default {
   ],
   data() {
     return {
+      stepName: {
+        'CREATE_TEAM_ROLE': '🧑‍🤝‍🧑 Setting up Team & Roles',
+        'CREATE_SSI_SERVICE': '🔧 Creating SSI Service',
+        'CREDIT_SSI_SERVICE': '💳 Crediting SSI Service',
+        'CREATE_DID': '🆔 Creating Business Identity',
+        'REGISTER_DID': '🌐 Registering Business Identity on Blockchain',
+        'CREATE_KYC_SERVICE': '🔒 Creating ID Service',
+        'GIVE_KYC_DASHBOARD_ACCESS': '📊 Granting ID Dashboard Access',
+        'CREDIT_KYC_SERVICE': '💰 Crediting ID Service',
+        'SETUP_KYC_WIDGET': '🧩 Setting up KYC Widget',
+        'CONFIGURE_KYC_VERIFIER_PAGE': '🛠️ Configuring KYC Verifier Page',
+        'COMPLETED': '✅ Onboarding Complete'
+      },
       localNetworkType: this.networkType,
 
     };
@@ -125,14 +143,35 @@ export default {
   },
   computed: {
     formattedLogs() {
-      if (!this.company.logs) return [];
-      return this.company.logs
-        .map(l => ({
-          ...l,
-          time: l.time?.$date || l.time || null
-        }))
-        .sort((a, b) => new Date(a.time) - new Date(b.time));
-    },
+    const rawLogs = this.company.logs || [];
+
+    // Step 1: map logs by step for fast lookup
+    const logMap = {};
+    
+    rawLogs.forEach(log => {
+      logMap[log.step] = {
+        ...log,
+        time: log.time?.$date || log.time || null
+      };
+    });
+    const finalSteps = [];
+
+    // Step 2: Merge with ALL_STEPS (so missing steps get NOT_STARTED)
+    Object.keys(this.stepName)?.forEach(stepName => {
+      if (logMap[stepName]) {
+        return finalSteps.push(logMap[stepName]); // already has data
+      }
+
+      finalSteps.push({
+        step: stepName,
+        status: "NOT STARTED",
+        time: null,
+        failureReason: null
+      })
+    });
+
+    return finalSteps
+  },
     isCreditAlreadyRequested() {
       if (!this.company) return false;
 
@@ -192,20 +231,8 @@ export default {
   methods: {
 
     formatStepName(step) {
-      const stepNames = {
-        'CREATE_TEAM_ROLE': 'Setting up Team & Roles',
-        'CREATE_SSI_SERVICE': 'Creating SSI Service',
-        'CREDIT_SSI_SERVICE': 'Crediting SSI Service',
-        'CREATE_DID': 'Creating Business Identity',
-        'REGISTER_DID': 'Registering Business Identity on Blockchain',
-        'CREATE_KYC_SERVICE': 'Creating ID Service',
-        'GIVE_KYC_DASHBOARD_ACCESS': 'Granting ID Dashboard Access',
-        'CREDIT_KYC_SERVICE': 'Crediting ID Service',
-        'SETUP_KYC_WIDGET': 'Setting up KYC Widget',
-        'CONFIGURE_KYC_VERIFIER_PAGE': 'Configuring KYC Verifier Page',
-        'COMPLETED': 'Onboarding Complete'
-      };
-      return stepNames[step] || step;
+      
+      return this.stepName[step] || step;
     },
 
     formatDate(dateString) {
@@ -240,10 +267,10 @@ export default {
 
       const statusMessages = {
         'APPROVED': 'Your credit request has been approved. You can now proceed to add team members.',
-        'INITIATED': 'Your credit request has been submitted and is being processed.',
+        'INITIATED': 'Your credit request has been successfully submitted and is being processed.',
       };
 
-      return statusMessages[status] || 'Your credit request has been submitted and is being processed';
+      return statusMessages[status] || 'Your credit request has been successfully submitted and is being processed';
     },
 
     goToBilling() {

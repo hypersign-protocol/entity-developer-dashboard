@@ -316,7 +316,7 @@ h5 span {
               <!-- {{ row }} -->
               <td class="grabStyle">
                 <span @click="copyToClip(removeUrl(row.credentialMetadata.credentialId), 'Credential Id')">
-                   <a :href="`${$config.explorer.BASE_URL}/revocationRegistry/${row.id}`" target="_blank">{{
+                   <a :href="`${$config.explorer.BASE_URL}/identity/${row.id}`" target="_blank">{{
                   row.credentialMetadata.credentialId ? shorten(row.credentialMetadata.credentialId) : "-" }}</a>
                 </span>
               </td>
@@ -523,6 +523,7 @@ export default {
       "getSelectedOrg",
       "findSchemaBySchemaID",
     ]),
+    ...mapGetters('mainStore', ['getUserDetails']),
     ...mapState({
       totalCredentialCount: state => state.mainStore.totalCredentialCount,
       schemaList: state => state.mainStore.schemaList,
@@ -664,8 +665,8 @@ export default {
   },
   async created() {
       this.debouncedSchemaChange = this.debounce(this.OnSchemaSelectDropDownChange, 400);
-      const usrStr = localStorage.getItem("user");
-      this.user = JSON.parse(usrStr);
+      // const usrStr = localStorage.getItem("user");
+      this.user = this.getUserDetails;
       this.updateSideNavStatus(true);
       this.initComponent()
     // this.fetchCredentialsForOrg();
@@ -889,7 +890,7 @@ export default {
         }
         const credPayload=
                 {
-                  "namespace": "testnet",
+                  "namespace": "",
                   "status":this.selectedAction,
                   "statusReason":this.reasonForCredentialUpdate,
                   "issuerDid": issuer,
@@ -906,7 +907,7 @@ export default {
         this.clearAll();
         this.$root.$emit("bv::hide::modal", "credentialActionPopup");
       } catch (e) {
-        this.notifyErr(e);
+        this.notifyErr(e.message);
       } finally {
         this.isLoading = false;
       }

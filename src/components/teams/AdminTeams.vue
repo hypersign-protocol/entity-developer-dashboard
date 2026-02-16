@@ -55,14 +55,14 @@
             <div class="container">
                 <b-form-group id="input-group-2" style="font-weight: bold;" label="Role Name:" label-for="input-1">
                     <b-form-input v-model="roleModel.roleName" id="input-2" placeholder="Admin" required></b-form-input>
-                    <small style="color: grey; font-size: x-small;">Upto 10 chars</small>
+                    <small style="color: grey; font-size: x-small;">Upto 50 chars</small>
                 </b-form-group>
 
                 <b-form-group id="input-group-2" style="font-weight: bold;" label="Role Description:"
                     label-for="textarea">
                     <b-form-textarea v-model="roleModel.roleDescription" id="textarea"
                         placeholder="To allow access to all users" rows="3" max-rows="6"></b-form-textarea>
-                    <small style="color: grey; font-size: x-small;">Upto 100 chars</small>
+                    <small style="color: grey; font-size: x-small;">Upto 200 chars</small>
                 </b-form-group>
                 <b-form-group label="Role Permissions:" style="font-weight: bold;" label-for="input-3">
                     <div id="input-3" class="card" style="padding:10px; max-height: 350px; overflow-y: auto;">
@@ -125,16 +125,11 @@ export default {
         }
     },
     mounted() {
-
         if (!this.getAllServices || this.getAllServices.length == 0) {
             this.fetchServicesList()
 
         }
-
         this.localAllServices = this.getAllServices
-        this.getMyRolesAction()
-
-
     },
     methods: {
         ...mapActions("mainStore", ["getMyRolesAction", "createARole", "deleteARole", "fetchServicesList", "updateARole",]),
@@ -195,12 +190,12 @@ export default {
                     throw new Error('Please enter a role name')
                 }
 
-                if (this.roleModel.roleName.length > 10) {
-                    throw new Error('Role name can not be greater than 20 characters')
+                if (this.roleModel.roleName.length > 50) {
+                    throw new Error('Role name can not be greater than 50 characters')
                 }
 
-                if (this.roleModel.roleDescription.length > 100) {
-                    throw new Error('Role description can not be greater than 100 characters')
+                if (this.roleModel.roleDescription.length > 200) {
+                    throw new Error('Role description can not be greater than 200 characters')
                 }
 
                 if (this.roleModel.permissions.length <= 0) {

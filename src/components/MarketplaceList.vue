@@ -19,7 +19,8 @@
                         </v-list-item-avatar>
                         <v-row align="center" justify="end" class="justify-content-end">
                             <div class="d-flex align-items-start">
-                                <v-checkbox v-model="eachOrg.selected"></v-checkbox>
+                                <v-checkbox v-model="eachOrg.selected"
+                                 @change="onIssuerToggle(eachOrg)"></v-checkbox>
                             </div>
                         </v-row>
                     </v-list-item>
@@ -120,6 +121,13 @@ export default {
     },
     methods: {
         ...mapMutations("mainStore", ["updateAnMarketPlaceApp", 'insertMarketplaceApps']),
+        onIssuerToggle(eachOrg) {
+            this.$emit('selectedServiceEvent', {
+            issuerDid: eachOrg.issuerDid,
+            selected: eachOrg.selected,
+            appId: eachOrg.appId
+            })
+       },
         formattedAppName(appName) {
             if (appName == "" || appName == undefined) appName = "No app name";
             return this.truncate(appName, 25);

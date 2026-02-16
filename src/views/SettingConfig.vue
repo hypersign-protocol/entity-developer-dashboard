@@ -86,6 +86,7 @@ import AdminTeams from '../components/teams/AdminTeams.vue';
 import { mapMutations, mapGetters } from "vuex";
 import OnlySSIApps from '../components/settings/OnlySSIApps.vue';
 import UserProfile from '../components/settings/UserProfile.vue';
+import { mapActions } from 'vuex/dist/vuex.common.js';
 
 export default {
   name: "SettingConfig",
@@ -99,6 +100,7 @@ export default {
   computed: {
     ...mapGetters('mainStore', ['getAuthToken']),
     
+    
   },
   data() {
     return {
@@ -111,8 +113,10 @@ export default {
   },
   methods: {
     ...mapMutations("mainStore", ["setMainSideNavBar"]),
+    ...mapActions('mainStore', ['getMyRolesAction', 'getPeopleMembers'])
   },
-  mounted() {
+  async mounted() {
+    
     this.setMainSideNavBar(false);
     const ref = this.$route.query.ref;
     if (ref === 'invitions') {
@@ -132,6 +136,14 @@ export default {
     } else {
       this.activeMainTab = 1;
       this.activeMembersSubTab = 0;
+    }
+
+    try{
+      await this.getMyRolesAction()
+      await this.getPeopleMembers()
+      
+    }catch(e){
+      console.log(e)
     }
   }
 };

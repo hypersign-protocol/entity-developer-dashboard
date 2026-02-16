@@ -385,7 +385,7 @@ export default {
       domainDIDDocument: {},
       did: {
         name: "",
-        namespace: "testnet",
+        namespace: "",
         methodSpecificId: "",
         options: {
           keyType: [],
@@ -568,7 +568,7 @@ export default {
         this.selectedDid = this.didList.find(didDoc => didDoc.did === didDocId);
           if (this.selectedDid) {
             this.did.name= this.selectedDid.name,
-            this.did.namespace= 'testnet',
+            this.did.namespace= '',
             this.did.methodSpecificId = this.selectedDid.did.split(':')[3],
             this.selectedKeyTypes= this.selectedDid?.didDocument?.verificationMethod.map((vm)=>vm.type)
           }
@@ -591,7 +591,7 @@ export default {
       this.selectedKeyTypes= ['Ed25519VerificationKey2020']
       this.did = {
         name: "",
-        namespace: "testnet",
+        namespace: "",
         methodSpecificId: "",
         options: {
           keyType: [],
@@ -655,13 +655,17 @@ export default {
               signInfos
           }
           this.registerDIDsForAService(payload).then((registerAsyncResponse) => {
-            if(registerAsyncResponse){
+            if(registerAsyncResponse && registerAsyncResponse.did){
               this.updateADID({
                 did: registerAsyncResponse.did,
                 status: 'Please wait..',
               })
               this.checkRegistrationStatus(registerAsyncResponse.did)
+            } else {
+              console.warn('registerAsyncResponse.did is undefined')
             }
+          }).catch((error) => {
+            console.error(' Failed to register DID on the blockchain ' + error.message)
           })  
         }
         this.isLoading = false;

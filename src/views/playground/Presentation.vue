@@ -174,14 +174,14 @@
               <!-- <td>{{row.issuerDid.toString()}}</td> -->
               <td class="align-middle">
                 <span v-for="eachschema in row.schemaId" v-if="Array.isArray(row.schemaId)">
-                  <a :href="`${$config.explorer.BASE_URL}schemas/${eachschema}`" target="_blank">{{
+                  <a :href="`${$config.explorer.BASE_URL}/identity/${eachschema}`" target="_blank">{{
                     shorten(eachschema)}}
                   </a>
                   <i class="far fa-copy" style="cursor:pointer;" title="Click to copy Schema Id"
                     @click="copyToClip(eachschema, 'Schema Id')"></i> <br>
                 </span>
                 <span v-else>
-                  <a :href="`${$config.explorer.BASE_URL}schemas/${row.schemaId}`" target="_blank">{{
+                  <a :href="`${$config.explorer.BASE_URL}/identity/${row.schemaId}`" target="_blank">{{
                     shorten(row.schemaId)}}
                   </a>
                   <i class="far fa-copy" style="cursor:pointer;" title="Click to copy Schema Id"

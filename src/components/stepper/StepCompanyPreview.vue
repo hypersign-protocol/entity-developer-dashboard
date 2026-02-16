@@ -7,7 +7,7 @@
           By proceeding, your request to activate ID Services will be formally submitted for administrative review. Our compliance team will assess the details you have provided, including company or community information and associated social profiles.
         </p>
         <p style="color: #ff5400de">
-          Following approval, the system will automatically provision your ID Services and allocate the corresponding KYC credits. You will be able to monitor the status of this process on the subsequent screens. Please note that the end-to-end activation may require up to 24 hours for completion.
+          Following approval, the system will automatically provision your ID Services and allocate the corresponding credits. You will be able to monitor the status of this process on the subsequent screens. Please note that the end-to-end activation may require up to 24 hours for completion.
 </p>
 <p style="color: #ff5400de">
           An email notification will be sent once your request has been approved. You may also log in to the platform at any time to review the progress of your submission.
@@ -34,7 +34,8 @@
             <h6 class="mb-0">Business Details</h6>
             
               <div v-if="company.logo" class="ml-auto">
-                <img :src="company.logo" alt="Logo" class="logo-preview" />
+                <!-- <img :src="company.logo" alt="Logo" class="logo-preview" /> -->
+                 <logo-uploader v-model="localCompany.logo" :allowReupload="false" />
               </div>
             
           </div>
@@ -171,19 +172,23 @@
       <b-button variant="link" @click="$emit('prev-step')">Back</b-button>
       <v-btn class="btn btn-outline-secondary" @click="invokeConfirmationPopup()">Request Credit</v-btn>
     </div>
-
-
-    
   </div>
 </template>
 
 <script>
 import HfPopUp from "../../components/element/hfPopup.vue";
+import LogoUploader from "../element/LogoUploader.vue";
 export default {
   name: "StepCompanyPreview",
   props: ["company"],
+  data() {
+  return {
+    localCompany: JSON.parse(JSON.stringify(this.company)) // deep clone
+  }
+  },
   components: {
     HfPopUp,
+    LogoUploader
   },
   mounted(){
     this.$root.$emit("bv::hide::modal", "credit-request-confirmation-popup");
@@ -221,12 +226,6 @@ export default {
 </script>
 
 <style scoped>
-.logo-preview {
-  max-height: 70px;
-  border-radius: 8px;
-  margin-top: 5px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
 b-card {
   border: 1px solid #e1e4e8;
   border-radius: 10px;

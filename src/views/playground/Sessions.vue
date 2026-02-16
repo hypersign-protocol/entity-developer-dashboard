@@ -345,6 +345,7 @@ export default {
   components: { PagiNation },
   computed: {
     ...mapGetters('mainStore', ['userList', 'getUserAccessList', 'getSelectedService']),
+    ...mapGetters('mainStore', ['getUserDetails']),
     ...mapState({
       totalUserCount: state => state.mainStore.totalUserCount,
       userList: state => state.mainStore.userList,
@@ -400,8 +401,7 @@ export default {
   async created() {
     try {
       this.isProd = this.getSelectedService && this.getSelectedService.env === 'prod' ? true :false;
-      const usrStr = localStorage.getItem("user");
-      this.user = JSON.parse(usrStr);
+      this.user = this.getUserDetails;
       this.updateSideNavStatus(true)
 
       // appId
@@ -419,8 +419,11 @@ export default {
 
     } catch (e) {
       this.isLoading = false
-      this.notifyErr(e)
-      this.$router.push({ path: '/studio/dashboard' });
+      this.notifyErr(e.message || 'An error occurred while fetching users.')
+      setTimeout(() => {
+        this.$router.push({ path: '/studio/dashboard' });
+      }, 1000)
+      
     }
   },
   beforeRouteEnter(to, from, next) {

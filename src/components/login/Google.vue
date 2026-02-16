@@ -38,7 +38,7 @@ export default {
             return `<i class="fab fa-google"></i> Continue with Google`
         },
         login() {
-            const socialLoginAPI = `${this.$config.studioServer.BASE_URL}api/v1/login?provider=google`;
+            const socialLoginAPI = `${this.$config.studioServer.BASE_URL}api/v1/auth/google/authorize?provider=google`;
             fetch(socialLoginAPI).then((response) => {
                 if (response.ok) {
                     return response.json()

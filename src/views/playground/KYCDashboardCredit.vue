@@ -422,9 +422,7 @@ export default {
             } catch (e) {
                 this.isLoading = false
                 this.notifyErr(e.message)
-                console.error(e)
             } finally {
-
                 this.renderChart()
                 // this.renderUsageChart()
             }

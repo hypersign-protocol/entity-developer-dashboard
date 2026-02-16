@@ -99,7 +99,7 @@
 <script>
 import HfPopUp from "../../components/element/hfPopup.vue";
 import UtilsMixin from "../../mixins/utils";
-import { mapActions, mapGetters } from "vuex/dist/vuex.common.js";
+import { mapActions, mapGetters,mapMutations } from "vuex/dist/vuex.common.js";
 export default {
   props: {
     assignedRoleId: {
@@ -165,6 +165,7 @@ export default {
   },
   methods: {
     ...mapActions("mainStore", ["deleteMember", "acceptInvition", "attachMemberToARole", "switchToAdmin"]),
+    ...mapMutations('mainStore', ['insertAllApps', 'setSwitchedTenantAccount']),
     copyToClip(textToCopy, contentType) {
       if (textToCopy) {
         navigator.clipboard
@@ -239,8 +240,10 @@ export default {
         await this.switchToAdmin({
           adminId: this.userId
         })
+        this.setSwitchedTenantAccount(this.email)
+        this.insertAllApps({ data: [], totalCount: 0 })
         this.isLoading = false
-        this.notifySuccess('Succefully switch to admin account')
+        this.notifySuccess('Succefully switch to tenant account')
         this.$router.push("dashboard").then(() => { this.$router.go(0) });
       } catch (e) {
         this.notifyErr(e.message)

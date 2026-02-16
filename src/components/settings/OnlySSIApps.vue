@@ -313,8 +313,10 @@
           
       </v-col>
     </v-row>
-    <v-row v-else>
-      <empty-container title="No SSI Service Found" icon="fa fa-user-shield" />
+    <v-row v-else class="mt-2">
+      <v-col>
+        <empty-container title="No SSI Service Found" icon="fa fa-user-shield" />
+      </v-col>
     </v-row>
   </div>
 </template>
@@ -505,6 +507,7 @@ export default {
       "getAppsWithKYCServices",
       "getAppsWithQuestServices",
       "getUserAccessList",
+      "getUserDetails"
     ]),
     domainFromOriginComputed() {
       try {
@@ -642,15 +645,15 @@ export default {
 
     async initializeStore() {
       try {
-        const userDetails = localStorage.getItem("user");
+        const userDetails = this.getUserDetails
         if (userDetails) {
-            const parsed = JSON.parse(userDetails);
-            Object.assign(this.userDetails, parsed);
+            Object.assign(this.userDetails, userDetails);
           this.isLoading = true;
           // await this.fetchAppsListFromServer();
           // await this.fetchServicesList();
           this.isLoading = false;
         } else {
+          console.log('error coming from htis line2')
           throw new Error("No user details found in localStorage");
         }
       } catch (e) {

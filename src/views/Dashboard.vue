@@ -63,13 +63,9 @@ export default {
   },
   data() {
     return {
-      user: {},
-      authToken: localStorage.getItem("authToken"),
     };
   },
   created() {
-    const usrStr = localStorage.getItem("user");
-    this.user = JSON.parse(usrStr);
     this.setSelectedDashboard(this.$config.DashboardTypes.DeveloperDashboard);
   },
   methods: {
