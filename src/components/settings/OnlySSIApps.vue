@@ -814,8 +814,7 @@ export default {
       const appModel = this.getAppByAppId(appId);
 
       //// commeting it for time being 
-      // appModel.whitelistedCors = appModel.whitelistedCors.toString();
-      appModel.whitelistedCors = '*';
+       appModel.whitelistedCors = appModel.whitelistedCors.toString();
 
       Object.assign(this.appModel, { ...appModel });
       this.selectedAssociatedSSIAppId = appModel.dependentServices[0];
