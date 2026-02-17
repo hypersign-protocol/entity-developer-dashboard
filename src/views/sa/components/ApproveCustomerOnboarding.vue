@@ -1,8 +1,5 @@
 <template>
   <div class="admin-panel">
-    <h2>Approve Customer Onboarding</h2>
-    <p>Enter the Record ID and credit details to process the request.</p>
-
     <div class="form-container">
       <div class="input-group">
         <label>Onboarding Record ID:</label>
@@ -11,7 +8,7 @@
 
       <div class="sections-grid">
         <section class="credit-box">
-          <h3>SSI Credit Detail</h3>
+          <h4>SSI Credit Detail</h4>
           <div class="field">
             <label>Amount (uHID):</label>
             <input v-model.number="form.ssiCreditDetail.amount" type="number" />
@@ -29,7 +26,7 @@
         </section>
 
         <section class="credit-box">
-          <h3>KYC Credit Detail</h3>
+          <h4>KYC Credit Detail</h4>
           <div class="field">
             <label>Amount (uHID):</label>
             <input v-model.number="form.kycCreditDetail.amount" type="number" />
@@ -122,7 +119,7 @@ export default {
 
 <style scoped>
 .admin-panel { padding: 20px; font-family: sans-serif; }
-.form-container { max-width: 800px; border: 1px solid #ddd; padding: 20px; border-radius: 8px; }
+.form-container { max-width: 800px;  border-radius: 8px; }
 .sections-grid { display: flex; gap: 20px; margin-top: 20px; }
 .credit-box { flex: 1; border: 1px solid #eee; padding: 15px; border-radius: 4px; background: #f9f9f9; }
 .input-group, .field { margin-bottom: 15px; }
