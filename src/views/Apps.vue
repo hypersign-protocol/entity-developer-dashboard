@@ -373,13 +373,13 @@
           </select>
         </div>
 
-        <!-- <div class="form-group">
+         <div class="form-group">
           <tool-tip
             infoMessage="Listed origins allowed to make CORS requests. Enter comman seperated URLs to whitelist"></tool-tip>
           <label for="orgName"><strong>Allowed Origins (CORS):</strong></label>
           <textarea class="form-control" v-model="appModel.whitelistedCors" rows="3"
-            placeholder="*,http://your-domain.com,http://test.com"></textarea>
-        </div> -->
+            placeholder="http://your-domain.com,http://test.com"></textarea>
+        </div>
 
         <div class="form-group" v-if="edit">
           <hf-buttons name="Update" class="btn btn-primary" @executeAction="updateAnAppAPIServer()"></hf-buttons>
@@ -1291,6 +1291,9 @@ export default {
       const appModel = this.getAppByAppId(appId);
 
       //// commeting it for time being 
+      if (appModel.services && appModel.services.length > 0) {
+        this.selectedServiceId = appModel.services[0].id;
+      }
        appModel.whitelistedCors = appModel.whitelistedCors.toString();
 
       Object.assign(this.appModel, { ...appModel });
