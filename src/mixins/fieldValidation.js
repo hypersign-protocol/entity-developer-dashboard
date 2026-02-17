@@ -1,7 +1,7 @@
 import validURL from 'valid-url'
 
 export function isValidURL(str) {
-  return validURL.isUri(str);
+  return validURL.isUri(str.trim());
 }
 // export function isDomain(str)
 // {
