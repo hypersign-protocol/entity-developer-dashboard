@@ -934,6 +934,7 @@ import { sanitizeUrl } from "../utils/common";
 // import DeployOnChainKYC from "../components/deploy-onchain-kyc-popup/deploy.vue";
 import DomainLinkage from "@hypersign-protocol/domain-linkage-verifier";
 import config from "../config";
+import {isValidOrigin} from '../mixins/fieldValidation.js';
 export default {
   name: "AppList",
   computed: {
@@ -1290,8 +1291,7 @@ export default {
       const appModel = this.getAppByAppId(appId);
 
       //// commeting it for time being 
-      // appModel.whitelistedCors = appModel.whitelistedCors.toString();
-      appModel.whitelistedCors = '*';
+       appModel.whitelistedCors = appModel.whitelistedCors.toString();
 
       Object.assign(this.appModel, { ...appModel });
       this.selectedAssociatedSSIAppId = appModel.dependentServices[0];
@@ -1334,23 +1334,24 @@ export default {
         }
       }
 
-      // console.log('----------------------------------------------------------------')
-      // console.log(this.appModel.whitelistedCors)
-      // if (!Array.isArray(this.appModel.whitelistedCors)) {
-      //   const newArray = this.appModel.whitelistedCors?.split(",").filter((x) => x != " ").map((x) => x.trim());
-      //   for (let i = 0; i < newArray.length; i++) {
-      //     if (!isValidOrigin(newArray[i])) {
-      //       m.push(messages.APPLICATION.INVALID_CORS);
-      //       break;
-      //     }
-      //   }
-      // }
-
+       if (!Array.isArray(this.appModel.whitelistedCors)) {
+        const newArray = this.appModel.whitelistedCors?.split(",").map((x) => x.trim()).filter((x) => x.length > 0);
+        for (let i = 0; i < newArray.length; i++) {
+           if (!isValidOrigin(newArray[i])) {
+             m.push(messages.APPLICATION.INVALID_CORS);
+             break;
+           }
+         }
+      }
       if (!this.appModel.domain) {
         m.push(messages.APPLICATION.ENTER_DOMAIN_ORGIN);
       } else {
         try {
-          const t = new URL(this.appModel.domain);
+          let domain = this.appModel.domain?.trim();
+          if (domain && !domain.startsWith("http://") && !domain.startsWith("https://")) {
+            domain = `https://${domain}`;
+          }
+          const t = new URL(domain);
           if (!t.origin || t.host == "") {
             throw new Error();
           }
