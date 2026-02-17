@@ -542,6 +542,24 @@ const mainStore = {
             return resp;
         },
 
+        /// Super admin 
+
+        approveOnboardingRequest: async ({ getters }, payload) => {
+            const url = `${apiServerBaseUrl}/customer-onboarding/${payload.recordId}/process`;
+            const resp = await RequestHandler(url,
+                'POST',
+                payload,
+                UtilsMixin.methods.getHeader(getters.getAuthToken),
+            )
+            console.log(resp)
+            if (!resp || Array.isArray(resp.message)) {
+                throw new Error(resp?.message?.join(',') || resp?.message);
+            } else if ('statusCode' in resp && (resp.statusCode !== 200 || 201)) {
+                throw new Error(resp.message)
+            }
+            return resp;
+        },
+
         /// Roles
 
         getMyRolesAction: async ({ getters, commit }) => {

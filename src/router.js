@@ -284,6 +284,17 @@ const router = new Router({
         title: `${config.app.name} - 404`
       }
     },
+
+    {
+      path: "/studio/sa/home",
+      name: "SuperAdminHome",
+
+      component: () =>
+        import('./views/sa/home.vue'),
+      meta: {
+        title: `${config.app.name} - Super Admin Home`
+      }
+    },
   ]
 })
 
