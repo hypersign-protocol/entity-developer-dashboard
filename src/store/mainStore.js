@@ -755,6 +755,39 @@ const mainStore = {
             return resp?.message
         },
 
+        emailOtpRequest: async ({ getters }, payload) => {
+            try {
+                const url = `${apiServerBaseUrl}/auth/email/otp/request`;
+                const resp = await RequestHandler(url, 'POST', payload)
+                if (!resp || Array.isArray(resp.message)) {
+                    throw new Error(resp?.message?.join(',') || resp?.message);
+                } else if ('statusCode' in resp && resp?.statusCode !== 200 && resp?.statusCode !== 201) {
+                    throw new Error(resp.message)
+                }
+                return resp;
+            } catch (e) {
+                throw new Error(e)
+            }
+        },
+
+
+        emailOtpVerify: async ({ getters }, payload) => {
+            try {
+                const url = `${apiServerBaseUrl}/auth/email/otp/verify`;
+                const resp = await RequestHandler(url, 'POST', payload)
+                if (!resp || Array.isArray(resp.message)) {
+                    throw new Error(resp?.message?.join(',') || resp?.message);
+                } else if ('statusCode' in resp && resp?.statusCode !== 200 && resp?.statusCode !== 201) {
+                    throw new Error(resp.message)
+                }
+                return resp;
+            } catch (e) {
+                throw new Error(e)
+            }
+        },
+
+        /// 
+
         saveAnAppOnServer: ({ commit, dispatch }, payload) => {
             return new Promise((resolve, reject) => {
                 const url = `${apiServerBaseUrl}/app`;

@@ -40,7 +40,7 @@
 
 <script>
 import PIN from './mfa/PIN.vue'; // Adjust path as needed
-import axios from 'axios';
+import { mapActions } from "vuex/dist/vuex.common.js";
 
 export default {
   name: 'EmailOtp',
@@ -61,20 +61,21 @@ export default {
     }
   },
   methods: {
+    ...mapActions('mainStore', ['emailOtpRequest', 'emailOtpVerify']),
     async requestOtp() {
       this.loading = true;
       this.message = '';
       
       try {
-        const response = await axios.post('http://localhost:3002/api/v1/auth/email/otp/request', {
+        const response = await this.emailOtpRequest({
           email: this.email
         });
         
-        this.message = response.data.message || 'OTP sent successfully';
+        this.message = response || 'OTP sent successfully';
         this.isError = false;
         this.step = 2; // Move to PIN input
       } catch (err) {
-        this.message = err.response?.data?.message || 'Failed to send OTP';
+        this.message = err.message || 'Failed to send OTP';
         this.isError = true;
       } finally {
         this.loading = false;
@@ -86,7 +87,7 @@ export default {
       this.message = '';
 
       try {
-        const response = await axios.post('http://localhost:3002/api/v1/auth/email/otp/verify', {
+        await this.emailOtpVerify( {
           email: this.email,
           otp: otpValue
         });
@@ -95,9 +96,11 @@ export default {
         this.isError = false;
         
         // Emit success to parent (so it can redirect to dashboard)
-        this.$emit('loginSuccess', response.data);
+        // this.$emit('loginSuccess', response.data);
+        this.$router.push("mfa");
+
       } catch (err) {
-        this.message = err.response?.data?.message || 'Invalid OTP. Please try again.';
+        this.message = err.message || 'Invalid OTP. Please try again.';
         this.isError = true;
       } finally {
         this.loading = false;
