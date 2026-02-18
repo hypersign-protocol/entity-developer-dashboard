@@ -1385,6 +1385,146 @@ const mainStore = {
             })
         },
 
+
+        // Analytics
+        fetchAnalyticsOverview: ({ commit, getters }) => {
+            return new Promise((resolve, reject) => {
+                if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
+                    return reject(new Error('Tenant url is null or empty, service is not selected'))
+                }
+                const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/analytics/overview`;
+                // const url = `http://localhost:3001/api/v1/e-kyc/verification/widget-config/`
+                const authToken = getters.getSelectedService.access_token
+                const headers = UtilsMixin.methods.getKycServiceHeader(authToken);
+                // resolve({
+                //     "success": true,
+                //     "message": "success",
+                //     "data": {
+                //         "totalVerifications": 348,
+                //         "completionRate": 75.01,
+                //         "successRate": 70,
+                //         "dropOffRate": 24.09
+                //     }
+                // })
+                return fetch(url, {
+                    method: 'GET',
+                    headers
+                }).then(response => response.json()).then(json => {
+                    if (json) {
+                        if (json.error) {
+                            return reject(new Error(JWTExpiredErrorMessageHandling(json)))
+                        } else {
+                            return resolve(json.data)
+                        }
+                    } else {
+                        return reject(`No join body`);
+                    }
+
+                }).catch((e) => {
+                    return reject(`Error while fetching widget configuration ` + e.message);
+                })
+            })
+        },
+
+
+        fetchAnalyticsDemographicStats: ({ commit, getters }) => {
+            return new Promise((resolve, reject) => {
+                if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
+                    return reject(new Error('Tenant url is null or empty, service is not selected'))
+                }
+                const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/analytics/demographic-stats`;
+                const authToken = getters.getSelectedService.access_token
+                const headers = UtilsMixin.methods.getKycServiceHeader(authToken);
+                // resolve({
+                //     "success": true,
+                //     "message": "success",
+                //     "data": {
+                //         "continents": {
+                //             "Asia": 23,
+                //             "North America": 10,
+                //             "Europe": 5
+                //         },
+                //         "countries": {
+                //             "IN": 5,
+                //             "US": 62,
+                //             "NL": 28,
+                //             "GB": 22,
+                //             "DE": 18,
+                //             "CA": 20,
+                //             "AU": 12,
+                //             "SG": 45,
+                //             "AE": 15,
+                //             "BR": 9,
+                //             "ZA": 21,
+                //             "DK": 12,
+                //         }
+                //     }
+                // })
+                return fetch(url, {
+                    method: 'GET',
+                    headers
+                }).then(response => response.json()).then(json => {
+                    if (json) {
+                        if (json.error) {
+                            return reject(new Error(JWTExpiredErrorMessageHandling(json)))
+                        } else {
+                            return resolve(json.data)
+                        }
+                    } else {
+                        return reject(`No join body`);
+                    }
+
+                }).catch((e) => {
+                    return reject(`Error while fetching widget configuration ` + e.message);
+                })
+            })
+        },
+
+
+        fetchAnalyticsDeviceStats: ({ commit, getters }) => {
+            return new Promise((resolve, reject) => {
+                if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
+                    return reject(new Error('Tenant url is null or empty, service is not selected'))
+                }
+                const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/analytics/device-stats`;
+                const authToken = getters.getSelectedService.access_token
+                const headers = UtilsMixin.methods.getKycServiceHeader(authToken);
+                // resolve({
+                //     "success": true,
+                //     "message": "success",
+                //     "data": [
+                //         {
+                //             "deviceType": "Desktop",
+                //             "percentage": 20
+                //         },
+                //         {
+                //             "deviceType": "Mobile",
+                //             "percentage": 5
+                //         }
+                //     ]
+                // })
+                return fetch(url, {
+                    method: 'GET',
+                    headers
+                }).then(response => response.json()).then(json => {
+                    if (json) {
+                        if (json.error) {
+                            return reject(new Error(JWTExpiredErrorMessageHandling(json)))
+                        } else {
+                            return resolve(json.data)
+                        }
+                    } else {
+                        return reject(`No join body`);
+                    }
+
+                }).catch((e) => {
+                    return reject(`Error while fetching widget configuration ` + e.message);
+                })
+            })
+        },
+
+        // .... 
+
         createAppsKybWidgetConfig: ({ commit, getters }) => {
             return new Promise((resolve, reject) => {
                 if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {

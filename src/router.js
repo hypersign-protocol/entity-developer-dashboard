@@ -28,6 +28,7 @@ const BusinessDetails = () => import('./views/playground/BusinessDetails.vue')
 const GettingStarted = () => import('./views/GettingStarted.vue')
 const ServiceConfig = () => import('./views/ServiceConfig.vue')
 const AccessDenied = () => import('./views/AccessDenied.vue')
+const UserAnalytics = () => import('./views/analytics/UserAnalytics.vue')
 Vue.use(Router)
 
 const router = new Router({
@@ -272,6 +273,15 @@ const router = new Router({
       meta: {
         requiresAuth: true,
         title: `${config.app.name} - Session Details`
+      }
+    },
+    {
+      path: '/studio/user-analytics/:appId',
+      name: 'user-analytics',
+      component: UserAnalytics,
+      meta: {
+        requiresAuth: true,
+        title: `${config.app.name} - User Analytics`
       }
     },
     {

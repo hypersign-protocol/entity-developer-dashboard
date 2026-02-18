@@ -2,6 +2,7 @@ export const NAV = {
     USERS: "Users",
     BUSINESSES: "Businesses",
     USAGES: "Usages",
+    USER_ANALYTICS: "User Analytics",
     CREDIT: "Credit",
     GETTING_STARTED: "Getting Started",
     SETTINGS: {
