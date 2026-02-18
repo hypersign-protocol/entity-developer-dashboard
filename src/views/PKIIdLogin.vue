@@ -8,7 +8,7 @@
     />
 
     <div class="loginContent event-card">
-      <GoogleLogin class="align-center" style="margin-top: 4%"></GoogleLogin>
+      <GoogleLogin class="align-center"></GoogleLogin>
 
       <div class="divider">
         <span class="divider-text">OR</span>

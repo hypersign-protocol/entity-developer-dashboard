@@ -71,7 +71,7 @@ export default {
           email: this.email
         });
         
-        this.message = response || 'OTP sent successfully';
+        this.message = response.message || 'OTP sent successfully';
         this.isError = false;
         this.step = 2; // Move to PIN input
       } catch (err) {
@@ -97,7 +97,7 @@ export default {
         
         // Emit success to parent (so it can redirect to dashboard)
         // this.$emit('loginSuccess', response.data);
-        this.$router.push("mfa");
+        // this.$router.push("mfa");
 
       } catch (err) {
         this.message = err.message || 'Invalid OTP. Please try again.';
