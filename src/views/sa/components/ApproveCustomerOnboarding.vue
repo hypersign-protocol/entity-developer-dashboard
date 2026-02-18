@@ -1,9 +1,6 @@
 <template>
   <div class="admin-panel">
-    <h2>Approve Customer Onboarding</h2>
-    <p>Enter the Record ID and credit details to process the request.</p>
-
-    <div class="form-container">
+    <div class="">
       <div class="input-group">
         <label>Onboarding Record ID:</label>
         <input v-model="recordId" type="text" placeholder="e.g. 693d6fa1c15303a8e72a04b9" />
