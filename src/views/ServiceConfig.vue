@@ -184,12 +184,8 @@
 
                     <b-col md="6">
                         <b-form-group label="Logo URL">
-                            <b-form-input v-model="formData.logoUrl" :readonly="!isEditing" />
+                            <LogoUploader v-model="formData.logoUrl" />
                         </b-form-group>
-                    </b-col>
-
-                    <b-col md="6" class="d-flex align-items-center justify-content-center">
-                        <b-avatar v-if="formData.logoUrl" :src="formData.logoUrl" size="6rem" rounded></b-avatar>
                     </b-col>
 
 
@@ -273,6 +269,7 @@ import HfPopUp from "../components/element/hfPopup.vue";
 import UtilsMixin from '../mixins/utils'
 import messages from "../mixins/messages";
 import { mapGetters, mapActions } from 'vuex/dist/vuex.common.js';
+import LogoUploader from "../components/element/LogoUploader.vue";
 export default {
     name: "ServiceConfig",
     data() {
@@ -318,7 +315,8 @@ export default {
         },
     },
     components: {
-        HfPopUp
+        HfPopUp,
+        LogoUploader
     },
     created() {
         this.formData = { ...this.getSelectedService };
