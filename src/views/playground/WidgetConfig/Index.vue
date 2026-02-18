@@ -146,7 +146,7 @@ ul {
         </div>
       </v-col>
       <v-col>
-        <HfButtons name="Save Configuration" @executeAction="saveConfiguration()" v-if="!this.widgetConfigTemp._id"
+        <HfButtons name="Save Configuration" @executeAction="saveConfiguration()" v-if="!widgetConfigTemp._id"
           style="float:right"></HfButtons>
         <HfButtons name="Update Configuration" @executeAction="updateConfiguration()" style="float:right" v-else>
         </HfButtons>
@@ -156,10 +156,10 @@ ul {
     <b-card class="serviceCard">
       <ul class="list-group list-group-flush">
         <li class="list-group-item">
-          <b-form-checkbox switch size="lg" v-model="widgetConfigTemp.faceRecog" disabled>{{
+          <b-form-checkbox switch size="lg" v-model="widgetConfigTemp.faceRecog" disabled title="Facial recognition is always enabled and cannot be disabled">{{
             this.widgetConfigUI.faceRecog.label }}</b-form-checkbox>
-          <small v-html="this.widgetConfigUI.faceRecog.description">
-          </small>
+          <small v-html="widgetConfigUI.faceRecog.description"></small>
+          <small class="text-muted d-block"><i class="mdi mdi-lock-outline mr-1"></i>This feature is always enabled and cannot be turned off.</small>
         </li>
         <li class="list-group-item">
           <div class="row">
@@ -246,18 +246,15 @@ ul {
             <div class="col" v-if="widgetConfigTemp.onChainId.enabled && onchainconfigsOptions.length > 0">
               <div class="">
                 <label for=""><strong>Select OnChain KYC Config: </strong></label>
-                <v-select  v-model="widgetConfigTemp.onChainId.selectedOnChainKYCconfiguration"
-                  :items="onchainconfigsOptions" item-text="text" item-value="value"  multiple
-                  small-chips
-                  attach
-                  dense
+                <v-select v-model="widgetConfigTemp.onChainId.selectedOnChainKYCconfiguration"
+                  :items="onchainconfigsOptions" item-text="text" item-value="value" multiple small-chips attach dense
                   outlined></v-select>
               </div>
             </div>
           </div>
         </li>
 
-        <li class="list-group-item" v-if="widgetConfigTemp.userConsent.enabled">
+        <li class="list-group-item">
           <div class="row">
             <div class="col">
               <div class="row">
@@ -414,14 +411,9 @@ export default {
       this.isLoading = true
       // TODO: this we can stop until onchain feature is ready for production
       await this.fetchAppsOnChainConfigs()
-      this.isLoading = false
-
-      this.isLoading = true
       await this.fetchAppsWidgetConfig()
-      this.isLoading = false
-
       await this.fetchMarketPlaceAppsFromServer()
-
+      this.isLoading = false
     } catch (e) {
       this.isLoading = false
       console.log(e)
@@ -432,7 +424,7 @@ export default {
     }
 
     if (Object.keys(this.widgetConfig).length > 0) {
-      this.widgetConfigTemp = { ...this.widgetConfig }
+      this.widgetConfigTemp = JSON.parse(JSON.stringify(this.widgetConfig))
     }
 
     this.trustedIssuersList = this.getMarketPlaceApps;
@@ -613,13 +605,18 @@ export default {
     ...mapActions('mainStore', ['fetchAppsOnChainConfigs', 'fetchMarketPlaceAppsFromServer', 'createAppsWidgetConfig', 'fetchAppsWidgetConfig', 'updateAppsWidgetConfig']),
 
     selectedServiceEventHandler(event) {
-      console.log('inside selectedServiceEventHandler event ' + event.issuerDid)
-      if (!this.selectedIssuerDids.has(event.issuerDid)) {
+      // Guard: ignore entries with no issuerDid
+      if (!event.issuerDid || !event.issuerDid.trim()) return
+
+      // Use explicit selected flag instead of toggle to stay in sync
+      if (event.selected) {
         this.selectedIssuerDids.add(event.issuerDid)
       } else {
         this.selectedIssuerDids.delete(event.issuerDid)
       }
-      this.widgetConfigTemp.issuerDID = Array.from(this.selectedIssuerDids.values()).join(',')
+      this.widgetConfigTemp.issuerDID = Array.from(this.selectedIssuerDids.values())
+        .filter(did => !!did && !!did.trim())
+        .join(',')
     },
     validateField() {
       if (!this.widgetConfigTemp.issuerDID) {
@@ -644,7 +641,7 @@ export default {
         if (!this.widgetConfigTemp.onChainId.selectedOnChainKYCconfiguration) {
           throw new Error('Kindly select a onchain configuration')
         }
-        this.widgetConfigTemp.onChainId.selectedOnChainKYCconfiguration = this.widgetConfigTemp.onChainId.selectedOnChainKYCconfiguration.filter(e => e != null)
+        this.widgetConfigTemp.onChainId.selectedOnChainKYCconfiguration = this.widgetConfigTemp.onChainId.selectedOnChainKYCconfiguration.filter(e => !!e)
 
         if (!this.widgetConfigTemp.zkProof.enabled) {
           throw new Error('Enable ZK Proof to enable onchainId')
@@ -669,7 +666,7 @@ export default {
         this.setWidgetConfig(this.widgetConfigTemp)
         await this.createAppsWidgetConfig()
         if (this.widgetConfig) {
-          this.widgetConfigTemp = { ...this.widgetConfig }
+          this.widgetConfigTemp = JSON.parse(JSON.stringify(this.widgetConfig))
         }
 
         this.isLoading = false
@@ -682,7 +679,7 @@ export default {
 
     deleteZkProof(proof) {
       this.widgetConfigTemp.zkProof.proofs = this.widgetConfigTemp.zkProof.proofs.filter(x => x.proofType != proof)
-      this.updateConfiguration()
+      // User must click Save/Update to persist — consistent with addZkProof
     },
     addZkProof(proofType, criteria) {
 
