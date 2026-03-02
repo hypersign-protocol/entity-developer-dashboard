@@ -1,9 +1,5 @@
 <template>
     <div class="home-container">
-        <header class="admin-header">
-            <h1>Super Admin Dashboard</h1>
-            <p>Welcome, Admin. Use the tools below to manage the platform.</p>
-        </header>
 
         <main class="content-area">
             <div v-if="isSuperAdminUser">
@@ -80,10 +76,8 @@ export default {
 
 <style scoped>
 .home-container {
-    max-width: 1000px;
     margin: 0 auto;
     padding: 20px;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 .admin-header {

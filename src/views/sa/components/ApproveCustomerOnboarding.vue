@@ -102,7 +102,6 @@ export default {
         await this.approveOnboardingRequest({ recordId: this.recordId, ssiCreditDetail: this.form.ssiCreditDetail, kycCreditDetail: this.form.kycCreditDetail })
         this.isError = false;
         this.message = "Customer onboarded successfully!";
-        this.resetFields()
 
       }catch(e) {
         this.setError(e.message)

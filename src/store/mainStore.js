@@ -755,6 +755,69 @@ const mainStore = {
             return resp?.message
         },
 
+        emailOtpRequest: async ({ getters }, payload) => {
+            try {
+                const url = `${apiServerBaseUrl}/auth/email/otp/request`;
+                const response = await fetch(url, {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Origin': window.location.origin
+                    },
+                    body: JSON.stringify(payload)
+                });
+                const resp = await response.json().catch(() => null);
+                if(!resp) {
+                    throw new Error('Invalid response from server');
+                }
+
+                if(Array.isArray(resp.message)) {
+                    throw new Error(resp.message.join(','));
+                } else if ('statusCode' in resp && resp.statusCode !== 200 && resp.statusCode !== 201) {
+                    throw new Error(resp.message);
+                }
+
+                return resp;
+            } catch (e) {
+            throw new Error(e.message || e);
+                  }
+        },
+
+
+        emailOtpVerify: async ({ getters }, payload) => {
+            try {
+                const url = `${apiServerBaseUrl}/auth/email/otp/verify`;
+                const response = await fetch(url, {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Origin': window.location.origin
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                const resp = await response.json().catch(() => null);
+
+                if (!resp) {
+                    throw new Error('Invalid response from server');
+                }
+
+                if (Array.isArray(resp.message)) {
+                    throw new Error(resp.message.join(','));
+                } else if ('statusCode' in resp && resp.statusCode !== 200 && resp.statusCode !== 201) {
+                    throw new Error(resp.message);
+                }
+
+                return resp;
+            } catch (e) {
+                throw new Error(e.message || e);
+            }
+        },
+
+        /// 
+
         saveAnAppOnServer: ({ commit, dispatch }, payload) => {
             return new Promise((resolve, reject) => {
                 const url = `${apiServerBaseUrl}/app`;
