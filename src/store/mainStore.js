@@ -1414,7 +1414,7 @@ const mainStore = {
                         if (json.error) {
                             return reject(new Error(JWTExpiredErrorMessageHandling(json)))
                         } else {
-                            return resolve(json.data)
+                            return resolve(json)
                         }
                     } else {
                         return reject(`No join body`);
@@ -1468,7 +1468,7 @@ const mainStore = {
                         if (json.error) {
                             return reject(new Error(JWTExpiredErrorMessageHandling(json)))
                         } else {
-                            return resolve(json.data)
+                            return resolve(json)
                         }
                     } else {
                         return reject(`No join body`);
@@ -1511,7 +1511,7 @@ const mainStore = {
                         if (json.error) {
                             return reject(new Error(JWTExpiredErrorMessageHandling(json)))
                         } else {
-                            return resolve(json.data)
+                            return resolve(json)
                         }
                     } else {
                         return reject(`No join body`);
