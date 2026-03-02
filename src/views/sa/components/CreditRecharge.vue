@@ -4,32 +4,9 @@
     
     <div class="form-grid">
       <div class="field">
-        <label>Service Type (Grant Type):</label>
-        <select v-model="grantType" class="service-select">
-         <option value="access_service_ssi">
-            🔐 SSI Service (Self-Sovereign Identity)
-          </option>
-          <option value="access_service_kyc">
-            🪪 ID Service (Identity Verification)
-          </option>
-        </select>
-      </div>
-
-      <!-- <div class="field">
-        <label>JWT Secret Key (Required for signing):</label>
-        <input v-model="secretKey" type="password" placeholder="Enter service secret key" />
-      </div> -->
-
-      <div class="field">
         <label>Service ID (App ID):</label>
         <input v-model="form.serviceId" type="text" placeholder="e.g. app-123" />
       </div>
-
-      <!-- <div class="field">
-        <label>Subdomain:</label>
-        <input v-model="form.subdomain" type="text" placeholder="e.g. ent-1234" />
-      </div> -->
-
       <div class="field">
         <label>Amount:</label>
         <input v-model="form.amount" type="text" />
@@ -57,7 +34,7 @@
 </template>
 
 <script>
-import axios from 'axios';
+import { mapActions } from 'vuex/dist/vuex.common.js';
 
 export default {
   name: 'CreditRecharge',
@@ -66,23 +43,19 @@ export default {
       loading: false,
       statusMessage: '',
       isError: false,
-      secretKey: '',
-      grantType: 'access_service_ssi', // Default selection
       form: {
         serviceId: '',
-        purpose: 'CreditRecharge',
         amount: '100',
         validityPeriod: '12',
         validityPeriodUnit: 'MONTH',
-        subdomain: '',
         amountDenom: 'uHID',
-        // whitelistedCors: '*'
       }
     };
   },
   methods: {
+    ...mapActions('mainStore', ['creditRecharge']),
     async handleRecharge() {
-      if (!this.secretKey || !this.form.subdomain || !this.form.serviceId) {
+      if ( !this.form.serviceId) {
         this.showFeedback("Please fill in all required fields.", true);
         return;
       }
@@ -91,40 +64,9 @@ export default {
       this.statusMessage = '';
 
       try {
-        const encoder = new TextEncoder();
-        const encodedSecret = encoder.encode(this.secretKey);
+        await this.creditRecharge(this.form);
+        this.showFeedback(`Success: Credits recharged for service ${this.form.serviceId}!`);
 
-        // Generate JWT with the selected grantType
-        const token = await new jose.SignJWT({ 
-            ...this.form, 
-            grantType: this.grantType 
-          })
-          .setProtectedHeader({ alg: 'HS256' })
-          .setIssuedAt()
-          .setExpirationTime('10m')
-          .sign(encodedSecret);
-
-
-        let url; 
-        if (this.grantType == 'access_service_kyc') {
-            url = "https://api.cavach.hypersign.id"
-        } else if (this.grantType == 'access_service_ssi') {
-            url = "https://api.entity.hypersign.id"
-        } else {
-            throw new Error('Unsupported grant type')
-        }
-
-        url = `${url}/api/v1/credit`;
-
-        await axios.post(url, {}, {
-          headers: {
-            'x-api-credit-token': token,
-            'accept': 'application/json'
-          }
-        });
-
-        const serviceName = this.grantType.includes('ssi') ? 'SSI' : 'KYC';
-        this.showFeedback(`Success: ${serviceName} credits recharged!`);
       } catch (err) {
         const errorMsg = err.response?.data?.message || err.message || "Recharge failed.";
         this.showFeedback(`Error: ${errorMsg}`, true);

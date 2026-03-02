@@ -10,10 +10,6 @@ const { apiServer, studioServer } = config;
 const apiServerBaseUrl = sanitizeUrl(apiServer.host) + apiServer.basePath;
 Vue.use(Vuex)
 
-// const GRANT_TYPES_ENUM = Object.freeze({
-//     'SSI_API': 'access_service_ssi',
-//     'CAVACH_API': 'access_service_kyc'
-// })
 
 const mainStore = {
     namespaced: true,
@@ -552,6 +548,19 @@ const mainStore = {
                 UtilsMixin.methods.getHeader(getters.getAuthToken),
             )
             console.log(resp)
+            if (!resp || Array.isArray(resp.message)) {
+                throw new Error(resp?.message?.join(',') || resp?.message);
+            } else if ('statusCode' in resp && (resp.statusCode !== 200 || 201)) {
+                throw new Error(resp.message)
+            }
+            return resp;
+        },
+
+        creditRecharge: async ({ getters }, payload) => {
+            const url = `${apiServerBaseUrl}/credits/${payload.serviceId}`;
+            const resp = await RequestHandler(url, 'POST', payload,
+                UtilsMixin.methods.getHeader(getters.getAuthToken),
+            )
             if (!resp || Array.isArray(resp.message)) {
                 throw new Error(resp?.message?.join(',') || resp?.message);
             } else if ('statusCode' in resp && (resp.statusCode !== 200 || 201)) {
