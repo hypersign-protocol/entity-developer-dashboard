@@ -24,16 +24,26 @@
     <div v-if="step === 2" class="verify-step">
       <div class="step-header">
         <p>An OTP has been sent to <strong>{{ email }}</strong></p>
-        <button @click="step = 1" class="link-btn">Change Email</button>
+        <button @click="goBackToEmail" class="link-btn">Change Email</button>
       </div>
       
-      <PIN @pinTakenEvent="verifyOtp" />
-      
-      <p v-if="loading" class="loading-text">Verifying code...</p>
-    </div>
+      <!-- Show PIN input only if OTP is still valid -->
+      <div v-if="!isOtpExpired">
+        <PIN @pinTakenEvent="verifyOtp" />
+        <p v-if="loading" class="loading-text">Verifying code...</p>
+      </div>
 
-    <div v-if="message" :class="['message-box', isError ? 'error' : 'success']">
-      {{ message }}
+      <!-- Show regenerate button if OTP is expired -->
+      <div v-if="isOtpExpired" class="expired-section">
+        <p class="expired-message">Your OTP has expired. Please request a new one.</p>
+        <button 
+          @click="requestOtp" 
+          :disabled="loading"
+          class="action-btn"
+        >
+          {{ loading ? 'Sending...' : 'Request New OTP' }}
+        </button>
+      </div>
     </div>
   </div>
 </template>
@@ -41,17 +51,20 @@
 <script>
 import PIN from './mfa/PIN.vue'; // Adjust path as needed
 import { mapActions } from "vuex/dist/vuex.common.js";
+import UtilsMixin from "../../mixins/utils.js";
 
 export default {
   name: 'EmailOtp',
   components: { PIN },
+  mixins: [UtilsMixin],
   data() {
     return {
       step: 1, // 1: Request, 2: Verify
       email: '',
       loading: false,
-      message: '',
-      isError: false
+      sessionId: null,
+      authenticators: [],
+      isOtpExpired: false
     };
   },
   computed: {
@@ -62,21 +75,23 @@ export default {
   },
   methods: {
     ...mapActions('mainStore', ['emailOtpRequest', 'emailOtpVerify']),
+    goBackToEmail() {
+      this.step = 1;
+      this.isOtpExpired = false;
+    },
     async requestOtp() {
       this.loading = true;
-      this.message = '';
+      this.isOtpExpired = false; // Reset expired flag when requesting new OTP
       
       try {
         const response = await this.emailOtpRequest({
           email: this.email
         });
         
-        this.message = response.message || 'OTP sent successfully';
-        this.isError = false;
+        this.notifySuccess(response.message || 'OTP sent successfully');
         this.step = 2; // Move to PIN input
       } catch (err) {
-        this.message = err.message || 'Failed to send OTP';
-        this.isError = true;
+        this.notifyErr(err.message || 'Failed to send OTP');
       } finally {
         this.loading = false;
       }
@@ -84,24 +99,46 @@ export default {
     
     async verifyOtp(otpValue) {
       this.loading = true;
-      this.message = '';
 
       try {
-        await this.emailOtpVerify( {
+        const response = await this.emailOtpVerify({
           email: this.email,
           otp: otpValue
         });
 
-        this.message = 'Verification successful!';
-        this.isError = false;
+        // Check if MFA/authenticators are required
         
-        // Emit success to parent (so it can redirect to dashboard)
-        // this.$emit('loginSuccess', response.data);
-        // this.$router.push("mfa");
+        if(response.authenticators && response.authenticators.length > 0){
+          // Store authenticators and sessionId
+          this.authenticators = response.authenticators;
+          this.sessionId = response.sessionId;
+          
+          // Build query parameters
+          const queryParams = new URLSearchParams({
+            authenticators: JSON.stringify(response.authenticators),
+            sessionId: response.sessionId
+          }).toString();
+          
+          // Redirect to MFA page with parameters
+          this.$router.push(`/studio/mfa?${queryParams}`);
+        } else {
+          // No MFA required, emit success and redirect to home
+          this.notifySuccess('Verification successful!');
+          this.$emit('loginSuccess', response.verified);
+          this.$router.push("/studio/home");
+        }
 
       } catch (err) {
-        this.message = err.message || 'Invalid OTP. Please try again.';
-        this.isError = true;
+        const errorMessage = err.message || 'Invalid OTP. Please try again.';
+        
+        // Check if OTP is expired
+        if (errorMessage.toLowerCase().includes('expired')) {
+          this.isOtpExpired = true;
+          this.notifyErr('OTP has expired. Please request a new one.');
+        } else {
+          // Invalid OTP - allow retry
+          this.notifyErr(errorMessage);
+        }
       } finally {
         this.loading = false;
       }
@@ -172,14 +209,20 @@ label {
   font-size: 0.9em;
 }
 
-.message-box {
-  margin-top: 20px;
-  padding: 10px;
-  border-radius: 4px;
-  font-size: 0.9em;
+.loading-text { 
+  color: #7f8c8d; 
+  font-size: 0.8em; 
+  margin-top: 10px; 
 }
 
-.error { background: #fdeaea; color: #c0392b; }
-.success { background: #eafaf1; color: #27ae60; }
-.loading-text { color: #7f8c8d; font-size: 0.8em; margin-top: 10px; }
+.expired-section {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.expired-message {
+  color: #c0392b;
+  font-size: 0.95em;
+  margin-bottom: 15px;
+}
 </style>
