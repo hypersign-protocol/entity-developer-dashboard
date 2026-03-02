@@ -187,9 +187,8 @@
 
         <div class="form-group">
           <tool-tip infoMessage="Monolog Url"></tool-tip>
-          <label for="orgDid"><strong>Logo Url: </strong></label>
-          <input type="text" class="form-control" id="orgDid" placeholder="https://yourdomain.com/assets/logo.png"
-            v-model="appModel.logoUrl" aria-describedby="orgNameHelp" />
+          <label for="orgDid"><strong>Logo: </strong></label>
+          <LogoUploader v-model="appModel.logoUrl"></LogoUploader>
         </div>
 
         <div class="form-group">
@@ -934,6 +933,7 @@ import { sanitizeUrl } from "../utils/common";
 // import DeployOnChainKYC from "../components/deploy-onchain-kyc-popup/deploy.vue";
 import DomainLinkage from "@hypersign-protocol/domain-linkage-verifier";
 import config from "../config";
+import LogoUploader from "../components/element/LogoUploader.vue";
 export default {
   name: "AppList",
   computed: {
@@ -1123,6 +1123,7 @@ export default {
     };
   },
   components: {
+    LogoUploader,
     HfPopUp,
     StudioSideBar,
     HfButtons,

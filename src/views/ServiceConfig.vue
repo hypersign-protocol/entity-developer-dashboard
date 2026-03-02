@@ -57,12 +57,6 @@
             <b-form>
                 <b-row>
                     <b-col md="6">
-                        <b-form-group label="App Name">
-                            <b-form-input v-model="formData.appName" :readonly="!isEditing" />
-                        </b-form-group>
-                    </b-col>
-
-                    <b-col md="6">
                         <b-form-group label="App ID">
                             <b-input-group>
                                 <b-form-input v-model="formData.appId" :readonly="!isEditing" />
@@ -75,9 +69,22 @@
                             </b-input-group>
                         </b-form-group>
                     </b-col>
-                    <b-col cols="12">
+                    <b-col md="6">
+                        <b-form-group label="App Name">
+                            <b-form-input v-model="formData.appName" :readonly="!isEditing" />
+                        </b-form-group>
+                    </b-col>
+
+                    
+                    
+                    <b-col cols="6">
+                        <b-form-group label="Logo">
+                            <LogoUploader v-model="formData.logoUrl" />
+                        </b-form-group>
+                    </b-col>
+                    <b-col cols="6">
                         <b-form-group label="Description">
-                            <b-form-textarea v-model="formData.description" :readonly="!isEditing" rows="2" />
+                            <b-form-textarea v-model="formData.description" :readonly="!isEditing" rows="3" />
                         </b-form-group>
                     </b-col>
 
@@ -180,20 +187,6 @@
                         </b-form-group>
                     </b-col> -->
 
-
-
-                    <b-col md="6">
-                        <b-form-group label="Logo URL">
-                            <b-form-input v-model="formData.logoUrl" :readonly="!isEditing" />
-                        </b-form-group>
-                    </b-col>
-
-                    <b-col md="6" class="d-flex align-items-center justify-content-center">
-                        <b-avatar v-if="formData.logoUrl" :src="formData.logoUrl" size="6rem" rounded></b-avatar>
-                    </b-col>
-
-
-
                     <!-- <b-col md="6">
                         <b-form-group label="Environment">
                             <b-form-select v-model="formData.env" :disabled="!isEditing"
@@ -273,6 +266,7 @@ import HfPopUp from "../components/element/hfPopup.vue";
 import UtilsMixin from '../mixins/utils'
 import messages from "../mixins/messages";
 import { mapGetters, mapActions } from 'vuex/dist/vuex.common.js';
+import LogoUploader from "../components/element/LogoUploader.vue";
 export default {
     name: "ServiceConfig",
     data() {
@@ -318,7 +312,8 @@ export default {
         },
     },
     components: {
-        HfPopUp
+        HfPopUp,
+        LogoUploader
     },
     created() {
         this.formData = { ...this.getSelectedService };
