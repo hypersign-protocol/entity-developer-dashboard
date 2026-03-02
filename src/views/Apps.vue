@@ -933,11 +933,9 @@ import { sanitizeUrl } from "../utils/common";
 // import DeployOnChainKYC from "../components/deploy-onchain-kyc-popup/deploy.vue";
 import DomainLinkage from "@hypersign-protocol/domain-linkage-verifier";
 import config from "../config";
-<<<<<<< ui-bug-fix
 import {isValidOrigin} from '../mixins/fieldValidation.js';
-=======
 import LogoUploader from "../components/element/LogoUploader.vue";
->>>>>>> develop
+
 export default {
   name: "AppList",
   computed: {
