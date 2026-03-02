@@ -210,17 +210,72 @@
                         </b-badge>
                     </b-col> -->
 
-                    <!-- <b-col md="6">
+                    <!-- DID Configuration -->
+                    <b-col cols="12">
+                        <div class="d-flex align-items-center my-2">
+                            <span class="text-muted mr-2" style="font-size: 0.75rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;">DID Configuration</span>
+                            <hr class="flex-grow-1 my-0" />
+                        </div>
+                    </b-col>
+
+                    <b-col md="6">
                         <b-form-group label="Issuer DID">
-                            <b-form-input v-model="formData.issuerDid" :readonly="!isEditing" />
+                            <b-form-select v-if="isEditing" v-model="formData.issuerDid" @change="resolveDid($event)">
+                                <b-form-select-option value="">— Select a DID —</b-form-select-option>
+                                <b-form-select-option
+                                    v-for="did in associatedSSIServiceDIDs"
+                                    :value="did"
+                                    :key="did">
+                                    {{ did }}
+                                </b-form-select-option>
+                            </b-form-select>
+                            <b-input-group v-else>
+                                <b-form-input v-model="formData.issuerDid" readonly />
+                                <b-input-group-append v-if="formData.issuerDid">
+                                    <b-button variant="outline-secondary" size="sm"
+                                        @click="copyToClip(formData.issuerDid, 'Issuer DID')" title="Copy Issuer DID">
+                                        <i class="mdi mdi-content-copy"></i>
+                                    </b-button>
+                                </b-input-group-append>
+                            </b-input-group>
                         </b-form-group>
                     </b-col>
 
                     <b-col md="6">
-                        <b-form-group label="Verification Method ID">
-                            <b-form-input v-model="formData.issuerVerificationMethodId" :readonly="!isEditing" />
+                        <b-form-group label="Verification Method">
+                            <!-- Edit mode: select showing vm.id (vm.type) -->
+                            <b-form-select v-if="isEditing" v-model="formData.issuerVerificationMethodId" :disabled="!formData.issuerDid">
+                                <b-form-select-option value="">
+                                    {{ formData.issuerDid ? '— Select a Verification Method —' : '— Select a DID first —' }}
+                                </b-form-select-option>
+                                <b-form-select-option
+                                    v-for="vm in issuerVerificationMethodIds"
+                                    :value="vm.id"
+                                    :key="vm.id">
+                                    {{ vm.id }} ({{ vm.type }})
+                                </b-form-select-option>
+                            </b-form-select>
+                            <!-- View mode: ID input + type chip below -->
+                            <template v-else>
+                                <b-input-group v-if="formData.issuerVerificationMethodId">
+                                    <b-form-input v-model="formData.issuerVerificationMethodId" readonly />
+                                    <b-input-group-append>
+                                        <b-button variant="outline-secondary" size="sm"
+                                            @click="copyToClip(formData.issuerVerificationMethodId, 'Verification Method ID')"
+                                            title="Copy Verification Method ID">
+                                            <i class="mdi mdi-content-copy"></i>
+                                        </b-button>
+                                    </b-input-group-append>
+                                </b-input-group>
+                                <div class="mt-1" v-if="selectedVerificationMethodType">
+                                    <span style="display:inline-flex; align-items:center; background:#f0f4ff; border:1px solid #c9d8ff; border-radius:4px; padding:2px 8px; font-size:0.78rem; color:#3b5bdb;">
+                                        <i class="mdi mdi-key-variant mr-1"></i>{{ selectedVerificationMethodType }}
+                                    </span>
+                                </div>
+                                <b-form-input v-if="!formData.issuerVerificationMethodId" readonly placeholder="No verification method set" />
+                            </template>
                         </b-form-group>
-                    </b-col> -->
+                    </b-col>
 
 
 
@@ -265,7 +320,7 @@
 import HfPopUp from "../components/element/hfPopup.vue";
 import UtilsMixin from '../mixins/utils'
 import messages from "../mixins/messages";
-import { mapGetters, mapActions } from 'vuex/dist/vuex.common.js';
+import { mapGetters, mapActions, mapMutations, mapState } from 'vuex/dist/vuex.common.js';
 import LogoUploader from "../components/element/LogoUploader.vue";
 export default {
     name: "ServiceConfig",
@@ -276,6 +331,8 @@ export default {
             appIdToGenerateSecret: "",
             linkedAppErrorMessage: "",
             showVerificationInfo: false,
+            associatedSSIServiceDIDs: [],
+            issuerVerificationMethodIds: [],
             formData: {
 
             },
@@ -289,7 +346,8 @@ export default {
         };
     },
     computed: {
-        ...mapGetters("mainStore", ["getSelectedService"]),
+        ...mapGetters("mainStore", ["getSelectedService", "getAppsWithSSIServices"]),
+        ...mapState({ widgetConfig: state => state.mainStore.widgetConfig }),
         formattedErrorMessage() {
             return this.linkedAppErrorMessage.replace(/\n/g, "<br>");
         },
@@ -310,16 +368,31 @@ export default {
                 ? "hypersign-domain-verification.did=" + this.formData.issuerDid
                 : null;
         },
+        selectedVerificationMethodType() {
+            if (!this.formData.issuerVerificationMethodId || !this.issuerVerificationMethodIds.length) {
+                return null;
+            }
+            const vm = this.issuerVerificationMethodIds.find(
+                v => v.id === this.formData.issuerVerificationMethodId
+            );
+            return vm ? vm.type : null;
+        },
     },
     components: {
         HfPopUp,
         LogoUploader
     },
-    created() {
+    async created() {
         this.formData = { ...this.getSelectedService };
         this.isProd = this.formData.env === "prod";
-
-        console.log(this.isProd)
+        
+        // Fetch DIDs for display/selection
+        await this.fetchDIDsForDisplay();
+        
+        // If DID is already set, fetch verification methods for display
+        if (this.formData.issuerDid) {
+            await this.fetchVerificationMethodsForDisplay();
+        }
     },
     watch: {
         isProd(newVal) {
@@ -327,10 +400,149 @@ export default {
         }
     },
     methods: {
-        ...mapActions("mainStore", ["updateAnAppOnServer", "deleteAnAppOnServer"]),
-        startEdit() {
+        ...mapActions("mainStore", ["updateAnAppOnServer", "deleteAnAppOnServer", "fetchDIDsForAService", "resolveDIDForAKycService", "updateAppsWidgetConfig"]),
+        ...mapMutations("mainStore", ["setWidgetConfig"]),
+        async fetchDIDsForDisplay() {
+            try {
+                const ssiServiceId = this.formData.dependentServices && this.formData.dependentServices[0];
+                if (!ssiServiceId) return;
+                
+                const associatedSSIService = this.getAppsWithSSIServices.find(
+                    (x) => x.appId === ssiServiceId
+                );
+                
+                if (!associatedSSIService) return;
+                
+                const payload = {
+                    tenantUrl: associatedSSIService.tenantUrl,
+                    accessToken: associatedSSIService.access_token,
+                };
+                const allDIDs = await this.fetchDIDsForAService(payload);
+                
+                if (allDIDs && Array.isArray(allDIDs) && allDIDs.length > 0) {
+                    this.associatedSSIServiceDIDs = allDIDs;
+                } else {
+                    this.associatedSSIServiceDIDs = [];
+                }
+            } catch (e) {
+                console.error('Error fetching DIDs for display:', e);
+            }
+        },
+        async fetchVerificationMethodsForDisplay() {
+            try {
+                const ssiServiceId = this.formData.dependentServices && this.formData.dependentServices[0];
+                if (!ssiServiceId) return;
+                
+                const associatedSSIService = this.getAppsWithSSIServices.find(
+                    (x) => x.appId === ssiServiceId
+                );
+                
+                if (!associatedSSIService) return;
+                
+                const payload = {
+                    tenantUrl: associatedSSIService.tenantUrl,
+                    accessToken: associatedSSIService.access_token,
+                    did: this.formData.issuerDid
+                };
+                const didDocument = await this.resolveDIDForAKycService(payload);
+                this.issuerVerificationMethodIds = didDocument.verificationMethod.filter(vm => vm);
+            } catch (e) {
+                // Silently fail for display purposes
+                console.error('Error fetching verification methods for display:', e);
+            }
+        },
+        async fetchDIDs() {
+            try {
+                // Find the associated SSI service
+                const ssiServiceId = this.formData.dependentServices && this.formData.dependentServices[0];
+                if (!ssiServiceId) {
+                    throw new Error('No associated SSI service found');
+                }
+                
+                const associatedSSIService = this.getAppsWithSSIServices.find(
+                    (x) => x.appId === ssiServiceId
+                );
+                
+                if (!associatedSSIService) {
+                    throw new Error('Associated SSI service not found');
+                }
+                
+                this.isLoading = true;
+                const payload = {
+                    tenantUrl: associatedSSIService.tenantUrl,
+                    accessToken: associatedSSIService.access_token,
+                };
+                const allDIDs = await this.fetchDIDsForAService(payload);
+                
+                if (allDIDs && Array.isArray(allDIDs) && allDIDs.length > 0) {
+                    // DIDs are returned as strings, not objects
+                    this.associatedSSIServiceDIDs = allDIDs;
+                } else {
+                    this.associatedSSIServiceDIDs = [];
+                    this.notifyErr('No DIDs found for the associated SSI service');
+                }
+                this.isLoading = false;
+            } catch (e) {
+                this.isLoading = false;
+                console.error('Error fetching DIDs:', e);
+                this.notifyErr(e.message);
+            }
+        },
+        async resolveDid(event) {
+            try {
+                let did;
+                if (typeof event === 'string') {
+                    did = event;
+                } else {
+                    did = event.target.value;
+                }
+                
+                if (!did) {
+                    this.issuerVerificationMethodIds = [];
+                    return;
+                }
+                
+                // Find the associated SSI service
+                const ssiServiceId = this.formData.dependentServices && this.formData.dependentServices[0];
+                if (!ssiServiceId) {
+                    throw new Error('No associated SSI service found');
+                }
+                
+                const associatedSSIService = this.getAppsWithSSIServices.find(
+                    (x) => x.appId === ssiServiceId
+                );
+                
+                if (!associatedSSIService) {
+                    throw new Error('Associated SSI service not found');
+                }
+                
+                this.isLoading = true;
+                const payload = {
+                    tenantUrl: associatedSSIService.tenantUrl,
+                    accessToken: associatedSSIService.access_token,
+                    did
+                };
+                const didDocument = await this.resolveDIDForAKycService(payload);
+                this.issuerVerificationMethodIds = didDocument.verificationMethod.filter(vm => vm);
+                this.isLoading = false;
+            } catch (e) {
+                this.isLoading = false;
+                this.notifyErr(e.message);
+            }
+        },
+        async startEdit() {
             this.backupData = JSON.parse(JSON.stringify(this.formData));
             this.isEditing = true;
+            
+            // Fetch DIDs if not already loaded
+            if (!this.associatedSSIServiceDIDs.length) {
+                await this.fetchDIDs();
+            }
+            
+            // If DID is already set, resolve it to get verification methods
+            if (this.formData.issuerDid) {
+                await this.resolveDid(this.formData.issuerDid);
+            }
         },
         cancelEdit() {
             this.formData = JSON.parse(JSON.stringify(this.backupData));
@@ -348,6 +560,18 @@ export default {
                 this.isLoading = true;
                 
                 await this.updateAnAppOnServer({ ...this.formData })
+
+                // Sync issuerDid and issuerVerificationMethodId into widget config
+                if (this.formData.issuerDid && Object.keys(this.widgetConfig).length > 0) {
+                    const updatedWidgetConfig = {
+                        ...this.widgetConfig,
+                        issuerDID: this.formData.issuerDid,
+                        issuerVerificationMethodId: this.formData.issuerVerificationMethodId || this.widgetConfig.issuerVerificationMethodId,
+                    }
+                    this.setWidgetConfig(updatedWidgetConfig)
+                    await this.updateAppsWidgetConfig()
+                }
+
                 this.notifySuccess("Service configuration updated successfully!");
             }catch(err){
                 this.notifyErr(err.message);

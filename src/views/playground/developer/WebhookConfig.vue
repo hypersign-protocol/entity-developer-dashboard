@@ -167,7 +167,7 @@ export default {
         this.isLoading = true;
         this.validateField()
         await this.createAppWebhookConfig({
-          "webhookUrl": this.webhookUrl,
+          "webhookUrl": this.webhookUrl.trim(),
           "header": this.getHeadersForSave()
         })
         this.formatConfig()

@@ -1391,7 +1391,6 @@ const mainStore = {
                 const authToken = getters.getSelectedService.access_token
                 const headers = UtilsMixin.methods.getKycServiceHeader(authToken);
                 const data = getters.getWidgetnConfig;
-                data['issuerVerificationMethodId'] = getters.getWidgetnConfig.issuerDID + '#key-1';
                 fetch(url, {
                     method: 'POST',
                     headers,
@@ -1448,7 +1447,6 @@ const mainStore = {
                 const authToken = getters.getSelectedService.access_token
                 const headers = UtilsMixin.methods.getKycServiceHeader(authToken);
                 const data = getters.getWidgetnConfig;
-                data['issuerVerificationMethodId'] = getters.getWidgetnConfig.issuerDID + '#key-1';
                 fetch(url, {
                     method: 'PATCH',
                     headers,

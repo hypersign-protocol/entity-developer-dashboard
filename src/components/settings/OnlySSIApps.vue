@@ -208,7 +208,13 @@
             <option value="prod">Production</option>
           </select>
         </div>
-
+        <div class="form-group">
+          <tool-tip
+            infoMessage="Listed origins allowed to make CORS requests. Enter comman seperated URLs to whitelist"></tool-tip>
+          <label for="orgName"><strong>Allowed Origins (CORS):</strong></label>
+          <textarea class="form-control" v-model="appModel.whitelistedCors" rows="3"
+            placeholder="http://your-domain.com,http://test.com"></textarea>
+        </div>
         <div class="form-group" v-if="edit">
           <hf-buttons name="Update" class="btn btn-primary"
             @executeAction="updateAnAppAPIServer()"></hf-buttons>
@@ -815,8 +821,7 @@ export default {
       const appModel = this.getAppByAppId(appId);
 
       //// commeting it for time being 
-      // appModel.whitelistedCors = appModel.whitelistedCors.toString();
-      appModel.whitelistedCors = '*';
+       appModel.whitelistedCors = appModel.whitelistedCors.toString();
 
       Object.assign(this.appModel, { ...appModel });
       this.selectedAssociatedSSIAppId = appModel.dependentServices[0];
@@ -875,7 +880,11 @@ export default {
         m.push(messages.APPLICATION.ENTER_DOMAIN_ORGIN);
       } else {
         try {
-          const t = new URL(this.appModel.domain);
+          let domain = this.appModel.domain?.trim();
+          if (domain && !domain.startsWith("http://") && !domain.startsWith("https://")) {
+            domain = `https://${domain}`;
+          }
+          const t = new URL(domain);
           if (!t.origin || t.host == "") {
             throw new Error();
           }
@@ -1236,6 +1245,7 @@ export default {
         domain: "",
         hasDomainVerified: false,
         domainLinkageCredentialString: "",
+        whitelistedCors: "*"
       };
       this.selectedAssociatedSSIAppId = "";
       this.domain = "";
