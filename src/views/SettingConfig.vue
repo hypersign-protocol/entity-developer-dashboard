@@ -88,7 +88,7 @@
               <template #title>
                 <b-icon icon="piggy-bank" aria-hidden="true" small></b-icon> Issue Credits
               </template>
-              <!-- <AdminTeams /> -->
+              <CreditRecharge />
             </b-tab>
           </b-tabs>
         </b-tab>
@@ -111,6 +111,8 @@ import OnlySSIApps from '../components/settings/OnlySSIApps.vue';
 import UserProfile from '../components/settings/UserProfile.vue';
 import { mapActions } from 'vuex/dist/vuex.common.js';
 import ApproveCustomerOnboarding from './sa/components/ApproveCustomerOnboarding.vue'
+import CreditRecharge from './sa/components/CreditRecharge.vue'
+
 
 export default {
   name: "SettingConfig",
@@ -120,7 +122,8 @@ export default {
     MyInvitions,
     UserProfile,
     OnlySSIApps,    
-    ApproveCustomerOnboarding
+    ApproveCustomerOnboarding,
+    CreditRecharge
   },
   computed: {
     ...mapGetters('mainStore', ['getAuthToken', 'getUserDetails']),

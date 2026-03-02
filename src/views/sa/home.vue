@@ -19,6 +19,17 @@
                         </div>
                     </transition>
                 </div>
+                <div class="admin-card" :class="{ 'is-active': activeSection === 'credits' }">
+                    <div class="card-header" @click="toggleSection('credits')">
+                        <div class="header-left"><span>💳</span>
+                            <h3>Recharge Service Credits</h3>
+                        </div>
+                        <span class="arrow">{{ activeSection === 'credits' ? '▲' : '▼' }}</span>
+                    </div>
+                    <div v-if="activeSection === 'credits'" class="card-body">
+                        <CreditRecharge />
+                    </div>
+                </div>
             </div>
 
             <div v-else class="access-denied">
@@ -32,12 +43,13 @@
 import ApproveCustomerOnboarding from './components/ApproveCustomerOnboarding.vue';
 import AccessDenied from '../AccessDenied.vue';
 import { mapGetters } from "vuex/dist/vuex.common.js";
-
+import CreditRecharge from './components/CreditRecharge.vue';
 export default {
     name: 'SuperAdminHome',
     components: {
         ApproveCustomerOnboarding,
-        AccessDenied
+        AccessDenied,
+        CreditRecharge
     },
     data() {
         return {
