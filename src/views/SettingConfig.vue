@@ -70,6 +70,29 @@
           </template>
           <OnlySSIApps />
         </b-tab>
+
+        <b-tab v-if="isSuperAdminUser">
+          <template #title>
+            <b-icon icon="cpu" aria-hidden="true" small></b-icon>
+            <strong>Super Admin Toolings</strong>
+          </template>
+          <b-tabs card vertical justified small v-model="activeSuperAdminSubTab">
+            <b-tab>
+              <template #title>
+                <b-icon icon="clipboard-check" aria-hidden="true" small></b-icon>
+                Approve Onboarding
+              </template>
+               <ApproveCustomerOnboarding />
+            </b-tab>
+            <b-tab>
+              <template #title>
+                <b-icon icon="piggy-bank" aria-hidden="true" small></b-icon> Issue Credits
+              </template>
+              <!-- <AdminTeams /> -->
+            </b-tab>
+          </b-tabs>
+        </b-tab>
+
       </b-tabs>
     </div>
 
@@ -87,6 +110,7 @@ import { mapMutations, mapGetters } from "vuex";
 import OnlySSIApps from '../components/settings/OnlySSIApps.vue';
 import UserProfile from '../components/settings/UserProfile.vue';
 import { mapActions } from 'vuex/dist/vuex.common.js';
+import ApproveCustomerOnboarding from './sa/components/ApproveCustomerOnboarding.vue'
 
 export default {
   name: "SettingConfig",
@@ -95,11 +119,14 @@ export default {
     AdminTeams,
     MyInvitions,
     UserProfile,
-    OnlySSIApps
+    OnlySSIApps,    
+    ApproveCustomerOnboarding
   },
   computed: {
-    ...mapGetters('mainStore', ['getAuthToken']),
-    
+    ...mapGetters('mainStore', ['getAuthToken', 'getUserDetails']),
+    isSuperAdminUser() {
+      return this.getUserDetails?.role === "SUPER_ADMIN";
+    },
     
   },
   data() {
@@ -108,12 +135,13 @@ export default {
       activeMainTab: 0, // Default to Members tab
       activeProfileSubTab: 0,
       activeMembersSubTab: 0,
+      activeSuperAdminSubTab: 0,
       sentInvitiationCode: ""
     };
   },
   methods: {
     ...mapMutations("mainStore", ["setMainSideNavBar"]),
-    ...mapActions('mainStore', ['getMyRolesAction', 'getPeopleMembers'])
+    ...mapActions('mainStore', ['getMyRolesAction', 'getPeopleMembers',])
   },
   async mounted() {
     
