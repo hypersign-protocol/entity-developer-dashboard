@@ -113,6 +113,7 @@ import { mapActions } from 'vuex/dist/vuex.common.js';
 import ApproveCustomerOnboarding from './sa/components/ApproveCustomerOnboarding.vue'
 import CreditRecharge from './sa/components/CreditRecharge.vue'
 
+
 export default {
   name: "SettingConfig",
   components: {

@@ -19,7 +19,7 @@
                         </v-list-item-avatar>
                         <v-row align="center" justify="end" class="justify-content-end">
                             <div class="d-flex align-items-start">
-                                <v-checkbox v-model="eachOrg.selected"
+                                <v-checkbox :input-value="eachOrg.selected"
                                  @change="onIssuerToggle(eachOrg)"></v-checkbox>
                             </div>
                         </v-row>
@@ -113,21 +113,24 @@ export default {
     computed: {
         ...mapGetters('mainStore', ['getMarketPlaceApps']),
         services() {
-            return this.getMarketPlaceApps
+            return this.getMarketPlaceApps.filter(app => !!app.issuerDid)
         }
     },
-    beforeMount() {
-
-    },
     methods: {
-        ...mapMutations("mainStore", ["updateAnMarketPlaceApp", 'insertMarketplaceApps']),
+        ...mapMutations("mainStore", ['insertMarketplaceApps']),
         onIssuerToggle(eachOrg) {
+            // Toggle selected state and commit to the store
+            const updated = this.getMarketPlaceApps.map(x =>
+                x.appId === eachOrg.appId ? { ...x, selected: !x.selected } : x
+            )
+            this.insertMarketplaceApps(updated)
+            const updatedOrg = updated.find(x => x.appId === eachOrg.appId)
             this.$emit('selectedServiceEvent', {
-            issuerDid: eachOrg.issuerDid,
-            selected: eachOrg.selected,
-            appId: eachOrg.appId
+                issuerDid: updatedOrg.issuerDid,
+                selected: updatedOrg.selected,
+                appId: updatedOrg.appId
             })
-       },
+        },
         formattedAppName(appName) {
             if (appName == "" || appName == undefined) appName = "No app name";
             return this.truncate(appName, 25);
@@ -140,19 +143,6 @@ export default {
                 return domain
             }
         },
-        serviceSelected(eachOrg) {
-            if (eachOrg) {
-                const t = this.getMarketPlaceApps.map((x) => {
-                    if (x.appId === eachOrg.appId) {
-                        x['selected'] = x['selected'] && x['selected'] == true ? false : true;
-                    }
-                    return x
-                })
-                this.insertMarketplaceApps(t)
-                this.$emit('selectedServiceEvent', eachOrg);
-            }
-
-        }
     },
     mixins: [UtilsMixin],
 

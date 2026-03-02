@@ -285,9 +285,8 @@ h5 span {
         <small style="color:grey">Please add the TXT record in your DNS for DNS-01 validation</small>
       </div>
       <div class="form-group">
-        <label for="orgDid"><strong>Logo Url</strong> (optional): </label>
-        <input type="text" class="form-control" id="appId" v-model="domainLogoUrl"
-          placeholder="Enter logo url (e.g https://example.com/logo.png)" />
+        <label for="orgDid"><strong>Logo</strong> (optional): </label>
+        <LogoUploader v-model="domainLogoUrl"></LogoUploader>
       </div>
 
       <div class="text-center mt-3">
@@ -308,9 +307,10 @@ import HfButtons from "../../components/element/HfButtons.vue"
 import ToolTip from "../../components/element/ToolTip.vue"
 import DomainLinkage from '@hypersign-protocol/domain-linkage-verifier'
 import { mapState, mapGetters, mapActions, mapMutations } from "vuex";
+import LogoUploader from '../../components/element/LogoUploader.vue';
 export default {
   name: "DIDs",
-  components: { HfPopUp, StudioSideBar, HfButtons, ToolTip, },
+  components: { HfPopUp, StudioSideBar, HfButtons, ToolTip, LogoUploader },
   watch: {
   selectedDid: {
     handler(newValue) {

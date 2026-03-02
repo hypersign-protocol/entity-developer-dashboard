@@ -540,6 +540,12 @@ export default {
             // })
 
             menu.push({
+              href: "/studio/user-analytics/" + this.getSelectedService.appId,
+              title: EN.NAV.USER_ANALYTICS,
+              icon: "fa fa-chart-line",
+            })
+
+            menu.push({
               href: "/studio/usage/" + this.getSelectedService.appId,
               title: EN.NAV.USAGES,
               icon: "fa fa-chart-bar",

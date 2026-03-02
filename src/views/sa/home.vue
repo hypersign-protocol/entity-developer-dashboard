@@ -19,7 +19,6 @@
                         </div>
                     </transition>
                 </div>
-                
                 <div class="admin-card" :class="{ 'is-active': activeSection === 'credits' }">
                     <div class="card-header" @click="toggleSection('credits')">
                         <div class="header-left"><span>💳</span>
@@ -31,7 +30,6 @@
                         <CreditRecharge />
                     </div>
                 </div>
-
             </div>
 
             <div v-else class="access-denied">
