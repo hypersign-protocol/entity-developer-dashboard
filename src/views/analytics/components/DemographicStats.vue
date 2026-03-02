@@ -44,6 +44,12 @@ countries.registerLocale(enLocale);
 
 export default {
   name: 'DemographicStats',
+  props: {
+    env: {
+      type: String,
+      default: 'dev'
+    }
+  },
   data() {
     return {
       loading: true,
@@ -63,13 +69,23 @@ export default {
     window.removeEventListener('resize', this.handleResize);
     if (this.chart) this.chart.dispose();
   },
+  watch: {
+    env() {
+      this.refreshData();
+    }
+  },
   methods: {
     ...mapActions('mainStore', ['fetchAnalyticsDemographicStats']),
+
+    async refreshData() {
+      await this.fetchData();
+      await this.initChart();
+    },
 
     async fetchData() {
       this.loading = true;
       try {
-        const response = await this.fetchAnalyticsDemographicStats();
+        const response = await this.fetchAnalyticsDemographicStats({ env: this.env });
         if (response && response.data) {
           this.demographics = response.data;
         }

@@ -61,6 +61,12 @@ import { mapActions } from 'vuex/dist/vuex.common.js';
 
 export default {
   name: 'AnalyticsOverview',
+  props: {
+    env: {
+      type: String,
+      default: 'dev'
+    }
+  },
   data() {
     return {
       loading: true,
@@ -76,13 +82,18 @@ export default {
   mounted() {
     this.fetchOverviewData();
   },
+  watch: {
+    env() {
+      this.fetchOverviewData();
+    }
+  },
   methods: {
     ...mapActions('mainStore', ['fetchAnalyticsOverview']),
     async fetchOverviewData() {
       this.loading = true;
       this.error = null;
       try {
-        const response = await this.fetchAnalyticsOverview();
+        const response = await this.fetchAnalyticsOverview({ env: this.env });
         if (response && response.data) {
           this.metrics = response.data;
         } else {

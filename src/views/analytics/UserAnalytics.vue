@@ -3,25 +3,30 @@
         <v-row>
             <!-- Left Column -->
             <v-col cols="12">
-                <h4 class="font-weight-bold">User Analytics</h4>
+                <div class="d-flex justify-content-between align-items-center">
+                    <h4 class="font-weight-bold mb-0">User Analytics</h4>
+                    <div class="d-flex align-items-center">
+                        <b-form-checkbox v-model="isProd" switch size="sm" @change="handleEnvironmentChange">
+                            Prod
+                        </b-form-checkbox>
+                    </div>
+                </div>
             </v-col>
-
-            <!-- Right Column -->
         </v-row>
         <v-row>
             <v-col cols="12">
-                <Overview />
+                <Overview :env="env" />
             </v-col>
         </v-row>
         <v-row>
             <v-col cols="12">
-                <DemographicStats />
+                <DemographicStats :env="env" />
             </v-col>
 
         </v-row>
          <v-row>
             <v-col cols="12">
-                <DeviceStats />
+                <DeviceStats :env="env" />
             </v-col>
 
         </v-row>
@@ -36,16 +41,28 @@ export default {
     name: "UserAnalytics",
     data() {
         return {
-
+          isProd: false,
         };
+    },
+    computed: {
+        env() {
+            return this.isProd ? 'prod' : 'dev';
+        }
     },
     components: {
         Overview,
         DemographicStats,
         DeviceStats
     },
+    methods: {
+        handleEnvironmentChange() {
+        }
+    },
     created() {
-
+        // initialize toggle based on currently selected service env
+        if (this.$store && this.$store.getters['mainStore/getSelectedService']) {
+            this.isProd = this.$store.getters['mainStore/getSelectedService'].env === 'prod';
+        }
     },
 };
 </script>

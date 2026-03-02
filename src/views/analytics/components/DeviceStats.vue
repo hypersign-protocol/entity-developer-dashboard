@@ -49,6 +49,12 @@ import * as echarts from 'echarts';
 
 export default {
   name: 'DeviceStats',
+  props: {
+    env: {
+      type: String,
+      default: 'dev'
+    }
+  },
   data() {
     return {
       loading: true,
@@ -65,13 +71,18 @@ export default {
     window.removeEventListener('resize', this.handleResize);
     if (this.chart) this.chart.dispose();
   },
+  watch: {
+    env() {
+      this.fetchDevices();
+    }
+  },
   methods: {
     ...mapActions('mainStore', ['fetchAnalyticsDeviceStats']),
 
     async fetchDevices() {
       this.loading = true;
       try {
-        const response = await this.fetchAnalyticsDeviceStats();
+        const response = await this.fetchAnalyticsDeviceStats({ env: this.env });
         if (response && response.data) {
           this.deviceData = response.data;
         }

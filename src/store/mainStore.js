@@ -1473,13 +1473,16 @@ const mainStore = {
 
 
         // Analytics
-        fetchAnalyticsOverview: ({ commit, getters }) => {
+        fetchAnalyticsOverview: ({ commit, getters }, payload = {}) => {
             return new Promise((resolve, reject) => {
                 if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
                     return reject(new Error('Tenant url is null or empty, service is not selected'))
                 }
-                const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/analytics/overview`;
-                // const url = `http://localhost:3001/api/v1/e-kyc/verification/widget-config/`
+                let url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/analytics/overview`;
+                // append env query param if provided
+                if (payload.env) {
+                    url += `?env=${encodeURIComponent(payload.env)}`;
+                }
                 const authToken = getters.getSelectedService.access_token
                 const headers = UtilsMixin.methods.getKycServiceHeader(authToken);
                 // resolve({
@@ -1513,12 +1516,15 @@ const mainStore = {
         },
 
 
-        fetchAnalyticsDemographicStats: ({ commit, getters }) => {
+        fetchAnalyticsDemographicStats: ({ commit, getters }, payload = {}) => {
             return new Promise((resolve, reject) => {
                 if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
                     return reject(new Error('Tenant url is null or empty, service is not selected'))
                 }
-                const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/analytics/demographic-stats`;
+                let url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/analytics/demographic-stats`;
+                if (payload.env) {
+                    url += `?env=${encodeURIComponent(payload.env)}`;
+                }
                 const authToken = getters.getSelectedService.access_token
                 const headers = UtilsMixin.methods.getKycServiceHeader(authToken);
                 // resolve({
@@ -1567,12 +1573,15 @@ const mainStore = {
         },
 
 
-        fetchAnalyticsDeviceStats: ({ commit, getters }) => {
+        fetchAnalyticsDeviceStats: ({ commit, getters }, payload = {}) => {
             return new Promise((resolve, reject) => {
                 if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
                     return reject(new Error('Tenant url is null or empty, service is not selected'))
                 }
-                const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/analytics/device-stats`;
+                let url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/analytics/device-stats`;
+                if (payload.env) {
+                    url += `?env=${encodeURIComponent(payload.env)}`;
+                }
                 const authToken = getters.getSelectedService.access_token
                 const headers = UtilsMixin.methods.getKycServiceHeader(authToken);
                 // resolve({
@@ -1946,7 +1955,7 @@ const mainStore = {
                 if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
                     return reject(new Error('Tenant url is null or empty, service is not selected'))
                 }
-                const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)} /api/v1 / e - kyc / verification / session / ${sessionId} `;
+                const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/session/${sessionId}`;
                 // const url = `http://localhost:3001/api/v1/e-kyc/verification/session/${sessionId}`;
                 const authToken = getters.getSelectedService.access_token
                 const headers = UtilsMixin.methods.getKycServiceHeader(authToken);
