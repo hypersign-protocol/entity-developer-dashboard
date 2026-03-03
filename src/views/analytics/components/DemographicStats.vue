@@ -11,6 +11,15 @@
       <div class="skeleton-map"></div>
     </div>
 
+    <div v-else-if="error" class="state-box error-box">
+      <p>{{ error }}</p>
+      <button @click="refreshData" class="retry-btn">Try again</button>
+    </div>
+
+    <div v-else-if="!hasDemographicData" class="state-box empty-box">
+      <p>No demographic data available for the selected environment.</p>
+    </div>
+
     <div v-else class="demographic-content">
       <div class="map-container">
         <div ref="worldMap" class="chart-canvas"></div>
@@ -53,6 +62,7 @@ export default {
   data() {
     return {
       loading: true,
+      error: null,
       demographics: {
         continents: {},
         countries: {}
@@ -60,9 +70,19 @@ export default {
       chart: null
     };
   },
+  computed: {
+    hasCountryData() {
+      return Object.keys(this.demographics.countries || {}).length > 0;
+    },
+    hasContinentData() {
+      return Object.keys(this.demographics.continents || {}).length > 0;
+    },
+    hasDemographicData() {
+      return this.hasCountryData || this.hasContinentData;
+    }
+  },
   async mounted() {
-    await this.fetchData();
-    await this.initChart();
+    await this.refreshData();
     window.addEventListener('resize', this.handleResize);
   },
   beforeDestroy() {
@@ -80,21 +100,46 @@ export default {
     async refreshData() {
       await this.fetchData();
       await this.$nextTick();
+
+      if (!this.hasDemographicData || !this.$refs.worldMap) {
+        if (this.chart) {
+          this.chart.dispose();
+          this.chart = null;
+        }
+        return;
+      }
+
       await this.initChart();
     },
 
     async fetchData() {
       this.loading = true;
+      this.error = null;
       try {
         const response = await this.fetchAnalyticsDemographicStats({ env: this.env });
         if (response && response.data) {
-          this.demographics = response.data;
+          this.demographics = this.normalizeDemographics(response.data);
+        } else {
+          this.demographics = this.normalizeDemographics({});
         }
       } catch (err) {
+        this.demographics = this.normalizeDemographics({});
+        this.error = "Unable to load demographic stats.";
         console.error("Error fetching demographics:", err);
       } finally {
         this.loading = false;
       }
+    },
+
+    normalizeDemographics(data) {
+      const continents = data && typeof data.continents === 'object' && !Array.isArray(data.continents)
+        ? data.continents
+        : {};
+      const countries = data && typeof data.countries === 'object' && !Array.isArray(data.countries)
+        ? data.countries
+        : {};
+
+      return { continents, countries };
     },
 
     async initChart() {
@@ -288,6 +333,37 @@ export default {
   background: #e5e7eb;
   border-radius: 0.5rem;
   animation: pulse 2s infinite;
+}
+
+.state-box {
+  width: 100%;
+  min-height: 220px;
+  border-radius: 0.5rem;
+  border: 1px solid #f3f4f6;
+  background: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 1rem;
+}
+
+.empty-box {
+  color: #6b7280;
+}
+
+.error-box {
+  color: #b91c1c;
+}
+
+.retry-btn {
+  margin-top: 0.75rem;
+  border: 1px solid #fca5a5;
+  background: #fff;
+  color: #b91c1c;
+  border-radius: 0.375rem;
+  padding: 0.35rem 0.7rem;
 }
 
 @keyframes pulse {
