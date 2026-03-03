@@ -12,6 +12,15 @@
       <div v-for="i in 4" :key="i" class="stat-card skeleton-pulse"></div>
     </div>
 
+    <div v-else-if="error" class="state-box error-box">
+      <p>{{ error }}</p>
+      <button @click="refreshData" class="retry-btn">Try again</button>
+    </div>
+
+    <div v-else-if="!hasDeviceData" class="state-box empty-box">
+      <p>No device data available for the selected environment.</p>
+    </div>
+
     <div v-else class="device-grid">
       <div class="chart-wrapper">
         <div ref="deviceChart" class="chart-canvas"></div>
@@ -29,13 +38,13 @@
                 <div 
                   class="progress-fill" 
                   :style="{ 
-                    width: device.percentage + '%', 
+                    width: getSafePercentage(device.percentage) + '%', 
                     backgroundColor: getDeviceColor(device.deviceType) 
                   }"
                 ></div>
               </div>
             </div>
-            <span class="device-val">{{ device.percentage }}%</span>
+            <span class="device-val">{{ getSafePercentage(device.percentage) }}%</span>
           </div>
         </div>
       </div>
@@ -58,9 +67,15 @@ export default {
   data() {
     return {
       loading: true,
+      error: null,
       deviceData: [],
       chart: null
     };
+  },
+  computed: {
+    hasDeviceData() {
+      return this.deviceData.length > 0;
+    }
   },
   async mounted() {
     await this.fetchDevices();
@@ -88,28 +103,36 @@ export default {
 
     async fetchDevices() {
       this.loading = true;
+      this.error = null;
       try {
         const response = await this.fetchAnalyticsDeviceStats({ env: this.env });
         if (response && Array.isArray(response.data)) {
-          this.deviceData = response.data;
+          this.deviceData = response.data
+            .filter(item => item && item.deviceType)
+            .map(item => ({
+              deviceType: item.deviceType,
+              percentage: Number(item.percentage) || 0
+            }));
         } else {
           this.deviceData = [];
         }
       } catch (err) {
         console.error("API Error:", err);
-        // Using provided example data as fallback
-        this.deviceData = [
-          { deviceType: 'Desktop', percentage: 90 },
-          { deviceType: 'Mobile', percentage: 5 },
-          { deviceType: 'Tablet', percentage: 2 }
-        ];
+        this.deviceData = [];
+        this.error = "Unable to load device stats.";
       } finally {
         this.loading = false;
       }
     },
 
     initChart() {
-      if (!this.$refs.deviceChart) return;
+      if (!this.$refs.deviceChart || !this.hasDeviceData) {
+        if (this.chart) {
+          this.chart.dispose();
+          this.chart = null;
+        }
+        return;
+      }
 
       if (this.chart) {
         this.chart.dispose();
@@ -119,7 +142,7 @@ export default {
       
       const chartData = this.deviceData.map(item => ({
         name: item.deviceType,
-        value: item.percentage
+        value: this.getSafePercentage(item.percentage)
       }));
 
       const option = {
@@ -154,6 +177,11 @@ export default {
         'Unknown': '#9ca3af'
       };
       return colors[type] || '#cbd5e1';
+    },
+
+    getSafePercentage(value) {
+      const percentage = Number(value) || 0;
+      return Math.max(0, Math.min(100, percentage));
     },
 
     handleResize() {
@@ -297,6 +325,37 @@ export default {
   background-color: #e5e7eb;
   border-radius: 0.5rem;
   animation: pulse 1.8s infinite ease-in-out;
+}
+
+.state-box {
+  width: 100%;
+  min-height: 220px;
+  border-radius: 0.5rem;
+  border: 1px solid #f3f4f6;
+  background: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 1rem;
+}
+
+.empty-box {
+  color: #6b7280;
+}
+
+.error-box {
+  color: #b91c1c;
+}
+
+.retry-btn {
+  margin-top: 0.75rem;
+  border: 1px solid #fca5a5;
+  background: #fff;
+  color: #b91c1c;
+  border-radius: 0.375rem;
+  padding: 0.35rem 0.7rem;
 }
 
 @keyframes pulse {
