@@ -64,6 +64,7 @@ export default {
   },
   async mounted() {
     await this.fetchDevices();
+    await this.$nextTick();
     this.initChart();
     window.addEventListener('resize', this.handleResize);
   },
@@ -72,19 +73,27 @@ export default {
     if (this.chart) this.chart.dispose();
   },
   watch: {
-    env() {
-      this.fetchDevices();
+    async env() {
+      await this.refreshData();
     }
   },
   methods: {
     ...mapActions('mainStore', ['fetchAnalyticsDeviceStats']),
 
+    async refreshData() {
+      await this.fetchDevices();
+      await this.$nextTick();
+      this.initChart();
+    },
+
     async fetchDevices() {
       this.loading = true;
       try {
         const response = await this.fetchAnalyticsDeviceStats({ env: this.env });
-        if (response && response.data) {
+        if (response && Array.isArray(response.data)) {
           this.deviceData = response.data;
+        } else {
+          this.deviceData = [];
         }
       } catch (err) {
         console.error("API Error:", err);
@@ -101,6 +110,11 @@ export default {
 
     initChart() {
       if (!this.$refs.deviceChart) return;
+
+      if (this.chart) {
+        this.chart.dispose();
+      }
+
       this.chart = echarts.init(this.$refs.deviceChart);
       
       const chartData = this.deviceData.map(item => ({

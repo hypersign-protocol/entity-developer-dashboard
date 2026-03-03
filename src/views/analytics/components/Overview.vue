@@ -19,7 +19,7 @@
       <div class="stat-card border-blue">
         <div class="card-content">
           <p class="label">Total Verifications</p>
-          <h3 class="value">{{ metrics.totalVerifications.toLocaleString() }}</h3>
+          <h3 class="value">{{ formatNumber(metrics.totalVerifications) }}</h3>
         </div>
         <p class="subtext text-muted italic">Across all channels</p>
       </div>
@@ -59,6 +59,13 @@
 <script>
 import { mapActions } from 'vuex/dist/vuex.common.js';
 
+const getDefaultMetrics = () => ({
+  totalVerifications: 0,
+  completionRate: 0,
+  successRate: 0,
+  dropOffRate: 0
+});
+
 export default {
   name: 'AnalyticsOverview',
   props: {
@@ -71,12 +78,7 @@ export default {
     return {
       loading: true,
       error: null,
-      metrics: {
-        totalVerifications: 0,
-        completionRate: 0,
-        successRate: 0,
-        dropOffRate: 0
-      }
+      metrics: getDefaultMetrics()
     };
   },
   mounted() {
@@ -89,17 +91,28 @@ export default {
   },
   methods: {
     ...mapActions('mainStore', ['fetchAnalyticsOverview']),
+    formatNumber(value) {
+      return Number(value || 0).toLocaleString();
+    },
     async fetchOverviewData() {
       this.loading = true;
       this.error = null;
       try {
         const response = await this.fetchAnalyticsOverview({ env: this.env });
         if (response && response.data) {
-          this.metrics = response.data;
+          this.metrics = {
+            ...getDefaultMetrics(),
+            totalVerifications: Number(response.data.totalVerifications) || 0,
+            completionRate: Number(response.data.completionRate) || 0,
+            successRate: Number(response.data.successRate) || 0,
+            dropOffRate: Number(response.data.dropOffRate) || 0
+          };
         } else {
+          this.metrics = getDefaultMetrics();
           this.error = "Data format mismatch from server.";
         }
       } catch (err) {
+        this.metrics = getDefaultMetrics();
         this.error = "Unable to load dashboard data.";
       } finally {
         this.loading = false;

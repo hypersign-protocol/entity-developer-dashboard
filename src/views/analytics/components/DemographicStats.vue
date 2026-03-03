@@ -79,6 +79,7 @@ export default {
 
     async refreshData() {
       await this.fetchData();
+      await this.$nextTick();
       await this.initChart();
     },
 
@@ -97,11 +98,21 @@ export default {
     },
 
     async initChart() {
-      // 1. Fetch World GeoJSON (ECharts needs this to draw the map)
-      const worldData = await fetch('https://cdn.jsdelivr.net/npm/echarts@4.9.0/map/json/world.json').then(res => res.json());
-      echarts.registerMap('world', worldData);
-
       const chartDom = this.$refs.worldMap;
+      if (!chartDom) return;
+
+      if (this.chart) {
+        this.chart.dispose();
+      }
+
+      try {
+        const worldData = await fetch('https://cdn.jsdelivr.net/npm/echarts@4.9.0/map/json/world.json').then(res => res.json());
+        echarts.registerMap('world', worldData);
+      } catch (error) {
+        console.error('Error loading world map:', error);
+        return;
+      }
+
       this.chart = echarts.init(chartDom);
 
       // 2. Format country data for ECharts (Mapping ISO codes to Map Names if necessary)
@@ -113,7 +124,7 @@ export default {
         //     value: value
         //   }));
 
-      const mapData = Object.entries(this.demographics.countries).map(([code, value]) => ({
+      const mapData = Object.entries(this.demographics.countries || {}).map(([code, value]) => ({
         name: countries.getName(code, "en") || code, // Dynamically gets "India" from "IN"
         value: value
       }));

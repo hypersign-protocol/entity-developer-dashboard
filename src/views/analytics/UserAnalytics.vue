@@ -1,5 +1,5 @@
 <template>
-    <v-container >
+    <v-container>
         <v-row>
             <!-- Left Column -->
             <v-col cols="12">
@@ -24,7 +24,7 @@
             </v-col>
 
         </v-row>
-         <v-row>
+        <v-row>
             <v-col cols="12">
                 <DeviceStats :env="env" />
             </v-col>
@@ -41,7 +41,7 @@ export default {
     name: "UserAnalytics",
     data() {
         return {
-          isProd: false,
+            isProd: false,
         };
     },
     computed: {
