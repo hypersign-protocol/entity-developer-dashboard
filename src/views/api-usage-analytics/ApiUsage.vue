@@ -6,14 +6,14 @@
         <p class="text-subtitle-2 text-muted">Monitor consumption and service costs</p>
       </v-col>
       <v-col cols="12" md="6" >
-        <!-- <v-menu v-model="menu1" :close-on-content-click="false" transition="scale-transition" offset-y min-width="auto">
+        <v-menu v-model="menu1" :close-on-content-click="false" transition="scale-transition" offset-y min-width="auto">
           <template v-slot:activator="{ on, attrs }">
             <v-text-field v-model="dates" label="Date Range" prepend-icon="mdi-calendar" readonly v-bind="attrs" v-on="on" dense outlined hide-details class="max-width-300"></v-text-field>
           </template>
           <v-date-picker v-model="dates" range @change="handleDateChange"></v-date-picker>
-        </v-menu> -->
+        </v-menu>
 
-        <div class="date-picker-group d-flex align-center">
+        <!-- <div class="date-picker-group d-flex align-center">
           <b-form-datepicker
             v-model="startDate"
             size="sm"
@@ -33,7 +33,7 @@
             class="custom-date-input"
             @input="handleDateChange"
           ></b-form-datepicker>
-        </div>
+        </div> -->
       </v-col>
     </v-row>
 
