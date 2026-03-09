@@ -511,140 +511,144 @@ export default {
 
     },
 
-    getSideMenu() {
+ getSideMenu() {
 
-      const menu = [
-        
-      ];
+  const menu = [];
 
-      if (this.getSelectedService) {
-        if (this.getSelectedService.services.length > 0) {
-          const id = this.getSelectedService.services[0].id
-          if (id == 'CAVACH_API') {
-            menu.push({
-              href: "/studio/getting-started/" + this.getSelectedService.appId,
-              title: EN.NAV.GETTING_STARTED,
-              icon: "fa fa-flag-checkered",
-            })
+  if (this.getSelectedService && this.getSelectedService.services.length > 0) {
 
-            menu.push({
-              href: "/studio/sessions/" + this.getSelectedService.appId,
-              title: EN.NAV.USERS,
-              icon: "fa fa-users",
-            })
+    const id = this.getSelectedService.services[0].id;
+    const appId = this.getSelectedService.appId;
 
-            // menu.push({
-            //   href:"/studio/business/"+this.getSelectedService.appId,
-            //   title: EN.NAV.BUSINESSES,
-            //   icon:"fa fa-briefcase"
-            // })
+    if (id == 'CAVACH_API') {
 
-            menu.push({
-              href: "/studio/user-analytics/" + this.getSelectedService.appId,
-              title: EN.NAV.USER_ANALYTICS,
-              icon: "fa fa-chart-line",
-            })
+      // Getting Started
+      menu.push({
+        href: "/studio/getting-started/" + appId,
+        title: EN.NAV.GETTING_STARTED,
+        icon: "fa fa-flag-checkered",
+      });
 
-            menu.push({
-              href: "/studio/usage/" + this.getSelectedService.appId,
-              title: EN.NAV.USAGES,
-              icon: "fa fa-chart-bar",
-            })
-
-            menu.push({
-              href: "/studio/onchainkyc/credit/" + this.getSelectedService.appId,
-              title: EN.NAV.CREDIT,
-              icon: "fas fa-hand-holding-usd",
-            })
-            menu.push({
-              href:"#/code",
-              title: EN.NAV.DEVELOPERS.TITLE,
-              icon:"fa fa-code",
-              child:[
-                {
-                  href:"/studio/developer/api-key/"+this.getSelectedService.appId,
-                  title: EN.NAV.DEVELOPERS.API_KEY,
-                  icon:"fa fa-key",
-                },
-                {
-                  href:"/studio/developer/webhook/"+this.getSelectedService.appId,
-                  title: EN.NAV.DEVELOPERS.WEBHOOK,
-                  icon:"fa fa-anchor",
-                }
-              ]
-            })
-
-            menu.push({
-              href: '#',
-              title: EN.NAV.SETTINGS.TITLE,
-              icon: 'fa fa-cogs',
-              child: [
-                {
-                  href: "/studio/widget-config/" + this.getSelectedService.appId,
-                  title: EN.NAV.SETTINGS.KYC_WIDGET,
-                  icon: "fa fa-puzzle-piece",
-                },
-                // {
-                //   href: "/studio/kyb-widget-config/" + this.getSelectedService.appId,
-                //   title: "KYB Widget",
-                //   icon: "fa fa-building",
-                // },  
-                {
-                  href: "/studio/kyc-webpage-generator/" + this.getSelectedService.appId,
-                  title: EN.NAV.SETTINGS.KYC_VERIFIER_CONFIGURATION,
-                  icon: "fa fa-globe",
-                },
-                {
-                  href: "/studio/service-config/" + this.getSelectedService.appId,
-                  title: EN.NAV.SETTINGS.SERVICE_CONFIGURATION,
-                  icon: "fa fa-cog",
-                }
-
-                // {
-                //   href: "/studio/onchainkyc/" + this.getSelectedService.appId,
-                //   title: "OnChain KYC",
-                //   icon: "fas fa-network-wired",
-                // },
-              ]
-            })
-
-            
-            
-          } else if (id == 'SSI_API') {
-            menu.push({
-              href: "/studio/ssi/did/" + this.getSelectedService.appId,
-              title: "DIDs",
-              icon: "fa fa-id-badge",
-            })
-
-            menu.push({
-              href: "/studio/ssi/schema/" + this.getSelectedService.appId,
-              title: "Schemas",
-              icon: "fa fa-puzzle-piece",
-            })
-
-            menu.push({
-              href: "/studio/ssi/credential/" + this.getSelectedService.appId,
-              title: "Credential",
-              icon: "fa fa-certificate",
-            })
-            menu.push({
-              href: "/studio/ssi/usage/" + this.getSelectedService.appId,
-              title: "Usages",
-              icon: "fa fa-chart-bar",
-                      })
-
-            menu.push({
-              href: "/studio/ssi/credit/" + this.getSelectedService.appId,
-              title: "Credits",
-              icon: "fas fa-hand-holding-usd",
-
-            })
+      // Identity Verification
+      menu.push({
+        href: "#",
+        title: EN.NAV.IDENTITY_VERIFICATION.TITLE,
+        icon: "fa fa-user-check",
+        child: [
+          {
+            href: "/studio/sessions/" + appId,
+            title: EN.NAV.IDENTITY_VERIFICATION.USERS,
+            icon: "fa fa-users",
+          },
+          {
+            href: "/studio/user-analytics/" + appId,
+            title: EN.NAV.IDENTITY_VERIFICATION.USER_ANALYTICS,
+            icon: "fa fa-chart-line",
+          },
+          {
+            href: "/studio/widget-config/" + appId,
+            title: EN.NAV.IDENTITY_VERIFICATION.KYC_WIDGET,
+            icon: "fa fa-puzzle-piece",
           }
-        }
-      }
-      return menu;
-    },
+        ]
+      });
+
+      // Developer Hub
+      menu.push({
+        href: "#",
+        title: EN.NAV.DEVELOPERS_HUB.TITLE,
+        icon: "fa fa-code",
+        child: [
+          {
+            href: "/studio/developer/api-key/" + appId,
+            title: EN.NAV.DEVELOPERS_HUB.API_KEY,
+            icon: "fa fa-key",
+          },
+          {
+            href: "/studio/developer/webhook/" + appId,
+            title: EN.NAV.DEVELOPERS_HUB.WEBHOOK,
+            icon: "fa fa-anchor",
+          },
+          {
+            href: "/studio/service-config/" + appId,
+            title: EN.NAV.DEVELOPERS_HUB.SERVICE_CONFIGURATION,
+            icon: "fa fa-cog",
+          }
+        ]
+      });
+
+      // Solutions
+      menu.push({
+        href: "#",
+        title: EN.NAV.SOLUTIONS.TITLE,
+        icon: "fa fa-lightbulb",
+        child: [
+          {
+            href: "/studio/kyc-webpage-generator/" + appId,
+            title: EN.NAV.SOLUTIONS.KYC_VERIFIER_CONFIGURATION,
+            icon: "fa fa-globe",
+          }
+        ]
+      });
+
+      // Billing & Usage
+      menu.push({
+        href: "#",
+        title: EN.NAV.BILLING_AND_USAGE.TITLE,
+        icon: "fa fa-credit-card",
+        child: [
+          {
+            href: "/studio/onchainkyc/credit/" + appId,
+            title: EN.NAV.BILLING_AND_USAGE.CREDIT,
+            icon: "fas fa-hand-holding-usd",
+          },
+          {
+            href: "/studio/usage/" + appId,
+            title: EN.NAV.BILLING_AND_USAGE.USAGES,
+            icon: "fa fa-chart-bar",
+          }
+        ]
+      });
+
+    }
+
+    else if (id === 'SSI_API') {
+
+      menu.push({
+        href: "/studio/ssi/did/" + appId,
+        title: "DIDs",
+        icon: "fa fa-id-badge",
+      });
+
+      menu.push({
+        href: "/studio/ssi/schema/" + appId,
+        title: "Schemas",
+        icon: "fa fa-puzzle-piece",
+      });
+
+      menu.push({
+        href: "/studio/ssi/credential/" + appId,
+        title: "Credential",
+        icon: "fa fa-certificate",
+      });
+
+      menu.push({
+        href: "/studio/ssi/usage/" + appId,
+        title: EN.NAV.BILLING_AND_USAGE.USAGES,
+        icon: "fa fa-chart-bar",
+      });
+
+      menu.push({
+        href: "/studio/ssi/credit/" + appId,
+        title: EN.NAV.BILLING_AND_USAGE.CREDIT,
+        icon: "fas fa-hand-holding-usd",
+      });
+
+    }
+  }
+
+  return menu;
+},
 
     fetchAllOrgs() {
       this.fetchAllOrgsAction();
