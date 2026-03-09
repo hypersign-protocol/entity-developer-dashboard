@@ -1,4 +1,4 @@
-FROM node:18 as build-stage
+FROM node:18 AS build-stage
 
 # RUN apt-get update && apt-get install -y git
 # RUN git clone https://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@github.com/hypersign-protocol/entity-developer-dashboard.git /app
@@ -30,7 +30,7 @@ ENV VUE_APP_ORIGINS='__VUE_APP_ORIGINS__'
 
 RUN yarn  build
 
-FROM nginx:latest as production-stage
+FROM nginx:latest AS production-stage
 COPY --from=build-stage /app/dist /usr/share/nginx/html
 
 EXPOSE 80
