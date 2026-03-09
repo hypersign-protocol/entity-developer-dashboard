@@ -6,14 +6,14 @@
         <p class="text-subtitle-2 text-muted">Monitor consumption and service costs</p>
       </v-col>
       <v-col cols="12" md="6" >
-        <v-menu v-model="menu1" :close-on-content-click="false" transition="scale-transition" offset-y min-width="auto">
+        <!-- <v-menu v-model="menu1" :close-on-content-click="false" transition="scale-transition" offset-y min-width="auto">
           <template v-slot:activator="{ on, attrs }">
             <v-text-field v-model="dates" label="Date Range" prepend-icon="mdi-calendar" readonly v-bind="attrs" v-on="on" dense outlined hide-details class="max-width-300"></v-text-field>
           </template>
           <v-date-picker v-model="dates" range @change="handleDateChange"></v-date-picker>
-        </v-menu>
+        </v-menu> -->
 
-        <!-- <div class="date-picker-group d-flex align-center">
+        <div class="date-picker-group d-flex align-center">
           <b-form-datepicker
             v-model="startDate"
             size="sm"
@@ -33,7 +33,7 @@
             class="custom-date-input"
             @input="handleDateChange"
           ></b-form-datepicker>
-        </div> -->
+        </div>
       </v-col>
     </v-row>
 
@@ -123,7 +123,8 @@ export default {
   data() {
     return {
       loading: false,
-      dates: [moment().subtract(30, 'days').format('YYYY-MM-DD'), moment().format('YYYY-MM-DD')],
+      startDate: moment().subtract(30, 'days').format('YYYY-MM-DD'),
+      endDate: moment().format('YYYY-MM-DD'),
       menu1: false,
       usageSummary: [],
       dailyData: [],
@@ -148,8 +149,8 @@ export default {
       this.loading = true;
       try {
         const [dailyRes, summaryRes] = await Promise.all([
-          this.fetchUsageDetailsForAService({ startDate: this.dates[0], endDate: this.dates[1] }),
-          this.fetchUsageForAService({ startDate: this.dates[0], endDate: this.dates[1] })
+          this.fetchUsageDetailsForAService({ startDate: this.startDate, endDate: this.endDate }),
+          this.fetchUsageForAService({ startDate: this.startDate, endDate: this.endDate })
         ]);
 
         this.dailyData = dailyRes.serviceDetails || [];
@@ -236,7 +237,7 @@ export default {
       });
     },
 
-    handleDateChange() { if (this.dates.length === 2) this.refreshData(); },
+    handleDateChange() { this.refreshData(); },
     handleResize() {
       this.lineChart?.resize();
       this.barChart?.resize();
