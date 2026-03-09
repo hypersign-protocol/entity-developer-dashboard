@@ -5,7 +5,8 @@ FROM node:18 AS build-stage
 
 WORKDIR /app
 COPY ./package.json .
-RUN yarn
+COPY ./yarn.lock .
+RUN yarn install --frozen-lockfile
 
 COPY . .
 ENV VUE_APP_TITLE='__VUE_APP_TITLE__'
