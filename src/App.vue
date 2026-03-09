@@ -552,6 +552,19 @@ export default {
           }
         ]
       });
+   // Solutions
+      menu.push({
+        href: "#",
+        title: EN.NAV.SOLUTIONS.TITLE,
+        icon: "fa fa-lightbulb",
+        child: [
+          {
+            href: "/studio/kyc-webpage-generator/" + appId,
+            title: EN.NAV.SOLUTIONS.KYC_VERIFIER_CONFIGURATION,
+            icon: "fa fa-globe",
+          }
+        ]
+      });
 
       // Developer Hub
       menu.push({
@@ -576,21 +589,6 @@ export default {
           }
         ]
       });
-
-      // Solutions
-      menu.push({
-        href: "#",
-        title: EN.NAV.SOLUTIONS.TITLE,
-        icon: "fa fa-lightbulb",
-        child: [
-          {
-            href: "/studio/kyc-webpage-generator/" + appId,
-            title: EN.NAV.SOLUTIONS.KYC_VERIFIER_CONFIGURATION,
-            icon: "fa fa-globe",
-          }
-        ]
-      });
-
       // Billing & Usage
       menu.push({
         href: "#",
