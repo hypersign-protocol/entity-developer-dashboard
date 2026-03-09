@@ -6,6 +6,11 @@ export const NAV = {
         USER_ANALYTICS: "Analytics",
         KYC_WIDGET: "Widget",
     },
+    BUSINESS_VERIFICATION: {
+        TITLE: "Business Verification",
+        BUSINESSES: "Businesses",
+        KYB_WIDGET: "Widget",
+    },
     DEVELOPERS_HUB: {
         TITLE: "Developer Hub",
         API_KEY: "API Keys",

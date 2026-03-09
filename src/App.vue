@@ -552,6 +552,26 @@ export default {
           }
         ]
       });
+       // Buniness Verification
+      menu.push({
+        href: "#",
+        title: EN.NAV.BUSINESS_VERIFICATION.TITLE,
+        icon: "fa fa-building",
+        child: [
+          {
+              href:"/studio/business/"+this.getSelectedService.appId,
+              title: EN.NAV.BUSINESS_VERIFICATION.BUSINESSES,
+              icon:"fa fa-briefcase"
+            },
+         
+          {
+          href: "/studio/kyb-widget-config/" + this.getSelectedService.appId,
+            title: EN.NAV.BUSINESS_VERIFICATION.KYB_WIDGET,
+            icon: "fa fa-puzzle-piece",
+
+          }
+        ]
+      });
    // Solutions
       menu.push({
         href: "#",
