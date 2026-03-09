@@ -1,21 +1,29 @@
 export const NAV = {
-    USERS: "Users",
-    BUSINESSES: "Businesses",
-    USAGES: "Usages",
-    USER_ANALYTICS: "User Analytics",
-    CREDIT: "Credit",
     GETTING_STARTED: "Getting Started",
-    SETTINGS: {
-        TITLE: "Settings",
-        KYC_WIDGET: "KYC Widget",
-        WEBHOOK: "Webhook",
-        KYC_VERIFIER_CONFIGURATION: "KYC Verifier",
-        ONCHAIN_KYC: "OnChain KYC",
+    IDENTITY_VERIFICATION: {
+        TITLE: "Identity Verification",
+        USERS: "Users",
+        USER_ANALYTICS: "Analytics",
+        KYC_WIDGET: "Widget",
+    },
+    BUSINESS_VERIFICATION: {
+        TITLE: "Business Verification",
+        BUSINESSES: "Businesses",
+        KYB_WIDGET: "Widget",
+    },
+    DEVELOPERS_HUB: {
+        TITLE: "Developer Hub",
+        API_KEY: "API Keys",
+        WEBHOOK: "Webhooks",
         SERVICE_CONFIGURATION: "App Config",
     },
-    DEVELOPERS: {
-        TITLE: "Developers",
-        API_KEY: "API Key",
-        WEBHOOK: "Webhooks",
+    SOLUTIONS:{
+        TITLE:"Solutions",
+        KYC_VERIFIER_CONFIGURATION: "Custom Page"
+    },
+    BILLING_AND_USAGE: {
+        TITLE: "Billing & Usage",
+        CREDIT: "Credits",
+        USAGES: "API Usages",
     }
 }
