@@ -1,509 +1,467 @@
-<style scoped>
-.sticky-header {
-    position: sticky;
-    top: 0;
-}
-
-.container {
-    width: 80vw;
-}
-
-.UI--c-kbgiPT-iehgGlf-css {
-    background-color: #9cb5f9;
-}
-
-.step-notStarted {
-    background-color: #afb8cc;
-}
-
-.step-finished {
-    background-color: #9cb5f9;
-}
-
-
-.UI--c-dhzjXW-iexswVt-css {
-    align-items: center;
-    justify-content: center;
-}
-
-.UI--c-kbgiPT-bUORwj-isFirst-true {
-    padding: 0px 0.4rem 0px 0px;
-    clip-path: polygon(75% 0%, 100% 50%, 75% 100%, 0% 100%, 0% 100%, 0% 0%);
-}
-
-.UI--c-kbgiPT {
-    height: 100%;
-    width: 4.8rem;
-    clip-path: polygon(75% 0%, 100% 50%, 75% 100%, 0% 100%, 25% 50%, 0% 0%);
-    margin-left: -0.9rem;
-    padding: 0px 0.4rem 0px 0.8rem;
-}
-
-.UI--c-dhzjXW {
-    display: flex;
-}
-
-.stepSpan {
-    cursor: pointer;
-    margin: 3px;
-    padding: 0px;
-    border: 0px;
-    font: inherit;
-    vertical-align: baseline;
-    float: left
-}
-
-.step {
-    height: 32px;
-    width: 50px;
-}
-
-.card-header {
-    background: aliceblue;
-    padding: 0px;
-}
-
-.goschema {
-    color: #339af0;
-}
-
-.goschema:hover {
-    text-decoration: underline;
-    cursor: pointer;
-}
-
-.far {
-    color: gray;
-    font-size: 1.5em;
-    display: inline;
-    cursor: pointer;
-}
-
-.datetime-picker {
-    background-color: #fff;
-    background-clip: content-box;
-    border: 1px solid #ced4da;
-    border-radius: 0.25rem;
-    padding: 0.375rem 0.75rem;
-}
-
-.linkdiv {
-    background-clip: content-box;
-    background-color: rgba(173, 232, 255, .5607843137254902);
-    border-radius: 0.25rem;
-    height: 50px;
-    text-align: left;
-}
-
-h5 {
-    width: 100%;
-    text-align: center;
-    border-bottom: 1px solid #80808045;
-    line-height: 0.1em;
-    margin: 10px 0 20px;
-}
-
-h5 span {
-    background: #fff;
-    padding: 0 10px;
-}
-
-.scrollit {
-    overflow: hidden;
-    height: 600px;
-}
-
-.scrollit:hover {
-    overflow-y: auto;
-}
-</style>
-<style scoped>
-.switch {
-    position: relative;
-    top: -12px;
-}
-
-.bg-danger {
-    background-color: lightgrey !important;
-}
-
-.progress {
-    background-color: rgba(0, 128, 0, 0.645);
-}
-</style>
 <template>
-    <div>
+    <v-container>
         <loadIng :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loadIng>
-        <!-- Credits -->
-        <div class="row">
-            <div class="col-md-6" style="text-align: left">
-                <div class="form-group" style="display:flex">
-                    <h3 style="text-align: left;">Credits</h3>
+        <v-row align="center">
+            <v-col cols="12" md="6">
+                <h4 class="font-weight-bold mb-0">Credits Management</h4>
+                <p class="text-subtitle-2 text-muted mb-0">Manage your API balance and subscription history</p>
+            </v-col>
+            <v-col cols="12" md="6" class="d-flex justify-end">
+                <div class="ml-auto">
+                    <hf-buttons name="Refresh" iconClass="arrow-clockwise" :bIcon="true" outlined
+                        @executeAction="reloadData()"></hf-buttons>
                 </div>
-            </div>
-            <div class="col-6">
-                <hf-buttons name=" Refresh" iconClass="arrow-clockwise" :bIcon="true" class="ml-auto "
-                    style="float: right;" @executeAction="reloadData()"></hf-buttons>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-4">
-                <div class="p-4">
-                    <canvas id="doughNutChat"></canvas>
+            </v-col>
+        </v-row>
+
+        <v-row>
+            <v-col cols="12" lg="5">
+                <div class="overview-container h-100">
+                    <div class="header-row">
+                        <h2 class="title">Credit Allocation</h2>
+                    </div>
+                    <div class="chart-wrapper mt-2">
+                        <canvas id="doughNutChat"></canvas>
+                    </div>
+                    <div class="text-center mt-n4">
+                        <span class="badge" :class="timeRemaining === 'Expired' ? 'badge-expired' : 'badge-active'">
+                            {{ timeRemaining === 'Expired' ? 'Expired' : 'Subscription Active' }}
+                        </span>
+                    </div>
                 </div>
-            </div>
-            <div class="col-2"></div>
-            <div class="col-6">
-                <v-card class="serviceCard p-4 mt-1">
-                    <div class="">
-                        <div class="">
-                            <p><b>Total Credits</b></p>
-                          <p v-if="myKYCCredits.allRemainingCredits === 0 && myKYCCredits.allAvailableCredits === 0">
-                            <span style="font-size: xx-large;">
-                                {{ numberFormat(myKYCCredits.allRemainingCredits) }}
-                            </span>
-                         </p>
-                         <p v-else>
-                            <span style="font-size: xx-large;">
-                                {{ numberFormat(myKYCCredits.allRemainingCredits) }}
-                            </span> 
-                            <span style="font-size: larger;">/</span>
-                            <span style="font-size: larger; color: grey">
-                                {{ numberFormat(myKYCCredits.allAvailableCredits) }}
-                            </span>
-                         </p>
-                            <p v-if="this.timeRemaining==='Expired'">
-                                <span style="font-size:small; color: grey">
-                                    Expired
+            </v-col>
+
+            <v-col cols="12" lg="7">
+                <div class="overview-container h-100">
+                    <div class="header-row">
+                        <h2 class="title">Balance Overview</h2>
+                    </div>
+
+                    <div class="d-flex flex-column justify-center" style="height: 200px;">
+                        <div class="mb-4">
+                            <p class="text-muted mb-0 font-weight-medium">Remaining Balance</p>
+                            <div class="d-flex align-baseline">
+                                <h1 class="display-1 font-weight-bold color-blue mb-0">
+                                    {{ numberFormat(myKYCCredits.allRemainingCredits) }}
+                                </h1>
+                                <span class="ml-2 text-h6 text-muted">
+                                    / {{ numberFormat(myKYCCredits.allAvailableCredits) }} Credits
                                 </span>
-                            </p>
-                            <p v-else-if="this.timeRemaining==='InActive'">
-                                <span style="font-size:small; color: grey">
-                                    InActive
-                                </span>
-                            </p>
-                             <p v-else>
-                                <span style="font-size:small; color: grey">
-                                    Expires In: {{ this.timeRemaining }}
-                                </span>
-                            </p>
+                            </div>
                         </div>
-                    </div>
-                </v-card>
-                <!-- <div class="card p-4 mt-1" style="border-radius: 20px;">
-                    <div>
-                        <p><b>Scope(s)</b></p>
-                        <p v-if="grants.length > 0">
-                            <span class="badge badge-info mx-1" v-for="eachRow in grants"
-                                v-bind:key="eachRow.authorization.msg">{{
-                                    eachRow.authorization.msg.replace('/hypersign.ssi.v1.Msg', '') }}</span>
-                        </p>
-                        <p v-else>
-                            No scope granted!
-                        </p>
 
+                        <!-- <v-divider class="mb-4"></v-divider> -->
+
+                        <div class="d-flex flex-column justify-center" style="height: 200px;">
+                            <v-divider class="mb-4"></v-divider>
+
+                            <v-row no-gutters>
+                                <v-col cols="6">
+                                    <p class="text-muted mb-1 small uppercase font-weight-bold">Status</p>
+                                    <p class="mb-0 font-weight-bold" :class="statusColorClass">
+                                        {{ timeRemaining === 'Expired' || timeRemaining === 'InActive' ? timeRemaining :
+                                        'Active' }}
+                                    </p>
+                                </v-col>
+                                <v-col cols="6" class="text-right">
+                                    <p class="text-muted mb-1 small uppercase font-weight-bold">Validity</p>
+                                    <p class="mb-0 font-weight-bold">
+                                        {{ timeRemaining === 'Expired' ? 'None' : timeRemaining }}
+                                    </p>
+                                </v-col>
+                            </v-row>
+                        </div>
+
+                        <!-- <div class="d-flex justify-space-between align-center">
+              <div>
+                <p class="text-muted mb-0 small uppercase font-weight-bold">Status</p>
+                <p class="mb-0 font-weight-bold" :class="statusColorClass">
+                  {{ timeRemaining === 'Expired' || timeRemaining === 'InActive' ? timeRemaining : 'Active' }}
+                </p>
+              </div>
+              <div class="text-right">
+                <p class="text-muted mb-0 small uppercase font-weight-bold">Validity</p>
+                <p class="mb-0 font-weight-bold">
+                  {{ timeRemaining === 'Expired' ? 'None' : timeRemaining }}
+                </p>
+              </div>
+            </div> -->
                     </div>
-                </div> -->
-            </div>
-        </div>
-        <!-- Credit History -->
-        <div class="row" v-if="this.getKYCCredits.length > 0">
-            <div class="col-md-12" style="text-align: left">
-                <div class="form-group" style="display:flex">
-                    <h3 style="text-align: left;">Credit History</h3>
                 </div>
-            </div>
-        </div>
-        <div class="row" v-if="this.getKYCCredits.length > 0">
-            <div class="col p-1">
-                <table class="table table-hover event-card">
-                    <thead class="thead-light">
-                        <tr>
+            </v-col>
+        </v-row>
 
-                            <th scope="col">Date</th>
-                            <th scope="col">Credit(s)</th>
-                            <!-- <th scope="col">Used Credit(s)</th> -->
-                            <th scope="col">Expires In</th>
+        <v-row v-if="getKYCCredits.length > 0">
+            <v-col cols="12">
+                <div class="overview-container">
+                    <div class="header-row">
+                        <h2 class="title">Credit Purchase History</h2>
+                        <span class="badge">{{ getKYCCredits.length }} Packages</span>
+                    </div>
 
-                            <th scope="col">Available Credits</th>
-                            <th scope="col"></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-for="eachRow in getSortedKYCCredits" v-bind:key="eachRow._id">
-                            <td>
+                    <div class="usage-table-wrapper">
+                        <table class="usage-table">
+                            <thead>
+                                <tr>
+                                    <th>Purchase Date</th>
+                                    <th class="text-right">Total Credits</th>
+                                    <th>Expiration / Status</th>
+                                    <th width="25%">Usage</th>
+                                    <th class="text-center">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="eachRow in getSortedKYCCredits" :key="eachRow._id">
+                                    <td>
+                                        <div class="font-weight-bold">{{ formatDate(eachRow.createdAt) }}</div>
+                                        <code class="small text-muted">{{ eachRow._id.substring(0, 8) }}...</code>
+                                    </td>
+                                    <td class="text-right font-weight-bold">
+                                        {{ numberFormat(eachRow.totalCredits) }}
+                                    </td>
+                                    <td>
+                                        <div v-if="eachRow.used >= eachRow.totalCredits" class="text-muted small">
+                                            <v-icon small color="grey">mdi-check-circle</v-icon> Fully Used
+                                        </div>
+                                        <div v-else-if="Date.now() > new Date(eachRow.expiresAt)"
+                                            class="color-danger small">
+                                            <v-icon small color="red">mdi-clock-alert</v-icon> Expired
+                                        </div>
+                                        <div v-else class="small font-weight-medium">
+                                            {{ isValidDate(eachRow.expiresAt) ? formatTimeRemaining(eachRow.expiresAt) :
+                                            'Pending Activation' }}
+                                        </div>
+                                    </td>
+                                   <td :title="`Credit left: ${eachRow.totalCredits - eachRow.used}`">
+                                        <div class="d-flex flex-column">
+                                            <b-progress :max="eachRow.totalCredits" class="mt-1" height="12px">
+                                                <b-progress-bar 
+                                                    :value="eachRow.used >= eachRow.totalCredits ? eachRow.totalCredits : eachRow.used" 
+                                                    :variant="getProgressVariant(eachRow)"
+                                                    :class="{'progress-full': eachRow.used >= eachRow.totalCredits}"
+                                                ></b-progress-bar>
+                                            </b-progress>
+                                            
+                                            <span class="small text-muted mt-1">
+                                                {{ eachRow.used >= eachRow.totalCredits ? '100% Used' : Math.round((eachRow.used / eachRow.totalCredits) * 100) + '% Used' }}
+                                            </span>
+                                        </div>
+                                    </td>
 
-                                {{ formatDate(eachRow.createdAt) }} 
-
-                            <td>
-                                {{ numberFormat(eachRow.totalCredits) }}
-                            </td>
-
-                            <!-- <td>
-                                {{ numberFormat(eachRow.used) }}
-                            </td> -->
-                            <td v-if="eachRow.used >= eachRow.totalCredits" class="greyFont">
-                                Credit Limit Reached
-                                
-                            </td>
-                            <td v-else-if="Date.now() > new Date(eachRow.expiresAt)" class="greyFont">
-                                Expired
-                            </td>
-                            <td v-else>
-                                  {{ isValidDate(eachRow.expiresAt) ? formatTimeRemaining(eachRow.expiresAt) : 'Not Activated' }}
-                            </td>
-
-
-                            <td :title="`Credit left: ${eachRow.totalCredits - eachRow.used}`" >
-                                <b-progress :max="eachRow.totalCredits" class="mt-1" v-if="Date.now() > new Date(eachRow.expiresAt)" >
-                                    <b-progress-bar :value="eachRow.used" variant="danger" ></b-progress-bar>
-                                </b-progress>
-                                <b-progress :max="eachRow.totalCredits" class="mt-1" v-else >
-                                    <b-progress-bar :value="eachRow.used" variant="danger" ></b-progress-bar>
-                                </b-progress>
-                            </td>
-
-                            <td v-if="(eachRow.status == 'Active'   && !(Date.now() > new Date(eachRow.expiresAt)) ) ">
-                                <hf-buttons iconClass="circle-fill" :bIcon="true" class="ml-auto " style="color:gray; "
-                                    disabled animate="throb" :name="eachRow.status">
-                                </hf-buttons>
-                            </td>
-                            <td v-else>
-                                <hf-buttons v-if="eachRow.used < eachRow.totalCredits && !(Date.now() > new Date(eachRow.expiresAt)) " name=" Activate"
-                                    iconClass="play-circle" :bIcon="true" class="ml-auto "
-                                    @executeAction="activateThisCredit(eachRow)"></hf-buttons>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-    </div>
+                                    <td class="text-center">
+                                        <div
+                                            v-if="eachRow.status === 'Active' && !(Date.now() > new Date(eachRow.expiresAt))">
+                                            <v-chip small color="green lighten-5" text-color="green"
+                                                class="font-weight-bold">ACTIVE</v-chip>
+                                        </div>
+                                        <hf-buttons
+                                            v-else-if="eachRow.used < eachRow.totalCredits && !(Date.now() > new Date(eachRow.expiresAt))"
+                                            name="Activate" size="sm"
+                                            @executeAction="activateThisCredit(eachRow)"></hf-buttons>
+                                        <span v-else class="text-muted small">—</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </v-col>
+        </v-row>
+    </v-container>
 </template>
 
-
 <script>
-
-
-// import { CChart, } from '@coreui/vue-chartjs'
 import Chart from 'chart.js/auto';
-// import HfPopUp from "../../components/element/hfPopup.vue";
 import { mapActions, mapGetters } from "vuex";
 import UtilsMixin from '../../mixins/utils';
-import HfButtons from "../../components/element/HfButtons.vue"
+import HfButtons from "../../components/element/HfButtons.vue";
 
 export default {
     name: "SSIDashboardCredit",
-    components: {
-        // CChart,
-        // HfPopUp,
-        HfButtons,
-            },
+    components: { HfButtons },
+    mixins: [UtilsMixin],
+    data() {
+        return {
+            timeRemaining: '',
+            timer: null,
+            doughNutChart: null,
+            isLoading: false,
+            fullPage: true,
+            doughNutChartLabel: ['Used', 'Remaining'],
+        }
+    },
     computed: {
         ...mapGetters('mainStore', ['getKYCCredits']),
 
         getSortedKYCCredits() {
-            const t = this.getKYCCredits
-            
-            return t.sort((a, b) => new Date(b.expiresAt) - new Date(a.expiresAt))
+            return [...this.getKYCCredits].sort((a, b) => new Date(b.expiresAt) - new Date(a.expiresAt));
         },
+
+        statusColorClass() {
+            if (this.timeRemaining === 'Expired') return 'text-danger';
+            if (this.timeRemaining === 'InActive') return 'text-muted';
+            return 'color-green';
+        },
+
         myKYCCredits() {
-
-            let expiryAt = (new Date()).toISOString()
-
-            if (this.getKYCCredits.length == 0) {
-                return {
-                    allAvailableCredits: 0,
-                    allUsedCredits: 0,
-                    allRemainingCredits: 0,
-                    expiresAt: expiryAt
-                }
+            let expiryAt = (new Date()).toISOString();
+            if (this.getKYCCredits.length === 0) {
+                return { allAvailableCredits: 0, allUsedCredits: 0, allRemainingCredits: 0, expiresAt: expiryAt };
             }
 
-            const now = new Date()
-            let not_expired_credits = this.getKYCCredits.filter(x => {
-
+            const now = new Date();
+            let active_credits = this.getKYCCredits.filter(x => {
                 if (x.expiresAt) {
-                    const expirydate = new Date(x.expiresAt)
-
-                    if ((expirydate >= now) && (x.used < x.totalCredits)) {
-
-                        return x
-                    }
-                } else if (x.status == 'Active') {
-                    return x
-                }else if(!x.expiresAt)
-                return x
-            })
-
-
-            if (not_expired_credits.length == 0) {
-                return {
-                    allAvailableCredits: 0,
-                    allUsedCredits: 0,
-                    allRemainingCredits: 0,
-                    expiresAt: expiryAt
+                    const expirydate = new Date(x.expiresAt);
+                    return (expirydate >= now) && (x.used < x.totalCredits);
                 }
+                return x.status === 'Active' || !x.expiresAt;
+            });
+
+            if (active_credits.length === 0) {
+                return { allAvailableCredits: 0, allUsedCredits: 0, allRemainingCredits: 0, expiresAt: expiryAt };
             }
 
-            const total = not_expired_credits.reduce((accumulator, currentValue) => {
-                return {
-                    allAvailableCredits: accumulator.allAvailableCredits + currentValue.totalCredits,
-                    allUsedCredits: accumulator.allUsedCredits + currentValue.used
-                }
-            }, {
-                allAvailableCredits: 0,
-                allUsedCredits: 0
-            })
+            const total = active_credits.reduce((acc, curr) => ({
+                allAvailableCredits: acc.allAvailableCredits + curr.totalCredits,
+                allUsedCredits: acc.allUsedCredits + curr.used
+            }), { allAvailableCredits: 0, allUsedCredits: 0 });
 
-
-            not_expired_credits = not_expired_credits.sort((a, b) => new Date(b.expiresAt) - new Date(a.expiresAt))
-            expiryAt = not_expired_credits[0]
-
-
+            active_credits.sort((a, b) => new Date(b.expiresAt) - new Date(a.expiresAt));
             return {
                 ...total,
                 allRemainingCredits: total.allAvailableCredits - total.allUsedCredits,
-                expiresAt: expiryAt.expiresAt
-            }
+                expiresAt: active_credits[0].expiresAt
+            };
         }
     },
     async mounted() {
-        await this.reloadData()
-
+        await this.reloadData();
     },
     beforeDestroy() {
-        console.log('Clearing clear interval before destroying...')
         this.stopTimer();
-    },
-
-    data() {
-        return {
-            timeRemaining: '', // Placeholder for formatted time remaining
-            timer: null, // Holds the interval timer reference
-
-            doughNutChart: null,
-            didChart: null,
-            schemaChart: null,
-            credChart: null,
-            doughNutChartLabel: [
-                'Credits Used',
-                'Credits Left',
-            ],
-
-            interval: null,
-            fullPage: true,
-            isLoading: false,
-            expiration: "",
-
-            initialBalance: 1000,
-            leftBalance: 1000,
-            grants: [
-
-            ],
-            ////////////////////////////////
-            hidPrice: 1,
-            uhidFactor: 1000000,
-            creditDollarValue: 0,
-            added: 0,
-
-        }
     },
     methods: {
         ...mapActions('mainStore', ['fetchKYCCredits', 'activateCredit']),
 
         async reloadData() {
             try {
-                this.isLoading = true
-                await this.fetchKYCCredits()
+                this.isLoading = true;
+                await this.fetchKYCCredits();
                 this.startTimer();
-                this.isLoading = false
+                this.renderChart();
             } catch (e) {
-                this.isLoading = false
-                this.notifyErr(e.message)
+                this.notifyErr(e.message);
             } finally {
-                this.renderChart()
-                // this.renderUsageChart()
+                this.isLoading = false;
             }
         },
+        getProgressVariant(row) {
+                const isExpired = Date.now() > new Date(row.expiresAt);
+                const isFull = row.used >= row.totalCredits;
+
+                if (isExpired) return 'secondary'; // Grey for expired
+                if (isFull) return 'success';      // Green for completely used/completed
+                
+                // Dynamic colors for active usage
+                const ratio = row.used / row.totalCredits;
+                if (ratio > 0.9) return 'warning'; // Orange if almost empty
+                return 'primary';                  // Blue for normal active usage
+            },
+
         updateTimer() {
             this.timeRemaining = this.formatTimeRemaining(this.myKYCCredits.expiresAt);
         },
+
         startTimer() {
-            this.updateTimer(); // Update immediately
-            this.timer = setInterval(() => {
-                this.updateTimer(); // Update every second
-            }, 1000);
+            this.updateTimer();
+            this.timer = setInterval(this.updateTimer, 1000);
         },
+
         stopTimer() {
-            clearInterval(this.timer); // Stop the interval timer
+            clearInterval(this.timer);
         },
+
+        getProgressColor(row) {
+            if (Date.now() > new Date(row.expiresAt)) return 'grey';
+            const ratio = row.used / row.totalCredits;
+            console.log(ratio)
+            if (ratio > 0.9) return 'orange';
+            return '#3b82f6';
+        },
+
         renderChart() {
-            const expired = this.getKYCCredits.every(element => Date.now() > new Date(element.expiresAt));
+            const expired = this.getKYCCredits.every(el => Date.now() > new Date(el.expiresAt));
             const used = this.myKYCCredits.allUsedCredits || 0;
             const remaining = this.myKYCCredits.allRemainingCredits || 0;
-            const total = used + remaining;
-            const dataToRender = this.getKYCCredits.length === 0 || total === 0
-                ? [1, 0] : [used, remaining];
-            const color=expired?['grey','#d0d0d0']:['grey','green']
-            this.doughNutChart?.destroy()
+
+            const dataToRender = (this.getKYCCredits.length === 0 || (used + remaining === 0))
+                ? [0, 1] : [used, remaining];
+
+            const colors = expired ? ['#cbd5e1', '#f1f5f9'] : ['#94a3b8', '#3b82f6'];
+
+            this.doughNutChart?.destroy();
             const ctx = document.getElementById('doughNutChat');
             this.doughNutChart = new Chart(ctx, {
                 type: 'doughnut',
                 data: {
                     labels: this.doughNutChartLabel,
-                    datasets: [
-                        {
-                            label: 'Credit',
-                            data:dataToRender,
-                            backgroundColor: color,
-                            hoverOffset: 4,
-                            cutout: '50%',
-                            circumference: 180,
-                            rotation: 270,
-                            hoverBorderJoinStyle: 'round',
-                        }
-                    ]
+                    datasets: [{
+                        data: dataToRender,
+                        backgroundColor: colors,
+                        borderWidth: 0,
+                        hoverOffset: 4,
+                        cutout: '70%',
+                        circumference: 180,
+                        rotation: 270,
+                    }]
                 },
+                options: {
+                    plugins: { legend: { display: false } },
+                    maintainAspectRatio: false
+                }
             });
         },
 
-
-        numberFormat(numberstr) {
-            return new Intl.NumberFormat().format(numberstr)
-        },
+        numberFormat(val) { return new Intl.NumberFormat().format(val) },
 
         async activateThisCredit(eachRow) {
             try {
-
-                if (eachRow.used == eachRow.totalCredits) {
-                    this.notifyErr("Credit already exhausted")
-                    return;
-                }
-                this.isLoading = true
-
-                await this.activateCredit({
-                    creditId: eachRow._id
-                })
-
-                this.isLoading = false
+                if (eachRow.used === eachRow.totalCredits) return this.notifyErr("Credit exhausted");
+                this.isLoading = true;
+                await this.activateCredit({ creditId: eachRow._id });
+                await this.reloadData();
             } catch (e) {
-                console.error(e)
-                this.isLoading = false
-                this.notifyErr(e.message)
+                this.notifyErr(e.message);
+            } finally {
+                this.isLoading = false;
             }
-
-
         },
 
-         isValidDate(date) {
-             const parsedDate = new Date(date);
-             return !isNaN(parsedDate.getTime());
-         },
-    },
-    mixins: [UtilsMixin],
+        isValidDate(date) { return !isNaN(new Date(date).getTime()); }
+    }
+};
+</script>
 
+<style scoped>
+/* Unified Dashboard Styles */
+.overview-container {
+    padding: 1.5rem;
+    background-color: #f9fafb;
+    border-radius: 0.75rem;
+    border: 1px solid #e5e7eb;
+    margin-top: 1rem;
 }
 
-</script>
+.header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.title {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: #111827;
+    margin: 0;
+}
+
+.chart-wrapper {
+    height: 180px;
+    position: relative;
+}
+
+.usage-table-wrapper {
+    background: white;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    border: 1px solid #f3f4f6;
+    margin-top: 1rem;
+}
+
+.usage-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.usage-table th {
+    background-color: #f8fafc;
+    padding: 1rem;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    color: #64748b;
+    border-bottom: 1px solid #e2e8f0;
+    text-align: left;
+}
+
+.usage-table td {
+    padding: 1rem;
+    font-size: 0.875rem;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.badge {
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+}
+
+.badge-active {
+    background-color: #e0f2fe;
+    color: #0369a1;
+}
+
+.badge-expired {
+    background-color: #fee2e2;
+    color: #991b1b;
+}
+
+.color-blue {
+    color: #3b82f6;
+}
+
+.color-green {
+    color: #10b981;
+}
+
+.text-danger {
+    color: #ef4444;
+}
+
+.uppercase {
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    line-height: 1;
+    /* Keeps label close to the value below it */
+}
+
+/* Ensure the button doesn't have extra margin pushing it away from the edge */
+.v-col.d-flex.justify-end {
+    padding-right: 12px;
+}
+
+/* Custom Overrides */
+.v-divider {
+    border-color: #e5e7eb !important;
+}
+/* Styling for the progress container */
+.progress {
+    background-color: #e9ecef !important;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+/* Custom color for fully used credits if you prefer a specific shade */
+.progress-full {
+    box-shadow: inset 0 -1px 0 rgba(0,0,0,.15);
+    transition: width .6s ease;
+}
+
+/* Ensure the table cell doesn't squash the progress bar */
+.usage-table td {
+    vertical-align: middle;
+}
+
+</style>
