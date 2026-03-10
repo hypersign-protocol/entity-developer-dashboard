@@ -1023,11 +1023,8 @@ textarea.form-control {
 
     <v-row>
       <v-col>
-        <div class="form-group" style="display:flex">
-          <h3 style="text-align: left;">
-            KYC Verifier Configuration
-          </h3>
-        </div>
+        <h4 class="font-weight-bold mb-0">Custom Verifier Page</h4>
+        <p class="text-subtitle-2 text-muted">Create a hosted landing page for your KYC flow</p>
       </v-col>
       <v-col>
         <HfButtons name="Save Configuration" @executeAction="saveConfiguration()" v-if="!this.kycWebpageConfigTemp._id"
