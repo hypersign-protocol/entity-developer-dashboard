@@ -531,7 +531,7 @@ export default {
 
       // Identity Verification
       menu.push({
-        href: "#",
+        href: "/studio/sessions/" + appId,
         title: EN.NAV.IDENTITY_VERIFICATION.TITLE,
         icon: "fa fa-user-check",
         child: [
@@ -552,9 +552,9 @@ export default {
           }
         ]
       });
-       // Buniness Verification
+      // Buniness Verification
       menu.push({
-        href: "#",
+        href: "/studio/business/"+this.getSelectedService.appId,
         title: EN.NAV.BUSINESS_VERIFICATION.TITLE,
         icon: "fa fa-building",
         child: [
@@ -572,9 +572,9 @@ export default {
           }
         ]
       });
-   // Solutions
+      // Solutions
       menu.push({
-        href: "#",
+        href: "/studio/kyc-webpage-generator/" + appId,
         title: EN.NAV.SOLUTIONS.TITLE,
         icon: "fa fa-lightbulb",
         child: [
@@ -588,7 +588,7 @@ export default {
 
       // Developer Hub
       menu.push({
-        href: "#",
+        href: "/studio/developer/api-key/" + appId,
         title: EN.NAV.DEVELOPERS_HUB.TITLE,
         icon: "fa fa-code",
         child: [
@@ -611,7 +611,7 @@ export default {
       });
       // Billing & Usage
       menu.push({
-        href: "#",
+        href: "/studio/onchainkyc/credit/" + appId,
         title: EN.NAV.BILLING_AND_USAGE.TITLE,
         icon: "fa fa-credit-card",
         child: [
