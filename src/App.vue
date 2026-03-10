@@ -559,17 +559,15 @@ export default {
         icon: "fa fa-building",
         child: [
           {
-              href:"/studio/business/"+this.getSelectedService.appId,
-              title: EN.NAV.BUSINESS_VERIFICATION.BUSINESSES,
-              icon:"fa fa-briefcase"
-            },
-         
-          {
-          href: "/studio/kyb-widget-config/" + this.getSelectedService.appId,
-            title: EN.NAV.BUSINESS_VERIFICATION.KYB_WIDGET,
-            icon: "fa fa-puzzle-piece",
-
-          }
+            href:"/studio/business/"+this.getSelectedService.appId,
+            title: EN.NAV.BUSINESS_VERIFICATION.BUSINESSES,
+            icon:"fa fa-briefcase"
+          },
+          // {
+          //   href: "/studio/kyb-widget-config/" + this.getSelectedService.appId,
+          //   title: EN.NAV.BUSINESS_VERIFICATION.KYB_WIDGET,
+          //   icon: "fa fa-puzzle-piece",
+          // }
         ]
       });
       // Solutions
