@@ -1,76 +1,144 @@
-<style scoped>
-.sticky-header {
-  position: sticky;
-  top: 0;
-}
-
-.container {
-  width: 80vw;
-}
-
-.card-header {
-  background: aliceblue;
-  padding: 0px;
-}
-</style>
 <template>
-  <div :class="isContainerShift ? 'homeShift' : 'home'">
+  <v-container>
     <load-ing :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></load-ing>
 
-    <div class="row">
-      <div class="col-6" style="text-align: left">
-        <div class="form-group" style="display:flex">
-          <h3 style="text-align: left;">
-            Webhook Configuration </h3>
-        </div>
-      </div>
-      <div class="col-6">
-        <HfButtons name="Save Configuration" @executeAction="saveConfiguration()" v-if="!this.getWebhookConfig._id"
-          style="float:right"></HfButtons>
-        <div v-else>
-          <b-button variant="link" class="danger" @click="deleteConfig()" style="float:right;"
-            title="Delete Configuration"><i class="fa fa-trash"></i></b-button>
-          <HfButtons name="Update Configuration" @executeAction="updateConfiguration()" style="float:right"
-            class="mx-1">
-          </HfButtons>
-        </div>
-      </div>
-    </div>
+    <v-row align="center">
+      <v-col cols="12" md="6">
+        <h4 class="font-weight-bold mb-0">Webhook Configuration</h4>
+        <p class="text-subtitle-2 text-muted">Receive real-time notifications for verification events</p>
+      </v-col>
+      <v-col cols="12" md="6" class="d-flex justify-end align-center">
+        <template v-if="getWebhookConfig._id">
+          <v-btn icon color="error" class="mr-2" @click="deleteConfig" title="Delete Configuration">
+            <v-icon>mdi-trash-can-outline</v-icon>
+          </v-btn>
+          <hf-buttons name="Update Configuration" @executeAction="updateConfiguration()"></hf-buttons>
+        </template>
+        <hf-buttons v-else name="Save Configuration" @executeAction="saveConfiguration()"></hf-buttons>
+      </v-col>
+    </v-row>
 
-    <div class="">
-      <b-card class=" serviceCard p-1">
-        <form>
-          <!-- <div class="form-group">
-            <label for="exampleFormControlInput1">Name<span class="mandatory">*</span></label>
-            <input type="text" class="form-control" v-model="webhookName" placeholder="name@example.com" required>
-          </div> -->
-          <div class="form-group">
-            <label for="exampleFormControlInput1">Url<span class="mandatory">*</span></label>
-            <input type="url" class="form-control" v-model="webhookUrl" placeholder="https://api.app.com/kyc/hook"
-              required>
+    <v-row>
+      <v-col cols="12">
+        <div class="overview-container">
+          <div class="header-row">
+            <h2 class="title">Endpoint Settings</h2>
           </div>
 
-          <b-form-group label="Header(s)">
-            <div style="padding: 10px;background: #d3d3d32e;border-radius: 10px;" v-if="this.headers.length > 0">
-              <div v-for="(header, index) in headers" :key="index" class="d-flex mb-2">
-                <b-form-input v-model="header.key" placeholder="Key" class="mr-2"></b-form-input>
-                <b-form-input v-model="header.value" placeholder="Value" class="mr-2"></b-form-input>
-                <b-button variant="link" @click="removeHeader(index)"><b-icon icon="dash-circle"
-                    style="color:red" /></b-button>
-              </div>
+          <div class="mb-6">
+            <label class="input-label">Destination URL <span class="text-danger">*</span></label>
+            <v-text-field v-model="webhookUrl" placeholder="https://your-api.com/webhooks/kyc" outlined dense
+              hide-details background-color="white" class="custom-field"></v-text-field>
+            <p class="small text-muted mt-2">
+              We will send a POST request to this URL whenever a verification status changes.
+            </p>
+          </div>
 
-            </div>
+          <v-divider class="mb-6"></v-divider>
 
-            <b-button variant="link" @click="addHeader" style="color:grey"><b-icon icon="plus-circle" /> Add
-              Header</b-button>
-          </b-form-group>
-        </form>
-      </b-card>
-    </div>
+          <!-- <div class="header-row d-flex justify-space-between align-center">
+            <h2 class="title mb-0">Custom Headers</h2>
+            <v-btn text small color="primary" @click="addHeader" class="font-weight-bold">
+              <v-icon left small>mdi-plus-circle</v-icon> Add Header
+            </v-btn>
+          </div> -->
 
-  </div>
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <h2 class="title mb-0">Custom Headers</h2>
+            <v-btn text small color="primary" @click="addHeader" class="font-weight-bold pr-0">
+              <v-icon left small>mdi-plus-circle</v-icon>
+              Add Header
+            </v-btn>
+          </div>
+
+          <p class="small text-muted mb-2">
+            Add custom authorization or identification headers to include in the webhook request.
+          </p>
+
+
+          <div v-if="headers.length > 0" class="headers-wrapper p-2 mb-2">
+            <v-row v-for="(header, index) in headers" :key="index" class="mb-2" align="center" no-gutters>
+              <v-col cols="5" class="pr-2">
+                <v-text-field v-model="header.key" placeholder="Header Key (e.g. X-API-Token)" outlined dense
+                  hide-details background-color="white"></v-text-field>
+              </v-col>
+              <v-col cols="6" class="pr-2">
+                <v-text-field v-model="header.value" placeholder="Value" outlined dense hide-details
+                  background-color="white"></v-text-field>
+              </v-col>
+              <v-col cols="1" class="text-center">
+                <v-btn icon small color="error" @click="removeHeader(index)">
+                  <v-icon small>mdi-minus-circle-outline</v-icon>
+                </v-btn>
+              </v-col>
+            </v-row>
+          </div>
+
+          <div v-else class="text-center pa-8 border-dashed rounded-lg">
+            <v-icon color="grey lighten-1" size="32">mdi-form-select</v-icon>
+            <p class="text-muted small mb-0 mt-2">No custom headers configured.</p>
+          </div>
+        </div>
+      </v-col>
+    </v-row>
+  </v-container>
 </template>
 
+<style scoped>
+/* Dashboard Container Style */
+.overview-container {
+  padding: 1.5rem;
+  background-color: #f9fafb;
+  border-radius: 0.75rem;
+  border: 1px solid #e5e7eb;
+}
+
+.header-row {
+  margin-bottom: 1.25rem;
+}
+
+.title {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #111827;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Custom Field Styling */
+.input-label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.custom-field :deep(.v-input__control) {
+  background: white !important;
+}
+
+/* Headers Area */
+.headers-wrapper {
+  background: #f1f5f9;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.border-dashed {
+  border: 2px dashed #e2e8f0;
+}
+
+.text-danger {
+  color: #ef4444;
+}
+
+/* Fix for Button Alignment */
+.justify-end {
+  justify-content: flex-end !important;
+}
+</style>
 <script>
 
 import UtilsMixin from '../../../mixins/utils.js';

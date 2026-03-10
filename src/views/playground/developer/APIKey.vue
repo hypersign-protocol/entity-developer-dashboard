@@ -1,111 +1,225 @@
 <template>
-  <div :class="isContainerShift ? 'homeShift' : 'home'">
+  <v-container>
     <load-ing :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></load-ing>
 
-    <div class="row">
-      <div class="col-12">
-        <h3>API Key Management</h3>
-      </div>
-    </div>
+    <v-row align="center">
+      <v-col cols="12">
+        <h4 class="font-weight-bold mb-0">API Key Management</h4>
+        <p class="text-subtitle-2 text-muted">Configure authentication for your backend integration</p>
+      </v-col>
+    </v-row>
 
-    <div class="row">
-      <!-- Left Column: App ID Input -->
-      <div class="col-md-6">
-        <b-card class="serviceCard p-1">
-          <div class="form-group">
-            <label for="appId"><strong>Enter App ID</strong></label>
-            <b-form-input
-              id="appId"
+    <v-row>
+      <v-col cols="12" lg="6">
+        <div class="overview-container h-100">
+          <div class="header-row">
+            <h2 class="title">Generate Secret Key</h2>
+          </div>
+          
+          <div class="p-2">
+            <p class="text-subtitle-2 mb-2">
+              Enter your <strong>App ID</strong> to authorize the generation of a new API Secret.
+            </p>
+
+            <v-text-field
               v-model="appIdToGenerateSecret"
-              placeholder="13f70faf7f5c5d03520b71181136b595f7c6"
-            ></b-form-input>
+              label="App ID"
+              placeholder="e.g. 13f70faf7f5c5d03520b..."
+              outlined
+              dense
+              color="primary"
+            ></v-text-field>
+
+            <div class="warning-box mb-2">
+              <div class="d-flex">
+                <v-icon color="orange darken-2" class="mr-2">mdi-alert</v-icon>
+                <div>
+                  <span class="font-weight-bold d-block text-orange">Important Note</span>
+                  <span class="small text-muted">
+                    Generating a new Secret Key will <strong>immediately deactivate</strong> your current key. 
+                    Ensure you update your server configuration promptly.
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div class="d-flex justify-center">
+              <hf-buttons
+                name="Generate New Secret"
+                class="px-8"
+                @executeAction="reGenerateSecretKey"
+              ></hf-buttons>
+            </div>
+          </div>
+        </div>
+      </v-col>
+
+      <v-col cols="12" lg="6">
+        <div class="overview-container mb-4">
+          <div class="header-row">
+            <h2 class="title">Integration Steps</h2>
           </div>
 
-          <p class="text-warning">
-            ⚠️ Note: Generating a new API Secret Key will deactivate your existing one. You can find your App ID on the <a :href="'#/studio/service-config/'+getSelectedService.appId">App Configuration</a> page.
-          </p>
-
-          <div class="text-center">
-            <hf-buttons
-              name="Continue"
-              class="btn btn-primary"
-              @executeAction="reGenerateSecretKey"
-            ></hf-buttons>
+          <div class="step-item d-flex mb-4">
+            <div class="step-number">1</div>
+            <div>
+              <p class="font-weight-bold mb-0">Generate Access Token</p>
+              <p class="small text-muted mb-1">Use your Secret Key to authenticate with the Dashboard API.</p>
+              <a target="_blank" class="doc-link" href="https://docs.hypersign.id/hypersign-kyc/kyc-widget/integrations/backend-integration/generate-accesstokens">
+                Documentation <v-icon x-small color="primary">mdi-open-in-new</v-icon>
+              </a>
+            </div>
           </div>
-        </b-card>
-      </div>
 
-      <!-- Right Column: Info Cards -->
-      <div class="col-md-6">
-        <!-- Step A: Generate Access Token -->
-        <v-card class="serviceCard mb-3 p-4">
-          <h6 class="font-weight-bold mb-2"><v-icon>mdi-key-outline</v-icon> 1. Generate Access Token</h6>
-          <p class="mb-0 text-muted">
-            Use the <b>API Secret Key</b> to generate an access token from the <b>Dashboard API</b>. <a target="_blank" class="text-primary" href="https://docs.hypersign.id/hypersign-kyc/kyc-widget/integrations/backend-integration/generate-accesstokens">View Documentation</a>
-          </p>
-        </v-card>
+          <div class="step-item d-flex">
+            <div class="step-number">2</div>
+            <div>
+              <p class="font-weight-bold mb-0">Initialize Session</p>
+              <p class="small text-muted mb-1">Generate a Session ID for every new user verification request.</p>
+              <a target="_blank" class="doc-link" href="https://docs.hypersign.id/hypersign-kyc/kyc-widget/integrations/backend-integration/generate-kyc-session-id">
+                Documentation <v-icon x-small color="primary">mdi-open-in-new</v-icon>
+              </a>
+            </div>
+          </div>
+        </div>
 
+        <div class="overview-container">
+          <div class="header-row">
+            <h2 class="title">Connection Endpoints</h2>
+          </div>
 
-        <!-- Step B: Generate Session ID -->
-         <v-card class="serviceCard mb-3 p-4">
-          <h6 class="font-weight-bold mb-2"><v-icon>mdi-account-check-outline</v-icon> 2. Generate Session ID</h6>
-          <p class="mb-0 text-muted">
-            For every new user verification request, generate a session ID using your <b>Tenant URL</b>. <a target="_blank" class="text-primary" href="https://docs.hypersign.id/hypersign-kyc/kyc-widget/integrations/backend-integration/generate-kyc-session-id">View Documentation</a>
-          </p>
-        </v-card>
+          <div class="mb-4">
+            <label class="input-label">Dashboard API URL</label>
+            <div class="copy-input-group">
+              <input type="text" :value="dashboardUrl" readonly>
+              <button @click="copyToClipboard(dashboardUrl)"><v-icon small>mdi-content-copy</v-icon></button>
+            </div>
+          </div>
 
-        <!-- URLs Card -->
-        <v-card class="serviceCard mb-3 p-4">
-          <h6 class="font-weight-bold mb-2"><v-icon>mdi-link-variant</v-icon> Important URLs</h6>
-          <label>Dashboard API</label>
-          <b-input-group>
-            <b-form-input :value="dashboardUrl" disabled></b-form-input>
-            <b-input-group-append>
-              <b-button @click="copyToClipboard(dashboardUrl)" variant="outline-secondary">
-                <i class="mdi mdi-content-copy"></i>
-              </b-button>
-            </b-input-group-append>
-          </b-input-group>
-        
+          <div>
+            <label class="input-label">Tenant URL</label>
+            <div class="copy-input-group">
+              <input type="text" :value="tenantUrl" readonly>
+              <button @click="copyToClipboard(tenantUrl)"><v-icon small>mdi-content-copy</v-icon></button>
+            </div>
+          </div>
+        </div>
+      </v-col>
+    </v-row>
 
-          <label>Tenant URL</label>
-          <b-input-group class="mb-2">
-            <b-form-input :value="tenantUrl" disabled></b-form-input>
-            <b-input-group-append>
-              <b-button @click="copyToClipboard(tenantUrl)" variant="outline-secondary">
-                <i class="mdi mdi-content-copy"></i>
-              </b-button>
-            </b-input-group-append>
-          </b-input-group>
-        </v-card>
-          
-          
-      </div>
-    </div>
-
-    <!-- API Secret Key Popup -->
-    <hf-pop-up id="entity-secretKey-popup" Header="API Secret Key">
-      <div class="mt-2" v-if="apiKeySecret">
-        <p>Copy and save your API Secret Key securely. It cannot be recovered once lost.</p>
-        <p>
-          Use this key to authenticate your server. See
-          <a href="https://docs.hypersign.id/entity-studio/api-doc/authentication" target="_blank">
-            API Reference
-          </a>
-          documentation.
-        </p>
+    <hf-pop-up id="entity-secretKey-popup" Header="API Secret Key Generated">
+      <div class="pa-4 text-center" v-if="apiKeySecret">
+        <v-icon color="green" size="48" class="mb-2">mdi-shield-check-outline</v-icon>
+        <p class="font-weight-bold">Copy your Secret Key now</p>
+        <p class="small text-muted">For security, we cannot show this key again. Save it in a secure vault.</p>
 
         <HfFlashNotification
-          class="mt-2"
+          class="mt-4"
           :text="apiKeySecret"
           type="API Secret Key"
-          description="Your API Secret Key"
+          description="Click to copy Secret Key"
           @click="onHfFlashClick()"
         ></HfFlashNotification>
       </div>
     </hf-pop-up>
-  </div>
+  </v-container>
 </template>
+
+<style scoped>
+/* Dashboard Container Style */
+.overview-container {
+  padding: 1.5rem;
+  background-color: #f9fafb;
+  border-radius: 0.75rem;
+  border: 1px solid #e5e7eb;
+}
+
+.header-row {
+  margin-bottom: 1.25rem;
+}
+
+.title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #111827;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+/* Warning Box */
+.warning-box {
+  background-color: #fff7ed;
+  border: 1px solid #ffedd5;
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.text-orange { color: #c2410c; }
+
+/* Step Styles */
+.step-number {
+  background: #3b82f6;
+  color: white;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: bold;
+  margin-right: 12px;
+  margin-top: 2px;
+}
+
+.doc-link {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #3b82f6;
+  text-decoration: none;
+}
+
+.doc-link:hover { text-decoration: underline; }
+
+/* Custom Copy Inputs */
+.input-label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.copy-input-group {
+  display: flex;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.copy-input-group input {
+  flex: 1;
+  padding: 8px 12px;
+  font-size: 0.85rem;
+  color: #475569;
+  font-family: monospace;
+  border: none;
+  background: transparent;
+}
+
+.copy-input-group button {
+  padding: 0 12px;
+  background: #f8fafc;
+  border-left: 1px solid #e2e8f0;
+  transition: background 0.2s;
+}
+
+.copy-input-group button:hover {
+  background: #f1f5f9;
+}
+</style>
 
 <script>
 import UtilsMixin from '../../../mixins/utils.js';
@@ -186,7 +300,7 @@ export default {
 };
 </script>
 
-<style scoped>
+<!-- <style scoped>
 .sticky-header {
   position: sticky;
   top: 0;
@@ -195,4 +309,4 @@ export default {
 .container {
   width: 80vw;
 }
-</style>
+</style> -->

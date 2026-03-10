@@ -1,70 +1,193 @@
 <template>
-  <v-container fluid class="py-5 getting-started">
+  <v-container class="py-6">
     <v-row>
-      <!-- Left Column -->
-      <v-col cols="12" md="8">
-        <h4 class="mb-4 font-weight-bold">Getting Started</h4>
+      <v-col cols="12" lg="8">
+        <div class="d-flex align-center mb-6">
+          <h4 class="font-weight-bold mb-0">Getting Started</h4>
+          <v-divider class="ml-4"></v-divider>
+        </div>
 
-        <b-card no-body class="mb-3" v-for="(item, i) in guideItems" :key="i">
-          <b-card-header class="p-0">
-            <b-button v-b-toggle="'accordion-' + i" block
-              class="text-left d-flex align-items-center justify-content-between py-3 px-3" variant="light">
-              <div class="d-flex align-items-center">
-                <v-icon left class="mr-2">{{ item.icon }}</v-icon>
-                <span class="font-weight-500">{{ item.title }}</span>
+        <div class="steps-container">
+          <div v-for="(item, i) in guideItems" :key="i" class="step-card mb-4">
+            <div class="step-line" v-if="i !== guideItems.length - 1"></div>
+            
+            <div class="d-flex">
+              <div class="step-number-wrapper mr-4">
+                <div class="step-number-circle">
+                  <v-icon small color="white">{{ item.icon }}</v-icon>
+                </div>
               </div>
-              <v-icon small>mdi-chevron-down</v-icon>
-            </b-button>
-          </b-card-header>
 
-          <b-collapse :id="'accordion-' + i" accordion="guide-accordion" role="tabpanel">
-            <b-card-body>
-              <p class="mb-2">{{ item.description }}</p>
-              <a :href="item.link" :target="!item.openInNewTab ? '' : '_blank'" class="text-primary font-weight-medium">
-                {{ item.anchorText || "Read Documentation" }}
-              </a>
-            </b-card-body>
-          </b-collapse>
-        </b-card>
+              <div class="step-content-box p-4 flex-grow-1">
+                <h5 class="step-title mb-2">{{ i + 1 }}. {{ item.title }}</h5>
+                <p class="text-muted small mb-3 lh-lg">{{ item.description }}</p>
+                
+                <a 
+                  :href="item.link" 
+                  :target="item.openInNewTab ? '_blank' : '_self'" 
+                  class="step-action-link"
+                >
+                  {{ item.anchorText || "Read Documentation" }}
+                  <v-icon x-small color="primary" class="ml-1">mdi-arrow-right</v-icon>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
       </v-col>
 
-      <!-- Right Column -->
-      <v-col cols="12" md="4">
-        <!-- Helpful Links -->
-        <v-card class="serviceCard mb-3 p-3">
-          <h6 class="font-weight-bold mb-3"><v-icon>mdi-lifebuoy</v-icon> Helpful Links</h6>
-          <ul class="list-unstyled mb-0">
-            <li class="mb-2"><a href="#" class="text-primary">Core Concepts</a></li>
-            <li class="mb-2">
-              <a href="https://docs.hypersign.id" target="_blank" class="text-primary">Docs</a>
-            </li>
-            <li><a href="#" class="text-primary">Support</a></li>
-          </ul>
-        </v-card>
+      <v-col cols="12" lg="4">
+        <div class="overview-container mb-4">
+          <h6 class="input-label mb-4"><v-icon x-small class="mr-1">mdi-lifebuoy</v-icon> Helpful Links</h6>
+          <nav class="resource-nav">
+            <a href="https://docs.hypersign.id" target="_blank" class="resource-link">
+              <v-icon small class="mr-2">mdi-book-open-variant</v-icon> Core Concepts
+            </a>
+            <a href="https://docs.hypersign.id" target="_blank" class="resource-link">
+              <v-icon small class="mr-2">mdi-file-document-outline</v-icon> Technical Docs
+            </a>
+            <a href="mailto:support@hypersign.id" class="resource-link">
+              <v-icon small class="mr-2">mdi-message-outline</v-icon> Contact Support
+            </a>
+          </nav>
+        </div>
 
-        <!-- Explore Flows -->
-        <v-card class="serviceCard mb-3 p-3">
-          <h6 class="font-weight-bold mb-2"><v-icon>mdi-school-outline</v-icon> Tutorials</h6>
-          <p class="mb-0 text-muted">
-            Learn by doing — follow quick, step-by-step guides to get started with Hypersign KYC. From integrating the KYC widget in minutes to creating your custom verifier URL, these tutorials walk you through real examples. <a target="_blank" class="text-primary" href="https://docs.hypersign.id/hypersign-kyc/tutorials">Let's go!</a>
-          </p>
-        </v-card>
+        <div class="overview-container mb-4 secondary-bg">
+          <h6 class="input-label mb-2"><v-icon x-small class="mr-1">mdi-school-outline</v-icon> Tutorials</h6>
+          <p class="x-small text-muted mb-4">Learn by doing with quick, step-by-step guides for KYC & KYB.</p>
+          <v-btn 
+            block 
+            depressed 
+            small 
+            color="white" 
+            class="text-none font-weight-bold"
+            href="https://docs.hypersign.id/hypersign-kyc/tutorials"
+            target="_blank"
+          >
+            Explore Tutorials
+          </v-btn>
+        </div>
 
-        <!-- Invite Team -->
-        <v-card class="serviceCard mb-3 p-3">
-          <h6 class="font-weight-bold mb-2"><v-icon>mdi-file-chart-outline</v-icon> Read Case Studies</h6>
-          <p class="text-muted mb-3">
-            Discover how leading companies are using Hypersign to streamline KYC and KYB verification. Learn from real-world implementations, challenges solved, and measurable business impact. <a target="_blank" class="text-primary" href="https://www.hypersign.id/blogs">Ready to dive in?</a>
-          </p>
-          <!-- <b-button disabled variant="light" class="text-muted font-weight-medium">
-            Coming Soon
-          </b-button> -->
-        </v-card>
+        <div class="overview-container">
+          <h6 class="input-label mb-2"><v-icon x-small class="mr-1">mdi-file-chart-outline</v-icon> Case Studies</h6>
+          <p class="x-small text-muted mb-4">Discover how companies streamline onboarding with Hypersign.</p>
+          <a href="https://www.hypersign.id/blogs" target="_blank" class="text-primary x-small font-weight-bold">
+            Read Success Stories <v-icon x-small color="primary">mdi-open-in-new</v-icon>
+          </a>
+        </div>
       </v-col>
     </v-row>
   </v-container>
 </template>
 
+<style scoped>
+.overview-container {
+  padding: 1.5rem;
+  background-color: #f9fafb;
+  border-radius: 0.75rem;
+  border: 1px solid #e5e7eb;
+}
+
+.secondary-bg {
+  background-color: #f0f7ff; /* Light blue tint */
+  border-color: #dbeafe;
+}
+
+.input-label {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Steps Roadmap Styling */
+.steps-container {
+  position: relative;
+  padding-left: 8px;
+}
+
+.step-card {
+  position: relative;
+}
+
+.step-line {
+  position: absolute;
+  left: 20px;
+  top: 40px;
+  bottom: -20px;
+  width: 2px;
+  background-color: #e2e8f0;
+  z-index: 1;
+}
+
+.step-number-circle {
+  width: 42px;
+  height: 42px;
+  background-color: #3b82f6;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  position: relative;
+  box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.2);
+}
+
+.step-content-box {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.step-content-box:hover {
+  border-color: #3b82f6;
+  transform: translateX(4px);
+}
+
+.step-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.step-action-link {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #3b82f6;
+  text-decoration: none;
+}
+
+.step-action-link:hover {
+  text-decoration: underline;
+}
+
+/* Resource Links */
+.resource-nav {
+  display: flex;
+  flex-direction: column;
+}
+
+.resource-link {
+  display: flex;
+  align-items: center;
+  padding: 8px 0;
+  color: #475569;
+  text-decoration: none;
+  font-size: 0.875rem;
+  transition: color 0.2s;
+}
+
+.resource-link:hover {
+  color: #3b82f6;
+}
+
+/* Typography Utilities */
+.lh-lg { line-height: 1.6 !important; }
+.x-small { font-size: 0.75rem; }
+</style>
 <script>
 import { mapMutations, mapGetters } from "vuex";
 export default {
@@ -131,7 +254,7 @@ export default {
   }
 };
 </script>
-
+<!-- 
 <style scoped>
 .getting-started {
   background-color: #fff;
@@ -141,4 +264,4 @@ export default {
 .font-weight-500 {
   font-weight: 500;
 }
-</style>
+</style> -->
