@@ -1091,7 +1091,31 @@ const mainStore = {
                 })
             })
         },
+        fetchAppKybById: ({ getters }, payload) => {
+            return new Promise((resolve, reject) => {
+                console.log('here in side the function')
 
+                const { companyId } = payload
+                if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
+                    return reject(new Error('Tenant url is null or empty, service is not selected'))
+                }
+                const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyb/verification/company/${companyId}`;
+                // const url = `http://localhost:3001/api/v1/e-kyb/verification/company/${companyId}`;
+                const headers = UtilsMixin.methods.getKycServiceHeader(getters.getSelectedService.kyb_access_token);
+                fetch(url, {
+                    method: 'GET',
+                    headers,
+                }).then(response => response.json()).then(json => {
+                    if (json.error) {
+                        return reject(new Error(json.error?.details?.join(' ') || json.error?.join?.(' ') || json.error || 'Unknown error'))
+                    }
+                    const companiesData = json.data;
+                    resolve(companiesData);
+                }).catch((e) => {
+                    return reject(new Error(`Error while fetching KYB companies: ${e.message}`));
+                })
+            })
+        },
         fetchAppsUsersSessions: ({ commit, getters }, payload) => {
             return new Promise((resolve, reject) => {
                 if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {

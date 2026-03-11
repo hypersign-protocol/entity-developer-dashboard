@@ -13,8 +13,14 @@
                     </div>
                     <div>
                         <p class="text-subtitle-2 text-muted mb-2">
-                            Enter a valid <strong>Company ID</strong> to initiate the KYB verification workflow.
+                            Select a KYC service and enter a valid <strong>Company ID</strong> to initiate the KYB verification workflow.
                         </p>
+                        <v-row align="start" no-gutters class="mb-4">
+                            <v-col cols="12" sm="6" md="6">
+                                <v-select v-model="selectedAppId" :items="kycApps"
+                                    label="Select KYC Service" outlined dense color="primary" class="mr-sm-4" hide-details></v-select>
+                            </v-col>
+                        </v-row>
                         <v-row align="start" no-gutters>
                             <v-col cols="12" sm="8" md="8">
                                 <v-text-field v-model="companyId" label="Company ID"
@@ -387,8 +393,10 @@ export default {
     data() {
         return {
             isLoading: false,
+            statusMessage: '',
             activeTab: 0,
             companyId: '',
+            selectedAppId: '', 
             company: null, // Populate this from the fetch method
             form: {
                 registry: { reasonDetail: '' },
@@ -398,6 +406,15 @@ export default {
         }
     },
     computed: {
+        ...mapGetters('mainStore', ['getAppsWithKYCServices']),
+        kycApps() {
+            const data = this.getAppsWithKYCServices;
+            // Transform to v-select format
+            return data.map(app => ({
+                text: app.name || app.appId, 
+                value: app.appId
+            }));
+        },
         adversePrompt() {
             if (!this.company) return '';
 
@@ -489,67 +506,29 @@ If no matches, return exactly:
     methods: {
         formatDocType(t) { return t.replace(/([A-Z])/g, ' $1'); },
         async fetchCompany() {
-            // Logic for GET api/v1/e-kyb/verification/company/{id}
-
-            this.company = {
-                "_id": "69afa3d8a4976d9c9e4671a7",
-                "name": "test company",
-                "region": "Asia Pacific",
-                "domain": "xyz.com",
-                "countryOfRegistration": "IN",
-                "registrationNumber": "U72900KA2019PTC126457",
-                "registrationNumberType": "CIN",
-                "status": "Submitted",
-                "statusReason": [],
-                "address": {
-                    "street": "street #1234",
-                    "province": "Maharashtra",
-                    "postalCode": "123459",
-                    "city": "Mumbai",
-                    "country": "IN"
-                },
-                "shareholders": [
-                    {
-                        "name": "vishwas anand",
-                        "id": "69afa4353f45cfcbc9d53380"
-                    },
-                    {
-                        "name": "varsha kumari",
-                        "id": "69afa3d83f45cfcbc9d528a1"
-                    }
-                ],
-                "createdAt": "2026-03-10T04:53:44.514Z",
-                "updatedAt": "2026-03-10T04:55:52.784Z",
-                "idString": "69afa3d8a4976d9c9e4671a7",
-                "__v": 0,
-                "representative": {
-                    "name": "Varsha kumari",
-                    "id": "69afa3d83f45cfcbc9d528a1"
-                },
-                "documents": [
-                    {
-                        "documentType": "CertificateOfIncorporation",
-                        "fileName": "proofOfAddress.pdf",
-                        "verification": {
-                            "status": "Submitted"
-                        },
-                        "createdAt": "2026-03-10T04:53:11.964Z",
-                        "updatedAt": "2026-03-10T04:53:44.530Z",
-                        "id": "69afa3b7a4976d9c9e46719e"
-                    },
-                    {
-                        "documentType": "ProofOfAddress",
-                        "fileName": "proofOfAddress.pdf",
-                        "verification": {
-                            "status": "Submitted"
-                        },
-                        "createdAt": "2026-03-10T04:53:20.413Z",
-                        "updatedAt": "2026-03-10T04:53:44.530Z",
-                        "id": "69afa3c0a4976d9c9e4671a2"
-                    }
-                ]
+            if (!this.selectedAppId) {
+                this.showFeedback("Please select a KYC service.", true);
+                return;
             }
+            if (!this.companyId) {
+                this.showFeedback("Please fill in all required fields.", true);
+                return;
+            }
+            // Set the selected app
+            this.$store.commit('mainStore/setSelectedAppId', this.selectedAppId);
+            
+            try{
+                this.company= await this.fetchAppKybById({companyId: this.companyId});
+                await this.fetchComplianceStatus();
+            }catch(e){
+                const errorMsg = e.response?.data?.message || e.message || "Fetch failed.";
+                this.showFeedback(`Error: ${errorMsg}`, true);
+            }finally {
+              this.loading = false;
+         }
+           
         },
+      
         async submitCompliance(type, status) {
             console.log({ type, status })
             // Logic for POST api/v1/e-kyb/verification/compliance?type={type}
@@ -563,7 +542,11 @@ If no matches, return exactly:
         },
         clearCompany(){
             this.companyId = ''
+            this.selectedAppId = '' // Clear selected app
             this.company = null
+        showFeedback(msg, isErr = false) {
+            this.statusMessage = msg;
+            this.isError = isErr;
         }
     }
 }
