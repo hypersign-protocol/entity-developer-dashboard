@@ -426,14 +426,6 @@ export default {
     },
     computed: {
         ...mapGetters('mainStore', ['getAppsWithKYCServices']),
-        kycApps() {
-            const data = this.getAppsWithKYCServices;
-            // Transform to v-select format
-            return data.map(app => ({
-                text: app.name || app.appId, 
-                value: app.appId
-            }));
-        },
         adversePrompt() {
             if (!this.company) return '';
 
