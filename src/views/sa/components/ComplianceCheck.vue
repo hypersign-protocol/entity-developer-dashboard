@@ -258,6 +258,22 @@
                             <span style="color: white;">Finalize KYB Review</span>
 
                         </v-btn>
+            <v-fade-transition>
+            <div
+                    v-if="statusMessage"
+                    :class="['mt-4 feedback-box', isError ? 'error-style' : 'success-style']"
+                >
+                <div class="d-flex align-center justify-center">
+                    <v-icon small :color="isError ? 'red' : 'green'" class="mr-2">
+                        {{ isError ? 'mdi-alert-circle' : 'mdi-check-circle' }}
+                    </v-icon>
+
+                    <span class="small font-weight-bold">
+                        {{ statusMessage }}
+                    </span>
+                </div>
+             </div>
+        </v-fade-transition>
 
                     </div>
                 </div>
