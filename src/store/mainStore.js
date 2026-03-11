@@ -1096,6 +1096,8 @@ const mainStore = {
             return new Promise((resolve, reject) => {
                 const { companyId, accessToken } = payload
                 const headers = UtilsMixin.methods.getKycServiceHeader(accessToken);
+                const url= `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyb/verification/company/${companyId}`;
+                // const url = `http://localhost:3001/api/v1/e-kyb/verification/company/${companyId}`;
                 fetch(url, {
                     method: 'GET',
                     headers,
