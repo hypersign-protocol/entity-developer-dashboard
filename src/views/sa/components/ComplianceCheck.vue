@@ -13,14 +13,28 @@
                     </div>
                     <div>
                         <p class="text-subtitle-2 text-muted mb-2">
-                            Select a KYC service and enter a valid <strong>Company ID</strong> to initiate the KYB verification workflow.
+                            Enter <strong>Service ID</strong> and Authenticate.
                         </p>
                         <v-row align="start" no-gutters class="mb-4">
-                            <v-col cols="12" sm="6" md="6">
-                                <v-select v-model="selectedAppId" :items="kycApps"
-                                    label="Select KYC Service" outlined dense color="primary" class="mr-sm-4" hide-details></v-select>
+                             <v-col cols="12" sm="8" md="8">
+                                <v-text-field v-model="serviceId" label="Service ID"
+                                    placeholder="e.g. 68afa3d8a4975d9c9e4671a7..." outlined dense color="primary"
+                                    class="mono-text mr-sm-4" @keyup.enter="authenticateService" hide-details></v-text-field>
+                            </v-col>
+
+                            <v-col cols="12" sm="2" md="2" class="d-flex mt-2 mt-sm-0">
+                                <hf-buttons name="Authenticate" style="width: 100%"
+                                    @executeAction="authenticateService"></hf-buttons>
+                            </v-col>
+
+                            <v-col cols="12" sm="2" md="2">
+                                <!-- this should be link button -->
+                                 <v-btn color="error" text style="width: 100%" @click="logout">Logout</v-btn>
                             </v-col>
                         </v-row>
+                        <p class="text-subtitle-2 text-muted mb-2">
+                            Enter a valid <strong>Company ID</strong> to initiate the KYB verification workflow.
+                        </p>
                         <v-row align="start" no-gutters>
                             <v-col cols="12" sm="8" md="8">
                                 <v-text-field v-model="companyId" label="Company ID"
@@ -385,7 +399,10 @@
 <script>
 import UtilsMixin from '../../../mixins/utils.js';
 import HfButtons from '../../../components/element/HfButtons.vue';
-import {mapGetters} from 'vuex'
+import { mapActions } from 'vuex/dist/vuex.common.js';
+import {mapGetters} from 'vuex';
+import config from "../../../config.js";
+
 export default {
     name: 'KYBVerification',
     mixins: [UtilsMixin],
@@ -396,13 +413,14 @@ export default {
             statusMessage: '',
             activeTab: 0,
             companyId: '',
-            selectedAppId: '', 
+            serviceId: '', 
+            accessToken:'',
             company: null, // Populate this from the fetch method
             form: {
                 registry: { reasonDetail: '' },
                 adverse: { reasonDetail: '' },
                 sanction: { reasonDetail: '' }
-            }
+            },
         }
     },
     computed: {
@@ -504,10 +522,11 @@ If no matches, return exactly:
         }
     },
     methods: {
+    ...mapActions('mainStore', ['fetchAppKybById', 'submitComplianceDetail','keepAccessTokenReadyForApp']),
         formatDocType(t) { return t.replace(/([A-Z])/g, ' $1'); },
         async fetchCompany() {
-            if (!this.selectedAppId) {
-                this.showFeedback("Please select a KYC service.", true);
+            if (!this.accessToken) {
+                this.showFeedback("Please sauthenticate first", true);
                 return;
             }
             if (!this.companyId) {
@@ -515,11 +534,10 @@ If no matches, return exactly:
                 return;
             }
             // Set the selected app
-            this.$store.commit('mainStore/setSelectedAppId', this.selectedAppId);
+            this.$store.commit('mainStore/setSelectedAppId', this.serviceId);
             
             try{
-                this.company= await this.fetchAppKybById({companyId: this.companyId});
-                await this.fetchComplianceStatus();
+                this.company= await this.fetchAppKybById({companyId: this.companyId, accessToken:this.accessToken});
             }catch(e){
                 const errorMsg = e.response?.data?.message || e.message || "Fetch failed.";
                 this.showFeedback(`Error: ${errorMsg}`, true);
@@ -545,9 +563,28 @@ If no matches, return exactly:
             this.selectedAppId = '' // Clear selected app
             this.company = null
             },
+        logout(){
+            EventBus.$emit("logoutAll");
+            },
         showFeedback(msg, isErr = false) {
             this.statusMessage = msg;
             this.isError = isErr;
+        },
+        async authenticateService(){
+            if (!this.serviceId) {
+                this.showFeedback("Please select a KYC service.", true);
+                return;
+            }
+            const data= await this.keepAccessTokenReadyForApp({
+              serviceId: this.serviceId,
+              grant_type: config.GRANT_TYPES_ENUM['CAVACH_KYB_API'],
+            });
+             if(data && data.access_token){
+                this.accessToken=data.access_token;
+                this.showFeedback("Authentication successful! You can now fetch company details.");
+             }else{
+                this.showFeedback("Authentication failed. Please try again.", true);
+             }
         }
     }
 }

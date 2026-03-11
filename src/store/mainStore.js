@@ -984,6 +984,7 @@ const mainStore = {
                         app['kyb_access_token'] = json.access_token
                     }
                     commit('insertAnApp', app);
+                    return json; 
                 } else {
                     throw new Error(`Could not fetch accesstoken for service   ${serviceId}`)
                 }
@@ -1093,15 +1094,8 @@ const mainStore = {
         },
         fetchAppKybById: ({ getters }, payload) => {
             return new Promise((resolve, reject) => {
-                console.log('here in side the function')
-
-                const { companyId } = payload
-                if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
-                    return reject(new Error('Tenant url is null or empty, service is not selected'))
-                }
-                const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyb/verification/company/${companyId}`;
-                // const url = `http://localhost:3001/api/v1/e-kyb/verification/company/${companyId}`;
-                const headers = UtilsMixin.methods.getKycServiceHeader(getters.getSelectedService.kyb_access_token);
+                const { companyId, accessToken } = payload
+                const headers = UtilsMixin.methods.getKycServiceHeader(accessToken);
                 fetch(url, {
                     method: 'GET',
                     headers,
