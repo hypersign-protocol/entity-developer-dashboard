@@ -523,11 +523,12 @@ If no matches, return exactly:
         }
     },
     methods: {
-    ...mapActions('mainStore', ['fetchAppKybById', 'submitComplianceDetail','keepAccessTokenReadyForApp']),
+     ...mapActions('mainStore', ['fetchAppKybById','keepAccessTokenReadyForApp']),
         formatDocType(t) { return t.replace(/([A-Z])/g, ' $1'); },
         async fetchCompany() {
             if (!this.accessToken) {
-                this.showFeedback("Please sauthenticate first", true);
+                this.showFeedback("Please authenticate first", true);
+
                 return;
             }
             if (!this.companyId) {
@@ -563,10 +564,11 @@ If no matches, return exactly:
             this.companyId = ''
             this.serviceId = '' // Clear selected app
             this.company = null
-            },
+        },
         logout(){
             EventBus.$emit("logoutAll");
             },
+        
         showFeedback(msg, isErr = false) {
             this.statusMessage = msg;
             this.isError = isErr;
@@ -588,5 +590,4 @@ If no matches, return exactly:
              }
         }
     }
-}
 </script>

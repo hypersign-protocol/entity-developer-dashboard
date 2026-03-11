@@ -2251,7 +2251,9 @@ const mainStore = {
             }
             const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/compliance?entityId=${companyId}`;
             const authToken = getters.getSelectedService.kyb_access_token
-            const headers = UtilsMixin.methods.getKycServiceHeader(authToken);
+            const headers =
+                UtilsMixin.methods.getKycServiceHeader(authToken)
+                
             const resp = await fetch(url, {
                 method: 'GET',
                 headers
