@@ -552,7 +552,7 @@ If no matches, return exactly:
             ];}
     },
     methods: {
-     ...mapActions('mainStore', ['fetchAppKybById','keepAccessTokenReadyForApp','submitComplianceDetail']),
+     ...mapActions('mainStore', ['fetchAppKybById','keepAccessTokenReadyForApp','submitComplianceDetail','finalizeCompanyReview']),
         formatDocType(t) { return t.replace(/([A-Z])/g, ' $1'); },
         async fetchCompany() {
             if (!this.accessToken) {
@@ -620,7 +620,36 @@ If no matches, return exactly:
             }
         },
         async finalizeCompany() {
-            // Logic for PATCH api/v1/e-kyb/verification/company/{id}
+              if (!this.accessToken) {
+                this.showFeedback("Please authenticate first", true);
+                return;
+            }
+             if (!this.companyId) {
+                this.showFeedback("Please fill in all required fields.", true);
+                return;
+            }
+            try{
+                const data= await this.finalizeCompanyReview({companyId: this.companyId, accessToken:this.accessToken, status:"Completed"});
+                if(data && data.success){
+                  this.showFeedback(`Success: Company is verified successfully!`);
+                }else{
+                  throw new Error(
+                    data?.error?.details?.[0] ||
+                    data?.message ||
+                    "Failed to finalize company review"
+                    );
+                }
+            }catch(e){
+               const errorMsg =
+                e.response?.data?.error?.details?.[0] ||
+                e.response?.data?.message ||
+                e.message ||
+                "Request failed.";
+                this.showFeedback(`Error: ${errorMsg}`, true);
+            }finally {
+              this.loading = false;
+         }
+           
         },
         copyToClipboard(value) {
             navigator.clipboard.writeText(value);
