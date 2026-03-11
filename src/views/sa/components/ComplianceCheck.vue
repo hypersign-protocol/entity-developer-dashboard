@@ -523,7 +523,7 @@ If no matches, return exactly:
         }
     },
     methods: {
-    ...mapActions('mainStore', ['fetchAppKybById', 'submitComplianceDetail','keepAccessTokenReadyForApp']),
+    ...mapActions('mainStore', ['fetchAppKybById','keepAccessTokenReadyForApp']),
         formatDocType(t) { return t.replace(/([A-Z])/g, ' $1'); },
         async fetchCompany() {
             if (!this.accessToken) {
