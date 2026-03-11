@@ -2297,7 +2297,40 @@ const mainStore = {
             }
             return []
         },
+        async submitComplianceDetail({ getters }, payload) {
+            const { companyId, type, status, reasonDetail, reason } = payload;
+            if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
+                throw new Error('Tenant url is null or empty, service is not selected')
+            }
+            if (!companyId) {
+                throw new Error('Company Id is null or empty')
+            }
+            const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyb/verification/compliance?type=${type}`;
+            // const url = `http://localhost:3009/api/v1/compliance?type=${type}`;
 
+            const authToken = getters.getSelectedService.kyb_access_token;
+            const headers = UtilsMixin.methods.getKycServiceHeader(authToken);
+            const body = {
+                companyId,
+                status
+            };
+            if (reason) body.reason = reason;
+            if (reason && !reasonDetail) {
+                throw new Error('Reason detail is required when reason is provided')
+            }
+            if (reasonDetail) body.reasonDetail = reasonDetail;
+            const resp = await fetch(url, {
+                method: 'POST',
+                headers,
+                body: JSON.stringify(body),
+                credentials: 'include'
+            });
+            const json = await resp.json();
+            if (json.error) {
+                throw new Error(JWTExpiredErrorMessageHandling(json));
+            }
+            return json;
+        },
 
         activateCredit({ getters, dispatch }, payload) {
             return new Promise(function (resolve, reject) {
