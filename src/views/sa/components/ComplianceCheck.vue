@@ -402,6 +402,7 @@ import HfButtons from '../../../components/element/HfButtons.vue';
 import { mapActions } from 'vuex/dist/vuex.common.js';
 import {mapGetters} from 'vuex';
 import config from "../../../config.js";
+import EventBus from '../../../eventbus';
 
 export default {
     name: 'KYBVerification',
@@ -560,7 +561,7 @@ If no matches, return exactly:
         },
         clearCompany(){
             this.companyId = ''
-            this.selectedAppId = '' // Clear selected app
+            this.serviceId = '' // Clear selected app
             this.company = null
             },
         logout(){
