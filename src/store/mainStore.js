@@ -2253,10 +2253,10 @@ const mainStore = {
             const authToken = getters.getSelectedService.kyb_access_token
             const headers =
                 UtilsMixin.methods.getKycServiceHeader(authToken)
+                
             const resp = await fetch(url, {
                 method: 'GET',
-                headers,
-                credentials: 'include'
+                headers
             })
             const json = await resp.json()
             if (json.error) {
