@@ -603,7 +603,8 @@ If no matches, return exactly:
                 const payload = {
                     companyId: this.companyId,
                     type,
-                    status
+                    status,
+                    accessToken: this.accessToken
                 };
                 if (status === 'failed') {
                     console.log('inside if')

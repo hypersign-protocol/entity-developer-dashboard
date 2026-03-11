@@ -2308,8 +2308,7 @@ const mainStore = {
             const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyb/verification/compliance?type=${type}`;
             // const url = `http://localhost:3009/api/v1/compliance?type=${type}`;
 
-            const authToken = getters.getSelectedService.kyb_access_token;
-            const headers = UtilsMixin.methods.getKycServiceHeader(authToken);
+            const headers = UtilsMixin.methods.getKycServiceHeader(accessToken);
             const body = {
                 companyId,
                 status
