@@ -2298,7 +2298,7 @@ const mainStore = {
             return []
         },
         async submitComplianceDetail({ getters }, payload) {
-            const { companyId, type, status, reasonDetail, reason } = payload;
+            const { companyId, type, status, reasonDetail, reason, accessToken } = payload;
             if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
                 throw new Error('Tenant url is null or empty, service is not selected')
             }
