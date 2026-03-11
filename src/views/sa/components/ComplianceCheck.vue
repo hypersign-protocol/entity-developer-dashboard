@@ -385,7 +385,7 @@
 <script>
 import UtilsMixin from '../../../mixins/utils.js';
 import HfButtons from '../../../components/element/HfButtons.vue';
-
+import {mapGetters} from 'vuex'
 export default {
     name: 'KYBVerification',
     mixins: [UtilsMixin],
@@ -544,6 +544,7 @@ If no matches, return exactly:
             this.companyId = ''
             this.selectedAppId = '' // Clear selected app
             this.company = null
+            },
         showFeedback(msg, isErr = false) {
             this.statusMessage = msg;
             this.isError = isErr;
