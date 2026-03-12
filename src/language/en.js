@@ -19,7 +19,8 @@ export const NAV = {
     },
     SOLUTIONS: {
         TITLE: "Solutions",
-        KYC_VERIFIER_CONFIGURATION: "Custom Page"
+        KYC_VERIFIER_CONFIGURATION: "Custom Page",
+        KYB_VERIFIER_CONFIGURATION: "KYB Custom Page",
     },
     BILLING_AND_USAGE: {
         TITLE: "Billing & Usage",

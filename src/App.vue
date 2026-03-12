@@ -588,11 +588,11 @@ export default {
                 title: EN.NAV.BUSINESS_VERIFICATION.BUSINESSES,
                 icon: "fa fa-briefcase"
               },
-              // {
-              //   href: "/studio/kyb-widget-config/" + this.getSelectedService.appId,
-              //   title: EN.NAV.BUSINESS_VERIFICATION.KYB_WIDGET,
-              //   icon: "fa fa-puzzle-piece",
-              // }
+              {
+                href: "/studio/kyb-widget-config/" + this.getSelectedService.appId,
+                title: EN.NAV.BUSINESS_VERIFICATION.KYB_WIDGET,
+                icon: "fa fa-puzzle-piece",
+              }
             ]
           });
           // Solutions
@@ -604,6 +604,11 @@ export default {
               {
                 href: "/studio/kyc-webpage-generator/" + appId,
                 title: EN.NAV.SOLUTIONS.KYC_VERIFIER_CONFIGURATION,
+                icon: "fa fa-globe",
+              },
+              {
+                href: "/studio/kyb-webpage-generator/" + appId,
+                title: EN.NAV.SOLUTIONS.KYB_VERIFIER_CONFIGURATION,
                 icon: "fa fa-globe",
               }
             ]

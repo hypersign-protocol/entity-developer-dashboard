@@ -21,6 +21,7 @@ const WidgetConfig = () => import('./views/playground/WidgetConfig/Index.vue')
 const WebhookConfig = () => import('./views/playground/developer/WebhookConfig.vue')
 const APIKey = () => import('./views/playground/developer/APIKey.vue')
 const KYCWebpageGenerator = () => import('./views/playground/KYCWebpageGenerator.vue')
+const KYBWebpageGenerator = () => import('./views/playground/KYBWebpageGenerator.vue')
 const MFA = () => import('./components/login/mfa/MFA.vue')
 const SettingConfig = () => import('./views/SettingConfig.vue')
 const Business = () => import('./views/playground/Business.vue')
@@ -264,6 +265,15 @@ const router = new Router({
       meta: {
         requiresAuth: true,
         title: `${config.app.name} - KYC Verifier Configuration`
+      }
+    },
+    {
+      path: '/studio/kyb-webpage-generator/:appId',
+      name: 'KYBWebpageGenerator',
+      component: KYBWebpageGenerator,
+      meta: {
+        requiresAuth: true,
+        title: `${config.app.name} - KYB Verifier Configuration`
       }
     },
     {
