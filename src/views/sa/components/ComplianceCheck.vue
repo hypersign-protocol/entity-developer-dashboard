@@ -136,18 +136,22 @@
                                 <p class="small text-muted mb-2">Manual lookup required for <strong>{{
                                     company.countryOfRegistration }}</strong> in official registry.</p>
 
+                                <v-select v-model="form.registry.status" :items="[{text: 'success', value: 'Success'}, {text: 'Fail', value: 'Failed'}]"
+                                    label="Status" outlined dense class="mb-4"></v-select>
 
-                                <v-textarea v-model="form.registry.reasonDetail" label="Registry Verification Remarks"
-                                    placeholder="Enter detailed findings from the official registry lookup..." outlined
-                                    dense></v-textarea>
+                                <div v-if="form.registry.status === 'Failed'">
+                                    <v-select v-model="form.registry.reason" :items="registryReasons" item-text="text" item-value="value"
+                                        label="Reason" outlined dense class="mb-4"></v-select>
 
+                                    <v-textarea v-model="form.registry.reasonDetail" label="Registry Verification Remarks"
+                                        placeholder="Enter detailed findings from the official registry lookup..." outlined
+                                        dense class="mono-text"></v-textarea>
+                                </div>
 
 
                                 <div class="d-flex justify-space-between mt-4">
-                                    <hf-buttons name="Confirm & Pass"
-                                        @executeAction="submitCompliance('registry', 'success')"></hf-buttons>
-                                    <v-btn color="error" text @click="submitCompliance('registry', 'failed')">Reject
-                                        Entity</v-btn>
+                                    <hf-buttons name="Submit Registry Check"
+                                        @executeAction="submitCompliance('registry',  form.registry.status)"></hf-buttons>
                                 </div>
 
                             </div>
@@ -171,12 +175,20 @@
                                     </div>
                                     <pre class="prompt-preview">{{ adversePrompt }}</pre>
                                 </div>
-                                <v-textarea v-model="form.adverse.reasonDetail" label="Adverse Media Results"
-                                    placeholder="Paste the Markdown output from the AI here..." outlined dense
-                                    class="mono-text"></v-textarea>
+                                                <v-select v-model="form.adverse.status" :items="[{text: 'success', value: 'Success'}, {text: 'Fail', value: 'Failed'}]"
+                                label="Status" outlined dense class="mb-4" @change="handleStatusChange('adverse', $event)"></v-select>
+
+                                <div v-if="form.adverse.status === 'Failed'">
+                                    <!-- <v-select v-model="form.adverse.reason" :items="adverseReasons" item-text="text" item-value="value"
+                                        label="Reason" outlined dense class="mb-4"></v-select> -->
+
+                                    <v-textarea v-model="form.adverse.reasonDetail" label="Adverse Media Results"
+                                        placeholder="Paste the Markdown output from the AI here..." outlined
+                                        dense class="mono-text"></v-textarea>
+                                </div>
                                 <div class="d-flex justify-end">
                                     <hf-buttons name="Submit Adverse Check"
-                                        @executeAction="submitCompliance('adverse-media', 'success')"></hf-buttons>
+                                        @executeAction="submitCompliance('adverse-media', form.adverse.status)"></hf-buttons>
                                 </div>
 
                             </div>
@@ -209,17 +221,25 @@
                                 </div>
 
 
+                            <v-select v-model="form.sanction.status" :items="[{text: 'success', value: 'Success'}, {text: 'Fail', value: 'Failed'}]"
+                                label="Status" outlined dense class="mb-4"
+                                @change="handleStatusChange('sanction', $event)"></v-select>
 
-                                <v-textarea v-model="form.sanction.reasonDetail" label="Sanction List JSON Detail"
-                                    placeholder="Paste the JSON 'detail' field from the AI here..." outlined dense
-                                    class="mono-text"></v-textarea>
+                                <div v-if="form.sanction.status === 'Failed'">
+                                    <!-- <v-select v-model="form.sanction.reason" :items="sanctionReasons" item-text="text" item-value="value"
+                                        label="Reason" outlined dense class="mb-4"></v-select> -->
+
+                                    <v-textarea v-model="form.sanction.reasonDetail" label="Sanction List JSON Detail"
+                                        placeholder="Paste the JSON 'detail' field from the AI here..." outlined
+                                        dense class="mono-text"></v-textarea>
+                                </div>      
 
 
 
                                 <div class="d-flex justify-end">
 
                                     <hf-buttons name="Submit Sanction Check"
-                                        @executeAction="submitCompliance('sanctionlist', 'success')"></hf-buttons>
+                                        @executeAction="submitCompliance('sanctionlist', form.sanction.status)"></hf-buttons>
 
                                 </div>
 
@@ -238,6 +258,22 @@
                             <span style="color: white;">Finalize KYB Review</span>
 
                         </v-btn>
+            <v-fade-transition>
+            <div
+                    v-if="statusMessage"
+                    :class="['mt-4 feedback-box', isError ? 'error-style' : 'success-style']"
+                >
+                <div class="d-flex align-center justify-center">
+                    <v-icon small :color="isError ? 'red' : 'green'" class="mr-2">
+                        {{ isError ? 'mdi-alert-circle' : 'mdi-check-circle' }}
+                    </v-icon>
+
+                    <span class="small font-weight-bold">
+                        {{ statusMessage }}
+                    </span>
+                </div>
+             </div>
+        </v-fade-transition>
 
                     </div>
                 </div>
@@ -417,10 +453,11 @@ export default {
             serviceId: '', 
             accessToken:'',
             company: null, // Populate this from the fetch method
+            isSubmitting: false,
             form: {
-                registry: { reasonDetail: '' },
-                adverse: { reasonDetail: '' },
-                sanction: { reasonDetail: '' }
+                registry: { reasonDetail: '', reason: '', status: 'Success' },
+                adverse: { reasonDetail: '', reason: '',status: 'Success' },
+                sanction: { reasonDetail: '', reason: '',status: 'Success' }
             },
         }
     },
@@ -496,26 +533,35 @@ export default {
 5. Do NOT return fuzzy, inferred, or near-miss matches.
 
 ### Output requirements
-Return exactly one JSON object (no surrounding text) with detail fields:
-{
-  "detail": "/* a single string containing up to 10 Markdown bullets separated by \\n. Each bullet EXACTLY: - **Entity Name** – Source List, YYYY-MM-DD. One-line summary (max 25 words). [Read more](https://full.absolute.url) */"
-}
+Return ONLY the result content.
 
-Instructions for generating \`detail\`:
 - If matches are found, generate up to 10 Markdown bullets.  
   Format for each bullet (strictly):  
   - **Entity Name** – Source List, YYYY-MM-DD. One-line summary (max 25 words). [Read more](https://full.absolute.url)  
 - Sort bullets newest → oldest.  
-- Escape line breaks (\\n) and quotes so the Markdown fits into the JSON string.  
+- Use full absolute URLs.
+- Dates must be YYYY-MM-DD.
 
 If no matches, return exactly:
-{
-  "detail": "Entity ${entityName} not found in the sanction list."
-}`;
+ "Entity ${entityName} not found in the sanction list."
+`;
+        },
+        registryReasons() {
+            return [
+                { text: 'Company Details Mismatch', value: 'COMPANY_FIELDS_MISMATCH' },
+                { text: 'Company is Inactive', value: 'COMPANY_INACTIVE' },
+                { text: 'Company Not Found in Registry', value: 'COMPANY_NOT_FOUND_REGISTRY' }
+            ];
+        },
+       adverseReason() {
+          return 'COMPANY_ADVERSE_MEDIA_FOUND'
+        },
+        sanctionReason() {
+           return 'COMPANY_SANCTION_LIST_FOUND'
         }
     },
     methods: {
-     ...mapActions('mainStore', ['fetchAppKybById','keepAccessTokenReadyForApp']),
+     ...mapActions('mainStore', ['fetchAppKybById','keepAccessTokenReadyForApp','submitComplianceDetail','finalizeCompanyReview']),
         formatDocType(t) { return t.replace(/([A-Z])/g, ' $1'); },
         async fetchCompany() {
             if (!this.accessToken) {
@@ -529,7 +575,6 @@ If no matches, return exactly:
             }
             // Set the selected app
             this.$store.commit('mainStore/setSelectedAppId', this.serviceId);
-            
             try{
                 this.company= await this.fetchAppKybById({companyId: this.companyId, accessToken:this.accessToken});
             }catch(e){
@@ -542,11 +587,78 @@ If no matches, return exactly:
         },
       
         async submitCompliance(type, status) {
-            console.log({ type, status })
-            // Logic for POST api/v1/e-kyb/verification/compliance?type={type}
+            if (this.isSubmitting) return;
+            this.isSubmitting = true;
+            if (!this.serviceId) {
+                this.showFeedback("Please select a KYC service first.", true);
+                this.isSubmitting = false;
+                return;
+            }
+            if (!this.companyId) {
+                this.showFeedback("Please fetch a company first.", true);
+                this.isSubmitting = false;
+                return;
+            }
+            const formKey = type === 'adverse-media' ? 'adverse' : type === 'sanctionlist' ? 'sanction' : type;
+            const formData = this.form[formKey];
+            if (status === 'Failed') {
+                if (!formData.reasonDetail.trim()) {
+                    this.showFeedback("Please provide details.", true);
+                    this.isSubmitting = false;
+                    return;
+                }
+            }
+            try {
+                const payload = {
+                    companyId: this.companyId,
+                    type,
+                    status,
+                    accessToken: this.accessToken
+                };
+                if (status === 'Failed') {
+                    console.log('inside if')
+                    payload.reasonDetail = formData.reasonDetail;
+                    if (formData.reason) payload.reason = formData.reason;
+                }
+                await this.submitComplianceDetail(payload);
+                this.showFeedback(`${type} compliance submitted successfully.`, false);
+            } catch (error) {
+                this.showFeedback(`Error submitting ${type} compliance: ${error.message}`, true);
+            } finally {
+                this.isSubmitting = false;
+            }
         },
         async finalizeCompany() {
-            // Logic for PATCH api/v1/e-kyb/verification/company/{id}
+              if (!this.accessToken) {
+                this.showFeedback("Please authenticate first", true);
+                return;
+            }
+             if (!this.companyId) {
+                this.showFeedback("Please fill in all required fields.", true);
+                return;
+            }
+            try{
+                const data= await this.finalizeCompanyReview({companyId: this.companyId, accessToken:this.accessToken, status:"Completed"});
+                if(data && data.success){
+                  this.showFeedback(`Success: Company is verified successfully!`);
+                }else{
+                  throw new Error(
+                    data?.error?.details?.[0] ||
+                    data?.message ||
+                    "Failed to finalize company review"
+                    );
+                }
+            }catch(e){
+               const errorMsg =
+                e.response?.data?.error?.details?.[0] ||
+                e.response?.data?.message ||
+                e.message ||
+                "Request failed.";
+                this.showFeedback(`Error: ${errorMsg}`, true);
+            }finally {
+              this.loading = false;
+         }
+           
         },
         copyToClipboard(value) {
             navigator.clipboard.writeText(value);
@@ -555,7 +667,12 @@ If no matches, return exactly:
         clearCompany(){
             this.companyId = ''
             this.serviceId = '' // Clear selected app
-            this.company = null
+            this.company = null,
+              this.form = {
+                registry: { reasonDetail: '', reason: '', status: '' },
+                adverse: { reasonDetail: '', reason: '',status: '' },
+                sanction: { reasonDetail: '', reason: '',status: '' }
+            }
         },
         logout(){
             EventBus.$emit("logoutAll");
@@ -580,6 +697,13 @@ If no matches, return exactly:
              }else{
                 this.showFeedback("Authentication failed. Please try again.", true);
              }
+        },
+          handleStatusChange(type, value) {
+            const reasons = {
+            adverse: this.adverseReason,
+            sanction: this.sanctionReason
+            };
+            this.form[type].reason = value === 'Failed' ? reasons[type] : null;
         }
     }
 }

@@ -978,12 +978,15 @@ const mainStore = {
                     // - For CAVACH_KYB_API grant type: store as 'kyb_access_token'
                     // - For all other grant types (SSI_API, CAVACH_API): store as 'access_token'
                     // This allows KYC services to have separate tokens for KYC and KYB operations
-                    if (grant_type != config.GRANT_TYPES_ENUM.CAVACH_KYB_API) {
-                        app['access_token'] = json.access_token
-                    } else {
-                        app['kyb_access_token'] = json.access_token
+                    if (app) {
+                        if (grant_type !== config.GRANT_TYPES_ENUM.CAVACH_KYB_API) {
+                            app['access_token'] = json.access_token;
+                        } else {
+                            app['kyb_access_token'] = json.access_token;
+                        }
+
+                        commit('insertAnApp', app);
                     }
-                    commit('insertAnApp', app);
                     return json; 
                 } else {
                     throw new Error(`Could not fetch accesstoken for service   ${serviceId}`)
@@ -1096,8 +1099,8 @@ const mainStore = {
             return new Promise((resolve, reject) => {
                 const { companyId, accessToken } = payload
                 const headers = UtilsMixin.methods.getKycServiceHeader(accessToken);
-                const url= `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyb/verification/company/${companyId}`;
-                // const url = `http://localhost:3001/api/v1/e-kyb/verification/company/${companyId}`;
+                const url= `${sanitizeUrl(config.KYC_SERVER_BASE_URL)}/api/v1/e-kyb/verification/company/${companyId}`;
+                // const url = `http://localhost:3009/api/v1/e-kyb/verification/company/${companyId}`;
                 fetch(url, {
                     method: 'GET',
                     headers,
@@ -2297,7 +2300,66 @@ const mainStore = {
             }
             return []
         },
+        async submitComplianceDetail({ getters }, payload) {
+            const { companyId, type, status, reasonDetail, reason, accessToken } = payload;
+            if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
+                throw new Error('Tenant url is null or empty, service is not selected')
+            }
+            if (!companyId) {
+                throw new Error('Company Id is null or empty')
+            }
+            const url = `${sanitizeUrl(config.KYC_SERVER_BASE_URL)}/api/v1/compliance?type=${type}`;
+            // const url = `http://localhost:3009/api/v1/compliance?type=${type}`;
 
+            const headers = UtilsMixin.methods.getKycServiceHeader(accessToken);
+            const body = {
+                companyId,
+                status
+            };
+            if (reason) body.reason = reason;
+            if (reason && !reasonDetail) {
+                throw new Error('Reason detail is required when reason is provided')
+            }
+            if (reasonDetail) body.reasonDetail = reasonDetail;
+            const resp = await fetch(url, {
+                method: 'POST',
+                headers,
+                body: JSON.stringify(body),
+                credentials: 'include'
+            });
+            const json = await resp.json();
+            if (json.error) {
+                throw new Error(JWTExpiredErrorMessageHandling(json));
+            }
+            return json;
+        },
+        async finalizeCompanyReview({ getters }, payload) {
+            const { companyId, status, accessToken } = payload;
+            if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
+                throw new Error('Tenant url is null or empty, service is not selected')
+            }
+            if (!companyId) {
+                throw new Error('Company Id is null or empty')
+            }
+            const url = `${sanitizeUrl(config.KYC_SERVER_BASE_URL)}/api/v1/e-kyb/verification/company/${companyId}/status`;
+            // const url = `http://localhost:3009/api/v1/e-kyb/verification/company/${companyId}/status`;
+            const headers = UtilsMixin.methods.getKycServiceHeader(accessToken);
+            const body = {
+                status
+            };
+            const resp = await fetch(url, {
+                method: 'PATCH',
+                headers,
+                body: JSON.stringify(body),
+                credentials: 'include'
+            });
+            const json = await resp.json();
+            if (json.error) {
+                throw new Error(JWTExpiredErrorMessageHandling(json));
+            }
+            return json;
+        },
+        // - KYC Credit
 
         activateCredit({ getters, dispatch }, payload) {
             return new Promise(function (resolve, reject) {
