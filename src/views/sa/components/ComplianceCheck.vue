@@ -32,10 +32,11 @@
                                  <v-btn color="error" text style="width: 100%" @click="logout">Logout</v-btn>
                             </v-col>
                         </v-row>
-                        <p class="text-subtitle-2 text-muted mb-2">
-                            Enter a valid <strong>Company ID</strong> to initiate the KYB verification workflow.
-                        </p>
-                        <v-row align="start" no-gutters>
+                        
+                        <v-row align="start" no-gutters v-if="accessToken != ''">
+                            <p class="text-subtitle-2 text-muted mb-2">
+                                Enter a valid <strong>Company ID</strong> to initiate the KYB verification workflow.
+                            </p>
                             <v-col cols="12" sm="8" md="8">
                                 <v-text-field v-model="companyId" label="Company ID"
                                     placeholder="e.g. 69afa3d8a4976d9c9e4671a7..." outlined dense color="primary"
@@ -280,13 +281,8 @@
 
             </v-col>
         </v-row>
-
-       
     </v-container>
-
 </template>
-
-
 
 <style scoped>
 /* Inherited Theme Styles */
@@ -429,9 +425,6 @@
     font-size: 0.7rem;
 }
 </style>
-
-
-
 <script>
 import UtilsMixin from '../../../mixins/utils.js';
 import HfButtons from '../../../components/element/HfButtons.vue';
@@ -576,7 +569,7 @@ If no matches, return exactly:
             // Set the selected app
             this.$store.commit('mainStore/setSelectedAppId', this.serviceId);
             try{
-                this.company= await this.fetchAppKybById({companyId: this.companyId, accessToken:this.accessToken});
+                this.company= await this.fetchAppKybById({companyId: this.companyId, accessToken: this.accessToken});
             }catch(e){
                 const errorMsg = e.response?.data?.message || e.message || "Fetch failed.";
                 this.showFeedback(`Error: ${errorMsg}`, true);
@@ -692,7 +685,7 @@ If no matches, return exactly:
               grant_type: config.GRANT_TYPES_ENUM['CAVACH_KYB_API'],
             });
              if(data && data.access_token){
-                this.accessToken=data.access_token;
+                this.accessToken = data.access_token;
                 this.showFeedback("Authentication successful! You can now fetch company details.");
              }else{
                 this.showFeedback("Authentication failed. Please try again.", true);

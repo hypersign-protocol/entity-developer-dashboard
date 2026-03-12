@@ -12,7 +12,7 @@
 
         <v-row dense>
           <v-col cols="12" md="6" class="mb-2">
-            <label class="input-label">App ID</label>
+            <label class="input-label">Service ID</label>
             <v-text-field
               v-model="form.serviceId"
               placeholder="e.g. 69afa3d8a4976d9c9e4671a7"

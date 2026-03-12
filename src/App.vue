@@ -138,6 +138,86 @@
 
 
 </style>
+
+<style>
+.v-sidebar-menu .vsm--link_level-1 .vsm--icon {
+  font-size: 16px;
+  width: 40px !important;
+}
+
+#nav a.router-link-exact-active {
+  color: #42b983;
+}
+
+.centeralign {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.leftAlign {
+  text-align: left;
+}
+
+.rightAlign {
+  text-align: right;
+}
+
+.marginLeft {
+  margin-left: 13%;
+}
+
+.marginRight {
+  margin-right: 12%;
+}
+
+#view.collapsed {
+  padding-left: 50px;
+}
+
+#view {
+  padding-left: 350px;
+}
+
+.sidebar-wrapper {
+  min-width: 70px;
+  margin-top: 5.8vh;
+  /* box-shadow: 0 0 15px 0 rgba(34, 41, 47, 0.05); */
+  box-shadow: 0 2px 6px 0 rgba(32, 33, 37, .1);
+  border-right: 1px solid rgba(128, 128, 128, 0.21);
+}
+
+.v-sidebar-menu.vsm_white-theme .vsm--mobile-bg {
+  background: grey;
+}
+
+.vsm--mobile-bg {
+  background: whitesmoke !important;
+}
+
+.v-sidebar-menu.vsm_white-theme {
+  background-color: white !important;
+  color: rgba(0, 0, 0, .87) !important;
+}
+
+.v-sidebar-menu.vsm_white-theme .vsm--header {
+  color: rgba(0, 0, 0, .87) !important;
+}
+
+.v-sidebar-menu.vsm_white-theme .vsm--link {
+  color: rgba(0, 0, 0, .87) !important;
+}
+
+.v-sidebar-menu.vsm_white-theme .vsm--link_level-1 .vsm--link:hover {
+  color: rgba(0, 0, 0, .87) !important;
+  background: whitesmoke !important;
+}
+
+.v-sidebar-menu.vsm_white-theme .vsm--link_level-1 .vsm--icon {
+  background-color: transparent !important;
+  color: #66666a !important;
+}
+</style>
 <template>
   <div id="app" data-app>
     <load-ing :active.sync="isLoading" :can-cancel="true" :is-full-page="true"></load-ing>
