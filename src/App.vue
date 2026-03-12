@@ -130,6 +130,12 @@
   font-size: 36px;
 }
 
+.dropDownPopup {
+  box-shadow: 2px 0 10px rgba(0, 0, 0, .47);
+  border-radius: 8px;
+  border: 0 solid grey;
+}
+
 
 </style>
 <template>
@@ -165,7 +171,7 @@
             </v-chip>
           </b-nav-item>
 
-          <b-nav-item-dropdown right no-caret menu-class="profile-dropdown-menu">
+          <b-nav-item-dropdown right no-caret menu-class="profile-dropdown-menu dropDownPopup" >
             <template #button-content>
               <div class="avatar-container">
                 <img v-if="userDetails?.profileIcon" :src="userDetails?.profileIcon" class="profile-img" />
@@ -232,120 +238,7 @@
     </sidebar-menu>
   </div>
 </template>
-<style>
-.v-sidebar-menu .vsm--link_level-1 .vsm--icon {
-  font-size: 16px;
-  width: 40px !important;
-}
 
-.dropdown-menu.show {
-  text-align: center;
-  box-shadow: 2px 0 10px rgb(0 0 0 / 47%);
-}
-
-.navbar {
-  padding: 0px !important;
-}
-
-.navStyle {
-  background: #ffffff;
-  margin-bottom: 1%;
-  padding: 5px !important;
-  padding-left: 1.5%;
-  text-align: left;
-  box-shadow: 0 2px 6px 0 rgba(32, 33, 37, .1);
-}
-
-.orgNameCss {
-  overflow-wrap: break-word;
-  color: grey;
-  font-weight: bold;
-  font-size: smaller;
-  padding: 5px
-}
-
-#nav {
-  padding: 30px;
-}
-
-#nav a {
-  font-weight: bold;
-  color: #2c3e50;
-}
-
-#nav a.router-link-exact-active {
-  color: #42b983;
-}
-
-.centeralign {
-  display: block;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.leftAlign {
-  text-align: left;
-}
-
-.rightAlign {
-  text-align: right;
-}
-
-.marginLeft {
-  margin-left: 13%;
-}
-
-.marginRight {
-  margin-right: 12%;
-}
-
-#view.collapsed {
-  padding-left: 50px;
-}
-
-#view {
-  padding-left: 350px;
-}
-
-.sidebar-wrapper {
-  min-width: 70px;
-  margin-top: 5.8vh;
-  /* box-shadow: 0 0 15px 0 rgba(34, 41, 47, 0.05); */
-  box-shadow: 0 2px 6px 0 rgba(32, 33, 37, .1);
-  border-right: 1px solid rgba(128, 128, 128, 0.21);
-}
-
-.v-sidebar-menu.vsm_white-theme .vsm--mobile-bg {
-  background: grey;
-}
-
-.vsm--mobile-bg {
-  background: whitesmoke !important;
-}
-
-.v-sidebar-menu.vsm_white-theme {
-  background-color: white !important;
-  color: rgba(0, 0, 0, .87) !important;
-}
-
-.v-sidebar-menu.vsm_white-theme .vsm--header {
-  color: rgba(0, 0, 0, .87) !important;
-}
-
-.v-sidebar-menu.vsm_white-theme .vsm--link {
-  color: rgba(0, 0, 0, .87) !important;
-}
-
-.v-sidebar-menu.vsm_white-theme .vsm--link_level-1 .vsm--link:hover {
-  color: rgba(0, 0, 0, .87) !important;
-  background: whitesmoke !important;
-}
-
-.v-sidebar-menu.vsm_white-theme .vsm--link_level-1 .vsm--icon {
-  background-color: transparent !important;
-  color: #66666a !important;
-}
-</style>
 
 <script>
 import UtilsMixin from "./mixins/utils";
