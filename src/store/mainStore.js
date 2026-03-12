@@ -2298,7 +2298,8 @@ const mainStore = {
             return []
         },
         async submitComplianceDetail({ getters }, payload) {
-            const { companyId, type, status, reasonDetail, reason,accessToken } = payload;
+            const { companyId, type, status, reasonDetail, reason, accessToken } = payload;
+
             if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
                 throw new Error('Tenant url is null or empty, service is not selected')
             }
@@ -2330,6 +2331,33 @@ const mainStore = {
             }
             return json;
         },
+        async finalizeCompanyReview({ getters }, payload) {
+            const { companyId, status, accessToken } = payload;
+            if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
+                throw new Error('Tenant url is null or empty, service is not selected')
+            }
+            if (!companyId) {
+                throw new Error('Company Id is null or empty')
+            }
+            const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyb/verification/company/${companyId}/status`;
+            // const url = `http://localhost:3009/api/v1/e-kyb/verification/company/${companyId}/status`;
+            const headers = UtilsMixin.methods.getKycServiceHeader(accessToken);
+            const body = {
+                status
+            };
+            const resp = await fetch(url, {
+                method: 'PATCH',
+                headers,
+                body: JSON.stringify(body),
+                credentials: 'include'
+            });
+            const json = await resp.json();
+            if (json.error) {
+                throw new Error(JWTExpiredErrorMessageHandling(json));
+            }
+            return json;
+        },
+        // - KYC Credit
 
         activateCredit({ getters, dispatch }, payload) {
             return new Promise(function (resolve, reject) {
