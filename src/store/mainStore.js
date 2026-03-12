@@ -2419,9 +2419,6 @@ const mainStore = {
         },
         async submitComplianceDetail({ getters }, payload) {
             const { companyId, type, status, reasonDetail, reason, accessToken } = payload;
-            if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
-                throw new Error('Tenant url is null or empty, service is not selected')
-            }
             if (!companyId) {
                 throw new Error('Company Id is null or empty')
             }
@@ -2452,9 +2449,6 @@ const mainStore = {
         },
         async finalizeCompanyReview({ getters }, payload) {
             const { companyId, status, accessToken } = payload;
-            if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
-                throw new Error('Tenant url is null or empty, service is not selected')
-            }
             if (!companyId) {
                 throw new Error('Company Id is null or empty')
             }
