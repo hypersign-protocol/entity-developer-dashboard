@@ -978,12 +978,15 @@ const mainStore = {
                     // - For CAVACH_KYB_API grant type: store as 'kyb_access_token'
                     // - For all other grant types (SSI_API, CAVACH_API): store as 'access_token'
                     // This allows KYC services to have separate tokens for KYC and KYB operations
-                    if (grant_type != config.GRANT_TYPES_ENUM.CAVACH_KYB_API) {
-                        app['access_token'] = json.access_token
-                    } else {
-                        app['kyb_access_token'] = json.access_token
+                    if (app) {
+                        if (grant_type !== config.GRANT_TYPES_ENUM.CAVACH_KYB_API) {
+                            app['access_token'] = json.access_token;
+                        } else {
+                            app['kyb_access_token'] = json.access_token;
+                        }
+
+                        commit('insertAnApp', app);
                     }
-                    commit('insertAnApp', app);
                     return json; 
                 } else {
                     throw new Error(`Could not fetch accesstoken for service   ${serviceId}`)
@@ -1096,8 +1099,8 @@ const mainStore = {
             return new Promise((resolve, reject) => {
                 const { companyId, accessToken } = payload
                 const headers = UtilsMixin.methods.getKycServiceHeader(accessToken);
-                const url= `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyb/verification/company/${companyId}`;
-                // const url = `http://localhost:3001/api/v1/e-kyb/verification/company/${companyId}`;
+                const url= `${sanitizeUrl(config.KYC_SERVER_BASE_URL)}/api/v1/e-kyb/verification/company/${companyId}`;
+                // const url = `http://localhost:3009/api/v1/e-kyb/verification/company/${companyId}`;
                 fetch(url, {
                     method: 'GET',
                     headers,
@@ -2306,7 +2309,7 @@ const mainStore = {
             if (!companyId) {
                 throw new Error('Company Id is null or empty')
             }
-            const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyb/verification/compliance?type=${type}`;
+            const url = `${sanitizeUrl(config.KYC_SERVER_BASE_URL)}/api/v1/compliance?type=${type}`;
             // const url = `http://localhost:3009/api/v1/compliance?type=${type}`;
 
             const headers = UtilsMixin.methods.getKycServiceHeader(accessToken);
@@ -2339,7 +2342,7 @@ const mainStore = {
             if (!companyId) {
                 throw new Error('Company Id is null or empty')
             }
-            const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyb/verification/company/${companyId}/status`;
+            const url = `${sanitizeUrl(config.KYC_SERVER_BASE_URL)}/api/v1/e-kyb/verification/company/${companyId}/status`;
             // const url = `http://localhost:3009/api/v1/e-kyb/verification/company/${companyId}/status`;
             const headers = UtilsMixin.methods.getKycServiceHeader(accessToken);
             const body = {
