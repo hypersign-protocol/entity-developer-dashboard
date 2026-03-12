@@ -6,7 +6,6 @@
   border-bottom: 1px solid #eef0f2;
   height: 60px;
   padding: 0 20px !important;
-  z-index: 1050;
 }
 
 .nav-logo-img {
@@ -143,6 +142,41 @@
 .v-sidebar-menu .vsm--link_level-1 .vsm--icon {
   font-size: 16px;
   width: 40px !important;
+}
+
+.dropdown-menu.show {
+  text-align: center;
+  box-shadow: 2px 0 10px rgb(0 0 0 / 47%);
+}
+
+.navbar {
+  padding: 0px !important;
+}
+
+.navStyle {
+  background: #ffffff;
+  margin-bottom: 1%;
+  padding: 5px !important;
+  padding-left: 1.5%;
+  text-align: left;
+  box-shadow: 0 2px 6px 0 rgba(32, 33, 37, .1);
+}
+
+.orgNameCss {
+  overflow-wrap: break-word;
+  color: grey;
+  font-weight: bold;
+  font-size: smaller;
+  padding: 5px
+}
+
+#nav {
+  padding: 30px;
+}
+
+#nav a {
+  font-weight: bold;
+  color: #2c3e50;
 }
 
 #nav a.router-link-exact-active {
