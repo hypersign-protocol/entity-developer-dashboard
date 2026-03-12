@@ -978,12 +978,15 @@ const mainStore = {
                     // - For CAVACH_KYB_API grant type: store as 'kyb_access_token'
                     // - For all other grant types (SSI_API, CAVACH_API): store as 'access_token'
                     // This allows KYC services to have separate tokens for KYC and KYB operations
-                    if (grant_type != config.GRANT_TYPES_ENUM.CAVACH_KYB_API) {
-                        app['access_token'] = json.access_token
-                    } else {
-                        app['kyb_access_token'] = json.access_token
+                    if (app) {
+                        if (grant_type !== config.GRANT_TYPES_ENUM.CAVACH_KYB_API) {
+                            app['access_token'] = json.access_token;
+                        } else {
+                            app['kyb_access_token'] = json.access_token;
+                        }
+
+                        commit('insertAnApp', app);
                     }
-                    commit('insertAnApp', app);
                     return json; 
                 } else {
                     throw new Error(`Could not fetch accesstoken for service   ${serviceId}`)

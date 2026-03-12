@@ -533,22 +533,18 @@ export default {
 5. Do NOT return fuzzy, inferred, or near-miss matches.
 
 ### Output requirements
-Return exactly one JSON object (no surrounding text) with detail fields:
-{
-  "detail": "/* a single string containing up to 10 Markdown bullets separated by \\n. Each bullet EXACTLY: - **Entity Name** – Source List, YYYY-MM-DD. One-line summary (max 25 words). [Read more](https://full.absolute.url) */"
-}
+Return ONLY the result content.
 
-Instructions for generating \`detail\`:
 - If matches are found, generate up to 10 Markdown bullets.  
   Format for each bullet (strictly):  
   - **Entity Name** – Source List, YYYY-MM-DD. One-line summary (max 25 words). [Read more](https://full.absolute.url)  
 - Sort bullets newest → oldest.  
-- Escape line breaks (\\n) and quotes so the Markdown fits into the JSON string.  
+- Use full absolute URLs.
+- Dates must be YYYY-MM-DD.
 
 If no matches, return exactly:
-{
-  "detail": "Entity ${entityName} not found in the sanction list."
-}`;
+ "Entity ${entityName} not found in the sanction list."
+`;
         },
         registryReasons() {
             return [
@@ -557,15 +553,12 @@ If no matches, return exactly:
                 { text: 'Company Not Found in Registry', value: 'COMPANY_NOT_FOUND_REGISTRY' }
             ];
         },
-        adverseReasons() {
-            return [
-                { text: 'Adverse Media Detected', value: 'COMPANY_ADVERSE_MEDIA_FOUND' },
-            ];
+       adverseReason() {
+          return 'COMPANY_ADVERSE_MEDIA_FOUND'
         },
-        sanctionReasons() {
-            return [
-                { text: 'Sanction List Match Found', value: 'COMPANY_SANCTION_LIST_FOUND' },
-            ];}
+        sanctionReason() {
+           return 'COMPANY_SANCTION_LIST_FOUND'
+        }
     },
     methods: {
      ...mapActions('mainStore', ['fetchAppKybById','keepAccessTokenReadyForApp','submitComplianceDetail','finalizeCompanyReview']),
@@ -582,7 +575,6 @@ If no matches, return exactly:
             }
             // Set the selected app
             this.$store.commit('mainStore/setSelectedAppId', this.serviceId);
-            
             try{
                 this.company= await this.fetchAppKybById({companyId: this.companyId, accessToken:this.accessToken});
             }catch(e){
@@ -609,9 +601,10 @@ If no matches, return exactly:
             }
             const formKey = type === 'adverse-media' ? 'adverse' : type === 'sanctionlist' ? 'sanction' : type;
             const formData = this.form[formKey];
-            if (status === 'failed') {
+            if (status === 'Failed') {
                 if (!formData.reasonDetail.trim()) {
                     this.showFeedback("Please provide details.", true);
+                    this.isSubmitting = false;
                     return;
                 }
             }
@@ -622,7 +615,7 @@ If no matches, return exactly:
                     status,
                     accessToken: this.accessToken
                 };
-                if (status === 'failed') {
+                if (status === 'Failed') {
                     console.log('inside if')
                     payload.reasonDetail = formData.reasonDetail;
                     if (formData.reason) payload.reason = formData.reason;
@@ -707,8 +700,8 @@ If no matches, return exactly:
         },
           handleStatusChange(type, value) {
             const reasons = {
-            adverse: 'ADVERSE_MEDIA_FOUND',
-            sanction: 'SANCTION_FOUND'
+            adverse: this.adverseReason,
+            sanction: this.sanctionReason
             };
             this.form[type].reason = value === 'Failed' ? reasons[type] : null;
         }

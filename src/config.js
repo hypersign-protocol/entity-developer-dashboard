@@ -171,6 +171,6 @@ config['FaicalAuthenticationError'] = {
     5: 'Rejected, due to problems in the extraction of the facial pattern',
     6: 'Rejected, because document has already been verified in some other account with this service',
 }
-
-
+const kycServerBaseUrl = process.env.VUE_APP_KYC_SERVER_BASE_URL || 'https://api.cavach.hypersign.id'
+config['KYC_SERVER_BASE_URL'] = kycServerBaseUrl;
 export default config
