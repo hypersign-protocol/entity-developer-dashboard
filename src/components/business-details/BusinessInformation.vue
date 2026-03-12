@@ -57,7 +57,7 @@
       <div class="info-card">
         <h3 class="card-title">
           <i class="fas fa-info-circle"></i>
-          Status Information
+          Timeline & Status
         </h3>
         <div class="info-rows">
           <div class="info-row">
