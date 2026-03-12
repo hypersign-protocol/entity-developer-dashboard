@@ -57,15 +57,17 @@
             </div>
             <div style="flex: 1">
               <h3 class="company-name mb-0">{{ company.companyName }}</h3>
-              <p class="small text-muted mb-0 font-weight-medium">{{ company.registrationNumber }}</p>
+              <p class="small text-muted mb-0 font-weight-medium">{{
+               company.companyId
+               }}</p>
             </div>
             <v-icon small color="grey lighten-1">mdi-chevron-right</v-icon>
           </div>
 
           <div class="mb-4">
             <div class="detail-row">
-              <label class="input-label mb-0">Company ID</label>
-              <span class="detail-value mono">{{ company.companyId }}</span>
+              <label class="input-label mb-0">Registration #</label>
+              <span class="detail-value mono">{{ company.registrationNumber  }}</span>
             </div>
             <div class="detail-row">
               <label class="input-label mb-0">Representative</label>
