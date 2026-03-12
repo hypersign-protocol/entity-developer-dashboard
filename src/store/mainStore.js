@@ -984,6 +984,7 @@ const mainStore = {
                         app['kyb_access_token'] = json.access_token
                     }
                     commit('insertAnApp', app);
+                    return json; 
                 } else {
                     throw new Error(`Could not fetch accesstoken for service   ${serviceId}`)
                 }
@@ -1091,7 +1092,26 @@ const mainStore = {
                 })
             })
         },
-
+        fetchAppKybById: ({ getters }, payload) => {
+            return new Promise((resolve, reject) => {
+                const { companyId, accessToken } = payload
+                const headers = UtilsMixin.methods.getKycServiceHeader(accessToken);
+                const url= `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyb/verification/company/${companyId}`;
+                // const url = `http://localhost:3001/api/v1/e-kyb/verification/company/${companyId}`;
+                fetch(url, {
+                    method: 'GET',
+                    headers,
+                }).then(response => response.json()).then(json => {
+                    if (json.error) {
+                        return reject(new Error(json.error?.details?.join(' ') || json.error?.join?.(' ') || json.error || 'Unknown error'))
+                    }
+                    const companiesData = json.data;
+                    resolve(companiesData);
+                }).catch((e) => {
+                    return reject(new Error(`Error while fetching KYB companies: ${e.message}`));
+                })
+            })
+        },
         fetchAppsUsersSessions: ({ commit, getters }, payload) => {
             return new Promise((resolve, reject) => {
                 if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
@@ -2233,7 +2253,9 @@ const mainStore = {
             }
             const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/compliance?entityId=${companyId}`;
             const authToken = getters.getSelectedService.kyb_access_token
-            const headers = UtilsMixin.methods.getKycServiceHeader(authToken);
+            const headers =
+                UtilsMixin.methods.getKycServiceHeader(authToken)
+                
             const resp = await fetch(url, {
                 method: 'GET',
                 headers

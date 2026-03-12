@@ -13,6 +13,26 @@
                     </div>
                     <div>
                         <p class="text-subtitle-2 text-muted mb-2">
+                            Enter <strong>Service ID</strong> and Authenticate.
+                        </p>
+                        <v-row align="start" no-gutters class="mb-4">
+                             <v-col cols="12" sm="8" md="8">
+                                <v-text-field v-model="serviceId" label="Service ID"
+                                    placeholder="e.g. 68afa3d8a4975d9c9e4671a7..." outlined dense color="primary"
+                                    class="mono-text mr-sm-4" @keyup.enter="authenticateService" hide-details></v-text-field>
+                            </v-col>
+
+                            <v-col cols="12" sm="2" md="2" class="d-flex mt-2 mt-sm-0">
+                                <hf-buttons name="Authenticate" style="width: 100%"
+                                    @executeAction="authenticateService"></hf-buttons>
+                            </v-col>
+
+                            <v-col cols="12" sm="2" md="2">
+                                <!-- this should be link button -->
+                                 <v-btn color="error" text style="width: 100%" @click="logout">Logout</v-btn>
+                            </v-col>
+                        </v-row>
+                        <p class="text-subtitle-2 text-muted mb-2">
                             Enter a valid <strong>Company ID</strong> to initiate the KYB verification workflow.
                         </p>
                         <v-row align="start" no-gutters>
@@ -379,6 +399,10 @@
 <script>
 import UtilsMixin from '../../../mixins/utils.js';
 import HfButtons from '../../../components/element/HfButtons.vue';
+import { mapActions } from 'vuex/dist/vuex.common.js';
+import {mapGetters} from 'vuex';
+import config from "../../../config.js";
+import EventBus from '../../../eventbus';
 
 export default {
     name: 'KYBVerification',
@@ -387,17 +411,21 @@ export default {
     data() {
         return {
             isLoading: false,
+            statusMessage: '',
             activeTab: 0,
             companyId: '',
+            serviceId: '', 
+            accessToken:'',
             company: null, // Populate this from the fetch method
             form: {
                 registry: { reasonDetail: '' },
                 adverse: { reasonDetail: '' },
                 sanction: { reasonDetail: '' }
-            }
+            },
         }
     },
     computed: {
+        ...mapGetters('mainStore', ['getAppsWithKYCServices']),
         adversePrompt() {
             if (!this.company) return '';
 
@@ -487,69 +515,32 @@ If no matches, return exactly:
         }
     },
     methods: {
+     ...mapActions('mainStore', ['fetchAppKybById','keepAccessTokenReadyForApp']),
         formatDocType(t) { return t.replace(/([A-Z])/g, ' $1'); },
         async fetchCompany() {
-            // Logic for GET api/v1/e-kyb/verification/company/{id}
+            if (!this.accessToken) {
+                this.showFeedback("Please authenticate first", true);
 
-            this.company = {
-                "_id": "69afa3d8a4976d9c9e4671a7",
-                "name": "test company",
-                "region": "Asia Pacific",
-                "domain": "xyz.com",
-                "countryOfRegistration": "IN",
-                "registrationNumber": "U72900KA2019PTC126457",
-                "registrationNumberType": "CIN",
-                "status": "Submitted",
-                "statusReason": [],
-                "address": {
-                    "street": "street #1234",
-                    "province": "Maharashtra",
-                    "postalCode": "123459",
-                    "city": "Mumbai",
-                    "country": "IN"
-                },
-                "shareholders": [
-                    {
-                        "name": "vishwas anand",
-                        "id": "69afa4353f45cfcbc9d53380"
-                    },
-                    {
-                        "name": "varsha kumari",
-                        "id": "69afa3d83f45cfcbc9d528a1"
-                    }
-                ],
-                "createdAt": "2026-03-10T04:53:44.514Z",
-                "updatedAt": "2026-03-10T04:55:52.784Z",
-                "idString": "69afa3d8a4976d9c9e4671a7",
-                "__v": 0,
-                "representative": {
-                    "name": "Varsha kumari",
-                    "id": "69afa3d83f45cfcbc9d528a1"
-                },
-                "documents": [
-                    {
-                        "documentType": "CertificateOfIncorporation",
-                        "fileName": "proofOfAddress.pdf",
-                        "verification": {
-                            "status": "Submitted"
-                        },
-                        "createdAt": "2026-03-10T04:53:11.964Z",
-                        "updatedAt": "2026-03-10T04:53:44.530Z",
-                        "id": "69afa3b7a4976d9c9e46719e"
-                    },
-                    {
-                        "documentType": "ProofOfAddress",
-                        "fileName": "proofOfAddress.pdf",
-                        "verification": {
-                            "status": "Submitted"
-                        },
-                        "createdAt": "2026-03-10T04:53:20.413Z",
-                        "updatedAt": "2026-03-10T04:53:44.530Z",
-                        "id": "69afa3c0a4976d9c9e4671a2"
-                    }
-                ]
+                return;
             }
+            if (!this.companyId) {
+                this.showFeedback("Please fill in all required fields.", true);
+                return;
+            }
+            // Set the selected app
+            this.$store.commit('mainStore/setSelectedAppId', this.serviceId);
+            
+            try{
+                this.company= await this.fetchAppKybById({companyId: this.companyId, accessToken:this.accessToken});
+            }catch(e){
+                const errorMsg = e.response?.data?.message || e.message || "Fetch failed.";
+                this.showFeedback(`Error: ${errorMsg}`, true);
+            }finally {
+              this.loading = false;
+         }
+           
         },
+      
         async submitCompliance(type, status) {
             console.log({ type, status })
             // Logic for POST api/v1/e-kyb/verification/compliance?type={type}
@@ -563,7 +554,32 @@ If no matches, return exactly:
         },
         clearCompany(){
             this.companyId = ''
+            this.serviceId = '' // Clear selected app
             this.company = null
+        },
+        logout(){
+            EventBus.$emit("logoutAll");
+            },
+        
+        showFeedback(msg, isErr = false) {
+            this.statusMessage = msg;
+            this.isError = isErr;
+        },
+        async authenticateService(){
+            if (!this.serviceId) {
+                this.showFeedback("Please select a KYC service.", true);
+                return;
+            }
+            const data= await this.keepAccessTokenReadyForApp({
+              serviceId: this.serviceId,
+              grant_type: config.GRANT_TYPES_ENUM['CAVACH_KYB_API'],
+            });
+             if(data && data.access_token){
+                this.accessToken=data.access_token;
+                this.showFeedback("Authentication successful! You can now fetch company details.");
+             }else{
+                this.showFeedback("Authentication failed. Please try again.", true);
+             }
         }
     }
 }
