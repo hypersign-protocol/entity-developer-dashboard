@@ -136,18 +136,22 @@
                                 <p class="small text-muted mb-2">Manual lookup required for <strong>{{
                                     company.countryOfRegistration }}</strong> in official registry.</p>
 
+                                <v-select v-model="form.registry.status" :items="[{text: 'success', value: 'Success'}, {text: 'Fail', value: 'Failed'}]"
+                                    label="Status" outlined dense class="mb-4"></v-select>
 
-                                <v-textarea v-model="form.registry.reasonDetail" label="Registry Verification Remarks"
-                                    placeholder="Enter detailed findings from the official registry lookup..." outlined
-                                    dense></v-textarea>
+                                <div v-if="form.registry.status === 'Failed'">
+                                    <v-select v-model="form.registry.reason" :items="registryReasons" item-text="text" item-value="value"
+                                        label="Reason" outlined dense class="mb-4"></v-select>
 
+                                    <v-textarea v-model="form.registry.reasonDetail" label="Registry Verification Remarks"
+                                        placeholder="Enter detailed findings from the official registry lookup..." outlined
+                                        dense class="mono-text"></v-textarea>
+                                </div>
 
 
                                 <div class="d-flex justify-space-between mt-4">
-                                    <hf-buttons name="Confirm & Pass"
-                                        @executeAction="submitCompliance('registry', 'success')"></hf-buttons>
-                                    <v-btn color="error" text @click="submitCompliance('registry', 'failed')">Reject
-                                        Entity</v-btn>
+                                    <hf-buttons name="Submit Registry Check"
+                                        @executeAction="submitCompliance('registry',  form.registry.status)"></hf-buttons>
                                 </div>
 
                             </div>
@@ -171,12 +175,20 @@
                                     </div>
                                     <pre class="prompt-preview">{{ adversePrompt }}</pre>
                                 </div>
-                                <v-textarea v-model="form.adverse.reasonDetail" label="Adverse Media Results"
-                                    placeholder="Paste the Markdown output from the AI here..." outlined dense
-                                    class="mono-text"></v-textarea>
+                                                <v-select v-model="form.adverse.status" :items="[{text: 'success', value: 'Success'}, {text: 'Fail', value: 'Failed'}]"
+                                label="Status" outlined dense class="mb-4" @change="handleStatusChange('adverse', $event)"></v-select>
+
+                                <div v-if="form.adverse.status === 'Failed'">
+                                    <!-- <v-select v-model="form.adverse.reason" :items="adverseReasons" item-text="text" item-value="value"
+                                        label="Reason" outlined dense class="mb-4"></v-select> -->
+
+                                    <v-textarea v-model="form.adverse.reasonDetail" label="Adverse Media Results"
+                                        placeholder="Paste the Markdown output from the AI here..." outlined
+                                        dense class="mono-text"></v-textarea>
+                                </div>
                                 <div class="d-flex justify-end">
                                     <hf-buttons name="Submit Adverse Check"
-                                        @executeAction="submitCompliance('adverse-media', 'success')"></hf-buttons>
+                                        @executeAction="submitCompliance('adverse-media', form.adverse.status)"></hf-buttons>
                                 </div>
 
                             </div>
@@ -209,17 +221,25 @@
                                 </div>
 
 
+                            <v-select v-model="form.sanction.status" :items="[{text: 'success', value: 'Success'}, {text: 'Fail', value: 'Failed'}]"
+                                label="Status" outlined dense class="mb-4"
+                                @change="handleStatusChange('sanction', $event)"></v-select>
 
-                                <v-textarea v-model="form.sanction.reasonDetail" label="Sanction List JSON Detail"
-                                    placeholder="Paste the JSON 'detail' field from the AI here..." outlined dense
-                                    class="mono-text"></v-textarea>
+                                <div v-if="form.sanction.status === 'Failed'">
+                                    <!-- <v-select v-model="form.sanction.reason" :items="sanctionReasons" item-text="text" item-value="value"
+                                        label="Reason" outlined dense class="mb-4"></v-select> -->
+
+                                    <v-textarea v-model="form.sanction.reasonDetail" label="Sanction List JSON Detail"
+                                        placeholder="Paste the JSON 'detail' field from the AI here..." outlined
+                                        dense class="mono-text"></v-textarea>
+                                </div>      
 
 
 
                                 <div class="d-flex justify-end">
 
                                     <hf-buttons name="Submit Sanction Check"
-                                        @executeAction="submitCompliance('sanctionlist', 'success')"></hf-buttons>
+                                        @executeAction="submitCompliance('sanctionlist', form.sanction.status)"></hf-buttons>
 
                                 </div>
 
@@ -417,10 +437,11 @@ export default {
             serviceId: '', 
             accessToken:'',
             company: null, // Populate this from the fetch method
+            isSubmitting: false,
             form: {
-                registry: { reasonDetail: '' },
-                adverse: { reasonDetail: '' },
-                sanction: { reasonDetail: '' }
+                registry: { reasonDetail: '', reason: '', status: 'Success' },
+                adverse: { reasonDetail: '', reason: '',status: 'Success' },
+                sanction: { reasonDetail: '', reason: '',status: 'Success' }
             },
         }
     },
@@ -512,10 +533,26 @@ If no matches, return exactly:
 {
   "detail": "Entity ${entityName} not found in the sanction list."
 }`;
-        }
+        },
+        registryReasons() {
+            return [
+                { text: 'Company Details Mismatch', value: 'COMPANY_FIELDS_MISMATCH' },
+                { text: 'Company is Inactive', value: 'COMPANY_INACTIVE' },
+                { text: 'Company Not Found in Registry', value: 'COMPANY_NOT_FOUND_REGISTRY' }
+            ];
+        },
+        adverseReasons() {
+            return [
+                { text: 'Adverse Media Detected', value: 'COMPANY_ADVERSE_MEDIA_FOUND' },
+            ];
+        },
+        sanctionReasons() {
+            return [
+                { text: 'Sanction List Match Found', value: 'COMPANY_SANCTION_LIST_FOUND' },
+            ];}
     },
     methods: {
-     ...mapActions('mainStore', ['fetchAppKybById','keepAccessTokenReadyForApp']),
+     ...mapActions('mainStore', ['fetchAppKybById','keepAccessTokenReadyForApp','submitComplianceDetail']),
         formatDocType(t) { return t.replace(/([A-Z])/g, ' $1'); },
         async fetchCompany() {
             if (!this.accessToken) {
@@ -542,8 +579,45 @@ If no matches, return exactly:
         },
       
         async submitCompliance(type, status) {
-            console.log({ type, status })
-            // Logic for POST api/v1/e-kyb/verification/compliance?type={type}
+            if (this.isSubmitting) return;
+            this.isSubmitting = true;
+            if (!this.serviceId) {
+                this.showFeedback("Please select a KYC service first.", true);
+                this.isSubmitting = false;
+                return;
+            }
+            if (!this.companyId) {
+                this.showFeedback("Please fetch a company first.", true);
+                this.isSubmitting = false;
+                return;
+            }
+            const formKey = type === 'adverse-media' ? 'adverse' : type === 'sanctionlist' ? 'sanction' : type;
+            const formData = this.form[formKey];
+            if (status === 'failed') {
+                if (!formData.reasonDetail.trim()) {
+                    this.showFeedback("Please provide details.", true);
+                    return;
+                }
+            }
+            try {
+                const payload = {
+                    companyId: this.companyId,
+                    type,
+                    status,
+                    accessToken: this.accessToken
+                };
+                if (status === 'failed') {
+                    console.log('inside if')
+                    payload.reasonDetail = formData.reasonDetail;
+                    if (formData.reason) payload.reason = formData.reason;
+                }
+                await this.submitComplianceDetail(payload);
+                this.showFeedback(`${type} compliance submitted successfully.`, false);
+            } catch (error) {
+                this.showFeedback(`Error submitting ${type} compliance: ${error.message}`, true);
+            } finally {
+                this.isSubmitting = false;
+            }
         },
         async finalizeCompany() {
             // Logic for PATCH api/v1/e-kyb/verification/company/{id}
@@ -555,7 +629,12 @@ If no matches, return exactly:
         clearCompany(){
             this.companyId = ''
             this.serviceId = '' // Clear selected app
-            this.company = null
+            this.company = null,
+              this.form = {
+                registry: { reasonDetail: '', reason: '', status: '' },
+                adverse: { reasonDetail: '', reason: '',status: '' },
+                sanction: { reasonDetail: '', reason: '',status: '' }
+            }
         },
         logout(){
             EventBus.$emit("logoutAll");
@@ -580,6 +659,13 @@ If no matches, return exactly:
              }else{
                 this.showFeedback("Authentication failed. Please try again.", true);
              }
+        },
+          handleStatusChange(type, value) {
+            const reasons = {
+            adverse: 'ADVERSE_MEDIA_FOUND',
+            sanction: 'SANCTION_FOUND'
+            };
+            this.form[type].reason = value === 'Failed' ? reasons[type] : null;
         }
     }
 }
