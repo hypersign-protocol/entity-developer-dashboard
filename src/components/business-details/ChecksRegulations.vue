@@ -236,16 +236,14 @@ export default {
     }
   },
   
-  async mounted() {
-    if (this.company && this.company.companyId) {
-      await this.fetchComplianceData();
-    }
-  },
-  
   watch: {
     'company.companyId': {
       immediate: true,
-      async handler(newCompanyId) {
+      async handler(newCompanyId, oldCompanyId) {
+        if (newCompanyId !== oldCompanyId) {
+          // Clear stale data from previous company immediately
+          this.$store.commit('mainStore/clearComplianceData');
+        }
         if (newCompanyId) {
           await this.fetchComplianceData();
         }

@@ -146,16 +146,15 @@ export default {
       loading: false,
     };
   },
-  async mounted() {
-    if (this.company && this.company.id) {
-      await this.fetchUbos();
-    }
-  },
   watch: {
     'company.id': {
-      handler(newId) {
+      async handler(newId, oldId) {
+        if (newId !== oldId) {
+          // Clear stale data from previous company immediately
+          this.$store.commit('mainStore/clearCompanyExecutives');
+        }
         if (newId) {
-          this.fetchUbos();
+          await this.fetchUbos();
         }
       },
       immediate: true
