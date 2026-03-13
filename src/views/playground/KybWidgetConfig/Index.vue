@@ -391,14 +391,13 @@ export default {
           criteria: ""
         },
         checkAmlPep: false,
-        checkAmlSanction: false,
-        checkAmlAdversemedia: false,
-        checkBusinessRegistry: false,
+        checkAmlSanction: true,
+        checkAmlAdversemedia: true,
+        checkBusinessRegistry: true,
         branding: {
           businessName: "",
           title: "",
           logoUrl: "",
-          businessContactEmail: "",
           themeColor: "#1A73E8"
         }
       },
