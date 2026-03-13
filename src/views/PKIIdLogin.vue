@@ -38,7 +38,7 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  background-color: #f8fafc; /* Matches dashboard background */
+  /* background-color: #f8fafc;  */
   padding: 20px;
 }
 
