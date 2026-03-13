@@ -39,6 +39,7 @@ const mainStore = {
         },
         webhookConfig: {},
         kycWebpageConfig: {},
+        kybWebpageConfig: {},
         marketPlaceApps: [],
         adminMembers: [],
         myInvitions: [],
@@ -131,6 +132,9 @@ const mainStore = {
         getKYCWebpageConfig: (state) => {
             return state.kycWebpageConfig
         },
+        getKYBWebpageConfig: (state) => {
+            return state.kybWebpageConfig
+        },
         getMarketPlaceApps: (state) => {
             return state.marketPlaceApps
         },
@@ -205,6 +209,9 @@ const mainStore = {
         setKYCWebpageConfig: (state, payload) => {
             state.kycWebpageConfig = { ...payload }
         },
+        setKYBWebpageConfig: (state, payload) => {
+            state.kybWebpageConfig = { ...payload }
+        },
         setMainSideNavBar: (state, payload) => {
             state.showMainSideNavBar = payload ? payload : false;
         },
@@ -215,6 +222,7 @@ const mainStore = {
             state.kybWidgetConfig = {}
             state.webhookConfig = {}
             state.kycWebpageConfig = {}
+            state.kybWebpageConfig = {}
             state.kycCredits = []
             state.ssiCredits = []
             state.tenantAccount = null
@@ -249,6 +257,7 @@ const mainStore = {
             state.kybWidgetConfig = {}
             state.webhookConfig = {}
             state.kycWebpageConfig = {}
+            state.kybWebpageConfig = {}
             state.marketPlaceApps = []
             state.adminMembers = []
             state.myInvitions = []
@@ -775,11 +784,11 @@ const mainStore = {
                     body: JSON.stringify(payload)
                 });
                 const resp = await response.json().catch(() => null);
-                if(!resp) {
+                if (!resp) {
                     throw new Error('Invalid response from server');
                 }
 
-                if(Array.isArray(resp.message)) {
+                if (Array.isArray(resp.message)) {
                     throw new Error(resp.message.join(','));
                 } else if ('statusCode' in resp && resp.statusCode !== 200 && resp.statusCode !== 201) {
                     throw new Error(resp.message);
@@ -787,8 +796,8 @@ const mainStore = {
 
                 return resp;
             } catch (e) {
-            throw new Error(e.message || e);
-                  }
+                throw new Error(e.message || e);
+            }
         },
 
 
@@ -978,12 +987,16 @@ const mainStore = {
                     // - For CAVACH_KYB_API grant type: store as 'kyb_access_token'
                     // - For all other grant types (SSI_API, CAVACH_API): store as 'access_token'
                     // This allows KYC services to have separate tokens for KYC and KYB operations
-                    if (grant_type != config.GRANT_TYPES_ENUM.CAVACH_KYB_API) {
-                        app['access_token'] = json.access_token
-                    } else {
-                        app['kyb_access_token'] = json.access_token
+                    if (app) {
+                        if (grant_type !== config.GRANT_TYPES_ENUM.CAVACH_KYB_API) {
+                            app['access_token'] = json.access_token;
+                        } else {
+                            app['kyb_access_token'] = json.access_token;
+                        }
+
+                        commit('insertAnApp', app);
                     }
-                    commit('insertAnApp', app);
+                    return json;
                 } else {
                     throw new Error(`Could not fetch accesstoken for service   ${serviceId}`)
                 }
@@ -1091,7 +1104,26 @@ const mainStore = {
                 })
             })
         },
-
+        fetchAppKybById: ({ getters }, payload) => {
+            return new Promise((resolve, reject) => {
+                const { companyId, accessToken } = payload
+                const headers = UtilsMixin.methods.getKycServiceHeader(accessToken);
+                const url = `${sanitizeUrl(config.KYC_SERVER_BASE_URL)}/api/v1/e-kyb/verification/company/${companyId}`;
+                // const url = `http://localhost:3009/api/v1/e-kyb/verification/company/${companyId}`;
+                fetch(url, {
+                    method: 'GET',
+                    headers,
+                }).then(response => response.json()).then(json => {
+                    if (json.error) {
+                        return reject(new Error(json.error?.details?.join(' ') || json.error?.join?.(' ') || json.error || 'Unknown error'))
+                    }
+                    const companiesData = json.data;
+                    resolve(companiesData);
+                }).catch((e) => {
+                    return reject(new Error(`Error while fetching KYB companies: ${e.message}`));
+                })
+            })
+        },
         fetchAppsUsersSessions: ({ commit, getters }, payload) => {
             return new Promise((resolve, reject) => {
                 if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
@@ -1850,7 +1882,7 @@ const mainStore = {
                 fetch(url, {
                     method: 'POST',
                     headers,
-                    body: JSON.stringify(payload),
+                    body: JSON.stringify( payload ),
                     credentials: 'include'
                 }).then(response => response.json())
                     .then(json => {
@@ -1870,7 +1902,7 @@ const mainStore = {
                 if (!getters.getSelectedService || !getters.getSelectedService.appId) {
                     return reject(new Error('App ID is not available, service is not selected'))
                 }
-                const url = `${apiServerBaseUrl}/app/${getters.getSelectedService.appId}/verifier`;
+                const url = `${apiServerBaseUrl}/app/${getters.getSelectedService.appId}/verifier?pageType=kyc`;
                 const headers = UtilsMixin.methods.getHeader(localStorage.getItem('authToken'));
 
                 return fetch(url, {
@@ -1978,6 +2010,114 @@ const mainStore = {
                     reject(new Error(`Error while fetching apps ` + e.message));
                 })
             })
+        },
+        createKYBWebpageConfig: ({ commit, getters }, payload) => {
+            return new Promise((resolve, reject) => {
+                if (!getters.getSelectedService || !getters.getSelectedService.appId) {
+                    return reject(new Error('App ID is not available, service is not selected'))
+                }
+                const url = `${apiServerBaseUrl}/app/verifier?appId=${getters.getSelectedService.appId}`;
+                const headers = UtilsMixin.methods.getHeader(localStorage.getItem('authToken'));
+
+                fetch(url, {
+                    method: 'POST',
+                    headers,
+                    body: JSON.stringify(payload),
+                    credentials: 'include'
+                }).then(response => response.json())
+                    .then(json => {
+                        if (json.error) {
+                            return reject(new Error(json.message))
+                        }
+                        commit('setKYBWebpageConfig', json);
+                        resolve(json)
+                    }).catch((e) => {
+                        return reject(`Error while creating KYB webpage configuration: ` + e.message);
+                    })
+            });
+        },
+
+        fetchKYBWebpageConfig: ({ commit, getters }) => {
+            return new Promise((resolve, reject) => {
+                if (!getters.getSelectedService || !getters.getSelectedService.appId) {
+                    return reject(new Error('App ID is not available, service is not selected'))
+                }
+                const url = `${apiServerBaseUrl}/app/${getters.getSelectedService.appId}/verifier?pageType=kyb`;
+                const headers = UtilsMixin.methods.getHeader(localStorage.getItem('authToken'));
+
+                return fetch(url, {
+                    method: 'GET',
+                    headers,
+                    credentials: 'include'
+                }).then(response => response.json()).then(json => {
+                    if (json) {
+                        if (json.error) {
+                            return reject(new Error(json.message))
+                        } else {
+                            if (json.expiryType === 'custom' && json.expiryDate) {
+                                json.customExpiryDate = json.expiryDate.split('T')[0];
+                            }
+                            commit('setKYBWebpageConfig', json);
+                            return resolve()
+                        }
+                    } else {
+                        return resolve()
+                    }
+                }).catch((e) => {
+                    return reject(`Error while fetching KYB webpage configuration: ` + e.message);
+                })
+            });
+        },
+
+        updateKYBWebpageConfig: ({ commit, getters }, payload) => {
+            return new Promise((resolve, reject) => {
+                if (!getters.getSelectedService || !getters.getSelectedService.appId) {
+                    return reject(new Error('App ID is not available, service is not selected'))
+                }
+                const url = `${apiServerBaseUrl}/app/verifier/${payload._id}?appId=${getters.getSelectedService.appId}`;
+                const headers = UtilsMixin.methods.getHeader(localStorage.getItem('authToken'));
+
+                fetch(url, {
+                    method: 'PATCH',
+                    headers,
+                    body: JSON.stringify(payload),
+                    credentials: 'include'
+                }).then(response => response.json())
+                    .then(json => {
+                        if (json.error) {
+                            return reject(new Error(json.message))
+                        }
+                        commit('setKYBWebpageConfig', json);
+                        resolve(json)
+                    }).catch((e) => {
+                        return reject(`Error while updating KYB webpage configuration: ` + e.message);
+                    })
+            });
+        },
+
+        deleteKYBWebpageConfig: ({ commit, getters }, payload) => {
+            return new Promise((resolve, reject) => {
+                if (!getters.getSelectedService || !getters.getSelectedService.appId) {
+                    return reject(new Error('App ID is not available, service is not selected'))
+                }
+                const url = `${apiServerBaseUrl}/app/verifier/${payload._id}?appId=${getters.getSelectedService.appId}`;
+                const headers = UtilsMixin.methods.getHeader(localStorage.getItem('authToken'));
+
+                fetch(url, {
+                    method: 'DELETE',
+                    headers,
+                    credentials: 'include'
+                }).then(response => response.json())
+                    .then(json => {
+                        if (json.error) {
+                            return reject(new Error(json.message))
+                        }
+                        commit('setKYBWebpageConfig', {});
+                        resolve({ success: true })
+                    }).catch((e) => {
+                        return reject(`Error while deleting KYB webpage configuration: ` + e.message);
+                    })
+            });
         },
 
 
@@ -2233,7 +2373,9 @@ const mainStore = {
             }
             const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/compliance?entityId=${companyId}`;
             const authToken = getters.getSelectedService.kyb_access_token
-            const headers = UtilsMixin.methods.getKycServiceHeader(authToken);
+            const headers =
+                UtilsMixin.methods.getKycServiceHeader(authToken)
+
             const resp = await fetch(url, {
                 method: 'GET',
                 headers
@@ -2275,7 +2417,60 @@ const mainStore = {
             }
             return []
         },
+        async submitComplianceDetail({ getters }, payload) {
+            const { companyId, type, status, reasonDetail, reason, accessToken } = payload;
+            if (!companyId) {
+                throw new Error('Company Id is null or empty')
+            }
+            const url = `${sanitizeUrl(config.KYC_SERVER_BASE_URL)}/api/v1/compliance?type=${type}`;
+            // const url = `http://localhost:3009/api/v1/compliance?type=${type}`;
 
+            const headers = UtilsMixin.methods.getKycServiceHeader(accessToken);
+            const body = {
+                companyId,
+                status
+            };
+            if (reason) body.reason = reason;
+            if (reason && !reasonDetail) {
+                throw new Error('Reason detail is required when reason is provided')
+            }
+            if (reasonDetail) body.reasonDetail = reasonDetail;
+            const resp = await fetch(url, {
+                method: 'POST',
+                headers,
+                body: JSON.stringify(body),
+                credentials: 'include'
+            });
+            const json = await resp.json();
+            if (json.error) {
+                throw new Error(JWTExpiredErrorMessageHandling(json));
+            }
+            return json;
+        },
+        async finalizeCompanyReview({ getters }, payload) {
+            const { companyId, status, accessToken } = payload;
+            if (!companyId) {
+                throw new Error('Company Id is null or empty')
+            }
+            const url = `${sanitizeUrl(config.KYC_SERVER_BASE_URL)}/api/v1/e-kyb/verification/company/${companyId}/status`;
+            // const url = `http://localhost:3009/api/v1/e-kyb/verification/company/${companyId}/status`;
+            const headers = UtilsMixin.methods.getKycServiceHeader(accessToken);
+            const body = {
+                status
+            };
+            const resp = await fetch(url, {
+                method: 'PATCH',
+                headers,
+                body: JSON.stringify(body),
+                credentials: 'include'
+            });
+            const json = await resp.json();
+            if (json.error) {
+                throw new Error(JWTExpiredErrorMessageHandling(json));
+            }
+            return json;
+        },
+        // - KYC Credit
 
         activateCredit({ getters, dispatch }, payload) {
             return new Promise(function (resolve, reject) {

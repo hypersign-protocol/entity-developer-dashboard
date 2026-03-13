@@ -6,7 +6,6 @@
   border-bottom: 1px solid #eef0f2;
   height: 60px;
   padding: 0 20px !important;
-  z-index: 1050;
 }
 
 .nav-logo-img {
@@ -130,108 +129,15 @@
   font-size: 36px;
 }
 
+.dropDownPopup {
+  box-shadow: 2px 0 10px rgba(0, 0, 0, .47);
+  border-radius: 8px;
+  border: 0 solid grey;
+}
+
 
 </style>
-<template>
-  <div id="app" data-app>
-    <load-ing :active.sync="isLoading" :can-cancel="true" :is-full-page="true"></load-ing>
 
-
-    <b-navbar toggleable="lg" class="navStyle shadow-sm" v-if="getIfAuthenticated" sticky>
-      <b-navbar-brand href="javascript:void(0)" @click="route('dashboard')" class="d-flex align-items-center">
-        <img src="./assets/Entity_full.png" alt="Logo" class="nav-logo-img" />
-      </b-navbar-brand>
-
-      <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
-
-      <b-collapse id="nav-collapse" is-nav v-if="userDetails">
-        <b-navbar-nav class="ml-auto align-items-center">
-
-          <b-nav-item v-if="getSwitchedTenantAccount" class="px-2">
-            <div class="d-flex align-items-center tenant-wrapper" @click="switchBackToAdminAccount"
-              title="Click to access your own account">
-              <span class="mr-2 d-none d-md-inline text-muted small font-weight-bold">Acting as:</span>
-              <v-chip small color="primary" outlined class="tenant-chip">
-                <span class="text-truncate" style="max-width: 150px">{{ getSwitchedTenantAccount }}</span>
-                <b-icon icon="box-arrow-in-right" class="ml-2"></b-icon>
-              </v-chip>
-            </div>
-          </b-nav-item>
-
-          <b-nav-item v-if="!isMFAEnabled" to="/studio/settings" class="px-2">
-            <v-chip small color="orange" dark class="mfa-chip">
-              <b-icon icon="exclamation-triangle-fill" class="mr-1"></b-icon>
-              <span>Setup MFA</span>
-            </v-chip>
-          </b-nav-item>
-
-          <b-nav-item-dropdown right no-caret menu-class="profile-dropdown-menu">
-            <template #button-content>
-              <div class="avatar-container">
-                <img v-if="userDetails?.profileIcon" :src="userDetails?.profileIcon" class="profile-img" />
-                <b-icon v-else icon="person-circle" font-scale="1.5" class="text-secondary"></b-icon>
-              </div>
-            </template>
-
-            <div class="px-4 py-3 bg-light border-bottom dropdown-user-header">
-              <p class="mb-0 small text-muted">Signed in as</p>
-              <p class="mb-0 font-weight-bold text-dark">{{ userDetails.name || 'User' }}</p>
-            </div>
-
-            <b-dropdown-item @click="copyToClip(userDetails.email, 'Email')" class="small-dropdown-item">
-              <b-icon icon="envelope" class="mr-2"></b-icon> {{ shorten(userDetails.email) }}
-            </b-dropdown-item>
-
-            <b-dropdown-divider></b-dropdown-divider>
-
-            <b-dropdown-item @click="goTo('/studio/dashboard')">
-              <b-icon icon="house" class="mr-2"></b-icon> Home
-            </b-dropdown-item>
-
-            <b-dropdown-item @click="goTo('/studio/settings')">
-              <b-icon icon="gear" class="mr-2"></b-icon> Settings
-            </b-dropdown-item>
-
-            <b-dropdown-divider></b-dropdown-divider>
-
-            <b-dropdown-item @click="logoutAll()" variant="danger">
-              <b-icon icon="power" class="mr-2"></b-icon> Logout
-            </b-dropdown-item>
-          </b-nav-item-dropdown>
-        </b-navbar-nav>
-      </b-collapse>
-    </b-navbar>
-
-    <div :class="[
-      isSidebarCollapsed ? 'container-collapsed-not' : 'container-collapsed',
-    ]">
-      <router-view class="container containerData" />
-    </div>
-    <notifications group="foo" />
-
-    <sidebar-menu :relative="false" class="sidebar-wrapper"
-      v-if="userDetails && Object.keys(userDetails).length > 0 && showSideNavbar && getSelectedService"
-      @toggle-collapse="onToggleCollapse" :collapsed="isSidebarCollapsed" :theme="'white-theme'" width="220px"
-      :menu="getSideMenu()">
-      <div slot="header" style="border-bottom: 1px solid rgba(0,0,0,.12);">
-        <v-list>
-          <v-list-item>
-            <v-list-item-avatar>
-              <v-img :src="getSelectedService.logoUrl ||
-                getProfileIcon(formattedAppName(getSelectedService.appName))
-                "></v-img>
-            </v-list-item-avatar>
-            <v-list-item-content class="mx-1">
-              <v-list-item-title class="text-h7">
-                {{ getSelectedService ? getSelectedService.appName : "" }}
-              </v-list-item-title>
-            </v-list-item-content>
-          </v-list-item>
-        </v-list>
-      </div>
-    </sidebar-menu>
-  </div>
-</template>
 <style>
 .v-sidebar-menu .vsm--link_level-1 .vsm--icon {
   font-size: 16px;
@@ -346,6 +252,107 @@
   color: #66666a !important;
 }
 </style>
+<template>
+  <div id="app" data-app>
+    <load-ing :active.sync="isLoading" :can-cancel="true" :is-full-page="true"></load-ing>
+
+
+    <b-navbar toggleable="lg" class="navStyle shadow-sm" v-if="getIfAuthenticated" sticky>
+      <b-navbar-brand href="javascript:void(0)" @click="route('dashboard')" class="d-flex align-items-center">
+        <img src="./assets/Entity_full.png" alt="Logo" class="nav-logo-img" />
+      </b-navbar-brand>
+
+      <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
+
+      <b-collapse id="nav-collapse" is-nav v-if="userDetails">
+        <b-navbar-nav class="ml-auto align-items-center">
+
+          <b-nav-item v-if="getSwitchedTenantAccount" class="px-2">
+            <div class="d-flex align-items-center tenant-wrapper" @click="switchBackToAdminAccount"
+              title="Click to access your own account">
+              <span class="mr-2 d-none d-md-inline text-muted small font-weight-bold">Acting as:</span>
+              <v-chip small color="primary" outlined class="tenant-chip">
+                <span class="text-truncate" style="max-width: 150px">{{ getSwitchedTenantAccount }}</span>
+                <b-icon icon="box-arrow-in-right" class="ml-2"></b-icon>
+              </v-chip>
+            </div>
+          </b-nav-item>
+
+          <b-nav-item v-if="!isMFAEnabled" to="/studio/settings" class="px-2">
+            <v-chip small color="orange" dark class="mfa-chip">
+              <b-icon icon="exclamation-triangle-fill" class="mr-1"></b-icon>
+              <span>Setup MFA</span>
+            </v-chip>
+          </b-nav-item>
+
+          <b-nav-item-dropdown right no-caret menu-class="profile-dropdown-menu dropDownPopup" >
+            <template #button-content>
+              <div class="avatar-container">
+                <img v-if="userDetails?.profileIcon" :src="userDetails?.profileIcon" class="profile-img" />
+                <b-icon v-else icon="person-circle" font-scale="1.5" class="text-secondary"></b-icon>
+              </div>
+            </template>
+
+            <div class="px-4 py-3 bg-light border-bottom dropdown-user-header">
+              <p class="mb-0 small text-muted">Signed in as</p>
+              <p class="mb-0 font-weight-bold text-dark">{{ userDetails.name || 'User' }}</p>
+            </div>
+
+            <b-dropdown-item @click="copyToClip(userDetails.email, 'Email')" class="small-dropdown-item">
+              <b-icon icon="envelope" class="mr-2"></b-icon> {{ shorten(userDetails.email) }}
+            </b-dropdown-item>
+
+            <b-dropdown-divider></b-dropdown-divider>
+
+            <b-dropdown-item @click="goTo('/studio/dashboard')">
+              <b-icon icon="house" class="mr-2"></b-icon> Home
+            </b-dropdown-item>
+
+            <b-dropdown-item @click="goTo('/studio/settings')">
+              <b-icon icon="gear" class="mr-2"></b-icon> Settings
+            </b-dropdown-item>
+
+            <b-dropdown-divider></b-dropdown-divider>
+
+            <b-dropdown-item @click="logoutAll()" variant="danger">
+              <b-icon icon="power" class="mr-2"></b-icon> Logout
+            </b-dropdown-item>
+          </b-nav-item-dropdown>
+        </b-navbar-nav>
+      </b-collapse>
+    </b-navbar>
+
+    <div :class="[
+      isSidebarCollapsed ? 'container-collapsed-not' : 'container-collapsed',
+    ]">
+      <router-view class="container containerData" />
+    </div>
+    <notifications group="foo" />
+
+    <sidebar-menu :relative="false" class="sidebar-wrapper"
+      v-if="userDetails && Object.keys(userDetails).length > 0 && showSideNavbar && getSelectedService"
+      @toggle-collapse="onToggleCollapse" :collapsed="isSidebarCollapsed" :theme="'white-theme'" width="220px"
+      :menu="getSideMenu()">
+      <div slot="header" style="border-bottom: 1px solid rgba(0,0,0,.12);">
+        <v-list>
+          <v-list-item>
+            <v-list-item-avatar>
+              <v-img :src="getSelectedService.logoUrl ||
+                getProfileIcon(formattedAppName(getSelectedService.appName))
+                "></v-img>
+            </v-list-item-avatar>
+            <v-list-item-content class="mx-1">
+              <v-list-item-title class="text-h7">
+                {{ getSelectedService ? getSelectedService.appName : "" }}
+              </v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+        </v-list>
+      </div>
+    </sidebar-menu>
+  </div>
+</template>
+
 
 <script>
 import UtilsMixin from "./mixins/utils";
@@ -581,11 +588,11 @@ export default {
                 title: EN.NAV.BUSINESS_VERIFICATION.BUSINESSES,
                 icon: "fa fa-briefcase"
               },
-              // {
-              //   href: "/studio/kyb-widget-config/" + this.getSelectedService.appId,
-              //   title: EN.NAV.BUSINESS_VERIFICATION.KYB_WIDGET,
-              //   icon: "fa fa-puzzle-piece",
-              // }
+              {
+                href: "/studio/kyb-widget-config/" + this.getSelectedService.appId,
+                title: EN.NAV.BUSINESS_VERIFICATION.KYB_WIDGET,
+                icon: "fa fa-puzzle-piece",
+              }
             ]
           });
           // Solutions
@@ -597,6 +604,11 @@ export default {
               {
                 href: "/studio/kyc-webpage-generator/" + appId,
                 title: EN.NAV.SOLUTIONS.KYC_VERIFIER_CONFIGURATION,
+                icon: "fa fa-globe",
+              },
+              {
+                href: "/studio/kyb-webpage-generator/" + appId,
+                title: EN.NAV.SOLUTIONS.KYB_VERIFIER_CONFIGURATION,
                 icon: "fa fa-globe",
               }
             ]

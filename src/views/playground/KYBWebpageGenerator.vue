@@ -1017,17 +1017,18 @@ textarea.form-control {
 }
 </style>
 
+
 <template>
   <div :class="isContainerShift ? 'homeShift' : 'home'">
     <load-ing :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></load-ing>
 
     <v-row>
       <v-col>
-        <h4 class="font-weight-bold mb-0">KYC Verifier Configuration</h4>
-        <p class="text-subtitle-2 text-muted">Create a hosted landing page for your KYC flow</p>
+        <h4 class="font-weight-bold mb-0">Business Verifier Configuration</h4>
+        <p class="text-subtitle-2 text-muted">Host a landing page for Business Entity verification</p>
       </v-col>
       <v-col>
-        <HfButtons name="Save Configuration" @executeAction="saveConfiguration()" v-if="!this.kycWebpageConfigTemp._id"
+        <HfButtons name="Save Configuration" @executeAction="saveConfiguration()" v-if="!this.kybWebpageConfigTemp._id"
           style="float:right"></HfButtons>
         <div v-else>
           <b-button variant="link" class="danger" @click="openDeleteModal()" style="float:right;"
@@ -1046,20 +1047,20 @@ textarea.form-control {
             <div class="logo-container">
               <img v-if="getSelectedService && getSelectedService.logoUrl" :src="getSelectedService.logoUrl" class="company-logo" alt="Logo">
               <div v-else class="company-logo-placeholder">
-                <i class="fa fa-building"></i>
+                <i class="fa fa-university"></i>
               </div>
             </div>
             <div class="company-info">
-              <h4>{{ getSelectedService ? getSelectedService.appName : 'Your Business Name' }}</h4>
-              <p>{{ kycWebpageConfigTemp.pageTitle || 'Identity Verification Platform' }}</p>
+              <h4>{{ getSelectedService ? getSelectedService.appName : 'Your Corporate Name' }}</h4>
+              <p>{{ kybWebpageConfigTemp.pageTitle || 'Business Verification' }}</p>
             </div>
           </div>
         </div>
         <div class="header-right">
           <div class="url-section">
-            <div class="link-display" v-if="kycWebpageConfigTemp._id">
-              <span class="link-text">{{ kycWebpageConfigTemp.generatedUrl || 'No URL generated' }}</span>
-              <button class="copy-btn" @click="copyToClipboard" v-if="kycWebpageConfigTemp.generatedUrl" title="Copy URL">
+            <div class="link-display" v-if="kybWebpageConfigTemp._id">
+              <span class="link-text">{{ kybWebpageConfigTemp.generatedUrl || 'No URL generated' }}</span>
+              <button class="copy-btn" @click="copyToClipboard" v-if="kybWebpageConfigTemp.generatedUrl" title="Copy URL">
                 <i class="fa fa-copy"></i>
               </button>
             </div>
@@ -1091,9 +1092,9 @@ textarea.form-control {
         </template>
         <div class="confirm-body">
           <p class="mb-2">You're about to remove this verifier page configuration.</p>
-          <div class="confirm-url" v-if="kycWebpageConfigTemp.generatedUrl">
+          <div class="confirm-url" v-if="kybWebpageConfigTemp.generatedUrl">
             <span>URL</span>
-            <code>{{ kycWebpageConfigTemp.generatedUrl }}</code>
+            <code>{{ kybWebpageConfigTemp.generatedUrl }}</code>
           </div>
           <div class="confirm-url" v-else>
             <span>URL</span>
@@ -1121,27 +1122,25 @@ textarea.form-control {
             <!-- Page Title -->
             <li class="list-group-item">
               <div class="form-group">
-                <label for="pageTitle">Page Sub-Heading<span class="mandatory">*</span></label>
-                <input type="text" class="form-control" v-model="kycWebpageConfigTemp.pageTitle" placeholder="Identity Verification Platform" required>
+                <label for="pageTitle">KYB Sub-Heading<span class="mandatory">*</span></label>
+                <input type="text" class="form-control" v-model="kybWebpageConfigTemp.pageTitle" placeholder="Corporate Identity Verification" required>
               </div>
             </li>
             <!-- Page Description -->
             <li class="list-group-item">
               <div class="form-group">
-                <label for="pageDescription">Page Description</label>
-                <textarea class="form-control" v-model="kycWebpageConfigTemp.pageDescription" rows="2" placeholder="Complete your Identity Verification Platform to proceed"></textarea>
+                <label for="pageDescription">KYB Instructions</label>
+                <textarea class="form-control" v-model="kybWebpageConfigTemp.pageDescription" rows="2" placeholder="Submit company registration and shareholder details for verification"></textarea>
               </div>
             </li>
-
 
             <!-- Contact Email -->
             <li class="list-group-item">
               <div class="form-group">
-                <label for="contactEmail">Admin Contact Email</label>
-                <input type="email" class="form-control" v-model="kycWebpageConfigTemp.contactEmail" placeholder="support@yourbusiness.com">
+                <label for="contactEmail">Compliance Contact Email</label>
+                <input type="email" class="form-control" v-model="kybWebpageConfigTemp.contactEmail" placeholder="compliance@yourbusiness.com">
               </div>
             </li>
-
 
             <!-- Page Expiry and Theme Selection (Theme below, custom date inline) -->
             <li class="list-group-item">
@@ -1150,14 +1149,14 @@ textarea.form-control {
                 <label>Page Expiry<span class="mandatory">*</span></label>
                 <div class="expiry-inline">
                   <div class="expiry-select">
-                    <select v-model="kycWebpageConfigTemp.expiryType">
+                    <select v-model="kybWebpageConfigTemp.expiryType">
                       <option value="1month">1 Month</option>
                       <option value="3months">3 Months</option>
                       <option value="6months">6 Months</option>
                       <option value="custom">Custom Date</option>
                     </select>
                   </div>
-                  <input v-if="kycWebpageConfigTemp.expiryType === 'custom'" type="date" class="form-control expiry-date-input" v-model="kycWebpageConfigTemp.customExpiryDate">
+                  <input v-if="kybWebpageConfigTemp.expiryType === 'custom'" type="date" class="form-control expiry-date-input" v-model="kybWebpageConfigTemp.customExpiryDate">
                 </div>
               </div>
 
@@ -1165,19 +1164,19 @@ textarea.form-control {
               <div class="form-group">
                 <label>Choose Theme</label>
                 <div class="theme-options">
-                  <div class="theme-option" :class="{ active: kycWebpageConfigTemp.selectedTheme === 'vibrant' }" @click="selectTheme('vibrant')">
+                  <div class="theme-option" :class="{ active: kybWebpageConfigTemp.selectedTheme === 'vibrant' }" @click="selectTheme('vibrant')">
                     <div class="theme-preview vibrant-theme"></div>
                     <small>Vibrant</small>
                   </div>
-                  <div class="theme-option" :class="{ active: kycWebpageConfigTemp.selectedTheme === 'dark' }" @click="selectTheme('dark')">
+                  <div class="theme-option" :class="{ active: kybWebpageConfigTemp.selectedTheme === 'dark' }" @click="selectTheme('dark')">
                     <div class="theme-preview dark-theme"></div>
                     <small>Dark</small>
                   </div>
-                  <div class="theme-option" :class="{ active: kycWebpageConfigTemp.selectedTheme === 'grey' }" @click="selectTheme('grey')">
+                  <div class="theme-option" :class="{ active: kybWebpageConfigTemp.selectedTheme === 'grey' }" @click="selectTheme('grey')">
                     <div class="theme-preview grey-theme"></div>
                     <small>Grey</small>
                   </div>
-                  <div class="theme-option" :class="{ active: kycWebpageConfigTemp.selectedTheme === 'light' }" @click="selectTheme('light')">
+                  <div class="theme-option" :class="{ active: kybWebpageConfigTemp.selectedTheme === 'light' }" @click="selectTheme('light')">
                     <div class="theme-preview light-theme"></div>
                     <small>Light</small>
                   </div>
@@ -1220,61 +1219,61 @@ textarea.form-control {
                   <span class="browser-dot yellow"></span>
                   <span class="browser-dot green"></span>
                 </div>
-                <span class="browser-url">{{ kycWebpageConfigTemp.generatedUrl || 'No URL generated' }}</span>
+                <span class="browser-url">{{ kybWebpageConfigTemp.generatedUrl || 'No URL generated' }}</span>
               </div>
               <div class="browser-content">
-                <div class="preview-container" :class="`preview-${kycWebpageConfigTemp.selectedTheme}-theme`">
+                <div class="preview-container" :class="`preview-${kybWebpageConfigTemp.selectedTheme}-theme`">
                   <div class="kyc-preview">
                     <div class="kyc-preview-card">
                       <div class="preview-brand">
                         <img v-if="getSelectedService && getSelectedService.logoUrl" :src="getSelectedService.logoUrl" class="preview-logo" alt="Logo">
-                        <div v-else class="preview-logo" style="background: #ddd; display: flex; align-items: center; justify-content: center;">
-                          <i class="fa fa-building" style="font-size: 18px; color: #666;"></i>
+                        <div v-else class="preview-logo" style="background: #eef2f7; display: flex; align-items: center; justify-content: center;">
+                          <i class="fa fa-university" style="font-size: 18px; color: #64748b;"></i>
                         </div>
                         <div>
-                          <h3 class="brand-name">{{ getSelectedService ? getSelectedService.appName : 'Your Business Name' }}</h3>
-                          <div class="brand-subtitle">{{ kycWebpageConfigTemp.pageTitle || 'Identity Verification Platform' }}</div>
+                          <h3 class="brand-name">{{ getSelectedService ? getSelectedService.appName : 'Corporate Entity' }}</h3>
+                          <div class="brand-subtitle">{{ kybWebpageConfigTemp.pageTitle || 'Business Verification' }}</div>
                         </div>
                       </div>
 
                       <div class="preview-desc">
-                        <span v-if="kycWebpageConfigTemp.pageDescription">{{ kycWebpageConfigTemp.pageDescription }}</span>
-                        <span v-else>Complete your Identity Verification Platform to proceed with our services.</span>
+                        <span v-if="kybWebpageConfigTemp.pageDescription">{{ kybWebpageConfigTemp.pageDescription }}</span>
+                        <span v-else>Verify your business legal entity status and ownership structure.</span>
                       </div>
 
                       <div class="steps-list">
                         <div class="step-item">
-                          <div class="step-icon"><i class="fa fa-camera"></i></div>
+                          <div class="step-icon"><i class="fa fa-building"></i></div>
                           <div>
-                            <div class="step-title">Take Selfie</div>
-                            <div class="step-sub">Capture a clear photo of yourself.</div>
+                            <div class="step-title">Company Details</div>
+                            <div class="step-sub">Legal name, Reg number, and Tax ID.</div>
                           </div>
                         </div>
                         <div class="step-item">
-                          <div class="step-icon"><i class="fa fa-id-card"></i></div>
+                          <div class="step-icon"><i class="fa fa-cloud-upload-alt"></i></div>
                           <div>
-                            <div class="step-title">Verify ID Document</div>
-                            <div class="step-sub">Upload your ID for verification.</div>
+                            <div class="step-title">Upload Documents</div>
+                            <div class="step-sub">Certificate of Inc. & MoA/AoA.</div>
                           </div>
                         </div>
                         <div class="step-item">
-                          <div class="step-icon"><i class="fa fa-check-square"></i></div>
+                          <div class="step-icon"><i class="fa fa-users"></i></div>
                           <div>
-                            <div class="step-title">Provide Consent</div>
-                            <div class="step-sub">Agree to securely share your information.</div>
+                            <div class="step-title">Stakeholders</div>
+                            <div class="step-sub">Verify UBOs and Representatives.</div>
                           </div>
                         </div>
                       </div>
 
                       <div class="kyc-button-container">
                         <button class="kyc-start-button">
-                          <i class="fa fa-shield-alt"></i>
+                          <i class="fa fa-briefcase"></i>
                           Start Verification
                         </button>
                       </div>
 
-                      <div class="contact-line" v-if="kycWebpageConfigTemp.contactEmail">
-                        Contact: {{ kycWebpageConfigTemp.contactEmail }}
+                      <div class="contact-line" v-if="kybWebpageConfigTemp.contactEmail">
+                        Contact: {{ kybWebpageConfigTemp.contactEmail }}
                       </div>
                     </div>
 
@@ -1296,18 +1295,18 @@ import { mapGetters, mapActions, mapMutations } from "vuex";
 import HfButtons from '../../components/element/HfButtons.vue';
 
 export default {
-  name: "KYCWebpageGenerator",
+  name: "KYBWebpageGenerator",
   mixins: [UtilsMixin],
   components: {
     HfButtons
   },
   computed: {
-    ...mapGetters('mainStore', ['getKYCWebpageConfig', 'getSelectedService']),
+    ...mapGetters('mainStore', ['getKYBWebpageConfig', 'getSelectedService']),
     isContainerShift() {
       return this.containerShift
     },
     showExpiryWarning() {
-      if (!this.kycWebpageConfigTemp._id || !this.kycWebpageConfigTemp.expiryType) return false;
+      if (!this.kybWebpageConfigTemp._id || !this.kybWebpageConfigTemp.expiryType) return false;
       
       const daysRemaining = this.getDaysRemaining();
       return daysRemaining > 0 && daysRemaining <= 7; // Show warning if expiring within 7 days
@@ -1317,7 +1316,7 @@ export default {
   async mounted() {
     try {
       this.isLoading = true
-      await this.fetchKYCWebpageConfig()
+      await this.fetchKYBWebpageConfig()
       this.isLoading = false
     } catch (e) {
       this.isLoading = false
@@ -1338,8 +1337,8 @@ export default {
       isLoading: false,
       previewMode: "desktop",
       showDeleteModal: false,
-      kycWebpageConfigTemp: {
-        pageTitle: "Identity Verification Platform",
+      kybWebpageConfigTemp: {
+        pageTitle: "Corporate Identity Verification",
         pageDescription: "",
         expiryType: "3months",
         customExpiryDate: "",
@@ -1348,21 +1347,21 @@ export default {
         generatedUrl: "",
         uniqueId: "",
         status: "active",
-        pageType: "kyc"
+        pageType: "kyb"
       }
     }
   },
 
   methods: {
-    ...mapActions('mainStore', ['fetchKYCWebpageConfig', 'createKYCWebpageConfig', 'deleteKYCWebpageConfig', 'updateKYCWebpageConfig']),
-    ...mapMutations('mainStore', ['setKYCWebpageConfig']),
+    ...mapActions('mainStore', ['fetchKYBWebpageConfig', 'createKYBWebpageConfig', 'deleteKYBWebpageConfig', 'updateKYBWebpageConfig']),
+    ...mapMutations('mainStore', ['setKYBWebpageConfig']),
     
     setPreviewMode(mode) {
       this.previewMode = mode;
     },
     
     selectTheme(theme) {
-      this.kycWebpageConfigTemp.selectedTheme = theme;
+      this.kybWebpageConfigTemp.selectedTheme = theme;
     },
 
     openDeleteModal() {
@@ -1374,28 +1373,27 @@ export default {
     },
 
     generateUniqueId() {
-      return 'kyc_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+      return 'kyb_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
     },
 
     generateUrl() {
       if (!this.getSelectedService || !this.getSelectedService.appId) return "";
-      this.kycWebpageConfigTemp.uniqueId = this.generateUniqueId();
-      // Use account-level domain for KYC webpage URLs
-      return `https://kyc.hypersign.id/${this.getSelectedService.appId}/${this.kycWebpageConfigTemp.uniqueId}`;
+      this.kybWebpageConfigTemp.uniqueId = this.generateUniqueId();
+      return `https://kyb.hypersign.id/${this.getSelectedService.appId}/${this.kybWebpageConfigTemp.uniqueId}`;
     },
 
     copyToClipboard() {
-      navigator.clipboard.writeText(this.kycWebpageConfigTemp.generatedUrl).then(() => {
+      navigator.clipboard.writeText(this.kybWebpageConfigTemp.generatedUrl).then(() => {
         this.notifySuccess('URL copied to clipboard!');
       });
     },
 
     getDaysRemaining() {
-      if (!this.kycWebpageConfigTemp.expiryType) return 0;
+      if (!this.kybWebpageConfigTemp.expiryType) return 0;
       
       let expiry = new Date();
       
-      switch(this.kycWebpageConfigTemp.expiryType) {
+      switch(this.kybWebpageConfigTemp.expiryType) {
         case '1month':
           expiry.setMonth(expiry.getMonth() + 1);
           break;
@@ -1406,8 +1404,8 @@ export default {
           expiry.setMonth(expiry.getMonth() + 6);
           break;
         case 'custom':
-          if (this.kycWebpageConfigTemp.customExpiryDate) {
-            expiry = new Date(this.kycWebpageConfigTemp.customExpiryDate);
+          if (this.kybWebpageConfigTemp.customExpiryDate) {
+            expiry = new Date(this.kybWebpageConfigTemp.customExpiryDate);
           }
           break;
       }
@@ -1419,7 +1417,7 @@ export default {
     },
 
     getStatusText() {
-      if (!this.kycWebpageConfigTemp._id) return 'Not Created';
+      if (!this.kybWebpageConfigTemp._id) return 'Not Created';
       
       const daysRemaining = this.getDaysRemaining();
       if (daysRemaining === 0) return 'Expired';
@@ -1428,7 +1426,7 @@ export default {
     },
 
     getStatusClass() {
-      if (!this.kycWebpageConfigTemp._id) return 'status-warning';
+      if (!this.kybWebpageConfigTemp._id) return 'status-warning';
       
       const daysRemaining = this.getDaysRemaining();
       if (daysRemaining === 0) return 'status-expired';
@@ -1437,13 +1435,13 @@ export default {
     },
 
     validateField() {
-      if (!this.kycWebpageConfigTemp.pageTitle) {
+      if (!this.kybWebpageConfigTemp.pageTitle) {
         throw new Error('Page title is required')
       }
-      if (!this.kycWebpageConfigTemp.expiryType) {
+      if (!this.kybWebpageConfigTemp.expiryType) {
         throw new Error('Please select an expiry period')
       }
-      if (this.kycWebpageConfigTemp.expiryType === 'custom' && !this.kycWebpageConfigTemp.customExpiryDate) {
+      if (this.kybWebpageConfigTemp.expiryType === 'custom' && !this.kybWebpageConfigTemp.customExpiryDate) {
         throw new Error('Please select a custom expiry date')
       }
     },
@@ -1454,20 +1452,20 @@ export default {
         this.validateField();
         
         const config = {
-          pageTitle: this.kycWebpageConfigTemp.pageTitle,
-          pageDescription: this.kycWebpageConfigTemp.pageDescription,
-          expiryType: this.kycWebpageConfigTemp.expiryType,
-          customExpiryDate: this.kycWebpageConfigTemp.customExpiryDate,
-          themeColor: this.kycWebpageConfigTemp.selectedTheme,
-          contactEmail: this.kycWebpageConfigTemp.contactEmail,
+          pageTitle: this.kybWebpageConfigTemp.pageTitle,
+          pageDescription: this.kybWebpageConfigTemp.pageDescription,
+          expiryType: this.kybWebpageConfigTemp.expiryType,
+          customExpiryDate: this.kybWebpageConfigTemp.customExpiryDate,
+          themeColor: this.kybWebpageConfigTemp.selectedTheme,
+          contactEmail: this.kybWebpageConfigTemp.contactEmail,
           generatedUrl: this.generateUrl(),
-          uniqueId: this.kycWebpageConfigTemp.uniqueId,
-          status: 'active',
-          pageType: 'kyc'
+          uniqueId: this.kybWebpageConfigTemp.uniqueId,
+          pageType: 'kyb',
+          status: 'active'
         };
-        await this.createKYCWebpageConfig(config);
-        this.notifySuccess('KYC webpage configuration saved successfully!');
-        await this.fetchKYCWebpageConfig();
+        await this.createKYBWebpageConfig(config);
+        this.notifySuccess('KYB webpage configuration saved successfully!');
+        await this.fetchKYBWebpageConfig();
         this.isLoading = false;
       } catch (e) {
         this.isLoading = false;
@@ -1481,14 +1479,14 @@ export default {
         this.validateField();
         
         const config = {
-          ...this.kycWebpageConfigTemp,
-          themeColor: this.kycWebpageConfigTemp.selectedTheme, // Map selectedTheme to themeColor
+          ...this.kybWebpageConfigTemp,
+          themeColor: this.kybWebpageConfigTemp.selectedTheme, // Map selectedTheme to themeColor
           updatedAt: new Date().toISOString()
         };
 
-        await this.updateKYCWebpageConfig(config);
-        this.notifySuccess('KYC webpage configuration updated successfully!');
-        await this.fetchKYCWebpageConfig();
+        await this.updateKYBWebpageConfig(config);
+        this.notifySuccess('KYB webpage configuration updated successfully!');
+        await this.fetchKYBWebpageConfig();
         this.isLoading = false;
       } catch (e) {
         this.isLoading = false;
@@ -1498,14 +1496,14 @@ export default {
 
     async deleteConfiguration() {
       try {
-        if (!this.kycWebpageConfigTemp || !this.kycWebpageConfigTemp._id) {
+        if (!this.kybWebpageConfigTemp || !this.kybWebpageConfigTemp._id) {
           return this.notifyErr('No configuration to delete');
         }
         this.isLoading = true;
-        await this.deleteKYCWebpageConfig({ _id: this.kycWebpageConfigTemp._id });
+        await this.deleteKYBWebpageConfig({ _id: this.kybWebpageConfigTemp._id });
         this.showDeleteModal = false;
-        this.notifySuccess('KYC webpage configuration deleted successfully!');
-        await this.fetchKYCWebpageConfig();
+        this.notifySuccess('KYB webpage configuration deleted successfully!');
+        await this.fetchKYBWebpageConfig();
         this.isLoading = false;
       } catch (e) {
         this.isLoading = false;
@@ -1515,18 +1513,18 @@ export default {
   },
 
   watch: {
-    getKYCWebpageConfig: {
+    getKYBWebpageConfig: {
       handler(newValue) {
         if (newValue && Object.keys(newValue).length > 0) {
           // Map backend fields to frontend fields
-          this.kycWebpageConfigTemp = {
+          this.kybWebpageConfigTemp = {
             ...newValue,
             selectedTheme: newValue.themeColor || "vibrant" // Map themeColor to selectedTheme
           };
         } else {
           // Reset to default values if no config exists
-          this.kycWebpageConfigTemp = {
-            pageTitle: "Identity Verification Platform",
+          this.kybWebpageConfigTemp = {
+            pageTitle: "Corporate Identity Verification",
             pageDescription: "",
             expiryType: "3months",
             customExpiryDate: "",
@@ -1534,8 +1532,8 @@ export default {
             contactEmail: "",
             generatedUrl: "",
             uniqueId: "",
-            status: "active",
-            pageType: "kyc"
+            pageType: "kyb",
+            status: "active"
           };
         }
       },

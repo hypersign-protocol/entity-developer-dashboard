@@ -1,38 +1,143 @@
 <template>
-  <div class="credit-recharge-form">
-    <h3></h3>
-    
-    <div class="form-grid">
-      <div class="field">
-        <label>Service ID (App ID):</label>
-        <input v-model="form.serviceId" type="text" placeholder="e.g. app-123" />
-      </div>
-      <div class="field">
-        <label>Amount:</label>
-        <input v-model="form.amount" type="text" />
+  <v-container pa-0>
+    <div class="overview-container">
+      <div class="header-row">
+        <h2 class="title">Service Credit Recharge</h2>
       </div>
 
-      <div class="field">
-        <label>Validity Period ({{ form.validityPeriodUnit }}):</label>
-        <input v-model="form.validityPeriod" type="text" />
-      </div>
+      <div class="pa-2">
+        <p class="text-subtitle-2 text-muted mb-6">
+          Allocate credits and set validity periods for your registered backend services.
+        </p>
 
-      <!-- <div class="field full-width">
-        <label>Whitelisted CORS:</label>
-        <input v-model="form.whitelistedCors" type="text" />
-      </div> -->
+        <v-row dense>
+          <v-col cols="12" md="6" class="mb-2">
+            <label class="input-label">Service ID</label>
+            <v-text-field
+              v-model="form.serviceId"
+              placeholder="e.g. 69afa3d8a4976d9c9e4671a7"
+              outlined
+              dense
+              hide-details
+              color="primary"
+              class="mono-text"
+            ></v-text-field>
+          </v-col>
+
+          <v-col cols="12" md="3" class="mb-2">
+            <label class="input-label">Amount ({{ form.amountDenom }})</label>
+            <v-text-field
+              v-model="form.amount"
+              type="number"
+              outlined
+              dense
+              hide-details
+              color="primary"
+            ></v-text-field>
+          </v-col>
+
+          <v-col cols="12" md="3" class="mb-2">
+            <label class="input-label">Validity ({{ form.validityPeriodUnit }}S)</label>
+            <v-text-field
+              v-model="form.validityPeriod"
+              type="number"
+              outlined
+              dense
+              hide-details
+              color="primary"
+            ></v-text-field>
+          </v-col>
+        </v-row>
+
+        <div class="d-flex justify-start mt-6">
+          <v-btn
+            :loading="loading"
+            :disabled="loading"
+            color="#111827"
+            class="px-8 font-weight-bold"
+            depressed
+            height="42"
+            @click="handleRecharge"
+          >
+          <span style="color: white;">Execute Recharge</span>
+          </v-btn>
+        </div>
+
+        <v-fade-transition>
+          <div v-if="statusMessage" :class="['mt-4 feedback-box', isError ? 'error-style' : 'success-style']">
+            <div class="d-flex align-center">
+              <v-icon small :color="isError ? 'red' : 'green'" class="mr-2">
+                {{ isError ? 'mdi-alert-circle' : 'mdi-check-circle' }}
+              </v-icon>
+              <span class="small font-weight-bold">{{ statusMessage }}</span>
+            </div>
+          </div>
+        </v-fade-transition>
+      </div>
     </div>
-
-    <button @click="handleRecharge" :disabled="loading" class="recharge-btn">
-      {{ loading ? 'Signing & Sending...' : 'Execute Recharge' }}
-    </button>
-
-    <div v-if="statusMessage" :class="['status-box', isError ? 'error' : 'success']">
-      {{ statusMessage }}
-    </div>
-  </div>
+  </v-container>
 </template>
 
+<style scoped>
+.overview-container {
+  padding: 1.5rem;
+  background-color: #f9fafb;
+  border-radius: 0.75rem;
+  border: 1px solid #e5e7eb;
+}
+
+.header-row {
+  margin-bottom: 1.25rem;
+}
+
+.title {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #111827;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.input-label {
+  display: block;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.mono-text {
+  font-family: 'JetBrains Mono', monospace !important;
+}
+
+/* Feedback Box Styles following your Warning Box pattern */
+.feedback-box {
+  border-radius: 8px;
+  padding: 1rem;
+  border: 1px solid;
+}
+
+.error-style {
+  background-color: #fef2f2;
+  border-color: #fecaca;
+  color: #991b1b;
+}
+
+.success-style {
+  background-color: #f0fdf4;
+  border-color: #bbf7d0;
+  color: #166534;
+}
+
+.text-muted {
+  color: #64748b !important;
+}
+
+.small {
+  font-size: 0.85rem;
+}
+</style>
 <script>
 import { mapActions } from 'vuex/dist/vuex.common.js';
 
@@ -81,17 +186,3 @@ export default {
   }
 };
 </script>
-
-<style scoped>
-.credit-recharge-form { background: #fff; padding: 10px; }
-.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
-.full-width { grid-column: span 2; }
-.field { display: flex; flex-direction: column; }
-label { font-size: 12px; font-weight: bold; margin-bottom: 5px; color: #555; text-align: left; }
-input, .service-select { padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; }
-.service-select { background-color: #f0f7ff; border-color: #3498db; font-weight: bold; }
-.recharge-btn { background: #2ecc71; color: white; border: none; padding: 12px; border-radius: 4px; cursor: pointer; font-weight: bold; width: 100%; }
-.status-box { margin-top: 15px; padding: 10px; border-radius: 4px; font-size: 14px; text-align: left; }
-.error { background: #fdeaea; color: #c0392b; border: 1px solid #f5b7b1; }
-.success { background: #eafaf1; color: #27ae60; border: 1px solid #abebc6; }
-</style>

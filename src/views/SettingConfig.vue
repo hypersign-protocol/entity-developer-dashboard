@@ -90,8 +90,16 @@
               </template>
               <CreditRecharge />
             </b-tab>
+            <b-tab>
+              <template #title>
+                <b-icon icon="shield-check" aria-hidden="true" small></b-icon> KYB Compliance
+              </template>
+              <ComplianceCheck />
+            </b-tab>
           </b-tabs>
         </b-tab>
+
+        
 
       </b-tabs>
     </div>
@@ -112,6 +120,8 @@ import UserProfile from '../components/settings/UserProfile.vue';
 import { mapActions } from 'vuex/dist/vuex.common.js';
 import ApproveCustomerOnboarding from './sa/components/ApproveCustomerOnboarding.vue'
 import CreditRecharge from './sa/components/CreditRecharge.vue'
+import ComplianceCheck from './sa/components/ComplianceCheck.vue';
+
 
 
 export default {
@@ -123,7 +133,8 @@ export default {
     UserProfile,
     OnlySSIApps,    
     ApproveCustomerOnboarding,
-    CreditRecharge
+    CreditRecharge,
+    ComplianceCheck
   },
   computed: {
     ...mapGetters('mainStore', ['getAuthToken', 'getUserDetails']),
