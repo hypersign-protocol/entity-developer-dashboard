@@ -378,12 +378,12 @@ export default {
 
       // Table column headers
       headers: [
-        { text: 'User ID', value: 'userId' },
-        { text: 'Start Date', value: 'start_date' },
-        { text: 'End Date', value: 'end_date' },
-        { text: 'Attempts', value: 'attempts' },
-        { text: 'Steps', value: 'steps' },
-        { text: 'Status', value: 'status' },
+        { text: 'USER ID', value: 'userId' },
+        { text: 'START DATE', value: 'start_date' },
+        { text: 'END DATE', value: 'end_date' },
+        { text: 'ATTEMPTS', value: 'attempts' },
+        { text: 'STEPS', value: 'steps' },
+        { text: 'STATUS', value: 'status' },
       ],
 
       authToken: localStorage.getItem('authToken'),
