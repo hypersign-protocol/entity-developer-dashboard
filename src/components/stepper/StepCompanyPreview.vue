@@ -29,9 +29,9 @@
       <!-- Company Info -->
       
         <b-card class="h-100 serviceCard">
-          <div class="d-flex align-items-center mb-3">
+          <div class="d-flex align-items-center mb-0">
             <i class="mdi mdi-domain text-primary mr-2"></i>
-            <h6 class="mb-0">Business Details</h6>
+            <h6 class="mb-0">BUSINESS DETAILS</h6>
             
               <div v-if="company.logo" class="ml-auto">
                 <!-- <img :src="company.logo" alt="Logo" class="logo-preview" /> -->
@@ -42,31 +42,31 @@
 
           <b-row>
             <b-col md="6" class="mb-2">
-              <strong>Type:</strong>
+              <strong>TYPE:</strong>
               <p class="text-muted mb-0">{{ formatTypeLabel(company.type) }}</p>
             </b-col>
             <b-col md="6" class="mb-2">
-              <strong>Name:</strong>
+              <strong>NAME:</strong>
               <p class="text-muted mb-0">{{ company.name || '-' }}</p>
             </b-col>
             <b-col md="6" class="mb-2">
-              <strong>Domain:</strong>
+              <strong>DOMAIN:</strong>
               <p class="text-muted mb-0">{{ company.domain || '-' }}</p>
             </b-col>
             <b-col md="6" class="mb-2">
-              <strong>Country:</strong>
+              <strong>COUNTRY:</strong>
               <p class="text-muted mb-0">{{ company.country || '-' }}</p>
             </b-col>
             <b-col md="6" class="mb-2">
-              <strong>Registration No:</strong>
+              <strong>REGISTRATION #:</strong>
               <p class="text-muted mb-0">{{ company.registration_number || '-' }}</p>
             </b-col>
             <b-col md="6" class="mb-2">
-              <strong>Email:</strong>
+              <strong>EMAIL ADDRESS:</strong>
               <p class="text-muted mb-0">{{ company.contact_email || '-' }}</p>
             </b-col>
             <b-col md="6" class="mb-2">
-              <strong>Phone:</strong>
+              <strong>PHONE #:</strong>
               <p class="text-muted mb-0">{{ company.phone_no || '-' }}</p>
             </b-col>
 
@@ -124,12 +124,12 @@
         <b-card class="h-100 serviceCard">
           <div class="d-flex align-items-center mb-3">
             <i class="mdi mdi-briefcase-outline text-primary mr-2"></i>
-            <h6 class="mb-0">Business Requirements</h6>
+            <h6 class="mb-0">BUSINESS REQUIREMENTS</h6>
           </div>
 
           <b-row>
             <b-col md="6" class="mb-3">
-              <strong>Interested Services:</strong>
+              <strong>INTERESTED SERVICES:</strong>
               <ul class="text-muted mb-0 pl-3">
                 <li
                   v-for="(interest, index) in company.interests"
@@ -143,7 +143,7 @@
             </b-col>
 
             <b-col md="6" class="mb-3">
-              <strong>Estimated Yearly Volume:</strong>
+              <strong>YEARLY VOLUME:</strong>
               <p class="text-muted mb-0">{{ company.yearly_volume || '-' }}</p>
             </b-col>
 

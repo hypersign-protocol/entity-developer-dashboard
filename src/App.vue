@@ -293,7 +293,7 @@
               </div>
             </template>
 
-            <div class="px-4 py-3 bg-light border-bottom dropdown-user-header">
+            <div class="px-3 py-2 bg-light border-bottom dropdown-user-header">
               <p class="mb-0 small text-muted">Signed in as</p>
               <p class="mb-0 font-weight-bold text-dark">{{ userDetails.name || 'User' }}</p>
             </div>
@@ -304,17 +304,17 @@
 
             <b-dropdown-divider></b-dropdown-divider>
 
-            <b-dropdown-item @click="goTo('/studio/dashboard')">
+            <b-dropdown-item @click="goTo('/studio/dashboard')" style="text-align: left;">
               <b-icon icon="house" class="mr-2"></b-icon> Home
             </b-dropdown-item>
 
-            <b-dropdown-item @click="goTo('/studio/settings')">
+            <b-dropdown-item @click="goTo('/studio/settings')" style="text-align: left;">
               <b-icon icon="gear" class="mr-2"></b-icon> Settings
             </b-dropdown-item>
 
             <b-dropdown-divider></b-dropdown-divider>
 
-            <b-dropdown-item @click="logoutAll()" variant="danger">
+            <b-dropdown-item @click="logoutAll()" variant="danger" style="text-align: left;">
               <b-icon icon="power" class="mr-2"></b-icon> Logout
             </b-dropdown-item>
           </b-nav-item-dropdown>
