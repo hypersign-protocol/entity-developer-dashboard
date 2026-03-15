@@ -4,7 +4,11 @@
     
     <v-row class="align-center mb-4">
       <v-col>
-        <h3 class="mb-0 text-left">KYB Widget Configuration</h3>
+        <!-- <h3 class="mb-0 text-left">KYB Widget Configuration</h3> -->
+        <div>
+          <h4 class="mb-1 font-weight-bold mb-0">Business Widget Configuration</h4>
+          <p class="text-muted small mb-0">Configure the business widget for your application</p>
+        </div>
       </v-col>
       <v-col class="text-right">
         <HfButtons 

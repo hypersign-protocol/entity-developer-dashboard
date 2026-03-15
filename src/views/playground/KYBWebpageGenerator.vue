@@ -1024,7 +1024,7 @@ textarea.form-control {
 
     <v-row>
       <v-col>
-        <h4 class="font-weight-bold mb-0">Business Verifier Configuration</h4>
+        <h4 class="font-weight-bold mb-0">Business Verifier Page Configuration</h4>
         <p class="text-subtitle-2 text-muted">Host a landing page for Business Entity verification</p>
       </v-col>
       <v-col>

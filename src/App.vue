@@ -610,6 +610,11 @@ export default {
                 href: "/studio/kyb-webpage-generator/" + appId,
                 title: EN.NAV.SOLUTIONS.KYB_VERIFIER_CONFIGURATION,
                 icon: "fa fa-globe",
+              },
+              {
+                href: "/studio/solutions/reusable-id/" + appId,
+                title: EN.NAV.SOLUTIONS.RESUABLE_ID,
+                icon: "fa fa-circle-notch",
               }
             ]
           });

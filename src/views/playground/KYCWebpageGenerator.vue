@@ -1023,7 +1023,7 @@ textarea.form-control {
 
     <v-row>
       <v-col>
-        <h4 class="font-weight-bold mb-0">KYC Verifier Configuration</h4>
+        <h4 class="font-weight-bold mb-0">ID Verifier Page Configuration</h4>
         <p class="text-subtitle-2 text-muted">Create a hosted landing page for your KYC flow</p>
       </v-col>
       <v-col>

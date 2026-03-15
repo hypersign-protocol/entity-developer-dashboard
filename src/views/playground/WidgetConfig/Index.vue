@@ -141,8 +141,10 @@ ul {
     <v-row>
       <v-col>
         <div class="form-group" style="display:flex">
-          <h3 style="text-align: left;">
-            KYC Widget Configuration </h3>
+          <div>
+              <h4 class="mb-1 font-weight-bold mb-0">ID Widget Configuration</h4>
+              <p class="text-muted small mb-0">Configure the ID widget for your application</p>
+          </div>
         </div>
       </v-col>
       <v-col>
@@ -153,7 +155,7 @@ ul {
       </v-col>
     </v-row>
 
-    <b-card class="serviceCard">
+    <div class="serviceCard">
       <ul class="list-group list-group-flush">
         <li class="list-group-item">
           <b-form-checkbox switch size="lg" v-model="widgetConfigTemp.faceRecog" disabled title="Facial recognition is always enabled and cannot be disabled">{{
@@ -176,8 +178,79 @@ ul {
                   </div>
                 </div> -->
           </div>
+        </li> 
+       
+
+        <li class="list-group-item">
+          <div class="row">
+            <div class="col">
+              <div class="row">
+                <div class="col-md-12">
+                  <b-form-checkbox switch size="lg" v-model="widgetConfigTemp.userConsent.enabled" disabled>{{
+                    this.widgetConfigUI.userConsent.label }}</b-form-checkbox>
+                  <small v-html="widgetConfigUI.userConsent.description"></small>
+                </div>
+              </div>
+              <div class="row mt-2 mx-0 p-1"
+                style="border: 2px solid #8080802e;border-radius: 10px; min-height: 115px;">
+                <div class="col-md-3 center">
+                  <div style="border: 1px solid #8080802e; border-radius: 50%;" class="p-1">
+                    <img :src="widgetConfigTemp.userConsent.logoUrl" v-if="widgetConfigTemp.userConsent.logoUrl"
+                      style="height: 50px; border-radius: 50%;">
+                  </div>
+                </div>
+                <div class="col-md-8">
+                  <div class="row">
+                    <div class="col-md-12" style="font-size: 1.05rem;">
+                      {{ widgetConfigTemp.userConsent.domain }}
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-12" style="color:grey">
+                      {{ widgetConfigTemp.userConsent.reason }}
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+            <div class="col">
+              <div class="row">
+                <div class="col">
+                  <div class="row">
+                    <div class="col">
+                      <label for=""><strong>Reason For KYC: </strong></label>
+                      <textarea type="text" rows="7" class="serviceCard form-control" id=""
+                        v-model="widgetConfigTemp.userConsent.reason"
+                        placeholder="The app is requesting the following information to verify your identity" />
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+          </div>
         </li>
         <li class="list-group-item">
+          <div class="row">
+
+            <div class="col">
+              <b-form-checkbox switch size="lg" v-model="widgetConfigTemp.trustedIssuer" disabled>{{
+                widgetConfigUI.trustedIssuer.label }}</b-form-checkbox>
+              <small v-html="widgetConfigUI.trustedIssuer.description"></small>
+            </div>
+            <div class="col">
+              <label for=""><strong>Choose Trusted Issuer(s): </strong></label>
+              <div style="max-height: 300px; overflow-y: scroll;" class="p-1">
+                <MarketplaceList @selectedServiceEvent="selectedServiceEventHandler" isSelection="true" />
+              </div>
+            </div>
+          </div>
+          <!-- <TrustedIssuer @selectedServiceEventFromTrustedIssuer="selectedServiceEventHandler" /> -->
+        </li>
+
+
+         <li class="list-group-item">
           <div class="row">
             <div class="col-md-6">
               <div class="row">
@@ -253,76 +326,8 @@ ul {
             </div>
           </div>
         </li>
-
-        <li class="list-group-item">
-          <div class="row">
-            <div class="col">
-              <div class="row">
-                <div class="col-md-12">
-                  <b-form-checkbox switch size="lg" v-model="widgetConfigTemp.userConsent.enabled" disabled>{{
-                    this.widgetConfigUI.userConsent.label }}</b-form-checkbox>
-                  <small v-html="widgetConfigUI.userConsent.description"></small>
-                </div>
-              </div>
-              <div class="row mt-2 mx-0 p-1"
-                style="border: 2px solid #8080802e;border-radius: 10px; min-height: 115px;">
-                <div class="col-md-3 center">
-                  <div style="border: 1px solid #8080802e; border-radius: 50%;" class="p-1">
-                    <img :src="widgetConfigTemp.userConsent.logoUrl" v-if="widgetConfigTemp.userConsent.logoUrl"
-                      style="height: 50px; border-radius: 50%;">
-                  </div>
-                </div>
-                <div class="col-md-8">
-                  <div class="row">
-                    <div class="col-md-12" style="font-size: 1.05rem;">
-                      {{ widgetConfigTemp.userConsent.domain }}
-                    </div>
-                  </div>
-                  <div class="row">
-                    <div class="col-md-12" style="color:grey">
-                      {{ widgetConfigTemp.userConsent.reason }}
-                    </div>
-                  </div>
-                </div>
-
-              </div>
-            </div>
-            <div class="col">
-              <div class="row">
-                <div class="col">
-                  <div class="row">
-                    <div class="col">
-                      <label for=""><strong>Reason For KYC: </strong></label>
-                      <textarea type="text" rows="7" class="serviceCard form-control" id=""
-                        v-model="widgetConfigTemp.userConsent.reason"
-                        placeholder="The app is requesting the following information to verify your identity" />
-                    </div>
-                  </div>
-
-                </div>
-              </div>
-            </div>
-          </div>
-        </li>
-        <li class="list-group-item">
-          <div class="row">
-
-            <div class="col">
-              <b-form-checkbox switch size="lg" v-model="widgetConfigTemp.trustedIssuer" disabled>{{
-                widgetConfigUI.trustedIssuer.label }}</b-form-checkbox>
-              <small v-html="widgetConfigUI.trustedIssuer.description"></small>
-            </div>
-            <div class="col">
-              <label for=""><strong>Choose Trusted Issuer(s): </strong></label>
-              <div style="max-height: 300px; overflow-y: scroll;" class="p-1">
-                <MarketplaceList @selectedServiceEvent="selectedServiceEventHandler" />
-              </div>
-            </div>
-          </div>
-          <!-- <TrustedIssuer @selectedServiceEventFromTrustedIssuer="selectedServiceEventHandler" /> -->
-        </li>
       </ul>
-    </b-card>
+    </div>
 
 
 
@@ -499,17 +504,18 @@ export default {
           label: "Enable User Consent",
           description: 'Specify a reason for requesting user KYC data. This information will be displayed on the user consent screen in the KYC widget, helping users understand who is requesting their data and why. Read more <b><a href="https://docs.hypersign.id/hypersign-kyc/integrations/widget-configuration#user-consent" target="_blank">here</a></b>.'
         },
+        
+        trustedIssuer: {
+          label: "Configure Trusted Issuer(s)",
+          description: 'Select one or more trusted issuers, with the default being "self". This pertains to Reusable ID. If configured, users who already possess KYC credentials issued by these trusted issuers in their data vault will not need to repeat the KYC steps in the widget. They can simply authorize the sharing of their existing credentials with your app, streamlining user onboarding for your company and providing a smoother experience for your users. Read more <b><a href="https://docs.hypersign.id/hypersign-kyc/integrations/widget-configuration#trusted-issuer" target="_blank">here</a></b>.'
+        },
         onChainId: {
           label: "Enable Onchain KYC",
           description: "Enable users to mint SBT of their credentials in a privacy preserving manner and verify on configured blockchain"
         },
         zkProof: {
-          label: "Enable ZK Proof",
+          label: "Enable Zero Knowledge Proof",
           description: 'Enable users to share only proof of their data for enhanced data privacy and compliance. Read more <b><a href="https://docs.hypersign.id/hypersign-kyc/integrations/widget-configuration#id-document-verification" target="_blank">here</a></b>.'
-        },
-        trustedIssuer: {
-          label: "Configure Trusted Issuer(s)",
-          description: 'Select one or more trusted issuers, with the default being "self". This pertains toreusable KYC. If configured, users who already possess KYC credentials issued by these trusted issuers in their data vault will not need to repeat the KYC steps in the widget. They can simply authorize the sharing of their existing credentials with your app, streamlining user onboarding for your company and providing a smoother experience for your users. Read more <b><a href="https://docs.hypersign.id/hypersign-kyc/integrations/widget-configuration#trusted-issuer" target="_blank">here</a></b>.'
         },
       },
       fullPage: true,
@@ -550,6 +556,10 @@ export default {
         {
           value: 'passport',
           text: "Passport"
+        },
+         {
+          value: 'govId',
+          text: "Government ID"
         },
       ],
 

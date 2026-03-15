@@ -6,6 +6,7 @@ import CredentialStatus from './views/playground/CredentialStatus.vue'
 import OnboardingStepper from './components/stepper/OnboardingStepper.vue'
 import EventBus from './eventbus.js';
 import store from './store'
+
 const Home = () => import('./views/Home.vue');
 const PKIIdLogin = () => import('./views/PKIIdLogin.vue')
 const MainDashboard = () => import('./views/Dashboard.vue')
@@ -30,6 +31,7 @@ const GettingStarted = () => import('./views/GettingStarted.vue')
 const ServiceConfig = () => import('./views/ServiceConfig.vue')
 const AccessDenied = () => import('./views/AccessDenied.vue')
 const UserAnalytics = () => import('./views/analytics/UserAnalytics.vue')
+const ReusableIdentity = () => import('./views/solutions/ReusableIdentity.vue')
 Vue.use(Router)
 
 const router = new Router({
@@ -264,7 +266,16 @@ const router = new Router({
       component: KYCWebpageGenerator,
       meta: {
         requiresAuth: true,
-        title: `${config.app.name} - KYC Verifier Configuration`
+        title: `${config.app.name} - ID Verifier Configuration`
+      }
+    },
+    {
+      path: '/studio/solutions/reusable-id/:appId',
+      name: 'ReusableIdentity',
+      component: ReusableIdentity,
+      meta: {
+        requiresAuth: true,
+        title: `${config.app.name} - Reusable Identity Configuration`
       }
     },
     {

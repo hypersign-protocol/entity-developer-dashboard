@@ -1,65 +1,55 @@
 <template>
     <b-container fluid class="py-3">
-        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap">
-            <!-- <h3 class="mb-0 d-flex align-items-center">
-                <i class="mdi mdi-cog-outline text-primary mr-2"></i>
-                App Configuration
-            </h3> -->
-            <div style="display:flex">
-                <h3 style="text-align: left;">
-                    App Configuration </h3>
+        
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
+            <div>
+                <h4 class="mb-1 font-weight-bold mb-0">App Configuration</h4>
+                <p class="text-muted small mb-0">Manage platform environment and identity settings</p>
             </div>
 
             <div class="d-flex align-items-center flex-wrap mt-2 mt-md-0">
-                <!-- Environment toggle buttons -->
-
-
-                <div class="d-flex align-items-center mr-3">
-                    <!-- Show radio buttons only when not editing -->
+                <div class="mr-3">
                     <b-form-radio-group v-if="isEditing" v-model="isProd" :options="[
-                        { text: 'Prod', value: true },
-                        { text: 'Dev', value: false }
-                    ]" size="sm" name="env-toggle" class="mb-0 d-flex align-items-center"></b-form-radio-group>
+                        { text: 'PRODUCTION', value: true },
+                        { text: 'DEVELOPMENT', value: false }
+                    ]" size="sm" name="env-toggle" class="custom-env-toggle"></b-form-radio-group>
 
                     <span v-else class="status-badge" :class="isProd ? 'status-active' : 'status-warning'">
-                        {{ isProd ? 'Prod' : 'Dev' }}
+                        {{ isProd ? 'Production' : 'Development' }}
                     </span>
                 </div>
 
-
-                <!-- Edit / Save / Cancel buttons -->
-                <div>
-                    <hf-buttons v-if="!isEditing" name="Edit" @executeAction="startEdit()" style="float:right"
+                <div class="d-flex align-items-center">
+                    <template v-if="!isEditing">
+                        <hf-buttons  name="Edit" @executeAction="startEdit()" 
                         iconClass="mdi mdi-pencil mr-1">
-                    </hf-buttons>
+                        </hf-buttons>
+                        <hf-buttons title="Delete the application" name="" @executeAction="openDeleteServicePopUp()" iconClass="fa fa-trash-alt"
+                                style="margin-left: 8px; color: red">
+                        </hf-buttons>
+                    </template>
+                    
                     <template v-else>
                         <hf-buttons name="Save" @executeAction="saveChanges()" iconClass="mdi mdi-content-save mr-1">
                         </hf-buttons>
-                        <!-- <hf-buttons name="Cancel" @executeAction="cancelEdit()" iconClass="mdi mdi-close"
-                            style="margin-left: 5px">
-                        </hf-buttons> -->
-                        <hf-buttons name="Delete" @executeAction="openDeleteServicePopUp()" iconClass="fa fa-trash-alt"
-                            style="margin-left: 5px">
-                        </hf-buttons>
-                        <button type="button" class="btn btn-link" @click="resetDeleteServicePopUp()" style="margin-left: 5px"><i class="mdi mdi-close" aria-hidden="true"></i> Cancel</button>
                         
-                        <!-- <hf-buttons class="mx-1" @click.stop="openDeleteServicePopUp()"
-                          title="Click to delete the app" style="cursor: pointer; color: red">
-                          <i class="fa fa-trash-alt" aria-hidden="true"></i>
-                        </hf-buttons> -->
+                        <button type="button" class="btn btn-link text-muted" @click="resetDeleteServicePopUp()" style="margin-left: 8px">
+                            Cancel
+                        </button>
                     </template>
-                    
                 </div>
-
             </div>
         </div>
+        
         <b-card class="serviceCard">
             <b-form>
                 <b-row>
+                
                     <b-col md="6">
-                        <b-form-group label="App ID">
+                        <b-form-group label="APPLICATION ID">
+
                             <b-input-group>
-                                <b-form-input v-model="formData.appId" :readonly="!isEditing" />
+                                <b-form-input v-model="formData.appId" :readonly="!isEditing" class="custom-input" />
                                 <b-input-group-append>
                                     <b-button variant="outline-secondary" size="sm"
                                         @click="copyToClip(formData.appId, 'App ID')" title="Copy App ID">
@@ -70,49 +60,30 @@
                         </b-form-group>
                     </b-col>
                     <b-col md="6">
-                        <b-form-group label="App Name">
-                            <b-form-input v-model="formData.appName" :readonly="!isEditing" />
+                        <b-form-group label="APPLICATION NAME">
+                            <b-form-input v-model="formData.appName" :readonly="!isEditing" class="custom-input" />
                         </b-form-group>
                     </b-col>
 
                     
                     
                     <b-col cols="6">
-                        <b-form-group label="Logo">
+                        <b-form-group label="UPLOAD LOGO">
                             <LogoUploader v-model="formData.logoUrl" />
                         </b-form-group>
                     </b-col>
                     <b-col cols="6">
-                        <b-form-group label="Description">
-                            <b-form-textarea v-model="formData.description" :readonly="!isEditing" rows="3" />
+                        <b-form-group label="DESCRIPTION">
+                            <b-form-textarea v-model="formData.description" :readonly="!isEditing" rows="3" class="custom-input" />
                         </b-form-group>
                     </b-col>
 
-                    <b-col md="6">
-                        <b-form-group label="Subdomain">
-                            <b-form-input v-model="formData.subdomain" :readonly="!isEditing" />
-                        </b-form-group>
-                    </b-col>
-
-                    <b-col md="6">
-                        <b-form-group label="Tenant URL">
-                            <b-input-group>
-                                <b-form-input v-model="formData.tenantUrl" :readonly="!isEditing" />
-                                <b-input-group-append>
-                                    <b-button variant="outline-secondary" size="sm"
-                                        @click="copyToClip(formData.tenantUrl, 'Tenant URL')" title="Copy Tenant URL">
-                                        <i class="mdi mdi-content-copy"></i>
-                                    </b-button>
-                                </b-input-group-append>
-                            </b-input-group>
-                        </b-form-group>
-                    </b-col>
-
+                     
                     <b-col cols="6">
-                        <b-form-group label="Domain">
+                        <b-form-group label="DOMAIN">
                             <b-input-group>
                                 <b-form-input v-model="formData.domain" :readonly="!isEditing"
-                                    placeholder="Enter domain" />
+                                    placeholder="Enter your domain"  class="custom-input" />
 
                                 <!-- Case 1: Domain verified -->
                                 <b-input-group-append v-if="formData.hasDomainVerified">
@@ -174,52 +145,18 @@
                     </b-col>
 
                     <b-col md="6">
-                        <b-form-group label="Encrypted Data Vault Id">
-                            <b-form-input v-model="formData.edvId" :readonly="!isEditing" />
+                        <b-form-group label="ENCRYPTED DATA VAULT (EDV) ID">
+                            <b-form-input v-model="formData.edvId" :readonly="!isEditing" class="custom-input" />
                         </b-form-group>
                     </b-col>
 
 
 
-                    <!-- <b-col md="6">
-                        <b-form-group label="Wallet Address">
-                            <b-form-input v-model="formData.walletAddress" :readonly="!isEditing" />
-                        </b-form-group>
-                    </b-col> -->
-
-                    <!-- <b-col md="6">
-                        <b-form-group label="Environment">
-                            <b-form-select v-model="formData.env" :disabled="!isEditing"
-                                :options="['dev', 'staging', 'prod']" />
-                        </b-form-group>
-                    </b-col> -->
-
-
-
-                    <!-- Services Section -->
-                    <!--<b-col cols="12" class="mt-3">
-                        <h5><i class="mdi mdi-api mr-1"></i>Services</h5>
-                        <b-table small bordered hover :items="formData.services" :fields="serviceFields" />
-                    </b-col>-->
-
-                    <!-- Dependent Services -->
-                    <!-- <b-col cols="12" class="mt-3">
-                        <h5><i class="mdi mdi-link-variant mr-1"></i>Dependent Services</h5>
-                        <b-badge v-for="dep in formData.dependentServices" :key="dep" variant="info" class="mr-2 mb-2">
-                            {{ dep }}
-                        </b-badge>
-                    </b-col> -->
 
                     <!-- DID Configuration -->
-                    <b-col cols="12">
-                        <div class="d-flex align-items-center my-2">
-                            <span class="text-muted mr-2" style="font-size: 0.75rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;">DID Configuration</span>
-                            <hr class="flex-grow-1 my-0" />
-                        </div>
-                    </b-col>
 
                     <b-col md="6">
-                        <b-form-group label="Issuer DID">
+                        <b-form-group label="ISSUER DID">
                             <b-form-select v-if="isEditing" v-model="formData.issuerDid" @change="resolveDid($event)">
                                 <b-form-select-option value="">— Select a DID —</b-form-select-option>
                                 <b-form-select-option
@@ -230,7 +167,7 @@
                                 </b-form-select-option>
                             </b-form-select>
                             <b-input-group v-else>
-                                <b-form-input v-model="formData.issuerDid" readonly />
+                                <b-form-input v-model="formData.issuerDid" readonly class="custom-input" />
                                 <b-input-group-append v-if="formData.issuerDid">
                                     <b-button variant="outline-secondary" size="sm"
                                         @click="copyToClip(formData.issuerDid, 'Issuer DID')" title="Copy Issuer DID">
@@ -242,7 +179,7 @@
                     </b-col>
 
                     <b-col md="6">
-                        <b-form-group label="Verification Method">
+                        <b-form-group label="ISSUER VERIFICATION METHOD ID">
                             <!-- Edit mode: select showing vm.id (vm.type) -->
                             <b-form-select v-if="isEditing" v-model="formData.issuerVerificationMethodId" :disabled="!formData.issuerDid">
                                 <b-form-select-option value="">
@@ -258,7 +195,7 @@
                             <!-- View mode: ID input + type chip below -->
                             <template v-else>
                                 <b-input-group v-if="formData.issuerVerificationMethodId">
-                                    <b-form-input v-model="formData.issuerVerificationMethodId" readonly />
+                                    <b-form-input v-model="formData.issuerVerificationMethodId" readonly  class="custom-input"/>
                                     <b-input-group-append>
                                         <b-button variant="outline-secondary" size="sm"
                                             @click="copyToClip(formData.issuerVerificationMethodId, 'Verification Method ID')"
@@ -272,7 +209,7 @@
                                         <i class="mdi mdi-key-variant mr-1"></i>{{ selectedVerificationMethodType }}
                                     </span>
                                 </div>
-                                <b-form-input v-if="!formData.issuerVerificationMethodId" readonly placeholder="No verification method set" />
+                                <b-form-input v-if="!formData.issuerVerificationMethodId" readonly placeholder="No verification method set" class="custom-input" />
                             </template>
                         </b-form-group>
                     </b-col>
@@ -280,8 +217,8 @@
 
 
                     <b-col cols="12">
-                        <b-form-group label="Whitelisted CORS">
-                            <b-form-textarea v-model="corsDisplay" :readonly="!isEditing" rows="3" />
+                        <b-form-group label="WHITELISTED CORS">
+                            <b-form-textarea v-model="corsDisplay" :readonly="!isEditing" rows="3" class="custom-input" />
                         </b-form-group>
                     </b-col>
                 </b-row>
@@ -315,6 +252,35 @@
         </hf-pop-up>
     </b-container>
 </template>
+
+<style scoped>
+/* Field Styling */
+.custom-input {
+    border: 1px solid #e2e8f0;
+    border-radius: 0.5rem;
+    padding: 0.6rem 0.8rem;
+    font-size: 0.9rem;
+}
+
+.custom-input-sm {
+    border: 1px solid #e2e8f0;
+    border-radius: 0.4rem;
+    font-size: 0.85rem;
+    height: 34px;
+}
+
+/* .status-badge {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #fff;
+}
+
+.status-active { background-color: #3b82f6; }
+.status-warning { background-color: #f59e0b; } */
+
+</style>
 
 <script>
 import HfPopUp from "../components/element/hfPopup.vue";

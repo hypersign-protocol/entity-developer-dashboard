@@ -19,8 +19,9 @@ export const NAV = {
     },
     SOLUTIONS: {
         TITLE: "Solutions",
-        KYC_VERIFIER_CONFIGURATION: "KYC Verifier",
+        KYC_VERIFIER_CONFIGURATION: "ID Verifier",
         KYB_VERIFIER_CONFIGURATION: "Business Verifier",
+        RESUABLE_ID: "Reusable ID",
     },
     BILLING_AND_USAGE: {
         TITLE: "Billing & Usage",

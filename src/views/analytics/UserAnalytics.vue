@@ -4,11 +4,9 @@
             <!-- Left Column -->
             <v-col cols="12">
                 <div class="d-flex justify-content-between align-items-center">
-                    <h4 class="font-weight-bold mb-0">User Analytics</h4>
-                    <div class="d-flex align-items-center">
-                        <b-form-checkbox v-model="isProd" switch size="sm" @change="handleEnvironmentChange">
-                            Prod
-                        </b-form-checkbox>
+                    <div>
+                        <h4 class="mb-1 font-weight-bold mb-0">User Analytics</h4>
+                        <p class="text-muted small mb-0">View user engagement and behavior data</p>
                     </div>
                 </div>
             </v-col>
@@ -67,13 +65,3 @@ export default {
 };
 </script>
 
-<style scoped>
-/* .getting-started {
-  background-color: #fff;
-  font-family: "Inter", sans-serif;
-}
-
-.font-weight-500 {
-  font-weight: 500;
-} */
-</style>
