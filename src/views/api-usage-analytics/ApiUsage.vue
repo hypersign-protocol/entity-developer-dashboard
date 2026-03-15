@@ -1,18 +1,16 @@
 <template>
   <v-container>
-    <v-row align="center">
-      <v-col cols="12" md="6">
-        <h4 class="font-weight-bold mb-0">API Usage Analytics</h4>
-        <p class="text-subtitle-2 text-muted">Monitor consumption and service costs</p>
+    <v-row>
+      <v-col>
+        <div class="form-group" style="display:flex">
+          <div>
+            <h4 class="font-weight-bold mb-0">API Usage Analytics</h4>
+            <p class="text-subtitle-2 text-muted">Monitor consumption and service costs</p>
+          </div>
+        </div>
+        
       </v-col>
-      <v-col cols="12" md="6" >
-        <!-- <v-menu v-model="menu1" :close-on-content-click="false" transition="scale-transition" offset-y min-width="auto">
-          <template v-slot:activator="{ on, attrs }">
-            <v-text-field v-model="dates" label="Date Range" prepend-icon="mdi-calendar" readonly v-bind="attrs" v-on="on" dense outlined hide-details class="max-width-300"></v-text-field>
-          </template>
-          <v-date-picker v-model="dates" range @change="handleDateChange"></v-date-picker>
-        </v-menu> -->
-
+      <v-col>
         <div class="date-picker-group d-flex align-center">
           <b-form-datepicker
             v-model="startDate"
@@ -42,7 +40,7 @@
         <div class="overview-container h-100">
           <div class="header-row">
             <div class="title-group">
-              <h3 class="title">Daily Trend</h3>
+              <h5 class="title">DAILY TRENDS</h5>
               <p class="subtitle">API call volume over time</p>
             </div>
           </div>
@@ -57,7 +55,7 @@
         <div class="overview-container h-100">
           <div class="header-row">
             <div class="title-group">
-              <h3 class="title">Usage by Endpoint</h3>
+              <h5 class="title">USAGE BY ENDPOINT</h5>
               <p class="subtitle">Top consumed services</p>
             </div>
           </div>
@@ -73,7 +71,7 @@
       <v-col cols="12">
         <div class="overview-container">
           <div class="header-row">
-            <h3 class="title">API Cost Breakdown</h3>
+            <h5 class="title">API COST BREAKDOWN</h5>
             <!-- <span class="badge">Billing Period</span> -->
           </div>
           <div v-if="loading" class="loading-list p-4 text-center">
