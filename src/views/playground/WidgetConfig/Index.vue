@@ -326,6 +326,20 @@ ul {
             </div>
           </div>
         </li>
+        <li class="list-group-item">
+          <div class="row">
+            <div class="col-md-6">
+              <b-form-checkbox
+                switch
+                size="lg"
+                v-model="widgetConfigTemp.isEmailNotificationEnabled"
+              >
+                {{ widgetConfigUI.emailNotification.label }}
+              </b-form-checkbox>
+              <small v-html="widgetConfigUI.emailNotification.description"></small>
+            </div>
+          </div>
+        </li>
       </ul>
     </div>
 
@@ -517,6 +531,10 @@ export default {
           label: "Enable Zero Knowledge Proof",
           description: 'Enable users to share only proof of their data for enhanced data privacy and compliance. Read more <b><a href="https://docs.hypersign.id/hypersign-kyc/integrations/widget-configuration#id-document-verification" target="_blank">here</a></b>.'
         },
+        emailNotification: {
+           label: "Enable Email Notifications",
+           description: "Notify users via email regarding the status of their ID verification. When enabled, users will receive automated updates upon the successful completion or rejection of their verification attempt."
+        },
       },
       fullPage: true,
       isLoading: false,
@@ -544,6 +562,7 @@ export default {
           proofs: []
         },
         trustedIssuer: true,
+        isEmailNotificationEnabled: true,
         issuerDID: "",
         issuerVerificationMethodId: "",
       },
