@@ -35,9 +35,10 @@
               Services help you manage your applications and APIs. Create your first
               service to get started.
             </p>
-    <div style="display:flex; justify-content:center; gap:12px; margin-top:12px;">
+    <div style="text-align:center; margin-top:12px;">
       <b-dropdown split text="Create Service" variant="outline-dark" @click="openSlider('SSI_API')"
         menu-class="dropDownPopup"
+        style="margin-right:10px;"
       >
         <b-dropdown-item @click="openSlider('SSI_API')">SSI Service</b-dropdown-item>
         <b-dropdown-item @click="openSlider('CAVACH_API')">KYC Service</b-dropdown-item>
