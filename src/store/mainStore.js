@@ -1878,7 +1878,7 @@ const mainStore = {
                 RequestHandler(url, 'POST', payload, headers)
                     .then(json => {
                         if (json.error) {
-                          return reject(new Error(json.message));
+                           return reject(new Error(json.message));
                         }
                 commit('setKYCWebpageConfig', json);
                 resolve(json);
