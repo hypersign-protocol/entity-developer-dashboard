@@ -3,13 +3,13 @@
     
     <HfPopUp id="credit-request-confirmation-popup" Header="Credit Request Confirmation">
       <div>
-        <p style="color: #ff5400de">
+        <p style="color: #8B0000">
           By proceeding, your request to activate ID Services will be formally submitted for administrative review. Our compliance team will assess the details you have provided, including company or community information and associated social profiles.
         </p>
-        <p style="color: #ff5400de">
+        <p style="color: #8B0000">
           Following approval, the system will automatically provision your ID Services and allocate the corresponding credits. You will be able to monitor the status of this process on the subsequent screens. Please note that the end-to-end activation may require up to 24 hours for completion.
 </p>
-<p style="color: #ff5400de">
+<p style="color: #8B0000">
           An email notification will be sent once your request has been approved. You may also log in to the platform at any time to review the progress of your submission.
         </p>
         <div class="text-center mt-3">
