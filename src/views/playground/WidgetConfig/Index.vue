@@ -446,7 +446,7 @@ export default {
       this.widgetConfigTemp = JSON.parse(JSON.stringify(this.widgetConfig))
     }
 
-    this.trustedIssuersList = this.getMarketPlaceApps;
+    this.trustedIssuersList = [...this.getMarketPlaceApps];
     this.appId = this.$route.params.appId;
     //eslint-disable-next-line
     if (this.appId) {
@@ -462,6 +462,11 @@ export default {
         if (!this.getMarketPlaceApps.find(x => x.appId == this.app.appId)) {
           this.trustedIssuersList.push({ ...this.app })
         }
+         this.trustedIssuersList.sort((a, b) => {
+          if (a.appId === this.appId) return -1;
+          if (b.appId === this.appId) return 1;
+          return 0;
+        });
       } else {
         console.error("No app found");
       }
