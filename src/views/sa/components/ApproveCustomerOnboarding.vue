@@ -198,7 +198,6 @@ export default {
     
     ...mapActions("mainStore", ["approveOnboardingRequest"]),
     async submitOnboarding() {
-      try{
 
         if (!this.recordId) {
         this.setError("Please provide a Record ID.");
@@ -207,13 +206,21 @@ export default {
 
         this.loading = true;
         this.message = '';
-        await this.approveOnboardingRequest({ recordId: this.recordId, ssiCreditDetail: this.form.ssiCreditDetail, kycCreditDetail: this.form.kycCreditDetail })
         this.isError = false;
-        this.message = "Customer onboarded successfully!";
+      try{
+        await this.approveOnboardingRequest({
+          recordId: this.recordId,
+          ssiCreditDetail: this.form.ssiCreditDetail,
+          kycCreditDetail: this.form.kycCreditDetail
+        });
 
-      }catch(e) {
-        this.setError(e.message)
-      }
+        this.message = "Customer onboarded successfully!";
+      } catch (e) {
+        this.setError(e.message);
+      } finally {
+        this.loading = false; 
+  }
+
     },
     setError(msg) {
       this.isError = true;
