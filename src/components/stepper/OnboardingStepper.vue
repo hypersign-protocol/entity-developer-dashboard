@@ -101,7 +101,7 @@ export default {
       ];
       return components[this.currentStep - 1] || StepCompletion;
     },
-    aSuperAdminUser() {
+    isSuperAdminUser() {
     return this.getUserDetails?.role === "SUPER_ADMIN";
   }
   },
@@ -120,7 +120,7 @@ export default {
   methods: {
     checkExistingOnboarding() {
       this.isLoading = true;
-      const isSuperAdmin = this.aSuperAdminUser;
+      const isSuperAdmin = this.isSuperAdminUser;
       // 🔥 IMPORTANT: Skip onboarding check for super admin
       if (isSuperAdmin) {
         this.isLoading = false;
