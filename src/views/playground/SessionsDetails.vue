@@ -262,8 +262,8 @@ h3 {
                 </v-list-item>
             </v-card>
 
-            <v-card class="serviceCard dataCard float-" 
-                v-if="userPersonalDataGovIdFromUserConsent && Object.keys(userPersonalDataGovIdFromUserConsent).length > 0">
+            <v-card  id="personal-info-gov" class="serviceCard dataCard float-" 
+                v-if="Object.keys(userPersonalDataFromUserConsent).length === 0 && Object.keys(userPersonalDataGovIdFromUserConsent).length > 0">
                 <v-list-item three-line>
                     <v-list-item-content>
                         <v-list-item-title class="text-h6 font-weight-bold mb-3">
@@ -900,6 +900,7 @@ export default {
         async downloadKYCReport() {
             try {
                 this.isLoading = true
+                await this.$nextTick();
                 const pdf = new jsPDF('p', 'mm', 'a4');
                 const pageWidth = pdf.internal.pageSize.getWidth();
                 const pageHeight = pdf.internal.pageSize.getHeight();
@@ -915,7 +916,8 @@ export default {
                 };
 
                 const cardIds = [
-                    // 'timelines-info',
+                    // 'timelines-info','
+                     'personal-info-gov',
                     'personal-info',
                     'device-info',
                     'location-info',
@@ -935,7 +937,6 @@ export default {
                 // pdf.text(`Status: ${metadata.status}`, margin, 43);
 
                 let verticalOffset = 50;
-
                 for (const id of cardIds) {
 
                     const card = document.getElementById(id);
@@ -1031,38 +1032,21 @@ export default {
                 tx_explorer: config.txExplorer.txUrl
             }
         },
-        getCredentialSubjectByType(type = "PassportCredential") {
-
-            console.log('Inside getCredentialSubjectByType ' + type)
+        getCredentialSubjectByType(type) {
             if (this.userConsentDataFound) {
-                const presentationStr = this.session.userConsentDetails.presentation
-                console.log(this.session.userConsentDetails)
-                // console.log('Before parsing. ' + presentationStr)
+                const presentationStr = this.session.userConsentDetails.presentation;
                 if (presentationStr) {
+                    const presentation = JSON.parse(presentationStr);
 
-                    const presentation = JSON.parse(presentationStr)
-                    if (presentation && Object.keys(presentation).length > 0) {
-                        const passportCredential = presentation.verifiableCredential.filter(x => x.type.includes(type))[0]
-                        console.log(passportCredential)
-                        if (passportCredential) {
-                            return passportCredential.credentialSubject
-                        } else {
-                            console.log('No passportCredential found')
-                            return {}
-                        }
-                    } else {
-                        console.log('Could not parse presentationStr')
-                        return {}
+                    if (presentation?.verifiableCredential?.length) {
+                        const credential = presentation.verifiableCredential.find(x =>
+                            x.type?.includes(type)
+                        );
+                    return credential?.credentialSubject || {};
                     }
-                } else {
-                    console.log('No presentationStr found')
-                    return {}
                 }
-            } else {
-                console.log('SBT data not found')
-
-                return {}
             }
+            return {};
         },
         zoomDocument(place) {
             this.popupHeader = place
