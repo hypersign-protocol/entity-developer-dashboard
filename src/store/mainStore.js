@@ -874,58 +874,52 @@ const mainStore = {
             return new Promise((resolve, reject) => {
                 const { appId } = payload;
                 if (!appId) {
-                    reject(new Error(`appId is not specified`))
+                    reject(new Error(`appId is not specified`));
+                    return;
                 }
                 const url = `${apiServerBaseUrl}/app/${appId}`;
                 const headers = UtilsMixin.methods.getHeader(localStorage.getItem('authToken'));
                 delete payload.edvId
                 delete payload.apiKeyScecret
-                fetch(url, {
-                    method: 'PUT',
-                    headers,
-                    body: JSON.stringify(payload),
-                    credentials: 'include',
-                }).then(response => {
-                    return response.json()
-                }).then(json => {
-
-                    if (json.error) {
-                        reject(json)
-                    }
-                    else {
-                        commit('updateAnApp', json);
-                        resolve(json)
-                    }
-                }).catch(e => {
-                    reject(new Error(`while updating an app   ${e}`))
-                })
-            })
-
+                // Use RequestHandler instead of fetch
+                RequestHandler(url, 'PUT', payload, headers)
+                    .then(json => {
+                        if (json.error) {
+                            reject(json);
+                        } else {
+                            commit('updateAnApp', json);
+                            resolve(json);
+                        }
+                    })
+                    .catch(e => {
+                        reject(new Error(`while updating an app ${e}`));
+                    });
+            });
         },
 
         deleteAnAppOnServer: ({ dispatch }, payload) => {
             return new Promise((resolve, reject) => {
                 const { appId } = payload;
                 if (!appId) {
-                    reject(new Error(`appId is not specified`))
+                    reject(new Error(`appId is not specified`));
+                     return;
                 }
                 const url = `${apiServerBaseUrl}/app/${appId}`;
-                // const headers = UtilsMixin.methods.getHeader(localStorage.getItem('authToken'));
-                fetch(url, {
-                    method: 'DELETE',
-                    // headers,
-                    credentials: 'include',
-                }).then(response => response.json()).then(json => {
-                    if (json.error) {
-                        return reject(new Error(json.message.join(' ')))
-                    }
-                    dispatch('fetchAppsListFromServer')
-                    resolve(json)
-                }).catch((e) => {
-                    return reject(`Error while deleting this service ${appId} ` + e.message);
-                })
-            })
-        },
+
+                // Use RequestHandler instead of fetch
+                RequestHandler(url, 'DELETE')
+                        .then(json => {
+                            if (json.error) {
+                                return reject(new Error(json.message.join(' ')));
+                            }
+                            dispatch('fetchAppsListFromServer');
+                            resolve(json);
+                        })
+                        .catch((e) => {
+                            return reject(`Error while deleting this service ${appId} ` + e.message);
+                        });
+                });
+    },
 
 
         fetchAppsListFromServer: async ({ commit, dispatch }) => {
@@ -1874,109 +1868,98 @@ const mainStore = {
         createKYCWebpageConfig: ({ commit, getters }, payload) => {
             return new Promise((resolve, reject) => {
                 if (!getters.getSelectedService || !getters.getSelectedService.appId) {
-                    return reject(new Error('App ID is not available, service is not selected'))
+                    return reject(new Error('App ID is not available, service is not selected'));
                 }
+
                 const url = `${apiServerBaseUrl}/app/verifier?appId=${getters.getSelectedService.appId}`;
                 const headers = UtilsMixin.methods.getHeader(localStorage.getItem('authToken'));
 
-                fetch(url, {
-                    method: 'POST',
-                    headers,
-                    body: JSON.stringify( payload ),
-                    credentials: 'include'
-                }).then(response => response.json())
+                // Use RequestHandler instead of fetch
+                RequestHandler(url, 'POST', payload, headers)
                     .then(json => {
                         if (json.error) {
-                            return reject(new Error(json.message))
+                           return reject(new Error(json.message));
                         }
-                        commit('setKYCWebpageConfig', json);
-                        resolve(json)
-                    }).catch((e) => {
-                        return reject(`Error while creating KYC webpage configuration: ` + e.message);
-                    })
+                commit('setKYCWebpageConfig', json);
+                resolve(json);
+            })
+            .catch((e) => {
+                return reject(`Error while creating KYC webpage configuration: ` + e.message);
+            });
             });
         },
 
         fetchKYCWebpageConfig: ({ commit, getters }) => {
             return new Promise((resolve, reject) => {
                 if (!getters.getSelectedService || !getters.getSelectedService.appId) {
-                    return reject(new Error('App ID is not available, service is not selected'))
+                    return reject(new Error('App ID is not available, service is not selected'));
                 }
                 const url = `${apiServerBaseUrl}/app/${getters.getSelectedService.appId}/verifier?pageType=kyc`;
                 const headers = UtilsMixin.methods.getHeader(localStorage.getItem('authToken'));
 
-                return fetch(url, {
-                    method: 'GET',
-                    headers,
-                    credentials: 'include'
-                }).then(response => response.json()).then(json => {
+                RequestHandler(url, 'GET', {}, headers)
+                .then(json => {
                     if (json) {
                         if (json.error) {
-                            return reject(new Error(json.message))
+                            return reject(new Error(json.message));
                         } else {
                             if (json.expiryType === 'custom' && json.expiryDate) {
                                 json.customExpiryDate = json.expiryDate.split('T')[0];
                             }
                             commit('setKYCWebpageConfig', json);
-                            return resolve()
+                            return resolve();
                         }
                     } else {
-                        return resolve()
+                        return resolve();
                     }
-                }).catch((e) => {
-                    return reject(`Error while fetching KYC webpage configuration: ` + e.message);
                 })
-            });
+                .catch((e) => {
+                    return reject(`Error while fetching KYC webpage configuration: ` + e.message);
+                });
+        });
         },
 
         updateKYCWebpageConfig: ({ commit, getters }, payload) => {
             return new Promise((resolve, reject) => {
                 if (!getters.getSelectedService || !getters.getSelectedService.appId) {
-                    return reject(new Error('App ID is not available, service is not selected'))
+                    return reject(new Error('App ID is not available, service is not selected'));
                 }
                 const url = `${apiServerBaseUrl}/app/verifier/${payload._id}?appId=${getters.getSelectedService.appId}`;
                 const headers = UtilsMixin.methods.getHeader(localStorage.getItem('authToken'));
 
-                fetch(url, {
-                    method: 'PATCH',
-                    headers,
-                    body: JSON.stringify(payload),
-                    credentials: 'include'
-                }).then(response => response.json())
+                RequestHandler(url, 'PATCH', payload, headers)
                     .then(json => {
                         if (json.error) {
-                            return reject(new Error(json.message))
+                            return reject(new Error(json.message));
                         }
                         commit('setKYCWebpageConfig', json);
-                        resolve(json)
-                    }).catch((e) => {
-                        return reject(`Error while updating KYC webpage configuration: ` + e.message);
+                        resolve(json);
                     })
+                    .catch((e) => {
+                        return reject(`Error while updating KYC webpage configuration: ` + e.message);
+                    });
             });
         },
 
         deleteKYCWebpageConfig: ({ commit, getters }, payload) => {
             return new Promise((resolve, reject) => {
                 if (!getters.getSelectedService || !getters.getSelectedService.appId) {
-                    return reject(new Error('App ID is not available, service is not selected'))
+                    return reject(new Error('App ID is not available, service is not selected'));
                 }
                 const url = `${apiServerBaseUrl}/app/verifier/${payload._id}?appId=${getters.getSelectedService.appId}`;
                 const headers = UtilsMixin.methods.getHeader(localStorage.getItem('authToken'));
 
-                fetch(url, {
-                    method: 'DELETE',
-                    headers,
-                    credentials: 'include'
-                }).then(response => response.json())
+                RequestHandler(url, 'DELETE', {}, headers)
                     .then(json => {
                         if (json.error) {
-                            return reject(new Error(json.message))
+                            return reject(new Error(json.message));
                         }
                         commit('setKYCWebpageConfig', {});
-                        resolve({ success: true })
-                    }).catch((e) => {
-                        return reject(`Error while deleting KYC webpage configuration: ` + e.message);
+                        resolve({ success: true });
                     })
+                    .catch((e) => {
+                        return reject(`Error while deleting KYC webpage configuration: ` + e.message);
+                    });
             });
         },
 
@@ -2014,113 +1997,98 @@ const mainStore = {
         createKYBWebpageConfig: ({ commit, getters }, payload) => {
             return new Promise((resolve, reject) => {
                 if (!getters.getSelectedService || !getters.getSelectedService.appId) {
-                    return reject(new Error('App ID is not available, service is not selected'))
+                    return reject(new Error('App ID is not available, service is not selected'));
                 }
                 const url = `${apiServerBaseUrl}/app/verifier?appId=${getters.getSelectedService.appId}`;
                 const headers = UtilsMixin.methods.getHeader(localStorage.getItem('authToken'));
 
-                fetch(url, {
-                    method: 'POST',
-                    headers,
-                    body: JSON.stringify(payload),
-                    credentials: 'include'
-                }).then(response => response.json())
+                RequestHandler(url, 'POST', payload, headers)
                     .then(json => {
                         if (json.error) {
-                            return reject(new Error(json.message))
+                            return reject(new Error(json.message));
                         }
                         commit('setKYBWebpageConfig', json);
-                        resolve(json)
-                    }).catch((e) => {
-                        return reject(`Error while creating KYB webpage configuration: ` + e.message);
+                        resolve(json);
                     })
+                    .catch((e) => {
+                        return reject(`Error while creating KYB webpage configuration: ` + e.message);
+                    });
             });
         },
 
         fetchKYBWebpageConfig: ({ commit, getters }) => {
             return new Promise((resolve, reject) => {
                 if (!getters.getSelectedService || !getters.getSelectedService.appId) {
-                    return reject(new Error('App ID is not available, service is not selected'))
+                    return reject(new Error('App ID is not available, service is not selected'));
                 }
                 const url = `${apiServerBaseUrl}/app/${getters.getSelectedService.appId}/verifier?pageType=kyb`;
                 const headers = UtilsMixin.methods.getHeader(localStorage.getItem('authToken'));
 
-                return fetch(url, {
-                    method: 'GET',
-                    headers,
-                    credentials: 'include'
-                }).then(response => response.json()).then(json => {
-                    if (json) {
-                        if (json.error) {
-                            return reject(new Error(json.message))
-                        } else {
-                            if (json.expiryType === 'custom' && json.expiryDate) {
-                                json.customExpiryDate = json.expiryDate.split('T')[0];
+                RequestHandler(url, 'GET', {}, headers)
+                    .then(json => {
+                        if (json) {
+                            if (json.error) {
+                                return reject(new Error(json.message));
+                            } else {
+                                if (json.expiryType === 'custom' && json.expiryDate) {
+                                    json.customExpiryDate = json.expiryDate.split('T')[0];
+                                }
+                                commit('setKYBWebpageConfig', json);
+                                return resolve();
                             }
-                            commit('setKYBWebpageConfig', json);
-                            return resolve()
+                        } else {
+                            return resolve();
                         }
-                    } else {
-                        return resolve()
-                    }
-                }).catch((e) => {
-                    return reject(`Error while fetching KYB webpage configuration: ` + e.message);
-                })
+                    })
+                    .catch((e) => {
+                        return reject(`Error while fetching KYB webpage configuration: ` + e.message);
+                    });
             });
         },
 
         updateKYBWebpageConfig: ({ commit, getters }, payload) => {
             return new Promise((resolve, reject) => {
                 if (!getters.getSelectedService || !getters.getSelectedService.appId) {
-                    return reject(new Error('App ID is not available, service is not selected'))
+                    return reject(new Error('App ID is not available, service is not selected'));
                 }
                 const url = `${apiServerBaseUrl}/app/verifier/${payload._id}?appId=${getters.getSelectedService.appId}`;
                 const headers = UtilsMixin.methods.getHeader(localStorage.getItem('authToken'));
 
-                fetch(url, {
-                    method: 'PATCH',
-                    headers,
-                    body: JSON.stringify(payload),
-                    credentials: 'include'
-                }).then(response => response.json())
+                RequestHandler(url, 'PATCH', payload, headers)
                     .then(json => {
                         if (json.error) {
-                            return reject(new Error(json.message))
+                            return reject(new Error(json.message));
                         }
                         commit('setKYBWebpageConfig', json);
-                        resolve(json)
-                    }).catch((e) => {
-                        return reject(`Error while updating KYB webpage configuration: ` + e.message);
+                        resolve(json);
                     })
+                    .catch((e) => {
+                        return reject(`Error while updating KYB webpage configuration: ` + e.message);
+                    });
             });
         },
 
         deleteKYBWebpageConfig: ({ commit, getters }, payload) => {
             return new Promise((resolve, reject) => {
                 if (!getters.getSelectedService || !getters.getSelectedService.appId) {
-                    return reject(new Error('App ID is not available, service is not selected'))
+                    return reject(new Error('App ID is not available, service is not selected'));
                 }
                 const url = `${apiServerBaseUrl}/app/verifier/${payload._id}?appId=${getters.getSelectedService.appId}`;
                 const headers = UtilsMixin.methods.getHeader(localStorage.getItem('authToken'));
 
-                fetch(url, {
-                    method: 'DELETE',
-                    headers,
-                    credentials: 'include'
-                }).then(response => response.json())
+                RequestHandler(url, 'DELETE', {}, headers)
                     .then(json => {
                         if (json.error) {
-                            return reject(new Error(json.message))
+                            return reject(new Error(json.message));
                         }
                         commit('setKYBWebpageConfig', {});
-                        resolve({ success: true })
-                    }).catch((e) => {
-                        return reject(`Error while deleting KYB webpage configuration: ` + e.message);
+                        resolve({ success: true });
                     })
+                    .catch((e) => {
+                        return reject(`Error while deleting KYB webpage configuration: ` + e.message);
+                    });
             });
         },
-
-
         fetchSessionsDetailsById: ({ getters }, payload) => {
             return new Promise((resolve, reject) => {
                 const { sessionId, env } = payload
