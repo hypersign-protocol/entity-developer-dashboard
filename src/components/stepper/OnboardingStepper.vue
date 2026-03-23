@@ -43,6 +43,7 @@ import StepCompletion from "./StepCompletion.vue";
 import StepCompanyPreview from "./StepCompanyPreview.vue";
 import StepAddTeam from './StepAddTeam.vue'
 import config from '../../config'
+import { mapGetters } from "vuex";
 export default {
   name: "OnboardingStepper",
   components: {
@@ -89,6 +90,7 @@ export default {
     };
   },
   computed: {
+    ...mapGetters("mainStore", ["getUserDetails"]),
     currentComponent() {
       const components = [
         StepCompanyDetails,
@@ -99,6 +101,9 @@ export default {
       ];
       return components[this.currentStep - 1] || StepCompletion;
     },
+    isSuperAdminUser() {
+    return this.getUserDetails?.role === "SUPER_ADMIN";
+  }
   },
   mounted() {
     this.checkExistingOnboarding();
@@ -114,20 +119,30 @@ export default {
   },
   methods: {
     checkExistingOnboarding() {
-      this.isLoading = true
-      this.$store.dispatch('mainStore/checkIfAlreadyExistOnBoarding')
+      this.isLoading = true;
+      const isSuperAdmin = this.isSuperAdminUser;
+      // 🔥 IMPORTANT: Skip onboarding check for super admin
+      if (isSuperAdmin) {
+        this.isLoading = false;
+        this.currentStep = 1;
+        return;
+      }
+      this.$store
+        .dispatch('mainStore/checkIfAlreadyExistOnBoarding')
         .then((existingOnboarding) => {
-          this.isLoading = false
           if (existingOnboarding && existingOnboarding._id) {
             this.populateCompanyFromOnboarding(existingOnboarding);
             this.setCompletionStatus(existingOnboarding);
           }
         })
         .catch((e) => {
-          this.isLoading = false
-          console.error(e.message)
+            this.isLoading = false
+             console.error(e.message)
+        })
+        .finally(() => {
+          this.isLoading = false;
         });
-    },
+},
 
     setCompletionStatus(onboardingData) {
       const status = (onboardingData.onboardingStatus || onboardingData.status || '').toUpperCase();

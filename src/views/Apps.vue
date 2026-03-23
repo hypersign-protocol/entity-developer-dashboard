@@ -7,6 +7,14 @@
           <h4 style="float: left">
             <i class="fa fa-cogs mr-2" aria-hidden="true"></i>Your Services
           </h4>
+          <b-button
+            variant="outline-primary"
+            style="float: right"
+            class="ml-2"
+            @click="goToOnboarding"
+          >
+            Seamless Onboarding
+          </b-button>
           <!-- <hf-buttons name=" Create" iconClass="fa fa-plus"  class="ml-auto" @executeAction="openSlider('SSI_API')"
             style="float: right">
           </hf-buttons> -->
@@ -22,21 +30,26 @@
         <!-- display  No Application found -->
         <v-col v-if="!isLoading">
           <div class="no-apps-container mb-1">
-            <h3 class="" style="text-align: center;">You have no services yet!</h3>
+            <h3 style="text-align: center;">You have no services yet!</h3>
             <p style="max-width: 500px; margin: 0 auto; text-align: center;">
               Services help you manage your applications and APIs. Create your first
-              service to get started. 
+              service to get started.
             </p>
-            <div>
-              <b-dropdown split text="Create Service" variant="outline-dark"
-                @click="openSlider('SSI_API')" menu-class="dropDownPopup">
-                <b-dropdown-item @click="openSlider('SSI_API')">SSI Service</b-dropdown-item>
-                <b-dropdown-item @click="openSlider('CAVACH_API')">KYC Service</b-dropdown-item>
-                <b-dropdown-item @click="openSlider('QUEST')">Quest Service</b-dropdown-item>
-              </b-dropdown>
-            </div>
-          </div>
-        </v-col>
+    <div style="text-align:center; margin-top:12px;">
+      <b-dropdown split text="Create Service" variant="outline-dark" @click="openSlider('SSI_API')"
+        menu-class="dropDownPopup"
+        style="margin-right:10px;"
+      >
+        <b-dropdown-item @click="openSlider('SSI_API')">SSI Service</b-dropdown-item>
+        <b-dropdown-item @click="openSlider('CAVACH_API')">KYC Service</b-dropdown-item>
+        <b-dropdown-item @click="openSlider('QUEST')">Quest Service</b-dropdown-item>
+      </b-dropdown>
+      <b-button variant="outline-primary" @click="goToOnboarding">
+        Seamless Onboarding
+      </b-button>
+    </div>
+  </div>
+</v-col>
       </v-row>
     </div>
 
@@ -1146,7 +1159,9 @@ export default {
       "fetchServicesList",
       "deleteAnAppOnServer"
     ]),
-
+    goToOnboarding() {
+       this.$router.push('/studio/onboarding');
+    },
     async initializeStore() {
       try {
         if (this.userDetails) {
