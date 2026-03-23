@@ -53,7 +53,7 @@ export async function RequestHandler(url, method = 'GET', body = {}, headers = {
             throw new Error("2FA authentication is required");
         }
 
-        if (json.eror && Array.isArray(json.error.details) && json.error.details.length > 0) {
+        if (json.error && Array.isArray(json.error.details) && json.error.details.length > 0) {
             throw new Error(json.error.details.join(", "));
         }
 
