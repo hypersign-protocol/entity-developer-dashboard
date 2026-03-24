@@ -2145,11 +2145,15 @@ const mainStore = {
 
 
         async fetchUsageForAService({ getters }, payload) {
-            const { startDate, endDate } = payload
+            const { startDate, endDate, env } = payload
+            let envVal = env
+            if (env === '' || env === null || env === undefined) {
+                envVal = 'prod'
+            }
             if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
                 throw new Error('Tenant url is null or empty, service is not selected')
             }
-            const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/usage?serviceId=${getters.getSelectedService.appId}&startDate=${startDate}&endDate=${endDate}`;
+            const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/usage?serviceId=${getters.getSelectedService.appId}&startDate=${startDate}&endDate=${endDate}&env=${envVal}`;
             // const url = `http://localhost:3001/api/v1/usage?serviceId=${getters.getSelectedService.appId}&startDate=${startDate}&endDate=${endDate}`;            
             const authToken = getters.getSelectedService.access_token
             const headers = UtilsMixin.methods.getKycServiceHeader(authToken);
@@ -2222,11 +2226,16 @@ const mainStore = {
 
         },
         async fetchUsageDetailsForAService({ getters, commit }, payload) {
-            const { startDate, endDate } = payload
+            const { startDate, endDate, env } = payload
+            let envVal = env
+            if (env === '' || env === null || env === undefined) {
+                envVal = 'prod'
+            }
             if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
                 throw new Error('Tenant url is null or empty, service is not selected')
             }
-            const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/usage/detail?serviceId=${getters.getSelectedService.appId}&startDate=${startDate}&endDate=${endDate}`;
+            const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/usage/detail?serviceId=${getters.getSelectedService.appId}&startDate=${startDate}&endDate=${endDate}&env=${envVal}`;
+            // const url = `http://localhost:3009/api/v1/usage/detail?serviceId=${getters.getSelectedService.appId}&startDate=${startDate}&endDate=${endDate}&env=${envVal}`;
             const authToken = getters.getSelectedService.access_token
             const headers = UtilsMixin.methods.getKycServiceHeader(authToken);
             const resp = await fetch(url, {
