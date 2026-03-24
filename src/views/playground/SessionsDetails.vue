@@ -737,7 +737,6 @@ export default {
         },
         userPersonalDataFromUserConsent() {
             const d = { ...this.getCredentialSubjectByType("PassportCredential") }
-            console.log({ d })
             delete d['face']
             delete d['overallRating']
             delete d['id']
@@ -819,7 +818,6 @@ export default {
         try {
 
             this.isLoading = true
-            console.log("USer ID: ", this.sessionId)
             console.log("Before fetching session details...")
             this.session = await this.fetchSessionsDetailsById({ sessionId: this.sessionId, env: this.env })
             console.log("After fetching session details...")
