@@ -609,7 +609,6 @@ If no matches, return exactly:
                     accessToken: this.accessToken
                 };
                 if (status === 'Failed') {
-                    console.log('inside if')
                     payload.reasonDetail = formData.reasonDetail;
                     if (formData.reason) payload.reason = formData.reason;
                 }
