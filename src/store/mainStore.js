@@ -2785,18 +2785,23 @@ const mainStore = {
                     } else {
                         return reject(new Error('Tenant url is null or empty, service is not selected'))
                     }
-
+                    dispatch('getValidToken', {
+                        serviceId: getters.getSelectedService.appId,
+                        grant_type: config.GRANT_TYPES_ENUM.SSI_API,
+                        tokenStorageType: "Default"
+                    }).then((token) => {
                     const url = `${sanitizeUrl(tenantUrl)}/api/v1/did?page=1&limit=100`;
                     const options = {
                         method: "GET",
                         headers: {
                             "Content-Type": "application/json",
-                            "Authorization": `Bearer ${accessToken}`,
+                            "Authorization": `Bearer ${token}`,
                             "Origin": '*'
                         }
                     }
-                    fetch(url, {
+                    return fetch(url, {
                         headers: options.headers
+                    })
                     })
                         .then(response => response.json())
                         .then(json => {
@@ -2859,17 +2864,23 @@ const mainStore = {
                         throw new Error("could not resolve did");
 
                     }
-                    const url = `${sanitizeUrl(tenantUrl)}/api/v1/did/resolve/${payload.did}`;
+                    dispatch('getValidToken', {
+                        serviceId: getters.getSelectedService.appId,
+                        grant_type: config.GRANT_TYPES_ENUM.SSI_API,
+                        tokenStorageType: "Default"
+                    }).then((token) => {
+                        const url = `${sanitizeUrl(tenantUrl)}/api/v1/did/resolve/${payload.did}`;
                     const options = {
                         method: "GET",
                         headers: {
                             "Content-Type": "application/json",
-                            "Authorization": `Bearer ${accessToken}`,
+                            "Authorization": `Bearer ${token}`,
                             "Origin": '*'
                         }
                     }
-                    fetch(url, {
+                    return fetch(url, {
                         headers: options.headers
+                    })
                     })
                         .then(response => response.json())
                         .then(json => {
@@ -2908,19 +2919,24 @@ const mainStore = {
                     if (!selectedService || !selectedService.tenantUrl) {
                         return reject(new Error('Tenant url is null or empty, service is not selected'))
                     }
-
+                    dispatch('getValidToken', {
+                        serviceId: getters.getSelectedService.appId,
+                        grant_type: config.GRANT_TYPES_ENUM.SSI_API,
+                        tokenStorageType: "Default"
+                    }).then((token) => {
                     const url = `${sanitizeUrl(selectedService.tenantUrl)}/api/v1/did/resolve/${payload}`;
                     // const url = `http://ent-8ee83cc.localhost:3003/api/v1/did/resolve/${payload}`;
                     const options = {
                         method: "GET",
                         headers: {
                             "Content-Type": "application/json",
-                            "Authorization": `Bearer ${selectedService.access_token}`,
+                            "Authorization": `Bearer ${token}`,
                             "Origin": '*'
                         }
                     }
-                    fetch(url, {
+                    return fetch(url, {
                         headers: options.headers
+                    })
                     })
                         .then(response => response.json())
                         .then(json => {
@@ -2954,18 +2970,24 @@ const mainStore = {
                     if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
                         return reject(new Error('Tenant url is null or empty, service is not selected'))
                     }
+                    dispatch('getValidToken', {
+                        serviceId: getters.getSelectedService.appId,
+                        grant_type: config.GRANT_TYPES_ENUM.SSI_API,
+                        tokenStorageType: "Default"
+                    }).then((token) => {
                     const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/did/create`;
                     const options = {
                         method: "POST",
                         body: JSON.stringify(payload),
                         headers: {
                             "Content-Type": "application/json",
-                            "Authorization": `Bearer ${getters.getSelectedService.access_token}`,
+                            "Authorization": `Bearer ${token}`,
                             "Origin": '*'
                         }
                     }
-                    fetch(url, {
+                    return fetch(url, {
                         ...options
+                    })
                     })
                         .then(response => response.json())
                         .then(async json => {
@@ -2991,7 +3013,7 @@ const mainStore = {
 
         },
 
-        registerDIDsForAService({ commit, getters }, payload) {
+        registerDIDsForAService({ commit, getters, dispatch }, payload) {
             return new Promise(function (resolve, reject) {
                 const body = {
                     didDocument: payload.didDocument,
@@ -3001,18 +3023,24 @@ const mainStore = {
                     if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
                         return reject(new Error('Tenant url is null or empty, service is not selected'))
                     }
+                    dispatch('getValidToken', {
+                        serviceId: getters.getSelectedService.appId,
+                        grant_type: config.GRANT_TYPES_ENUM.SSI_API,
+                        tokenStorageType: "Default"
+                    }).then((token) => {
                     const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/did/register/v2`;
                     const options = {
                         method: "POST",
                         body: JSON.stringify(body),
                         headers: {
                             "Content-Type": "application/json",
-                            "Authorization": `Bearer ${getters.getSelectedService.access_token}`,
+                            "Authorization": `Bearer ${token}`,
                             "Origin": '*'
                         }
                     }
                     fetch(url, {
                         ...options
+                    })
                     })
                         .then(response => response.json())
                         .then(async json => {
@@ -3039,23 +3067,29 @@ const mainStore = {
 
         },
 
-        checkBlockchainStatusOfSSI({ getters }, payload) {
+        checkBlockchainStatusOfSSI({ getters, dispatch }, payload) {
             return new Promise(function (resolve, reject) {
                 {
                     if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
                         return reject(new Error('Tenant url is null or empty, service is not selected'))
                     }
+                    dispatch('getValidToken', {
+                        serviceId: getters.getSelectedService.appId,
+                        grant_type: config.GRANT_TYPES_ENUM.SSI_API,
+                        tokenStorageType: "Default"
+                    }).then((token) => {
                     const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/status/ssi/${payload}?page=1&limit=10`;
                     const options = {
                         method: "GET",
                         headers: {
                             "Content-Type": "application/json",
-                            "Authorization": `Bearer ${getters.getSelectedService.access_token}`,
+                            "Authorization": `Bearer ${token}`,
                             "Origin": '*'
                         }
                     }
-                    fetch(url, {
+                    return fetch(url, {
                         ...options
+                    })
                     })
                         .then(response => response.json())
                         .then(json => {
@@ -3072,7 +3106,7 @@ const mainStore = {
 
         },
 
-        updateDIDsForAService({ getters, }, payload) {
+        updateDIDsForAService({ getters, dispatch }, payload) {
             return new Promise(function (resolve, reject) {
                 let body;
                 if (payload.didDocument) {
@@ -3092,19 +3126,25 @@ const mainStore = {
                     if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
                         return reject(new Error('Tenant url is null or empty, service is not selected'))
                     }
-                    // const url = `http://ent-2af45c1.localhost:4001/api/v1/did/`;
+                    dispatch('getValidToken', {
+                        serviceId: getters.getSelectedService.appId,
+                        grant_type: config.GRANT_TYPES_ENUM.SSI_API,
+                        tokenStorageType: "Default"
+                    }).then((token) => {
+                        // const url = `http://ent-2af45c1.localhost:4001/api/v1/did/`;
                     const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/did/`;
                     const options = {
                         method: "PATCH",
                         body: JSON.stringify(body),
                         headers: {
                             "Content-Type": "application/json",
-                            "Authorization": `Bearer ${getters.getSelectedService.access_token}`,
+                            "Authorization": `Bearer ${token}`,
                             "Origin": '*'
                         }
                     }
-                    fetch(url, {
+                    return fetch(url, {
                         ...options
+                    })
                     })
                         .then(response => response.json())
                         .then(json => {
@@ -3269,16 +3309,21 @@ const mainStore = {
         },
 
         // eslint-disable-next-line 
-        async fetchSSICredits({ getters, commit }) {
+        async fetchSSICredits({ getters, commit, dispatch }) {
             if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
                 throw new Error('Tenant url is null or empty, service is not selected')
             }
+            const token = await dispatch('getValidToken', {
+                serviceId: getters.getSelectedService.appId,
+                grant_type: config.GRANT_TYPES_ENUM.SSI_API,
+                tokenStorageType: "Default"
+            })
             const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/credit`;
             const options = {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
-                    "Authorization": `Bearer ${getters.getSelectedService.access_token}`,
+                    "Authorization": `Bearer ${token}`,
                     "Origin": '*'
 
                 }
@@ -3306,17 +3351,23 @@ const mainStore = {
                     if (!creditId) {
                         return reject(new Error('Credit Id is null or empty'))
                     }
+                    dispatch('getValidToken', {
+                        serviceId: getters.getSelectedService.appId,
+                        grant_type: config.GRANT_TYPES_ENUM.SSI_API,
+                        tokenStorageType: "Default"
+                    }).then((token) => {
                     const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/credit/${creditId}/activate`;
                     const options = {
                         method: "POST",
                         headers: {
                             "Content-Type": "application/json",
-                            "Authorization": `Bearer ${getters.getSelectedService.access_token}`,
+                            "Authorization": `Bearer ${token}`,
                             "Origin": '*'
                         }
                     }
-                    fetch(url, {
+                    return fetch(url, {
                         ...options
+                    })
                     })
                         .then(response => response.json())
                         .then(json => {
@@ -3407,19 +3458,24 @@ const mainStore = {
                     if (!selectedService || !selectedService.tenantUrl) {
                         return reject(new Error('Tenant url is null or empty, service is not selected'))
                     }
-
+                    dispatch('getValidToken', {
+                        serviceId: getters.getSelectedService.appId,
+                        grant_type: config.GRANT_TYPES_ENUM.SSI_API,
+                        tokenStorageType: "Default"
+                    }).then((token) => {
                     const url = `${sanitizeUrl(selectedService.tenantUrl)}/api/v1/did/auth/sign`;
                     const options = {
                         method: "POST",
                         body: JSON.stringify(payload),
                         headers: {
                             "Content-Type": "application/json",
-                            "Authorization": `Bearer ${selectedService.access_token}`,
+                            "Authorization": `Bearer ${token}`,
                             "Origin": '*'
                         }
                     }
-                    fetch(url, {
+                    return fetch(url, {
                         ...options
+                    })
                     })
                         .then(response => response.json())
                         .then(async json => {
@@ -3454,18 +3510,24 @@ const mainStore = {
                     } else {
                         return reject(new Error('Tenant url is null or empty, service is not selected'))
                     }
+                    dispatch('getValidToken', {
+                        serviceId: getters.getSelectedService.appId,
+                        grant_type: config.GRANT_TYPES_ENUM.SSI_API,
+                        tokenStorageType: "Default"
+                    }).then((token) => {
 
                     const url = `${sanitizeUrl(tenantUrl)}/api/v1/schema?page=1&limit=100`;
                     const options = {
                         method: "GET",
                         headers: {
                             "Content-Type": "application/json",
-                            "Authorization": `Bearer ${accessToken}`,
+                            "Authorization": `Bearer ${token}`,
                             "Origin": '*'
                         }
                     }
-                    fetch(url, {
+                        return fetch(url, {
                         headers: options.headers
+                    })
                     })
                         .then(response => response.json())
                         .then(json => {
@@ -3504,7 +3566,7 @@ const mainStore = {
 
         },
 
-        async resolveSchema({ commit, getters, }, payload) {
+        async resolveSchema({ commit, getters, dispatch }, payload) {
             try {
                 let selectedService = {};
                 if (getters.getSelectedService.services[0].id === 'SSI_API') {
@@ -3520,7 +3582,11 @@ const mainStore = {
                 if (!selectedService || !selectedService.tenantUrl) {
                     throw new Error('Tenant url is null or empty, service is not selected')
                 }
-
+                const token = await dispatch('getValidToken', {
+                    serviceId: getters.getSelectedService.appId,
+                    grant_type: config.GRANT_TYPES_ENUM.SSI_API,
+                    tokenStorageType: "Default"
+                })
                 const url = `${sanitizeUrl(selectedService.tenantUrl)}/api/v1/schema/${payload}`;
                 // const url = `http://ent-8ee83cc.localhost:3003/api/v1/schema/${payload}`;
 
@@ -3528,7 +3594,7 @@ const mainStore = {
                     method: "GET",
                     headers: {
                         "Content-Type": "application/json",
-                        "Authorization": `Bearer ${selectedService.access_token}`,
+                        "Authorization": `Bearer ${token}`,
                         "Origin": '*'
                     }
                 }
@@ -3569,25 +3635,31 @@ const mainStore = {
         },
 
 
-        createSchemaForAService({ commit, getters }, payload) {
+        async createSchemaForAService({ commit, getters, dispatch }, payload) {
             return new Promise(function (resolve, reject) {
                 {
                     // const payload = data.requestBody
                     if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
                         return reject(new Error('Tenant url is null or empty, service is not selected'))
                     }
+                    dispatch('getValidToken', {
+                        serviceId: getters.getSelectedService.appId,
+                        grant_type: config.GRANT_TYPES_ENUM.SSI_API,
+                        tokenStorageType: "Default"
+                    }).then((token) => {
                     const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/schema`;
                     const options = {
                         method: "POST",
                         body: JSON.stringify(payload),
                         headers: {
                             "Content-Type": "application/json",
-                            "Authorization": `Bearer ${getters.getSelectedService.access_token}`,
+                            "Authorization": `Bearer ${token}`,
                             "Origin": '*'
                         }
                     }
-                    fetch(url, {
+                    return fetch(url, {
                         ...options
+                    })
                     })
                         .then(response => response.json())
                         .then(async json => {
@@ -3634,18 +3706,23 @@ const mainStore = {
                         page = payload.page
                         limit = payload.limit
                     }
-
+                    dispatch('getValidToken', {
+                        serviceId: getters.getSelectedService.appId,
+                        grant_type: config.GRANT_TYPES_ENUM.SSI_API,
+                        tokenStorageType: "Default"
+                    }).then((token) => {
                     const url = `${sanitizeUrl(tenantUrl)}/api/v1/credential?page=${page}&limit=${limit}`;
                     const options = {
                         method: "GET",
                         headers: {
                             "Content-Type": "application/json",
-                            "Authorization": `Bearer ${accessToken}`,
+                            "Authorization": `Bearer ${token}`,
                             "Origin": '*'
                         }
                     }
-                    fetch(url, {
+                    return fetch(url, {
                         headers: options.headers
+                    })
                     })
                         .then(response => response.json())
                         .then(json => {
@@ -3687,7 +3764,7 @@ const mainStore = {
         },
 
 
-        async resolveCredential({ commit, getters, }, payload) {
+        async resolveCredential({ commit, getters, dispatch }, payload) {
             try {
                 let selectedService = {};
                 if (getters.getSelectedService.services[0].id === 'SSI_API') {
@@ -3703,13 +3780,17 @@ const mainStore = {
                 if (!selectedService || !selectedService.tenantUrl) {
                     throw new Error('Tenant url is null or empty, service is not selected')
                 }
-
+                const token = await dispatch('getValidToken', {
+                    serviceId: getters.getSelectedService.appId,
+                    grant_type: config.GRANT_TYPES_ENUM.SSI_API,
+                    tokenStorageType: "Default"
+                })
                 const url = `${sanitizeUrl(selectedService.tenantUrl)}/api/v1/credential/${payload.credentialId}?retrieveCredential=${payload.retrieveCredential ? payload.retrieveCredential : false}`;
                 const options = {
                     method: "GET",
                     headers: {
                         "Content-Type": "application/json",
-                        "Authorization": `Bearer ${selectedService.access_token}`,
+                        "Authorization": `Bearer ${token}`,
                         "Origin": '*'
                     }
                 }
@@ -3787,25 +3868,31 @@ const mainStore = {
             }
         },
 
-        issueCredentialForAService({ commit, getters }, payload) {
+        issueCredentialForAService({ commit, getters, dispatch }, payload) {
             return new Promise(function (resolve, reject) {
                 {
                     // const payload = data.requestBody
                     if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
                         return reject(new Error('Tenant url is null or empty, service is not selected'))
                     }
+                    dispatch('getValidToken', {
+                        serviceId: getters.getSelectedService.appId,
+                        grant_type: config.GRANT_TYPES_ENUM.SSI_API,
+                        tokenStorageType: "Default"
+                    }).then((token) => {
                     const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/credential/issue`;
                     const options = {
                         method: "POST",
                         body: JSON.stringify(payload),
                         headers: {
                             "Content-Type": "application/json",
-                            "Authorization": `Bearer ${getters.getSelectedService.access_token}`,
+                            "Authorization": `Bearer ${token}`,
                             "Origin": '*'
                         }
                     }
-                    fetch(url, {
+                    return fetch(url, {
                         ...options
+                    })
                     })
                         .then(response => response.json())
                         .then(async json => {
@@ -3829,24 +3916,30 @@ const mainStore = {
             })
 
         },
-        updateCredentialForAService({ getters }, payload) {
+        updateCredentialForAService({ getters, dispatch }, payload) {
             return new Promise(function (resolve, reject) {
                 {
                     if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
                         return reject(new Error('Tenant url is null or empty, service is not selected'))
                     }
+                    dispatch('getValidToken', {
+                        serviceId: getters.getSelectedService.appId,
+                        grant_type: config.GRANT_TYPES_ENUM.SSI_API,
+                        tokenStorageType: "Default"
+                    }).then((token) => {
                     const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/credential/status/${payload.credentialId}`;
                     const options = {
                         method: "PATCH",
                         body: JSON.stringify(payload),
                         headers: {
                             "Content-Type": "application/json",
-                            "Authorization": `Bearer ${getters.getSelectedService.access_token}`,
+                            "Authorization": `Bearer ${token}`,
                             "Origin": '*'
                         }
                     }
-                    fetch(url, {
+                    return fetch(url, {
                         ...options
+                    })
                     })
                         .then(response => response.json())
                         .then(async json => {
@@ -3871,7 +3964,7 @@ const mainStore = {
             serviceId,
             grant_type,
             token,
-            tokenType = 'KYC' // 'KYC' | 'KYB'
+            tokenStorageType = 'Default'
         }) {
             // 1. If token is passed directly (payload case)
             if (token && !UtilsMixin.methods.isTokenExpired(token)) {
@@ -3880,7 +3973,7 @@ const mainStore = {
             let service = getters.getSelectedService;
             // 2. Pick correct token from store
             let storeToken =
-                tokenType === 'KYB'
+                tokenStorageType === 'KYB'
                     ? service?.kyb_access_token
                     : service?.access_token;
             // 3. Check expiry
@@ -3893,7 +3986,7 @@ const mainStore = {
                 // refresh from store
                 service = getters.getSelectedService;
                 storeToken =
-                    tokenType === 'KYB'
+                    tokenStorageType === 'KYB'
                         ? service?.kyb_access_token
                         : service?.access_token;
             }
