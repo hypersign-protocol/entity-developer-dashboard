@@ -252,6 +252,14 @@ export default {
                 return '<span class="badge badge-pill badge-warning">Pending<span>'
             }
 
+        },
+        isTokenExpired(token) {
+            try {
+                const payload = JSON.parse(atob(token.split('.')[1])); return Date.now() > payload.exp * 1000;
+            }
+            catch (e) {
+                return true;
+            } 
         }
     }
 }

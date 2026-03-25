@@ -1044,18 +1044,24 @@ const mainStore = {
                     })
             })
         },
-        fetchAppKybs: ({ commit, getters }) => {
+        fetchAppKybs: ({ commit, getters, dispatch }) => {
             return new Promise((resolve, reject) => {
                 if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
                     return reject(new Error('Tenant url is null or empty, service is not selected'))
                 }
-
+                dispatch('getValidToken', {
+                    serviceId: getters.getSelectedService.appId,
+                    grant_type: config.GRANT_TYPES_ENUM.CAVACH_KYB_API,
+                    tokenType: 'KYB'
+                })
+                    .then((token) => {
                 let url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyb/verification/company`;
-                const headers = UtilsMixin.methods.getKycServiceHeader(getters.getSelectedService.kyb_access_token);
-                fetch(url, {
+                        const headers = UtilsMixin.methods.getKycServiceHeader(token);
+                        return fetch(url, {
                     method: 'GET',
                     headers,
-                }).then(response => response.json()).then(json => {
+                        })
+                    }).then(response => response.json()).then(json => {
                     if (json.error) {
                         return reject(new Error(json.error?.details?.join(' ') || json.error?.join?.(' ') || json.error || 'Unknown error'))
                     }
@@ -1098,15 +1104,22 @@ const mainStore = {
                 })
             })
         },
-        fetchAppKybById: ({ getters }, payload) => {
+        fetchAppKybById: ({ getters, dispatch }, payload) => {
             return new Promise((resolve, reject) => {
-                const { companyId, accessToken } = payload
-                const headers = UtilsMixin.methods.getKycServiceHeader(accessToken);
+                const { companyId, accessToken, serviceId } = payload
+                dispatch('getValidToken', {
+                    token: accessToken,
+                    serviceId: serviceId,
+                    grant_type: config.GRANT_TYPES_ENUM.CAVACH_KYB_API,
+                    tokenType: 'KYB'
+                }).then((token) => {
+                    const headers = UtilsMixin.methods.getKycServiceHeader(token);
                 const url = `${sanitizeUrl(config.KYC_SERVER_BASE_URL)}/api/v1/e-kyb/verification/company/${companyId}`;
                 // const url = `http://localhost:3009/api/v1/e-kyb/verification/company/${companyId}`;
-                fetch(url, {
+                return fetch(url, {
                     method: 'GET',
                     headers,
+                })
                 }).then(response => response.json()).then(json => {
                     if (json.error) {
                         return reject(new Error(json.error?.details?.join(' ') || json.error?.join?.(' ') || json.error || 'Unknown error'))
@@ -1118,7 +1131,7 @@ const mainStore = {
                 })
             })
         },
-        fetchAppsUsersSessions: ({ commit, getters }, payload) => {
+        fetchAppsUsersSessions: ({ commit, getters, dispatch }, payload) => {
             return new Promise((resolve, reject) => {
                 if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
                     return reject(new Error('Tenant url is null or empty, service is not selected'))
@@ -1162,11 +1175,18 @@ const mainStore = {
                 if (!authToken) {
                     return reject(new Error('authToken is invalid, service is not selected'))
                 }
-                const headers = UtilsMixin.methods.getKycServiceHeader(authToken);
-                fetch(url, {
+                dispatch('getValidToken', {
+                    serviceId: getters.getSelectedService.appId,
+                    grant_type: config.GRANT_TYPES_ENUM.CAVACH_API,
+                    tokenType: 'KYC'
+                }).then((token) => {
+                    const headers = UtilsMixin.methods.getKycServiceHeader(token);
+                    return fetch(url, {
                     method: 'GET',
                     headers
-                }).then(response => response.json()).then(json => {
+                    })
+                })
+                    .then(response => response.json()).then(json => {
                     if (json.error) {
                         return reject(new Error(json.error?.details.join(' ') || json.error.join(' ')))
                     }
@@ -1183,7 +1203,7 @@ const mainStore = {
         },
 
 
-        fetchAppsUsers: ({ commit, getters }, payload) => {
+        fetchAppsUsers: ({ commit, getters, dispatch }, payload) => {
             return new Promise((resolve, reject) => {
                 if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
                     return reject(new Error('Tenant url is null or empty, service is not selected'))
@@ -1227,11 +1247,18 @@ const mainStore = {
                 if (!authToken) {
                     return reject(new Error('authToken is invalid, service is not selected'))
                 }
-                const headers = UtilsMixin.methods.getKycServiceHeader(authToken);
-                fetch(url, {
+                dispatch('getValidToken', {
+                    serviceId: getters.getSelectedService.appId,
+                    grant_type: config.GRANT_TYPES_ENUM.CAVACH_API,
+                    tokenType: 'KYC'
+                }).then((token) => {
+                    const headers = UtilsMixin.methods.getKycServiceHeader(token);
+                    return fetch(url, {
                     method: 'GET',
                     headers
-                }).then(response => response.json()).then(json => {
+                    })
+                })
+                    .then(response => response.json()).then(json => {
                     if (json.error) {
                         return reject(new Error(JWTExpiredErrorMessageHandling(json)))
                     }
@@ -1249,7 +1276,7 @@ const mainStore = {
         },
 
         // Onchain config --------------------------------
-        fetchAppsOnChainConfigs: ({ commit, getters }) => {
+        fetchAppsOnChainConfigs: ({ commit, getters, dispatch }) => {
             return new Promise((resolve, reject) => {
                 if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
                     return reject(new Error('Tenant url is null or empty, service is not selected'))
@@ -1257,11 +1284,21 @@ const mainStore = {
                 const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/onchainkyc-config`;
                 // const url = `http://localhost:3001/api/v1/e-kyc/verification/onchainkyc-config`
                 const authToken = getters.getSelectedService.access_token
-                const headers = UtilsMixin.methods.getKycServiceHeader(authToken);
-                fetch(url, {
+                if (!authToken) {
+                    return reject(new Error('authToken is invalid, service is not selected'))
+                }
+                dispatch('getValidToken', {
+                    serviceId: getters.getSelectedService.appId,
+                    grant_type: config.GRANT_TYPES_ENUM.CAVACH_API, // or correct KYC grant
+                    tokenType: 'KYC'
+                }).then((token) => {
+                    const headers = UtilsMixin.methods.getKycServiceHeader(token);
+                    return fetch(url, {
                     method: 'GET',
                     headers
-                }).then(response => response.json()).then(json => {
+                    })
+                })
+                    .then(response => response.json()).then(json => {
                     if (json.error) {
                         return reject(new Error(JWTExpiredErrorMessageHandling(json)))
                     }
@@ -1273,7 +1310,7 @@ const mainStore = {
             })
         },
 
-        createAppsOnChainConfig: ({ commit, getters }, payload) => {
+        createAppsOnChainConfig: ({ commit, getters, dispatch }, payload) => {
             return new Promise((resolve, reject) => {
                 if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
                     return reject(new Error('Tenant url is null or empty, service is not selected'))
@@ -1281,12 +1318,22 @@ const mainStore = {
                 const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/onchainkyc-config`;
                 //const url = `http://localhost:3001/api/v1/e-kyc/verification/onchainkyc-config`
                 const authToken = getters.getSelectedService.access_token
-                const headers = UtilsMixin.methods.getKycServiceHeader(authToken);
-                fetch(url, {
+                if (!authToken) {
+                    return reject(new Error('authToken is invalid, service is not selected'))
+                }
+                dispatch('getValidToken', {
+                    serviceId: getters.getSelectedService.appId,
+                    grant_type: config.GRANT_TYPES_ENUM.CAVACH_API, // or correct KYC grant
+                    tokenType: 'KYC'
+                }).then((token) => {
+                    const headers = UtilsMixin.methods.getKycServiceHeader(token);
+                    return fetch(url, {
                     method: 'POST',
                     headers,
                     body: JSON.stringify(payload),
-                }).then(response => response.json()).then(json => {
+                    })
+                })
+                    .then(response => response.json()).then(json => {
                     if (json.error) {
                         return reject(new Error(json.error?.details.join(' ') || json.error.join(' ')))
                     }
@@ -1369,11 +1416,20 @@ const mainStore = {
                 const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/onchainkyc-config`;
                 // const url = `http://localhost:3001/api/v1/e-kyc/verification/onchainkyc-config`
                 const authToken = getters.getSelectedService.access_token
-                const headers = UtilsMixin.methods.getKycServiceHeader(authToken);
-                fetch(url, {
+                if (!authToken) {
+                    return reject(new Error('authToken is invalid, service is not selected'))
+                }
+                dispatch('getValidToken', {
+                    serviceId: getters.getSelectedService.appId,
+                    grant_type: config.GRANT_TYPES_ENUM.CAVACH_API, // or correct KYC grant
+                    tokenType: 'KYC'
+                }).then((token) => {
+                    const headers = UtilsMixin.methods.getKycServiceHeader(token);
+                    return fetch(url, {
                     method: 'PATCH',
                     headers,
                     body: JSON.stringify(payload),
+                    })
                 }).then(response => response.json()).then(json => {
                     if (json.error) {
                         return reject(new Error(json.error?.details.join(' ') || json.error.join(' ')))
@@ -1395,11 +1451,21 @@ const mainStore = {
                 }
                 const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/onchainkyc-config/${payload._id}`;
                 const authToken = getters.getSelectedService.access_token
-                const headers = UtilsMixin.methods.getKycServiceHeader(authToken);
-                fetch(url, {
+                if (!authToken) {
+                    return reject(new Error('authToken is invalid, service is not selected'))
+                }
+                dispatch('getValidToken', {
+                    serviceId: getters.getSelectedService.appId,
+                    grant_type: config.GRANT_TYPES_ENUM.CAVACH_API,
+                    tokenType: 'KYC'
+                }).then((token) => {
+                    const headers = UtilsMixin.methods.getKycServiceHeader(token);
+                    return fetch(url, {
                     method: 'DELETE',
                     headers,
-                }).then(response => response.json()).then(json => {
+                    })
+                })
+                    .then(response => response.json()).then(json => {
                     if (json.error) {
                         return reject(new Error(json.error?.details.join(' ') || json.error.join(' ')))
                     }
@@ -1414,7 +1480,7 @@ const mainStore = {
 
 
         // Widget Config --------------------------------
-        createAppsWidgetConfig: ({ commit, getters }) => {
+        createAppsWidgetConfig: ({ commit, getters, dispatch }) => {
             return new Promise((resolve, reject) => {
                 if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
                     return reject(new Error('Tenant url is null or empty, service is not selected'))
@@ -1422,13 +1488,23 @@ const mainStore = {
                 const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/widget-config`;
                 // const url = `http://localhost:3001/api/v1/e-kyc/verification/widget-config`
                 const authToken = getters.getSelectedService.access_token
-                const headers = UtilsMixin.methods.getKycServiceHeader(authToken);
+                if (!authToken) {
+                    return reject(new Error('authToken is invalid, service is not selected'))
+                }
+                dispatch('getValidToken', {
+                    serviceId: getters.getSelectedService.appId,
+                    grant_type: config.GRANT_TYPES_ENUM.CAVACH_API,
+                    tokenType: 'KYC'
+                }).then((token) => {
+                    const headers = UtilsMixin.methods.getKycServiceHeader(token);
                 const data = getters.getWidgetnConfig;
                 fetch(url, {
                     method: 'POST',
                     headers,
                     body: JSON.stringify(data),
-                }).then(response => response.json()).then(json => {
+                })
+                })
+                    .then(response => response.json()).then(json => {
                     if (json.error) {
                         return reject(new Error(JWTExpiredErrorMessageHandling(json)))
                     }
@@ -1440,7 +1516,7 @@ const mainStore = {
             })
         },
 
-        fetchAppsWidgetConfig: ({ commit, getters }) => {
+        fetchAppsWidgetConfig: ({ commit, getters, dispatch }) => {
             return new Promise((resolve, reject) => {
                 if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
                     return reject(new Error('Tenant url is null or empty, service is not selected'))
@@ -1448,11 +1524,21 @@ const mainStore = {
                 const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/widget-config`;
                 // const url = `http://localhost:3001/api/v1/e-kyc/verification/widget-config/`
                 const authToken = getters.getSelectedService.access_token
-                const headers = UtilsMixin.methods.getKycServiceHeader(authToken);
+                if (!authToken) {
+                    return reject(new Error('authToken is invalid, service is not selected'))
+                }
+                dispatch('getValidToken', {
+                    serviceId: getters.getSelectedService.appId,
+                    grant_type: config.GRANT_TYPES_ENUM.CAVACH_API,
+                    tokenType: 'KYC'
+                }).then((token) => {
+                    const headers = UtilsMixin.methods.getKycServiceHeader(token);
                 return fetch(url, {
                     method: 'GET',
                     headers
-                }).then(response => response.json()).then(json => {
+                })
+                })
+                    .then(response => response.json()).then(json => {
                     if (json) {
                         if (json.error) {
                             return reject(new Error(JWTExpiredErrorMessageHandling(json)))
@@ -1470,7 +1556,7 @@ const mainStore = {
             })
         },
 
-        updateAppsWidgetConfig: ({ commit, getters }) => {
+        updateAppsWidgetConfig: ({ commit, getters, dispatch }) => {
             return new Promise((resolve, reject) => {
                 if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
                     return reject(new Error('Tenant url is null or empty, service is not selected'))
@@ -1478,13 +1564,23 @@ const mainStore = {
                 const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/widget-config`;
                 // const url = `http://localhost:3001/api/v1/e-kyc/verification/widget-config`
                 const authToken = getters.getSelectedService.access_token
-                const headers = UtilsMixin.methods.getKycServiceHeader(authToken);
+                if (!authToken) {
+                    return reject(new Error('authToken is invalid, service is not selected'))
+                }
+                dispatch('getValidToken', {
+                    serviceId: getters.getSelectedService.appId,
+                    grant_type: config.GRANT_TYPES_ENUM.CAVACH_API,
+                    tokenType: 'KYC'
+                }).then((token) => {
+                    const headers = UtilsMixin.methods.getKycServiceHeader(token);
                 const data = getters.getWidgetnConfig;
-                fetch(url, {
+                    return fetch(url, {
                     method: 'PATCH',
                     headers,
                     body: JSON.stringify(data),
-                }).then(response => response.json()).then(json => {
+                    })
+                })
+                    .then(response => response.json()).then(json => {
                     if (json.error) {
                         return reject(new Error(JWTExpiredErrorMessageHandling(json)))
                     }
@@ -1499,7 +1595,7 @@ const mainStore = {
 
 
         // Analytics
-        fetchAnalyticsOverview: ({ commit, getters }, payload = {}) => {
+        fetchAnalyticsOverview: ({ commit, getters, dispatch }, payload = {}) => {
             return new Promise((resolve, reject) => {
                 if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
                     return reject(new Error('Tenant url is null or empty, service is not selected'))
@@ -1510,7 +1606,20 @@ const mainStore = {
                     url += `?env=${encodeURIComponent(payload.env)}`;
                 }
                 const authToken = getters.getSelectedService.access_token
-                const headers = UtilsMixin.methods.getKycServiceHeader(authToken);
+                if (!authToken) {
+                    return reject(new Error('authToken is invalid, service is not selected'))
+                }
+                dispatch('getValidToken', {
+                    serviceId: getters.getSelectedService.appId,
+                    grant_type: config.GRANT_TYPES_ENUM.CAVACH_API,
+                    tokenType: 'KYC'
+                }).then((token) => {
+                    const headers = UtilsMixin.methods.getKycServiceHeader(token);
+                    return fetch(url, {
+                        method: 'GET',
+                        headers
+                    })
+                })
                 // resolve({
                 //     "success": true,
                 //     "message": "success",
@@ -1521,10 +1630,7 @@ const mainStore = {
                 //         "dropOffRate": 24.09
                 //     }
                 // })
-                return fetch(url, {
-                    method: 'GET',
-                    headers
-                }).then(response => response.json()).then(json => {
+                    .then(response => response.json()).then(json => {
                     if (json) {
                         if (json.error) {
                             return reject(new Error(JWTExpiredErrorMessageHandling(json)))
@@ -1542,7 +1648,7 @@ const mainStore = {
         },
 
 
-        fetchAnalyticsDemographicStats: ({ commit, getters }, payload = {}) => {
+        fetchAnalyticsDemographicStats: ({ commit, getters, dispatch }, payload = {}) => {
             return new Promise((resolve, reject) => {
                 if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
                     return reject(new Error('Tenant url is null or empty, service is not selected'))
@@ -1552,7 +1658,20 @@ const mainStore = {
                     url += `?env=${encodeURIComponent(payload.env)}`;
                 }
                 const authToken = getters.getSelectedService.access_token
-                const headers = UtilsMixin.methods.getKycServiceHeader(authToken);
+                if (!authToken) {
+                    return reject(new Error('authToken is invalid, service is not selected'))
+                }
+                dispatch('getValidToken', {
+                    serviceId: getters.getSelectedService.appId,
+                    grant_type: config.GRANT_TYPES_ENUM.CAVACH_API,
+                    tokenType: 'KYC'
+                }).then((token) => {
+                    const headers = UtilsMixin.methods.getKycServiceHeader(token);
+                    return fetch(url, {
+                        method: 'GET',
+                        headers
+                    })
+                })
                 // resolve({
                 //     "success": true,
                 //     "message": "success",
@@ -1578,10 +1697,7 @@ const mainStore = {
                 //         }
                 //     }
                 // })
-                return fetch(url, {
-                    method: 'GET',
-                    headers
-                }).then(response => response.json()).then(json => {
+                    .then(response => response.json()).then(json => {
                     if (json) {
                         if (json.error) {
                             return reject(new Error(JWTExpiredErrorMessageHandling(json)))
@@ -1599,7 +1715,7 @@ const mainStore = {
         },
 
 
-        fetchAnalyticsDeviceStats: ({ commit, getters }, payload = {}) => {
+        fetchAnalyticsDeviceStats: ({ commit, getters, dispatch }, payload = {}) => {
             return new Promise((resolve, reject) => {
                 if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
                     return reject(new Error('Tenant url is null or empty, service is not selected'))
@@ -1609,7 +1725,20 @@ const mainStore = {
                     url += `?env=${encodeURIComponent(payload.env)}`;
                 }
                 const authToken = getters.getSelectedService.access_token
-                const headers = UtilsMixin.methods.getKycServiceHeader(authToken);
+                if (!authToken) {
+                    return reject(new Error('authToken is invalid, service is not selected'))
+                }
+                dispatch('getValidToken', {
+                    serviceId: getters.getSelectedService.appId,
+                    grant_type: config.GRANT_TYPES_ENUM.CAVACH_API,
+                    tokenType: 'KYC'
+                }).then((token) => {
+                    const headers = UtilsMixin.methods.getKycServiceHeader(token);
+                    return fetch(url, {
+                        method: 'GET',
+                        headers
+                    })
+                })
                 // resolve({
                 //     "success": true,
                 //     "message": "success",
@@ -1624,10 +1753,7 @@ const mainStore = {
                 //         }
                 //     ]
                 // })
-                return fetch(url, {
-                    method: 'GET',
-                    headers
-                }).then(response => response.json()).then(json => {
+                    .then(response => response.json()).then(json => {
                     if (json) {
                         if (json.error) {
                             return reject(new Error(JWTExpiredErrorMessageHandling(json)))
@@ -1646,21 +1772,31 @@ const mainStore = {
 
         // .... 
 
-        createAppsKybWidgetConfig: ({ commit, getters }) => {
+        createAppsKybWidgetConfig: ({ commit, getters, dispatch }) => {
             return new Promise((resolve, reject) => {
                 if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
                     return reject(new Error('Tenant url is null or empty, service is not selected'))
                 }
                 const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyb/verification/widget-config`;
                 const authToken = getters.getSelectedService.access_token
-                const headers = UtilsMixin.methods.getKycServiceHeader(authToken);
+                if (!authToken) {
+                    return reject(new Error('authToken is invalid, service is not selected'))
+                }
+                dispatch('getValidToken', {
+                    serviceId: getters.getSelectedService.appId,
+                    grant_type: config.GRANT_TYPES_ENUM.CAVACH_API,
+                    tokenType: 'KYC'
+                }).then((token) => {
+                    const headers = UtilsMixin.methods.getKycServiceHeader(token);
                 const data = getters.getKybWidgetConfig;
                 data['issuerVerificationMethodId'] = getters.getKybWidgetConfig.issuerDID + '#key-1';
-                fetch(url, {
+                    return fetch(url, {
                     method: 'POST',
                     headers,
                     body: JSON.stringify(data),
-                }).then(response => response.json()).then(json => {
+                    })
+                })
+                    .then(response => response.json()).then(json => {
                     if (json.error) {
                         return reject(new Error(json.error?.details.join(' ') || json.error.join(' ')))
                     }
@@ -1672,18 +1808,28 @@ const mainStore = {
             })
         },
 
-        fetchAppsKybWidgetConfig: ({ commit, getters }) => {
+        fetchAppsKybWidgetConfig: ({ commit, getters, dispatch }) => {
             return new Promise((resolve, reject) => {
                 if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
                     return reject(new Error('Tenant url is null or empty, service is not selected'))
                 }
                 const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyb/verification/widget-config`;
                 const authToken = getters.getSelectedService.access_token
-                const headers = UtilsMixin.methods.getKycServiceHeader(authToken);
+                if (!authToken) {
+                    return reject(new Error('authToken is invalid, service is not selected'))
+                }
+                dispatch('getValidToken', {
+                    serviceId: getters.getSelectedService.appId,
+                    grant_type: config.GRANT_TYPES_ENUM.CAVACH_API,
+                    tokenType: 'KYC'
+                }).then((token) => {
+                    const headers = UtilsMixin.methods.getKycServiceHeader(token);
                 return fetch(url, {
                     method: 'GET',
                     headers
-                }).then(response => response.json()).then(json => {
+                })
+                })
+                    .then(response => response.json()).then(json => {
                     if (json) {
                         if (json.error) {
                             return reject(new Error(json.error?.details.join(' ') || json.error.join(' ')))
@@ -1700,21 +1846,31 @@ const mainStore = {
             })
         },
 
-        updateAppsKybWidgetConfig: ({ commit, getters }) => {
+        updateAppsKybWidgetConfig: ({ commit, getters, dispatch }) => {
             return new Promise((resolve, reject) => {
                 if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
                     return reject(new Error('Tenant url is null or empty, service is not selected'))
                 }
                 const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyb/verification/widget-config`;
                 const authToken = getters.getSelectedService.access_token
-                const headers = UtilsMixin.methods.getKycServiceHeader(authToken);
+                if (!authToken) {
+                    return reject(new Error('authToken is invalid, service is not selected'))
+                }
+                dispatch('getValidToken', {
+                    serviceId: getters.getSelectedService.appId,
+                    grant_type: config.GRANT_TYPES_ENUM.CAVACH_API,
+                    tokenType: 'KYC'
+                }).then((token) => {
+                    const headers = UtilsMixin.methods.getKycServiceHeader(token);
                 const data = getters.getKybWidgetConfig;
                 data['issuerVerificationMethodId'] = getters.getKybWidgetConfig.issuerDID + '#key-1';
-                fetch(url, {
+                    return fetch(url, {
                     method: 'PATCH',
                     headers,
                     body: JSON.stringify(data),
-                }).then(response => response.json()).then(json => {
+                    })
+                })
+                    .then(response => response.json()).then(json => {
                     if (json.error) {
                         return reject(new Error(json.error?.details.join(' ') || json.error.join(' ')))
                     }
@@ -1728,7 +1884,7 @@ const mainStore = {
 
 
         // webhook config
-        createAppWebhookConfig: ({ commit, getters }, payload) => {
+        createAppWebhookConfig: ({ commit, getters, dispatch }, payload) => {
             return new Promise((resolve, reject) => {
                 if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
                     return reject(new Error('Tenant url is null or empty, service is not selected'))
@@ -1736,13 +1892,23 @@ const mainStore = {
                 const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/webhook-config`;
                 // const url = `http://localhost:3001/api/v1/e-kyc/verification/webhook-config`
                 const authToken = getters.getSelectedService.access_token
-                const headers = UtilsMixin.methods.getKycServiceHeader(authToken);
+                if (!authToken) {
+                    return reject(new Error('authToken is invalid, service is not selected'))
+                }
+                dispatch('getValidToken', {
+                    serviceId: getters.getSelectedService.appId,
+                    grant_type: config.GRANT_TYPES_ENUM.CAVACH_API,
+                    tokenType: 'KYC'
+                }).then((token) => {
+                    const headers = UtilsMixin.methods.getKycServiceHeader(token);
 
-                fetch(url, {
+                    return fetch(url, {
                     method: 'POST',
                     headers,
                     body: JSON.stringify(payload)
-                }).then(response => response.json())
+                    })
+                })
+                    .then(response => response.json())
                     .then(json => {
                         if (json.error) {
                             return reject(new Error(JWTExpiredErrorMessageHandling(json)))
@@ -1755,7 +1921,7 @@ const mainStore = {
             })
         },
 
-        createMasterWallet: ({ getters }, payload) => {
+        createMasterWallet: ({ getters, dispatch }, payload) => {
             return new Promise((resolve, reject) => {
                 if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
                     return reject(new Error('Tenant url is null or empty, service is not selected'))
@@ -1763,13 +1929,23 @@ const mainStore = {
                 const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/wallet`;
                 // const url = `http://localhost:3001/api/v1/wallet`
                 const authToken = getters.getSelectedService.access_token
-                const headers = UtilsMixin.methods.getKycServiceHeader(authToken);
+                if (!authToken) {
+                    return reject(new Error('authToken is invalid, service is not selected'))
+                }
+                dispatch('getValidToken', {
+                    serviceId: getters.getSelectedService.appId,
+                    grant_type: config.GRANT_TYPES_ENUM.CAVACH_API,
+                    tokenType: 'KYC'
+                }).then((token) => {
+                    const headers = UtilsMixin.methods.getKycServiceHeader(token);
 
-                fetch(url, {
+                    return fetch(url, {
                     method: 'POST',
                     headers,
                     body: JSON.stringify(payload)
-                }).then(response => response.json())
+                    })
+                })
+                    .then(response => response.json())
                     .then(json => {
                         if (json.error) {
                             return reject(new Error(JWTExpiredErrorMessageHandling(json)))
@@ -1782,7 +1958,7 @@ const mainStore = {
             })
         },
 
-        fetchAppWebhookConfig: ({ commit, getters }) => {
+        fetchAppWebhookConfig: ({ commit, getters, dispatch }) => {
             return new Promise((resolve, reject) => {
                 if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
                     return reject(new Error('Tenant url is null or empty, service is not selected'))
@@ -1790,11 +1966,21 @@ const mainStore = {
                 const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/webhook-config`;
                 // const url = `http://localhost:3001/api/v1/e-kyc/verification/webhook-config/`
                 const authToken = getters.getSelectedService.access_token
-                const headers = UtilsMixin.methods.getKycServiceHeader(authToken);
+                if (!authToken) {
+                    return reject(new Error('authToken is invalid, service is not selected'))
+                }
+                dispatch('getValidToken', {
+                    serviceId: getters.getSelectedService.appId,
+                    grant_type: config.GRANT_TYPES_ENUM.CAVACH_API,
+                    tokenType: 'KYC'
+                }).then((token) => {
+                    const headers = UtilsMixin.methods.getKycServiceHeader(token);
                 return fetch(url, {
                     method: 'GET',
                     headers
-                }).then(response => response.json()).then(json => {
+                })
+                })
+                    .then(response => response.json()).then(json => {
                     if (json) {
                         if (json.error) {
                             return reject(new Error(JWTExpiredErrorMessageHandling(json)))
@@ -1812,7 +1998,7 @@ const mainStore = {
             })
         },
 
-        updateAppWebhookConfig: ({ commit, getters }, payload) => {
+        updateAppWebhookConfig: ({ commit, getters, dispatch }, payload) => {
             return new Promise((resolve, reject) => {
                 if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
                     return reject(new Error('Tenant url is null or empty, service is not selected'))
@@ -1820,12 +2006,22 @@ const mainStore = {
                 const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/webhook-config/${payload._id}`;
                 // const url = `http://localhost:3001/api/v1/e-kyc/verification/webhook-config/${payload._id}`
                 const authToken = getters.getSelectedService.access_token
-                const headers = UtilsMixin.methods.getKycServiceHeader(authToken);
-                fetch(url, {
+                if (!authToken) {
+                    return reject(new Error('authToken is invalid, service is not selected'))
+                }
+                dispatch('getValidToken', {
+                    serviceId: getters.getSelectedService.appId,
+                    grant_type: config.GRANT_TYPES_ENUM.CAVACH_API,
+                    tokenType: 'KYC'
+                }).then((token) => {
+                    const headers = UtilsMixin.methods.getKycServiceHeader(token);
+                    return fetch(url, {
                     method: 'PATCH',
                     headers,
                     body: JSON.stringify(payload),
-                }).then(response => response.json()).then(json => {
+                    })
+                })
+                    .then(response => response.json()).then(json => {
                     if (json.error) {
                         return reject(new Error(JWTExpiredErrorMessageHandling(json)))
                     }
@@ -1839,7 +2035,7 @@ const mainStore = {
         },
 
 
-        deleteAppWebhookConfig: ({ commit, getters }, payload) => {
+        deleteAppWebhookConfig: ({ commit, getters, dispatch }, payload) => {
             return new Promise((resolve, reject) => {
                 if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
                     return reject(new Error('Tenant url is null or empty, service is not selected'))
@@ -1847,11 +2043,21 @@ const mainStore = {
                 const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/webhook-config/${payload._id}`;
                 // const url = `http://localhost:3001/api/v1/e-kyc/verification/webhook-config/${payload._id}`
                 const authToken = getters.getSelectedService.access_token
-                const headers = UtilsMixin.methods.getKycServiceHeader(authToken);
-                fetch(url, {
+                if (!authToken) {
+                    return reject(new Error('authToken is invalid, service is not selected'))
+                }
+                dispatch('getValidToken', {
+                    serviceId: getters.getSelectedService.appId,
+                    grant_type: config.GRANT_TYPES_ENUM.CAVACH_API,
+                    tokenType: 'KYC'
+                }).then((token) => {
+                    const headers = UtilsMixin.methods.getKycServiceHeader(token);
+                    return fetch(url, {
                     method: 'DELETE',
                     headers,
-                }).then(response => response.json()).then(json => {
+                    })
+                })
+                    .then(response => response.json()).then(json => {
                     if (json.error) {
                         return reject(new Error(JWTExpiredErrorMessageHandling(json)))
                     }
@@ -1964,7 +2170,7 @@ const mainStore = {
         },
 
 
-        fetchSessionsDetailsById2: ({ commit, getters }, payload) => {
+        fetchSessionsDetailsById2: ({ commit, getters, dispatch }, payload) => {
             return new Promise((resolve, reject) => {
                 const { sessionId } = payload
                 if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
@@ -1973,11 +2179,21 @@ const mainStore = {
                 const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/session/${sessionId}`;
                 // const url = `http://localhost:3001/api/v1/e-kyc/verification/session/${sessionId}`;
                 const authToken = getters.getSelectedService.access_token
-                const headers = UtilsMixin.methods.getKycServiceHeader(authToken);
-                fetch(url, {
+                if (!authToken) {
+                    return reject(new Error('authToken is invalid, service is not selected'))
+                }
+                dispatch('getValidToken', {
+                    serviceId: getters.getSelectedService.appId,
+                    grant_type: config.GRANT_TYPES_ENUM.CAVACH_API,
+                    tokenType: 'KYC'
+                }).then((token) => {
+                    const headers = UtilsMixin.methods.getKycServiceHeader(token);
+                    return fetch(url, {
                     method: 'GET',
                     headers
-                }).then(response => response.json()).then(json => {
+                    })
+                })
+                    .then(response => response.json()).then(json => {
                     if (json.error) {
                         return reject(new Error(json.error?.details.join(' ') || json.error.join(' ')))
                     }
@@ -2089,7 +2305,7 @@ const mainStore = {
                     });
             });
         },
-        fetchSessionsDetailsById: ({ getters }, payload) => {
+        fetchSessionsDetailsById: ({ getters, dispatch }, payload) => {
             return new Promise((resolve, reject) => {
                 const { sessionId, env } = payload
                 let envVal = env
@@ -2102,11 +2318,21 @@ const mainStore = {
                 const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/user/${sessionId}?env=${envVal}`;
                 // let url = `http://localhost:3001/api/v1/user/${sessionId}`
                 const authToken = getters.getSelectedService.access_token
-                const headers = UtilsMixin.methods.getKycServiceHeader(authToken);
-                fetch(url, {
+                if (!authToken) {
+                    return reject(new Error('authToken is invalid, service is not selected'))
+                }
+                dispatch('getValidToken', {
+                    serviceId: getters.getSelectedService.appId,
+                    grant_type: config.GRANT_TYPES_ENUM.CAVACH_API,
+                    tokenType: 'KYC'
+                }).then((token) => {
+                    const headers = UtilsMixin.methods.getKycServiceHeader(token);
+                    return fetch(url, {
                     method: 'GET',
                     headers
-                }).then(response => response.json()).then(json => {
+                    })
+                })
+                    .then(response => response.json()).then(json => {
                     if (json.error) {
                         return reject(new Error(json.error?.details.join(' ') || json.error.join(' ')))
                     }
@@ -2144,7 +2370,7 @@ const mainStore = {
         },
 
 
-        async fetchUsageForAService({ getters }, payload) {
+        async fetchUsageForAService({ getters, dispatch }, payload) {
             const { startDate, endDate } = payload
             if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
                 throw new Error('Tenant url is null or empty, service is not selected')
@@ -2152,7 +2378,15 @@ const mainStore = {
             const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/usage?serviceId=${getters.getSelectedService.appId}&startDate=${startDate}&endDate=${endDate}`;
             // const url = `http://localhost:3001/api/v1/usage?serviceId=${getters.getSelectedService.appId}&startDate=${startDate}&endDate=${endDate}`;            
             const authToken = getters.getSelectedService.access_token
-            const headers = UtilsMixin.methods.getKycServiceHeader(authToken);
+            if (!authToken) {
+                throw (new Error('authToken is invalid, service is not selected'))
+            }
+            const token = await dispatch('getValidToken', {
+                serviceId: getters.getSelectedService.appId,
+                grant_type: config.GRANT_TYPES_ENUM.CAVACH_API,
+                tokenType: 'KYC'
+            });
+            const headers = UtilsMixin.methods.getKycServiceHeader(token);
             const resp = await fetch(url, {
                 method: 'GET',
                 headers
@@ -2192,14 +2426,18 @@ const mainStore = {
             }
         },
 
-        async downloadKybUploadedFile({ getters }, payload) {
+        async downloadKybUploadedFile({ getters, dispatch }, payload) {
             const { fileId } = payload
             if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
                 throw new Error('Tenant url is null or empty, service is not selected')
             }
             const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/document/download/${fileId}`;
-
-            const headers = UtilsMixin.methods.getKycServiceHeader(getters.getSelectedService.kyb_access_token);
+            const token = await dispatch('getValidToken', {
+                serviceId: getters.getSelectedService.appId,
+                grant_type: config.GRANT_TYPES_ENUM.CAVACH_KYB_API,
+                tokenType: 'KYB'
+            });
+            const headers = UtilsMixin.methods.getKycServiceHeader(token);
 
 
 
@@ -2221,14 +2459,22 @@ const mainStore = {
             return blob;
 
         },
-        async fetchUsageDetailsForAService({ getters, commit }, payload) {
+        async fetchUsageDetailsForAService({ getters, commit, dispatch }, payload) {
             const { startDate, endDate } = payload
             if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
                 throw new Error('Tenant url is null or empty, service is not selected')
             }
             const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/usage/detail?serviceId=${getters.getSelectedService.appId}&startDate=${startDate}&endDate=${endDate}`;
             const authToken = getters.getSelectedService.access_token
-            const headers = UtilsMixin.methods.getKycServiceHeader(authToken);
+            if (!authToken) {
+                throw new Error('authToken is invalid, service is not selected')
+            }
+            const token = await dispatch('getValidToken', {
+                serviceId: getters.getSelectedService.appId,
+                grant_type: config.GRANT_TYPES_ENUM.CAVACH_API,
+                tokenType: 'KYC'
+            });
+            const headers = UtilsMixin.methods.getKycServiceHeader(token);
             const resp = await fetch(url, {
                 method: 'GET',
                 headers
@@ -2245,7 +2491,7 @@ const mainStore = {
                 return json
             }
         },
-        async fetchCompanyExecutives({ getters, commit }, payload) {
+        async fetchCompanyExecutives({ getters, commit, dispatch }, payload) {
             const { companyId } = payload
             if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
                 throw new Error('Tenant url is null or empty, service is not selected')
@@ -2255,7 +2501,15 @@ const mainStore = {
             }
             const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyb/verification/company/${companyId}/company-executives`;
             const authToken = getters.getSelectedService.kyb_access_token
-            const headers = UtilsMixin.methods.getKycServiceHeader(authToken);
+            if (!authToken) {
+                throw (new Error('authToken is invalid, service is not selected'))
+            }
+            const token = await dispatch('getValidToken', {
+                serviceId: getters.getSelectedService.appId,
+                grant_type: config.GRANT_TYPES_ENUM.CAVACH_KYB_API,
+                tokenType: 'KYB'
+            });
+            const headers = UtilsMixin.methods.getKycServiceHeader(token);
             const resp = await fetch(url, {
                 method: 'GET',
                 headers
@@ -2295,7 +2549,13 @@ const mainStore = {
                 }
 
                 let url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyb/verification/company/${companyId}`;
-                let headers = UtilsMixin.methods.getKycServiceHeader(getters.getSelectedService.kyb_access_token);
+                dispatch('getValidToken', {
+                    serviceId: getters.getSelectedService.appId,
+                    grant_type: config.GRANT_TYPES_ENUM.CAVACH_API,
+                    tokenType: 'KYC'
+                }).then((token) => {
+                    let headers = UtilsMixin.methods.getKycServiceHeader(token);
+
                 const requestBody = { status };
 
                 const dependentServiceId = getters.getSelectedService.dependentServices[0];
@@ -2313,7 +2573,9 @@ const mainStore = {
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify(requestBody)
-                }).then(response => response.json()).then(json => {
+                })
+                })
+                     .then(response => response.json()).then(json => {
                     if (json.error) {
                         return reject(new Error(json.error?.details?.join(' ') || json.error?.join?.(' ') || json.error || 'Unknown error'))
                     }
@@ -2331,7 +2593,7 @@ const mainStore = {
             })
 
         },
-        async checkComplianceStatus({ getters, commit }, payload) {
+        async checkComplianceStatus({ getters, commit, dispatch }, payload) {
             const { companyId } = payload
             if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
                 throw new Error('Tenant url is null or empty, service is not selected')
@@ -2341,8 +2603,16 @@ const mainStore = {
             }
             const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/compliance?entityId=${companyId}`;
             const authToken = getters.getSelectedService.kyb_access_token
+            if (!authToken) {
+                throw (new Error('authToken is invalid, service is not selected'))
+            }
+            const token = await dispatch('getValidToken', {
+                serviceId: getters.getSelectedService.appId,
+                grant_type: config.GRANT_TYPES_ENUM.CAVACH_KYB_API,
+                tokenType: 'KYB'
+            });
             const headers =
-                UtilsMixin.methods.getKycServiceHeader(authToken)
+                UtilsMixin.methods.getKycServiceHeader(token)
 
             const resp = await fetch(url, {
                 method: 'GET',
@@ -2362,14 +2632,22 @@ const mainStore = {
 
         },
         // - KYC Credit
-        async fetchKYCCredits({ getters, commit }) {
+        async fetchKYCCredits({ getters, commit, dispatch }) {
 
             if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
                 throw new Error('Tenant url is null or empty, service is not selected')
             }
             const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/credit`;
             const authToken = getters.getSelectedService.access_token
-            const headers = UtilsMixin.methods.getKycServiceHeader(authToken);
+            if (!authToken) {
+                throw (new Error('authToken is invalid, service is not selected'))
+            }
+            const token = await dispatch('getValidToken', {
+                serviceId: getters.getSelectedService.appId,
+                grant_type: config.GRANT_TYPES_ENUM.CAVACH_API,
+                tokenType: 'KYC'
+            });
+            const headers = UtilsMixin.methods.getKycServiceHeader(token);
             const resp = await fetch(url, {
                 method: 'GET',
                 headers
@@ -2385,15 +2663,21 @@ const mainStore = {
             }
             return []
         },
-        async submitComplianceDetail({ getters }, payload) {
-            const { companyId, type, status, reasonDetail, reason, accessToken } = payload;
+        async submitComplianceDetail({ getters, dispatch }, payload) {
+            const { companyId, type, status, reasonDetail, reason, accessToken, serviceId } = payload;
             if (!companyId) {
                 throw new Error('Company Id is null or empty')
             }
             const url = `${sanitizeUrl(config.KYC_SERVER_BASE_URL)}/api/v1/compliance?type=${type}`;
             // const url = `http://localhost:3009/api/v1/compliance?type=${type}`;
 
-            const headers = UtilsMixin.methods.getKycServiceHeader(accessToken);
+            const token = await dispatch('getValidToken', {
+                token: accessToken,
+                serviceId,
+                grant_type: config.GRANT_TYPES_ENUM.CAVACH_KYB_API,
+                tokenType: 'KYB'
+            });
+            const headers = UtilsMixin.methods.getKycServiceHeader(token);
             const body = {
                 companyId,
                 status
@@ -2415,14 +2699,20 @@ const mainStore = {
             }
             return json;
         },
-        async finalizeCompanyReview({ getters }, payload) {
-            const { companyId, status, accessToken } = payload;
+        async finalizeCompanyReview({ getters, dispatch }, payload) {
+            const { companyId, status, accessToken, serviceId } = payload;
             if (!companyId) {
                 throw new Error('Company Id is null or empty')
             }
             const url = `${sanitizeUrl(config.KYC_SERVER_BASE_URL)}/api/v1/e-kyb/verification/company/${companyId}/status`;
             // const url = `http://localhost:3009/api/v1/e-kyb/verification/company/${companyId}/status`;
-            const headers = UtilsMixin.methods.getKycServiceHeader(accessToken);
+            const token = await dispatch('getValidToken', {
+                token: accessToken,
+                serviceId,
+                grant_type: config.GRANT_TYPES_ENUM.CAVACH_KYB_API,
+                tokenType: 'KYB'
+            });
+            const headers = UtilsMixin.methods.getKycServiceHeader(token);
             const body = {
                 status
             };
@@ -3577,6 +3867,39 @@ const mainStore = {
             })
 
         },
+
+        async getValidToken({ getters, dispatch }, {
+            serviceId,
+            grant_type,
+            token,
+            tokenType = 'KYC' // 'KYC' | 'KYB'
+        }) {
+            // 1. If token is passed directly (payload case)
+            if (token && !UtilsMixin.methods.isTokenExpired(token)) {
+                return token;
+            }
+            let service = getters.getSelectedService;
+            // 2. Pick correct token from store
+            let storeToken =
+                tokenType === 'KYB'
+                    ? service?.kyb_access_token
+                    : service?.access_token;
+            // 3. Check expiry
+            if (!storeToken || UtilsMixin.methods.isTokenExpired(storeToken)) {
+                await dispatch('keepAccessTokenReadyForApp', {
+                    serviceId,
+                    grant_type
+                });
+
+                // refresh from store
+                service = getters.getSelectedService;
+                storeToken =
+                    tokenType === 'KYB'
+                        ? service?.kyb_access_token
+                        : service?.access_token;
+            }
+            return storeToken;
+        }
     }
 }
 
