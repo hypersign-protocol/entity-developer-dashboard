@@ -2845,7 +2845,7 @@ const mainStore = {
 
 
 
-        resolveDIDForAKycService({ getters, }, payload = {}) {
+        resolveDIDForAKycService({ getters, dispatch }, payload = {}) {
             return new Promise(function (resolve, reject) {
                 {
                     let tenantUrl = ""
@@ -2901,7 +2901,7 @@ const mainStore = {
             })
 
         },
-        resolveDIDForAService({ commit, getters, }, payload) {
+        resolveDIDForAService({ commit, getters, dispatch }, payload) {
             return new Promise(function (resolve, reject) {
                 {
 
