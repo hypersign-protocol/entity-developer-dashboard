@@ -1178,7 +1178,7 @@ const mainStore = {
                 dispatch('getValidToken', {
                     serviceId: getters.getSelectedService.appId,
                     grant_type: config.GRANT_TYPES_ENUM.CAVACH_API,
-                    tokenType: 'KYC'
+                    tokenStorageType: "Default"
                 }).then((token) => {
                     const headers = UtilsMixin.methods.getKycServiceHeader(token);
                     return fetch(url, {
@@ -1250,7 +1250,7 @@ const mainStore = {
                 dispatch('getValidToken', {
                     serviceId: getters.getSelectedService.appId,
                     grant_type: config.GRANT_TYPES_ENUM.CAVACH_API,
-                    tokenType: 'KYC'
+                    tokenStorageType: "Default"
                 }).then((token) => {
                     const headers = UtilsMixin.methods.getKycServiceHeader(token);
                     return fetch(url, {
@@ -1290,7 +1290,7 @@ const mainStore = {
                 dispatch('getValidToken', {
                     serviceId: getters.getSelectedService.appId,
                     grant_type: config.GRANT_TYPES_ENUM.CAVACH_API, // or correct KYC grant
-                    tokenType: 'KYC'
+                    tokenStorageType: "Default"
                 }).then((token) => {
                     const headers = UtilsMixin.methods.getKycServiceHeader(token);
                     return fetch(url, {
@@ -1324,7 +1324,7 @@ const mainStore = {
                 dispatch('getValidToken', {
                     serviceId: getters.getSelectedService.appId,
                     grant_type: config.GRANT_TYPES_ENUM.CAVACH_API, // or correct KYC grant
-                    tokenType: 'KYC'
+                    tokenStorageType: "Default"
                 }).then((token) => {
                     const headers = UtilsMixin.methods.getKycServiceHeader(token);
                     return fetch(url, {
@@ -1422,7 +1422,7 @@ const mainStore = {
                 dispatch('getValidToken', {
                     serviceId: getters.getSelectedService.appId,
                     grant_type: config.GRANT_TYPES_ENUM.CAVACH_API, // or correct KYC grant
-                    tokenType: 'KYC'
+                    tokenStorageType: "Default"
                 }).then((token) => {
                     const headers = UtilsMixin.methods.getKycServiceHeader(token);
                     return fetch(url, {
@@ -1457,7 +1457,7 @@ const mainStore = {
                 dispatch('getValidToken', {
                     serviceId: getters.getSelectedService.appId,
                     grant_type: config.GRANT_TYPES_ENUM.CAVACH_API,
-                    tokenType: 'KYC'
+                    tokenStorageType: "Default"
                 }).then((token) => {
                     const headers = UtilsMixin.methods.getKycServiceHeader(token);
                     return fetch(url, {
@@ -1494,7 +1494,7 @@ const mainStore = {
                 dispatch('getValidToken', {
                     serviceId: getters.getSelectedService.appId,
                     grant_type: config.GRANT_TYPES_ENUM.CAVACH_API,
-                    tokenType: 'KYC'
+                    tokenStorageType: "Default"
                 }).then((token) => {
                     const headers = UtilsMixin.methods.getKycServiceHeader(token);
                 const data = getters.getWidgetnConfig;
@@ -1530,7 +1530,7 @@ const mainStore = {
                 dispatch('getValidToken', {
                     serviceId: getters.getSelectedService.appId,
                     grant_type: config.GRANT_TYPES_ENUM.CAVACH_API,
-                    tokenType: 'KYC'
+                    tokenStorageType: "Default"
                 }).then((token) => {
                     const headers = UtilsMixin.methods.getKycServiceHeader(token);
                 return fetch(url, {
@@ -1570,7 +1570,7 @@ const mainStore = {
                 dispatch('getValidToken', {
                     serviceId: getters.getSelectedService.appId,
                     grant_type: config.GRANT_TYPES_ENUM.CAVACH_API,
-                    tokenType: 'KYC'
+                    tokenStorageType: "Default"
                 }).then((token) => {
                     const headers = UtilsMixin.methods.getKycServiceHeader(token);
                 const data = getters.getWidgetnConfig;
@@ -1612,7 +1612,7 @@ const mainStore = {
                 dispatch('getValidToken', {
                     serviceId: getters.getSelectedService.appId,
                     grant_type: config.GRANT_TYPES_ENUM.CAVACH_API,
-                    tokenType: 'KYC'
+                    tokenStorageType: "Default"
                 }).then((token) => {
                     const headers = UtilsMixin.methods.getKycServiceHeader(token);
                     return fetch(url, {
@@ -1664,7 +1664,7 @@ const mainStore = {
                 dispatch('getValidToken', {
                     serviceId: getters.getSelectedService.appId,
                     grant_type: config.GRANT_TYPES_ENUM.CAVACH_API,
-                    tokenType: 'KYC'
+                    tokenStorageType: "Default"
                 }).then((token) => {
                     const headers = UtilsMixin.methods.getKycServiceHeader(token);
                     return fetch(url, {
@@ -1731,7 +1731,7 @@ const mainStore = {
                 dispatch('getValidToken', {
                     serviceId: getters.getSelectedService.appId,
                     grant_type: config.GRANT_TYPES_ENUM.CAVACH_API,
-                    tokenType: 'KYC'
+                    tokenStorageType: "Default"
                 }).then((token) => {
                     const headers = UtilsMixin.methods.getKycServiceHeader(token);
                     return fetch(url, {
@@ -1785,7 +1785,7 @@ const mainStore = {
                 dispatch('getValidToken', {
                     serviceId: getters.getSelectedService.appId,
                     grant_type: config.GRANT_TYPES_ENUM.CAVACH_API,
-                    tokenType: 'KYC'
+                    tokenStorageType: "Default"
                 }).then((token) => {
                     const headers = UtilsMixin.methods.getKycServiceHeader(token);
                 const data = getters.getKybWidgetConfig;
@@ -1821,7 +1821,7 @@ const mainStore = {
                 dispatch('getValidToken', {
                     serviceId: getters.getSelectedService.appId,
                     grant_type: config.GRANT_TYPES_ENUM.CAVACH_API,
-                    tokenType: 'KYC'
+                    tokenStorageType: "Default"
                 }).then((token) => {
                     const headers = UtilsMixin.methods.getKycServiceHeader(token);
                 return fetch(url, {
@@ -1859,7 +1859,7 @@ const mainStore = {
                 dispatch('getValidToken', {
                     serviceId: getters.getSelectedService.appId,
                     grant_type: config.GRANT_TYPES_ENUM.CAVACH_API,
-                    tokenType: 'KYC'
+                    tokenStorageType: "Default"
                 }).then((token) => {
                     const headers = UtilsMixin.methods.getKycServiceHeader(token);
                 const data = getters.getKybWidgetConfig;
@@ -1898,7 +1898,7 @@ const mainStore = {
                 dispatch('getValidToken', {
                     serviceId: getters.getSelectedService.appId,
                     grant_type: config.GRANT_TYPES_ENUM.CAVACH_API,
-                    tokenType: 'KYC'
+                    tokenStorageType: "Default"
                 }).then((token) => {
                     const headers = UtilsMixin.methods.getKycServiceHeader(token);
 
@@ -1935,10 +1935,9 @@ const mainStore = {
                 dispatch('getValidToken', {
                     serviceId: getters.getSelectedService.appId,
                     grant_type: config.GRANT_TYPES_ENUM.CAVACH_API,
-                    tokenType: 'KYC'
+                    tokenStorageType: "Default"
                 }).then((token) => {
                     const headers = UtilsMixin.methods.getKycServiceHeader(token);
-
                     return fetch(url, {
                     method: 'POST',
                     headers,
@@ -1972,7 +1971,7 @@ const mainStore = {
                 dispatch('getValidToken', {
                     serviceId: getters.getSelectedService.appId,
                     grant_type: config.GRANT_TYPES_ENUM.CAVACH_API,
-                    tokenType: 'KYC'
+                    tokenStorageType: "Default"
                 }).then((token) => {
                     const headers = UtilsMixin.methods.getKycServiceHeader(token);
                 return fetch(url, {
@@ -2012,7 +2011,7 @@ const mainStore = {
                 dispatch('getValidToken', {
                     serviceId: getters.getSelectedService.appId,
                     grant_type: config.GRANT_TYPES_ENUM.CAVACH_API,
-                    tokenType: 'KYC'
+                    tokenStorageType: "Default"
                 }).then((token) => {
                     const headers = UtilsMixin.methods.getKycServiceHeader(token);
                     return fetch(url, {
@@ -2049,7 +2048,7 @@ const mainStore = {
                 dispatch('getValidToken', {
                     serviceId: getters.getSelectedService.appId,
                     grant_type: config.GRANT_TYPES_ENUM.CAVACH_API,
-                    tokenType: 'KYC'
+                    tokenStorageType: "Default"
                 }).then((token) => {
                     const headers = UtilsMixin.methods.getKycServiceHeader(token);
                     return fetch(url, {
@@ -2185,7 +2184,7 @@ const mainStore = {
                 dispatch('getValidToken', {
                     serviceId: getters.getSelectedService.appId,
                     grant_type: config.GRANT_TYPES_ENUM.CAVACH_API,
-                    tokenType: 'KYC'
+                    tokenStorageType: "Default"
                 }).then((token) => {
                     const headers = UtilsMixin.methods.getKycServiceHeader(token);
                     return fetch(url, {
@@ -2324,7 +2323,7 @@ const mainStore = {
                 dispatch('getValidToken', {
                     serviceId: getters.getSelectedService.appId,
                     grant_type: config.GRANT_TYPES_ENUM.CAVACH_API,
-                    tokenType: 'KYC'
+                    tokenStorageType: "Default"
                 }).then((token) => {
                     const headers = UtilsMixin.methods.getKycServiceHeader(token);
                     return fetch(url, {
@@ -2384,7 +2383,7 @@ const mainStore = {
             const token = await dispatch('getValidToken', {
                 serviceId: getters.getSelectedService.appId,
                 grant_type: config.GRANT_TYPES_ENUM.CAVACH_API,
-                tokenType: 'KYC'
+                tokenStorageType: "Default"
             });
             const headers = UtilsMixin.methods.getKycServiceHeader(token);
             const resp = await fetch(url, {
@@ -2472,7 +2471,7 @@ const mainStore = {
             const token = await dispatch('getValidToken', {
                 serviceId: getters.getSelectedService.appId,
                 grant_type: config.GRANT_TYPES_ENUM.CAVACH_API,
-                tokenType: 'KYC'
+                tokenStorageType: "Default"
             });
             const headers = UtilsMixin.methods.getKycServiceHeader(token);
             const resp = await fetch(url, {
@@ -2552,7 +2551,7 @@ const mainStore = {
                 dispatch('getValidToken', {
                     serviceId: getters.getSelectedService.appId,
                     grant_type: config.GRANT_TYPES_ENUM.CAVACH_API,
-                    tokenType: 'KYC'
+                    tokenStorageType: "Default"
                 }).then((token) => {
                     let headers = UtilsMixin.methods.getKycServiceHeader(token);
 
@@ -2645,7 +2644,7 @@ const mainStore = {
             const token = await dispatch('getValidToken', {
                 serviceId: getters.getSelectedService.appId,
                 grant_type: config.GRANT_TYPES_ENUM.CAVACH_API,
-                tokenType: 'KYC'
+                tokenStorageType: "Default"
             });
             const headers = UtilsMixin.methods.getKycServiceHeader(token);
             const resp = await fetch(url, {
