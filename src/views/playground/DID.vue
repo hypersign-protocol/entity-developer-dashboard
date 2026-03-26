@@ -285,9 +285,8 @@ h5 span {
         <small style="color:grey">Please add the TXT record in your DNS for DNS-01 validation</small>
       </div>
       <div class="form-group">
-        <label for="orgDid"><strong>Logo Url</strong> (optional): </label>
-        <input type="text" class="form-control" id="appId" v-model="domainLogoUrl"
-          placeholder="Enter logo url (e.g https://example.com/logo.png)" />
+        <label for="orgDid"><strong>Logo</strong> (optional): </label>
+        <LogoUploader v-model="domainLogoUrl"></LogoUploader>
       </div>
 
       <div class="text-center mt-3">
@@ -308,9 +307,10 @@ import HfButtons from "../../components/element/HfButtons.vue"
 import ToolTip from "../../components/element/ToolTip.vue"
 import DomainLinkage from '@hypersign-protocol/domain-linkage-verifier'
 import { mapState, mapGetters, mapActions, mapMutations } from "vuex";
+import LogoUploader from '../../components/element/LogoUploader.vue';
 export default {
   name: "DIDs",
-  components: { HfPopUp, StudioSideBar, HfButtons, ToolTip, },
+  components: { HfPopUp, StudioSideBar, HfButtons, ToolTip, LogoUploader },
   watch: {
   selectedDid: {
     handler(newValue) {
@@ -468,10 +468,7 @@ export default {
           domain: this.domain.includes('http') ? this.domain : new URL('https://' + this.domain),
           txtRecord: "google-site-verification=sDjFsne7lhpJSjnq86xe-SakwbtwdqhRjJ1fCHcTP2E"//this.domainDidLinkTxtRecordText
         }
-
-        console.log(params)
         const dns01Result = await domainLinkage.verifyDnsTxtRecord(params.domain, params.txtRecord)
-        console.log(dns01Result)
         if (dns01Result && dns01Result.verified) {
           // 
           this.verifyButtonText = 'DNS01 verified'
@@ -502,16 +499,14 @@ export default {
                 deactivate: false
               }
 
-              console.log('Callling before updateDIDsForAService')
               await this.updateDIDsForAService(payload)
-              console.log('Callling after updateDIDsForAService')
 
               // TODO: update the UI  to looks like user have verifed his domain
             } else {
-              console.log('this.domainDIDDocument.service is null or empty')
+              // console.log('this.domainDIDDocument.service is null or empty')
             }
           } else {
-            console.log('domainDIDDocument is null or empty')
+            // console.log('domainDIDDocument is null or empty')
           }
         } else {
           throw new Error('Could not verify your DNS, if you have already added TXT record, try after sometime')
@@ -531,7 +526,6 @@ export default {
     },
 
     async viewSessionDetails(sessionId) {
-      console.log(sessionId)
       this.$router.push({ name: "sessionDetails", params: { appId: this.$route.params.appId, sessionId } });
       this.shiftContainer(false);
     },
@@ -555,7 +549,7 @@ export default {
     },
 
     onInputTag() {
-      console.log('onInputTag ()  got called')
+      // console.log('onInputTag ()  got called')
       // if(this.selectedSchemIdsInMultiSelect.length > 0){
       //   console.log('Inside if mapping');  
       //   this.presentationTemplate.schemaId = this.selectedSchemIdsInMultiSelect.map(x => x.value)
@@ -614,7 +608,6 @@ export default {
       try {
 
         this.isLoading = true;
-        console.log('Inside createDID method................................')
         delete this.did.name
         if (this.did.options.publicKey == "") {
           delete this.did.options.publicKey
@@ -638,10 +631,8 @@ export default {
 
         // this.did.options.verificationRelationships = this.did.options.verificationRelationships.map(x => x.value)
         // console.log(JSON.stringify(this.did))
-        console.log('Before calling createDIDsForAService')
         const json = await this.createDIDsForAService(this.did)
-        console.log('After calling createDIDsForAService')
-
+        
         this.notifySuccess('DID created successfully')
         
         if(this.shouldRegister == true){

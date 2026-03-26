@@ -77,7 +77,6 @@ export default {
     .then(res => res.json())
     .then(json => {
       this.networkStatus = { ...json }
-      console.log(this.networkStatus.result.peers[0])
     })
     .catch(e => alert(`Error: ${e.message}`))
   },

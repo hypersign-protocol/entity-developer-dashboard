@@ -67,7 +67,6 @@ export default {
         }
       })
       
-      // console.log(elm)
       this.selected = elm.value;
       // for(let i=1;i<this.options.length;i++){
       //   if(this.options[i].value === type){

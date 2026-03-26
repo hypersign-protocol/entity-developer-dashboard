@@ -446,7 +446,6 @@ export default {
     },
 
     beforeDestroy() {
-        console.log('Clearing clear interval before destroying...')
         clearInterval(this.interval)
     },
     watch: {

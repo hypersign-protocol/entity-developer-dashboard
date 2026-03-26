@@ -141,25 +141,27 @@ ul {
     <v-row>
       <v-col>
         <div class="form-group" style="display:flex">
-          <h3 style="text-align: left;">
-            KYC Widget Configuration </h3>
+          <div>
+              <h4 class="mb-1 font-weight-bold mb-0">ID Widget Configuration</h4>
+              <p class="text-muted small mb-0">Configure the ID widget for your application</p>
+          </div>
         </div>
       </v-col>
       <v-col>
-        <HfButtons name="Save Configuration" @executeAction="saveConfiguration()" v-if="!this.widgetConfigTemp._id"
+        <HfButtons name="Save Configuration" @executeAction="saveConfiguration()" v-if="!widgetConfigTemp._id"
           style="float:right"></HfButtons>
         <HfButtons name="Update Configuration" @executeAction="updateConfiguration()" style="float:right" v-else>
         </HfButtons>
       </v-col>
     </v-row>
 
-    <b-card class="serviceCard">
+    <div class="serviceCard">
       <ul class="list-group list-group-flush">
         <li class="list-group-item">
-          <b-form-checkbox switch size="lg" v-model="widgetConfigTemp.faceRecog" disabled>{{
+          <b-form-checkbox switch size="lg" v-model="widgetConfigTemp.faceRecog" disabled title="Facial recognition is always enabled and cannot be disabled">{{
             this.widgetConfigUI.faceRecog.label }}</b-form-checkbox>
-          <small v-html="this.widgetConfigUI.faceRecog.description">
-          </small>
+          <small v-html="widgetConfigUI.faceRecog.description"></small>
+          <small class="text-muted d-block"><i class="mdi mdi-lock-outline mr-1"></i>This feature is always enabled and cannot be turned off.</small>
         </li>
         <li class="list-group-item">
           <div class="row">
@@ -176,8 +178,79 @@ ul {
                   </div>
                 </div> -->
           </div>
+        </li> 
+       
+
+        <li class="list-group-item">
+          <div class="row">
+            <div class="col">
+              <div class="row">
+                <div class="col-md-12">
+                  <b-form-checkbox switch size="lg" v-model="widgetConfigTemp.userConsent.enabled" disabled>{{
+                    this.widgetConfigUI.userConsent.label }}</b-form-checkbox>
+                  <small v-html="widgetConfigUI.userConsent.description"></small>
+                </div>
+              </div>
+              <div class="row mt-2 mx-0 p-1"
+                style="border: 2px solid #8080802e;border-radius: 10px; min-height: 115px;">
+                <div class="col-md-3 center">
+                  <div style="border: 1px solid #8080802e; border-radius: 50%;" class="p-1">
+                    <img :src="widgetConfigTemp.userConsent.logoUrl" v-if="widgetConfigTemp.userConsent.logoUrl"
+                      style="height: 50px; border-radius: 50%;">
+                  </div>
+                </div>
+                <div class="col-md-8">
+                  <div class="row">
+                    <div class="col-md-12" style="font-size: 1.05rem;">
+                      {{ widgetConfigTemp.userConsent.domain }}
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-12" style="color:grey">
+                      {{ widgetConfigTemp.userConsent.reason }}
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+            <div class="col">
+              <div class="row">
+                <div class="col">
+                  <div class="row">
+                    <div class="col">
+                      <label for=""><strong>Reason For KYC: </strong></label>
+                      <textarea type="text" rows="7" class="serviceCard form-control" id=""
+                        v-model="widgetConfigTemp.userConsent.reason"
+                        placeholder="The app is requesting the following information to verify your identity" />
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+          </div>
         </li>
         <li class="list-group-item">
+          <div class="row">
+
+            <div class="col">
+              <b-form-checkbox switch size="lg" v-model="widgetConfigTemp.trustedIssuer" disabled>{{
+                widgetConfigUI.trustedIssuer.label }}</b-form-checkbox>
+              <small v-html="widgetConfigUI.trustedIssuer.description"></small>
+            </div>
+            <div class="col">
+              <label for=""><strong>Choose Trusted Issuer(s): </strong></label>
+              <div style="max-height: 300px; overflow-y: scroll;" class="p-1">
+                <MarketplaceList @selectedServiceEvent="selectedServiceEventHandler" isSelection="true" />
+              </div>
+            </div>
+          </div>
+          <!-- <TrustedIssuer @selectedServiceEventFromTrustedIssuer="selectedServiceEventHandler" /> -->
+        </li>
+
+
+         <li class="list-group-item">
           <div class="row">
             <div class="col-md-6">
               <div class="row">
@@ -246,86 +319,29 @@ ul {
             <div class="col" v-if="widgetConfigTemp.onChainId.enabled && onchainconfigsOptions.length > 0">
               <div class="">
                 <label for=""><strong>Select OnChain KYC Config: </strong></label>
-                <v-select  v-model="widgetConfigTemp.onChainId.selectedOnChainKYCconfiguration"
-                  :items="onchainconfigsOptions" item-text="text" item-value="value"  multiple
-                  small-chips
-                  attach
-                  dense
+                <v-select v-model="widgetConfigTemp.onChainId.selectedOnChainKYCconfiguration"
+                  :items="onchainconfigsOptions" item-text="text" item-value="value" multiple small-chips attach dense
                   outlined></v-select>
-              </div>
-            </div>
-          </div>
-        </li>
-
-        <li class="list-group-item" v-if="widgetConfigTemp.userConsent.enabled">
-          <div class="row">
-            <div class="col">
-              <div class="row">
-                <div class="col-md-12">
-                  <b-form-checkbox switch size="lg" v-model="widgetConfigTemp.userConsent.enabled" disabled>{{
-                    this.widgetConfigUI.userConsent.label }}</b-form-checkbox>
-                  <small v-html="widgetConfigUI.userConsent.description"></small>
-                </div>
-              </div>
-              <div class="row mt-2 mx-0 p-1"
-                style="border: 2px solid #8080802e;border-radius: 10px; min-height: 115px;">
-                <div class="col-md-3 center">
-                  <div style="border: 1px solid #8080802e; border-radius: 50%;" class="p-1">
-                    <img :src="widgetConfigTemp.userConsent.logoUrl" v-if="widgetConfigTemp.userConsent.logoUrl"
-                      style="height: 50px; border-radius: 50%;">
-                  </div>
-                </div>
-                <div class="col-md-8">
-                  <div class="row">
-                    <div class="col-md-12" style="font-size: 1.05rem;">
-                      {{ widgetConfigTemp.userConsent.domain }}
-                    </div>
-                  </div>
-                  <div class="row">
-                    <div class="col-md-12" style="color:grey">
-                      {{ widgetConfigTemp.userConsent.reason }}
-                    </div>
-                  </div>
-                </div>
-
-              </div>
-            </div>
-            <div class="col">
-              <div class="row">
-                <div class="col">
-                  <div class="row">
-                    <div class="col">
-                      <label for=""><strong>Reason For KYC: </strong></label>
-                      <textarea type="text" rows="7" class="serviceCard form-control" id=""
-                        v-model="widgetConfigTemp.userConsent.reason"
-                        placeholder="The app is requesting the following information to verify your identity" />
-                    </div>
-                  </div>
-
-                </div>
               </div>
             </div>
           </div>
         </li>
         <li class="list-group-item">
           <div class="row">
-
-            <div class="col">
-              <b-form-checkbox switch size="lg" v-model="widgetConfigTemp.trustedIssuer" disabled>{{
-                widgetConfigUI.trustedIssuer.label }}</b-form-checkbox>
-              <small v-html="widgetConfigUI.trustedIssuer.description"></small>
-            </div>
-            <div class="col">
-              <label for=""><strong>Choose Trusted Issuer(s): </strong></label>
-              <div style="max-height: 300px; overflow-y: scroll;" class="p-1">
-                <MarketplaceList @selectedServiceEvent="selectedServiceEventHandler" />
-              </div>
+            <div class="col-md-6">
+              <b-form-checkbox
+                switch
+                size="lg"
+                v-model="widgetConfigTemp.isEmailNotificationEnabled"
+              >
+                {{ widgetConfigUI.emailNotification.label }}
+              </b-form-checkbox>
+              <small v-html="widgetConfigUI.emailNotification.description"></small>
             </div>
           </div>
-          <!-- <TrustedIssuer @selectedServiceEventFromTrustedIssuer="selectedServiceEventHandler" /> -->
         </li>
       </ul>
-    </b-card>
+    </div>
 
 
 
@@ -364,7 +380,6 @@ export default {
     {
       handler(newValue) {
         if (!newValue) {
-          console.log('going to disabled onchainId')
           this.widgetConfigTemp.onChainId.enabled = false
         }
       },
@@ -414,17 +429,12 @@ export default {
       this.isLoading = true
       // TODO: this we can stop until onchain feature is ready for production
       await this.fetchAppsOnChainConfigs()
-      this.isLoading = false
-
-      this.isLoading = true
       await this.fetchAppsWidgetConfig()
-      this.isLoading = false
-
       await this.fetchMarketPlaceAppsFromServer()
-
+      this.isLoading = false
     } catch (e) {
       this.isLoading = false
-      console.log(e)
+      console.error(e)
       if (e.message) {
         this.notifyErr(e.message)
       }
@@ -432,16 +442,15 @@ export default {
     }
 
     if (Object.keys(this.widgetConfig).length > 0) {
-      this.widgetConfigTemp = { ...this.widgetConfig }
+      this.widgetConfigTemp = JSON.parse(JSON.stringify(this.widgetConfig))
     }
 
-    this.trustedIssuersList = this.getMarketPlaceApps;
+    this.trustedIssuersList = [...this.getMarketPlaceApps];
     this.appId = this.$route.params.appId;
     //eslint-disable-next-line
     if (this.appId) {
       this.app = { ...this.getAppByAppId(this.appId) }
       if (this.app) {
-        console.log(this.app)
         this.widgetConfigTemp.userConsent.domain = this.app.domain ? this.app.domain : this.widgetConfigTemp.userConsent.domain;
         this.widgetConfigTemp.userConsent.logoUrl = this.app.logoUrl ? this.app.logoUrl : this.widgetConfigTemp.userConsent.logoUrl;
         if (!this.widgetConfigTemp.issuerDID) {
@@ -451,6 +460,11 @@ export default {
         if (!this.getMarketPlaceApps.find(x => x.appId == this.app.appId)) {
           this.trustedIssuersList.push({ ...this.app })
         }
+         this.trustedIssuersList.sort((a, b) => {
+          if (a.appId === this.appId) return -1;
+          if (b.appId === this.appId) return 1;
+          return 0;
+        });
       } else {
         console.error("No app found");
       }
@@ -462,7 +476,6 @@ export default {
       const trustedIssuers = this.widgetConfigTemp.issuerDID.split(',');
       this.selectedIssuerDids = new Set(trustedIssuers);
       trustedIssuers.forEach(eachtiss => {
-        console.log({ eachtiss })
         const tt = this.trustedIssuersList.map(x => {
           if (x.issuerDid == eachtiss) {
             x['selected'] = true
@@ -507,17 +520,22 @@ export default {
           label: "Enable User Consent",
           description: 'Specify a reason for requesting user KYC data. This information will be displayed on the user consent screen in the KYC widget, helping users understand who is requesting their data and why. Read more <b><a href="https://docs.hypersign.id/hypersign-kyc/integrations/widget-configuration#user-consent" target="_blank">here</a></b>.'
         },
+        
+        trustedIssuer: {
+          label: "Configure Trusted Issuer(s)",
+          description: 'Select one or more trusted issuers, with the default being "self". This pertains to Reusable ID. If configured, users who already possess KYC credentials issued by these trusted issuers in their data vault will not need to repeat the KYC steps in the widget. They can simply authorize the sharing of their existing credentials with your app, streamlining user onboarding for your company and providing a smoother experience for your users. Read more <b><a href="https://docs.hypersign.id/hypersign-kyc/integrations/widget-configuration#trusted-issuer" target="_blank">here</a></b>.'
+        },
         onChainId: {
           label: "Enable Onchain KYC",
           description: "Enable users to mint SBT of their credentials in a privacy preserving manner and verify on configured blockchain"
         },
         zkProof: {
-          label: "Enable ZK Proof",
+          label: "Enable Zero Knowledge Proof",
           description: 'Enable users to share only proof of their data for enhanced data privacy and compliance. Read more <b><a href="https://docs.hypersign.id/hypersign-kyc/integrations/widget-configuration#id-document-verification" target="_blank">here</a></b>.'
         },
-        trustedIssuer: {
-          label: "Configure Trusted Issuer(s)",
-          description: 'Select one or more trusted issuers, with the default being "self". This pertains toreusable KYC. If configured, users who already possess KYC credentials issued by these trusted issuers in their data vault will not need to repeat the KYC steps in the widget. They can simply authorize the sharing of their existing credentials with your app, streamlining user onboarding for your company and providing a smoother experience for your users. Read more <b><a href="https://docs.hypersign.id/hypersign-kyc/integrations/widget-configuration#trusted-issuer" target="_blank">here</a></b>.'
+        emailNotification: {
+           label: "Enable Email Notifications",
+           description: "Notify users via email regarding the status of their ID verification. When enabled, users will receive automated updates upon the successful completion or rejection of their verification attempt."
         },
       },
       fullPage: true,
@@ -546,6 +564,7 @@ export default {
           proofs: []
         },
         trustedIssuer: true,
+        isEmailNotificationEnabled: true,
         issuerDID: "",
         issuerVerificationMethodId: "",
       },
@@ -558,6 +577,10 @@ export default {
         {
           value: 'passport',
           text: "Passport"
+        },
+         {
+          value: 'govId',
+          text: "Government ID"
         },
       ],
 
@@ -613,19 +636,23 @@ export default {
     ...mapActions('mainStore', ['fetchAppsOnChainConfigs', 'fetchMarketPlaceAppsFromServer', 'createAppsWidgetConfig', 'fetchAppsWidgetConfig', 'updateAppsWidgetConfig']),
 
     selectedServiceEventHandler(event) {
-      console.log('inside selectedServiceEventHandler event ' + event.issuerDid)
-      if (!this.selectedIssuerDids.has(event.issuerDid)) {
+      // Guard: ignore entries with no issuerDid
+      if (!event.issuerDid || !event.issuerDid.trim()) return
+
+      // Use explicit selected flag instead of toggle to stay in sync
+      if (event.selected) {
         this.selectedIssuerDids.add(event.issuerDid)
       } else {
         this.selectedIssuerDids.delete(event.issuerDid)
       }
-      this.widgetConfigTemp.issuerDID = Array.from(this.selectedIssuerDids.values()).join(',')
+      this.widgetConfigTemp.issuerDID = Array.from(this.selectedIssuerDids.values())
+        .filter(did => !!did && !!did.trim())
+        .join(',')
     },
     validateField() {
       if (!this.widgetConfigTemp.issuerDID) {
         throw new Error('Issuer DID is required')
       }
-      console.log(this.widgetConfigTemp.idOcr)
 
       if (!this.widgetConfigTemp.idOcr?.enabled) {
         this.widgetConfigTemp.idOcr.documentType = null
@@ -644,7 +671,7 @@ export default {
         if (!this.widgetConfigTemp.onChainId.selectedOnChainKYCconfiguration) {
           throw new Error('Kindly select a onchain configuration')
         }
-        this.widgetConfigTemp.onChainId.selectedOnChainKYCconfiguration = this.widgetConfigTemp.onChainId.selectedOnChainKYCconfiguration.filter(e => e != null)
+        this.widgetConfigTemp.onChainId.selectedOnChainKYCconfiguration = this.widgetConfigTemp.onChainId.selectedOnChainKYCconfiguration.filter(e => !!e)
 
         if (!this.widgetConfigTemp.zkProof.enabled) {
           throw new Error('Enable ZK Proof to enable onchainId')
@@ -669,7 +696,7 @@ export default {
         this.setWidgetConfig(this.widgetConfigTemp)
         await this.createAppsWidgetConfig()
         if (this.widgetConfig) {
-          this.widgetConfigTemp = { ...this.widgetConfig }
+          this.widgetConfigTemp = JSON.parse(JSON.stringify(this.widgetConfig))
         }
 
         this.isLoading = false
@@ -682,7 +709,7 @@ export default {
 
     deleteZkProof(proof) {
       this.widgetConfigTemp.zkProof.proofs = this.widgetConfigTemp.zkProof.proofs.filter(x => x.proofType != proof)
-      this.updateConfiguration()
+      // User must click Save/Update to persist — consistent with addZkProof
     },
     addZkProof(proofType, criteria) {
 

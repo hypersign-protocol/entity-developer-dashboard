@@ -7,36 +7,51 @@
           <h4 style="float: left">
             <i class="fa fa-cogs mr-2" aria-hidden="true"></i>Your Services
           </h4>
-          <!-- <hf-buttons name=" Create" iconClass="fa fa-plus"  class="ml-auto" @executeAction="openSlider('SSI_API')"
-            style="float: right">
-          </hf-buttons> -->
-          <b-dropdown split text="Create Service" variant="outline-dark" style="float: right"
-            @click="openSlider('SSI_API')" menu-class="dropDownPopup">
-            <b-dropdown-item @click="openSlider('SSI_API')">SSI Service</b-dropdown-item>
-            <b-dropdown-item @click="openSlider('CAVACH_API')">KYC Service</b-dropdown-item>
-            <b-dropdown-item @click="openSlider('QUEST')">Quest Service</b-dropdown-item>
+          <b-button
+            variant="outline-dark"
+            class="ml-2 float-right unified-action-btn"
+            @click="goToOnboarding"
+          >
+            Seamless Onboarding
+          </b-button>
+          <b-dropdown split text="Create Service" variant="outline-dark" class="float-right unified-action-btn" menu-class="dropDownPopup"
+             @click="openSlider('SSI_API')">
+            <b-dropdown-item @click="openSlider('SSI_API')">
+              SSI Service
+            </b-dropdown-item>
+            <b-dropdown-item @click="openSlider('CAVACH_API')">
+              KYC Service
+            </b-dropdown-item>
+            <b-dropdown-item @click="openSlider('QUEST')">
+              Quest Service
+            </b-dropdown-item>
           </b-dropdown>
         </v-col>
       </v-row>
       <v-row v-else>
-        <!-- display  No Application found -->
         <v-col v-if="!isLoading">
           <div class="no-apps-container mb-1">
-            <h3 class="" style="text-align: center;">You have no services yet!</h3>
+            <h3 style="text-align: center;">You have no services yet!</h3>
             <p style="max-width: 500px; margin: 0 auto; text-align: center;">
               Services help you manage your applications and APIs. Create your first
-              service to get started. 
+              service to get started.
             </p>
-            <div>
-              <b-dropdown split text="Create Service" variant="outline-dark"
-                @click="openSlider('SSI_API')" menu-class="dropDownPopup">
-                <b-dropdown-item @click="openSlider('SSI_API')">SSI Service</b-dropdown-item>
-                <b-dropdown-item @click="openSlider('CAVACH_API')">KYC Service</b-dropdown-item>
-                <b-dropdown-item @click="openSlider('QUEST')">Quest Service</b-dropdown-item>
-              </b-dropdown>
-            </div>
-          </div>
-        </v-col>
+
+            <div style="text-align:center; margin-top:12px;">
+              <b-dropdown split text="Create Service" variant="outline-dark" class="unified-action-btn"
+                menu-class="dropDownPopup"
+                style="margin-right:10px;"
+              >
+        <b-dropdown-item @click="openSlider('SSI_API')">SSI Service</b-dropdown-item>
+        <b-dropdown-item @click="openSlider('CAVACH_API')">KYC Service</b-dropdown-item>
+        <b-dropdown-item @click="openSlider('QUEST')">Quest Service</b-dropdown-item>
+      </b-dropdown>
+      <b-button variant="outline-dark" class="unified-action-btn" @click="goToOnboarding">
+        Seamless Onboarding
+      </b-button>
+    </div>
+  </div>
+</v-col>
       </v-row>
     </div>
 
@@ -187,9 +202,8 @@
 
         <div class="form-group">
           <tool-tip infoMessage="Monolog Url"></tool-tip>
-          <label for="orgDid"><strong>Logo Url: </strong></label>
-          <input type="text" class="form-control" id="orgDid" placeholder="https://yourdomain.com/assets/logo.png"
-            v-model="appModel.logoUrl" aria-describedby="orgNameHelp" />
+          <label for="orgDid"><strong>Logo: </strong></label>
+          <LogoUploader v-model="appModel.logoUrl"></LogoUploader>
         </div>
 
         <div class="form-group">
@@ -373,13 +387,13 @@
           </select>
         </div>
 
-        <!-- <div class="form-group">
+         <div class="form-group">
           <tool-tip
             infoMessage="Listed origins allowed to make CORS requests. Enter comman seperated URLs to whitelist"></tool-tip>
           <label for="orgName"><strong>Allowed Origins (CORS):</strong></label>
           <textarea class="form-control" v-model="appModel.whitelistedCors" rows="3"
-            placeholder="*,http://your-domain.com,http://test.com"></textarea>
-        </div> -->
+            placeholder="http://your-domain.com,http://test.com"></textarea>
+        </div>
 
         <div class="form-group" v-if="edit">
           <hf-buttons name="Update" class="btn btn-primary" @executeAction="updateAnAppAPIServer()"></hf-buttons>
@@ -934,6 +948,9 @@ import { sanitizeUrl } from "../utils/common";
 // import DeployOnChainKYC from "../components/deploy-onchain-kyc-popup/deploy.vue";
 import DomainLinkage from "@hypersign-protocol/domain-linkage-verifier";
 import config from "../config";
+import {isValidOrigin} from '../mixins/fieldValidation.js';
+import LogoUploader from "../components/element/LogoUploader.vue";
+
 export default {
   name: "AppList",
   computed: {
@@ -1123,6 +1140,7 @@ export default {
     };
   },
   components: {
+    LogoUploader,
     HfPopUp,
     StudioSideBar,
     HfButtons,
@@ -1143,7 +1161,9 @@ export default {
       "fetchServicesList",
       "deleteAnAppOnServer"
     ]),
-
+    goToOnboarding() {
+       this.$router.push('/studio/onboarding');
+    },
     async initializeStore() {
       try {
         if (this.userDetails) {
@@ -1241,10 +1261,9 @@ export default {
       this.$root.$emit("bv::hide::modal", "entity-linked-service-detail-popup");
     },
     onServicesSelected() {
-      console.log("ononServicesSelected() got calledsuccessfully");
 
       if (this.selectedServicesInMultiSelect.length > 0) {
-        console.log("Added");
+        // console.log("Added");
       }
     },
     async onSSIServiceChange(event) {
@@ -1290,16 +1309,13 @@ export default {
       const appModel = this.getAppByAppId(appId);
 
       //// commeting it for time being 
-      // appModel.whitelistedCors = appModel.whitelistedCors.toString();
-      appModel.whitelistedCors = '*';
+      if (appModel.services && appModel.services.length > 0) {
+        this.selectedServiceId = appModel.services[0].id;
+      }
+       appModel.whitelistedCors = appModel.whitelistedCors.toString();
 
       Object.assign(this.appModel, { ...appModel });
       this.selectedAssociatedSSIAppId = appModel.dependentServices[0];
-      console.log(
-        "Edit org this.selectedAssociatedSSIAppId " +
-        this.selectedAssociatedSSIAppId
-      );
-
       await this.prepareDIDList(this.selectedAssociatedSSIAppId);
 
       await this.resolveDidDoc(this.appModel.issuerDid)
@@ -1334,23 +1350,24 @@ export default {
         }
       }
 
-      // console.log('----------------------------------------------------------------')
-      // console.log(this.appModel.whitelistedCors)
-      // if (!Array.isArray(this.appModel.whitelistedCors)) {
-      //   const newArray = this.appModel.whitelistedCors?.split(",").filter((x) => x != " ").map((x) => x.trim());
-      //   for (let i = 0; i < newArray.length; i++) {
-      //     if (!isValidOrigin(newArray[i])) {
-      //       m.push(messages.APPLICATION.INVALID_CORS);
-      //       break;
-      //     }
-      //   }
-      // }
-
+       if (!Array.isArray(this.appModel.whitelistedCors)) {
+        const newArray = this.appModel.whitelistedCors?.split(",").map((x) => x.trim()).filter((x) => x.length > 0);
+        for (let i = 0; i < newArray.length; i++) {
+           if (!isValidOrigin(newArray[i])) {
+             m.push(messages.APPLICATION.INVALID_CORS);
+             break;
+           }
+         }
+      }
       if (!this.appModel.domain) {
         m.push(messages.APPLICATION.ENTER_DOMAIN_ORGIN);
       } else {
         try {
-          const t = new URL(this.appModel.domain);
+          let domain = this.appModel.domain?.trim();
+          if (domain && !domain.startsWith("http://") && !domain.startsWith("https://")) {
+            domain = `https://${domain}`;
+          }
+          const t = new URL(domain);
           if (!t.origin || t.host == "") {
             throw new Error();
           }
@@ -1566,7 +1583,7 @@ export default {
         }
         this.isLoading = false;
       } catch (e) {
-        console.log(e);
+        console.error(e);
         this.isLoading = false;
         this.notifyErr(e.message);
       }
@@ -1631,7 +1648,6 @@ export default {
           throw new Error("Something went wrong");
         }
       } catch (e) {
-        console.log(e.message);
         if (Array.isArray(e.message)) {
           e.message.forEach((m) => {
             this.notifyErr(m);

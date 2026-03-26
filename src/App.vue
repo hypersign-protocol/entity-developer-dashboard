@@ -1,4 +1,59 @@
 <style scoped>
+/* Fix Navbar Appearance */
+.navStyle {
+  background: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid #eef0f2;
+  height: 60px;
+  padding: 0 20px !important;
+}
+
+.nav-logo-img {
+  height: 28px;
+  width: auto;
+  opacity: 0.9;
+  transition: opacity 0.2s;
+}
+
+.nav-logo-img:hover {
+  opacity: 1;
+}
+
+/* Chips & Wrappers */
+.tenant-wrapper {
+  cursor: pointer;
+}
+
+.tenant-chip,
+.mfa-chip {
+  font-weight: 600 !important;
+  font-size: 11px !important;
+  height: 28px !important;
+}
+
+/* Avatar Styling */
+.avatar-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid #e2e8f0;
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+
+.avatar-container:hover {
+  border-color: #667eea;
+}
+
+.profile-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
 .logo {
   /* width: 144px; */
   padding-top: 1.5%;
@@ -73,143 +128,15 @@
 .f-36 {
   font-size: 36px;
 }
+
+.dropDownPopup {
+  box-shadow: 2px 0 10px rgba(0, 0, 0, .47);
+  border-radius: 8px;
+  border: 0 solid grey;
+}
+
+
 </style>
-<template>
-  <div id="app" data-app>
-    <load-ing :active.sync="isLoading" :can-cancel="true" :is-full-page="true"></load-ing>
-
-    <b-navbar toggleable="lg" type="dark" variant="white" class="navStyle" v-if="getIfAuthenticated" sticky>
-      <b-navbar-brand href="#">
-        <a href="#" @click="route('dashboard')">
-          <img src="./assets/Entity_full.png" alt="" style="height: 3vh; opacity: 80%;" />
-        </a>
-      </b-navbar-brand>
-      <b-collapse id="nav-collapse" is-nav v-if="userDetails">
-        <b-navbar-nav class="ml-auto">
-
-          <b-nav-item v-if="getSwitchedTenantAccount" class="center" title="Click to access your own account">
-            <!-- <a href="#">
-              Accessing Account Of: <b-badge variant="dark"> {{ loggedInUserEmailId }}</b-badge>
-            <b-icon icon="box-arrow-in-right" class="ml-2" @click="switchBackToAdminAccount"></b-icon>
-            </a> -->
-            <span class="mx-1 text-secondary">Accessing Account Of:</span>
-            <v-chip
-              @click="switchBackToAdminAccount"
-              outlined
-                class="ma-2"
-                style="cursor: grab; font-size: 10px; height: 26px;"
-              >
-              <span class="mx-1">{{ getSwitchedTenantAccount }}</span>
-              <b-icon icon="box-arrow-in-right" class="ml-2"></b-icon>
-            </v-chip>
-          </b-nav-item>
-
-          <b-nav-item v-if="!isMFAEnabled">
-          <router-link to="/studio/settings">
-          <v-chip
-            outlined
-            class="ma-2"
-            style="cursor: grab; font-size: 10px; height: 26px;"
-          >
-            <b-icon
-              icon="exclamation-triangle-fill"
-              variant="warning"
-              class="mr-1"
-            ></b-icon>
-
-            <span>Setup MFA</span>
-          </v-chip>
-        </router-link>
-        </b-nav-item>
-          <!-- <b-nav-item :href="$config.studioServer.BASE_URL" target="_blank" title="Developer Dashboard API">
-            <i class="fa fa-code" style=" color: #707070;height: 18px; font-size: 18px; width: 18px;"></i></b-nav-item> -->
-          <!-- <b-nav-item href="https://docs.hypersign.id/entity-studio/developer-dashboard" target="_blank"
-            title="Documentation">
-            <i class="fas fa-book-open nav-icon" style="height: 18px; font-size: 18px; width: 18px;"></i>
-          </b-nav-item> -->
-
-          <b-nav-item-dropdown right v-if="getIfAuthenticated" title="Profile" menu-class="dropDownPopup">
-           <template #button-content>
-             <img
-              v-if="userDetails?.profileIcon"
-              :src="userDetails?.profileIcon"
-              style="width: 18px; height: 18px; border-radius: 50%;"
-            />
-            <i v-else class="fas fa-user-circle nav-icon" style="height: 18px; font-size: 18px; width: 18px;"></i> 
-            </template>
-            <b-dropdown-group style="text-align: left;">
-              <b-dropdown-item-button style="text-align: center; font-size: 0.9rem;">
-                <span>
-                 <span style="font-size: 0.8rem;">Welcome, </span>
-                   <strong style="font-size: 0.9rem;">{{ userDetails.name || 'User' }}</strong>
-                 </span>
-              </b-dropdown-item-button>
-              <b-dropdown-item-button style="text-align: left" :title="userDetails.email"
-                @click="copyToClip(userDetails.email, 'Email')">
-                {{ shorten(userDetails.email) }}
-              </b-dropdown-item-button>
-
-              <b-dropdown-item-button style="text-align: left" @click="goTo('/studio/settings')" title="Teams">
-                <i class="fa fa-cog nav-icon" style="cursor: pointer; font-size: 1.3rem"></i>
-                Settings
-              </b-dropdown-item-button>
-
-              <b-dropdown-item-button style="text-align: left" @click="goTo('/studio/dashboard')" title="Teams">
-                <i class="fa fa-home nav-icon" style="cursor: pointer; font-size: 1.3rem"></i>
-                Home
-              </b-dropdown-item-button>
-              <b-dropdown-divider></b-dropdown-divider>
-
-              <b-dropdown-item-button style="text-align: left" @click="logoutAll()" title="Logout">
-                <i class="fas fa-sign-out-alt nav-icon" style="cursor: pointer; font-size: 1.3rem"></i>
-                Logout
-              </b-dropdown-item-button>
-            </b-dropdown-group>
-          </b-nav-item-dropdown>
-        </b-navbar-nav>
-      </b-collapse>
-    </b-navbar>
-
-    <div :class="[
-      isSidebarCollapsed ? 'container-collapsed-not' : 'container-collapsed',
-    ]">
-      <router-view class="container containerData" />
-    </div>
-    <notifications group="foo" />
-
-    <sidebar-menu :relative="false" class="sidebar-wrapper" v-if="userDetails && Object.keys(userDetails).length > 0 && showSideNavbar && getSelectedService" @toggle-collapse="onToggleCollapse"
-      :collapsed="isSidebarCollapsed" :theme="'white-theme'" width="220px" :menu="getSideMenu()">
-      <div slot="header" style="border-bottom: 1px solid rgba(0,0,0,.12);">
-        <v-list>
-      <v-list-item>
-        <v-list-item-avatar>
-          <v-img :src="getSelectedService.logoUrl ||
-                getProfileIcon(formattedAppName(getSelectedService.appName))
-                "></v-img>
-        </v-list-item-avatar>
-        <v-list-item-content class="mx-1">
-          <v-list-item-title class="text-h7">
-            {{ getSelectedService ? getSelectedService.appName : "" }}
-          </v-list-item-title>
-        </v-list-item-content>
-      </v-list-item>
-
-      
-    </v-list>
-    
-
-      </div>
-    </sidebar-menu>
-
-    <!-- <sidebar-menu-nav v-if="showSideNavbar && getSelectedService" 
-      :collapsed="isSidebarCollapsed" 
-      :menus="getSideMenu()"
-      :avatar="getSelectedService.logoUrl || getProfileIcon(formattedAppName(getSelectedService.appName))"
-      :service_name="getSelectedService ? getSelectedService.appName : ''"
-      >
-    </sidebar-menu-nav> -->
-  </div>
-</template>
 
 <style>
 .v-sidebar-menu .vsm--link_level-1 .vsm--icon {
@@ -301,21 +228,22 @@
 .vsm--mobile-bg {
   background: whitesmoke !important;
 }
+
 .v-sidebar-menu.vsm_white-theme {
   background-color: white !important;
-  color: rgba(0,0,0,.87) !important;
+  color: rgba(0, 0, 0, .87) !important;
 }
 
 .v-sidebar-menu.vsm_white-theme .vsm--header {
-  color: rgba(0,0,0,.87) !important;
+  color: rgba(0, 0, 0, .87) !important;
 }
 
 .v-sidebar-menu.vsm_white-theme .vsm--link {
-  color: rgba(0,0,0,.87) !important;
+  color: rgba(0, 0, 0, .87) !important;
 }
 
 .v-sidebar-menu.vsm_white-theme .vsm--link_level-1 .vsm--link:hover {
-  color: rgba(0,0,0,.87) !important;
+  color: rgba(0, 0, 0, .87) !important;
   background: whitesmoke !important;
 }
 
@@ -324,6 +252,107 @@
   color: #66666a !important;
 }
 </style>
+<template>
+  <div id="app" data-app>
+    <load-ing :active.sync="isLoading" :can-cancel="true" :is-full-page="true"></load-ing>
+
+
+    <b-navbar toggleable="lg" class="navStyle shadow-sm" v-if="getIfAuthenticated" sticky>
+      <b-navbar-brand href="javascript:void(0)" @click="route('dashboard')" class="d-flex align-items-center">
+        <img src="./assets/Entity_full.png" alt="Logo" class="nav-logo-img" />
+      </b-navbar-brand>
+
+      <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
+
+      <b-collapse id="nav-collapse" is-nav v-if="userDetails">
+        <b-navbar-nav class="ml-auto align-items-center">
+
+          <b-nav-item v-if="getSwitchedTenantAccount" class="px-2">
+            <div class="d-flex align-items-center tenant-wrapper" @click="switchBackToAdminAccount"
+              title="Click to access your own account">
+              <span class="mr-2 d-none d-md-inline text-muted small font-weight-bold">Acting as:</span>
+              <v-chip small color="primary" outlined class="tenant-chip">
+                <span class="text-truncate" style="max-width: 150px">{{ getSwitchedTenantAccount }}</span>
+                <b-icon icon="box-arrow-in-right" class="ml-2"></b-icon>
+              </v-chip>
+            </div>
+          </b-nav-item>
+
+          <b-nav-item v-if="!isMFAEnabled" to="/studio/settings" class="px-2">
+            <v-chip small color="orange" dark class="mfa-chip">
+              <b-icon icon="exclamation-triangle-fill" class="mr-1"></b-icon>
+              <span>Setup MFA</span>
+            </v-chip>
+          </b-nav-item>
+
+          <b-nav-item-dropdown right no-caret menu-class="profile-dropdown-menu dropDownPopup" >
+            <template #button-content>
+              <div class="avatar-container">
+                <img v-if="userDetails?.profileIcon" :src="userDetails?.profileIcon" class="profile-img" />
+                <b-icon v-else icon="person-circle" font-scale="1.5" class="text-secondary"></b-icon>
+              </div>
+            </template>
+
+            <div class="px-3 py-2 bg-light border-bottom dropdown-user-header">
+              <p class="mb-0 small text-muted">Signed in as</p>
+              <p class="mb-0 font-weight-bold text-dark">{{ userDetails.name || 'User' }}</p>
+            </div>
+
+            <b-dropdown-item @click="copyToClip(userDetails.email, 'Email')" class="small-dropdown-item">
+              <b-icon icon="envelope" class="mr-2"></b-icon> {{ shorten(userDetails.email) }}
+            </b-dropdown-item>
+
+            <b-dropdown-divider></b-dropdown-divider>
+
+            <b-dropdown-item @click="goTo('/studio/dashboard')" style="text-align: left;">
+              <b-icon icon="house" class="mr-2"></b-icon> Home
+            </b-dropdown-item>
+
+            <b-dropdown-item @click="goTo('/studio/settings')" style="text-align: left;">
+              <b-icon icon="gear" class="mr-2"></b-icon> Settings
+            </b-dropdown-item>
+
+            <b-dropdown-divider></b-dropdown-divider>
+
+            <b-dropdown-item @click="logoutAll()" variant="danger" style="text-align: left;">
+              <b-icon icon="power" class="mr-2"></b-icon> Logout
+            </b-dropdown-item>
+          </b-nav-item-dropdown>
+        </b-navbar-nav>
+      </b-collapse>
+    </b-navbar>
+
+    <div :class="[
+      isSidebarCollapsed ? 'container-collapsed-not' : 'container-collapsed',
+    ]">
+      <router-view class="container containerData" />
+    </div>
+    <notifications group="foo" />
+
+    <sidebar-menu :relative="false" class="sidebar-wrapper"
+      v-if="userDetails && Object.keys(userDetails).length > 0 && showSideNavbar && getSelectedService"
+      @toggle-collapse="onToggleCollapse" :collapsed="isSidebarCollapsed" :theme="'white-theme'" width="220px"
+      :menu="getSideMenu()">
+      <div slot="header" style="border-bottom: 1px solid rgba(0,0,0,.12);">
+        <v-list>
+          <v-list-item>
+            <v-list-item-avatar>
+              <v-img :src="getSelectedService.logoUrl ||
+                getProfileIcon(formattedAppName(getSelectedService.appName))
+                "></v-img>
+            </v-list-item-avatar>
+            <v-list-item-content class="mx-1">
+              <v-list-item-title class="text-h7">
+                {{ getSelectedService ? getSelectedService.appName : "" }}
+              </v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+        </v-list>
+      </div>
+    </sidebar-menu>
+  </div>
+</template>
+
 
 <script>
 import UtilsMixin from "./mixins/utils";
@@ -335,16 +364,12 @@ import * as EN from './language/en'
 export default {
   computed: {
     ...mapGetters("playgroundStore", ["getSelectedOrg"]),
-    ...mapGetters("mainStore", ['getSwitchedTenantAccount',"getSelectedService", "getAllServices", 'getIfAuthenticated', 'getUserDetails', 'isMFAEnabled']),
+    ...mapGetters("mainStore", ['getSwitchedTenantAccount', "getSelectedService", "getAllServices", 'getIfAuthenticated', 'getUserDetails', 'isMFAEnabled']),
     ...mapState({
       showMainSideNavBar: (state) => state.mainStore.showMainSideNavBar,
       selectedDashboard: (state) => state.globalStore.selectedDashboard,
       appList: (state) => state.mainStore.appList,
     }),
-
-    // authToken() {
-    //   return localStorage.getItem("authToken")
-    // },
     selectedOrg() {
       return this.getSelectedOrg;
     },
@@ -363,56 +388,55 @@ export default {
       schema_page: 1,
       authRoutes: ["register", "PKIIdLogin"],
       userDetails: {},
-      loggedInUserEmailId:"",
+      loggedInUserEmailId: "",
       parseAuthToken: null,
-      authToken:null
+      authToken: null
     };
   },
 
- mounted() {
-  
-  // console.log(this.getUserDetails)
-  if (this.getUserDetails) {
-    try {
-       
-      this.userDetails = this.getUserDetails;
-      this.loggedInUserEmailId = this.userDetails?.accessAccount?.email;
-      this.setIsLoggedOut(false);
-    } catch (e) {
-      console.error("Invalid user JSON:", e);
-      this.userDetails = {};
+  mounted() {
+
+    // console.log(this.getUserDetails)
+    if (this.getUserDetails) {
+      try {
+
+        this.userDetails = this.getUserDetails;
+        this.loggedInUserEmailId = this.userDetails?.accessAccount?.email;
+        this.setIsLoggedOut(false);
+      } catch (e) {
+        console.error("Invalid user JSON:", e);
+        this.userDetails = {};
+      }
+    } else {
+      // console.log('No userDetails found yet...')
     }
-  } else {
-    console.log('No userDetails found yet...')
-  }
 
-  this.$root.$on("clearAppData", () => {
-    this.userDetails = {};
-    this.setIsLoggedOut(false);
-  });
+    this.$root.$on("clearAppData", () => {
+      this.userDetails = {};
+      this.setIsLoggedOut(false);
+    });
 
-  this.$root.$on("closeSideNav", () => {
-    this.isSidebarCollapsed = true;
-  });
+    this.$root.$on("closeSideNav", () => {
+      this.isSidebarCollapsed = true;
+    });
 
-  if (localStorage.getItem("selectedOrg")) {
-    const selectedOrgId = localStorage.getItem("selectedOrg");
-    this.selectAnOrg(selectedOrgId);
-    this.getList(selectedOrgId);
-    this.getCredList(selectedOrgId);
-    this.fetchTemplates(selectedOrgId);
-  }
-  this.$root.$on("initializeStore", () => {
-    console.log("Inside initializeStore ... event");
-    this.initializeStore();
-  });
+    if (localStorage.getItem("selectedOrg")) {
+      const selectedOrgId = localStorage.getItem("selectedOrg");
+      this.selectAnOrg(selectedOrgId);
+      this.getList(selectedOrgId);
+      this.getCredList(selectedOrgId);
+      this.fetchTemplates(selectedOrgId);
+    }
+    this.$root.$on("initializeStore", () => {
+      this.initializeStore();
+    });
 
-  EventBus.$on("logoutAll", () => {
-    this.logoutAll();
-  });
-},
+    EventBus.$on("logoutAll", () => {
+      this.logoutAll();
+    });
+  },
   methods: {
-    ...mapActions("mainStore", ["fetchAppsListFromServer", "fetchServicesList",'switchToAdmin']),
+    ...mapActions("mainStore", ["fetchAppsListFromServer", "fetchServicesList", 'switchToAdmin']),
     ...mapMutations("mainStore", ["resetMainStore", "setIsLoggedOut", 'resetStoreForTeantSwitch']),
     ...mapActions("playgroundStore", [
       "insertAschema",
@@ -478,13 +502,13 @@ export default {
       }).join(''));
       const parsedjsonPayload = JSON.parse(jsonPayload);
       const { exp } = parsedjsonPayload
-      if(!this.checkIfDateExpired(exp)){
+      if (!this.checkIfDateExpired(exp)) {
         this.parseAuthToken = parsedjsonPayload
       } else {
         this.parseAuthToken = null
       }
     },
-    checkIfDateExpired(datetimestamp){
+    checkIfDateExpired(datetimestamp) {
       const currentTime = Math.floor(Date.now() / 1000);
       if (datetimestamp < currentTime) {
         return true
@@ -496,12 +520,12 @@ export default {
       try {
         const userDetails = this.getUserDetails //localStorage.getItem("user");
         if (userDetails) {
-           this.parseAuthToken= this.getUserDetails
-           this.setIsLoggedOut(true)
-           const redirectPath=localStorage.getItem("postLoginRedirect")||'/studio/dashboard';
-           localStorage.removeItem("postLoginRedirect");
-           this.$router.push(redirectPath).then(() => { this.$router.go(0) });
-        } else {          
+          this.parseAuthToken = this.getUserDetails
+          this.setIsLoggedOut(true)
+          const redirectPath = localStorage.getItem("postLoginRedirect") || '/studio/dashboard';
+          localStorage.removeItem("postLoginRedirect");
+          this.$router.push(redirectPath).then(() => { this.$router.go(0) });
+        } else {
           throw new Error("No user details found in localStorage")
         }
       } catch (e) {
@@ -513,130 +537,166 @@ export default {
 
     getSideMenu() {
 
-      const menu = [
-        
-      ];
+      const menu = [];
 
-      if (this.getSelectedService) {
-        if (this.getSelectedService.services.length > 0) {
-          const id = this.getSelectedService.services[0].id
-          if (id == 'CAVACH_API') {
-            menu.push({
-              href: "/studio/getting-started/" + this.getSelectedService.appId,
-              title: EN.NAV.GETTING_STARTED,
-              icon: "fa fa-flag-checkered",
-            })
+      if (this.getSelectedService && this.getSelectedService.services.length > 0) {
 
-            menu.push({
-              href: "/studio/sessions/" + this.getSelectedService.appId,
-              title: EN.NAV.USERS,
-              icon: "fa fa-users",
-            })
+        const id = this.getSelectedService.services[0].id;
+        const appId = this.getSelectedService.appId;
 
-            // menu.push({
-            //   href:"/studio/business/"+this.getSelectedService.appId,
-            //   title: EN.NAV.BUSINESSES,
-            //   icon:"fa fa-briefcase"
-            // })
+        if (id == 'CAVACH_API') {
 
-            menu.push({
-              href: "/studio/usage/" + this.getSelectedService.appId,
-              title: EN.NAV.USAGES,
-              icon: "fa fa-chart-bar",
-            })
+          // Getting Started
+          menu.push({
+            href: "/studio/getting-started/" + appId,
+            title: EN.NAV.GETTING_STARTED,
+            icon: "fa fa-flag-checkered",
+          });
 
-            menu.push({
-              href: "/studio/onchainkyc/credit/" + this.getSelectedService.appId,
-              title: EN.NAV.CREDIT,
-              icon: "fas fa-hand-holding-usd",
-            })
-            menu.push({
-              href:"#/code",
-              title: EN.NAV.DEVELOPERS.TITLE,
-              icon:"fa fa-code",
-              child:[
-                {
-                  href:"/studio/developer/api-key/"+this.getSelectedService.appId,
-                  title: EN.NAV.DEVELOPERS.API_KEY,
-                  icon:"fa fa-key",
-                },
-                {
-                  href:"/studio/developer/webhook/"+this.getSelectedService.appId,
-                  title: EN.NAV.DEVELOPERS.WEBHOOK,
-                  icon:"fa fa-anchor",
-                }
-              ]
-            })
+          // Identity Verification
+          menu.push({
+            href: "",
+            title: EN.NAV.IDENTITY_VERIFICATION.TITLE,
+            icon: "fa fa-user-check",
+            child: [
+              {
+                href: "/studio/sessions/" + appId,
+                title: EN.NAV.IDENTITY_VERIFICATION.USERS,
+                icon: "fa fa-users",
+              },
+              {
+                href: "/studio/user-analytics/" + appId,
+                title: EN.NAV.IDENTITY_VERIFICATION.USER_ANALYTICS,
+                icon: "fa fa-chart-line",
+              },
+              {
+                href: "/studio/widget-config/" + appId,
+                title: EN.NAV.IDENTITY_VERIFICATION.KYC_WIDGET,
+                icon: "fa fa-puzzle-piece",
+              }
+            ]
+          });
+          // Buniness Verification
+          menu.push({
+            href: "",
+            title: EN.NAV.BUSINESS_VERIFICATION.TITLE,
+            icon: "fa fa-building",
+            child: [
+              {
+                href: "/studio/business/" + this.getSelectedService.appId,
+                title: EN.NAV.BUSINESS_VERIFICATION.BUSINESSES,
+                icon: "fa fa-briefcase"
+              },
+              {
+                href: "/studio/kyb-widget-config/" + this.getSelectedService.appId,
+                title: EN.NAV.BUSINESS_VERIFICATION.KYB_WIDGET,
+                icon: "fa fa-puzzle-piece",
+              }
+            ]
+          });
+          // Solutions
+          menu.push({
+            href: "",
+            title: EN.NAV.SOLUTIONS.TITLE,
+            icon: "fa fa-lightbulb",
+            child: [
+              {
+                href: "/studio/kyc-webpage-generator/" + appId,
+                title: EN.NAV.SOLUTIONS.KYC_VERIFIER_CONFIGURATION,
+                icon: "fa fa-globe",
+              },
+              {
+                href: "/studio/kyb-webpage-generator/" + appId,
+                title: EN.NAV.SOLUTIONS.KYB_VERIFIER_CONFIGURATION,
+                icon: "fa fa-globe",
+              },
+              {
+                href: "/studio/solutions/reusable-id/" + appId,
+                title: EN.NAV.SOLUTIONS.RESUABLE_ID,
+                icon: "fa fa-circle-notch",
+              }
+            ]
+          });
 
-            menu.push({
-              href: '#',
-              title: EN.NAV.SETTINGS.TITLE,
-              icon: 'fa fa-cogs',
-              child: [
-                {
-                  href: "/studio/widget-config/" + this.getSelectedService.appId,
-                  title: EN.NAV.SETTINGS.KYC_WIDGET,
-                  icon: "fa fa-puzzle-piece",
-                },
-                // {
-                //   href: "/studio/kyb-widget-config/" + this.getSelectedService.appId,
-                //   title: "KYB Widget",
-                //   icon: "fa fa-building",
-                // },  
-                {
-                  href: "/studio/kyc-webpage-generator/" + this.getSelectedService.appId,
-                  title: EN.NAV.SETTINGS.KYC_VERIFIER_CONFIGURATION,
-                  icon: "fa fa-globe",
-                },
-                {
-                  href: "/studio/service-config/" + this.getSelectedService.appId,
-                  title: EN.NAV.SETTINGS.SERVICE_CONFIGURATION,
-                  icon: "fa fa-cog",
-                }
+          // Developer Hub
+          menu.push({
+            href: "",
+            title: EN.NAV.DEVELOPERS_HUB.TITLE,
+            icon: "fa fa-code",
+            child: [
+              {
+                href: "/studio/developer/api-key/" + appId,
+                title: EN.NAV.DEVELOPERS_HUB.API_KEY,
+                icon: "fa fa-key",
+              },
+              {
+                href: "/studio/developer/webhook/" + appId,
+                title: EN.NAV.DEVELOPERS_HUB.WEBHOOK,
+                icon: "fa fa-anchor",
+              },
+              {
+                href: "/studio/service-config/" + appId,
+                title: EN.NAV.DEVELOPERS_HUB.SERVICE_CONFIGURATION,
+                icon: "fa fa-cog",
+              }
+            ]
+          });
+          // Billing & Usage
+          menu.push({
+            href: "",
+            title: EN.NAV.BILLING_AND_USAGE.TITLE,
+            icon: "fa fa-credit-card",
+            child: [
+              {
+                href: "/studio/onchainkyc/credit/" + appId,
+                title: EN.NAV.BILLING_AND_USAGE.CREDIT,
+                icon: "fas fa-hand-holding-usd",
+              },
+              {
+                href: "/studio/usage/" + appId,
+                title: EN.NAV.BILLING_AND_USAGE.USAGES,
+                icon: "fa fa-chart-bar",
+              }
+            ]
+          });
 
-                // {
-                //   href: "/studio/onchainkyc/" + this.getSelectedService.appId,
-                //   title: "OnChain KYC",
-                //   icon: "fas fa-network-wired",
-                // },
-              ]
-            })
+        }
 
-            
-            
-          } else if (id == 'SSI_API') {
-            menu.push({
-              href: "/studio/ssi/did/" + this.getSelectedService.appId,
-              title: "DIDs",
-              icon: "fa fa-id-badge",
-            })
+        else if (id === 'SSI_API') {
 
-            menu.push({
-              href: "/studio/ssi/schema/" + this.getSelectedService.appId,
-              title: "Schemas",
-              icon: "fa fa-puzzle-piece",
-            })
+          menu.push({
+            href: "/studio/ssi/did/" + appId,
+            title: "DIDs",
+            icon: "fa fa-id-badge",
+          });
 
-            menu.push({
-              href: "/studio/ssi/credential/" + this.getSelectedService.appId,
-              title: "Credential",
-              icon: "fa fa-certificate",
-            })
-            menu.push({
-              href: "/studio/ssi/usage/" + this.getSelectedService.appId,
-              title: "Usages",
-              icon: "fa fa-chart-bar",
-                      })
+          menu.push({
+            href: "/studio/ssi/schema/" + appId,
+            title: "Schemas",
+            icon: "fa fa-puzzle-piece",
+          });
 
-            menu.push({
-              href: "/studio/ssi/credit/" + this.getSelectedService.appId,
-              title: "Credits",
-              icon: "fas fa-hand-holding-usd",
+          menu.push({
+            href: "/studio/ssi/credential/" + appId,
+            title: "Credential",
+            icon: "fa fa-certificate",
+          });
 
-            })
-          }
+          menu.push({
+            href: "/studio/ssi/usage/" + appId,
+            title: EN.NAV.BILLING_AND_USAGE.USAGES,
+            icon: "fa fa-chart-bar",
+          });
+
+          menu.push({
+            href: "/studio/ssi/credit/" + appId,
+            title: EN.NAV.BILLING_AND_USAGE.CREDIT,
+            icon: "fas fa-hand-holding-usd",
+          });
+
         }
       }
+
       return menu;
     },
 
@@ -718,9 +778,8 @@ export default {
         this.isLoading = false
         console.error("Logout error:", err);
       });
-      
+
       // Clear all localStorage
-      console.log('Clearing localStorage on logout...');
       localStorage.clear();
 
       // Reset UI state
@@ -736,10 +795,10 @@ export default {
       if (appName == "" || appName == undefined) appName = "No app name";
       return this.truncate(appName, 25);
     },
-    async switchBackToAdminAccount(){
-      try{
-        this.isLoding= true
-         await this.switchToAdmin({
+    async switchBackToAdminAccount() {
+      try {
+        this.isLoding = true
+        await this.switchToAdmin({
           adminId: this.userDetails.userId
         })
         this.resetStoreForTeantSwitch()
@@ -749,14 +808,14 @@ export default {
         this.notifyErr(e.message)
         this.isLoading = false
       }
-      },
-    async fetchLoggedInUser(){
+    },
+    async fetchLoggedInUser() {
       if (this.getUserDetails) {
-      this.userDetails = this.getUserDetails
-      this.loggedInUserEmailId = this.userDetails?.accessAccount?.email
-      this.setIsLoggedOut(true)
-    }
-    
+        this.userDetails = this.getUserDetails
+        this.loggedInUserEmailId = this.userDetails?.accessAccount?.email
+        this.setIsLoggedOut(true)
+      }
+
     },
   },
   mixins: [UtilsMixin],

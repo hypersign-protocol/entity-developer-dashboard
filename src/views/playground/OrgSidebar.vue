@@ -303,11 +303,11 @@ export default {
       };
 
       sse.onopen = function (e) {
-        console.log("Connection to server opened.", e);
+        // console.log("Connection to server opened.", e);
       };
 
       sse.onerror = function (e) {
-        console.log(e)
+        console.error(e)
         sse.close();
       }
       return
@@ -443,7 +443,7 @@ export default {
 
 
         }).catch((e) => {
-          console.log(e);
+          console.error(e);
           this.notifyError("Something went wrong");
         }).finally(() => {
           this.isLoading = false;

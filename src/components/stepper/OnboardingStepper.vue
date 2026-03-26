@@ -43,6 +43,7 @@ import StepCompletion from "./StepCompletion.vue";
 import StepCompanyPreview from "./StepCompanyPreview.vue";
 import StepAddTeam from './StepAddTeam.vue'
 import config from '../../config'
+import { mapGetters } from "vuex";
 export default {
   name: "OnboardingStepper",
   components: {
@@ -89,6 +90,7 @@ export default {
     };
   },
   computed: {
+    ...mapGetters("mainStore", ["getUserDetails"]),
     currentComponent() {
       const components = [
         StepCompanyDetails,
@@ -99,6 +101,9 @@ export default {
       ];
       return components[this.currentStep - 1] || StepCompletion;
     },
+    isSuperAdminUser() {
+    return this.getUserDetails?.role === "SUPER_ADMIN";
+  }
   },
   mounted() {
     this.checkExistingOnboarding();
@@ -107,27 +112,37 @@ export default {
     // Watch for changes in logs and update UI reactivity
     'company.logs': {
       handler(newLogs) {
-        console.log('Logs changed:', newLogs);
+        console.debug('Logs changed:', newLogs);
       },
       deep: true
     }
   },
   methods: {
     checkExistingOnboarding() {
-      this.isLoading = true
-      this.$store.dispatch('mainStore/checkIfAlreadyExistOnBoarding')
+      this.isLoading = true;
+      const isSuperAdmin = this.isSuperAdminUser;
+      // 🔥 IMPORTANT: Skip onboarding check for super admin
+      if (isSuperAdmin) {
+        this.isLoading = false;
+        this.currentStep = 1;
+        return;
+      }
+      this.$store
+        .dispatch('mainStore/checkIfAlreadyExistOnBoarding')
         .then((existingOnboarding) => {
-          this.isLoading = false
           if (existingOnboarding && existingOnboarding._id) {
             this.populateCompanyFromOnboarding(existingOnboarding);
             this.setCompletionStatus(existingOnboarding);
           }
         })
         .catch((e) => {
-          this.isLoading = false
-          console.error(e.message)
+            this.isLoading = false
+             console.error(e.message)
+        })
+        .finally(() => {
+          this.isLoading = false;
         });
-    },
+},
 
     setCompletionStatus(onboardingData) {
       const status = (onboardingData.onboardingStatus || onboardingData.status || '').toUpperCase();
@@ -136,7 +151,6 @@ export default {
       // Stay on step 3 (Create SSI Service) even if credit is complete
       // Only allow progression to step 4 when user clicks next and all logs are successful
       this.currentStep = this.creditProcessComplete ? 3 : 1;
-      console.log('Current step set to:', this.currentStep);
     },
 
     populateCompanyFromOnboarding(onboardingData) {
@@ -181,7 +195,6 @@ export default {
         // Only allow progression if credit is approved
         const status = (this.company.onboardingStatus || '').toUpperCase();
         if (status !== 'APPROVED') {
-          console.log('OnboardingStepper: Cannot proceed to Add Team step - credit not approved yet');
           return;
         }
       }
@@ -194,7 +207,6 @@ export default {
     },
 
     finishOnboarding() {
-      console.log('OnboardingStepper: finishOnboarding called, emitting onboarding-complete');
       // Don't change currentStep, just emit the completion event
       this.$emit('onboarding-complete');
       this.$router.push('/studio/dashboard');
@@ -238,7 +250,7 @@ export default {
         this.$forceUpdate();
         
       } catch (error) {
-        console.log('Error processing credit request:', error);
+        console.error('Error processing credit request:', error);
         
         // Handle different error types
         let errorMessage = 'Failed to process credit request';

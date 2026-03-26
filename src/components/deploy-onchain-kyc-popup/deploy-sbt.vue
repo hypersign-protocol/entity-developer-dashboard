@@ -138,9 +138,7 @@ export default {
                 this.getCosmosConnection.nonSigningClient || this.nonSigningClient,
                 contractAddress, msg);
 
-            console.log(result)
             this.onChainIssuer.issuer['sbt_contract_address'] = result.sbt_contract_address;
-            console.log(this.onChainIssuer)
             this.setOnChainIssuerData({
                 ...this.onChainIssuer,
             })
@@ -163,12 +161,10 @@ export default {
                     return false
                 }
             } catch (e) {
-                console.log(e.message);
                 this.isLoading = false;
             }
         },
         async myEventListener(data) {
-            console.log('Inside myEventListener')
             console.log(data)
             // this.nft.metadata = await this.getContractMetadata(this.getOnChainIssuerConfig.contractAddress)
 
@@ -204,7 +200,6 @@ export default {
                     smartContractMsg, fee);
 
                 if (result) {
-                    console.log(result)
                     this.notifySuccess('Successfully deployed your SBT Contract')
 
 

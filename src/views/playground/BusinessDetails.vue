@@ -1,30 +1,96 @@
 <template>
-    <div class="business-details-container">
-        <!-- Loading overlay -->
-        <loadIng :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loadIng>
-        <!-- Breadcrumb Navigation -->
-        <div class="breadcrumb-nav">
-            <div class="breadcrumb-left">
-                <h4 class="breadcrumb-text">
-                    <a @click="goBack" href="#" class="breadcrumb-link">Business Verification</a>
-                    <i class="fa fa-angle-double-right breadcrumb-separator" aria-hidden="true"></i>
-                    <span @click="copyToClip(companyName, 'Company Name')" class="breadcrumb-id">{{ companyName
-                    }}</span>
-                </h4>
-            </div>
-            <div v-if="company?.status === 'Completed'" class="breadcrumb-actions">
-                <button @click="approveCompany" class="action-btn approve-btn">
-                    <i class="fas fa-check"></i>
-                    Approve
-                </button>
-                <button @click="rejectCompany" class="action-btn reject-btn">
-                    <i class="fas fa-times"></i>
-                    Reject
-                </button>
-            </div>
-        </div>
+  <v-container fluid class="py-6 px-8">
+    <load-ing :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></load-ing>
 
-        <!-- Custom Modals -->
+    <v-row align="center" class="mb-6">
+  <v-col cols="12" md="8">
+    <div class="d-flex align-center">
+      <a 
+        @click.prevent="goBack" 
+        class="breadcrumb-link font-weight-bold mb-0"
+      >
+        Business Verifications
+      </a>
+      
+      <v-icon class="mx-2" color="grey lighten-1">mdi-chevron-right</v-icon>
+      <span class="company-title text-h6 font-weight-bold">{{ companyName }}</span>
+    </div>
+    <p class="text-subtitle-2 text-muted mb-0 mt-1">
+      Review business documentation and regulatory status
+    </p>
+  </v-col>
+
+  <v-col 
+    cols="12" 
+    md="4" 
+    v-if="company?.status === 'Completed'"
+    class="d-flex align-center"
+>
+    <div class="d-flex justify-md-end justify-start align-center gap-3 w-100">
+
+        <hf-buttons name="Approve" iconClass=""
+                                    @executeAction="approveCompany"></hf-buttons>
+
+        <v-btn color="error" text @click="rejectCompany"><v-icon small left color="white">mdi-close-circle-outline</v-icon>Reject</v-btn>
+        
+        <!-- <button @click="approveCompany" class="theme-btn btn-approve">
+            <v-icon small left color="white">mdi-check-decagram</v-icon>
+            Approve
+        </button>
+
+        <button @click="rejectCompany" class="theme-btn btn-reject">
+            <v-icon small left color="white">mdi-close-circle-outline</v-icon>
+            Reject
+        </button> -->
+    </div>
+</v-col>
+</v-row>
+    <v-row>
+      <v-col cols="12" md="3" lg="2">
+        <div class="overview-container pa-0 sticky-sidebar">
+          <!-- <div class="sidebar-header border-bottom pa-4">
+            <span class="input-label">Verification Sections</span>
+          </div> -->
+          <nav class="nav-list">
+            <a href="#" class="nav-tab" :class="{ active: activeTab === 'business-info' }" @click.prevent="setActiveTab('business-info')">
+              <v-icon small class="mr-3">mdi-office-building</v-icon>
+              Business Info
+            </a>
+            <a href="#" class="nav-tab" :class="{ active: activeTab === 'documents' }" @click.prevent="setActiveTab('documents')">
+              <v-icon small class="mr-3">mdi-file-document-outline</v-icon>
+              Documents
+            </a>
+            <a href="#" class="nav-tab" :class="{ active: activeTab === 'ubo-details' }" @click.prevent="setActiveTab('ubo-details')">
+              <v-icon small class="mr-3">mdi-account-group-outline</v-icon>
+              UBO Details
+            </a>
+            <a href="#" class="nav-tab" :class="{ active: activeTab === 'checks-regulations' }" @click.prevent="setActiveTab('checks-regulations')">
+              <v-icon small class="mr-3">mdi-shield-check-outline</v-icon>
+              Compliance 
+            </a>
+          </nav>
+        </div>
+      </v-col>
+
+      <v-col cols="12" md="9" lg="10">
+        <div class="content-view-panel">
+          <div v-if="activeTab === 'business-info'" class="tab-fade-in">
+            <BusinessInformation :company="company" />
+          </div>
+          <div v-if="activeTab === 'documents'" class="tab-fade-in">
+            <DocumentUploaded :company="company" />
+          </div>
+          <div v-if="activeTab === 'ubo-details'" class="tab-fade-in">
+            <UboDetails :company="company" />
+          </div>
+          <div v-if="activeTab === 'checks-regulations'" class="tab-fade-in">
+            <ChecksRegulations :company="company" />
+          </div>
+        </div>
+      </v-col>
+    </v-row>
+
+     <!-- Custom Modals -->
         <CustomConfirmModal :isVisible="showApproveConfirm" title="Approve Company"
             :message="`Are you sure you want to approve ${companyName}? This action will mark the company as approved and allow them to proceed.`"
             type="success" confirmText="Approve" cancelText="Cancel" iconClass="fas fa-check-circle"
@@ -36,69 +102,154 @@
             placeholder="Enter the reason for rejection (e.g., incomplete documentation, compliance issues, etc.)"
             submitText="Reject" cancelText="Cancel" iconClass="fas fa-times-circle" submitIconClass="fas fa-times"
             @submit="handleRejectSubmit" @cancel="showRejectPrompt = false" />
-
-        <div class="details-layout">
-            <!-- Sidebar Navigation -->
-            <div class="sidebar">
-                <nav class="sidebar-nav">
-                    <ul class="nav-list">
-                        <li class="nav-item">
-                            <a href="#" class="nav-link" :class="{ active: activeTab === 'business-info' }"
-                                @click="setActiveTab('business-info')">
-                                <i class="fas fa-building"></i>
-                                Business Information
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="#" class="nav-link" :class="{ active: activeTab === 'documents' }"
-                                @click="setActiveTab('documents')">
-                                <i class="fas fa-file-alt"></i>
-                                Document Uploaded
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="#" class="nav-link" :class="{ active: activeTab === 'ubo-details' }"
-                                @click="setActiveTab('ubo-details')">
-                                <i class="fas fa-users"></i>
-                                UBO Details
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="#" class="nav-link" :class="{ active: activeTab === 'checks-regulations' }"
-                                @click="setActiveTab('checks-regulations')">
-                                <i class="fas fa-shield-alt"></i>
-                                Checks & Regulations
-                            </a>
-                        </li>
-                    </ul>
-                </nav>
-            </div>
-
-            <!-- Main Content Area -->
-            <div class="main-content">
-                <!-- Business Information Tab -->
-                <div v-if="activeTab === 'business-info'" class="content-section">
-                    <BusinessInformation :company="company" />
-                </div>
-
-                <!-- Documents Tab -->
-                <div v-if="activeTab === 'documents'" class="content-section">
-                    <DocumentUploaded :company="company" />
-                </div>
-
-                <!-- UBO Details Tab -->
-                <div v-if="activeTab === 'ubo-details'" class="content-section">
-                    <UboDetails :company="company" />
-                </div>
-
-                <!-- Checks & Regulations Tab -->
-                <div v-if="activeTab === 'checks-regulations'" class="content-section">
-                    <ChecksRegulations :company="company" />
-                </div>
-            </div>
-        </div>
-    </div>
+  </v-container>
 </template>
+
+<style scoped>
+
+.w-100 {
+    width: 100%;
+}
+
+.gap-3 {
+    gap: 12px;
+}
+
+/* Optional: In case of older Vuetify/CSS versions, 
+   this ensures the flex container respects the right alignment */
+.justify-md-end {
+    @media (min-width: 960px) {
+        justify-content: flex-end !important;
+    }
+}
+
+/* Theme Consistency */
+.overview-container {
+  background-color: #f9fafb;
+  border-radius: 0.75rem;
+  border: 1px solid #e5e7eb;
+  overflow: hidden;
+}
+
+.input-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Breadcrumb Styling */
+.breadcrumb-link {
+  font-size: 0.75rem;
+  color: #3b82f6;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.company-title {
+  font-size: 1.25rem;
+  color: #111827;
+}
+
+/* Sidebar Tabs */
+.nav-tab {
+  display: flex;
+  align-items: center;
+  padding: 0.85rem 1.25rem;
+  text-decoration: none;
+  color: #475569;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  border-left: 3px solid transparent;
+}
+
+.nav-tab:hover {
+  background-color: #f1f5f9;
+  color: #111827;
+}
+
+.nav-tab.active {
+  background-color: #eff6ff;
+  color: #3b82f6;
+  font-weight: 700;
+  border-left-color: #3b82f6;
+}
+
+.nav-tab.active .v-icon {
+  color: #3b82f6 !important;
+}
+
+/* Content Panel */
+.content-view-panel {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.75rem;
+  padding: 2rem;
+  min-height: 70vh;
+}
+
+
+.sticky-sidebar {
+  position: sticky;
+  top: 24px;
+}
+
+/* Animations */
+.tab-fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.border-bottom {
+  border-bottom: 1px solid #e5e7eb;
+}
+
+
+/* Ensure the breadcrumb link doesn't look like a standard tiny link */
+.breadcrumb-link {
+  color: #64748b; /* Muted slate to distinguish from the active name */
+  text-decoration: none;
+  transition: color 0.2s;
+  line-height: 1.2;
+}
+
+.breadcrumb-link:hover {
+  color: #3b82f6; /* Theme primary blue on hover */
+}
+
+.company-title {
+  color: #111827;
+  line-height: 1.2;
+}
+
+/* Flex gap for buttons */
+.gap-3 {
+  gap: 12px;
+}
+
+/* Ensure the theme-btn has a fixed height for vertical alignment */
+.theme-btn {
+  height: 40px;
+  white-space: nowrap;
+}
+
+/* Adjustments for smaller screens */
+@media (max-width: 960px) {
+  .gap-3 {
+    margin-top: 1rem;
+    width: 100%;
+    justify-content: flex-start;
+  }
+}
+
+
+</style>
 
 <script>
 import { mapState, mapActions } from "vuex";
@@ -279,281 +430,3 @@ export default {
 
 }
 </script>
-
-<style scoped>
-.business-details-container {
-    min-height: 100vh;
-    background-color: #fff;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-}
-
-.details-layout {
-    display: flex;
-    min-height: 100vh;
-}
-
-/* Sidebar Styles */
-.sidebar {
-    width: 250px;
-    background-color: #f8f9fa;
-    border: 1px solid #e5e7eb;
-    flex-shrink: 0;
-    border-radius: 0.5rem 0 0 0.5rem;
-}
-
-.sidebar-nav {
-    padding: 0rem;
-}
-
-.nav-list {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-}
-
-.nav-item {
-    padding: 0;
-}
-
-.nav-link {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem 1rem;
-    color: #475569;
-    text-decoration: none;
-    font-size: 0.9rem;
-    font-weight: 500;
-    transition: all 0.2s ease;
-    position: relative;
-    border-radius: 0;
-
-}
-
-/* nav link icon */
-.nav-link i {
-    color: #66666a !important;
-    font-size: 0.9rem;
-    width: 1.25rem;
-    text-align: center;
-}
-
-.nav-link:hover {
-    background: linear-gradient(135deg, #f8fafc 0%, #475569 100%);
-    color: #475569;
-    text-decoration: none;
-    transform: translateX(4px);
-}
-
-.nav-link.active {
-    background-color: #000000;
-    color: #ffffff;
-    font-weight: 600;
-    border-radius: 0.25rem 0 0 0.25rem;
-}
-
-.nav-link.active:hover {
-    background-color: #1f2937;
-    color: #ffffff;
-    transform: translateX(0);
-
-}
-
-.nav-link i {
-    color: #3b82f6;
-    font-size: 0.9rem;
-    width: 1.25rem;
-    text-align: center;
-}
-
-.nav-link.active i {
-    color: #ffffff;
-}
-
-/* Main Content Styles */
-.main-content {
-    flex: 1;
-    /* padding: 2rem; */
-    overflow-y: auto;
-    background-color: #fff;
-}
-
-/* Breadcrumb Navigation */
-.breadcrumb-nav {
-    background-color: #fff;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1rem 2rem;
-}
-
-.breadcrumb-left {
-    flex: 1;
-}
-
-.breadcrumb-text {
-    color: #8080808f;
-    font-size: 1.5rem;
-    font-weight: 500;
-    margin: 0;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.breadcrumb-actions {
-    display: flex;
-    gap: 0.75rem;
-    align-items: center;
-}
-
-.action-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem 1rem;
-    border: none;
-    border-radius: 0.375rem;
-    font-size: 0.875rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    text-decoration: none;
-    font-family: inherit;
-}
-
-.approve-btn {
-    background-color: #10b981;
-    color: white;
-}
-
-.approve-btn:hover {
-    background-color: #059669;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(16, 185, 129, 0.3);
-}
-
-.reject-btn {
-    background-color: #ef4444;
-    color: white;
-}
-
-.reject-btn:hover {
-    background-color: #dc2626;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(239, 68, 68, 0.3);
-}
-
-.action-btn i {
-    font-size: 0.75rem;
-}
-
-.breadcrumb-link {
-    color: #8080808f;
-    text-decoration: none;
-    cursor: pointer;
-    transition: color 0.2s ease;
-}
-
-.breadcrumb-link:hover {
-    color: #66666a;
-    text-decoration: none;
-}
-
-.breadcrumb-separator {
-    color: #8080808f;
-    font-size: 0.875rem;
-    margin: 0 0.25rem;
-}
-
-.breadcrumb-id {
-    color: #374151;
-    font-weight: 600;
-    cursor: pointer;
-    padding: 0.25rem 0.5rem;
-    border-radius: 4px;
-    transition: all 0.2s ease;
-}
-
-.breadcrumb-id:hover {
-    background-color: #f3f4f6;
-    color: #1f2937;
-}
-
-.content-section {
-    background-color: #fff;
-    /* border-radius: 0.5rem; */
-    padding: 2rem;
-    /* box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); */
-    min-height: 100vh;
-    border: 1px solid #e5e7eb;
-    border-radius: 0 0.5rem 0.5rem 0;
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-    .details-layout {
-        flex-direction: column;
-    }
-
-    .sidebar {
-        width: 100%;
-        order: 2;
-    }
-
-    .main-content {
-        order: 1;
-        /* padding: 1rem; */
-    }
-
-    .breadcrumb-nav {
-        margin-bottom: 1rem;
-        padding: 0.75rem 1rem;
-        flex-direction: column;
-        gap: 1rem;
-        align-items: flex-start;
-    }
-
-    .breadcrumb-left {
-        width: 100%;
-    }
-
-    .breadcrumb-text {
-        font-size: 0.875rem;
-        flex-wrap: wrap;
-    }
-
-    .breadcrumb-id {
-        padding: 0.125rem 0.375rem;
-        font-size: 0.875rem;
-    }
-
-    .breadcrumb-actions {
-        width: 100%;
-        justify-content: flex-end;
-    }
-
-    .action-btn {
-        font-size: 0.75rem;
-        padding: 0.375rem 0.75rem;
-    }
-
-    .sidebar-nav {
-        display: flex;
-        overflow-x: auto;
-        padding: 0.5rem;
-    }
-
-    .nav-list {
-        display: flex;
-        gap: 0.5rem;
-        min-width: max-content;
-    }
-
-    .nav-link {
-        white-space: nowrap;
-        padding: 0.75rem 1.25rem;
-        border-radius: 0.375rem;
-    }
-}
-</style>

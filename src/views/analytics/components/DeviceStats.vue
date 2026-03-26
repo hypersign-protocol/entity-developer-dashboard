@@ -1,0 +1,365 @@
+<template>
+  <div class="overview-container mt-6">
+    <div class="header-row">
+      <div class="title-group">
+        <h2 class="title">Device Distribution</h2>
+        <p class="subtitle">Platform usage for ID verification</p>
+      </div>
+      <span class="badge">Live Status</span>
+    </div>
+
+    <div v-if="loading" class="grid-layout">
+      <div v-for="i in 4" :key="i" class="stat-card skeleton-pulse"></div>
+    </div>
+
+    <div v-else-if="error" class="state-box error-box">
+      <p>{{ error }}</p>
+      <button @click="refreshData" class="retry-btn">Try again</button>
+    </div>
+
+    <div v-else-if="!hasDeviceData" class="state-box empty-box">
+      <p>No device data available for the selected environment.</p>
+    </div>
+
+    <div v-else class="device-grid">
+      <div class="chart-wrapper">
+        <div ref="deviceChart" class="chart-canvas"></div>
+      </div>
+
+      <div class="details-list">
+        <div v-for="device in deviceData" :key="device.deviceType" class="device-row">
+          <div class="device-meta">
+            <span class="status-dot" :style="{ backgroundColor: getDeviceColor(device.deviceType) }"></span>
+            <span class="device-name">{{ device.deviceType }}</span>
+          </div>
+          <div class="device-stats">
+            <div class="progress-container">
+              <div class="progress-bg">
+                <div 
+                  class="progress-fill" 
+                  :style="{ 
+                    width: getSafePercentage(device.percentage) + '%', 
+                    backgroundColor: getDeviceColor(device.deviceType) 
+                  }"
+                ></div>
+              </div>
+            </div>
+            <span class="device-val">{{ getSafePercentage(device.percentage) }}%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+import { mapActions } from 'vuex/dist/vuex.common.js';
+import * as echarts from 'echarts';
+
+export default {
+  name: 'DeviceStats',
+  props: {
+    env: {
+      type: String,
+      default: 'dev'
+    }
+  },
+  data() {
+    return {
+      loading: true,
+      error: null,
+      deviceData: [],
+      chart: null
+    };
+  },
+  computed: {
+    hasDeviceData() {
+      return this.deviceData.length > 0;
+    }
+  },
+  async mounted() {
+    await this.fetchDevices();
+    await this.$nextTick();
+    this.initChart();
+    window.addEventListener('resize', this.handleResize);
+  },
+  beforeDestroy() {
+    window.removeEventListener('resize', this.handleResize);
+    if (this.chart) this.chart.dispose();
+  },
+  watch: {
+    async env() {
+      await this.refreshData();
+    }
+  },
+  methods: {
+    ...mapActions('mainStore', ['fetchAnalyticsDeviceStats']),
+
+    async refreshData() {
+      await this.fetchDevices();
+      await this.$nextTick();
+      this.initChart();
+    },
+
+    async fetchDevices() {
+      this.loading = true;
+      this.error = null;
+      try {
+        const response = await this.fetchAnalyticsDeviceStats({ env: this.env });
+        if (response && Array.isArray(response.data)) {
+          this.deviceData = response.data
+            .filter(item => item && item.deviceType)
+            .map(item => ({
+              deviceType: item.deviceType,
+              percentage: Number(item.percentage) || 0
+            }));
+        } else {
+          this.deviceData = [];
+        }
+      } catch (err) {
+        console.error("API Error:", err);
+        this.deviceData = [];
+        this.error = "Unable to load device stats.";
+      } finally {
+        this.loading = false;
+      }
+    },
+
+    initChart() {
+      if (!this.$refs.deviceChart || !this.hasDeviceData) {
+        if (this.chart) {
+          this.chart.dispose();
+          this.chart = null;
+        }
+        return;
+      }
+
+      if (this.chart) {
+        this.chart.dispose();
+      }
+
+      this.chart = echarts.init(this.$refs.deviceChart);
+      
+      const chartData = this.deviceData.map(item => ({
+        name: item.deviceType,
+        value: this.getSafePercentage(item.percentage)
+      }));
+
+      const option = {
+        tooltip: {
+          trigger: 'item',
+          formatter: '{b}: {c}%'
+        },
+        series: [
+          {
+            type: 'pie',
+            radius: ['65%', '85%'],
+            avoidLabelOverlap: false,
+            itemStyle: {
+              borderRadius: 4,
+              borderColor: '#fff',
+              borderWidth: 2
+            },
+            label: { show: false },
+            data: chartData,
+            color: ['#2563eb', '#10b981', '#4f46e5', '#9ca3af']
+          }
+        ]
+      };
+      this.chart.setOption(option);
+    },
+
+    getDeviceColor(type) {
+      const colors = {
+        'Desktop': '#2563eb',
+        'Mobile': '#10b981',
+        'Tablet': '#4f46e5',
+        'Unknown': '#9ca3af'
+      };
+      return colors[type] || '#cbd5e1';
+    },
+
+    getSafePercentage(value) {
+      const percentage = Number(value) || 0;
+      return Math.max(0, Math.min(100, percentage));
+    },
+
+    handleResize() {
+      if (this.chart) this.chart.resize();
+    }
+  }
+};
+</script>
+
+<style scoped>
+/* Re-using your specific container design */
+.overview-container {
+  width: 100%;
+  padding: 1.5rem;
+  background-color: #f9fafb;
+  border-radius: 0.75rem;
+  border: 1px solid #e5e7eb;
+  box-sizing: border-box;
+}
+
+.header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 2rem;
+}
+
+.title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #111827;
+  margin: 0;
+}
+
+.subtitle {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin: 4px 0 0 0;
+}
+
+.badge {
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 0.25rem 0.75rem;
+  background-color: #ecfdf5;
+  color: #065f46;
+  border: 1px solid #d1fae5;
+  border-radius: 9999px;
+  text-transform: uppercase;
+}
+
+/* Device Layout */
+.device-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  align-items: center;
+}
+
+@media (min-width: 1024px) {
+  .device-grid {
+    grid-template-columns: 1fr 2fr;
+  }
+}
+
+.chart-wrapper {
+  height: 250px;
+  width: 100%;
+}
+
+.chart-canvas {
+  width: 100%;
+  height: 100%;
+}
+
+.details-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.device-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.device-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.device-name {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #4b5563;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.device-stats {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.progress-container {
+  flex: 1;
+}
+
+.progress-bg {
+  background-color: #e5e7eb;
+  border-radius: 9999px;
+  height: 0.6rem;
+}
+
+.progress-fill {
+  height: 0.6rem;
+  border-radius: 9999px;
+  transition: width 1s ease-out;
+}
+
+.device-val {
+  font-size: 1rem;
+  font-weight: 800;
+  color: #111827;
+  min-width: 45px;
+  text-align: right;
+}
+
+/* Utils */
+.skeleton-pulse {
+  height: 120px;
+  background-color: #e5e7eb;
+  border-radius: 0.5rem;
+  animation: pulse 1.8s infinite ease-in-out;
+}
+
+.state-box {
+  width: 100%;
+  min-height: 220px;
+  border-radius: 0.5rem;
+  border: 1px solid #f3f4f6;
+  background: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 1rem;
+}
+
+.empty-box {
+  color: #6b7280;
+}
+
+.error-box {
+  color: #b91c1c;
+}
+
+.retry-btn {
+  margin-top: 0.75rem;
+  border: 1px solid #fca5a5;
+  background: #fff;
+  color: #b91c1c;
+  border-radius: 0.375rem;
+  padding: 0.35rem 0.7rem;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: .5; }
+}
+</style>

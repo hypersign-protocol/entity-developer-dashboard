@@ -1023,11 +1023,8 @@ textarea.form-control {
 
     <v-row>
       <v-col>
-        <div class="form-group" style="display:flex">
-          <h3 style="text-align: left;">
-            KYC Verifier Configuration
-          </h3>
-        </div>
+        <h4 class="font-weight-bold mb-0">ID Verifier Page Configuration</h4>
+        <p class="text-subtitle-2 text-muted">Create a hosted landing page for your ID verification flow</p>
       </v-col>
       <v-col>
         <HfButtons name="Save Configuration" @executeAction="saveConfiguration()" v-if="!this.kycWebpageConfigTemp._id"
@@ -1054,7 +1051,7 @@ textarea.form-control {
             </div>
             <div class="company-info">
               <h4>{{ getSelectedService ? getSelectedService.appName : 'Your Business Name' }}</h4>
-              <p>{{ kycWebpageConfigTemp.pageTitle || 'KYC Verification' }}</p>
+              <p>{{ kycWebpageConfigTemp.pageTitle || 'Identity Verification Platform' }}</p>
             </div>
           </div>
         </div>
@@ -1125,14 +1122,14 @@ textarea.form-control {
             <li class="list-group-item">
               <div class="form-group">
                 <label for="pageTitle">Page Sub-Heading<span class="mandatory">*</span></label>
-                <input type="text" class="form-control" v-model="kycWebpageConfigTemp.pageTitle" placeholder="KYC Verification" required>
+                <input type="text" class="form-control" v-model="kycWebpageConfigTemp.pageTitle" placeholder="Identity Verification Platform" required>
               </div>
             </li>
             <!-- Page Description -->
             <li class="list-group-item">
               <div class="form-group">
                 <label for="pageDescription">Page Description</label>
-                <textarea class="form-control" v-model="kycWebpageConfigTemp.pageDescription" rows="2" placeholder="Complete your KYC verification to proceed"></textarea>
+                <textarea class="form-control" v-model="kycWebpageConfigTemp.pageDescription" rows="2" placeholder="Complete your Identity Verification Platform to proceed"></textarea>
               </div>
             </li>
 
@@ -1242,7 +1239,7 @@ textarea.form-control {
 
                       <div class="preview-desc">
                         <span v-if="kycWebpageConfigTemp.pageDescription">{{ kycWebpageConfigTemp.pageDescription }}</span>
-                        <span v-else>Complete your KYC verification to proceed with our services.</span>
+                        <span v-else>Complete your Identity Verification Platform to proceed with our services.</span>
                       </div>
 
                       <div class="steps-list">
@@ -1272,7 +1269,7 @@ textarea.form-control {
                       <div class="kyc-button-container">
                         <button class="kyc-start-button">
                           <i class="fa fa-shield-alt"></i>
-                          Start KYC Verification
+                          Start Verification
                         </button>
                       </div>
 
@@ -1342,7 +1339,7 @@ export default {
       previewMode: "desktop",
       showDeleteModal: false,
       kycWebpageConfigTemp: {
-        pageTitle: "KYC Verification",
+        pageTitle: "Identity Verification Platform",
         pageDescription: "",
         expiryType: "3months",
         customExpiryDate: "",
@@ -1350,7 +1347,8 @@ export default {
         contactEmail: "",
         generatedUrl: "",
         uniqueId: "",
-        status: "active"
+        status: "active",
+        pageType: "kyc"
       }
     }
   },
@@ -1464,7 +1462,8 @@ export default {
           contactEmail: this.kycWebpageConfigTemp.contactEmail,
           generatedUrl: this.generateUrl(),
           uniqueId: this.kycWebpageConfigTemp.uniqueId,
-          status: 'active'
+          status: 'active',
+          pageType: 'kyc'
         };
         await this.createKYCWebpageConfig(config);
         this.notifySuccess('KYC webpage configuration saved successfully!');
@@ -1527,7 +1526,7 @@ export default {
         } else {
           // Reset to default values if no config exists
           this.kycWebpageConfigTemp = {
-            pageTitle: "KYC Verification",
+            pageTitle: "Identity Verification Platform",
             pageDescription: "",
             expiryType: "3months",
             customExpiryDate: "",
@@ -1535,7 +1534,8 @@ export default {
             contactEmail: "",
             generatedUrl: "",
             uniqueId: "",
-            status: "active"
+            status: "active",
+            pageType: "kyc"
           };
         }
       },

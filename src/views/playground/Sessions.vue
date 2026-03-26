@@ -188,43 +188,16 @@ h5 span {
 <template>
   <div :class="isContainerShift ? 'homeShift' : 'home'">
     <loadIng :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loadIng>
-
-    <!-- <v-row class="mb-0" dense>
-      <v-col v-for="(value, key) in overviewData" :key="key" cols="12" sm="6" md="3">
-        <v-card class="overview-card" outlined>
-          <v-card-text class="text-center pa-4">
-            <div class="overview-value mb-3">
-              {{ formatNumber(value) }}<span v-if="isPercentageKey(key)">%</span>
-            </div>
-            <div class="overview-title-wrapper">
-              <span class="overview-title">
-                {{ formatKey(key) }}
-              </span>
-              <v-tooltip bottom>
-                <template v-slot:activator="{ on, attrs }">
-                  <v-icon v-bind="attrs" v-on="on" small color="grey darken-1" class="ml-1">
-                    mdi-information
-                  </v-icon>
-                </template>
-<span>{{ getTooltipText(key) }}</span>
-</v-tooltip>
-</div>
-</v-card-text>
-</v-card>
-</v-col>
-</v-row> -->
-
     <v-row class="mb-0">
       <v-col cols="12">
         <div class="d-flex justify-content-between align-items-center mb-3">
-          <h3 class="mb-0">Users Verifications</h3>
+          
+          <div>
+              <h4 class="mb-1 font-weight-bold mb-0">Users Verifications</h4>
+              <p class="text-muted small mb-0">Manage and track user verifications</p>
+          </div>
 
           <div class="d-flex align-items-center">
-            <div class="d-flex align-items-center mr-3">
-              <b-form-checkbox v-model="isProd" switch size="sm"
-                @change="handleEnvironmentChange">Prod</b-form-checkbox>
-            </div>
-
             <div class="input-group" style="width: 350px;" v-if="userList.length > 0">
               <input type="text" class="form-control" placeholder="Search by user Id or email"
                 aria-label="Search by user Id" aria-describedby="basic-addon2" v-model="sessionIdTemp"
@@ -378,12 +351,12 @@ export default {
 
       // Table column headers
       headers: [
-        { text: 'User ID', value: 'userId' },
-        { text: 'Start Date', value: 'start_date' },
-        { text: 'End Date', value: 'end_date' },
-        { text: 'Attempts', value: 'attempts' },
-        { text: 'Steps', value: 'steps' },
-        { text: 'Status', value: 'status' },
+        { text: 'USER ID', value: 'userId' },
+        { text: 'START DATE', value: 'start_date' },
+        { text: 'END DATE', value: 'end_date' },
+        { text: 'ATTEMPTS', value: 'attempts' },
+        { text: 'STEPS', value: 'steps' },
+        { text: 'STATUS', value: 'status' },
       ],
 
       authToken: localStorage.getItem('authToken'),
@@ -400,7 +373,7 @@ export default {
   },
   async created() {
     try {
-      this.isProd = this.getSelectedService && this.getSelectedService.env === 'prod' ? true :false;
+      this.isProd = this.getSelectedService && this.getSelectedService.env === 'prod' ? true: false;
       this.user = this.getUserDetails;
       this.updateSideNavStatus(true)
 

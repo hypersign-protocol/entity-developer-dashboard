@@ -1,108 +1,129 @@
-<style>
-.card .selected {
-    position: absolute;
-    top: -10px;
-    right: 10px;
-    font-size: 1.5em;
-    color: green;
-}
-</style>
 <template>
     <div class="row">
-        <div class="col-md-6 mb-2" v-for="eachOrg in services" :key="eachOrg.appId">
-            <v-card class="serviceCard" max-width="400">
-                <v-card-actions>
-                    <v-list-item class="grow">
-                        <v-list-item-avatar color="grey darken-3">
-                            <v-img class="elevation-6" alt=""
-                                :src="eachOrg.logoUrl || getProfileIcon(formattedAppName(eachOrg.appId))"></v-img>
+        <div 
+            class="col-12 col-md-6 col-lg-4 mb-2" 
+            v-for="eachOrg in services" 
+            :key="eachOrg.appId"
+        >
+            <v-card class="issuer-card h-100 shadow-sm border-0">
+                <v-card-actions class="pa-4 pb-0">
+                    <v-list-item class="px-0">
+                        <v-list-item-avatar size="48" class="elevation-2 border">
+                            <v-img 
+                                :src="eachOrg.logoUrl || getProfileIcon(formattedAppName(eachOrg.appId))"
+                                alt="Issuer Logo"
+                            ></v-img>
                         </v-list-item-avatar>
-                        <v-row align="center" justify="end" class="justify-content-end">
-                            <div class="d-flex align-items-start">
-                                <v-checkbox v-model="eachOrg.selected"
-                                 @change="onIssuerToggle(eachOrg)"></v-checkbox>
-                            </div>
-                        </v-row>
+                        
+                        <v-spacer></v-spacer>
+                        
+                        <div v-if="isSelection" class="selection-area">
+                            <v-checkbox 
+                                :input-value="eachOrg.selected"
+                                @change="onIssuerToggle(eachOrg)"
+                                color="primary"
+                                hide-details
+                                class="ma-0 pa-0"
+                            ></v-checkbox>
+                        </div>
+                        <div v-else>
+                            <span class="verified-badge">
+                                <i class="mdi mdi-check-decagram mr-1"></i>Verified
+                            </span>
+                        </div>
                     </v-list-item>
                 </v-card-actions>
-                <v-card-title>
-                    <span class="text-h6 font-weight-light">
+
+                <v-card-title class="pt-2 pb-1">
+                    <span class="issuer-title">
                         {{ formattedAppName(eachOrg.appName) }}
                     </span>
                 </v-card-title>
-                <v-card-text class="text-h5 font-weight-bold">
-                    {{ domainFromOrigin(eachOrg.domain) }}
+
+                <v-card-text>
+                    <div class="issuer-domain text-truncate">
+                        <i class="mdi mdi-link-variant mr-1"></i>
+                        {{ domainFromOrigin(eachOrg.domain) }}
+                    </div>
+                    
+                    <div class="issuer-did-box mt-3">
+                        <label class="did-label">Issuer DID</label>
+                        <div class="did-value">{{ eachOrg.issuerDid }}</div>
+                    </div>
                 </v-card-text>
             </v-card>
-
-
-            <!-- <div class="card" style="cursor: grab; border-radius: 20px" @click="serviceSelected(eachOrg)"
-                :style="{ 'box-shadow': eachOrg.selected ? '0 0 2rem 0 rgb(136 152 170 / 15%)' : '' }">
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col">
-                            <div class="form-check selected">
-                                <input class="form-check-input" type="checkbox" v-model="eachOrg.selected"
-                                    id="flexCheckDefault">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row center">
-                        <div class="col-5">
-                            <div class="p-2  center">
-                                <b-avatar :src="eachOrg.logoUrl || getProfileIcon(formattedAppName(eachOrg.appId))"
-                                    variant="info"></b-avatar>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row ">
-
-                        <div class="col center">
-                            <h5 class="card-title text-uppercase text-muted mb-0">
-                                {{ formattedAppName(eachOrg.appName) }}
-                                <img src="../assets/verified-success.png" style="max-height: 20px; min-height: 20px;"
-                                    v-if="eachOrg.domainLinkageCredentialString" />
-                            </h5>
-                        </div>
-                    </div>
-
-                    <div class="row center mt-1 mb-1 center"
-                        style="max-height: 30px;min-height: 30px;  text-align: center; word-wrap: break-word;">
-                        <div class="col center" style="color:grey">
-                            {{ truncate(
-                                eachOrg.description || "No description for this app",
-                                80
-                            ) }}
-                        </div>
-                    </div>
-
-                    <div class="row mt-2">
-                        <div class="col center">
-                            <span>
-                                <span class="badge rounded bg-light" v-if="eachOrg.domain">
-                                    <a :href="eachOrg.domain" target="_blank" style="text-decoration:none">{{
-                                        domainFromOrigin(eachOrg.domain) }}</a>
-                                </span>
-                            </span>
-
-                        </div>
-                        <div class="col center">
-                            <span>
-                                <span class="badge rounded bg-light" v-if="eachOrg.issuerDid">
-                                    {{ truncate(
-                                        eachOrg.issuerDid,
-                                        30
-                                    ) }}
-                                </span>
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </div> -->
         </div>
-    </div>
+    </div>            
 </template>
+
+<style scoped>
+.issuer-card {
+    border-radius: 0.75rem !important; /* 12px per your design spec */
+    transition: all 0.25s ease-in-out;
+    border: 1px solid #e5e7eb !important;
+    background-color: #ffffff !important;
+}
+
+.issuer-card:hover {
+    transform: translateY(-4px);
+    border-color: #3b82f6 !important; /* Primary Blue */
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1) !important;
+}
+
+.issuer-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #1f2937;
+    letter-spacing: -0.01em;
+}
+
+.issuer-domain {
+    font-size: 0.85rem;
+    color: #64748b;
+    font-weight: 500;
+}
+
+.verified-badge {
+    font-size: 0.7rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: #059669;
+    background: #ecfdf5;
+    padding: 4px 8px;
+    border-radius: 6px;
+}
+
+.issuer-did-box {
+    background: #f8fafc;
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid #f1f5f9;
+}
+
+.did-label {
+    display: block;
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #94a3b8;
+    margin-bottom: 2px;
+    letter-spacing: 0.05em;
+}
+
+.did-value {
+    font-family: 'Monaco', 'Consolas', monospace;
+    font-size: 0.7rem;
+    color: #475569;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Custom Vuetify Overrides */
+.v-list-item-avatar {
+    margin-right: 0 !important;
+}
+</style>
 
 <script>
 import UtilsMixin from "../mixins/utils";
@@ -110,24 +131,33 @@ import { mapGetters, mapMutations } from 'vuex/dist/vuex.common.js';
 
 export default {
     name: 'MarketplaceList',
+    props: {
+        isSelection: {
+            type: Boolean,
+            default: true
+        }
+    },
     computed: {
         ...mapGetters('mainStore', ['getMarketPlaceApps']),
         services() {
-            return this.getMarketPlaceApps
+            return this.getMarketPlaceApps.filter(app => !!app.issuerDid)
         }
     },
-    beforeMount() {
-
-    },
     methods: {
-        ...mapMutations("mainStore", ["updateAnMarketPlaceApp", 'insertMarketplaceApps']),
+        ...mapMutations("mainStore", ['insertMarketplaceApps']),
         onIssuerToggle(eachOrg) {
+            // Toggle selected state and commit to the store
+            const updated = this.getMarketPlaceApps.map(x =>
+                x.appId === eachOrg.appId ? { ...x, selected: !x.selected } : x
+            )
+            this.insertMarketplaceApps(updated)
+            const updatedOrg = updated.find(x => x.appId === eachOrg.appId)
             this.$emit('selectedServiceEvent', {
-            issuerDid: eachOrg.issuerDid,
-            selected: eachOrg.selected,
-            appId: eachOrg.appId
+                issuerDid: updatedOrg.issuerDid,
+                selected: updatedOrg.selected,
+                appId: updatedOrg.appId
             })
-       },
+        },
         formattedAppName(appName) {
             if (appName == "" || appName == undefined) appName = "No app name";
             return this.truncate(appName, 25);
@@ -140,19 +170,6 @@ export default {
                 return domain
             }
         },
-        serviceSelected(eachOrg) {
-            if (eachOrg) {
-                const t = this.getMarketPlaceApps.map((x) => {
-                    if (x.appId === eachOrg.appId) {
-                        x['selected'] = x['selected'] && x['selected'] == true ? false : true;
-                    }
-                    return x
-                })
-                this.insertMarketplaceApps(t)
-                this.$emit('selectedServiceEvent', eachOrg);
-            }
-
-        }
     },
     mixins: [UtilsMixin],
 

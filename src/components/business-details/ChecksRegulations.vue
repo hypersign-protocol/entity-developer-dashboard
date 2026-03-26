@@ -105,7 +105,7 @@
                 </div>
                 <div v-if="check.results.notes" class="notes">
                   <h6 class="notes-title">Additional Notes:</h6>
-                  <p class="notes-content">{{ check.results.notes }}</p>
+                  <p class="notes-content" v-html="renderMarkdown(check.results.notes)"></p>
                 </div>
                 <div v-if="check.results.recommendations" class="recommendations">
                   <h6 class="recommendations-title">Recommendations:</h6>
@@ -236,16 +236,14 @@ export default {
     }
   },
   
-  async mounted() {
-    if (this.company && this.company.companyId) {
-      await this.fetchComplianceData();
-    }
-  },
-  
   watch: {
     'company.companyId': {
       immediate: true,
-      async handler(newCompanyId) {
+      async handler(newCompanyId, oldCompanyId) {
+        if (newCompanyId !== oldCompanyId) {
+          // Clear stale data from previous company immediately
+          this.$store.commit('mainStore/clearComplianceData');
+        }
         if (newCompanyId) {
           await this.fetchComplianceData();
         }
