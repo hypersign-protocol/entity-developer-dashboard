@@ -521,7 +521,6 @@ export default {
         },
         async saveChanges() {
             try{
-                console.log("Updated Config:", this.formData);
                 this.isEditing = false;
                 this.isLoading = true;
                 

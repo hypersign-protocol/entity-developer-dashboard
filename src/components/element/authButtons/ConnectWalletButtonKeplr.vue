@@ -75,7 +75,6 @@ export default {
             await window.keplr.enable(chainId);
             const offlineSigner = window.getOfflineSigner(chainId)
             const userAddress = await getUserAddressFromOfflineSigner(offlineSigner);
-            console.log("User Address: ", userAddress)
 
             if (userAddress != "") {
                 const chainRPC = chainConfig["rpc"]

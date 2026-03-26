@@ -71,7 +71,6 @@ export default {
       const sse = new EventSource(`${this.$config.studioServer.ORG_SSE}${id}`);
       sse.onmessage = (event) => {
         const data = JSON.parse(event.data);
-        console.log(data);
         if (data.status === "Registered" || data.status === "Failed") {
 
           sse.close();
@@ -81,11 +80,11 @@ export default {
       };
 
       sse.onopen = function (e) {
-        console.log("Connection to server opened.", e);
+        // console.log("Connection to server opened.", e);
       };
 
       sse.onerror = function (e) {
-        console.log(e)
+        console.error(e)
         sse.close();
       }
       return
@@ -169,14 +168,13 @@ export default {
 
           }
           if (!this.edit) {
-            console.log(org)
             this.ssePopulateOrg(org._id, this.$store)
 
           }
 
 
         }).catch((e) => {
-          console.log(e);
+          console.error(e);
           this.notifyError("Something went wrong");
         }).finally(() => {
           this.isLoading = false;

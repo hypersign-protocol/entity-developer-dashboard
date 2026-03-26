@@ -263,7 +263,6 @@ export default {
             document.addEventListener('studio-error', this.studioErrorListenerCB);
         },
         removeEventListener(){
-            console.log('Removing all event listeneres...')
             document.removeEventListener('studio-init', this.studioInitListenerCB);
             document.removeEventListener('studio-success', this.studioSuccessListenerCB);
             document.removeEventListener('studio-wait', this.studioWaitListenerCB);
@@ -273,7 +272,6 @@ export default {
             if(!this.challenge){
                 this.challenge = e.detail.id;
                 this.countDownTimer()
-                console.log('studio-init:: setting gbl challenge '+ this.challenge)
                 return;
             }
 
@@ -296,18 +294,15 @@ export default {
 
         studioSuccessListenerCB: async function (e) {
             
-            console.log('inside studio-sucess')
             
             const { message, id } = e.detail;
 
             
             
             if(this.challenge != id){
-                console.log('studio-success:: Not doing anything .. For some other challenge '+ id)
                 return;
             }
 
-            console.log('inside studio-success id = '+  id)
             
             if (message.accessToken && this.challenge) {
                 const url = this.$config.studioServer.BASE_URL + 'api/v1/presentation/request/info';
@@ -319,7 +314,6 @@ export default {
                 const delay = (delayInms) => {
                     return new Promise(resolve => setTimeout(resolve, delayInms));
                 }
-                console.log('waiting for ' + delayTime + ' ms...')
                 await delay(delayTime)
 
 
@@ -337,17 +331,17 @@ export default {
                             this.$root.$emit('modal-show');
                             this.cleanQR()
                         } else {
-                            console.log('data not present')
+                            // console.log('data not present')
                         }
                     } else {
-                        console.log('Else  message = ' +  message)
+                        // console.log('Else  message = ' +  message)
                     }
 
                     this.isLoading = false
                     return;
                 } else if(resp.status === 400) {
                     const json =  await resp.json();
-                    console.log({
+                    console.error({
                         json, 
                         status: 400
                     })
@@ -379,7 +373,6 @@ export default {
         OnTemplateSelectDropDownChange(event) {
             if (event) {     
                 this.cleanQR();
-                console.log('inside event of OnTemplateSelectDropDownChange eventvalue = '+ event)
                 this.presentantionTemplateId = event
             } else {
                 this.cleanQR();
@@ -398,7 +391,6 @@ export default {
             this.verfiableCredentials = null;
             //this.cleanQR()
             
-            console.log('adding event listenere time' + new Date())
             //this.addEventListener();
 
             let divScripts = document.getElementById('load-script');
@@ -414,7 +406,7 @@ export default {
                 divScripts.appendChild(newScript)
                 this.showQR = true;
             } else {
-                console.log('divScripts = ' + divScripts)
+                // console.log('divScripts = ' + divScripts)
             }
             this.addEventListener()
         }
@@ -423,7 +415,6 @@ export default {
     destroyed(){
         this.cleanQR()
         document.cloneNode(true)
-        console.log('Isndie destoryed')
     },  
     mixins: [UtilsMixin],
 

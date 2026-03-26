@@ -113,7 +113,6 @@ export default {
         }
     },
     mounted() {
-        console.log('Inside mounted MFAVerify.vue')
         if(!this.setAuthenticatorType){
             this.setAuthenticatorFromUrl()
         } else {
@@ -156,7 +155,6 @@ export default {
                 this.isLoading = true
                 const r = await this.mfaVerify(payload)
 
-                console.log("MFA Verify Response:", r)
 
                 if (!r.isVerified) {
                     this.error = "Invalid code or expired, please try again"

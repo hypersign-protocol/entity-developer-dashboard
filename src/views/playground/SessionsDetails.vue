@@ -737,7 +737,6 @@ export default {
         },
         userPersonalDataFromUserConsent() {
             const d = { ...this.getCredentialSubjectByType("PassportCredential") }
-            console.log({ d })
             delete d['face']
             delete d['overallRating']
             delete d['id']
@@ -810,7 +809,6 @@ export default {
     },
 
     async created() {
-        console.log("Session Details View Created")
         this.appId = this.$route.params.appId
         this.sessionId = this.$route.params.sessionId
         this.env = this.$route.params.env
@@ -819,10 +817,7 @@ export default {
         try {
 
             this.isLoading = true
-            console.log("USer ID: ", this.sessionId)
-            console.log("Before fetching session details...")
             this.session = await this.fetchSessionsDetailsById({ sessionId: this.sessionId, env: this.env })
-            console.log("After fetching session details...")
 
             this.isLoading = false
             this.getCredentialSubjectByType()
@@ -944,7 +939,6 @@ export default {
                         continue;
                     }
 
-                    console.log(`Capturing ${id}...`);
                     const canvas = await html2canvas(card, { scale: 2 });
 
                     const imgData = canvas.toDataURL('image/png');
@@ -953,7 +947,6 @@ export default {
                         continue;
                     }
 
-                    console.log(`Adding ${id} to PDF...`);
                     const imgProps = pdf.getImageProperties(imgData);
 
                     const imgWidth = usableWidth;
@@ -1033,33 +1026,26 @@ export default {
         },
         getCredentialSubjectByType(type = "PassportCredential") {
 
-            console.log('Inside getCredentialSubjectByType ' + type)
             if (this.userConsentDataFound) {
                 const presentationStr = this.session.userConsentDetails.presentation
-                console.log(this.session.userConsentDetails)
                 // console.log('Before parsing. ' + presentationStr)
                 if (presentationStr) {
 
                     const presentation = JSON.parse(presentationStr)
                     if (presentation && Object.keys(presentation).length > 0) {
                         const passportCredential = presentation.verifiableCredential.filter(x => x.type.includes(type))[0]
-                        console.log(passportCredential)
                         if (passportCredential) {
                             return passportCredential.credentialSubject
                         } else {
-                            console.log('No passportCredential found')
                             return {}
                         }
                     } else {
-                        console.log('Could not parse presentationStr')
                         return {}
                     }
                 } else {
-                    console.log('No presentationStr found')
                     return {}
                 }
             } else {
-                console.log('SBT data not found')
 
                 return {}
             }

@@ -112,7 +112,7 @@ export default {
     // Watch for changes in logs and update UI reactivity
     'company.logs': {
       handler(newLogs) {
-        console.log('Logs changed:', newLogs);
+        console.debug('Logs changed:', newLogs);
       },
       deep: true
     }
@@ -151,7 +151,6 @@ export default {
       // Stay on step 3 (Create SSI Service) even if credit is complete
       // Only allow progression to step 4 when user clicks next and all logs are successful
       this.currentStep = this.creditProcessComplete ? 3 : 1;
-      console.log('Current step set to:', this.currentStep);
     },
 
     populateCompanyFromOnboarding(onboardingData) {
@@ -196,7 +195,6 @@ export default {
         // Only allow progression if credit is approved
         const status = (this.company.onboardingStatus || '').toUpperCase();
         if (status !== 'APPROVED') {
-          console.log('OnboardingStepper: Cannot proceed to Add Team step - credit not approved yet');
           return;
         }
       }
@@ -209,7 +207,6 @@ export default {
     },
 
     finishOnboarding() {
-      console.log('OnboardingStepper: finishOnboarding called, emitting onboarding-complete');
       // Don't change currentStep, just emit the completion event
       this.$emit('onboarding-complete');
       this.$router.push('/studio/dashboard');
@@ -253,7 +250,7 @@ export default {
         this.$forceUpdate();
         
       } catch (error) {
-        console.log('Error processing credit request:', error);
+        console.error('Error processing credit request:', error);
         
         // Handle different error types
         let errorMessage = 'Failed to process credit request';

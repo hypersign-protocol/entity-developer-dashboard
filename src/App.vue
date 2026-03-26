@@ -408,7 +408,7 @@ export default {
         this.userDetails = {};
       }
     } else {
-      console.log('No userDetails found yet...')
+      // console.log('No userDetails found yet...')
     }
 
     this.$root.$on("clearAppData", () => {
@@ -428,7 +428,6 @@ export default {
       this.fetchTemplates(selectedOrgId);
     }
     this.$root.$on("initializeStore", () => {
-      console.log("Inside initializeStore ... event");
       this.initializeStore();
     });
 
@@ -781,7 +780,6 @@ export default {
       });
 
       // Clear all localStorage
-      console.log('Clearing localStorage on logout...');
       localStorage.clear();
 
       // Reset UI state

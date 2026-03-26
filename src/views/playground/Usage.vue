@@ -380,10 +380,7 @@ export default {
         }
       }) : []
 
-      console.log(successDataSets)
-      console.log(allLabels)
       var set = new Set(allLabels);
-      console.log(Array.from(set))
       this.didChart = new Chart(didCtx, {
         type: 'bar',
         data: {

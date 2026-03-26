@@ -15,8 +15,7 @@ export default {
             this.$root.$emit("initializeStore", "login");
 
         } catch (e) {
-            console.log("User is not authenticated:", e.message);
-            console.log('Redirecting to login')
+           console.error("User is not authenticated:", e.message);
             this.$router.push("login");
         }
     },

@@ -207,11 +207,11 @@ export default {
     // Watch for changes in company onboarding status
     'company.onboardingStatus': {
       handler(newStatus, oldStatus) {
-        console.log('StepCreateSSIService: Onboarding status changed from', oldStatus, 'to:', newStatus);
+        console.debug('StepCreateSSIService: Onboarding status changed from', oldStatus, 'to:', newStatus);
 
         // If status changed to APPROVED, log for user feedback
         if (newStatus && newStatus.toUpperCase() === 'APPROVED') {
-          console.log('StepCreateSSIService: Credit approved!');
+          console.debug(newStatus)
         }
       },
       immediate: true
@@ -220,7 +220,7 @@ export default {
     // Watch for changes in the computed property
     isCreditApproved: {
       handler(isApproved) {
-        console.log('StepCreateSSIService: isCreditApproved changed to:', isApproved);
+        // console.log('StepCreateSSIService: isCreditApproved changed to:', isApproved);
         if (isApproved) {
           this.$emit('finish');
         }
@@ -245,7 +245,6 @@ export default {
 
     getCreditStatusTitle() {
       const status = this.getNormalizedStatus();
-      console.log('StepCreateSSIService: Current status for title:', status);
 
       if (status === '') {
         return 'Credit Request Not Initiated';
@@ -274,7 +273,7 @@ export default {
     },
 
     goToBilling() {
-      console.log("Redirecting to billing...");
+      // console.log("Redirecting to billing...");
     },
   },
 };

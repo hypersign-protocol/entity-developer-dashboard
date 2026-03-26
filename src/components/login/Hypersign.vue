@@ -143,7 +143,6 @@ export default {
     // take it in the env
     this.connection = new WebSocket(this.$config.websocketUrl);
     this.connection.onopen = function () {
-      console.log("Socket connection is open");
     };
     this.isLoading = true;
     var _this = this;
@@ -184,7 +183,6 @@ export default {
       }
     };
     this.connection.onerror = function (error) {
-      console.log("Websocket connection error ", error);
     };
   },
   mounted() {

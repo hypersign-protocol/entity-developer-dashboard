@@ -285,7 +285,6 @@ export default {
         getProgressColor(row) {
             if (Date.now() > new Date(row.expiresAt)) return 'grey';
             const ratio = row.used / row.totalCredits;
-            console.log(ratio)
             if (ratio > 0.9) return 'orange';
             return '#3b82f6';
         },

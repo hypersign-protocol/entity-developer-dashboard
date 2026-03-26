@@ -55,9 +55,7 @@ export default {
     methods: {
         ...mapMutations("walletStore", ['setCosmosConnection', 'setBlockchainUser']),
         getChainDetail() {
-            console.log(this.blockchainlabel)
             const config = getStellarChainConfig(this.blockchainlabel)
-            console.log(config.stakeCurrency.coinImageUrl)
             return {
                 chainName: config.chainName,
                 chainId: config.chainId,
@@ -75,7 +73,6 @@ export default {
         },
         async connectWallet() {
 
-            console.log('connectWallet() called...')
 
             // const { default: SupportedChains } = await import(`@hypersign-protocol/hypersign-kyc-chains-metadata/${this.ecosystem}/wallet/${this.blockchain}/${this.chainId}/chains`)
 
@@ -102,10 +99,7 @@ export default {
             }
 
             const walletAddress = result.walletAddress ? result.walletAddress : result.message[0]?.diamPublicKey ? result.message[0].diamPublicKey : result.message.data[0].diamPublicKey;
-            console.log({
-                walletAddress,
-                result
-            })
+           
 
             if (!walletAddress) {
                 throw new Error('No wallet address found')
@@ -123,9 +117,7 @@ export default {
                 // const chainId = "testnet"
                 // window.diam
                 //     .sign(xdr, true, "Diamante Testnet 2024")
-                console.log({
-                    chainId: this.chainId
-                })
+                
                 const signingClient = await this.getSigningClient(this.chainId); // createClient(chainRPC, offlineSigner);
                 const nonSigningClient = await this.getSigningClient(this.chainId);
 

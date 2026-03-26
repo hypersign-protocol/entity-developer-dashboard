@@ -104,7 +104,6 @@ export default {
         }
     },
     mounted() {
-        console.log('Inside mounted SetupMFA.vue')
     },
     methods: {
         ...mapActions('mainStore', ['mfaGenerate', 'setupmfaVerify', 'getMyUserDetails']),

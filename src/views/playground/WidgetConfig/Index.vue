@@ -380,7 +380,6 @@ export default {
     {
       handler(newValue) {
         if (!newValue) {
-          console.log('going to disabled onchainId')
           this.widgetConfigTemp.onChainId.enabled = false
         }
       },
@@ -435,7 +434,7 @@ export default {
       this.isLoading = false
     } catch (e) {
       this.isLoading = false
-      console.log(e)
+      console.error(e)
       if (e.message) {
         this.notifyErr(e.message)
       }
@@ -452,7 +451,6 @@ export default {
     if (this.appId) {
       this.app = { ...this.getAppByAppId(this.appId) }
       if (this.app) {
-        console.log(this.app)
         this.widgetConfigTemp.userConsent.domain = this.app.domain ? this.app.domain : this.widgetConfigTemp.userConsent.domain;
         this.widgetConfigTemp.userConsent.logoUrl = this.app.logoUrl ? this.app.logoUrl : this.widgetConfigTemp.userConsent.logoUrl;
         if (!this.widgetConfigTemp.issuerDID) {
@@ -478,7 +476,6 @@ export default {
       const trustedIssuers = this.widgetConfigTemp.issuerDID.split(',');
       this.selectedIssuerDids = new Set(trustedIssuers);
       trustedIssuers.forEach(eachtiss => {
-        console.log({ eachtiss })
         const tt = this.trustedIssuersList.map(x => {
           if (x.issuerDid == eachtiss) {
             x['selected'] = true
@@ -656,7 +653,6 @@ export default {
       if (!this.widgetConfigTemp.issuerDID) {
         throw new Error('Issuer DID is required')
       }
-      console.log(this.widgetConfigTemp.idOcr)
 
       if (!this.widgetConfigTemp.idOcr?.enabled) {
         this.widgetConfigTemp.idOcr.documentType = null

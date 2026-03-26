@@ -519,7 +519,7 @@ export default {
     ...mapMutations('playgroundStore', ['updateSideNavStatus', 'increaseOrgDataCount']),
     ...mapMutations('mainStore', ['updateASchema']),
     viewSchemaDocument(data) {
-      console.log(data)
+      // console.log(data)
       this.schemaDocumentToView = data; //JSON.stringify(data, null, 2)
       this.$root.$emit("bv::show::modal", "view-schema");
     },
@@ -708,7 +708,7 @@ export default {
       };
 
       sse.onerror = function (e) {
-        console.log(e)
+        console.error(e)
         sse.close();
       }
       return

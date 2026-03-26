@@ -128,7 +128,7 @@ export default {
   methods: {
     handleLoginSuccess(data) {
       // Logic after successful OTP verification
-      console.log("Login Successful", data);
+      console.debug("Login Successful",data);
       // Example: this.$router.push('/home')
     }
   }
