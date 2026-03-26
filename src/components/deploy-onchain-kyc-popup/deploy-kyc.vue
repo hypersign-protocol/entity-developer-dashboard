@@ -149,9 +149,7 @@ export default {
     },
     watch: {
         async selectedIssuerDID() {
-            console.log('Inside  selectedIssuerDID()')
             const r = await this.checkIfIssuerHasAlreadyDeployed()
-            console.log(r)
             if (r) {
                 this.notifySuccess('Successfully fetched KYC contract for this issuer')
             } else {
@@ -311,16 +309,13 @@ export default {
         },
 
         bootstrap() {
-            console.log('Inside bootstrap.....')
             if (Object.keys(this.getOnChainConfig).length > 0) {
-                console.log(this.getOnChainConfig)
                 this.selectedChainId = this.getOnChainConfig.blockchainLabel;
                 this.selectedIssuerDID = this.getOnChainConfig.issuerDid;
                 this.onChainIssuer.issuer['kyc_contract_address'] = this.getOnChainConfig.kycContractAddress;
                 this.checkIfIssuerHasAlreadyDeployed()
 
             } else {
-                console.log('no onChainConfig set')
                 this.reset();
             }
 
@@ -337,10 +332,7 @@ export default {
 
                 // const msg = constructGetRegistredIssuerMsg("did:hid:testnet:z6Mkk8qQLgMmLKDq6ER9BYGycFEdSaPqy9JPWKUaPGWzJeNp")
                 const msg = constructGetRegistredIssuerMsg(this.selectedIssuerDID)
-                console.log('checkIfIssuerHasAlreadyDeployed:: Before querying kyc contract address = ' + HYPERSIGN_KYC_FACTORY_CONTRACT_ADDRESS)
-                const resp = await this.queryContract(msg, HYPERSIGN_KYC_FACTORY_CONTRACT_ADDRESS)
-                console.log('checkIfIssuerHasAlreadyDeployed:: After querying kyc contract address = ' + JSON.stringify(resp))
-
+                 await this.queryContract(msg, HYPERSIGN_KYC_FACTORY_CONTRACT_ADDRESS)
                 // TODO
                 // const onchainConfig = this.onchainconfigs.find(x => x.kycContractAddress === this.onChainIssuer.issuer.kyc_contract_address)
 
@@ -349,7 +341,6 @@ export default {
                 return true;
 
             } catch (e) {
-                console.log(e.message)
                 this.isLoading = false
 
                 return false;
@@ -357,14 +348,12 @@ export default {
         },
 
         async myEventListener(data) {
-            console.log('Inside myEventListener')
             console.log(data)
             // this.nft.metadata = await this.getContractMetadata(this.getOnChainIssuerConfig.contractAddress)
         },
 
         async selectStellarNetwork() {
             this.chainConfig = getStellarChainConfig(this.selectedChainId)
-            console.log(this.chainConfig)
             // TODO:
 
             // window.diam ? 
@@ -384,7 +373,6 @@ export default {
                     return
                 }
 
-                console.log(this.selectedChainId)
                 this.onChainIssuer.issuer = {}
                 this.setBlockchainUser({})
 
@@ -401,11 +389,9 @@ export default {
 
         async queryContract(msg, contractAddress) {
             this.setOnChainBlockchainLabel(this.selectedChainId)
-            console.log('queryContract:: Before calling  smartContractQueryRPC(), contractAddress ' + contractAddress)
             const result = await smartContractQueryRPC(
                 this.getCosmosConnection.nonSigningClient || this.nonSigningClient,
                 contractAddress, msg);
-            console.log('queryContract:: After calling  smartContractQueryRPC(), result ' + JSON.stringify(result, null, 2))
             this.onChainIssuer = result;
             this.setOnChainIssuerData(this.onChainIssuer)
             this.selectedIssuerDID = this.onChainIssuer.issuer.did
@@ -541,7 +527,6 @@ export default {
                 );
 
                 if (result) {
-                    console.log(result)
                     this.notifySuccess('Successfully deployed your KYC Issuer Contract')
                     this.isLoading = false
 

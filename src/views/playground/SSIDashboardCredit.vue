@@ -446,7 +446,6 @@ export default {
         },
         computedService() {
             const balance = this.parsedAllowanceLimit;
-            console.log(balance)
             return balance
         },
 
@@ -532,7 +531,6 @@ export default {
       await this.reloadData()
     },
     beforeDestroy() {
-        console.log('Clearing clear interval before destroying...')
         this.stopTimer();
     },
     watch: {

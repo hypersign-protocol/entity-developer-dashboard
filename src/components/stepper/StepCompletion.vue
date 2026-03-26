@@ -11,7 +11,6 @@ export default {
   name: "StepCompletion",
   methods: {
     goToDashboard() {
-      console.log('StepCompletion: goToDashboard clicked, emitting finish event');
       // Emit completion event to trigger parent refresh and navigation
       this.$emit('finish');
     },

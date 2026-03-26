@@ -339,12 +339,10 @@ router.beforeEach(async (to, from, next) => {
   // });
 
   if (to.meta.requiresAuth && !isAuthenticated) {
-    console.log("inside if to.path " + to.path);
     EventBus.$emit("logoutAll");
     if (to.path !== "/studio/login") {
       return next("/studio/login");
     } else {
-      console.log('already on login page')
       return next()
     }
   }

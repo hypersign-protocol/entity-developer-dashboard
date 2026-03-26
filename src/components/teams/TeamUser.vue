@@ -185,7 +185,6 @@ export default {
   async confirmDeleteMember() {
     try {
       this.isLoading = true;
-      console.log('Deleting member:', this.email);
       await this.deleteMember(this.email);
       this.notifySuccess(`${this.email} successfully deleted`);
       this.$root.$emit("bv::hide::modal", `delete-member-confirm-popup_${this.email}`);

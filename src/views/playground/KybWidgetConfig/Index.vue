@@ -311,7 +311,7 @@ export default {
 
     } catch (e) {
       this.isLoading = false
-      console.log(e)
+      console.error(e)
       if (e.message) {
         this.notifyErr(e.message)
       }

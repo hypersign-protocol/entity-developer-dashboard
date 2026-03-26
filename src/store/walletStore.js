@@ -95,7 +95,6 @@ const walletStore = {
         },
         resetAll: (state, payload) => {
             console.log(payload)
-            console.log('resetting....')
             state.onChainIssuerConfig = {};
             state.blockchainUser = {};
             state.cosmosConnection = {};

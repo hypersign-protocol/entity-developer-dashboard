@@ -660,7 +660,6 @@ export default {
           // await this.fetchServicesList();
           this.isLoading = false;
         } else {
-          console.log('error coming from htis line2')
           throw new Error("No user details found in localStorage");
         }
       } catch (e) {
@@ -772,10 +771,9 @@ export default {
       this.$root.$emit("bv::hide::modal", "entity-linked-service-detail-popup"); 
     },
     onServicesSelected() {
-      console.log("ononServicesSelected() got calledsuccessfully");
 
       if (this.selectedServicesInMultiSelect.length > 0) {
-        console.log("Added");
+        console.debug("Added");
       }
     },
     async onSSIServiceChange(event) {
@@ -825,11 +823,6 @@ export default {
 
       Object.assign(this.appModel, { ...appModel });
       this.selectedAssociatedSSIAppId = appModel.dependentServices[0];
-      console.log(
-        "Edit org this.selectedAssociatedSSIAppId " +
-        this.selectedAssociatedSSIAppId
-      );
-
       await this.prepareDIDList(this.selectedAssociatedSSIAppId);
 
       await this.resolveDidDoc(this.appModel.issuerDid)
@@ -1100,7 +1093,7 @@ export default {
         }
         this.isLoading = false;
       } catch (e) {
-        console.log(e);
+        console.error(e);
         this.isLoading = false;
         this.notifyErr(e.message);
       }
@@ -1165,7 +1158,7 @@ export default {
           throw new Error("Something went wrong");
         }
       } catch (e) {
-        console.log(e.message);
+        console.error(e.message);
         if (Array.isArray(e.message)) {
           e.message.forEach((m) => {
             this.notifyErr(m);

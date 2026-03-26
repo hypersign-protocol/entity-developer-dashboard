@@ -380,7 +380,6 @@ export default {
     {
       handler(newValue) {
         if (!newValue) {
-          console.log('going to disabled onchainId')
           this.widgetConfigTemp.onChainId.enabled = false
         }
       },
@@ -435,7 +434,7 @@ export default {
       this.isLoading = false
     } catch (e) {
       this.isLoading = false
-      console.log(e)
+      console.error(e)
       if (e.message) {
         this.notifyErr(e.message)
       }
@@ -654,7 +653,6 @@ export default {
       if (!this.widgetConfigTemp.issuerDID) {
         throw new Error('Issuer DID is required')
       }
-      console.log(this.widgetConfigTemp.idOcr)
 
       if (!this.widgetConfigTemp.idOcr?.enabled) {
         this.widgetConfigTemp.idOcr.documentType = null

@@ -338,9 +338,7 @@ export default {
   methods: {
     ...mapActions('playgroundStore', ['fetchSchemasForOrg']),
     onInputTag() {
-      console.log('onInputTag ()  got called')
       if (this.selectedSchemIdsInMultiSelect.length > 0) {
-        console.log('Inside if mapping');
         this.presentationTemplate.schemaId = this.selectedSchemIdsInMultiSelect.map(x => x.value)
       } else {
         this.presentationTemplate.schemaId = [];
@@ -406,7 +404,6 @@ export default {
               method: "DELETE",
             });
             const json = await resp.json();
-            console.log(json.data._id)
             if (json.data._id) {
               const id = json.data._id
               this.$store.commit('playgroundStore/deleteTemplate', id)
@@ -419,7 +416,7 @@ export default {
           }
         }
       } catch (e) {
-        console.log(e)
+        console.error(e)
       } finally {
         this.isLoading = false
       }

@@ -21,7 +21,6 @@ export default {
         }
     },
     mounted() {
-        console.log('Inside mounted MFA.vue')
         this.setSelectedAppId("")
         const authenticatorsRaw = this.$route.query.authenticators;
         this.sessionId = this.$route.query.sessionId;

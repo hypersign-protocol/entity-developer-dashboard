@@ -809,7 +809,6 @@ export default {
     },
 
     async created() {
-        console.log("Session Details View Created")
         this.appId = this.$route.params.appId
         this.sessionId = this.$route.params.sessionId
         this.env = this.$route.params.env
@@ -818,9 +817,7 @@ export default {
         try {
 
             this.isLoading = true
-            console.log("Before fetching session details...")
             this.session = await this.fetchSessionsDetailsById({ sessionId: this.sessionId, env: this.env })
-            console.log("After fetching session details...")
 
             this.isLoading = false
             this.getCredentialSubjectByType()
@@ -943,7 +940,6 @@ export default {
                         continue;
                     }
 
-                    console.log(`Capturing ${id}...`);
                     const canvas = await html2canvas(card, { scale: 2 });
 
                     const imgData = canvas.toDataURL('image/png');
@@ -952,7 +948,6 @@ export default {
                         continue;
                     }
 
-                    console.log(`Adding ${id} to PDF...`);
                     const imgProps = pdf.getImageProperties(imgData);
 
                     const imgWidth = usableWidth;
@@ -1035,7 +1030,6 @@ export default {
                 const presentationStr = this.session.userConsentDetails.presentation;
                 if (presentationStr) {
                     const presentation = JSON.parse(presentationStr);
-
                     if (presentation?.verifiableCredential?.length) {
                         const credential = presentation.verifiableCredential.find(x =>
                             x.type?.includes(type)

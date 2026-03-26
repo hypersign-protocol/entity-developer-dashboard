@@ -796,7 +796,6 @@ export default {
         retrieveCredential: true
       })
       const cred = this.credentialList.find(x => x.id == credentialId)
-      console.log(cred)
       if (cred) {
         this.credentialDocumentToView = JSON.stringify(cred.credentialDocument, null, 2)
         this.$root.$emit("bv::show::modal", "view-credential-doc");
@@ -1051,7 +1050,7 @@ export default {
             }
           });
       } catch (e) {
-        console.log(e);
+        console.error(e);
       } finally {
         this.isLoading = false;
         this.clearAll();
@@ -1104,7 +1103,7 @@ export default {
       };
 
       sse.onerror = function (e) {
-        console.log(e);
+        console.error(e);
         sse.close();
       };
       return;
@@ -1208,7 +1207,7 @@ export default {
             this.isLoading= false
         } 
       } catch (e) {
-        console.log(e);
+        console.error(e);
         this.isLoading = false;
         this.notifyErr(`Error: ${e.message}`);
         this.issueCredAttributes = [];
@@ -1385,7 +1384,7 @@ export default {
         this.schemaConfigVisible= false
         this.isLoading = false;
       } catch (e) {
-        console.log(e);
+        console.error(e);
         this.isLoading = false;
         this.notifyErr(`Error: ${e.message}`);
       } finally {

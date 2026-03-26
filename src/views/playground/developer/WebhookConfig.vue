@@ -165,7 +165,7 @@ export default {
       this.isLoading = false
     } catch (e) {
       this.isLoading = false
-      console.log(e)
+      console.error(e)
       if (e.message) {
         this.notifyErr(e.message)
       }
@@ -202,7 +202,6 @@ export default {
           const headerKeys = Object.keys(heder)
           this.headers = []
           headerKeys.forEach(eachKey => {
-            console.log(eachKey)
             this.headers.push({
               key: eachKey,
               value: heder[eachKey]

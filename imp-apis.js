@@ -225,13 +225,6 @@ async function start() {
     const cred_data = groupByDay(credentials);
     const schema_data = groupByDay(schemas);
 
-    console.log({
-        dids: Object.keys(did_data),
-        value: Object.values(did_data),
-        credentials: cred_data,
-        schemas: schema_data
-    })
-
 }
 
 start()

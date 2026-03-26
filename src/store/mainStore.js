@@ -185,7 +185,6 @@ const mainStore = {
             localStorage.removeItem("vuex");
         },
         setAuthToken(state, payload) {
-            console.log(state.namespaced)
             if (payload) {
                 localStorage.setItem("authToken", payload);
             }
@@ -420,7 +419,6 @@ const mainStore = {
                 UtilsMixin.methods.getHeader(getters.getAuthToken))
 
             if (!resp || Array.isArray(resp.message)) {
-                console.log(resp.message)
                 throw new Error(resp?.message?.join(',') || resp?.message);
             } else if ('statusCode' in resp && resp.statusCode !== 200 && resp.statusCode !== 201) {
                 throw new Error(resp.message)
@@ -518,7 +516,6 @@ const mainStore = {
             )
 
             if (!resp && Array.isArray(resp.message)) {
-                console.log(resp.message)
                 throw new Error(resp?.message?.join(',') || resp?.message);
             } else if ('statusCode' in resp && resp?.statusCode !== 200 && resp?.statusCode !== 201) {
                 throw new Error(resp.message)
@@ -556,7 +553,6 @@ const mainStore = {
                 payload,
                 UtilsMixin.methods.getHeader(getters.getAuthToken),
             )
-            console.log(resp)
             if (!resp || Array.isArray(resp.message)) {
                 throw new Error(resp?.message?.join(',') || resp?.message);
             } else if ('statusCode' in resp && (resp.statusCode !== 200 || 201)) {
@@ -662,7 +658,6 @@ const mainStore = {
         /// Security
 
         login: () => {
-            console.log('Inside action login')
             return new Promise((resolve, reject) => {
                 const url = `${apiServerBaseUrl}/sa/login`;
 
@@ -2539,7 +2534,7 @@ const mainStore = {
                 const { companyId, reason, status } = payload;
                 if (reason) {
                     // For future use, currently not sent to backend
-                    console.log('Reason for rejection:', reason);
+                    // console.log('Reason for rejection:', reason);
                 }
 
 
@@ -2591,7 +2586,6 @@ const mainStore = {
                     dispatch('fetchAppKybs').then(() => {
                         resolve(json);
                     }).catch((error) => {
-                        console.warn('Failed to refresh companies list:', error);
                         resolve(json); // Still resolve the main action
                     });
                 }).catch((e) => {
@@ -2664,7 +2658,6 @@ const mainStore = {
                 throw new Error(json.error?.details.join(' ') || json.error.join(' '))
             }
             if (json.data) {
-                console.log('Before calling setKycCredits ')
                 commit('setKYCCredits', json.data)
                 return json.data
             }
@@ -2877,6 +2870,7 @@ const mainStore = {
                         grant_type: config.GRANT_TYPES_ENUM.SSI_API,
                         tokenStorageType: "Default"
                     }).then((token) => {
+
                     const url = `${sanitizeUrl(tenantUrl)}/api/v1/did/resolve/${payload.did}`;
                     const options = {
                         method: "GET",
@@ -2886,6 +2880,7 @@ const mainStore = {
                             "Origin": '*'
                         }
                     }
+
                         return fetch(url, {
                         headers: options.headers
                     })
@@ -2942,6 +2937,7 @@ const mainStore = {
                             "Origin": '*'
                         }
                     }
+
                         return fetch(url, {
                         headers: options.headers
                     })
@@ -3050,6 +3046,7 @@ const mainStore = {
                         ...options
                         })
                     })
+                    })
                         .then(response => response.json())
                         .then(async json => {
                             if (json && json.did) {
@@ -3095,9 +3092,11 @@ const mainStore = {
                             "Origin": '*'
                         }
                     }
+
                         return fetch(url, {
                             ...options
                         })
+                    })
                     })
                         .then(response => response.json())
                         .then(json => {
@@ -3139,6 +3138,7 @@ const mainStore = {
                         grant_type: config.GRANT_TYPES_ENUM.SSI_API,
                         tokenStorageType: "Default"
                     }).then((token) => {
+
                     // const url = `http://ent-2af45c1.localhost:4001/api/v1/did/`;
                     const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/did/`;
                     const options = {
@@ -3151,8 +3151,11 @@ const mainStore = {
                         }
                     }
                     return fetch(url, {
+
                             ...options
                         })
+
+                    })
                     })
                         .then(response => response.json())
                         .then(json => {
@@ -3373,9 +3376,11 @@ const mainStore = {
                             "Origin": '*'
                         }
                     }
+
                         return fetch(url, {
                      ...options
                  })
+                    })
                     })
                         .then(response => response.json())
                         .then(json => {
@@ -3481,9 +3486,11 @@ const mainStore = {
                             "Origin": '*'
                         }
                     }
+
                         return fetch(url, {
                             ...options
                         })
+                    })
                     })
                         .then(response => response.json())
                         .then(async json => {
@@ -3533,9 +3540,11 @@ const mainStore = {
                             "Origin": '*'
                         }
                     }
+
                     return fetch(url, {
                             headers: options.headers
                         })
+                    })
                     })
                         .then(response => response.json())
                         .then(json => {
@@ -3551,7 +3560,6 @@ const mainStore = {
 
                                     if (getters.getSelectedService) {
                                         json.data.map(x => {
-                                            console.log({ x })
                                             dispatch('resolveSchema', x)
                                         })
                                         commit('setSchemaList', payload)
@@ -3665,9 +3673,12 @@ const mainStore = {
                             "Origin": '*'
                         }
                     }
+
                      return fetch(url, {
                             ...options
                         })
+
+                    })
                     })
                         .then(response => response.json())
                         .then(async json => {
@@ -3728,9 +3739,11 @@ const mainStore = {
                             "Origin": '*'
                         }
                     }
+
                         return fetch(url, {
                             headers: options.headers
                         })
+                    })
                     })
                         .then(response => response.json())
                         .then(json => {
@@ -3898,9 +3911,11 @@ const mainStore = {
                             "Origin": '*'
                         }
                     }
+
                         return fetch(url, {
                             ...options
                         })
+                    })
                     })
                         .then(response => response.json())
                         .then(async json => {
@@ -3948,6 +3963,8 @@ const mainStore = {
                         return fetch(url, {
                             ...options
                         })
+
+                    })
                     })
                         .then(response => response.json())
                         .then(async json => {

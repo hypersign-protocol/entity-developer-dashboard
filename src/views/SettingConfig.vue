@@ -185,7 +185,7 @@ export default {
       await this.getPeopleMembers()
       
     }catch(e){
-      console.log(e)
+      console.error(e)
     }
   }
 };

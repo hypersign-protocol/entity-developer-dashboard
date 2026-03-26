@@ -156,7 +156,7 @@ const playgroundStore = {
             if (!state.schemaList.find(x => x._id === payload._id)) {
                 state.schemaList.push(payload);
             } else {
-                console.log('already exists scheme id =' + payload._id);
+                // console.log('already exists scheme id =' + payload._id);
             }
         },
         insertAnOrg(state, payload) {
@@ -184,7 +184,6 @@ const playgroundStore = {
             if (!state.templateList.find(x => x._id === payload._id)) {
                 state.templateList.push(payload);
             } else {
-                console.log('already exists template id =' + payload._id);
                 this.commit('updateTemplate', payload);
             }
         },
@@ -213,7 +212,7 @@ const playgroundStore = {
             if (index > -1) {
                 state.templateList.splice(index, 1)
             } else {
-                console.log('template not found in tempList' + payload);
+                // console.log('template not found in tempList' + payload);
             }
         },
     },
@@ -232,7 +231,7 @@ const playgroundStore = {
                     }
                     payload['schemaDetails'] = shcemaDetial;
                     commit('updateAschema', payload);
-                }).catch(e => console.log(e))
+                }).catch(e => console.error(e))
             } else {
                 commit('insertAschema', payload);
             }
@@ -244,7 +243,7 @@ const playgroundStore = {
                 fetch(vc_id + ':').then(response => response.json()).then(json => {
                     Object.assign(payload, { ...json });
                     commit('updateAcredential', payload);
-                }).catch(e => console.log(e))
+                }).catch(e => console.error(e))
             } else {
                 commit('insertAcredential', payload);
             }
