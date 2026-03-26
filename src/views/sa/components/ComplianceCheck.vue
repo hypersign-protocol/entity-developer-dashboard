@@ -569,7 +569,7 @@ If no matches, return exactly:
             // Set the selected app
             this.$store.commit('mainStore/setSelectedAppId', this.serviceId);
             try{
-                this.company= await this.fetchAppKybById({companyId: this.companyId, accessToken: this.accessToken});
+                this.company= await this.fetchAppKybById({companyId: this.companyId, accessToken: this.accessToken, serviceId:this.serviceId});
             }catch(e){
                 const errorMsg = e.response?.data?.message || e.message || "Fetch failed.";
                 this.showFeedback(`Error: ${errorMsg}`, true);
@@ -606,7 +606,9 @@ If no matches, return exactly:
                     companyId: this.companyId,
                     type,
                     status,
-                    accessToken: this.accessToken
+                    accessToken: this.accessToken,
+                    serviceId: this.serviceId,
+
                 };
                 if (status === 'Failed') {
                     payload.reasonDetail = formData.reasonDetail;
@@ -630,7 +632,7 @@ If no matches, return exactly:
                 return;
             }
             try{
-                const data= await this.finalizeCompanyReview({companyId: this.companyId, accessToken:this.accessToken, status:"Completed"});
+                const data= await this.finalizeCompanyReview({companyId: this.companyId, accessToken:this.accessToken, status:"Completed", serviceId:this.serviceId});
                 if(data && data.success){
                   this.showFeedback(`Success: Company is verified successfully!`);
                 }else{
