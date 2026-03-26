@@ -913,8 +913,7 @@ const mainStore = {
                         .catch((e) => {
                             return reject(`Error while deleting this service ${appId} ` + e.message);
                         });
-                });
-    },
+                });    },
 
 
         fetchAppsListFromServer: async ({ commit, dispatch }) => {
@@ -1249,8 +1248,8 @@ const mainStore = {
                 }).then((token) => {
                     const headers = UtilsMixin.methods.getKycServiceHeader(token);
                     return fetch(url, {
-                    method: 'GET',
-                    headers
+                        method: 'GET',
+                        headers
                     })
                 })
                     .then(response => response.json()).then(json => {
@@ -2078,7 +2077,7 @@ const mainStore = {
                 RequestHandler(url, 'POST', payload, headers)
                     .then(json => {
                         if (json.error) {
-                           return reject(new Error(json.message));
+                          return reject(new Error(json.message));
                         }
                 commit('setKYCWebpageConfig', json);
                 resolve(json);
@@ -2365,11 +2364,15 @@ const mainStore = {
 
 
         async fetchUsageForAService({ getters, dispatch }, payload) {
-            const { startDate, endDate } = payload
+            const { startDate, endDate, env } = payload
+            let envVal = env
+            if (env === '' || env === null || env === undefined) {
+                envVal = 'prod'
+            }
             if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
                 throw new Error('Tenant url is null or empty, service is not selected')
             }
-            const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/usage?serviceId=${getters.getSelectedService.appId}&startDate=${startDate}&endDate=${endDate}`;
+            const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/usage?serviceId=${getters.getSelectedService.appId}&startDate=${startDate}&endDate=${endDate}&env=${envVal}`;
             // const url = `http://localhost:3001/api/v1/usage?serviceId=${getters.getSelectedService.appId}&startDate=${startDate}&endDate=${endDate}`;            
             const authToken = getters.getSelectedService.access_token
             if (!authToken) {
@@ -2454,11 +2457,16 @@ const mainStore = {
 
         },
         async fetchUsageDetailsForAService({ getters, commit, dispatch }, payload) {
-            const { startDate, endDate } = payload
+            const { startDate, endDate, env } = payload
+            let envVal = env
+            if (env === '' || env === null || env === undefined) {
+                envVal = 'prod'
+            }
             if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
                 throw new Error('Tenant url is null or empty, service is not selected')
             }
-            const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/usage/detail?serviceId=${getters.getSelectedService.appId}&startDate=${startDate}&endDate=${endDate}`;
+            const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/usage/detail?serviceId=${getters.getSelectedService.appId}&startDate=${startDate}&endDate=${endDate}&env=${envVal}`;
+            // const url = `http://localhost:3009/api/v1/usage/detail?serviceId=${getters.getSelectedService.appId}&startDate=${startDate}&endDate=${endDate}&env=${envVal}`;
             const authToken = getters.getSelectedService.access_token
             if (!authToken) {
                 throw new Error('authToken is invalid, service is not selected')
@@ -2550,7 +2558,7 @@ const mainStore = {
                 }).then((token) => {
                     let headers = UtilsMixin.methods.getKycServiceHeader(token);
 
-                const requestBody = { status };
+               const requestBody = { status };
 
                 const dependentServiceId = getters.getSelectedService.dependentServices[0];
                 const ssiService = getters.getAppsWithSSIServices.find(s => s.appId === dependentServiceId);
@@ -2569,7 +2577,7 @@ const mainStore = {
                     body: JSON.stringify(requestBody)
                 })
                 })
-                     .then(response => response.json()).then(json => {
+                   .then(response => response.json()).then(json => {
                     if (json.error) {
                         return reject(new Error(json.error?.details?.join(' ') || json.error?.join?.(' ') || json.error || 'Unknown error'))
                     }
@@ -2792,7 +2800,7 @@ const mainStore = {
                             "Origin": '*'
                         }
                     }
-                    return fetch(url, {
+                        return fetch(url, {
                         headers: options.headers
                     })
                     })
@@ -2862,7 +2870,8 @@ const mainStore = {
                         grant_type: config.GRANT_TYPES_ENUM.SSI_API,
                         tokenStorageType: "Default"
                     }).then((token) => {
-                        const url = `${sanitizeUrl(tenantUrl)}/api/v1/did/resolve/${payload.did}`;
+
+                    const url = `${sanitizeUrl(tenantUrl)}/api/v1/did/resolve/${payload.did}`;
                     const options = {
                         method: "GET",
                         headers: {
@@ -2871,7 +2880,8 @@ const mainStore = {
                             "Origin": '*'
                         }
                     }
-                    return fetch(url, {
+
+                        return fetch(url, {
                         headers: options.headers
                     })
                     })
@@ -2927,7 +2937,8 @@ const mainStore = {
                             "Origin": '*'
                         }
                     }
-                    return fetch(url, {
+
+                        return fetch(url, {
                         headers: options.headers
                     })
                     })
@@ -3033,6 +3044,7 @@ const mainStore = {
                     }
                     fetch(url, {
                         ...options
+                        })
                     })
                     })
                         .then(response => response.json())
@@ -3080,8 +3092,10 @@ const mainStore = {
                             "Origin": '*'
                         }
                     }
-                    return fetch(url, {
-                        ...options
+
+                        return fetch(url, {
+                            ...options
+                        })
                     })
                     })
                         .then(response => response.json())
@@ -3124,7 +3138,8 @@ const mainStore = {
                         grant_type: config.GRANT_TYPES_ENUM.SSI_API,
                         tokenStorageType: "Default"
                     }).then((token) => {
-                        // const url = `http://ent-2af45c1.localhost:4001/api/v1/did/`;
+
+                    // const url = `http://ent-2af45c1.localhost:4001/api/v1/did/`;
                     const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/did/`;
                     const options = {
                         method: "PATCH",
@@ -3136,7 +3151,10 @@ const mainStore = {
                         }
                     }
                     return fetch(url, {
-                        ...options
+
+                            ...options
+                        })
+
                     })
                     })
                         .then(response => response.json())
@@ -3358,8 +3376,10 @@ const mainStore = {
                             "Origin": '*'
                         }
                     }
-                    return fetch(url, {
-                        ...options
+
+                        return fetch(url, {
+                     ...options
+                 })
                     })
                     })
                         .then(response => response.json())
@@ -3466,8 +3486,10 @@ const mainStore = {
                             "Origin": '*'
                         }
                     }
-                    return fetch(url, {
-                        ...options
+
+                        return fetch(url, {
+                            ...options
+                        })
                     })
                     })
                         .then(response => response.json())
@@ -3518,8 +3540,10 @@ const mainStore = {
                             "Origin": '*'
                         }
                     }
-                        return fetch(url, {
-                        headers: options.headers
+
+                    return fetch(url, {
+                            headers: options.headers
+                        })
                     })
                     })
                         .then(response => response.json())
@@ -3649,8 +3673,11 @@ const mainStore = {
                             "Origin": '*'
                         }
                     }
-                    return fetch(url, {
-                        ...options
+
+                     return fetch(url, {
+                            ...options
+                        })
+
                     })
                     })
                         .then(response => response.json())
@@ -3712,8 +3739,10 @@ const mainStore = {
                             "Origin": '*'
                         }
                     }
-                    return fetch(url, {
-                        headers: options.headers
+
+                        return fetch(url, {
+                            headers: options.headers
+                        })
                     })
                     })
                         .then(response => response.json())
@@ -3882,8 +3911,10 @@ const mainStore = {
                             "Origin": '*'
                         }
                     }
-                    return fetch(url, {
-                        ...options
+
+                        return fetch(url, {
+                            ...options
+                        })
                     })
                     })
                         .then(response => response.json())
@@ -3929,8 +3960,10 @@ const mainStore = {
                             "Origin": '*'
                         }
                     }
-                    return fetch(url, {
-                        ...options
+                        return fetch(url, {
+                            ...options
+                        })
+
                     })
                     })
                         .then(response => response.json())

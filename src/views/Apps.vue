@@ -8,26 +8,27 @@
             <i class="fa fa-cogs mr-2" aria-hidden="true"></i>Your Services
           </h4>
           <b-button
-            variant="outline-primary"
-            style="float: right"
-            class="ml-2"
+            variant="outline-dark"
+            class="ml-2 float-right unified-action-btn"
             @click="goToOnboarding"
           >
             Seamless Onboarding
           </b-button>
-          <!-- <hf-buttons name=" Create" iconClass="fa fa-plus"  class="ml-auto" @executeAction="openSlider('SSI_API')"
-            style="float: right">
-          </hf-buttons> -->
-          <b-dropdown split text="Create Service" variant="outline-dark" style="float: right"
-            @click="openSlider('SSI_API')" menu-class="dropDownPopup">
-            <b-dropdown-item @click="openSlider('SSI_API')">SSI Service</b-dropdown-item>
-            <b-dropdown-item @click="openSlider('CAVACH_API')">KYC Service</b-dropdown-item>
-            <b-dropdown-item @click="openSlider('QUEST')">Quest Service</b-dropdown-item>
+          <b-dropdown split text="Create Service" variant="outline-dark" class="float-right unified-action-btn" menu-class="dropDownPopup"
+             @click="openSlider('SSI_API')">
+            <b-dropdown-item @click="openSlider('SSI_API')">
+              SSI Service
+            </b-dropdown-item>
+            <b-dropdown-item @click="openSlider('CAVACH_API')">
+              KYC Service
+            </b-dropdown-item>
+            <b-dropdown-item @click="openSlider('QUEST')">
+              Quest Service
+            </b-dropdown-item>
           </b-dropdown>
         </v-col>
       </v-row>
       <v-row v-else>
-        <!-- display  No Application found -->
         <v-col v-if="!isLoading">
           <div class="no-apps-container mb-1">
             <h3 style="text-align: center;">You have no services yet!</h3>
@@ -35,16 +36,17 @@
               Services help you manage your applications and APIs. Create your first
               service to get started.
             </p>
-    <div style="text-align:center; margin-top:12px;">
-      <b-dropdown split text="Create Service" variant="outline-dark" @click="openSlider('SSI_API')"
-        menu-class="dropDownPopup"
-        style="margin-right:10px;"
-      >
+
+            <div style="text-align:center; margin-top:12px;">
+              <b-dropdown split text="Create Service" variant="outline-dark" class="unified-action-btn"
+                menu-class="dropDownPopup"
+                style="margin-right:10px;"
+              >
         <b-dropdown-item @click="openSlider('SSI_API')">SSI Service</b-dropdown-item>
         <b-dropdown-item @click="openSlider('CAVACH_API')">KYC Service</b-dropdown-item>
         <b-dropdown-item @click="openSlider('QUEST')">Quest Service</b-dropdown-item>
       </b-dropdown>
-      <b-button variant="outline-primary" @click="goToOnboarding">
+      <b-button variant="outline-dark" class="unified-action-btn" @click="goToOnboarding">
         Seamless Onboarding
       </b-button>
     </div>

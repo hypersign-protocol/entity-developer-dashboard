@@ -1024,7 +1024,7 @@ textarea.form-control {
     <v-row>
       <v-col>
         <h4 class="font-weight-bold mb-0">ID Verifier Page Configuration</h4>
-        <p class="text-subtitle-2 text-muted">Create a hosted landing page for your KYC flow</p>
+        <p class="text-subtitle-2 text-muted">Create a hosted landing page for your ID verification flow</p>
       </v-col>
       <v-col>
         <HfButtons name="Save Configuration" @executeAction="saveConfiguration()" v-if="!this.kycWebpageConfigTemp._id"
