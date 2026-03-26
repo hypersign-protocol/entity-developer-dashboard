@@ -132,7 +132,11 @@ export default {
   },
   computed: {
     totalCalls() { return this.usageSummary.reduce((acc, curr) => acc + curr.quantity, 0); },
-    totalAmount() { return this.usageSummary.reduce((acc, curr) => acc + curr.amount, 0).toLocaleString(); }
+    totalAmount() { return this.usageSummary.reduce((acc, curr) => acc + curr.amount, 0).toLocaleString(); },
+    env() {
+      const service = this.$store.getters['mainStore/getSelectedService'];
+      return service?.env === 'prod' ? 'prod' : 'dev';
+    },
   },
   async mounted() {
     await this.refreshData();
@@ -147,8 +151,8 @@ export default {
       this.loading = true;
       try {
         const [dailyRes, summaryRes] = await Promise.all([
-          this.fetchUsageDetailsForAService({ startDate: this.startDate, endDate: this.endDate }),
-          this.fetchUsageForAService({ startDate: this.startDate, endDate: this.endDate })
+          this.fetchUsageDetailsForAService({ startDate: this.startDate, endDate: this.endDate, env: this.env }),
+          this.fetchUsageForAService({ startDate: this.startDate, endDate: this.endDate, env: this.env })
         ]);
 
         this.dailyData = dailyRes.serviceDetails || [];
