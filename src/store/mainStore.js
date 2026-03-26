@@ -3046,7 +3046,6 @@ const mainStore = {
                         ...options
                         })
                     })
-                    })
                         .then(response => response.json())
                         .then(async json => {
                             if (json && json.did) {
@@ -3096,7 +3095,6 @@ const mainStore = {
                         return fetch(url, {
                             ...options
                         })
-                    })
                     })
                         .then(response => response.json())
                         .then(json => {
@@ -3155,7 +3153,6 @@ const mainStore = {
                             ...options
                         })
 
-                    })
                     })
                         .then(response => response.json())
                         .then(json => {
@@ -3381,7 +3378,6 @@ const mainStore = {
                      ...options
                  })
                     })
-                    })
                         .then(response => response.json())
                         .then(json => {
                             if (json) {
@@ -3488,9 +3484,8 @@ const mainStore = {
                     }
 
                         return fetch(url, {
-                            ...options
-                        })
-                    })
+                            ...options 
+           })
                     })
                         .then(response => response.json())
                         .then(async json => {
@@ -3544,7 +3539,6 @@ const mainStore = {
                     return fetch(url, {
                             headers: options.headers
                         })
-                    })
                     })
                         .then(response => response.json())
                         .then(json => {
@@ -3679,7 +3673,6 @@ const mainStore = {
                         })
 
                     })
-                    })
                         .then(response => response.json())
                         .then(async json => {
                             if (json && json.schemaId) {
@@ -3743,7 +3736,6 @@ const mainStore = {
                         return fetch(url, {
                             headers: options.headers
                         })
-                    })
                     })
                         .then(response => response.json())
                         .then(json => {
@@ -3916,7 +3908,6 @@ const mainStore = {
                             ...options
                         })
                     })
-                    })
                         .then(response => response.json())
                         .then(async json => {
                             if (json && json.metadata) {
@@ -3964,7 +3955,6 @@ const mainStore = {
                             ...options
                         })
 
-                    })
                     })
                         .then(response => response.json())
                         .then(async json => {
