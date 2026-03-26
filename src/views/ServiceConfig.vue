@@ -540,6 +540,8 @@ export default {
 
                 this.notifySuccess("Service configuration updated successfully!");
             }catch(err){
+                this.formData = JSON.parse(JSON.stringify(this.backupData));
+                this.isProd = this.formData.env === 'prod';
                 this.notifyErr(err.message);
             } finally {
                 this.isLoading = false;

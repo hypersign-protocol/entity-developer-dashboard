@@ -284,7 +284,6 @@ export default {
   mounted() {
     this.user = this.getUserDetails
 
-    console.log(JSON.stringify(this.user.accessList, null, 2))
   },
   computed: {
     ...mapGetters('mainStore', ['getUserDetails', 'isMFAEnabled']),

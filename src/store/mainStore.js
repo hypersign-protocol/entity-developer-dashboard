@@ -918,8 +918,7 @@ const mainStore = {
                         .catch((e) => {
                             return reject(`Error while deleting this service ${appId} ` + e.message);
                         });
-                });
-    },
+                });    },
 
 
         fetchAppsListFromServer: async ({ commit, dispatch }) => {
@@ -1178,7 +1177,7 @@ const mainStore = {
                 dispatch('getValidToken', {
                     serviceId: getters.getSelectedService.appId,
                     grant_type: config.GRANT_TYPES_ENUM.CAVACH_API,
-                    tokenType: 'KYC'
+                    tokenStorageType: "Default"
                 }).then((token) => {
                     const headers = UtilsMixin.methods.getKycServiceHeader(token);
                     return fetch(url, {
@@ -1250,12 +1249,12 @@ const mainStore = {
                 dispatch('getValidToken', {
                     serviceId: getters.getSelectedService.appId,
                     grant_type: config.GRANT_TYPES_ENUM.CAVACH_API,
-                    tokenType: 'KYC'
+                    tokenStorageType: "Default"
                 }).then((token) => {
                     const headers = UtilsMixin.methods.getKycServiceHeader(token);
                     return fetch(url, {
-                    method: 'GET',
-                    headers
+                        method: 'GET',
+                        headers
                     })
                 })
                     .then(response => response.json()).then(json => {
@@ -1290,7 +1289,7 @@ const mainStore = {
                 dispatch('getValidToken', {
                     serviceId: getters.getSelectedService.appId,
                     grant_type: config.GRANT_TYPES_ENUM.CAVACH_API, // or correct KYC grant
-                    tokenType: 'KYC'
+                    tokenStorageType: "Default"
                 }).then((token) => {
                     const headers = UtilsMixin.methods.getKycServiceHeader(token);
                     return fetch(url, {
@@ -1324,7 +1323,7 @@ const mainStore = {
                 dispatch('getValidToken', {
                     serviceId: getters.getSelectedService.appId,
                     grant_type: config.GRANT_TYPES_ENUM.CAVACH_API, // or correct KYC grant
-                    tokenType: 'KYC'
+                    tokenStorageType: "Default"
                 }).then((token) => {
                     const headers = UtilsMixin.methods.getKycServiceHeader(token);
                     return fetch(url, {
@@ -1422,7 +1421,7 @@ const mainStore = {
                 dispatch('getValidToken', {
                     serviceId: getters.getSelectedService.appId,
                     grant_type: config.GRANT_TYPES_ENUM.CAVACH_API, // or correct KYC grant
-                    tokenType: 'KYC'
+                    tokenStorageType: "Default"
                 }).then((token) => {
                     const headers = UtilsMixin.methods.getKycServiceHeader(token);
                     return fetch(url, {
@@ -1457,7 +1456,7 @@ const mainStore = {
                 dispatch('getValidToken', {
                     serviceId: getters.getSelectedService.appId,
                     grant_type: config.GRANT_TYPES_ENUM.CAVACH_API,
-                    tokenType: 'KYC'
+                    tokenStorageType: "Default"
                 }).then((token) => {
                     const headers = UtilsMixin.methods.getKycServiceHeader(token);
                     return fetch(url, {
@@ -1494,7 +1493,7 @@ const mainStore = {
                 dispatch('getValidToken', {
                     serviceId: getters.getSelectedService.appId,
                     grant_type: config.GRANT_TYPES_ENUM.CAVACH_API,
-                    tokenType: 'KYC'
+                    tokenStorageType: "Default"
                 }).then((token) => {
                     const headers = UtilsMixin.methods.getKycServiceHeader(token);
                 const data = getters.getWidgetnConfig;
@@ -1530,7 +1529,7 @@ const mainStore = {
                 dispatch('getValidToken', {
                     serviceId: getters.getSelectedService.appId,
                     grant_type: config.GRANT_TYPES_ENUM.CAVACH_API,
-                    tokenType: 'KYC'
+                    tokenStorageType: "Default"
                 }).then((token) => {
                     const headers = UtilsMixin.methods.getKycServiceHeader(token);
                 return fetch(url, {
@@ -1570,7 +1569,7 @@ const mainStore = {
                 dispatch('getValidToken', {
                     serviceId: getters.getSelectedService.appId,
                     grant_type: config.GRANT_TYPES_ENUM.CAVACH_API,
-                    tokenType: 'KYC'
+                    tokenStorageType: "Default"
                 }).then((token) => {
                     const headers = UtilsMixin.methods.getKycServiceHeader(token);
                 const data = getters.getWidgetnConfig;
@@ -1612,7 +1611,7 @@ const mainStore = {
                 dispatch('getValidToken', {
                     serviceId: getters.getSelectedService.appId,
                     grant_type: config.GRANT_TYPES_ENUM.CAVACH_API,
-                    tokenType: 'KYC'
+                    tokenStorageType: "Default"
                 }).then((token) => {
                     const headers = UtilsMixin.methods.getKycServiceHeader(token);
                     return fetch(url, {
@@ -1664,7 +1663,7 @@ const mainStore = {
                 dispatch('getValidToken', {
                     serviceId: getters.getSelectedService.appId,
                     grant_type: config.GRANT_TYPES_ENUM.CAVACH_API,
-                    tokenType: 'KYC'
+                    tokenStorageType: "Default"
                 }).then((token) => {
                     const headers = UtilsMixin.methods.getKycServiceHeader(token);
                     return fetch(url, {
@@ -1731,7 +1730,7 @@ const mainStore = {
                 dispatch('getValidToken', {
                     serviceId: getters.getSelectedService.appId,
                     grant_type: config.GRANT_TYPES_ENUM.CAVACH_API,
-                    tokenType: 'KYC'
+                    tokenStorageType: "Default"
                 }).then((token) => {
                     const headers = UtilsMixin.methods.getKycServiceHeader(token);
                     return fetch(url, {
@@ -1785,7 +1784,7 @@ const mainStore = {
                 dispatch('getValidToken', {
                     serviceId: getters.getSelectedService.appId,
                     grant_type: config.GRANT_TYPES_ENUM.CAVACH_API,
-                    tokenType: 'KYC'
+                    tokenStorageType: "Default"
                 }).then((token) => {
                     const headers = UtilsMixin.methods.getKycServiceHeader(token);
                 const data = getters.getKybWidgetConfig;
@@ -1821,7 +1820,7 @@ const mainStore = {
                 dispatch('getValidToken', {
                     serviceId: getters.getSelectedService.appId,
                     grant_type: config.GRANT_TYPES_ENUM.CAVACH_API,
-                    tokenType: 'KYC'
+                    tokenStorageType: "Default"
                 }).then((token) => {
                     const headers = UtilsMixin.methods.getKycServiceHeader(token);
                 return fetch(url, {
@@ -1859,7 +1858,7 @@ const mainStore = {
                 dispatch('getValidToken', {
                     serviceId: getters.getSelectedService.appId,
                     grant_type: config.GRANT_TYPES_ENUM.CAVACH_API,
-                    tokenType: 'KYC'
+                    tokenStorageType: "Default"
                 }).then((token) => {
                     const headers = UtilsMixin.methods.getKycServiceHeader(token);
                 const data = getters.getKybWidgetConfig;
@@ -1898,7 +1897,7 @@ const mainStore = {
                 dispatch('getValidToken', {
                     serviceId: getters.getSelectedService.appId,
                     grant_type: config.GRANT_TYPES_ENUM.CAVACH_API,
-                    tokenType: 'KYC'
+                    tokenStorageType: "Default"
                 }).then((token) => {
                     const headers = UtilsMixin.methods.getKycServiceHeader(token);
 
@@ -1935,10 +1934,9 @@ const mainStore = {
                 dispatch('getValidToken', {
                     serviceId: getters.getSelectedService.appId,
                     grant_type: config.GRANT_TYPES_ENUM.CAVACH_API,
-                    tokenType: 'KYC'
+                    tokenStorageType: "Default"
                 }).then((token) => {
                     const headers = UtilsMixin.methods.getKycServiceHeader(token);
-
                     return fetch(url, {
                     method: 'POST',
                     headers,
@@ -1972,7 +1970,7 @@ const mainStore = {
                 dispatch('getValidToken', {
                     serviceId: getters.getSelectedService.appId,
                     grant_type: config.GRANT_TYPES_ENUM.CAVACH_API,
-                    tokenType: 'KYC'
+                    tokenStorageType: "Default"
                 }).then((token) => {
                     const headers = UtilsMixin.methods.getKycServiceHeader(token);
                 return fetch(url, {
@@ -2012,7 +2010,7 @@ const mainStore = {
                 dispatch('getValidToken', {
                     serviceId: getters.getSelectedService.appId,
                     grant_type: config.GRANT_TYPES_ENUM.CAVACH_API,
-                    tokenType: 'KYC'
+                    tokenStorageType: "Default"
                 }).then((token) => {
                     const headers = UtilsMixin.methods.getKycServiceHeader(token);
                     return fetch(url, {
@@ -2049,7 +2047,7 @@ const mainStore = {
                 dispatch('getValidToken', {
                     serviceId: getters.getSelectedService.appId,
                     grant_type: config.GRANT_TYPES_ENUM.CAVACH_API,
-                    tokenType: 'KYC'
+                    tokenStorageType: "Default"
                 }).then((token) => {
                     const headers = UtilsMixin.methods.getKycServiceHeader(token);
                     return fetch(url, {
@@ -2084,7 +2082,7 @@ const mainStore = {
                 RequestHandler(url, 'POST', payload, headers)
                     .then(json => {
                         if (json.error) {
-                           return reject(new Error(json.message));
+                          return reject(new Error(json.message));
                         }
                 commit('setKYCWebpageConfig', json);
                 resolve(json);
@@ -2185,7 +2183,7 @@ const mainStore = {
                 dispatch('getValidToken', {
                     serviceId: getters.getSelectedService.appId,
                     grant_type: config.GRANT_TYPES_ENUM.CAVACH_API,
-                    tokenType: 'KYC'
+                    tokenStorageType: "Default"
                 }).then((token) => {
                     const headers = UtilsMixin.methods.getKycServiceHeader(token);
                     return fetch(url, {
@@ -2324,7 +2322,7 @@ const mainStore = {
                 dispatch('getValidToken', {
                     serviceId: getters.getSelectedService.appId,
                     grant_type: config.GRANT_TYPES_ENUM.CAVACH_API,
-                    tokenType: 'KYC'
+                    tokenStorageType: "Default"
                 }).then((token) => {
                     const headers = UtilsMixin.methods.getKycServiceHeader(token);
                     return fetch(url, {
@@ -2371,11 +2369,15 @@ const mainStore = {
 
 
         async fetchUsageForAService({ getters, dispatch }, payload) {
-            const { startDate, endDate } = payload
+            const { startDate, endDate, env } = payload
+            let envVal = env
+            if (env === '' || env === null || env === undefined) {
+                envVal = 'prod'
+            }
             if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
                 throw new Error('Tenant url is null or empty, service is not selected')
             }
-            const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/usage?serviceId=${getters.getSelectedService.appId}&startDate=${startDate}&endDate=${endDate}`;
+            const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/usage?serviceId=${getters.getSelectedService.appId}&startDate=${startDate}&endDate=${endDate}&env=${envVal}`;
             // const url = `http://localhost:3001/api/v1/usage?serviceId=${getters.getSelectedService.appId}&startDate=${startDate}&endDate=${endDate}`;            
             const authToken = getters.getSelectedService.access_token
             if (!authToken) {
@@ -2384,7 +2386,7 @@ const mainStore = {
             const token = await dispatch('getValidToken', {
                 serviceId: getters.getSelectedService.appId,
                 grant_type: config.GRANT_TYPES_ENUM.CAVACH_API,
-                tokenType: 'KYC'
+                tokenStorageType: "Default"
             });
             const headers = UtilsMixin.methods.getKycServiceHeader(token);
             const resp = await fetch(url, {
@@ -2460,11 +2462,16 @@ const mainStore = {
 
         },
         async fetchUsageDetailsForAService({ getters, commit, dispatch }, payload) {
-            const { startDate, endDate } = payload
+            const { startDate, endDate, env } = payload
+            let envVal = env
+            if (env === '' || env === null || env === undefined) {
+                envVal = 'prod'
+            }
             if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
                 throw new Error('Tenant url is null or empty, service is not selected')
             }
-            const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/usage/detail?serviceId=${getters.getSelectedService.appId}&startDate=${startDate}&endDate=${endDate}`;
+            const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/usage/detail?serviceId=${getters.getSelectedService.appId}&startDate=${startDate}&endDate=${endDate}&env=${envVal}`;
+            // const url = `http://localhost:3009/api/v1/usage/detail?serviceId=${getters.getSelectedService.appId}&startDate=${startDate}&endDate=${endDate}&env=${envVal}`;
             const authToken = getters.getSelectedService.access_token
             if (!authToken) {
                 throw new Error('authToken is invalid, service is not selected')
@@ -2472,7 +2479,7 @@ const mainStore = {
             const token = await dispatch('getValidToken', {
                 serviceId: getters.getSelectedService.appId,
                 grant_type: config.GRANT_TYPES_ENUM.CAVACH_API,
-                tokenType: 'KYC'
+                tokenStorageType: "Default"
             });
             const headers = UtilsMixin.methods.getKycServiceHeader(token);
             const resp = await fetch(url, {
@@ -2552,11 +2559,11 @@ const mainStore = {
                 dispatch('getValidToken', {
                     serviceId: getters.getSelectedService.appId,
                     grant_type: config.GRANT_TYPES_ENUM.CAVACH_API,
-                    tokenType: 'KYC'
+                    tokenStorageType: "Default"
                 }).then((token) => {
                     let headers = UtilsMixin.methods.getKycServiceHeader(token);
 
-                const requestBody = { status };
+               const requestBody = { status };
 
                 const dependentServiceId = getters.getSelectedService.dependentServices[0];
                 const ssiService = getters.getAppsWithSSIServices.find(s => s.appId === dependentServiceId);
@@ -2575,7 +2582,7 @@ const mainStore = {
                     body: JSON.stringify(requestBody)
                 })
                 })
-                     .then(response => response.json()).then(json => {
+                   .then(response => response.json()).then(json => {
                     if (json.error) {
                         return reject(new Error(json.error?.details?.join(' ') || json.error?.join?.(' ') || json.error || 'Unknown error'))
                     }
@@ -2645,7 +2652,7 @@ const mainStore = {
             const token = await dispatch('getValidToken', {
                 serviceId: getters.getSelectedService.appId,
                 grant_type: config.GRANT_TYPES_ENUM.CAVACH_API,
-                tokenType: 'KYC'
+                tokenStorageType: "Default"
             });
             const headers = UtilsMixin.methods.getKycServiceHeader(token);
             const resp = await fetch(url, {
@@ -2786,18 +2793,23 @@ const mainStore = {
                     } else {
                         return reject(new Error('Tenant url is null or empty, service is not selected'))
                     }
-
+                    dispatch('getValidToken', {
+                        serviceId: getters.getSelectedService.appId,
+                        grant_type: config.GRANT_TYPES_ENUM.SSI_API,
+                        tokenStorageType: "Default"
+                    }).then((token) => {
                     const url = `${sanitizeUrl(tenantUrl)}/api/v1/did?page=1&limit=100`;
                     const options = {
                         method: "GET",
                         headers: {
                             "Content-Type": "application/json",
-                            "Authorization": `Bearer ${accessToken}`,
+                            "Authorization": `Bearer ${token}`,
                             "Origin": '*'
                         }
                     }
-                    fetch(url, {
+                        return fetch(url, {
                         headers: options.headers
+                    })
                     })
                         .then(response => response.json())
                         .then(json => {
@@ -2841,7 +2853,7 @@ const mainStore = {
 
 
 
-        resolveDIDForAKycService({ getters, }, payload = {}) {
+        resolveDIDForAKycService({ getters, dispatch }, payload = {}) {
             return new Promise(function (resolve, reject) {
                 {
                     let tenantUrl = ""
@@ -2860,17 +2872,23 @@ const mainStore = {
                         throw new Error("could not resolve did");
 
                     }
+                    dispatch('getValidToken', {
+                        serviceId: getters.getSelectedService.appId,
+                        grant_type: config.GRANT_TYPES_ENUM.SSI_API,
+                        tokenStorageType: "Default"
+                    }).then((token) => {
                     const url = `${sanitizeUrl(tenantUrl)}/api/v1/did/resolve/${payload.did}`;
                     const options = {
                         method: "GET",
                         headers: {
                             "Content-Type": "application/json",
-                            "Authorization": `Bearer ${accessToken}`,
+                            "Authorization": `Bearer ${token}`,
                             "Origin": '*'
                         }
                     }
-                    fetch(url, {
+                        return fetch(url, {
                         headers: options.headers
+                    })
                     })
                         .then(response => response.json())
                         .then(json => {
@@ -2891,7 +2909,7 @@ const mainStore = {
             })
 
         },
-        resolveDIDForAService({ commit, getters, }, payload) {
+        resolveDIDForAService({ commit, getters, dispatch }, payload) {
             return new Promise(function (resolve, reject) {
                 {
 
@@ -2909,19 +2927,24 @@ const mainStore = {
                     if (!selectedService || !selectedService.tenantUrl) {
                         return reject(new Error('Tenant url is null or empty, service is not selected'))
                     }
-
+                    dispatch('getValidToken', {
+                        serviceId: getters.getSelectedService.appId,
+                        grant_type: config.GRANT_TYPES_ENUM.SSI_API,
+                        tokenStorageType: "Default"
+                    }).then((token) => {
                     const url = `${sanitizeUrl(selectedService.tenantUrl)}/api/v1/did/resolve/${payload}`;
                     // const url = `http://ent-8ee83cc.localhost:3003/api/v1/did/resolve/${payload}`;
                     const options = {
                         method: "GET",
                         headers: {
                             "Content-Type": "application/json",
-                            "Authorization": `Bearer ${selectedService.access_token}`,
+                            "Authorization": `Bearer ${token}`,
                             "Origin": '*'
                         }
                     }
-                    fetch(url, {
+                        return fetch(url, {
                         headers: options.headers
+                    })
                     })
                         .then(response => response.json())
                         .then(json => {
@@ -2955,18 +2978,24 @@ const mainStore = {
                     if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
                         return reject(new Error('Tenant url is null or empty, service is not selected'))
                     }
+                    dispatch('getValidToken', {
+                        serviceId: getters.getSelectedService.appId,
+                        grant_type: config.GRANT_TYPES_ENUM.SSI_API,
+                        tokenStorageType: "Default"
+                    }).then((token) => {
                     const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/did/create`;
                     const options = {
                         method: "POST",
                         body: JSON.stringify(payload),
                         headers: {
                             "Content-Type": "application/json",
-                            "Authorization": `Bearer ${getters.getSelectedService.access_token}`,
+                            "Authorization": `Bearer ${token}`,
                             "Origin": '*'
                         }
                     }
-                    fetch(url, {
+                    return fetch(url, {
                         ...options
+                    })
                     })
                         .then(response => response.json())
                         .then(async json => {
@@ -2992,7 +3021,7 @@ const mainStore = {
 
         },
 
-        registerDIDsForAService({ commit, getters }, payload) {
+        registerDIDsForAService({ commit, getters, dispatch }, payload) {
             return new Promise(function (resolve, reject) {
                 const body = {
                     didDocument: payload.didDocument,
@@ -3002,18 +3031,24 @@ const mainStore = {
                     if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
                         return reject(new Error('Tenant url is null or empty, service is not selected'))
                     }
+                    dispatch('getValidToken', {
+                        serviceId: getters.getSelectedService.appId,
+                        grant_type: config.GRANT_TYPES_ENUM.SSI_API,
+                        tokenStorageType: "Default"
+                    }).then((token) => {
                     const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/did/register/v2`;
                     const options = {
                         method: "POST",
                         body: JSON.stringify(body),
                         headers: {
                             "Content-Type": "application/json",
-                            "Authorization": `Bearer ${getters.getSelectedService.access_token}`,
+                            "Authorization": `Bearer ${token}`,
                             "Origin": '*'
                         }
                     }
                     fetch(url, {
                         ...options
+                        })
                     })
                         .then(response => response.json())
                         .then(async json => {
@@ -3040,23 +3075,29 @@ const mainStore = {
 
         },
 
-        checkBlockchainStatusOfSSI({ getters }, payload) {
+        checkBlockchainStatusOfSSI({ getters, dispatch }, payload) {
             return new Promise(function (resolve, reject) {
                 {
                     if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
                         return reject(new Error('Tenant url is null or empty, service is not selected'))
                     }
+                    dispatch('getValidToken', {
+                        serviceId: getters.getSelectedService.appId,
+                        grant_type: config.GRANT_TYPES_ENUM.SSI_API,
+                        tokenStorageType: "Default"
+                    }).then((token) => {
                     const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/status/ssi/${payload}?page=1&limit=10`;
                     const options = {
                         method: "GET",
                         headers: {
                             "Content-Type": "application/json",
-                            "Authorization": `Bearer ${getters.getSelectedService.access_token}`,
+                            "Authorization": `Bearer ${token}`,
                             "Origin": '*'
                         }
                     }
-                    fetch(url, {
-                        ...options
+                        return fetch(url, {
+                            ...options
+                        })
                     })
                         .then(response => response.json())
                         .then(json => {
@@ -3073,7 +3114,7 @@ const mainStore = {
 
         },
 
-        updateDIDsForAService({ getters, }, payload) {
+        updateDIDsForAService({ getters, dispatch }, payload) {
             return new Promise(function (resolve, reject) {
                 let body;
                 if (payload.didDocument) {
@@ -3093,6 +3134,11 @@ const mainStore = {
                     if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
                         return reject(new Error('Tenant url is null or empty, service is not selected'))
                     }
+                    dispatch('getValidToken', {
+                        serviceId: getters.getSelectedService.appId,
+                        grant_type: config.GRANT_TYPES_ENUM.SSI_API,
+                        tokenStorageType: "Default"
+                    }).then((token) => {
                     // const url = `http://ent-2af45c1.localhost:4001/api/v1/did/`;
                     const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/did/`;
                     const options = {
@@ -3100,12 +3146,13 @@ const mainStore = {
                         body: JSON.stringify(body),
                         headers: {
                             "Content-Type": "application/json",
-                            "Authorization": `Bearer ${getters.getSelectedService.access_token}`,
+                            "Authorization": `Bearer ${token}`,
                             "Origin": '*'
                         }
                     }
-                    fetch(url, {
-                        ...options
+                    return fetch(url, {
+                            ...options
+                        })
                     })
                         .then(response => response.json())
                         .then(json => {
@@ -3270,16 +3317,21 @@ const mainStore = {
         },
 
         // eslint-disable-next-line 
-        async fetchSSICredits({ getters, commit }) {
+        async fetchSSICredits({ getters, commit, dispatch }) {
             if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
                 throw new Error('Tenant url is null or empty, service is not selected')
             }
+            const token = await dispatch('getValidToken', {
+                serviceId: getters.getSelectedService.appId,
+                grant_type: config.GRANT_TYPES_ENUM.SSI_API,
+                tokenStorageType: "Default"
+            })
             const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/credit`;
             const options = {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
-                    "Authorization": `Bearer ${getters.getSelectedService.access_token}`,
+                    "Authorization": `Bearer ${token}`,
                     "Origin": '*'
 
                 }
@@ -3307,17 +3359,23 @@ const mainStore = {
                     if (!creditId) {
                         return reject(new Error('Credit Id is null or empty'))
                     }
+                    dispatch('getValidToken', {
+                        serviceId: getters.getSelectedService.appId,
+                        grant_type: config.GRANT_TYPES_ENUM.SSI_API,
+                        tokenStorageType: "Default"
+                    }).then((token) => {
                     const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/credit/${creditId}/activate`;
                     const options = {
                         method: "POST",
                         headers: {
                             "Content-Type": "application/json",
-                            "Authorization": `Bearer ${getters.getSelectedService.access_token}`,
+                            "Authorization": `Bearer ${token}`,
                             "Origin": '*'
                         }
                     }
-                    fetch(url, {
-                        ...options
+                        return fetch(url, {
+                     ...options
+                 })
                     })
                         .then(response => response.json())
                         .then(json => {
@@ -3408,19 +3466,24 @@ const mainStore = {
                     if (!selectedService || !selectedService.tenantUrl) {
                         return reject(new Error('Tenant url is null or empty, service is not selected'))
                     }
-
+                    dispatch('getValidToken', {
+                        serviceId: getters.getSelectedService.appId,
+                        grant_type: config.GRANT_TYPES_ENUM.SSI_API,
+                        tokenStorageType: "Default"
+                    }).then((token) => {
                     const url = `${sanitizeUrl(selectedService.tenantUrl)}/api/v1/did/auth/sign`;
                     const options = {
                         method: "POST",
                         body: JSON.stringify(payload),
                         headers: {
                             "Content-Type": "application/json",
-                            "Authorization": `Bearer ${selectedService.access_token}`,
+                            "Authorization": `Bearer ${token}`,
                             "Origin": '*'
                         }
                     }
-                    fetch(url, {
-                        ...options
+                        return fetch(url, {
+                            ...options
+                        })
                     })
                         .then(response => response.json())
                         .then(async json => {
@@ -3455,18 +3518,24 @@ const mainStore = {
                     } else {
                         return reject(new Error('Tenant url is null or empty, service is not selected'))
                     }
+                    dispatch('getValidToken', {
+                        serviceId: getters.getSelectedService.appId,
+                        grant_type: config.GRANT_TYPES_ENUM.SSI_API,
+                        tokenStorageType: "Default"
+                    }).then((token) => {
 
                     const url = `${sanitizeUrl(tenantUrl)}/api/v1/schema?page=1&limit=100`;
                     const options = {
                         method: "GET",
                         headers: {
                             "Content-Type": "application/json",
-                            "Authorization": `Bearer ${accessToken}`,
+                            "Authorization": `Bearer ${token}`,
                             "Origin": '*'
                         }
                     }
-                    fetch(url, {
-                        headers: options.headers
+                    return fetch(url, {
+                            headers: options.headers
+                        })
                     })
                         .then(response => response.json())
                         .then(json => {
@@ -3505,7 +3574,7 @@ const mainStore = {
 
         },
 
-        async resolveSchema({ commit, getters, }, payload) {
+        async resolveSchema({ commit, getters, dispatch }, payload) {
             try {
                 let selectedService = {};
                 if (getters.getSelectedService.services[0].id === 'SSI_API') {
@@ -3521,7 +3590,11 @@ const mainStore = {
                 if (!selectedService || !selectedService.tenantUrl) {
                     throw new Error('Tenant url is null or empty, service is not selected')
                 }
-
+                const token = await dispatch('getValidToken', {
+                    serviceId: getters.getSelectedService.appId,
+                    grant_type: config.GRANT_TYPES_ENUM.SSI_API,
+                    tokenStorageType: "Default"
+                })
                 const url = `${sanitizeUrl(selectedService.tenantUrl)}/api/v1/schema/${payload}`;
                 // const url = `http://ent-8ee83cc.localhost:3003/api/v1/schema/${payload}`;
 
@@ -3529,7 +3602,7 @@ const mainStore = {
                     method: "GET",
                     headers: {
                         "Content-Type": "application/json",
-                        "Authorization": `Bearer ${selectedService.access_token}`,
+                        "Authorization": `Bearer ${token}`,
                         "Origin": '*'
                     }
                 }
@@ -3570,25 +3643,31 @@ const mainStore = {
         },
 
 
-        createSchemaForAService({ commit, getters }, payload) {
+        async createSchemaForAService({ commit, getters, dispatch }, payload) {
             return new Promise(function (resolve, reject) {
                 {
                     // const payload = data.requestBody
                     if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
                         return reject(new Error('Tenant url is null or empty, service is not selected'))
                     }
+                    dispatch('getValidToken', {
+                        serviceId: getters.getSelectedService.appId,
+                        grant_type: config.GRANT_TYPES_ENUM.SSI_API,
+                        tokenStorageType: "Default"
+                    }).then((token) => {
                     const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/schema`;
                     const options = {
                         method: "POST",
                         body: JSON.stringify(payload),
                         headers: {
                             "Content-Type": "application/json",
-                            "Authorization": `Bearer ${getters.getSelectedService.access_token}`,
+                            "Authorization": `Bearer ${token}`,
                             "Origin": '*'
                         }
                     }
-                    fetch(url, {
-                        ...options
+                     return fetch(url, {
+                            ...options
+                        })
                     })
                         .then(response => response.json())
                         .then(async json => {
@@ -3635,18 +3714,23 @@ const mainStore = {
                         page = payload.page
                         limit = payload.limit
                     }
-
+                    dispatch('getValidToken', {
+                        serviceId: getters.getSelectedService.appId,
+                        grant_type: config.GRANT_TYPES_ENUM.SSI_API,
+                        tokenStorageType: "Default"
+                    }).then((token) => {
                     const url = `${sanitizeUrl(tenantUrl)}/api/v1/credential?page=${page}&limit=${limit}`;
                     const options = {
                         method: "GET",
                         headers: {
                             "Content-Type": "application/json",
-                            "Authorization": `Bearer ${accessToken}`,
+                            "Authorization": `Bearer ${token}`,
                             "Origin": '*'
                         }
                     }
-                    fetch(url, {
-                        headers: options.headers
+                        return fetch(url, {
+                            headers: options.headers
+                        })
                     })
                         .then(response => response.json())
                         .then(json => {
@@ -3688,7 +3772,7 @@ const mainStore = {
         },
 
 
-        async resolveCredential({ commit, getters, }, payload) {
+        async resolveCredential({ commit, getters, dispatch }, payload) {
             try {
                 let selectedService = {};
                 if (getters.getSelectedService.services[0].id === 'SSI_API') {
@@ -3704,13 +3788,17 @@ const mainStore = {
                 if (!selectedService || !selectedService.tenantUrl) {
                     throw new Error('Tenant url is null or empty, service is not selected')
                 }
-
+                const token = await dispatch('getValidToken', {
+                    serviceId: getters.getSelectedService.appId,
+                    grant_type: config.GRANT_TYPES_ENUM.SSI_API,
+                    tokenStorageType: "Default"
+                })
                 const url = `${sanitizeUrl(selectedService.tenantUrl)}/api/v1/credential/${payload.credentialId}?retrieveCredential=${payload.retrieveCredential ? payload.retrieveCredential : false}`;
                 const options = {
                     method: "GET",
                     headers: {
                         "Content-Type": "application/json",
-                        "Authorization": `Bearer ${selectedService.access_token}`,
+                        "Authorization": `Bearer ${token}`,
                         "Origin": '*'
                     }
                 }
@@ -3788,25 +3876,31 @@ const mainStore = {
             }
         },
 
-        issueCredentialForAService({ commit, getters }, payload) {
+        issueCredentialForAService({ commit, getters, dispatch }, payload) {
             return new Promise(function (resolve, reject) {
                 {
                     // const payload = data.requestBody
                     if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
                         return reject(new Error('Tenant url is null or empty, service is not selected'))
                     }
+                    dispatch('getValidToken', {
+                        serviceId: getters.getSelectedService.appId,
+                        grant_type: config.GRANT_TYPES_ENUM.SSI_API,
+                        tokenStorageType: "Default"
+                    }).then((token) => {
                     const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/credential/issue`;
                     const options = {
                         method: "POST",
                         body: JSON.stringify(payload),
                         headers: {
                             "Content-Type": "application/json",
-                            "Authorization": `Bearer ${getters.getSelectedService.access_token}`,
+                            "Authorization": `Bearer ${token}`,
                             "Origin": '*'
                         }
                     }
-                    fetch(url, {
-                        ...options
+                        return fetch(url, {
+                            ...options
+                        })
                     })
                         .then(response => response.json())
                         .then(async json => {
@@ -3830,24 +3924,30 @@ const mainStore = {
             })
 
         },
-        updateCredentialForAService({ getters }, payload) {
+        updateCredentialForAService({ getters, dispatch }, payload) {
             return new Promise(function (resolve, reject) {
                 {
                     if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
                         return reject(new Error('Tenant url is null or empty, service is not selected'))
                     }
+                    dispatch('getValidToken', {
+                        serviceId: getters.getSelectedService.appId,
+                        grant_type: config.GRANT_TYPES_ENUM.SSI_API,
+                        tokenStorageType: "Default"
+                    }).then((token) => {
                     const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/credential/status/${payload.credentialId}`;
                     const options = {
                         method: "PATCH",
                         body: JSON.stringify(payload),
                         headers: {
                             "Content-Type": "application/json",
-                            "Authorization": `Bearer ${getters.getSelectedService.access_token}`,
+                            "Authorization": `Bearer ${token}`,
                             "Origin": '*'
                         }
                     }
-                    fetch(url, {
-                        ...options
+                        return fetch(url, {
+                            ...options
+                        })
                     })
                         .then(response => response.json())
                         .then(async json => {
@@ -3872,7 +3972,7 @@ const mainStore = {
             serviceId,
             grant_type,
             token,
-            tokenType = 'KYC' // 'KYC' | 'KYB'
+            tokenStorageType = 'Default'
         }) {
             // 1. If token is passed directly (payload case)
             if (token && !UtilsMixin.methods.isTokenExpired(token)) {
@@ -3881,7 +3981,7 @@ const mainStore = {
             let service = getters.getSelectedService;
             // 2. Pick correct token from store
             let storeToken =
-                tokenType === 'KYB'
+                tokenStorageType === 'KYB'
                     ? service?.kyb_access_token
                     : service?.access_token;
             // 3. Check expiry
@@ -3894,7 +3994,7 @@ const mainStore = {
                 // refresh from store
                 service = getters.getSelectedService;
                 storeToken =
-                    tokenType === 'KYB'
+                    tokenStorageType === 'KYB'
                         ? service?.kyb_access_token
                         : service?.access_token;
             }

@@ -611,7 +611,6 @@ If no matches, return exactly:
 
                 };
                 if (status === 'Failed') {
-                    console.log('inside if')
                     payload.reasonDetail = formData.reasonDetail;
                     if (formData.reason) payload.reason = formData.reason;
                 }
