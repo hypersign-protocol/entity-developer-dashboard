@@ -995,6 +995,7 @@ export default {
             const payload = {
               tenantUrl: associatedSSIService.tenantUrl,
               accessToken: associatedSSIService.access_token,
+              serviceId: associatedSSIService.appId,
               did
             };
             this.isLoading = true;
@@ -1023,6 +1024,7 @@ export default {
             const payload = {
               tenantUrl: associatedSSIService.tenantUrl,
               accessToken: associatedSSIService.access_token,
+              serviceId: associatedSSIService.appId
             };
             this.isLoading = true;
             const allDIDs = await this.fetchDIDsForAService(payload);

@@ -382,6 +382,7 @@ export default {
                 const payload = {
                     tenantUrl: associatedSSIService.tenantUrl,
                     accessToken: associatedSSIService.access_token,
+                    serviceId: associatedSSIService.appId
                 };
                 const allDIDs = await this.fetchDIDsForAService(payload);
                 
@@ -408,7 +409,9 @@ export default {
                 const payload = {
                     tenantUrl: associatedSSIService.tenantUrl,
                     accessToken: associatedSSIService.access_token,
-                    did: this.formData.issuerDid
+                    did: this.formData.issuerDid,
+                    serviceId: associatedSSIService.appId,
+
                 };
                 const didDocument = await this.resolveDIDForAKycService(payload);
                 this.issuerVerificationMethodIds = didDocument.verificationMethod.filter(vm => vm);
@@ -437,6 +440,7 @@ export default {
                 const payload = {
                     tenantUrl: associatedSSIService.tenantUrl,
                     accessToken: associatedSSIService.access_token,
+                    serviceId: associatedSSIService.appId
                 };
                 const allDIDs = await this.fetchDIDsForAService(payload);
                 
@@ -486,7 +490,9 @@ export default {
                 const payload = {
                     tenantUrl: associatedSSIService.tenantUrl,
                     accessToken: associatedSSIService.access_token,
-                    did
+                    did,
+                    serviceId: associatedSSIService.appId,
+
                 };
                 const didDocument = await this.resolveDIDForAKycService(payload);
                 this.issuerVerificationMethodIds = didDocument.verificationMethod.filter(vm => vm);
