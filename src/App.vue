@@ -397,8 +397,14 @@ export default {
   mounted() {
 
     // console.log(this.getUserDetails)
+
     if (this.getUserDetails) {
       try {
+        console.log("cookie",document.cookie);
+        
+        if(!document.cookie.includes('isLoggedIn=true')){
+         return this.logoutAll();
+        }
 
         this.userDetails = this.getUserDetails;
         this.loggedInUserEmailId = this.userDetails?.accessAccount?.email;
