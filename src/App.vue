@@ -400,7 +400,6 @@ export default {
 
     if (this.getUserDetails) {
       try {
-        console.log("cookie",document.cookie);
         
         if(!document.cookie.includes('isLoggedIn=true')){
          return this.logoutAll();
