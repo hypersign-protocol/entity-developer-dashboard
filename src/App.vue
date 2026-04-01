@@ -441,7 +441,6 @@ export default {
   },
 
   mounted() {
-    // console.log(this.getUserDetails)
     if (this.getUserDetails) {
       try {
         this.userDetails = this.getUserDetails;
