@@ -102,11 +102,10 @@
 
 .container-collapsed {
   margin-left: 15em;
-
 }
 
 .container {
-  max-width: 1300px
+  max-width: 1300px;
 }
 
 .far {
@@ -130,12 +129,10 @@
 }
 
 .dropDownPopup {
-  box-shadow: 2px 0 10px rgba(0, 0, 0, .47);
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.47);
   border-radius: 8px;
   border: 0 solid grey;
 }
-
-
 </style>
 
 <style>
@@ -159,7 +156,7 @@
   padding: 5px !important;
   padding-left: 1.5%;
   text-align: left;
-  box-shadow: 0 2px 6px 0 rgba(32, 33, 37, .1);
+  box-shadow: 0 2px 6px 0 rgba(32, 33, 37, 0.1);
 }
 
 .orgNameCss {
@@ -167,7 +164,7 @@
   color: grey;
   font-weight: bold;
   font-size: smaller;
-  padding: 5px
+  padding: 5px;
 }
 
 #nav {
@@ -217,7 +214,7 @@
   min-width: 70px;
   margin-top: 5.8vh;
   /* box-shadow: 0 0 15px 0 rgba(34, 41, 47, 0.05); */
-  box-shadow: 0 2px 6px 0 rgba(32, 33, 37, .1);
+  box-shadow: 0 2px 6px 0 rgba(32, 33, 37, 0.1);
   border-right: 1px solid rgba(128, 128, 128, 0.21);
 }
 
@@ -231,19 +228,19 @@
 
 .v-sidebar-menu.vsm_white-theme {
   background-color: white !important;
-  color: rgba(0, 0, 0, .87) !important;
+  color: rgba(0, 0, 0, 0.87) !important;
 }
 
 .v-sidebar-menu.vsm_white-theme .vsm--header {
-  color: rgba(0, 0, 0, .87) !important;
+  color: rgba(0, 0, 0, 0.87) !important;
 }
 
 .v-sidebar-menu.vsm_white-theme .vsm--link {
-  color: rgba(0, 0, 0, .87) !important;
+  color: rgba(0, 0, 0, 0.87) !important;
 }
 
 .v-sidebar-menu.vsm_white-theme .vsm--link_level-1 .vsm--link:hover {
-  color: rgba(0, 0, 0, .87) !important;
+  color: rgba(0, 0, 0, 0.87) !important;
   background: whitesmoke !important;
 }
 
@@ -256,9 +253,12 @@
   <div id="app" data-app>
     <load-ing :active.sync="isLoading" :can-cancel="true" :is-full-page="true"></load-ing>
 
-
     <b-navbar toggleable="lg" class="navStyle shadow-sm" v-if="getIfAuthenticated" sticky>
-      <b-navbar-brand href="javascript:void(0)" @click="route('dashboard')" class="d-flex align-items-center">
+      <b-navbar-brand
+        href="javascript:void(0)"
+        @click="route('dashboard')"
+        class="d-flex align-items-center"
+      >
         <img src="./assets/Entity_full.png" alt="Logo" class="nav-logo-img" />
       </b-navbar-brand>
 
@@ -266,13 +266,19 @@
 
       <b-collapse id="nav-collapse" is-nav v-if="userDetails">
         <b-navbar-nav class="ml-auto align-items-center">
-
           <b-nav-item v-if="getSwitchedTenantAccount" class="px-2">
-            <div class="d-flex align-items-center tenant-wrapper" @click="switchBackToAdminAccount"
-              title="Click to access your own account">
-              <span class="mr-2 d-none d-md-inline text-muted small font-weight-bold">Acting as:</span>
+            <div
+              class="d-flex align-items-center tenant-wrapper"
+              @click="switchBackToAdminAccount"
+              title="Click to access your own account"
+            >
+              <span class="mr-2 d-none d-md-inline text-muted small font-weight-bold"
+                >Acting as:</span
+              >
               <v-chip small color="primary" outlined class="tenant-chip">
-                <span class="text-truncate" style="max-width: 150px">{{ getSwitchedTenantAccount }}</span>
+                <span class="text-truncate" style="max-width: 150px">{{
+                  getSwitchedTenantAccount
+                }}</span>
                 <b-icon icon="box-arrow-in-right" class="ml-2"></b-icon>
               </v-chip>
             </div>
@@ -285,36 +291,59 @@
             </v-chip>
           </b-nav-item>
 
-          <b-nav-item-dropdown right no-caret menu-class="profile-dropdown-menu dropDownPopup" >
+          <b-nav-item-dropdown
+            right
+            no-caret
+            menu-class="profile-dropdown-menu dropDownPopup"
+          >
             <template #button-content>
               <div class="avatar-container">
-                <img v-if="userDetails?.profileIcon" :src="userDetails?.profileIcon" class="profile-img" />
-                <b-icon v-else icon="person-circle" font-scale="1.5" class="text-secondary"></b-icon>
+                <img
+                  v-if="userDetails?.profileIcon"
+                  :src="userDetails?.profileIcon"
+                  class="profile-img"
+                />
+                <b-icon
+                  v-else
+                  icon="person-circle"
+                  font-scale="1.5"
+                  class="text-secondary"
+                ></b-icon>
               </div>
             </template>
 
             <div class="px-3 py-2 bg-light border-bottom dropdown-user-header">
               <p class="mb-0 small text-muted">Signed in as</p>
-              <p class="mb-0 font-weight-bold text-dark">{{ userDetails.name || 'User' }}</p>
+              <p class="mb-0 font-weight-bold text-dark">
+                {{ userDetails.name || "User" }}
+              </p>
             </div>
 
-            <b-dropdown-item @click="copyToClip(userDetails.email, 'Email')" class="small-dropdown-item">
-              <b-icon icon="envelope" class="mr-2"></b-icon> {{ shorten(userDetails.email) }}
+            <b-dropdown-item
+              @click="copyToClip(userDetails.email, 'Email')"
+              class="small-dropdown-item"
+            >
+              <b-icon icon="envelope" class="mr-2"></b-icon>
+              {{ shorten(userDetails.email) }}
             </b-dropdown-item>
 
             <b-dropdown-divider></b-dropdown-divider>
 
-            <b-dropdown-item @click="goTo('/studio/dashboard')" style="text-align: left;">
+            <b-dropdown-item @click="goTo('/studio/dashboard')" style="text-align: left">
               <b-icon icon="house" class="mr-2"></b-icon> Home
             </b-dropdown-item>
 
-            <b-dropdown-item @click="goTo('/studio/settings')" style="text-align: left;">
+            <b-dropdown-item @click="goTo('/studio/settings')" style="text-align: left">
               <b-icon icon="gear" class="mr-2"></b-icon> Settings
             </b-dropdown-item>
 
             <b-dropdown-divider></b-dropdown-divider>
 
-            <b-dropdown-item @click="logoutAll()" variant="danger" style="text-align: left;">
+            <b-dropdown-item
+              @click="logoutAll()"
+              variant="danger"
+              style="text-align: left"
+            >
               <b-icon icon="power" class="mr-2"></b-icon> Logout
             </b-dropdown-item>
           </b-nav-item-dropdown>
@@ -322,24 +351,38 @@
       </b-collapse>
     </b-navbar>
 
-    <div :class="[
-      isSidebarCollapsed ? 'container-collapsed-not' : 'container-collapsed',
-    ]">
+    <div
+      :class="[isSidebarCollapsed ? 'container-collapsed-not' : 'container-collapsed']"
+    >
       <router-view class="container containerData" />
     </div>
     <notifications group="foo" />
 
-    <sidebar-menu :relative="false" class="sidebar-wrapper"
-      v-if="userDetails && Object.keys(userDetails).length > 0 && showSideNavbar && getSelectedService"
-      @toggle-collapse="onToggleCollapse" :collapsed="isSidebarCollapsed" :theme="'white-theme'" width="220px"
-      :menu="getSideMenu()">
-      <div slot="header" style="border-bottom: 1px solid rgba(0,0,0,.12);">
+    <sidebar-menu
+      :relative="false"
+      class="sidebar-wrapper"
+      v-if="
+        userDetails &&
+        Object.keys(userDetails).length > 0 &&
+        showSideNavbar &&
+        getSelectedService
+      "
+      @toggle-collapse="onToggleCollapse"
+      :collapsed="isSidebarCollapsed"
+      :theme="'white-theme'"
+      width="220px"
+      :menu="getSideMenu()"
+    >
+      <div slot="header" style="border-bottom: 1px solid rgba(0, 0, 0, 0.12)">
         <v-list>
           <v-list-item>
             <v-list-item-avatar>
-              <v-img :src="getSelectedService.logoUrl ||
-                getProfileIcon(formattedAppName(getSelectedService.appName))
-                "></v-img>
+              <v-img
+                :src="
+                  getSelectedService.logoUrl ||
+                  getProfileIcon(formattedAppName(getSelectedService.appName))
+                "
+              ></v-img>
             </v-list-item-avatar>
             <v-list-item-content class="mx-1">
               <v-list-item-title class="text-h7">
@@ -353,18 +396,24 @@
   </div>
 </template>
 
-
 <script>
 import UtilsMixin from "./mixins/utils";
 import EventBus from "./eventbus";
 import { mapActions, mapMutations, mapGetters, mapState } from "vuex";
-import { RequestHandler } from './utils/utils'
-import config from './config'
-import * as EN from './language/en'
+import { RequestHandler } from "./utils/utils";
+import config from "./config";
+import * as EN from "./language/en";
 export default {
   computed: {
     ...mapGetters("playgroundStore", ["getSelectedOrg"]),
-    ...mapGetters("mainStore", ['getSwitchedTenantAccount', "getSelectedService", "getAllServices", 'getIfAuthenticated', 'getUserDetails', 'isMFAEnabled']),
+    ...mapGetters("mainStore", [
+      "getSwitchedTenantAccount",
+      "getSelectedService",
+      "getAllServices",
+      "getIfAuthenticated",
+      "getUserDetails",
+      "isMFAEnabled",
+    ]),
     ...mapState({
       showMainSideNavBar: (state) => state.mainStore.showMainSideNavBar,
       selectedDashboard: (state) => state.globalStore.selectedDashboard,
@@ -374,10 +423,7 @@ export default {
       return this.getSelectedOrg;
     },
     showSideNavbar() {
-      return (
-        this.$store.state.playgroundStore.showSideNavbar &&
-        this.showMainSideNavBar
-      );
+      return this.$store.state.playgroundStore.showSideNavbar && this.showMainSideNavBar;
     },
   },
   data() {
@@ -390,23 +436,13 @@ export default {
       userDetails: {},
       loggedInUserEmailId: "",
       parseAuthToken: null,
-      authToken: null
+      authToken: null,
     };
   },
 
   mounted() {
-
-    // console.log(this.getUserDetails)
-
     if (this.getUserDetails) {
       try {
-        
-        if(!document.cookie.includes('isLoggedIn=true')){
-         return this.logoutAll();
-        }
-    if (this.getUserDetails) {
-      try {
-
         this.userDetails = this.getUserDetails;
         this.loggedInUserEmailId = this.userDetails?.accessAccount?.email;
         this.setIsLoggedOut(false);
@@ -443,8 +479,16 @@ export default {
     });
   },
   methods: {
-    ...mapActions("mainStore", ["fetchAppsListFromServer", "fetchServicesList", 'switchToAdmin']),
-    ...mapMutations("mainStore", ["resetMainStore", "setIsLoggedOut", 'resetStoreForTeantSwitch']),
+    ...mapActions("mainStore", [
+      "fetchAppsListFromServer",
+      "fetchServicesList",
+      "switchToAdmin",
+    ]),
+    ...mapMutations("mainStore", [
+      "resetMainStore",
+      "setIsLoggedOut",
+      "resetStoreForTeantSwitch",
+    ]),
     ...mapActions("playgroundStore", [
       "insertAschema",
       "insertAcredential",
@@ -459,7 +503,7 @@ export default {
     ]),
     route(name) {
       if (this.$route.path !== name) {
-        this.$router.push({ name })
+        this.$router.push({ name });
       }
     },
     copyToClip(textToCopy, contentType) {
@@ -478,13 +522,13 @@ export default {
       return "https://api.dicebear.com/7.x/identicon/svg?seed=" + name;
     },
     logoutAll() {
-      this.setIsLoggedOut(false)
+      this.setIsLoggedOut(false);
       this.logout();
-      if (this.$route.path !== '/login') this.$router.push('/login')
+      if (this.$route.path !== "/login") this.$router.push("/login");
     },
 
     goTo(path) {
-      if (this.$route.path !== path) this.$router.push(path)
+      if (this.$route.path !== path) this.$router.push(path);
     },
 
     onToggleCollapse(collapsed) {
@@ -497,62 +541,67 @@ export default {
       }
     },
     getParseAuthToken() {
-      const authTokne = localStorage.getItem('authToken');
+      const authTokne = localStorage.getItem("authToken");
       if (!authTokne) {
-        this.parseAuthToken = null
-        return
+        this.parseAuthToken = null;
+        return;
       }
-      const base64Url = authTokne.split('.')[1];
-      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-      const jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function (c) {
-        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-      }).join(''));
+      const base64Url = authTokne.split(".")[1];
+      const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+      const jsonPayload = decodeURIComponent(
+        window
+          .atob(base64)
+          .split("")
+          .map(function (c) {
+            return "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2);
+          })
+          .join("")
+      );
       const parsedjsonPayload = JSON.parse(jsonPayload);
-      const { exp } = parsedjsonPayload
+      const { exp } = parsedjsonPayload;
       if (!this.checkIfDateExpired(exp)) {
-        this.parseAuthToken = parsedjsonPayload
+        this.parseAuthToken = parsedjsonPayload;
       } else {
-        this.parseAuthToken = null
+        this.parseAuthToken = null;
       }
     },
     checkIfDateExpired(datetimestamp) {
       const currentTime = Math.floor(Date.now() / 1000);
       if (datetimestamp < currentTime) {
-        return true
+        return true;
       } else {
-        return false
+        return false;
       }
     },
     async initializeStore() {
       try {
-        const userDetails = this.getUserDetails //localStorage.getItem("user");
+        const userDetails = this.getUserDetails; //localStorage.getItem("user");
         if (userDetails) {
-          this.parseAuthToken = this.getUserDetails
-          this.setIsLoggedOut(true)
-          const redirectPath = localStorage.getItem("postLoginRedirect") || '/studio/dashboard';
+          this.parseAuthToken = this.getUserDetails;
+          this.setIsLoggedOut(true);
+          const redirectPath =
+            localStorage.getItem("postLoginRedirect") || "/studio/dashboard";
           localStorage.removeItem("postLoginRedirect");
-          this.$router.push(redirectPath).then(() => { this.$router.go(0) });
+          this.$router.push(redirectPath).then(() => {
+            this.$router.go(0);
+          });
         } else {
-          throw new Error("No user details found in localStorage")
+          throw new Error("No user details found in localStorage");
         }
       } catch (e) {
-        this.setIsLoggedOut(false)
+        this.setIsLoggedOut(false);
         this.notifyErr(`Error:  ${e.message}`);
       }
-
     },
 
     getSideMenu() {
-
       const menu = [];
 
       if (this.getSelectedService && this.getSelectedService.services.length > 0) {
-
         const id = this.getSelectedService.services[0].id;
         const appId = this.getSelectedService.appId;
 
-        if (id == 'CAVACH_API') {
-
+        if (id == "CAVACH_API") {
           // Getting Started
           menu.push({
             href: "/studio/getting-started/" + appId,
@@ -580,8 +629,8 @@ export default {
                 href: "/studio/widget-config/" + appId,
                 title: EN.NAV.IDENTITY_VERIFICATION.KYC_WIDGET,
                 icon: "fa fa-puzzle-piece",
-              }
-            ]
+              },
+            ],
           });
           // Buniness Verification
           menu.push({
@@ -592,14 +641,14 @@ export default {
               {
                 href: "/studio/business/" + this.getSelectedService.appId,
                 title: EN.NAV.BUSINESS_VERIFICATION.BUSINESSES,
-                icon: "fa fa-briefcase"
+                icon: "fa fa-briefcase",
               },
               {
                 href: "/studio/kyb-widget-config/" + this.getSelectedService.appId,
                 title: EN.NAV.BUSINESS_VERIFICATION.KYB_WIDGET,
                 icon: "fa fa-puzzle-piece",
-              }
-            ]
+              },
+            ],
           });
           // Solutions
           menu.push({
@@ -621,8 +670,8 @@ export default {
                 href: "/studio/solutions/reusable-id/" + appId,
                 title: EN.NAV.SOLUTIONS.RESUABLE_ID,
                 icon: "fa fa-circle-notch",
-              }
-            ]
+              },
+            ],
           });
 
           // Developer Hub
@@ -645,8 +694,8 @@ export default {
                 href: "/studio/service-config/" + appId,
                 title: EN.NAV.DEVELOPERS_HUB.SERVICE_CONFIGURATION,
                 icon: "fa fa-cog",
-              }
-            ]
+              },
+            ],
           });
           // Billing & Usage
           menu.push({
@@ -663,14 +712,10 @@ export default {
                 href: "/studio/usage/" + appId,
                 title: EN.NAV.BILLING_AND_USAGE.USAGES,
                 icon: "fa fa-chart-bar",
-              }
-            ]
+              },
+            ],
           });
-
-        }
-
-        else if (id === 'SSI_API') {
-
+        } else if (id === "SSI_API") {
           menu.push({
             href: "/studio/ssi/did/" + appId,
             title: "DIDs",
@@ -700,7 +745,6 @@ export default {
             title: EN.NAV.BILLING_AND_USAGE.CREDIT,
             icon: "fas fa-hand-holding-usd",
           });
-
         }
       }
 
@@ -775,16 +819,14 @@ export default {
     },
     async logout() {
       // Logout API
-      RequestHandler(
-        `${config.studioServer.BASE_URL}api/v1/auth/logout`,
-        "POST",
-        {}
-      ).then(() => {
-        this.isLoading = false
-      }).catch((err) => {
-        this.isLoading = false
-        console.error("Logout error:", err);
-      });
+      RequestHandler(`${config.studioServer.BASE_URL}api/v1/auth/logout`, "POST", {})
+        .then(() => {
+          this.isLoading = false;
+        })
+        .catch((err) => {
+          this.isLoading = false;
+          console.error("Logout error:", err);
+        });
 
       // Clear all localStorage
       localStorage.clear();
@@ -804,25 +846,26 @@ export default {
     },
     async switchBackToAdminAccount() {
       try {
-        this.isLoding = true
+        this.isLoding = true;
         await this.switchToAdmin({
-          adminId: this.userDetails.userId
-        })
-        this.resetStoreForTeantSwitch()
-        this.isLoading = false
-        this.$router.push("/studio/dashboard").then(() => { this.$router.go(0) });
+          adminId: this.userDetails.userId,
+        });
+        this.resetStoreForTeantSwitch();
+        this.isLoading = false;
+        this.$router.push("/studio/dashboard").then(() => {
+          this.$router.go(0);
+        });
       } catch (e) {
-        this.notifyErr(e.message)
-        this.isLoading = false
+        this.notifyErr(e.message);
+        this.isLoading = false;
       }
     },
     async fetchLoggedInUser() {
       if (this.getUserDetails) {
-        this.userDetails = this.getUserDetails
-        this.loggedInUserEmailId = this.userDetails?.accessAccount?.email
-        this.setIsLoggedOut(true)
+        this.userDetails = this.getUserDetails;
+        this.loggedInUserEmailId = this.userDetails?.accessAccount?.email;
+        this.setIsLoggedOut(true);
       }
-
     },
   },
   mixins: [UtilsMixin],
