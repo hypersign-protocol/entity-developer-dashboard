@@ -397,13 +397,6 @@ export default {
   mounted() {
 
     // console.log(this.getUserDetails)
-
-    if (this.getUserDetails) {
-      try {
-        
-        if(!document.cookie.includes('isLoggedIn=true')){
-         return this.logoutAll();
-        }
     if (this.getUserDetails) {
       try {
 
