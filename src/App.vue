@@ -404,6 +404,8 @@ export default {
         if(!document.cookie.includes('isLoggedIn=true')){
          return this.logoutAll();
         }
+    if (this.getUserDetails) {
+      try {
 
         this.userDetails = this.getUserDetails;
         this.loggedInUserEmailId = this.userDetails?.accessAccount?.email;
