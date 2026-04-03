@@ -37,7 +37,7 @@
                         <h2 class="title">Balance Overview</h2>
                     </div>
 
-                    <div class="d-flex flex-column justify-center" style="height: 200px;">
+                    <div class="d-flex flex-column justify-center">
                         <div class="mb-4">
                             <p class="text-muted mb-0 font-weight-medium">Remaining Balance</p>
                             <div class="d-flex align-baseline">
@@ -48,11 +48,10 @@
                                     / {{ numberFormat(myKYCCredits.allAvailableCredits) }} Credits
                                 </span>
                             </div>
+                            <p class="approx-inline mt-1 mb-0">upto ~{{ numberFormat(approxKYCLeftBestCase) }} ID Verifications</p>
                         </div>
 
-                        <!-- <v-divider class="mb-4"></v-divider> -->
-
-                        <div class="d-flex flex-column justify-center" style="height: 200px;">
+                        <div>
                             <v-divider class="mb-4"></v-divider>
 
                             <v-row no-gutters>
@@ -72,20 +71,7 @@
                             </v-row>
                         </div>
 
-                        <!-- <div class="d-flex justify-space-between align-center">
-              <div>
-                <p class="text-muted mb-0 small uppercase font-weight-bold">Status</p>
-                <p class="mb-0 font-weight-bold" :class="statusColorClass">
-                  {{ timeRemaining === 'Expired' || timeRemaining === 'InActive' ? timeRemaining : 'Active' }}
-                </p>
-              </div>
-              <div class="text-right">
-                <p class="text-muted mb-0 small uppercase font-weight-bold">Validity</p>
-                <p class="mb-0 font-weight-bold">
-                  {{ timeRemaining === 'Expired' ? 'None' : timeRemaining }}
-                </p>
-              </div>
-            </div> -->
+
                     </div>
                 </div>
             </v-col>
@@ -203,6 +189,10 @@ export default {
             return 'color-green';
         },
 
+        approxKYCLeftBestCase() {
+            return Math.floor((this.myKYCCredits.allRemainingCredits || 0) / 75);
+        },
+
         myKYCCredits() {
             let expiryAt = (new Date()).toISOString();
             if (this.getKYCCredits.length === 0) {
@@ -280,13 +270,6 @@ export default {
 
         stopTimer() {
             clearInterval(this.timer);
-        },
-
-        getProgressColor(row) {
-            if (Date.now() > new Date(row.expiresAt)) return 'grey';
-            const ratio = row.used / row.totalCredits;
-            if (ratio > 0.9) return 'orange';
-            return '#3b82f6';
         },
 
         renderChart() {
@@ -434,6 +417,11 @@ export default {
     letter-spacing: 0.05em;
     line-height: 1;
     /* Keeps label close to the value below it */
+}
+
+.approx-inline {
+    font-size: 0.75rem;
+    color: #9ca3af;
 }
 
 /* Ensure the button doesn't have extra margin pushing it away from the edge */
