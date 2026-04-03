@@ -48,7 +48,7 @@
                                     / {{ numberFormat(myKYCCredits.allAvailableCredits) }} Credits
                                 </span>
                             </div>
-                            <p class="approx-inline mt-1 mb-0">upto ~{{ numberFormat(approxKYCLeftBestCase) }} ID Verifications</p>
+                            <p class="approx-inline mt-1 mb-0">upto  ~ <strong>{{ numberFormat(approxKYCLeftBestCase) }}</strong> ID Verifications</p>
                         </div>
 
                         <div>
