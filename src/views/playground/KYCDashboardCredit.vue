@@ -48,7 +48,7 @@
                                     / {{ numberFormat(myKYCCredits.allAvailableCredits) }} Credits
                                 </span>
                             </div>
-                            <p class="approx-inline mt-1 mb-0">upto  ~ <strong>{{ numberFormat(approxKYCLeftBestCase) }}</strong> ID Verifications</p>
+                            <p class="approx-inline mt-1 mb-0">upto ~<strong>{{ numberFormat(approxKYCLeftBestCase) }}</strong> ID Verifications</p>
                         </div>
 
                         <div>
@@ -174,6 +174,7 @@ export default {
             isLoading: false,
             fullPage: true,
             doughNutChartLabel: ['Used', 'Remaining'],
+            analyticsOverview: null,
         }
     },
     computed: {
@@ -187,6 +188,21 @@ export default {
             if (this.timeRemaining === 'Expired') return 'text-danger';
             if (this.timeRemaining === 'InActive') return 'text-muted';
             return 'color-green';
+        },
+
+        // Formula: (1/completionRate) accounts for sessions that don't complete
+        //          + dropOffRate adds waste from abandoned sessions
+        // Example: 70% completion, 24% drop-off → (1/0.7) + 0.24 = 1.67 → ~125 credits/ID
+        costPerKYC() {
+            if (!this.analyticsOverview) return 75; // no data yet: assume best case
+            const completionRate = Math.max((this.analyticsOverview.completionRate || 100), 1) / 100;
+            const dropOff = (this.analyticsOverview.dropOffRate || 0) / 100;
+            const multiplier = Math.min(Math.max((1 / completionRate) + dropOff, 1.0), 2.5);
+            return Math.ceil(75 * multiplier);
+        },
+
+        approxKYCLeft() {
+            return Math.floor((this.myKYCCredits.allRemainingCredits || 0) / this.costPerKYC);
         },
 
         approxKYCLeftBestCase() {
@@ -232,12 +248,18 @@ export default {
         this.stopTimer();
     },
     methods: {
-        ...mapActions('mainStore', ['fetchKYCCredits', 'activateCredit']),
+        ...mapActions('mainStore', ['fetchKYCCredits', 'activateCredit', 'fetchAnalyticsOverview']),
 
         async reloadData() {
             try {
                 this.isLoading = true;
                 await this.fetchKYCCredits();
+
+                // Non-blocking: fetch analytics to refine estimate
+                this.fetchAnalyticsOverview({ env: this.$store.getters['mainStore/getSelectedService']?.env || 'prod' })
+                    .then(res => { if (res?.data) this.analyticsOverview = res.data; })
+                    .catch(() => {});
+
                 this.startTimer();
                 this.renderChart();
             } catch (e) {

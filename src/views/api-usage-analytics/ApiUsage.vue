@@ -204,7 +204,7 @@ export default {
         ]);
 
         this.dailyData = dailyRes.serviceDetails || [];
-        this.usageSummary = summaryRes.serviceDetails || [];
+        this.usageSummary = (summaryRes.serviceDetails || []).filter(item => item.unit_cost && item.unit_cost !== 0);
         // for same endpoint with diffrent query params club them together
         this.usageSummaryByEndpoint = this.usageSummary.reduce((acc, curr) => {
           const basePath = curr.apiPath.split("?")[0]; // Get path without query params
