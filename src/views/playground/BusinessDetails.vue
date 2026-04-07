@@ -381,20 +381,17 @@ export default {
         },
 
         async handleApproveConfirm() {
+            this.showApproveConfirm = false;
+            this.isLoading = true;
             try {
-                this.showApproveConfirm = false;
-                this.isLoading = true;
-
-                // Call store action to approve company
-                await this.approveOrRejectVerification({
-                    companyId: this.companyId,
-                    status: 'Approved'
-                });
-
-                await this.loadCompanyDetails();
-
+                await this.approveOrRejectVerification({ companyId: this.companyId, status: 'Approved' });
+                this.company = this.companies.find(c => c.companyId === this.companyId) || this.company;
+                this.notifySuccess(`${this.companyName} has been approved successfully.`);
             } catch (error) {
-                console.error('Error approving company:', error);
+                this.notifyErr(error?.message || `Failed to approve ${this.companyName}.`);
+                // Refresh to reflect any partial state change
+                await this.fetchAppKybs().catch(() => {});
+                this.company = this.companies.find(c => c.companyId === this.companyId) || this.company;
             } finally {
                 this.isLoading = false;
             }
@@ -405,22 +402,17 @@ export default {
         },
 
         async handleRejectSubmit(reason) {
+            this.showRejectPrompt = false;
+            this.isLoading = true;
             try {
-                this.showRejectPrompt = false;
-                this.isLoading = true;
-
-                // Call store action to reject company
-                await this.approveOrRejectVerification({
-                    companyId: this.companyId,
-                    status: 'Rejected',
-                    reason: reason
-                });
-
-
-                await this.loadCompanyDetails();
-
+                await this.approveOrRejectVerification({ companyId: this.companyId, status: 'Rejected', reason });
+                this.company = this.companies.find(c => c.companyId === this.companyId) || this.company;
+                this.notifySuccess(`${this.companyName} has been rejected.`);
             } catch (error) {
-                console.error('Error rejecting company:', error);
+                this.notifyErr(error?.message || `Failed to reject ${this.companyName}.`);
+                // Refresh to reflect any partial state change
+                await this.fetchAppKybs().catch(() => {});
+                this.company = this.companies.find(c => c.companyId === this.companyId) || this.company;
             } finally {
                 this.isLoading = false;
             }

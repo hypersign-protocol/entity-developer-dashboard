@@ -68,7 +68,7 @@
       </v-col>
     </v-row>
 
-    <v-row>
+    <v-row v-if="this.env==='prod'">
       <v-col cols="12">
         <div class="overview-container">
           <div class="header-row">
@@ -157,6 +157,7 @@ export default {
       barChart: null,
     };
   },
+
   computed: {
     totalCalls() {
       return this.usageSummary.reduce((acc, curr) => acc + curr.quantity, 0);
@@ -204,7 +205,7 @@ export default {
         ]);
 
         this.dailyData = dailyRes.serviceDetails || [];
-        this.usageSummary = (summaryRes.serviceDetails || []).filter(item => item.unit_cost && item.unit_cost !== 0);
+        this.usageSummary = (summaryRes.serviceDetails || [])
         // for same endpoint with diffrent query params club them together
         this.usageSummaryByEndpoint = this.usageSummary.reduce((acc, curr) => {
           const basePath = curr.apiPath.split("?")[0]; // Get path without query params

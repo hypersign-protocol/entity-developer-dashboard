@@ -363,7 +363,7 @@ export default {
           },
           title: {
             label: "Widget Title",
-            description: "Title displayed on the KYB KYB widget"
+            description: "Title displayed on the KYB widget"
           },
           logoUrl: {
             label: "Logo URL",

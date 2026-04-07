@@ -897,23 +897,24 @@ const mainStore = {
                 const { appId } = payload;
                 if (!appId) {
                     reject(new Error(`appId is not specified`));
-                     return;
+                    return;
                 }
                 const url = `${apiServerBaseUrl}/app/${appId}`;
 
                 // Use RequestHandler instead of fetch
                 RequestHandler(url, 'DELETE')
-                        .then(json => {
-                            if (json.error) {
-                                return reject(new Error(json.message.join(' ')));
-                            }
-                            dispatch('fetchAppsListFromServer');
-                            resolve(json);
-                        })
-                        .catch((e) => {
-                            return reject(`Error while deleting this service ${appId} ` + e.message);
-                        });
-                });    },
+                    .then(json => {
+                        if (json.error) {
+                            return reject(new Error(json.message.join(' ')));
+                        }
+                        dispatch('fetchAppsListFromServer');
+                        resolve(json);
+                    })
+                    .catch((e) => {
+                        return reject(`Error while deleting this service ${appId} ` + e.message);
+                    });
+            });
+        },
 
 
         fetchAppsListFromServer: async ({ commit, dispatch }) => {
@@ -991,7 +992,7 @@ const mainStore = {
 
 
             } catch (e) {
-                throw new Error(`Error while updating an app: ${e.message}`);
+                throw new Error(`Error ${e.message}`);
             }
         },
 
@@ -1049,53 +1050,54 @@ const mainStore = {
                     tokenStorageKey: 'kyb_access_token'
                 })
                     .then((token) => {
-                let url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyb/verification/company`;
+                        let url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyb/verification/company`;
+                        // let url = 'http://localhost:3001/api/v1/e-kyb/verification/company'
                         const headers = UtilsMixin.methods.getKycServiceHeader(token);
                         return fetch(url, {
-                    method: 'GET',
-                    headers,
+                            method: 'GET',
+                            headers,
                         })
                     }).then(response => response.json()).then(json => {
-                    if (json.error) {
-                        return reject(new Error(json.error?.details?.join(' ') || json.error?.join?.(' ') || json.error || 'Unknown error'))
-                    }
+                        if (json.error) {
+                            return reject(new Error(json.error?.details?.join(' ') || json.error?.join?.(' ') || json.error || 'Unknown error'))
+                        }
 
-                    const companiesData = json.data || json;
+                        const companiesData = json.data || json;
 
-                    // Transform the data to match component structure
-                    const transformedCompanies = Array.isArray(companiesData) ?
-                        companiesData.map(company => ({
-                            id: company._id || company.id,
-                            companyId: company._id || company.id,
-                            countryCode: company.countryOfRegistration || company.address?.country || 'IN',
-                            companyName: company.name || 'Unknown Company',
-                            registrationNumber: company.registrationNumber || 'N/A',
-                            representative: company.representative?.name || 'N/A',
-                            startDate: company.createdAt ? new Date(company.createdAt).toISOString().split('T')[0] : 'N/A',
-                            status: company.status || 'Submitted',
-                            statusReasons: company.statusReason || [],
-                            steps: {
-                                flag: true,
-                                building: true,
-                                document: company.documents && company.documents.length > 0,
-                                user: ['Submitted', 'InProgress', 'Approved'].includes(company.status),
-                                verification: ['Approved', 'Completed'].includes(company.status)
-                            },
-                            region: company.region || 'Unknown',
-                            domain: company.domain || 'N/A',
-                            registrationNumberType: company.registrationNumberType || 'Unknown',
-                            address: company.address || {},
-                            documents: company.documents || [],
-                            createdAt: company.createdAt,
-                            updatedAt: company.updatedAt
-                        })) : [];
+                        // Transform the data to match component structure
+                        const transformedCompanies = Array.isArray(companiesData) ?
+                            companiesData.map(company => ({
+                                id: company._id || company.id,
+                                companyId: company._id || company.id,
+                                countryCode: company.countryOfRegistration || company.address?.country || 'IN',
+                                companyName: company.name || 'Unknown Company',
+                                registrationNumber: company.registrationNumber || 'N/A',
+                                representative: company.representative?.name || 'N/A',
+                                startDate: company.createdAt ? new Date(company.createdAt).toISOString().split('T')[0] : 'N/A',
+                                status: company.status || 'Submitted',
+                                statusReasons: company.statusReason || [],
+                                steps: {
+                                    flag: true,
+                                    building: true,
+                                    document: company.documents && company.documents.length > 0,
+                                    user: ['Submitted', 'InProgress', 'Approved'].includes(company.status),
+                                    verification: ['Approved', 'Completed'].includes(company.status)
+                                },
+                                region: company.region || 'Unknown',
+                                domain: company.domain || 'N/A',
+                                registrationNumberType: company.registrationNumberType || 'Unknown',
+                                address: company.address || {},
+                                documents: company.documents || [],
+                                createdAt: company.createdAt,
+                                updatedAt: company.updatedAt
+                            })) : [];
 
-                    // Commit the transformed companies data to store
-                    commit('setCompanies', transformedCompanies);
-                    resolve(transformedCompanies);
-                }).catch((e) => {
-                    return reject(new Error(`Error while fetching KYB companies: ${e.message}`));
-                })
+                        // Commit the transformed companies data to store
+                        commit('setCompanies', transformedCompanies);
+                        resolve(transformedCompanies);
+                    }).catch((e) => {
+                        return reject(new Error(`Error while fetching KYB companies: ${e.message}`));
+                    })
             })
         },
         fetchAppKybById: ({ getters, dispatch }, payload) => {
@@ -1108,12 +1110,12 @@ const mainStore = {
                     tokenStorageKey: 'kyb_access_token'
                 }).then((token) => {
                     const headers = UtilsMixin.methods.getKycServiceHeader(token);
-                const url = `${sanitizeUrl(config.KYC_SERVER_BASE_URL)}/api/v1/e-kyb/verification/company/${companyId}`;
-                // const url = `http://localhost:3009/api/v1/e-kyb/verification/company/${companyId}`;
-                return fetch(url, {
-                    method: 'GET',
-                    headers,
-                })
+                    const url = `${sanitizeUrl(config.KYC_SERVER_BASE_URL)}/api/v1/e-kyb/verification/company/${companyId}`;
+                    // const url = `http://localhost:3001/api/v1/e-kyb/verification/company/${companyId}`;
+                    return fetch(url, {
+                        method: 'GET',
+                        headers,
+                    })
                 }).then(response => response.json()).then(json => {
                     if (json.error) {
                         return reject(new Error(json.error?.details?.join(' ') || json.error?.join?.(' ') || json.error || 'Unknown error'))
@@ -1176,22 +1178,22 @@ const mainStore = {
                 }).then((token) => {
                     const headers = UtilsMixin.methods.getKycServiceHeader(token);
                     return fetch(url, {
-                    method: 'GET',
-                    headers
+                        method: 'GET',
+                        headers
                     })
                 })
                     .then(response => response.json()).then(json => {
-                    if (json.error) {
-                        return reject(new Error(json.error?.details.join(' ') || json.error.join(' ')))
-                    }
-                    commit('insertSessions', {
-                        sessionList: json.data.sessionDetails,
-                        totalCount: json.data.totalCount || 0
-                    });
-                    resolve(json.data.sessionDetails)
-                }).catch((e) => {
-                    return reject(`Error while fetching apps ` + e.message);
-                })
+                        if (json.error) {
+                            return reject(new Error(json.error?.details.join(' ') || json.error.join(' ')))
+                        }
+                        commit('insertSessions', {
+                            sessionList: json.data.sessionDetails,
+                            totalCount: json.data.totalCount || 0
+                        });
+                        resolve(json.data.sessionDetails)
+                    }).catch((e) => {
+                        return reject(`Error while fetching apps ` + e.message);
+                    })
             })
 
         },
@@ -1253,18 +1255,18 @@ const mainStore = {
                     })
                 })
                     .then(response => response.json()).then(json => {
-                    if (json.error) {
-                        return reject(new Error(JWTExpiredErrorMessageHandling(json)))
-                    }
+                        if (json.error) {
+                            return reject(new Error(JWTExpiredErrorMessageHandling(json)))
+                        }
 
-                    commit('insertUsers', {
-                        userList: json.data.users,
-                        totalCount: json.data.totalCount || 0
-                    });
-                    resolve(json.data.users)
-                }).catch((e) => {
-                    return reject(`Error while fetching apps ` + e.message);
-                })
+                        commit('insertUsers', {
+                            userList: json.data.users,
+                            totalCount: json.data.totalCount || 0
+                        });
+                        resolve(json.data.users)
+                    }).catch((e) => {
+                        return reject(`Error while fetching apps ` + e.message);
+                    })
             })
 
         },
@@ -1288,19 +1290,19 @@ const mainStore = {
                 }).then((token) => {
                     const headers = UtilsMixin.methods.getKycServiceHeader(token);
                     return fetch(url, {
-                    method: 'GET',
-                    headers
+                        method: 'GET',
+                        headers
                     })
                 })
                     .then(response => response.json()).then(json => {
-                    if (json.error) {
-                        return reject(new Error(JWTExpiredErrorMessageHandling(json)))
-                    }
-                    commit('insertAppsOnChainConfigs', json.data.reverse());
-                    resolve()
-                }).catch((e) => {
-                    return reject(`Error while fetching apps ` + e.message);
-                })
+                        if (json.error) {
+                            return reject(new Error(JWTExpiredErrorMessageHandling(json)))
+                        }
+                        commit('insertAppsOnChainConfigs', json.data.reverse());
+                        resolve()
+                    }).catch((e) => {
+                        return reject(`Error while fetching apps ` + e.message);
+                    })
             })
         },
 
@@ -1322,20 +1324,20 @@ const mainStore = {
                 }).then((token) => {
                     const headers = UtilsMixin.methods.getKycServiceHeader(token);
                     return fetch(url, {
-                    method: 'POST',
-                    headers,
-                    body: JSON.stringify(payload),
+                        method: 'POST',
+                        headers,
+                        body: JSON.stringify(payload),
                     })
                 })
                     .then(response => response.json()).then(json => {
-                    if (json.error) {
-                        return reject(new Error(json.error?.details.join(' ') || json.error.join(' ')))
-                    }
-                    commit('setOnChainConfig', json.data);
-                    resolve(json.data)
-                }).catch((e) => {
-                    return reject(`Error while fetching apps ` + e.message);
-                })
+                        if (json.error) {
+                            return reject(new Error(json.error?.details.join(' ') || json.error.join(' ')))
+                        }
+                        commit('setOnChainConfig', json.data);
+                        resolve(json.data)
+                    }).catch((e) => {
+                        return reject(`Error while fetching apps ` + e.message);
+                    })
             })
         },
 
@@ -1420,9 +1422,9 @@ const mainStore = {
                 }).then((token) => {
                     const headers = UtilsMixin.methods.getKycServiceHeader(token);
                     return fetch(url, {
-                    method: 'PATCH',
-                    headers,
-                    body: JSON.stringify(payload),
+                        method: 'PATCH',
+                        headers,
+                        body: JSON.stringify(payload),
                     })
                 }).then(response => response.json()).then(json => {
                     if (json.error) {
@@ -1455,19 +1457,19 @@ const mainStore = {
                 }).then((token) => {
                     const headers = UtilsMixin.methods.getKycServiceHeader(token);
                     return fetch(url, {
-                    method: 'DELETE',
-                    headers,
+                        method: 'DELETE',
+                        headers,
                     })
                 })
                     .then(response => response.json()).then(json => {
-                    if (json.error) {
-                        return reject(new Error(json.error?.details.join(' ') || json.error.join(' ')))
-                    }
-                    dispatch('fetchAppsOnChainConfigs')
-                    resolve(json)
-                }).catch((e) => {
-                    return reject(`Error while fetching apps ` + e.message);
-                })
+                        if (json.error) {
+                            return reject(new Error(json.error?.details.join(' ') || json.error.join(' ')))
+                        }
+                        dispatch('fetchAppsOnChainConfigs')
+                        resolve(json)
+                    }).catch((e) => {
+                        return reject(`Error while fetching apps ` + e.message);
+                    })
             })
         },
 
@@ -1491,22 +1493,22 @@ const mainStore = {
                     tokenStorageKey: "access_token"
                 }).then((token) => {
                     const headers = UtilsMixin.methods.getKycServiceHeader(token);
-                const data = getters.getWidgetnConfig;
-                fetch(url, {
-                    method: 'POST',
-                    headers,
-                    body: JSON.stringify(data),
-                })
+                    const data = getters.getWidgetnConfig;
+                    fetch(url, {
+                        method: 'POST',
+                        headers,
+                        body: JSON.stringify(data),
+                    })
                 })
                     .then(response => response.json()).then(json => {
-                    if (json.error) {
-                        return reject(new Error(JWTExpiredErrorMessageHandling(json)))
-                    }
-                    commit('setWidgetConfig', json.data);
-                    resolve(json.data)
-                }).catch((e) => {
-                    return reject(`Error while fetching apps ` + e.message);
-                })
+                        if (json.error) {
+                            return reject(new Error(JWTExpiredErrorMessageHandling(json)))
+                        }
+                        commit('setWidgetConfig', json.data);
+                        resolve(json.data)
+                    }).catch((e) => {
+                        return reject(`Error while fetching apps ` + e.message);
+                    })
             })
         },
 
@@ -1527,26 +1529,26 @@ const mainStore = {
                     tokenStorageKey: "access_token"
                 }).then((token) => {
                     const headers = UtilsMixin.methods.getKycServiceHeader(token);
-                return fetch(url, {
-                    method: 'GET',
-                    headers
-                })
+                    return fetch(url, {
+                        method: 'GET',
+                        headers
+                    })
                 })
                     .then(response => response.json()).then(json => {
-                    if (json) {
-                        if (json.error) {
-                            return reject(new Error(JWTExpiredErrorMessageHandling(json)))
+                        if (json) {
+                            if (json.error) {
+                                return reject(new Error(JWTExpiredErrorMessageHandling(json)))
+                            } else {
+                                commit('setWidgetConfig', json.data);
+                                return resolve()
+                            }
                         } else {
-                            commit('setWidgetConfig', json.data);
                             return resolve()
                         }
-                    } else {
-                        return resolve()
-                    }
 
-                }).catch((e) => {
-                    return reject(`Error while fetching widget configuration ` + e.message);
-                })
+                    }).catch((e) => {
+                        return reject(`Error while fetching widget configuration ` + e.message);
+                    })
             })
         },
 
@@ -1567,23 +1569,23 @@ const mainStore = {
                     tokenStorageKey: "access_token"
                 }).then((token) => {
                     const headers = UtilsMixin.methods.getKycServiceHeader(token);
-                const data = getters.getWidgetnConfig;
+                    const data = getters.getWidgetnConfig;
                     return fetch(url, {
-                    method: 'PATCH',
-                    headers,
-                    body: JSON.stringify(data),
+                        method: 'PATCH',
+                        headers,
+                        body: JSON.stringify(data),
                     })
                 })
                     .then(response => response.json()).then(json => {
-                    if (json.error) {
-                        return reject(new Error(JWTExpiredErrorMessageHandling(json)))
-                    }
-                    // restting
-                    commit('setWidgetConfig', json.data);
-                    resolve(json)
-                }).catch((e) => {
-                    return reject(`Error while fetching apps ` + e.message);
-                })
+                        if (json.error) {
+                            return reject(new Error(JWTExpiredErrorMessageHandling(json)))
+                        }
+                        // restting
+                        commit('setWidgetConfig', json.data);
+                        resolve(json)
+                    }).catch((e) => {
+                        return reject(`Error while fetching apps ` + e.message);
+                    })
             })
         },
 
@@ -1614,30 +1616,30 @@ const mainStore = {
                         headers
                     })
                 })
-                // resolve({
-                //     "success": true,
-                //     "message": "success",
-                //     "data": {
-                //         "totalVerifications": 348,
-                //         "completionRate": 75.01,
-                //         "successRate": 70,
-                //         "dropOffRate": 24.09
-                //     }
-                // })
+                    // resolve({
+                    //     "success": true,
+                    //     "message": "success",
+                    //     "data": {
+                    //         "totalVerifications": 348,
+                    //         "completionRate": 75.01,
+                    //         "successRate": 70,
+                    //         "dropOffRate": 24.09
+                    //     }
+                    // })
                     .then(response => response.json()).then(json => {
-                    if (json) {
-                        if (json.error) {
-                            return reject(new Error(JWTExpiredErrorMessageHandling(json)))
+                        if (json) {
+                            if (json.error) {
+                                return reject(new Error(JWTExpiredErrorMessageHandling(json)))
+                            } else {
+                                return resolve(json)
+                            }
                         } else {
-                            return resolve(json)
+                            return reject(`No join body`);
                         }
-                    } else {
-                        return reject(`No join body`);
-                    }
 
-                }).catch((e) => {
-                    return reject(`Error while fetching widget configuration ` + e.message);
-                })
+                    }).catch((e) => {
+                        return reject(`Error while fetching widget configuration ` + e.message);
+                    })
             })
         },
 
@@ -1666,45 +1668,45 @@ const mainStore = {
                         headers
                     })
                 })
-                // resolve({
-                //     "success": true,
-                //     "message": "success",
-                //     "data": {
-                //         "continents": {
-                //             "Asia": 23,
-                //             "North America": 10,
-                //             "Europe": 5
-                //         },
-                //         "countries": {
-                //             "IN": 5,
-                //             "US": 62,
-                //             "NL": 28,
-                //             "GB": 22,
-                //             "DE": 18,
-                //             "CA": 20,
-                //             "AU": 12,
-                //             "SG": 45,
-                //             "AE": 15,
-                //             "BR": 9,
-                //             "ZA": 21,
-                //             "DK": 12,
-                //         }
-                //     }
-                // })
+                    // resolve({
+                    //     "success": true,
+                    //     "message": "success",
+                    //     "data": {
+                    //         "continents": {
+                    //             "Asia": 23,
+                    //             "North America": 10,
+                    //             "Europe": 5
+                    //         },
+                    //         "countries": {
+                    //             "IN": 5,
+                    //             "US": 62,
+                    //             "NL": 28,
+                    //             "GB": 22,
+                    //             "DE": 18,
+                    //             "CA": 20,
+                    //             "AU": 12,
+                    //             "SG": 45,
+                    //             "AE": 15,
+                    //             "BR": 9,
+                    //             "ZA": 21,
+                    //             "DK": 12,
+                    //         }
+                    //     }
+                    // })
                     .then(response => response.json()).then(json => {
-                    if (json) {
-                        if (json.error) {
-                            return reject(new Error(JWTExpiredErrorMessageHandling(json)))
+                        if (json) {
+                            if (json.error) {
+                                return reject(new Error(JWTExpiredErrorMessageHandling(json)))
+                            } else {
+                                return resolve(json)
+                            }
                         } else {
-                            return resolve(json)
+                            return reject(`No join body`);
                         }
-                    } else {
-                        return reject(`No join body`);
-                    }
 
-                }).catch((e) => {
-                    return reject(`Error while fetching widget configuration ` + e.message);
-                })
+                    }).catch((e) => {
+                        return reject(`Error while fetching widget configuration ` + e.message);
+                    })
             })
         },
 
@@ -1733,34 +1735,34 @@ const mainStore = {
                         headers
                     })
                 })
-                // resolve({
-                //     "success": true,
-                //     "message": "success",
-                //     "data": [
-                //         {
-                //             "deviceType": "Desktop",
-                //             "percentage": 20
-                //         },
-                //         {
-                //             "deviceType": "Mobile",
-                //             "percentage": 5
-                //         }
-                //     ]
-                // })
+                    // resolve({
+                    //     "success": true,
+                    //     "message": "success",
+                    //     "data": [
+                    //         {
+                    //             "deviceType": "Desktop",
+                    //             "percentage": 20
+                    //         },
+                    //         {
+                    //             "deviceType": "Mobile",
+                    //             "percentage": 5
+                    //         }
+                    //     ]
+                    // })
                     .then(response => response.json()).then(json => {
-                    if (json) {
-                        if (json.error) {
-                            return reject(new Error(JWTExpiredErrorMessageHandling(json)))
+                        if (json) {
+                            if (json.error) {
+                                return reject(new Error(JWTExpiredErrorMessageHandling(json)))
+                            } else {
+                                return resolve(json)
+                            }
                         } else {
-                            return resolve(json)
+                            return reject(`No join body`);
                         }
-                    } else {
-                        return reject(`No join body`);
-                    }
 
-                }).catch((e) => {
-                    return reject(`Error while fetching widget configuration ` + e.message);
-                })
+                    }).catch((e) => {
+                        return reject(`Error while fetching widget configuration ` + e.message);
+                    })
             })
         },
 
@@ -1772,6 +1774,7 @@ const mainStore = {
                     return reject(new Error('Tenant url is null or empty, service is not selected'))
                 }
                 const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyb/verification/widget-config`;
+                // const url = `http://localhost:3001/api/v1/e-kyb/verification/widget-config`
                 const authToken = getters.getSelectedService.access_token
                 if (!authToken) {
                     return reject(new Error('authToken is invalid, service is not selected'))
@@ -1783,22 +1786,22 @@ const mainStore = {
                 }).then((token) => {
                     const headers = UtilsMixin.methods.getKycServiceHeader(token);
                     const data = getters.getKybWidgetConfig;
-                data['issuerVerificationMethodId'] = getters.getKybWidgetConfig.issuerDID + '#key-1';
+                    data['issuerVerificationMethodId'] = getters.getKybWidgetConfig.issuerDID + '#key-1';
                     return fetch(url, {
-                    method: 'POST',
-                    headers,
-                    body: JSON.stringify(data),
+                        method: 'POST',
+                        headers,
+                        body: JSON.stringify(data),
                     })
                 })
                     .then(response => response.json()).then(json => {
-                    if (json.error) {
-                        return reject(new Error(json.error?.details.join(' ') || json.error.join(' ')))
-                    }
-                    commit('setKybWidgetConfig', json.data);
-                    resolve(json.data)
-                }).catch((e) => {
-                    return reject(`Error while creating KYB widget config ` + e.message);
-                })
+                        if (json.error) {
+                            return reject(new Error(json.error?.details.join(' ') || json.error.join(' ')))
+                        }
+                        commit('setKybWidgetConfig', json.data);
+                        resolve(json.data)
+                    }).catch((e) => {
+                        return reject(`Error while creating KYB widget config ` + e.message);
+                    })
             })
         },
 
@@ -1808,6 +1811,7 @@ const mainStore = {
                     return reject(new Error('Tenant url is null or empty, service is not selected'))
                 }
                 const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyb/verification/widget-config`;
+                // const url = `http://localhost:3001/api/v1/e-kyb/verification/widget-config`
                 const authToken = getters.getSelectedService.access_token
                 if (!authToken) {
                     return reject(new Error('authToken is invalid, service is not selected'))
@@ -1818,25 +1822,25 @@ const mainStore = {
                     tokenStorageKey: "access_token"
                 }).then((token) => {
                     const headers = UtilsMixin.methods.getKycServiceHeader(token);
-                return fetch(url, {
-                    method: 'GET',
-                    headers
-                })
+                    return fetch(url, {
+                        method: 'GET',
+                        headers
+                    })
                 })
                     .then(response => response.json()).then(json => {
-                    if (json) {
-                        if (json.error) {
-                            return reject(new Error(json.error?.details.join(' ') || json.error.join(' ')))
+                        if (json) {
+                            if (json.error) {
+                                return reject(new Error(json.error?.details.join(' ') || json.error.join(' ')))
+                            } else {
+                                commit('setKybWidgetConfig', json.data);
+                                return resolve()
+                            }
                         } else {
-                            commit('setKybWidgetConfig', json.data);
                             return resolve()
                         }
-                    } else {
-                        return resolve()
-                    }
-                }).catch((e) => {
-                    return reject(`Error while fetching KYB widget configuration ` + e.message);
-                })
+                    }).catch((e) => {
+                        return reject(`Error while fetching KYB widget configuration ` + e.message);
+                    })
             })
         },
 
@@ -1846,6 +1850,7 @@ const mainStore = {
                     return reject(new Error('Tenant url is null or empty, service is not selected'))
                 }
                 const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyb/verification/widget-config`;
+                // const url = `http://localhost:3001/api/v1/e-kyb/verification/widget-config`
                 const authToken = getters.getSelectedService.access_token
                 if (!authToken) {
                     return reject(new Error('authToken is invalid, service is not selected'))
@@ -1856,23 +1861,23 @@ const mainStore = {
                     tokenStorageKey: "access_token"
                 }).then((token) => {
                     const headers = UtilsMixin.methods.getKycServiceHeader(token);
-                const data = getters.getKybWidgetConfig;
-                data['issuerVerificationMethodId'] = getters.getKybWidgetConfig.issuerDID + '#key-1';
+                    const data = getters.getKybWidgetConfig;
+                    data['issuerVerificationMethodId'] = getters.getKybWidgetConfig.issuerDID + '#key-1';
                     return fetch(url, {
-                    method: 'PATCH',
-                    headers,
-                    body: JSON.stringify(data),
+                        method: 'PATCH',
+                        headers,
+                        body: JSON.stringify(data),
                     })
                 })
                     .then(response => response.json()).then(json => {
-                    if (json.error) {
-                        return reject(new Error(json.error?.details.join(' ') || json.error.join(' ')))
-                    }
-                    commit('setKybWidgetConfig', json.data);
-                    resolve(json)
-                }).catch((e) => {
-                    return reject(`Error while updating KYB widget config ` + e.message);
-                })
+                        if (json.error) {
+                            return reject(new Error(json.error?.details.join(' ') || json.error.join(' ')))
+                        }
+                        commit('setKybWidgetConfig', json.data);
+                        resolve(json)
+                    }).catch((e) => {
+                        return reject(`Error while updating KYB widget config ` + e.message);
+                    })
             })
         },
 
@@ -1897,9 +1902,9 @@ const mainStore = {
                     const headers = UtilsMixin.methods.getKycServiceHeader(token);
 
                     return fetch(url, {
-                    method: 'POST',
-                    headers,
-                    body: JSON.stringify(payload)
+                        method: 'POST',
+                        headers,
+                        body: JSON.stringify(payload)
                     })
                 })
                     .then(response => response.json())
@@ -1933,9 +1938,9 @@ const mainStore = {
                 }).then((token) => {
                     const headers = UtilsMixin.methods.getKycServiceHeader(token);
                     return fetch(url, {
-                    method: 'POST',
-                    headers,
-                    body: JSON.stringify(payload)
+                        method: 'POST',
+                        headers,
+                        body: JSON.stringify(payload)
                     })
                 })
                     .then(response => response.json())
@@ -1968,26 +1973,26 @@ const mainStore = {
                     tokenStorageKey: "access_token"
                 }).then((token) => {
                     const headers = UtilsMixin.methods.getKycServiceHeader(token);
-                return fetch(url, {
-                    method: 'GET',
-                    headers
-                })
+                    return fetch(url, {
+                        method: 'GET',
+                        headers
+                    })
                 })
                     .then(response => response.json()).then(json => {
-                    if (json) {
-                        if (json.error) {
-                            return reject(new Error(JWTExpiredErrorMessageHandling(json)))
+                        if (json) {
+                            if (json.error) {
+                                return reject(new Error(JWTExpiredErrorMessageHandling(json)))
+                            } else {
+                                commit('setWebhookConfig', json.data);
+                                return resolve()
+                            }
                         } else {
-                            commit('setWebhookConfig', json.data);
                             return resolve()
                         }
-                    } else {
-                        return resolve()
-                    }
 
-                }).catch((e) => {
-                    return reject(`Error while fetching widget configuration ` + e.message);
-                })
+                    }).catch((e) => {
+                        return reject(`Error while fetching widget configuration ` + e.message);
+                    })
             })
         },
 
@@ -2009,21 +2014,21 @@ const mainStore = {
                 }).then((token) => {
                     const headers = UtilsMixin.methods.getKycServiceHeader(token);
                     return fetch(url, {
-                    method: 'PATCH',
-                    headers,
-                    body: JSON.stringify(payload),
+                        method: 'PATCH',
+                        headers,
+                        body: JSON.stringify(payload),
                     })
                 })
                     .then(response => response.json()).then(json => {
-                    if (json.error) {
-                        return reject(new Error(JWTExpiredErrorMessageHandling(json)))
-                    }
-                    // restting
-                    commit('setWebhookConfig', json.data);
-                    resolve(json)
-                }).catch((e) => {
-                    return reject(`Error while fetching apps ` + e.message);
-                })
+                        if (json.error) {
+                            return reject(new Error(JWTExpiredErrorMessageHandling(json)))
+                        }
+                        // restting
+                        commit('setWebhookConfig', json.data);
+                        resolve(json)
+                    }).catch((e) => {
+                        return reject(`Error while fetching apps ` + e.message);
+                    })
             })
         },
 
@@ -2046,20 +2051,20 @@ const mainStore = {
                 }).then((token) => {
                     const headers = UtilsMixin.methods.getKycServiceHeader(token);
                     return fetch(url, {
-                    method: 'DELETE',
-                    headers,
+                        method: 'DELETE',
+                        headers,
                     })
                 })
                     .then(response => response.json()).then(json => {
-                    if (json.error) {
-                        return reject(new Error(JWTExpiredErrorMessageHandling(json)))
-                    }
-                    // restting
-                    commit('setWebhookConfig', {});
-                    resolve(json)
-                }).catch((e) => {
-                    return reject(`Error while fetching apps ` + e.message);
-                })
+                        if (json.error) {
+                            return reject(new Error(JWTExpiredErrorMessageHandling(json)))
+                        }
+                        // restting
+                        commit('setWebhookConfig', {});
+                        resolve(json)
+                    }).catch((e) => {
+                        return reject(`Error while fetching apps ` + e.message);
+                    })
             })
         },
 
@@ -2077,14 +2082,14 @@ const mainStore = {
                 RequestHandler(url, 'POST', payload, headers)
                     .then(json => {
                         if (json.error) {
-                          return reject(new Error(json.message));
+                            return reject(new Error(json.message));
                         }
-                commit('setKYCWebpageConfig', json);
-                resolve(json);
-            })
-            .catch((e) => {
-                return reject(`Error while creating KYC webpage configuration: ` + e.message);
-            });
+                        commit('setKYCWebpageConfig', json);
+                        resolve(json);
+                    })
+                    .catch((e) => {
+                        return reject(`Error while creating KYC webpage configuration: ` + e.message);
+                    });
             });
         },
 
@@ -2097,25 +2102,25 @@ const mainStore = {
                 const headers = UtilsMixin.methods.getHeader(localStorage.getItem('authToken'));
 
                 RequestHandler(url, 'GET', {}, headers)
-                .then(json => {
-                    if (json) {
-                        if (json.error) {
-                            return reject(new Error(json.message));
-                        } else {
-                            if (json.expiryType === 'custom' && json.expiryDate) {
-                                json.customExpiryDate = json.expiryDate.split('T')[0];
+                    .then(json => {
+                        if (json) {
+                            if (json.error) {
+                                return reject(new Error(json.message));
+                            } else {
+                                if (json.expiryType === 'custom' && json.expiryDate) {
+                                    json.customExpiryDate = json.expiryDate.split('T')[0];
+                                }
+                                commit('setKYCWebpageConfig', json);
+                                return resolve();
                             }
-                            commit('setKYCWebpageConfig', json);
+                        } else {
                             return resolve();
                         }
-                    } else {
-                        return resolve();
-                    }
-                })
-                .catch((e) => {
-                    return reject(`Error while fetching KYC webpage configuration: ` + e.message);
-                });
-        });
+                    })
+                    .catch((e) => {
+                        return reject(`Error while fetching KYC webpage configuration: ` + e.message);
+                    });
+            });
         },
 
         updateKYCWebpageConfig: ({ commit, getters }, payload) => {
@@ -2182,25 +2187,25 @@ const mainStore = {
                 }).then((token) => {
                     const headers = UtilsMixin.methods.getKycServiceHeader(token);
                     return fetch(url, {
-                    method: 'GET',
-                    headers
+                        method: 'GET',
+                        headers
                     })
                 })
                     .then(response => response.json()).then(json => {
-                    if (json.error) {
-                        return reject(new Error(json.error?.details.join(' ') || json.error.join(' ')))
-                    }
+                        if (json.error) {
+                            return reject(new Error(json.error?.details.join(' ') || json.error.join(' ')))
+                        }
 
-                    if (json.data && Object.keys(json.data)?.length > 0) {
-                        commit('updateSessionDetails', json.data);
-                        return resolve(json.data)
-                    } else {
-                        return reject(new Error('Invalid session Id or details not found'))
-                    }
+                        if (json.data && Object.keys(json.data)?.length > 0) {
+                            commit('updateSessionDetails', json.data);
+                            return resolve(json.data)
+                        } else {
+                            return reject(new Error('Invalid session Id or details not found'))
+                        }
 
-                }).catch((e) => {
-                    reject(new Error(`Error while fetching apps ` + e.message));
-                })
+                    }).catch((e) => {
+                        reject(new Error(`Error while fetching apps ` + e.message));
+                    })
             })
         },
         createKYBWebpageConfig: ({ commit, getters }, payload) => {
@@ -2308,8 +2313,8 @@ const mainStore = {
                 if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
                     return reject(new Error('Tenant url is null or empty, service is not selected'))
                 }
-                const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/user/${sessionId}?env=${envVal}`;
-                // let url = `http://localhost:3001/api/v1/user/${sessionId}`
+                const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/user/${sessionId}?env=${encodeURIComponent(envVal)}`;
+                // let url = `http://localhost:3001/api/v1/user/${sessionId}?env=${encodeURIComponent(envVal)}`;
                 const authToken = getters.getSelectedService.access_token
                 if (!authToken) {
                     return reject(new Error('authToken is invalid, service is not selected'))
@@ -2321,24 +2326,24 @@ const mainStore = {
                 }).then((token) => {
                     const headers = UtilsMixin.methods.getKycServiceHeader(token);
                     return fetch(url, {
-                    method: 'GET',
-                    headers
+                        method: 'GET',
+                        headers
                     })
                 })
                     .then(response => response.json()).then(json => {
-                    if (json.error) {
-                        return reject(new Error(json.error?.details.join(' ') || json.error.join(' ')))
-                    }
-                    if (json.data && Object.keys(json.data)?.length > 0) {
-                        // commit('updateSessionDetails', json.data);
-                        return resolve(json.data)
-                    } else {
-                        return reject(new Error('Invalid user Id or details not found'))
-                    }
+                        if (json.error) {
+                            return reject(new Error(json.error?.details.join(' ') || json.error.join(' ')))
+                        }
+                        if (json.data && Object.keys(json.data)?.length > 0) {
+                            // commit('updateSessionDetails', json.data);
+                            return resolve(json.data)
+                        } else {
+                            return reject(new Error('Invalid user Id or details not found'))
+                        }
 
-                }).catch((e) => {
-                    reject(new Error(`Error while fetching userId ` + e.message));
-                })
+                    }).catch((e) => {
+                        reject(new Error(`Error while fetching userId ` + e.message));
+                    })
             })
         },
         async fetchUsageForASSIService({ getters }, payload) {
@@ -2502,6 +2507,7 @@ const mainStore = {
                 throw new Error('Company Id is null or empty')
             }
             const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyb/verification/company/${companyId}/company-executives`;
+            // const url = `http://localhost:3001/api/v1/e-kyb/verification/company/${companyId}/company-executives`;
             const authToken = getters.getSelectedService.kyb_access_token
             if (!authToken) {
                 throw (new Error('authToken is invalid, service is not selected'))
@@ -2551,6 +2557,7 @@ const mainStore = {
                 }
 
                 let url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyb/verification/company/${companyId}`;
+                // let url = `http://localhost:3001/api/v1/e-kyb/verification/company/${companyId}`;
                 dispatch('getValidToken', {
                     serviceId: getters.getSelectedService.appId,
                     grant_type: config.GRANT_TYPES_ENUM.CAVACH_API,
@@ -2558,39 +2565,43 @@ const mainStore = {
                 }).then((token) => {
                     let headers = UtilsMixin.methods.getKycServiceHeader(token);
 
-               const requestBody = { status };
+                    const requestBody = { status };
 
-                const dependentServiceId = getters.getSelectedService.dependentServices[0];
-                const ssiService = getters.getAppsWithSSIServices.find(s => s.appId === dependentServiceId);
-                const ssiServiceAccessToken = ssiService.access_token
-                headers = {
-                    ...headers,
-                    "X-Ssi-Access-Token": ssiServiceAccessToken
-                }
-
-                fetch(url, {
-                    method: 'PATCH',
-                    headers: {
+                    const dependentServiceId = getters.getSelectedService.dependentServices[0];
+                    const ssiService = getters.getAppsWithSSIServices.find(s => s.appId === dependentServiceId);
+                    const ssiServiceAccessToken = ssiService.access_token
+                    headers = {
                         ...headers,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(requestBody)
-                })
-                })
-                   .then(response => response.json()).then(json => {
-                    if (json.error) {
-                        return reject(new Error(json.error?.details?.join(' ') || json.error?.join?.(' ') || json.error || 'Unknown error'))
+                        "X-Ssi-Access-Token": ssiServiceAccessToken
                     }
 
-                    // Refresh the companies list after approval/rejection
-                    dispatch('fetchAppKybs').then(() => {
-                        resolve(json);
-                    }).catch((error) => {
-                        resolve(json); // Still resolve the main action
-                    });
-                }).catch((e) => {
-                    return reject(new Error(`Error while company verification: ${e.message}`));
+                    return fetch(url, {
+                        method: 'PATCH',
+                        headers: {
+                            ...headers,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(requestBody)
+                    })
                 })
+                    .then(response => response.json()).then(json => {
+                        if (!json.success) {
+                            const details = json.error?.details;
+                            const msg = (Array.isArray(details) && details.length)
+                                ? details.join(' ')
+                                : (json.message || 'Unknown error');
+                            return reject(new Error(msg));
+                        }
+
+                        // Refresh the companies list after approval/rejection
+                        dispatch('fetchAppKybs').then(() => {
+                            resolve(json);
+                        }).catch((error) => {
+                            resolve(json); // Still resolve the main action
+                        });
+                    }).catch((e) => {
+                        return reject(new Error(`Error while company verification: ${e.message}`));
+                    })
             })
 
         },
@@ -2669,7 +2680,7 @@ const mainStore = {
                 throw new Error('Company Id is null or empty')
             }
             const url = `${sanitizeUrl(config.KYC_SERVER_BASE_URL)}/api/v1/compliance?type=${type}`;
-            // const url = `http://localhost:3009/api/v1/compliance?type=${type}`;
+            // const url = `http://localhost:3001/api/v1/compliance?type=${type}`;
 
             const token = await dispatch('getValidToken', {
                 token: accessToken,
@@ -2705,7 +2716,7 @@ const mainStore = {
                 throw new Error('Company Id is null or empty')
             }
             const url = `${sanitizeUrl(config.KYC_SERVER_BASE_URL)}/api/v1/e-kyb/verification/company/${companyId}/status`;
-            // const url = `http://localhost:3009/api/v1/e-kyb/verification/company/${companyId}/status`;
+            // const url = `http://localhost:3001/api/v1/e-kyb/verification/company/${companyId}/status`;
             const token = await dispatch('getValidToken', {
                 token: accessToken,
                 serviceId,
@@ -2795,18 +2806,18 @@ const mainStore = {
                         tokenStorageKey: "access_token",
                         token: accessToken
                     }).then((token) => {
-                    const url = `${sanitizeUrl(tenantUrl)}/api/v1/did?page=1&limit=100`;
-                    const options = {
-                        method: "GET",
-                        headers: {
-                            "Content-Type": "application/json",
-                            "Authorization": `Bearer ${token}`,
-                            "Origin": '*'
+                        const url = `${sanitizeUrl(tenantUrl)}/api/v1/did?page=1&limit=100`;
+                        const options = {
+                            method: "GET",
+                            headers: {
+                                "Content-Type": "application/json",
+                                "Authorization": `Bearer ${token}`,
+                                "Origin": '*'
+                            }
                         }
-                    }
                         return fetch(url, {
-                        headers: options.headers
-                    })
+                            headers: options.headers
+                        })
                     })
                         .then(response => response.json())
                         .then(json => {
@@ -2879,19 +2890,19 @@ const mainStore = {
                         token: accessToken
                     }).then((token) => {
 
-                    const url = `${sanitizeUrl(tenantUrl)}/api/v1/did/resolve/${payload.did}`;
-                    const options = {
-                        method: "GET",
-                        headers: {
-                            "Content-Type": "application/json",
-                            "Authorization": `Bearer ${token}`,
-                            "Origin": '*'
+                        const url = `${sanitizeUrl(tenantUrl)}/api/v1/did/resolve/${payload.did}`;
+                        const options = {
+                            method: "GET",
+                            headers: {
+                                "Content-Type": "application/json",
+                                "Authorization": `Bearer ${token}`,
+                                "Origin": '*'
+                            }
                         }
-                    }
 
                         return fetch(url, {
-                        headers: options.headers
-                    })
+                            headers: options.headers
+                        })
                     })
                         .then(response => response.json())
                         .then(json => {
@@ -2936,20 +2947,20 @@ const mainStore = {
                         tokenStorageKey: "access_token",
                         token: selectedService.access_token
                     }).then((token) => {
-                    const url = `${sanitizeUrl(selectedService.tenantUrl)}/api/v1/did/resolve/${payload}`;
-                    // const url = `http://ent-8ee83cc.localhost:3003/api/v1/did/resolve/${payload}`;
-                    const options = {
-                        method: "GET",
-                        headers: {
-                            "Content-Type": "application/json",
-                            "Authorization": `Bearer ${token}`,
-                            "Origin": '*'
+                        const url = `${sanitizeUrl(selectedService.tenantUrl)}/api/v1/did/resolve/${payload}`;
+                        // const url = `http://ent-8ee83cc.localhost:3003/api/v1/did/resolve/${payload}`;
+                        const options = {
+                            method: "GET",
+                            headers: {
+                                "Content-Type": "application/json",
+                                "Authorization": `Bearer ${token}`,
+                                "Origin": '*'
+                            }
                         }
-                    }
 
                         return fetch(url, {
-                        headers: options.headers
-                    })
+                            headers: options.headers
+                        })
                     })
                         .then(response => response.json())
                         .then(json => {
@@ -2988,19 +2999,19 @@ const mainStore = {
                         grant_type: config.GRANT_TYPES_ENUM.SSI_API,
                         tokenStorageKey: "access_token"
                     }).then((token) => {
-                    const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/did/create`;
-                    const options = {
-                        method: "POST",
-                        body: JSON.stringify(payload),
-                        headers: {
-                            "Content-Type": "application/json",
-                            "Authorization": `Bearer ${token}`,
-                            "Origin": '*'
+                        const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/did/create`;
+                        const options = {
+                            method: "POST",
+                            body: JSON.stringify(payload),
+                            headers: {
+                                "Content-Type": "application/json",
+                                "Authorization": `Bearer ${token}`,
+                                "Origin": '*'
+                            }
                         }
-                    }
-                    return fetch(url, {
-                        ...options
-                    })
+                        return fetch(url, {
+                            ...options
+                        })
                     })
                         .then(response => response.json())
                         .then(async json => {
@@ -3041,18 +3052,18 @@ const mainStore = {
                         grant_type: config.GRANT_TYPES_ENUM.SSI_API,
                         tokenStorageKey: "access_token"
                     }).then((token) => {
-                    const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/did/register/v2`;
-                    const options = {
-                        method: "POST",
-                        body: JSON.stringify(body),
-                        headers: {
-                            "Content-Type": "application/json",
-                            "Authorization": `Bearer ${token}`,
-                            "Origin": '*'
+                        const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/did/register/v2`;
+                        const options = {
+                            method: "POST",
+                            body: JSON.stringify(body),
+                            headers: {
+                                "Content-Type": "application/json",
+                                "Authorization": `Bearer ${token}`,
+                                "Origin": '*'
+                            }
                         }
-                    }
-                    fetch(url, {
-                        ...options
+                        fetch(url, {
+                            ...options
                         })
                     })
                         .then(response => response.json())
@@ -3091,15 +3102,15 @@ const mainStore = {
                         grant_type: config.GRANT_TYPES_ENUM.SSI_API,
                         tokenStorageKey: "access_token"
                     }).then((token) => {
-                    const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/status/ssi/${payload}?page=1&limit=10`;
-                    const options = {
-                        method: "GET",
-                        headers: {
-                            "Content-Type": "application/json",
-                            "Authorization": `Bearer ${token}`,
-                            "Origin": '*'
+                        const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/status/ssi/${payload}?page=1&limit=10`;
+                        const options = {
+                            method: "GET",
+                            headers: {
+                                "Content-Type": "application/json",
+                                "Authorization": `Bearer ${token}`,
+                                "Origin": '*'
+                            }
                         }
-                    }
 
                         return fetch(url, {
                             ...options
@@ -3146,18 +3157,18 @@ const mainStore = {
                         tokenStorageKey: "access_token"
                     }).then((token) => {
 
-                    // const url = `http://ent-2af45c1.localhost:4001/api/v1/did/`;
-                    const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/did/`;
-                    const options = {
-                        method: "PATCH",
-                        body: JSON.stringify(body),
-                        headers: {
-                            "Content-Type": "application/json",
-                            "Authorization": `Bearer ${token}`,
-                            "Origin": '*'
+                        // const url = `http://ent-2af45c1.localhost:4001/api/v1/did/`;
+                        const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/did/`;
+                        const options = {
+                            method: "PATCH",
+                            body: JSON.stringify(body),
+                            headers: {
+                                "Content-Type": "application/json",
+                                "Authorization": `Bearer ${token}`,
+                                "Origin": '*'
+                            }
                         }
-                    }
-                    return fetch(url, {
+                        return fetch(url, {
 
                             ...options
                         })
@@ -3238,7 +3249,7 @@ const mainStore = {
 
             async function callApi() {
                 const wallet = payload.wallet
-                let txApi = `https://api.prajna.hypersign.id/cosmos/tx/v1beta1/txs?order_by=2&events=message.sender='${wallet}'&pagination.limit=5000&pagination.offset=0`
+                let txApi = `https://api.atman.hypersign.id/cosmos/tx/v1beta1/txs?order_by=2&events=message.sender='${wallet}'&pagination.limit=5000&pagination.offset=0`
                 const resp = await fetch(txApi)
                 const json = await resp.json()
                 return json
@@ -3373,19 +3384,19 @@ const mainStore = {
                         grant_type: config.GRANT_TYPES_ENUM.SSI_API,
                         tokenStorageKey: "access_token"
                     }).then((token) => {
-                    const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/credit/${creditId}/activate`;
-                    const options = {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                            "Authorization": `Bearer ${token}`,
-                            "Origin": '*'
+                        const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/credit/${creditId}/activate`;
+                        const options = {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json",
+                                "Authorization": `Bearer ${token}`,
+                                "Origin": '*'
+                            }
                         }
-                    }
 
                         return fetch(url, {
-                     ...options
-                 })
+                            ...options
+                        })
                     })
                         .then(response => response.json())
                         .then(json => {
@@ -3413,7 +3424,7 @@ const mainStore = {
             async function callApi() {
                 const wallet = payload.wallet
                 const granterWallet = "hid10d36jvc7regxe6npw8gxvrzap7lcrnrpjfwmal"; //TODO need to take this variable in env
-                let txApi = `https://api.prajna.hypersign.id/cosmos/feegrant/v1beta1/allowance/${granterWallet}/${wallet}`
+                let txApi = `https://api.atman.hypersign.id/cosmos/feegrant/v1beta1/allowance/${granterWallet}/${wallet}`
                 const resp = await fetch(txApi)
                 const json = await resp.json()
                 return json
@@ -3438,7 +3449,7 @@ const mainStore = {
 
             async function callApi() {
                 const wallet = payload.wallet
-                let txApi = `https://api.prajna.hypersign.id/cosmos/authz/v1beta1/grants/grantee/${wallet}`
+                let txApi = `https://api.atman.hypersign.id/cosmos/authz/v1beta1/grants/grantee/${wallet}`
                 const resp = await fetch(txApi)
                 const json = await resp.json()
                 return json
@@ -3482,20 +3493,20 @@ const mainStore = {
                         tokenStorageKey: "access_token",
                         token: selectedService.access_token
                     }).then((token) => {
-                    const url = `${sanitizeUrl(selectedService.tenantUrl)}/api/v1/did/auth/sign`;
-                    const options = {
-                        method: "POST",
-                        body: JSON.stringify(payload),
-                        headers: {
-                            "Content-Type": "application/json",
-                            "Authorization": `Bearer ${token}`,
-                            "Origin": '*'
+                        const url = `${sanitizeUrl(selectedService.tenantUrl)}/api/v1/did/auth/sign`;
+                        const options = {
+                            method: "POST",
+                            body: JSON.stringify(payload),
+                            headers: {
+                                "Content-Type": "application/json",
+                                "Authorization": `Bearer ${token}`,
+                                "Origin": '*'
+                            }
                         }
-                    }
 
                         return fetch(url, {
-                            ...options 
-           })
+                            ...options
+                        })
                     })
                         .then(response => response.json())
                         .then(async json => {
@@ -3539,17 +3550,17 @@ const mainStore = {
                         token: accessToken,
                     }).then((token) => {
 
-                    const url = `${sanitizeUrl(tenantUrl)}/api/v1/schema?page=1&limit=100`;
-                    const options = {
-                        method: "GET",
-                        headers: {
-                            "Content-Type": "application/json",
-                            "Authorization": `Bearer ${token}`,
-                            "Origin": '*'
+                        const url = `${sanitizeUrl(tenantUrl)}/api/v1/schema?page=1&limit=100`;
+                        const options = {
+                            method: "GET",
+                            headers: {
+                                "Content-Type": "application/json",
+                                "Authorization": `Bearer ${token}`,
+                                "Origin": '*'
+                            }
                         }
-                    }
 
-                    return fetch(url, {
+                        return fetch(url, {
                             headers: options.headers
                         })
                     })
@@ -3671,18 +3682,18 @@ const mainStore = {
                         grant_type: config.GRANT_TYPES_ENUM.SSI_API,
                         tokenStorageKey: "access_token"
                     }).then((token) => {
-                    const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/schema`;
-                    const options = {
-                        method: "POST",
-                        body: JSON.stringify(payload),
-                        headers: {
-                            "Content-Type": "application/json",
-                            "Authorization": `Bearer ${token}`,
-                            "Origin": '*'
+                        const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/schema`;
+                        const options = {
+                            method: "POST",
+                            body: JSON.stringify(payload),
+                            headers: {
+                                "Content-Type": "application/json",
+                                "Authorization": `Bearer ${token}`,
+                                "Origin": '*'
+                            }
                         }
-                    }
 
-                     return fetch(url, {
+                        return fetch(url, {
                             ...options
                         })
 
@@ -3742,15 +3753,15 @@ const mainStore = {
                         token: accessToken
 
                     }).then((token) => {
-                    const url = `${sanitizeUrl(tenantUrl)}/api/v1/credential?page=${page}&limit=${limit}`;
-                    const options = {
-                        method: "GET",
-                        headers: {
-                            "Content-Type": "application/json",
-                            "Authorization": `Bearer ${token}`,
-                            "Origin": '*'
+                        const url = `${sanitizeUrl(tenantUrl)}/api/v1/credential?page=${page}&limit=${limit}`;
+                        const options = {
+                            method: "GET",
+                            headers: {
+                                "Content-Type": "application/json",
+                                "Authorization": `Bearer ${token}`,
+                                "Origin": '*'
+                            }
                         }
-                    }
 
                         return fetch(url, {
                             headers: options.headers
@@ -3914,16 +3925,16 @@ const mainStore = {
                         grant_type: config.GRANT_TYPES_ENUM.SSI_API,
                         tokenStorageKey: "access_token"
                     }).then((token) => {
-                    const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/credential/issue`;
-                    const options = {
-                        method: "POST",
-                        body: JSON.stringify(payload),
-                        headers: {
-                            "Content-Type": "application/json",
-                            "Authorization": `Bearer ${token}`,
-                            "Origin": '*'
+                        const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/credential/issue`;
+                        const options = {
+                            method: "POST",
+                            body: JSON.stringify(payload),
+                            headers: {
+                                "Content-Type": "application/json",
+                                "Authorization": `Bearer ${token}`,
+                                "Origin": '*'
+                            }
                         }
-                    }
 
                         return fetch(url, {
                             ...options
@@ -3962,16 +3973,16 @@ const mainStore = {
                         grant_type: config.GRANT_TYPES_ENUM.SSI_API,
                         tokenStorageKey: "access_token"
                     }).then((token) => {
-                    const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/credential/status/${payload.credentialId}`;
-                    const options = {
-                        method: "PATCH",
-                        body: JSON.stringify(payload),
-                        headers: {
-                            "Content-Type": "application/json",
-                            "Authorization": `Bearer ${token}`,
-                            "Origin": '*'
+                        const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/credential/status/${payload.credentialId}`;
+                        const options = {
+                            method: "PATCH",
+                            body: JSON.stringify(payload),
+                            headers: {
+                                "Content-Type": "application/json",
+                                "Authorization": `Bearer ${token}`,
+                                "Origin": '*'
+                            }
                         }
-                    }
                         return fetch(url, {
                             ...options
                         })

@@ -248,6 +248,40 @@
   background-color: transparent !important;
   color: #66666a !important;
 }
+
+/* Environment Banner */
+.env-banner {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border-radius: 20px;
+}
+
+.env-banner--dev {
+  background-color: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fde68a;
+}
+
+.env-banner__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background-color: #d97706;
+}
+
+.env-banner__app {
+  font-weight: 400;
+  opacity: 0.75;
+  text-transform: none;
+  letter-spacing: 0;
+}
 </style>
 <template>
   <div id="app" data-app>
@@ -261,6 +295,14 @@
       >
         <img src="./assets/Entity_full.png" alt="Logo" class="nav-logo-img" />
       </b-navbar-brand>
+
+      <div
+        v-if="getSelectedService && getSelectedService.env !== 'prod'"
+        class="env-banner env-banner--dev "
+      >
+        <span class="env-banner__dot"></span>
+        <span class="env-banner__label">Development Mode</span>
+      </div>
 
       <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
 

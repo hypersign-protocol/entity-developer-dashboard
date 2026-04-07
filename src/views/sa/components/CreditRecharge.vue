@@ -1,5 +1,6 @@
 <template>
   <v-container pa-0>
+    <load-ing :active.sync="isLoading" :can-cancel="false" :is-full-page="false"></load-ing>
     <div class="overview-container">
       <div class="header-row">
         <h2 class="title">Service Credit Recharge</h2>
@@ -63,16 +64,7 @@
           </v-btn>
         </div>
 
-        <v-fade-transition>
-          <div v-if="statusMessage" :class="['mt-4 feedback-box', isError ? 'error-style' : 'success-style']">
-            <div class="d-flex align-center">
-              <v-icon small :color="isError ? 'red' : 'green'" class="mr-2">
-                {{ isError ? 'mdi-alert-circle' : 'mdi-check-circle' }}
-              </v-icon>
-              <span class="small font-weight-bold">{{ statusMessage }}</span>
-            </div>
-          </div>
-        </v-fade-transition>
+        <v-fade-transition></v-fade-transition>
       </div>
     </div>
   </v-container>
@@ -140,14 +132,17 @@
 </style>
 <script>
 import { mapActions } from 'vuex/dist/vuex.common.js';
+import loadIng from '../../../components/element/LoadIng.vue';
+import UtilsMixin from '../../../mixins/utils.js';
 
 export default {
   name: 'CreditRecharge',
+  components: { loadIng },
+  mixins: [UtilsMixin],
   data() {
     return {
       loading: false,
-      statusMessage: '',
-      isError: false,
+      isLoading: false,
       form: {
         serviceId: '',
         amount: '100',
@@ -160,28 +155,32 @@ export default {
   methods: {
     ...mapActions('mainStore', ['creditRecharge']),
     async handleRecharge() {
-      if ( !this.form.serviceId) {
-        this.showFeedback("Please fill in all required fields.", true);
+      if (!this.form.serviceId) {
+        this.notifyErr("Please provide a Service ID.");
+        return;
+      }
+      if (!this.form.amount || Number(this.form.amount) <= 0) {
+        this.notifyErr("Amount must be greater than 0.");
+        return;
+      }
+      if (!this.form.validityPeriod || Number(this.form.validityPeriod) <= 0) {
+        this.notifyErr("Validity period must be greater than 0.");
         return;
       }
 
       this.loading = true;
-      this.statusMessage = '';
+      this.isLoading = true;
 
       try {
         await this.creditRecharge(this.form);
-        this.showFeedback(`Success: Credits recharged for service ${this.form.serviceId}!`);
-
+        this.notifySuccess(`Credits recharged successfully for service ${this.form.serviceId}.`);
       } catch (err) {
         const errorMsg = err.response?.data?.message || err.message || "Recharge failed.";
-        this.showFeedback(`Error: ${errorMsg}`, true);
+        this.notifyErr(errorMsg);
       } finally {
         this.loading = false;
+        this.isLoading = false;
       }
-    },
-    showFeedback(msg, isErr = false) {
-      this.statusMessage = msg;
-      this.isError = isErr;
     }
   }
 };

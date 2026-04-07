@@ -7,7 +7,7 @@
                 <div class="row">
                     <div class="col">
                         <div class="form-group">
-                            <tool-tip infoMessage="Select issuer DID for this app"></tool-tip>
+                            <tool-tip infoMessage="Select An Authentication App"></tool-tip>
                             <label for="selectService"><strong>Select An Authentication App<span
                                         style="color: red">*</span>:
                                 </strong></label>
@@ -24,7 +24,7 @@
                 <div class="row" v-if="authenticationMethod">
                     <div class="col">
                         <div class="form-group">
-                            <tool-tip infoMessage="Select issuer DID for this app"></tool-tip>
+                            <tool-tip infoMessage="Enter the 6-digit code from your authentication app"></tool-tip>
                             <label for="selectService"><strong>A 6-digit authentication code has been sent to your
                                     device.
                                     Enter the code to
