@@ -335,28 +335,28 @@ export default {
 }
 
 .status-submitted {
-  background: #dbeafe;
-  color: #1e40af;
+  background-color: #f3f4f6;
+  color: #374151;
 }
 
 .status-inprogress {
-  background: #fef3c7;
+  background-color: #fef3c7;
   color: #92400e;
 }
 
+.status-completed {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
 .status-approved {
-  background: #d1fae5;
-  color: #065f46;
+  background-color: #f0fdf4;
+  color: #166534;
 }
 
 .status-rejected {
-  background: #fee2e2;
+  background-color: #fef2f2;
   color: #991b1b;
-}
-
-.status-completed {
-  background: #dcfce7;
-  color: #166534;
 }
 
 /* Verification Progress */

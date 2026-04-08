@@ -236,14 +236,27 @@
   text-transform: uppercase;
 }
 
-.status-approved, .status-completed {
-  background-color: #f0fdf4;
-  color: #166534;
+
+
+/* Standard UI color scheme for status badges */
+.status-submitted {
+  background-color: #f3f4f6;
+  color: #374151;
 }
 
-.status-inprogress, .status-submitted {
-  background-color: #eff6ff;
+.status-inprogress {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.status-completed {
+  background-color: #dbeafe;
   color: #1e40af;
+}
+
+.status-approved {
+  background-color: #f0fdf4;
+  color: #166534;
 }
 
 .status-rejected {
