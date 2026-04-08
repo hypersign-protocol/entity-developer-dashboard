@@ -590,13 +590,6 @@
       "targets": [],
       "value": ""
     }, {
-      "id": "20dd1665-fd80-4302-a083-0b742655a841",
-      "comment": "",
-      "command": "clickAt",
-      "target": "css=.fa-anchor",
-      "targets": [],
-      "value": ""
-    }, {
       "id": "4a786771-d518-40cb-b420-5719cb52df8c",
       "comment": "",
       "command": "assertText",
@@ -608,6 +601,13 @@
         ["xpath=//span[contains(.,'Webhooks')]", "xpath:innerText"]
       ],
       "value": "Webhooks"
+    }, {
+      "id": "20dd1665-fd80-4302-a083-0b742655a841",
+      "comment": "",
+      "command": "clickAt",
+      "target": "css=.fa-anchor",
+      "targets": [],
+      "value": ""
     }, {
       "id": "68562b7c-aecb-45ad-a2dc-46c0e6cd8f12",
       "comment": "",
@@ -829,7 +829,7 @@
       "id": "31c242d3-1840-4ac7-8f8b-6bed63c37749",
       "comment": "",
       "command": "click",
-      "target": "id=input-273",
+      "target": "xpath=//div[@id='app']/div[2]/div/div[3]/div/div/div[2]/div/div/div/div/input",
       "targets": [
         ["id=input-273", "id"],
         ["css=#input-273", "css:finder"],
@@ -977,9 +977,20 @@
       ],
       "value": ""
     }, {
-      "id": "d1676999-8f11-45d9-855b-f63a53f6ada9",
+      "id": "99d60572-b182-4657-b677-13614101685c",
       "comment": "",
       "command": "assertElementPresent",
+      "target": "css=.mdi-trash-can-outline",
+      "targets": [
+        ["css=.mdi-trash-can-outline", "css:finder"],
+        ["xpath=//div[@id='app']/div[2]/div/div[2]/div[2]/button/span/i", "xpath:idRelative"],
+        ["xpath=//i", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "fb6070be-2a3d-40e0-b364-422dbedd5916",
+      "comment": "",
+      "command": "click",
       "target": "css=.mdi-trash-can-outline",
       "targets": [
         ["css=.mdi-trash-can-outline", "css:finder"],
