@@ -12,7 +12,7 @@ Selenium is a widely-used open-source framework for automating web applications.
  - Ideal for testing Vue 2 projects where quick UI testing and interaction simulation are required.
 
 #### Installation
- For the best compatibility, use Selenium IDE version 3.17.4.
+ For the best compatibility, use Selenium IDE version 3.17.2.
  Follow these steps to install Selenium IDE:
   - For Firefox
       - Visit the official Selenium IDE download page: [Selenium IDE Download](https://addons.mozilla.org/en-US/firefox/addon/selenium_ide/)
@@ -26,16 +26,24 @@ Selenium is a widely-used open-source framework for automating web applications.
   The following table lists the test scenarios along with their respective test files:
  |Module | Scenario |  File |
 |---------|---------|----------|
-| Service | Login   | [LoginTest](./E2E_test/serviceModule/Login.side)   |   
-| Service | Login and invite a member and accept invitation   |[Invite people](./E2E_test//serviceModule//LoginAndSettingsModule.side)  | 
-|SSI Service |Login and create a new service   |[CreateSSIApp](./E2E_test/ssiServiceModule/loginAndCreateSSIService.side)  |
+| Service | Login   | [LoginTest](./E2E_test/login/login.side)   | 
+| Service | Login and setup MFA   |[Setup MFA](./E2E_test/login/setupAndLoginWithMfa.side)  |   
+| Service | Login and invite a member and accept invitation   |[Invite people](./E2E_test/serviceConfigModule/loginAndSetting.side)  | 
+| Service | Login and fill form for onboarding  |[Fill onboarding form](./E2E_test/serviceConfigModule/loginAndFillOnboarding.side)  |
+| Service | Login and approve onboarding by Super-admin  |[Approve onboarding](./E2E_test/serviceConfigModule/loginAndApproveOnboarding.side)  |
+| Service | Login and re-generate api key  |[Regenerate Api key](./E2E_test/serviceConfigModule/loginAndGenerateApiKey.side)  |
+| Service | Login and update app  |[Update app configuration](./E2E_test/serviceConfigModule/loginAndUpdateAppConfig.side)  |
 |SSI Service | Login and perform did operations in specific service   | [Perform did operations](./E2E_test/ssiServiceModule/loginAndDidOperations.side)  |    
 |SSI Service | Login and perform schema operations in specific service  |  [Perform schema operations](./E2E_test/ssiServiceModule/loginAndSchemaOperations.side)  |
-|SSI Service | Login and perform credential operations in specific service |  [Perform credential operations](./E2E_test/ssiServiceModule/loginAndCredentialOperation.side)  |
-|KYC Service | Login and create kyc service   | [Create Kyc service](./E2E_test/kycServiceModule//loginAndCreateKycService.side)  |    
-|KYC Service | Login and configure onchain kyc  |  [Configure onchain kyc](./E2E_test/kycServiceModule/loginAndConfigureOnchainKyc.side)  |
-|KYC Service | Login and configure widget |  [Add widget configuration](./E2E_test/kycServiceModule/loginAndWidgetConfiguration.side)  |
+|SSI Service | Login and perform credential operations in specific service |  [Perform credential operations](./E2E_test/ssiServiceModule/loginAndCredentialOperation.side)  |   
+|KYC Service | Login and configure Id verifer page  |  [Configure Verfier page](./E2E_test/kycServiceModule/verifier/loginAndDeleteIdVerifier.side)  |
+|KYC Service | Login and Update Id verifer page  |  [Update Id Verfier page](./E2E_test/kycServiceModule/verifier/loginAndUpdateIdVerifier.side)  |
+|KYC Service | Login and configure Id widget |  [Add Id widget configuration](./E2E_test/kycServiceModule/widget/loginAndUpdateIdWidget.side)  |
+|KYC Service | Login and configure KYB widget |  [Add business widget configuration](./E2E_test/kycServiceModule/widget/loginAndConfigureKybWidget.side)  |
 |KYC Service | Login and perform webhook configuration |  [Add webhook configuration](./E2E_test/kycServiceModule/loginAndWebhookConfiguration.side)  |
+|KYC Service | Login and visit analytics |  [Visit analytics configuration](./E2E_test/kycServiceModule/loginAndVisitAnalytics.side)  |
+|KYC Service | Login and visit Id dashboard |  [Visit Id dashboard](./E2E_test/kycServiceModule/loginAndVisitIdDashboard.side)  |
+|KYC Service | Login and visit Business dashboard |  [Visit business dashboard](./E2E_test/kycServiceModule/loginAndVisitBusinessDashboard.side)  |
 
 #### Steps to Run
 ##### Running Selenium IDE
