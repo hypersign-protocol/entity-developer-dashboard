@@ -14,7 +14,7 @@
             <div class="d-flex">
               <div class="step-number-wrapper mr-4">
                 <div class="step-number-circle">
-                  <v-icon small color="white">{{ item.icon }}</v-icon>
+                  <v-icon small style="color:beige">{{ item.icon }}</v-icon>
                 </div>
               </div>
 
@@ -125,7 +125,7 @@
 .step-number-circle {
   width: 42px;
   height: 42px;
-  background-color: #3b82f6;
+  background-color: #1e293b;
   border-radius: 50%;
   display: flex;
   align-items: center;

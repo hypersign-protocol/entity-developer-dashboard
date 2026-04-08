@@ -50,7 +50,7 @@
         md="6" 
         lg="4"
       >
-        <div class="overview-container company-card h-100" @click="viewBusinessDetails(company)">
+        <div :class="['overview-container', 'company-card', 'h-100', statusClass(company.status)]" @click="viewBusinessDetails(company)">
           <div class="d-flex align-start mb-4">
             <div class="country-badge mr-3">
               {{ countryCodeToFlag(company.countryCode) }}
@@ -122,6 +122,33 @@
   border-color: #3b82f6;
   background-color: #ffffff;
   box-shadow: 0 4px 12px rgba(59, 130, 246, 0.08);
+}
+
+/* Per-status hover overrides */
+.overview-container.status-approved-card:hover {
+  border-color: #16a34a;
+  background-color: #f0fdf4;
+  box-shadow: 0 4px 12px rgba(22, 163, 74, 0.08);
+}
+.overview-container.status-rejected-card:hover {
+  border-color: #991b1b;
+  background-color: #fff1f2;
+  box-shadow: 0 4px 12px rgba(153, 27, 27, 0.06);
+}
+.overview-container.status-inprogress-card:hover {
+  border-color: #92400e;
+  background-color: #fffbeb;
+  box-shadow: 0 4px 12px rgba(146, 64, 14, 0.06);
+}
+.overview-container.status-completed-card:hover {
+  border-color: #1e40af;
+  background-color: #dbeafe;
+  box-shadow: 0 4px 12px rgba(30, 64, 175, 0.06);
+}
+.overview-container.status-submitted-card:hover {
+  border-color: #374151;
+  background-color: #f3f4f6;
+  box-shadow: 0 4px 12px rgba(55, 65, 81, 0.06);
 }
 
 .input-label {
@@ -414,6 +441,23 @@ export default {
           return 'fas fa-clock';
         default:
           return 'fas fa-info-circle';
+      }
+    },
+
+    statusClass(status) {
+      switch (status) {
+        case 'Submitted':
+          return 'status-submitted-card';
+        case 'InProgress':
+          return 'status-inprogress-card';
+        case 'Approved':
+          return 'status-approved-card';
+        case 'Rejected':
+          return 'status-rejected-card';
+        case 'Completed':
+          return 'status-completed-card';
+        default:
+          return '';
       }
     },
 
