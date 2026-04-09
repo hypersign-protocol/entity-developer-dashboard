@@ -57,7 +57,7 @@
           <div class="info-row">
             <span class="label">Country:</span>
             <span class="value">
-              {{ countryCodeToFlag(company?.countryCode) }} {{ company?.countryCode || 'N/A' }}
+             {{ countryCodeToName(company?.countryCode) || 'N/A' }}  {{ countryCodeToFlag(company?.countryCode) }} 
             </span>
           </div>
           <div class="info-row">
@@ -122,8 +122,7 @@
           </div>
           <div class="info-row">
             <span class="label">Country:</span>
-            <span class="value"> {{ countryCodeToFlag(company?.address?.country) }} {{ company.address.country || 'N/A'
-              }}</span>
+            <span class="value">  {{ countryCodeToName(company?.address?.country) || 'N/A' }} {{ countryCodeToFlag(company?.address?.country) }}</span>
           </div>
         </div>
       </div>
@@ -246,6 +245,19 @@ export default {
       } catch (e) {
         console.error('Clipboard copy failed', e);
       }
+    }
+    ,
+    countryCodeToName(countryCode) {
+      if (!countryCode) return '';
+      try {
+        if (typeof Intl !== 'undefined' && Intl.DisplayNames) {
+          const dn = new Intl.DisplayNames(['en'], { type: 'region' });
+          return dn.of(countryCode.toUpperCase());
+        }
+      } catch (e) {
+        // fall through to fallback
+      }
+      return countryCode.toUpperCase();
     }
   }
 }
