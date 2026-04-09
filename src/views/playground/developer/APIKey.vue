@@ -1,11 +1,17 @@
 <template>
-  <v-container>
-    <load-ing :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></load-ing>
+  <v-container class="py-6">
+    <load-ing
+      :active.sync="isLoading"
+      :can-cancel="true"
+      :is-full-page="fullPage"
+    ></load-ing>
 
-    <v-row align="center">
+    <v-row align="center" class="mb-6">
       <v-col cols="12">
         <h4 class="font-weight-bold mb-0">API Key Management</h4>
-        <p class="text-subtitle-2 text-muted">Configure authentication for your backend integration</p>
+        <p class="text-subtitle-2 text-muted">
+          Configure authentication for your backend integration
+        </p>
       </v-col>
     </v-row>
 
@@ -15,40 +21,45 @@
           <div class="header-row">
             <h2 class="title">Generate Secret Key</h2>
           </div>
-          
+
           <div class="p-2">
-            <p class="text-subtitle-2 mb-2">
-              Enter your <strong>App ID</strong> to authorize the generation of a new API Secret.
-            </p>
-
-            <v-text-field
-              v-model="appIdToGenerateSecret"
-              label="App ID"
-              placeholder="e.g. 13f70faf7f5c5d03520b..."
-              outlined
-              dense
-              color="primary"
-            ></v-text-field>
-
-            <div class="warning-box mb-2">
-              <div class="d-flex">
+            <div class="important-note mb-3 d-flex align-center justify-space-between">
+              <div class="d-flex align-center">
                 <v-icon color="orange darken-2" class="mr-2">mdi-alert</v-icon>
                 <div>
                   <span class="font-weight-bold d-block text-orange">Important Note</span>
                   <span class="small text-muted">
-                    Generating a new Secret Key will <strong>immediately deactivate</strong> your current key. 
-                    Ensure you update your server configuration promptly.
+                    Generating a new Secret Key will
+                    <strong>immediately deactivate</strong> your current key. Ensure you
+                    update your server configuration promptly.
                   </span>
                 </div>
               </div>
             </div>
 
-            <div class="d-flex justify-center">
-              <hf-buttons
-                name="Generate New Secret"
-                class="px-8"
-                @executeAction="reGenerateSecretKey"
-              ></hf-buttons>
+            <div class="p-3 service-block">
+              <div class="service-info mb-3">
+                <div v-if="getSelectedService">
+                  <div class="service-name">{{ getSelectedService.name || getSelectedService.appName || 'Selected Application' }}</div>
+                  <div class="service-id mono">{{ getSelectedService.appId }}</div>
+                </div>
+                <div v-else class="no-service small text-muted">
+                  No application selected. Select an application from the sidebar to enable generating a Secret Key.
+                </div>
+              </div>
+
+              <div class="d-flex justify-start">
+                <hf-buttons
+                  v-if="getSelectedService"
+                  name="Generate New Secret"
+                  class="px-8"
+                  @executeAction="reGenerateSecretKey"
+                ></hf-buttons>
+
+                <v-btn v-else depressed disabled class="btn btn-outline-secondary px-8">
+                  Generate New Secret
+                </v-btn>
+              </div>
             </div>
           </div>
         </div>
@@ -64,8 +75,14 @@
             <div class="step-number">1</div>
             <div>
               <p class="font-weight-bold mb-0">Generate Access Token</p>
-              <p class="small text-muted mb-1">Use your Secret Key to authenticate with the Dashboard API.</p>
-              <a target="_blank" class="doc-link" href="https://docs.hypersign.id/hypersign-kyc/kyc-widget/integrations/backend-integration/generate-accesstokens">
+              <p class="small text-muted mb-1">
+                Use your Secret Key to authenticate with the Dashboard API.
+              </p>
+              <a
+                target="_blank"
+                class="doc-link"
+                href="https://docs.hypersign.id/hypersign-kyc/kyc-widget/integrations/backend-integration/generate-accesstokens"
+              >
                 Documentation <v-icon x-small color="primary">mdi-open-in-new</v-icon>
               </a>
             </div>
@@ -75,8 +92,14 @@
             <div class="step-number">2</div>
             <div>
               <p class="font-weight-bold mb-0">Initialize Session</p>
-              <p class="small text-muted mb-1">Generate a Session ID for every new user verification request.</p>
-              <a target="_blank" class="doc-link" href="https://docs.hypersign.id/hypersign-kyc/kyc-widget/integrations/backend-integration/generate-kyc-session-id">
+              <p class="small text-muted mb-1">
+                Generate a Session ID for every new user verification request.
+              </p>
+              <a
+                target="_blank"
+                class="doc-link"
+                href="https://docs.hypersign.id/hypersign-kyc/kyc-widget/integrations/backend-integration/generate-kyc-session-id"
+              >
                 Documentation <v-icon x-small color="primary">mdi-open-in-new</v-icon>
               </a>
             </div>
@@ -91,16 +114,20 @@
           <div class="mb-4">
             <label class="input-label">Dashboard API URL</label>
             <div class="copy-input-group">
-              <input type="text" :value="dashboardUrl" readonly>
-              <button @click="copyToClipboard(dashboardUrl)"><v-icon small>mdi-content-copy</v-icon></button>
+              <input type="text" :value="dashboardUrl" readonly />
+              <button @click="copyToClipboard(dashboardUrl)">
+                <v-icon small>mdi-content-copy</v-icon>
+              </button>
             </div>
           </div>
 
           <div>
             <label class="input-label">Tenant URL</label>
             <div class="copy-input-group">
-              <input type="text" :value="tenantUrl" readonly>
-              <button @click="copyToClipboard(tenantUrl)"><v-icon small>mdi-content-copy</v-icon></button>
+              <input type="text" :value="tenantUrl" readonly />
+              <button @click="copyToClipboard(tenantUrl)">
+                <v-icon small>mdi-content-copy</v-icon>
+              </button>
             </div>
           </div>
         </div>
@@ -109,9 +136,11 @@
 
     <hf-pop-up id="entity-secretKey-popup" Header="API Secret Key Generated">
       <div class="pa-4 text-center" v-if="apiKeySecret">
-        <v-icon color="green" size="48" class="mb-2">mdi-shield-check-outline</v-icon>
+        <v-icon color="green" size="48" class="mb-2">mdi-key</v-icon>
         <p class="font-weight-bold">Copy your Secret Key now</p>
-        <p class="small text-muted">For security, we cannot show this key again. Save it in a secure vault.</p>
+        <p class="small text-muted">
+          For security, we cannot show this key again. Save it in a secure vault.
+        </p>
 
         <HfFlashNotification
           class="mt-4"
@@ -154,7 +183,9 @@
   padding: 1rem;
 }
 
-.text-orange { color: #c2410c; }
+.text-orange {
+  color: #c2410c;
+}
 
 /* Step Styles */
 .step-number {
@@ -179,7 +210,9 @@
   text-decoration: none;
 }
 
-.doc-link:hover { text-decoration: underline; }
+.doc-link:hover {
+  text-decoration: underline;
+}
 
 /* Custom Copy Inputs */
 .input-label {
@@ -219,61 +252,99 @@
 .copy-input-group button:hover {
   background: #f1f5f9;
 }
+
+.service-block .service-name {
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 4px;
+}
+
+.service-block .service-id.mono {
+  font-family: monospace;
+  color: #475569;
+  font-size: 0.85rem;
+}
+
+.service-block .no-service {
+  color: #6b7280;
+}
+
+.important-note {
+  background-color: #fff7ed;
+  border: 1px solid #ffedd5;
+  border-left: 4px solid #f97316;
+  border-radius: 8px;
+  padding: 12px 14px;
+  width: 100%;
+}
+
+.important-note .text-muted {
+  color: #7c2d12;
+}
+
+/* note-compact removed: Important Note is always visible */
+
+/* Layout adjustments to improve placement and responsiveness */
+.service-block {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+
+.service-block .service-info {
+  text-align: left;
+}
 </style>
 
 <script>
-import UtilsMixin from '../../../mixins/utils.js';
-import { mapGetters, mapActions } from 'vuex';
-import HfButtons from '../../../components/element/HfButtons.vue';
-import messages from '../../../mixins/messages';
+import UtilsMixin from "../../../mixins/utils.js";
+import { mapGetters, mapActions } from "vuex";
+import HfButtons from "../../../components/element/HfButtons.vue";
+import messages from "../../../mixins/messages";
 
 export default {
-  name: 'APIKey',
+  name: "APIKey",
   mixins: [UtilsMixin],
   components: {
     HfButtons,
     HfFlashNotification: () =>
-      import('../../../components/element/HfFlashNotification.vue'),
-    HfPopUp: () => import('../../../components/element/hfPopup.vue'),
+      import("../../../components/element/HfFlashNotification.vue"),
+    HfPopUp: () => import("../../../components/element/hfPopup.vue"),
   },
   data() {
     return {
       fullPage: true,
       isLoading: false,
-      apiKeySecret: '',
-      appIdToGenerateSecret: '',
+      apiKeySecret: "",
       tenantUrl: "", // Replace dynamically if needed
-      dashboardUrl: 'https://api.entity.dashboard.hypersign.id',
+      dashboardUrl: "https://api.entity.dashboard.hypersign.id",
     };
   },
   computed: {
-    ...mapGetters('mainStore', ['getSelectedService']),
+    ...mapGetters("mainStore", ["getSelectedService"]),
     isContainerShift() {
       return this.containerShift;
     },
   },
   methods: {
-    ...mapActions('mainStore', ['generateAPISecretKey']),
+    ...mapActions("mainStore", ["generateAPISecretKey"]),
     async reGenerateSecretKey() {
-      if (!this.appIdToGenerateSecret)
-        return this.notifyErr(messages.APPLICATION.ENTER_APP_ID);
-
-      if (this.appIdToGenerateSecret !== this.getSelectedService.appId)
-        return this.notifyErr(messages.APPLICATION.VALID_ID);
+      const appId = this.getSelectedService && this.getSelectedService.appId;
+      if (!appId) return this.notifyErr(messages.APPLICATION.ENTER_APP_ID);
 
       try {
         this.isLoading = true;
-        const resp = await this.generateAPISecretKey({
-          appId: this.getSelectedService.appId,
-        });
+        const resp = await this.generateAPISecretKey({ appId });
 
         if (resp) {
           this.apiKeySecret = resp.apiSecretKey;
-          this.$root.$emit('bv::show::modal', 'entity-secretKey-popup');
+          this.$root.$emit("bv::show::modal", "entity-secretKey-popup");
           this.notifySuccess(messages.APPLICATION.APP_NEW_SECRET_KEY_SUCCESS);
-          this.appIdToGenerateSecret = '';
         } else {
-          throw new Error('Something went wrong');
+          throw new Error("Something went wrong");
         }
       } catch (e) {
         if (Array.isArray(e.message)) e.message.forEach((m) => this.notifyErr(m));
@@ -284,18 +355,16 @@ export default {
     },
     copyToClipboard(value) {
       navigator.clipboard.writeText(value);
-      this.notifySuccess('Copied to clipboard!');
+      this.notifySuccess("Copied to clipboard!");
     },
     onHfFlashClick() {
-      this.apiKeySecret = '';
-      this.appIdToGenerateSecret = '';
+      this.apiKeySecret = "";
     },
   },
-  created(){
-    if(this.getSelectedService){
-      this.tenantUrl =  this.getSelectedService.tenantUrl
+  created() {
+    if (this.getSelectedService) {
+      this.tenantUrl = this.getSelectedService.tenantUrl;
     }
-    
   },
 };
 </script>

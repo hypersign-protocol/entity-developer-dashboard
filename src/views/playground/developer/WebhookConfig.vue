@@ -1,8 +1,8 @@
 <template>
-  <v-container>
+  <v-container class="py-6">
     <load-ing :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></load-ing>
 
-    <v-row align="center">
+    <v-row align="center" class="mb-6">
       <v-col cols="12" md="6">
         <h4 class="font-weight-bold mb-0">Webhook Configuration</h4>
         <p class="text-subtitle-2 text-muted">Receive real-time notifications for verification events</p>

@@ -227,3 +227,11 @@ a {
   color: #856404;
   border: 1px solid #ffeaa7;
 }
+
+/* Normalize vertical spacing for top-level page containers so all pages share the same gap
+     This sets a consistent top/bottom padding similar to Business.vue's `py-6`.
+     Use `py-0` or override with a more specific selector when a page needs a different spacing. */
+.v-container {
+    padding-top: 1.5rem !important;
+    padding-bottom: 1.5rem !important;
+}
