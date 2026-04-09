@@ -1,12 +1,12 @@
 <template>
-  <v-container>
+  <v-container class="py-6">
     <load-ing
       :active.sync="isLoading"
       :can-cancel="true"
       :is-full-page="fullPage"
     ></load-ing>
 
-    <v-row align="center">
+    <v-row align="center" class="mb-6">
       <v-col cols="12">
         <h4 class="font-weight-bold mb-0">API Key Management</h4>
         <p class="text-subtitle-2 text-muted">
@@ -52,7 +52,7 @@
                 <hf-buttons
                   v-if="getSelectedService"
                   name="Generate New Secret"
-                  class="px-20"
+                  class="px-8"
                   @executeAction="reGenerateSecretKey"
                 ></hf-buttons>
 
@@ -136,7 +136,7 @@
 
     <hf-pop-up id="entity-secretKey-popup" Header="API Secret Key Generated">
       <div class="pa-4 text-center" v-if="apiKeySecret">
-        <v-icon color="green" size="48" class="mb-2">mdi-shield-key-outline</v-icon>
+        <v-icon color="green" size="48" class="mb-2">mdi-key</v-icon>
         <p class="font-weight-bold">Copy your Secret Key now</p>
         <p class="small text-muted">
           For security, we cannot show this key again. Save it in a secure vault.

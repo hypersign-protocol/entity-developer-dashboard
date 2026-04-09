@@ -1,11 +1,13 @@
 <template>
   <v-container class="py-6">
+    <v-row align="center" class="mb-6">
+      <v-col cols="12" md="6">
+        <h4 class="font-weight-bold mb-0">Getting Started</h4>
+        <p class="text-subtitle-2 text-muted">Follow these steps to integrate and launch your verification flow</p>
+      </v-col>
+    </v-row>
     <v-row>
       <v-col cols="12" lg="8">
-        <div class="d-flex align-center mb-6">
-          <h4 class="font-weight-bold mb-0">Getting Started</h4>
-          <v-divider class="ml-4"></v-divider>
-        </div>
 
         <div class="steps-container">
           <div v-for="(item, i) in guideItems" :key="i" class="step-card mb-4">
@@ -14,7 +16,7 @@
             <div class="d-flex">
               <div class="step-number-wrapper mr-4">
                 <div class="step-number-circle">
-                  <v-icon small style="color:beige">{{ item.icon }}</v-icon>
+                  <v-icon small style="color:white">{{ item.icon }}</v-icon>
                 </div>
               </div>
 
@@ -125,7 +127,7 @@
 .step-number-circle {
   width: 42px;
   height: 42px;
-  background-color: #1e293b;
+  background-color: #3b82f6;
   border-radius: 50%;
   display: flex;
   align-items: center;

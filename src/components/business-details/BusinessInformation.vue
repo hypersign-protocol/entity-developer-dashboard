@@ -19,7 +19,23 @@
           </div>
           <div class="info-row">
             <span class="label">ID:</span>
-            <span class="value mono">{{ company?.companyId || 'N/A' }}</span>
+            <span class="value mono id-with-copy">
+              <span class="id-text">{{ company?.companyId || 'N/A' }}</span>
+
+              <v-btn
+                v-if="company?.companyId"
+                icon
+                x-small
+                class="copy-btn"
+                @click="copyToClipboard(company.companyId)"
+                title="Copy Company ID"
+              >
+                <v-icon small>mdi-content-copy</v-icon>
+                
+              </v-btn>
+
+            </span>
+            
           </div>
           <div class="info-row">
             <span class="label">Registration Number:</span>
@@ -171,6 +187,7 @@
 </template>
 
 <script>
+import UtilsMixin from "../../mixins/utils.js";
 export default {
   name: "BusinessInformation",
   props: {
@@ -179,6 +196,7 @@ export default {
       default: () => ({})
     }
   },
+  mixins: [UtilsMixin],
   methods: {
     countryCodeToFlag(countryCode) {
       if (!countryCode) return '';
@@ -218,6 +236,16 @@ export default {
         month: 'long',
         day: 'numeric'
       });
+    }
+    ,
+    copyToClipboard(value) {
+      if (!value) return;
+      try {
+        navigator.clipboard.writeText(value);
+        if (this.notifySuccess) this.notifySuccess('Copied to clipboard!');
+      } catch (e) {
+        console.error('Clipboard copy failed', e);
+      }
     }
   }
 }
@@ -320,6 +348,35 @@ export default {
   font-family: 'Courier New', monospace;
   font-size: 0.8rem;
   color: #4b5563;
+}
+
+.id-with-copy {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.copy-btn {
+  padding: 0;
+  border: none;
+  color: #475569;
+  opacity: 10;
+  transition: opacity 0.12s ease, color 0.12s ease;
+  min-width: 0;
+}
+.id-with-copy:hover .copy-btn {
+  opacity: 1;
+}
+.copy-btn:hover {
+  color: #111827;
+}
+
+.id-text {
+  max-width: 220px;
+  display: inline-block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: middle;
 }
 
 /* Status badges */

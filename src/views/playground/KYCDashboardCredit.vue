@@ -1,10 +1,10 @@
 <template>
-    <v-container>
+    <v-container class="py-6">
         <loadIng :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loadIng>
-        <v-row align="center">
+        <v-row align="center" class="mb-6">
             <v-col cols="12" md="6">
                 <h4 class="font-weight-bold mb-0">Credits Management</h4>
-                <p class="text-subtitle-2 text-muted mb-0">Manage your API balance and subscription history</p>
+                <p class="text-subtitle-2 text-muted">Manage your API balance and subscription history</p>
             </v-col>
             <v-col cols="12" md="6" class="d-flex justify-end">
                 <div class="ml-auto">
