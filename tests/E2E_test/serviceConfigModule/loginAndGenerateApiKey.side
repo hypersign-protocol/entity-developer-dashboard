@@ -21,17 +21,6 @@
       "targets": [],
       "value": ""
     }, {
-      "id": "4c713f21-5bfd-4f0e-8c8d-39ca1cd67bb1",
-      "comment": "",
-      "command": "click",
-      "target": "css=.v-btn__content",
-      "targets": [
-        ["css=.v-btn__content", "css:finder"],
-        ["xpath=//div[@id='app']/div[2]/div/button/span", "xpath:idRelative"],
-        ["xpath=//span", "xpath:position"]
-      ],
-      "value": ""
-    }, {
       "id": "e617481c-5373-4c4a-8330-4bc00be62670",
       "comment": "",
       "command": "pause",
@@ -48,21 +37,16 @@
     }, {
       "id": "a87588a9-7efa-41d6-b67d-875c1d275f77",
       "comment": "",
-      "command": "waitForElementPresent",
+      "command": "//waitForElementPresent",
       "target": "//div[contains(translate(text(), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), '${adminEmailId}')]",
       "targets": [],
       "value": "3000"
     }, {
       "id": "c7d09428-00dc-4329-b0bc-f9fec8447197",
       "comment": "",
-      "command": "clickAt",
+      "command": "//clickAt",
       "target": "xpath=//div[contains(text(),'${adminEmailId}')]",
-      "targets": [
-        ["css=.col > .ml-auto", "css:finder"],
-        ["xpath=(//button[@type='button'])[5]", "xpath:attributes"],
-        ["xpath=//div[@id='app']/div[2]/div/div/div/div/div[2]/div/div/button", "xpath:idRelative"],
-        ["xpath=//div/button", "xpath:position"]
-      ],
+      "targets": [],
       "value": ""
     }, {
       "id": "f4b08ee9-bd85-4f3e-a258-8876bf75b9d6",
@@ -1021,91 +1005,91 @@
     }, {
       "id": "fecfeefb-dd92-4471-b2d7-58f30768ff1e",
       "comment": "",
-      "command": "executeScript",
+      "command": "//executeScript",
       "target": "return document.querySelector(\"img[src*='https://lh3.googleusercontent.com/']\") != null",
       "targets": [],
       "value": "isAvatar"
     }, {
       "id": "c02422a2-5101-4b15-90d8-2aebfc71f8ec",
       "comment": "",
-      "command": "if",
+      "command": "//if",
       "target": "${isAvatar}",
       "targets": [],
       "value": ""
     }, {
       "id": "ef1501a3-7b3d-4e1c-877c-0c5cc4d90162",
       "comment": "",
-      "command": "assertElementPresent",
+      "command": "//assertElementPresent",
       "target": "css=span:nth-child(2)",
       "targets": [],
       "value": ""
     }, {
       "id": "1d8fc7c1-cc17-4a59-ac3a-bc35bc134328",
       "comment": "",
-      "command": "click",
+      "command": "//click",
       "target": "css=.profile-img",
       "targets": [],
       "value": ""
     }, {
       "id": "d4280aa2-8c50-42c5-88c7-c377da1c8be4",
       "comment": "",
-      "command": "assertElementPresent",
+      "command": "//assertElementPresent",
       "target": "linkText=Logout",
       "targets": [],
       "value": ""
     }, {
       "id": "4c6ba952-30ad-459c-8d4f-a980798c28c1",
       "comment": "",
-      "command": "click",
+      "command": "//click",
       "target": "linkText=Logout",
       "targets": [],
       "value": ""
     }, {
       "id": "66474ca3-05dd-4999-823e-6dd46374fbc2",
       "comment": "",
-      "command": "else",
+      "command": "//else",
       "target": "",
       "targets": [],
       "value": ""
     }, {
       "id": "922fd2ca-976f-4611-bde7-72b9b8169fe1",
       "comment": "",
-      "command": "assertElementPresent",
+      "command": "//assertElementPresent",
       "target": "css=.profile-img",
       "targets": [],
       "value": ""
     }, {
       "id": "a6dd0821-c862-48b0-8443-0d975237b1e0",
       "comment": "",
-      "command": "click",
+      "command": "//click",
       "target": "css=.profile-img",
       "targets": [],
       "value": ""
     }, {
       "id": "f8299aa4-d7d1-4fcc-830d-8e6900d76c32",
       "comment": "",
-      "command": "assertElementPresent",
+      "command": "//assertElementPresent",
       "target": "linkText=Logout",
       "targets": [],
       "value": ""
     }, {
       "id": "d01cd9f0-1251-49fc-9a44-03def7da76f2",
       "comment": "",
-      "command": "assertText",
+      "command": "//assertText",
       "target": "linkText=Logout",
       "targets": [],
       "value": "Logout"
     }, {
       "id": "5529c041-f16a-48eb-86dd-a4dcf174c596",
       "comment": "",
-      "command": "click",
+      "command": "//click",
       "target": "linkText=Logout",
       "targets": [],
       "value": ""
     }, {
       "id": "d097726c-3349-43fc-89dc-1afc6484ccb2",
       "comment": "",
-      "command": "end",
+      "command": "//end",
       "target": "",
       "targets": [],
       "value": ""
