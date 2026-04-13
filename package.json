@@ -48,6 +48,7 @@
     "marked": "4.3.0",
     "mdbvue": "^6.7.1",
     "node-fetch": "^2.6.0",
+    "pdfmake": "0.3.7",
     "qrcode.vue": "^1.7.0",
     "sha.js": "^2.4.11",
     "ua-parser-js": "^1.0.37",

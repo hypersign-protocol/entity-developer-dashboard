@@ -171,14 +171,14 @@
 }
 
 .nav-tab.active {
-  background-color: #eff6ff;
-  color: #3b82f6;
+  background-color: #f1f5f9;
+  color: #374151;
   font-weight: 700;
-  border-left-color: #3b82f6;
+  border-left-color: #94a3b8;
 }
 
 .nav-tab.active .v-icon {
-  color: #3b82f6 !important;
+  color: #64748b !important;
 }
 
 /* Content Panel */
@@ -220,7 +220,7 @@
 }
 
 .breadcrumb-link:hover {
-  color: #3b82f6; /* Theme primary blue on hover */
+  color: #905ab0;
 }
 
 .company-title {

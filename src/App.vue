@@ -249,6 +249,11 @@
   color: #66666a !important;
 }
 
+
+.v-sidebar-menu.vsm_white-theme .vsm--link_level-1.vsm--link_active {
+  box-shadow: 3px 0 0 0 #66666a inset !important;
+}
+
 /* Environment Banner */
 .env-banner {
   display: inline-flex;

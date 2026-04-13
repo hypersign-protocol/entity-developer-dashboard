@@ -1,5 +1,5 @@
 <template>
-  <b-container fluid class="">
+  <b-container fluid class="py-3">
 
     <b-row class="align-items-center">
       <b-col md="8">
@@ -126,6 +126,7 @@ export default {
 </script>
 
 <style scoped>
+
 /* Design Language Classes */
 .input-label-caps {
   font-size: 0.72rem;

@@ -1,5 +1,5 @@
 <template>
-  <v-container class="py-6">
+  <b-container class="py-3">
     <load-ing :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></load-ing>
 
     <v-row align="center" class="mb-6">
@@ -120,7 +120,7 @@
     <div v-else>
       <empty-container title="No Business Found" icon="mdi-office-building-marker-outline" />
     </div>
-  </v-container>
+  </b-container>
 </template>
 
 <style scoped>
@@ -132,6 +132,7 @@
   border: 1px solid #e5e7eb;
   transition: all 0.2s ease;
   cursor: pointer;
+  margin-top: -0.85rem;
 }
 
 .overview-container:hover {

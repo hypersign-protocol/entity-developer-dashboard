@@ -1,5 +1,5 @@
 <template>
-  <v-container class="py-6">
+  <b-container fluid class="py-3">
     <load-ing :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></load-ing>
 
     <v-row align="center" class="mb-6">
@@ -81,7 +81,7 @@
         </div>
       </v-col>
     </v-row>
-  </v-container>
+  </b-container>
 </template>
 
 <style scoped>
@@ -91,6 +91,7 @@
   background-color: #f9fafb;
   border-radius: 0.75rem;
   border: 1px solid #e5e7eb;
+  margin-top: -0.85rem;
 }
 
 .header-row {
