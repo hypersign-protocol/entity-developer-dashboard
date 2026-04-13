@@ -170,7 +170,7 @@
       <b-button variant="primary" @click="$emit('next-step')">Next</b-button> -->
 
       <b-button variant="link" @click="$emit('prev-step')">Back</b-button>
-      <v-btn class="btn btn-outline-secondary" @click="invokeConfirmationPopup()">Request Credit</v-btn>
+      <button class="btn btn-outline-secondary" @click="invokeConfirmationPopup()">Request Credit</button>
     </div>
   </div>
 </template>

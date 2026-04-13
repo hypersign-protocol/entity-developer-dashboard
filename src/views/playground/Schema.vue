@@ -138,18 +138,16 @@
 }
 </style>
 <template>
-  <div :class="isContainerShift ? 'homeShift' : 'home'">
+  <b-container fluid class="py-3">
     <loadIng :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loadIng>
-    <div class="">
-      <div class="" style="text-align: left">
-        <!-- <Info :message="description" /> -->
-        <div class="form-group" style="display:flex">
-          <h3 v-if="schemaList.length > 0" style="text-align: left;">
-            Schemas</h3>
-          <h3 v-else style="text-align: left;">Create your first schema!</h3>
-          <hf-buttons name="Create" iconClass="fa fa-plus" class="ml-auto"
-            @executeAction="openSlider()"></hf-buttons>
-        </div>
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
+      <div>
+        <h4 class="font-weight-bold mb-0">Schemas</h4>
+      </div>
+      <div>
+        <hf-buttons name="Create" iconClass="fa fa-plus" @executeAction="openSlider()"></hf-buttons>
+      </div>
+    </div>
         <StudioSideBar title="Create Schema">
           <div class="container" style="width: 100%;">
             <div class="form-group">
@@ -268,8 +266,6 @@
             </div>
           </div>
         </StudioSideBar>
-      </div>
-    </div>
     <div class="scrollit" v-if="schemaList.length > 0">
       <div class="">
         <table class="table table-hover event-card">
@@ -351,52 +347,36 @@
         </code> 
       </pre>
       <div v-else>
-        <v-card v-for="eacherr in schemaDocumentToView" v-bind:key="eacherr" class="mb-1">
-          <v-list subheader>
-            <v-list-item>
-              <v-list-item-content>
-                <v-list-item-title>Status</v-list-item-title>
-                <v-list-item-subtitle>{{ eacherr.status }}</v-list-item-subtitle>
-              </v-list-item-content>
-            </v-list-item>
-            <v-list-item>
-              <v-list-item-content>
-                <v-list-item-title>Transaction Hash</v-list-item-title>
-                <v-list-item-subtitle>{{ eacherr.txnHash }}</v-list-item-subtitle>
-              </v-list-item-content>
-              <v-list-item-icon>
-                <i class="far fa-copy ml-1" style="cursor:pointer;" title="Click to copy"
-                  @click="copyToClip(eacherr.txnHash, 'Transaction Hash')"></i>
-              </v-list-item-icon>
-            </v-list-item>
-            <v-list-item>
-              <v-list-item-content>
-                <v-list-item-title>Message Type</v-list-item-title>
-                <v-list-item-subtitle>{{ eacherr.type }}</v-list-item-subtitle>
-              </v-list-item-content>
-              <v-list-item-icon>
-                <i class="far fa-copy ml-1" style="cursor:pointer;" title="Click to copy"
-                  @click="copyToClip(eacherr.type, 'Message Type')"></i>
-              </v-list-item-icon>
-            </v-list-item>
-
-            <v-list-item three-line flat>
-              <v-list-item-content>
-                <v-list-item-title>Message</v-list-item-title>
-                <v-list-item-subtitle>
-                  <p>{{ eacherr.message }}</p>
-                </v-list-item-subtitle>
-              </v-list-item-content>
-              <v-list-item-icon>
-                <i class="far fa-copy ml-1" style="cursor:pointer;" title="Click to copy"
-                  @click="copyToClip(eacherr.message, 'Message')"></i>
-              </v-list-item-icon>
-            </v-list-item>
-          </v-list>
-        </v-card>
+        <b-card v-for="eacherr in schemaDocumentToView" v-bind:key="eacherr" class="mb-1">
+          <div class="mb-2">
+            <strong>Status:</strong>
+            <p class="text-muted mb-0">{{ eacherr.status }}</p>
+          </div>
+          <div class="mb-2">
+            <strong>Transaction Hash:</strong>
+            <p class="text-muted mb-0">{{ eacherr.txnHash }}
+              <i class="far fa-copy ml-1" style="cursor:pointer;" title="Click to copy"
+                @click="copyToClip(eacherr.txnHash, 'Transaction Hash')"></i>
+            </p>
+          </div>
+          <div class="mb-2">
+            <strong>Message Type:</strong>
+            <p class="text-muted mb-0">{{ eacherr.type }}
+              <i class="far fa-copy ml-1" style="cursor:pointer;" title="Click to copy"
+                @click="copyToClip(eacherr.type, 'Message Type')"></i>
+            </p>
+          </div>
+          <div>
+            <strong>Message:</strong>
+            <p class="text-muted mb-0">{{ eacherr.message }}
+              <i class="far fa-copy ml-1" style="cursor:pointer;" title="Click to copy"
+                @click="copyToClip(eacherr.message, 'Message')"></i>
+            </p>
+          </div>
+        </b-card>
       </div>
     </hf-pop-up>
-  </div>
+  </b-container>
 </template>
 
 <script>

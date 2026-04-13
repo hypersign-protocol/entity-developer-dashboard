@@ -1,76 +1,55 @@
 <template>
-  <v-container class="py-6">
-    <v-row align="center" class="mb-6">
-      <v-col cols="12" md="6">
-        <h4 class="font-weight-bold mb-0">API Usage Analytics</h4>
-        <p class="text-subtitle-2 text-muted">Monitor consumption and service costs</p>
-      </v-col>
-      <v-col cols="12" md="6">
-        <div class="date-picker-group d-flex align-center">
-          <b-form-datepicker
-            v-model="startDate"
-            size="sm"
-            local="en"
-            placeholder="Start Date"
-            class="mr-2 custom-date-input"
-            @input="handleDateChange"
-          ></b-form-datepicker>
+  <b-container fluid class="py-3">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
+      <div>
+        <h4 class="mb-1 font-weight-bold mb-0">API Usage Analytics</h4>
+        <p class="text-muted small mb-0">Monitor consumption and service costs</p>
+      </div>
+      <div class="d-flex align-items-center mt-2 mt-md-0" style="gap:8px;">
+        <input type="date" v-model="startDate" @change="handleDateChange" class="form-control" style="width:165px;" />
+        <span class="text-muted small">to</span>
+        <input type="date" v-model="endDate" @change="handleDateChange" class="form-control" style="width:165px;" />
+      </div>
+    </div>
 
-          <span class="mx-2 text-muted">to</span>
-
-          <b-form-datepicker
-            v-model="endDate"
-            size="sm"
-            local="en"
-            placeholder="End Date"
-            class="custom-date-input"
-            @input="handleDateChange"
-          ></b-form-datepicker>
-        </div>
-      </v-col>
-    </v-row>
-
-    <v-row>
-      <v-col cols="12" lg="7">
-        <div class="overview-container h-100">
-          <div class="header-row">
-            <div class="title-group">
-              <h5 class="title">DAILY TRENDS</h5>
-              <p class="subtitle">API call volume over time</p>
+    <b-row>
+      <b-col cols="12" lg="7" class="mb-4">
+        <b-card class="serviceCard h-100">
+          <div class="d-flex align-items-start justify-content-between mb-2">
+            <div>
+              <p class="section-label mb-0">DAILY TRENDS</p>
+              <p class="small text-muted mb-0">API call volume over time</p>
             </div>
           </div>
           <div v-if="loading" class="skeleton-chart"></div>
           <div v-else class="chart-wrapper">
             <div ref="lineChart" class="chart-canvas"></div>
           </div>
-        </div>
-      </v-col>
+        </b-card>
+      </b-col>
 
-      <v-col cols="12" lg="5">
-        <div class="overview-container h-100">
-          <div class="header-row">
-            <div class="title-group">
-              <h5 class="title">USAGE BY ENDPOINT</h5>
-              <p class="subtitle">Top consumed services</p>
+      <b-col cols="12" lg="5" class="mb-4">
+        <b-card class="serviceCard h-100">
+          <div class="d-flex align-items-start justify-content-between mb-2">
+            <div>
+              <p class="section-label mb-0">USAGE BY ENDPOINT</p>
+              <p class="small text-muted mb-0">Top consumed services</p>
             </div>
           </div>
           <div v-if="loading" class="skeleton-chart"></div>
           <div v-else class="chart-wrapper">
             <div ref="barChart" class="chart-canvas"></div>
           </div>
-        </div>
-      </v-col>
-    </v-row>
+        </b-card>
+      </b-col>
+    </b-row>
 
-    <v-row v-if="this.env==='prod'">
-      <v-col cols="12">
-        <div class="overview-container">
-          <div class="header-row">
-            <h5 class="title">API COST BREAKDOWN</h5>
-            <!-- <span class="badge">Billing Period</span> -->
-          </div>
+    <b-row v-if="this.env==='prod'">
+      <b-col cols="12">
+        <b-card class="serviceCard">
+          <p class="section-label mb-3">API COST BREAKDOWN</p>
           <div v-if="loading" class="loading-list p-4 text-center">
-            <v-progress-linear indeterminate color="blue"></v-progress-linear>
+            <b-spinner variant="primary" label="Loading..."></b-spinner>
           </div>
           <div v-else class="usage-table-wrapper">
             <table class="usage-table">
@@ -125,10 +104,10 @@
               </tfoot>
             </table>
           </div>
-        </div>
-      </v-col>
-    </v-row>
-  </v-container>
+        </b-card>
+      </b-col>
+    </b-row>
+  </b-container>
 </template>
 
 <script>
@@ -319,11 +298,14 @@ export default {
 </script>
 
 <style scoped>
-.overview-container {
-  padding: 1.5rem;
-  background-color: #f9fafb;
-  border-radius: 0.75rem;
-  border: 1px solid #e5e7eb;
+.section-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.75rem;
+  display: block;
 }
 .chart-wrapper {
   height: 320px;

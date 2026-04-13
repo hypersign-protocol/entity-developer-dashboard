@@ -1,58 +1,38 @@
 <template>
-    <b-container fluid class="py-3">
-        
-        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
-            <div>
-                <h4 class="mb-1 font-weight-bold mb-0">App Configuration</h4>
-                <p class="text-muted small mb-0">Manage platform environment and identity settings</p>
-            </div>
+  <b-container fluid class="py-3">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
+      <div>
+        <h4 class="font-weight-bold mb-0">App Configuration</h4>
+        <p class="text-muted small mb-0">Manage platform environment and identity settings</p>
+      </div>
+      <div class="d-flex align-items-center" style="gap: 8px;">
+        <b-form-radio-group v-if="isEditing" v-model="isProd" :options="[
+            { text: 'PRODUCTION', value: true },
+            { text: 'DEVELOPMENT', value: false }
+        ]" size="sm" name="env-toggle" class="custom-env-toggle"></b-form-radio-group>
+        <span v-else class="status-badge" :class="isProd ? 'status-active' : 'status-warning'">
+            {{ isProd ? 'Production' : 'Development' }}
+        </span>
+        <template v-if="!isEditing">
+            <hf-buttons customClass="btn btn-outline-secondary btn-sm" @executeAction="startEdit()" iconClass="mdi mdi-pencil mr-1" name="Edit"></hf-buttons>
+            <hf-buttons customClass="btn btn-outline-danger btn-sm" title="Delete the application" name="Delete" @executeAction="openDeleteServicePopUp()" iconClass="fa fa-trash-alt mr-1"></hf-buttons>
+        </template>
+        <template v-else>
+            <hf-buttons customClass="btn btn-outline-secondary btn-sm" @executeAction="saveChanges()" iconClass="mdi mdi-content-save mr-1" name="Save"></hf-buttons>
+            <hf-buttons customClass="btn btn-outline-secondary btn-sm" name="Cancel" icon-class="mdi mdi-cancel mr-1" @executeAction="resetDeleteServicePopUp()"></hf-buttons>
+        </template>
+      </div>
+    </div>
 
-            <div class="d-flex align-items-center flex-wrap mt-2 mt-md-0">
-                <div class="mr-3">
-                    <b-form-radio-group v-if="isEditing" v-model="isProd" :options="[
-                        { text: 'PRODUCTION', value: true },
-                        { text: 'DEVELOPMENT', value: false }
-                    ]" size="sm" name="env-toggle" class="custom-env-toggle"></b-form-radio-group>
-
-                    <span v-else class="status-badge" :class="isProd ? 'status-active' : 'status-warning'">
-                        {{ isProd ? 'Production' : 'Development' }}
-                    </span>
-                </div>
-
-                <div class="d-flex align-items-center">
-                    <template v-if="!isEditing">
-                        <hf-buttons  name="Edit" @executeAction="startEdit()" 
-                        iconClass="mdi mdi-pencil mr-1">
-                        </hf-buttons>
-                        <hf-buttons title="Delete the application" name="" @executeAction="openDeleteServicePopUp()" iconClass="fa fa-trash-alt"
-                                style="margin-left: 8px; color: red">
-                        </hf-buttons>
-                    </template>
-                    
-                    <template v-else>
-                        <hf-buttons name="Save" @executeAction="saveChanges()" iconClass="mdi mdi-content-save mr-1">
-                        </hf-buttons>
-                        
-                        <button type="button" class="btn btn-link text-muted" @click="resetDeleteServicePopUp()" style="margin-left: 8px">
-                            Cancel
-                        </button>
-                    </template>
-                </div>
-            </div>
-        </div>
-        
         <b-card class="serviceCard">
             <b-form>
                 <b-row>
-                
                     <b-col md="6">
                         <b-form-group label="APPLICATION ID">
-
                             <b-input-group>
                                 <b-form-input v-model="formData.appId" :readonly="!isEditing" class="custom-input" />
                                 <b-input-group-append>
-                                    <b-button variant="outline-secondary" size="sm"
-                                        @click="copyToClip(formData.appId, 'App ID')" title="Copy App ID">
+                                    <b-button variant="outline-secondary" size="sm" @click="copyToClip(formData.appId, 'App ID')" title="Copy App ID">
                                         <i class="mdi mdi-content-copy"></i>
                                     </b-button>
                                 </b-input-group-append>
@@ -65,8 +45,6 @@
                         </b-form-group>
                     </b-col>
 
-                    
-                    
                     <b-col cols="6">
                         <b-form-group label="UPLOAD LOGO">
                             <LogoUploader v-model="formData.logoUrl" />
@@ -78,28 +56,20 @@
                         </b-form-group>
                     </b-col>
 
-                     
                     <b-col cols="6">
                         <b-form-group label="DOMAIN">
                             <b-input-group>
-                                <b-form-input v-model="formData.domain" :readonly="!isEditing"
-                                    placeholder="Enter your domain"  class="custom-input" />
-
-                                <!-- Case 1: Domain verified -->
+                                <b-form-input v-model="formData.domain" :readonly="!isEditing" placeholder="Enter your domain" class="custom-input" />
                                 <b-input-group-append v-if="formData.hasDomainVerified">
                                     <b-input-group-text class="bg-success text-white">
                                         <i class="mdi mdi-shield-check mr-1"></i>Verified
                                     </b-input-group-text>
                                 </b-input-group-append>
-
-                                <!-- Case 2: Editing and not verified -->
                                 <b-input-group-append v-else-if="isEditing">
                                     <b-button variant="outline-primary" size="sm" @click="verifyDomain">
                                         <i class="mdi mdi-shield-sync-outline mr-1"></i>Verify Domain
                                     </b-button>
                                 </b-input-group-append>
-
-                                <!-- Case 3: Not editing and not verified -->
                                 <b-input-group-append v-else>
                                     <b-button variant="outline-warning" size="sm" @click="toggleVerificationInfo">
                                         <i class="mdi mdi-shield-alert mr-1"></i>Unverified - View Guide
@@ -108,7 +78,6 @@
                             </b-input-group>
                         </b-form-group>
 
-                        <!-- Inline Verification Instructions (when editing or info expanded) -->
                         <b-collapse v-model="showVerificationInfo" class="mt-2">
                             <b-card bg-variant="light" border-variant="none">
                                 <div class="mb-3">
@@ -122,21 +91,18 @@
                                         <li v-else>Click "Edit" then "Verify Domain" when DNS is ready</li>
                                     </ol>
                                 </div>
-
                                 <div v-if="formData.issuerDid" class="mt-3 pt-3 border-top">
                                     <label class="mb-2"><strong>TXT Record to Add:</strong></label>
                                     <b-input-group>
                                         <b-form-input v-model="txtRecord" readonly type="text" />
                                         <b-input-group-append>
-                                            <b-button variant="outline-secondary" size="sm"
-                                                @click="copyToClip(txtRecord, 'TXT Record')" title="Copy TXT Record">
+                                            <b-button variant="outline-secondary" size="sm" @click="copyToClip(txtRecord, 'TXT Record')" title="Copy TXT Record">
                                                 <i class="mdi mdi-content-copy"></i>
                                             </b-button>
                                         </b-input-group-append>
                                     </b-input-group>
                                     <small class="form-text text-muted d-block mt-2">Copy this entire value to your DNS TXT record.</small>
                                 </div>
-
                                 <div v-else class="alert alert-info mb-0 mt-3">
                                     <small><strong>Note:</strong> To complete domain verification, you must click "Edit" and set an Issuer DID first.</small>
                                 </div>
@@ -150,27 +116,16 @@
                         </b-form-group>
                     </b-col>
 
-
-
-
-                    <!-- DID Configuration -->
-
                     <b-col md="6">
                         <b-form-group label="ISSUER DID">
                             <b-form-select v-if="isEditing" v-model="formData.issuerDid" @change="resolveDid($event)">
                                 <b-form-select-option value="">— Select a DID —</b-form-select-option>
-                                <b-form-select-option
-                                    v-for="did in associatedSSIServiceDIDs"
-                                    :value="did"
-                                    :key="did">
-                                    {{ did }}
-                                </b-form-select-option>
+                                <b-form-select-option v-for="did in associatedSSIServiceDIDs" :value="did" :key="did">{{ did }}</b-form-select-option>
                             </b-form-select>
                             <b-input-group v-else>
                                 <b-form-input v-model="formData.issuerDid" readonly class="custom-input" />
                                 <b-input-group-append v-if="formData.issuerDid">
-                                    <b-button variant="outline-secondary" size="sm"
-                                        @click="copyToClip(formData.issuerDid, 'Issuer DID')" title="Copy Issuer DID">
+                                    <b-button variant="outline-secondary" size="sm" @click="copyToClip(formData.issuerDid, 'Issuer DID')" title="Copy Issuer DID">
                                         <i class="mdi mdi-content-copy"></i>
                                     </b-button>
                                 </b-input-group-append>
@@ -180,26 +135,15 @@
 
                     <b-col md="6">
                         <b-form-group label="ISSUER VERIFICATION METHOD ID">
-                            <!-- Edit mode: select showing vm.id (vm.type) -->
                             <b-form-select v-if="isEditing" v-model="formData.issuerVerificationMethodId" :disabled="!formData.issuerDid">
-                                <b-form-select-option value="">
-                                    {{ formData.issuerDid ? '— Select a Verification Method —' : '— Select a DID first —' }}
-                                </b-form-select-option>
-                                <b-form-select-option
-                                    v-for="vm in issuerVerificationMethodIds"
-                                    :value="vm.id"
-                                    :key="vm.id">
-                                    {{ vm.id }} ({{ vm.type }})
-                                </b-form-select-option>
+                                <b-form-select-option value="">{{ formData.issuerDid ? '— Select a Verification Method —' : '— Select a DID first —' }}</b-form-select-option>
+                                <b-form-select-option v-for="vm in issuerVerificationMethodIds" :value="vm.id" :key="vm.id">{{ vm.id }} ({{ vm.type }})</b-form-select-option>
                             </b-form-select>
-                            <!-- View mode: ID input + type chip below -->
                             <template v-else>
                                 <b-input-group v-if="formData.issuerVerificationMethodId">
-                                    <b-form-input v-model="formData.issuerVerificationMethodId" readonly  class="custom-input"/>
+                                    <b-form-input v-model="formData.issuerVerificationMethodId" readonly class="custom-input" />
                                     <b-input-group-append>
-                                        <b-button variant="outline-secondary" size="sm"
-                                            @click="copyToClip(formData.issuerVerificationMethodId, 'Verification Method ID')"
-                                            title="Copy Verification Method ID">
+                                        <b-button variant="outline-secondary" size="sm" @click="copyToClip(formData.issuerVerificationMethodId, 'Verification Method ID')" title="Copy Verification Method ID">
                                             <i class="mdi mdi-content-copy"></i>
                                         </b-button>
                                     </b-input-group-append>
@@ -214,8 +158,6 @@
                         </b-form-group>
                     </b-col>
 
-
-
                     <b-col cols="12">
                         <b-form-group label="WHITELISTED CORS">
                             <b-form-textarea v-model="corsDisplay" :readonly="!isEditing" rows="3" class="custom-input" />
@@ -229,8 +171,7 @@
             <div>
                 <p style="color: #ff5400de;" v-html="formattedErrorMessage"></p>
                 <div class="text-center mt-3">
-                    <hf-buttons name="Ok" class="btn btn-primary text-center" customClass="btn btn-danger"
-                        @executeAction="closeLinkedServiceDetailPopup"></hf-buttons>
+                    <hf-buttons name="Ok" class="btn btn-primary text-center" customClass="btn btn-danger" @executeAction="closeLinkedServiceDetailPopup"></hf-buttons>
                 </div>
             </div>
         </hf-pop-up>
@@ -239,14 +180,11 @@
             <div>
                 <p style="color: #ff5400de">
                     Warning: This is a destructive feature. It will clean all your metadata and delete your data vault.
-                    If you
-                    sure you want to delete this app, please enter the app Id:
+                    If you sure you want to delete this app, please enter the app Id:
                 </p>
-                <input type="text" class="form-control" id="appId" v-model="appIdToGenerateSecret"
-                    aria-describedby="selected App Id" placeholder="d7ca0fbaa178bafe94410a470f506fc387a3" />
+                <input type="text" class="form-control" id="appId" v-model="appIdToGenerateSecret" aria-describedby="selected App Id" placeholder="d7ca0fbaa178bafe94410a470f506fc387a3" />
                 <div class="text-center mt-3">
-                    <hf-buttons name="Delete" class="btn btn-primary text-center" customClass="btn btn-danger"
-                        iconClass="fa fa-trash-alt" @executeAction="deleteOrg"></hf-buttons>
+                    <hf-buttons name="Delete" class="btn btn-primary text-center" customClass="btn btn-danger" iconClass="fa fa-trash-alt" @executeAction="deleteOrg"></hf-buttons>
                 </div>
             </div>
         </hf-pop-up>
@@ -261,25 +199,6 @@
     padding: 0.6rem 0.8rem;
     font-size: 0.9rem;
 }
-
-.custom-input-sm {
-    border: 1px solid #e2e8f0;
-    border-radius: 0.4rem;
-    font-size: 0.85rem;
-    height: 34px;
-}
-
-/* .status-badge {
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 0.72rem;
-    font-weight: 700;
-    color: #fff;
-}
-
-.status-active { background-color: #3b82f6; }
-.status-warning { background-color: #f59e0b; } */
-
 </style>
 
 <script>

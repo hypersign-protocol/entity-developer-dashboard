@@ -1,5 +1,5 @@
 <template>
-  <v-container pa-0>
+  <div>
     <load-ing :active.sync="isLoading" :can-cancel="false" :is-full-page="false"></load-ing>
     <div class="overview-container">
       <div class="header-row">
@@ -11,63 +11,40 @@
           Allocate credits and set validity periods for your registered backend services.
         </p>
 
-        <v-row dense>
-          <v-col cols="12" md="6" class="mb-2">
+        <b-row>
+          <b-col cols="12" md="6" class="mb-2">
             <label class="input-label">Service ID</label>
-            <v-text-field
+            <b-form-input
               v-model="form.serviceId"
               placeholder="e.g. 69afa3d8a4976d9c9e4671a7"
-              outlined
-              dense
-              hide-details
-              color="primary"
               class="mono-text"
-            ></v-text-field>
-          </v-col>
+            ></b-form-input>
+          </b-col>
 
-          <v-col cols="12" md="3" class="mb-2">
+          <b-col cols="12" md="3" class="mb-2">
             <label class="input-label">Amount ({{ form.amountDenom }})</label>
-            <v-text-field
-              v-model="form.amount"
-              type="number"
-              outlined
-              dense
-              hide-details
-              color="primary"
-            ></v-text-field>
-          </v-col>
+            <b-form-input v-model="form.amount" type="number"></b-form-input>
+          </b-col>
 
-          <v-col cols="12" md="3" class="mb-2">
+          <b-col cols="12" md="3" class="mb-2">
             <label class="input-label">Validity ({{ form.validityPeriodUnit }}S)</label>
-            <v-text-field
-              v-model="form.validityPeriod"
-              type="number"
-              outlined
-              dense
-              hide-details
-              color="primary"
-            ></v-text-field>
-          </v-col>
-        </v-row>
+            <b-form-input v-model="form.validityPeriod" type="number"></b-form-input>
+          </b-col>
+        </b-row>
 
-        <div class="d-flex justify-start mt-6">
-          <v-btn
-            :loading="loading"
+        <div class="d-flex justify-content-start mt-4">
+          <b-button
             :disabled="loading"
-            color="#111827"
-            class="px-8 font-weight-bold"
-            depressed
-            height="42"
+            variant="dark"
+            class="font-weight-bold"
             @click="handleRecharge"
           >
-          <span style="color: white;">Execute Recharge</span>
-          </v-btn>
+            <span>Execute Recharge</span>
+          </b-button>
         </div>
-
-        <v-fade-transition></v-fade-transition>
       </div>
     </div>
-  </v-container>
+  </div>
 </template>
 
 <style scoped>

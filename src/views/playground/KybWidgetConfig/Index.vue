@@ -1,30 +1,19 @@
 <template>
-  <div :class="isContainerShift ? 'homeShift' : 'home'">
+  <b-container fluid class="py-3">
     <load-ing :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></load-ing>
-    
-    <v-row class="align-center mb-4">
-      <v-col>
-        <!-- <h3 class="mb-0 text-left">KYB Widget Configuration</h3> -->
-        <div>
-          <h4 class="mb-1 font-weight-bold mb-0">Business Widget Configuration</h4>
-          <p class="text-muted small mb-0">Configure the business widget for your application</p>
-        </div>
-      </v-col>
-      <v-col class="text-right">
-        <HfButtons 
-          v-if="!this.kybWidgetConfigTemp._id" 
-          name="Save Configuration" 
-          @executeAction="saveConfiguration()"
-        />
-        <HfButtons 
-          v-else 
-          name="Update Configuration" 
-          @executeAction="updateConfiguration()"
-        />
-      </v-col>
-    </v-row>
 
-    <v-card class="serviceCard" style="overflow-y: auto;">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
+      <div>
+        <h4 class="mb-1 font-weight-bold mb-0">Business Widget Configuration</h4>
+        <p class="text-muted small mb-0">Configure the business widget for your application</p>
+      </div>
+      <div class="d-flex align-items-center">
+        <HfButtons v-if="!this.kybWidgetConfigTemp._id" name="Save Configuration" @executeAction="saveConfiguration()" />
+        <HfButtons v-else name="Update Configuration" @executeAction="updateConfiguration()" />
+      </div>
+    </div>
+
+    <b-card class="serviceCard" style="overflow-y: auto;">
       <ul class="list-group list-group-flush">
         
         <li class="list-group-item section-header bg-light">
@@ -156,8 +145,8 @@
         </li>
 
       </ul>
-    </v-card>
-  </div>
+    </b-card>
+  </b-container>
 </template> 
 
 

@@ -1,7 +1,7 @@
 <template>
   <div class="row">
-    <div v-if="isLoading" class="col-12 d-flex justify-center py-8">
-      <v-progress-circular indeterminate color="primary"></v-progress-circular>
+    <div v-if="isLoading" class="col-12 d-flex justify-content-center py-5">
+      <b-spinner variant="primary"></b-spinner>
     </div>
     <div v-else class="col-12">
       <div class="row">
@@ -10,42 +10,40 @@
           v-for="eachOrg in services"
           :key="eachOrg.appId"
         >
-      <v-card class="issuer-card h-100 shadow-sm border-0">
-        <v-card-actions class="pa-4 pb-0">
-          <v-list-item class="px-0">
-            <v-list-item-avatar size="48" class="elevation-2 border">
-              <v-img
-                :src="eachOrg.logoUrl || getProfileIcon(formattedAppName(eachOrg.appId))"
-                alt="Issuer Logo"
-              ></v-img>
-            </v-list-item-avatar>
+      <b-card class="issuer-card h-100 shadow-sm border-0">
+        <div class="d-flex align-items-center px-0 pb-0">
+          <div class="rounded-circle border shadow-sm overflow-hidden" style="width:48px;height:48px;flex-shrink:0">
+            <img
+              :src="eachOrg.logoUrl || getProfileIcon(formattedAppName(eachOrg.appId))"
+              alt="Issuer Logo"
+              class="w-100 h-100"
+              style="object-fit:cover"
+            />
+          </div>
 
-            <v-spacer></v-spacer>
-
+          <div class="ml-auto">
             <div v-if="isSelection" class="selection-area">
-              <v-checkbox
-                :input-value="eachOrg.selected"
+              <b-form-checkbox
+                :checked="eachOrg.selected"
                 @change="onIssuerToggle(eachOrg)"
-                color="primary"
-                hide-details
-                class="ma-0 pa-0"
-              ></v-checkbox>
+                class="m-0"
+              ></b-form-checkbox>
             </div>
             <div v-else>
               <span class="verified-badge">
                 <i class="mdi mdi-check-decagram mr-1"></i>Verified
               </span>
             </div>
-          </v-list-item>
-        </v-card-actions>
+          </div>
+        </div>
 
-        <v-card-title class="pt-2 pb-1">
+        <div class="pt-2 pb-1">
           <span class="issuer-title">
             {{ formattedAppName(eachOrg.appName) }}
           </span>
-        </v-card-title>
+        </div>
 
-        <v-card-text>
+        <div>
           <div class="issuer-domain text-truncate">
             <i class="mdi mdi-link-variant mr-1"></i>
             {{ domainFromOrigin(eachOrg.domain) }}
@@ -55,8 +53,8 @@
             <label class="did-label">Issuer DID</label>
             <div class="did-value">{{ eachOrg.issuerDid }}</div>
           </div>
-        </v-card-text>
-        </v-card>
+        </div>
+        </b-card>
         </div>
       </div>
     </div>

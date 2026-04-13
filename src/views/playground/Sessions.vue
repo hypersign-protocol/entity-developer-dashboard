@@ -186,11 +186,9 @@ h5 span {
 }
 </style>
 <template>
-  <div :class="isContainerShift ? 'homeShift' : 'home'">
+  <b-container fluid class="py-3">
     <loadIng :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loadIng>
-    <v-row class="mb-0">
-      <v-col cols="12">
-        <div class="d-flex justify-content-between align-items-center mb-3">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
           
           <div>
               <h4 class="mb-1 font-weight-bold mb-0">Users Verifications</h4>
@@ -226,10 +224,10 @@ h5 span {
                   <tr v-for="row in userList" v-bind:key="row.userId" style="cursor: pointer"
                     @click="viewSessionDetails(row.userId)">
                     <td>
-                      <div class="d-flex align-center">
-                        <v-avatar :style="getAvatarStyle()" size="37" class="font-weight-bold">
+                      <div class="d-flex align-items-center">
+                        <div :style="getAvatarStyle()" style="width:37px;height:37px;border-radius:50%;display:flex;align-items:center;justify-content:center;" class="font-weight-bold flex-shrink-0">
                           {{ (row.name || row.email || row.userId || 'U').charAt(0).toUpperCase() }}
-                        </v-avatar>
+                        </div>
                         <div class="ml-3 d-flex flex-column justify-center" style="line-height: 1.2;">
                           <span class="font-weight-bold" v-if="row.email || row.name">
                             {{ row.name || row.email || 'Unnamed User' }}
@@ -270,21 +268,14 @@ h5 span {
                     <td>
                       <span v-html="getUserStatus(row.status)"></span>
                       <span v-if="row.status == 'Failed'">
-                        <span></span>
-                        <span>
-                          <v-tooltip bottom>
-                            <template v-slot:activator="{ on, attrs }">
-                              <v-icon v-bind="attrs" v-on="on" small color="red darken-1" class="ml-1"
-                                style="color:red">
-                                mdi-alert-circle-outline
-                              </v-icon>
-                            </template>
-                            <span>{{ getFailureReason(row.failureInfo?.failureReason, row.failureInfo?.failureStep)
-                              }}</span>
-
-                          </v-tooltip>
+                          <span></span>
+                          <span>
+                            <i class="mdi mdi-alert-circle-outline ml-1"
+                              style="color:red; cursor:pointer;"
+                              :title="getFailureReason(row.failureInfo?.failureReason, row.failureInfo?.failureStep)"
+                            ></i>
+                          </span>
                         </span>
-                      </span>
                     </td>
                   </tr>
                 </tbody>
@@ -303,9 +294,7 @@ h5 span {
         <div v-else>
           <empty-container title="No User Found" icon="fa fa-users" />
         </div>
-      </v-col>
-    </v-row>
-  </div>
+  </b-container>
 </template>
 
 <script>

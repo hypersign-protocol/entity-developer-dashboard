@@ -1,29 +1,27 @@
 <template>
-    <v-container class="py-6">
-        <v-row align="center" class="mb-6">
-            <v-col cols="12" md="6">
-                <h4 class="font-weight-bold mb-0">User Analytics</h4>
-                <p class="text-subtitle-2 text-muted">View user engagement and behavior data</p>
-            </v-col>
-        </v-row>
-        <v-row>
-            <v-col cols="12">
+    <b-container fluid class="py-3">
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
+            <div>
+                <h4 class="mb-1 font-weight-bold mb-0">User Analytics</h4>
+                <p class="text-muted small mb-0">View user engagement and behavior data</p>
+            </div>
+        </div>
+        <b-row>
+            <b-col cols="12">
                 <Overview :env="env" />
-            </v-col>
-        </v-row>
-        <v-row>
-            <v-col cols="12">
+            </b-col>
+        </b-row>
+        <b-row>
+            <b-col cols="12">
                 <DemographicStats :env="env" />
-            </v-col>
-
-        </v-row>
-        <v-row>
-            <v-col cols="12">
+            </b-col>
+        </b-row>
+        <b-row>
+            <b-col cols="12">
                 <DeviceStats :env="env" />
-            </v-col>
-
-        </v-row>
-    </v-container>
+            </b-col>
+        </b-row>
+    </b-container>
 </template>
 
 <script>

@@ -1,25 +1,22 @@
 <template>
-    <v-container class="py-6">
+    <b-container fluid class="py-3">
         <loadIng :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loadIng>
-        <v-row align="center" class="mb-6">
-            <v-col cols="12" md="6">
-                <h4 class="font-weight-bold mb-0">Credits Management</h4>
-                <p class="text-subtitle-2 text-muted">Manage your API balance and subscription history</p>
-            </v-col>
-            <v-col cols="12" md="6" class="d-flex justify-end">
-                <div class="ml-auto">
-                    <hf-buttons name="Refresh" iconClass="arrow-clockwise" :bIcon="true" outlined
-                        @executeAction="reloadData()"></hf-buttons>
-                </div>
-            </v-col>
-        </v-row>
 
-        <v-row>
-            <v-col cols="12" lg="5">
-                <div class="overview-container h-100">
-                    <div class="header-row">
-                        <h2 class="title">Credit Allocation</h2>
-                    </div>
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
+            <div>
+                <h4 class="mb-1 font-weight-bold mb-0">Credits Management</h4>
+                <p class="text-muted small mb-0">Manage your API balance and subscription history</p>
+            </div>
+            <div>
+                <hf-buttons name="Refresh" iconClass="arrow-clockwise" :bIcon="true" outlined
+                    @executeAction="reloadData()"></hf-buttons>
+            </div>
+        </div>
+
+        <b-row>
+            <b-col cols="12" lg="5" class="mb-4">
+                <b-card class="serviceCard h-100">
+                    <p class="section-label">CREDIT ALLOCATION</p>
                     <div class="chart-wrapper mt-2">
                         <canvas id="doughNutChat"></canvas>
                     </div>
@@ -28,23 +25,21 @@
                             {{ timeRemaining === 'Expired' ? 'Expired' : 'Subscription Active' }}
                         </span>
                     </div>
-                </div>
-            </v-col>
+                </b-card>
+            </b-col>
 
-            <v-col cols="12" lg="7">
-                <div class="overview-container h-100">
-                    <div class="header-row">
-                        <h2 class="title">Balance Overview</h2>
-                    </div>
+            <b-col cols="12" lg="7" class="mb-4">
+                <b-card class="serviceCard h-100">
+                    <p class="section-label">BALANCE OVERVIEW</p>
 
-                    <div class="d-flex flex-column justify-center">
+                    <div class="d-flex flex-column">
                         <div class="mb-4">
                             <p class="text-muted mb-0 font-weight-medium">Remaining Balance</p>
                             <div class="d-flex align-baseline">
                                 <h1 class="display-1 font-weight-bold color-blue mb-0">
                                     {{ numberFormat(myKYCCredits.allRemainingCredits) }}
                                 </h1>
-                                <span class="ml-2 text-h6 text-muted">
+                                <span class="ml-2 text-muted">
                                     / {{ numberFormat(myKYCCredits.allAvailableCredits) }} Credits
                                 </span>
                             </div>
@@ -52,37 +47,33 @@
                         </div>
 
                         <div>
-                            <v-divider class="mb-4"></v-divider>
-
-                            <v-row no-gutters>
-                                <v-col cols="6">
-                                    <p class="text-muted mb-1 small uppercase font-weight-bold">Status</p>
+                            <hr class="mb-4" />
+                            <b-row no-gutters>
+                                <b-col cols="6">
+                                    <p class="text-muted mb-1 small font-weight-bold" style="text-transform:uppercase;">Status</p>
                                     <p class="mb-0 font-weight-bold" :class="statusColorClass">
-                                        {{ timeRemaining === 'Expired' || timeRemaining === 'InActive' ? timeRemaining :
-                                        'Active' }}
+                                        {{ timeRemaining === 'Expired' || timeRemaining === 'InActive' ? timeRemaining : 'Active' }}
                                     </p>
-                                </v-col>
-                                <v-col cols="6" class="text-right">
-                                    <p class="text-muted mb-1 small uppercase font-weight-bold">Validity</p>
+                                </b-col>
+                                <b-col cols="6" class="text-right">
+                                    <p class="text-muted mb-1 small font-weight-bold" style="text-transform:uppercase;">Validity</p>
                                     <p class="mb-0 font-weight-bold">
                                         {{ timeRemaining === 'Expired' ? 'None' : timeRemaining }}
                                     </p>
-                                </v-col>
-                            </v-row>
+                                </b-col>
+                            </b-row>
                         </div>
-
-
                     </div>
-                </div>
-            </v-col>
-        </v-row>
+                </b-card>
+            </b-col>
+        </b-row>
 
-        <v-row v-if="getKYCCredits.length > 0">
-            <v-col cols="12">
-                <div class="overview-container">
-                    <div class="header-row">
-                        <h2 class="title">Credit Purchase History</h2>
-                        <span class="badge">{{ getKYCCredits.length }} Packages</span>
+        <b-row v-if="getKYCCredits.length > 0">
+            <b-col cols="12">
+                <b-card class="serviceCard">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <p class="section-label mb-0">CREDIT PURCHASE HISTORY</p>
+                        <span class="badge badge-secondary">{{ getKYCCredits.length }} Packages</span>
                     </div>
 
                     <div class="usage-table-wrapper">
@@ -107,38 +98,32 @@
                                     </td>
                                     <td>
                                         <div v-if="eachRow.used >= eachRow.totalCredits" class="text-muted small">
-                                            <v-icon small color="grey">mdi-check-circle</v-icon> Fully Used
+                                            <i class="mdi mdi-check-circle mr-1"></i>Fully Used
                                         </div>
-                                        <div v-else-if="Date.now() > new Date(eachRow.expiresAt)"
-                                            class="color-danger small">
-                                            <v-icon small color="red">mdi-clock-alert</v-icon> Expired
+                                        <div v-else-if="Date.now() > new Date(eachRow.expiresAt)" class="color-danger small">
+                                            <i class="mdi mdi-clock-alert mr-1"></i>Expired
                                         </div>
                                         <div v-else class="small font-weight-medium">
-                                            {{ isValidDate(eachRow.expiresAt) ? formatTimeRemaining(eachRow.expiresAt) :
-                                            'Pending Activation' }}
+                                            {{ isValidDate(eachRow.expiresAt) ? formatTimeRemaining(eachRow.expiresAt) : 'Pending Activation' }}
                                         </div>
                                     </td>
                                    <td :title="`Credit left: ${eachRow.totalCredits - eachRow.used}`">
                                         <div class="d-flex flex-column">
                                             <b-progress :max="eachRow.totalCredits" class="mt-1" height="12px">
-                                                <b-progress-bar 
-                                                    :value="eachRow.used >= eachRow.totalCredits ? eachRow.totalCredits : eachRow.used" 
+                                                <b-progress-bar
+                                                    :value="eachRow.used >= eachRow.totalCredits ? eachRow.totalCredits : eachRow.used"
                                                     :variant="getProgressVariant(eachRow)"
                                                     :class="{'progress-full': eachRow.used >= eachRow.totalCredits}"
                                                 ></b-progress-bar>
                                             </b-progress>
-                                            
                                             <span class="small text-muted mt-1">
                                                 {{ eachRow.used >= eachRow.totalCredits ? '100% Used' : Math.round((eachRow.used / eachRow.totalCredits) * 100) + '% Used' }}
                                             </span>
                                         </div>
                                     </td>
-
                                     <td class="text-center">
-                                        <div
-                                            v-if="eachRow.status === 'Active' && !(Date.now() > new Date(eachRow.expiresAt))">
-                                            <v-chip small color="green lighten-5" text-color="green"
-                                                class="font-weight-bold">ACTIVE</v-chip>
+                                        <div v-if="eachRow.status === 'Active' && !(Date.now() > new Date(eachRow.expiresAt))">
+                                            <span class="badge badge-success">ACTIVE</span>
                                         </div>
                                         <hf-buttons
                                             v-else-if="eachRow.used < eachRow.totalCredits && !(Date.now() > new Date(eachRow.expiresAt))"
@@ -150,10 +135,10 @@
                             </tbody>
                         </table>
                     </div>
-                </div>
-            </v-col>
-        </v-row>
-    </v-container>
+                </b-card>
+            </b-col>
+        </b-row>
+    </b-container>
 </template>
 
 <script>
@@ -348,27 +333,14 @@ export default {
 </script>
 
 <style scoped>
-/* Unified Dashboard Styles */
-.overview-container {
-    padding: 1.5rem;
-    background-color: #f9fafb;
-    border-radius: 0.75rem;
-    border: 1px solid #e5e7eb;
-    margin-top: 1rem;
-}
-
-.header-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1rem;
-}
-
-.title {
-    font-size: 1.125rem;
+.section-label {
+    font-size: 0.75rem;
     font-weight: 700;
-    color: #111827;
-    margin: 0;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.75rem;
+    display: block;
 }
 
 .chart-wrapper {

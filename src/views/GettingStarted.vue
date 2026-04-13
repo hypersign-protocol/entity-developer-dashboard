@@ -1,13 +1,13 @@
 <template>
-  <v-container class="py-6">
-    <v-row align="center" class="mb-6">
-      <v-col cols="12" md="6">
+  <b-container fluid class="py-3">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
+      <div>
         <h4 class="font-weight-bold mb-0">Getting Started</h4>
-        <p class="text-subtitle-2 text-muted">Follow these steps to integrate and launch your verification flow</p>
-      </v-col>
-    </v-row>
-    <v-row>
-      <v-col cols="12" lg="8">
+        <p class="text-muted small mb-0">Follow these steps to integrate and launch your verification flow</p>
+      </div>
+    </div>
+    <b-row>
+      <b-col cols="12" lg="8">
 
         <div class="steps-container">
           <div v-for="(item, i) in guideItems" :key="i" class="step-card mb-4">
@@ -16,7 +16,7 @@
             <div class="d-flex">
               <div class="step-number-wrapper mr-4">
                 <div class="step-number-circle">
-                  <v-icon small style="color:white">{{ item.icon }}</v-icon>
+                  <i :class="`mdi ${item.icon}`" style="color:white; font-size:18px;"></i>
                 </div>
               </div>
 
@@ -24,62 +24,50 @@
                 <h5 class="step-title mb-2">{{ i + 1 }}. {{ item.title }}</h5>
                 <p class="text-muted small mb-3 lh-lg">{{ item.description }}</p>
                 
-                <a 
-                  :href="item.link" 
-                  :target="item.openInNewTab ? '_blank' : '_self'" 
-                  class="step-action-link"
-                >
+                <a :href="item.link" :target="item.openInNewTab ? '_blank' : '_self'" class="step-action-link">
                   {{ item.anchorText || "Read Documentation" }}
-                  <v-icon x-small color="primary" class="ml-1">mdi-arrow-right</v-icon>
+                  <i class="mdi mdi-arrow-right ml-1"></i>
                 </a>
               </div>
             </div>
           </div>
         </div>
-      </v-col>
+      </b-col>
 
-      <v-col cols="12" lg="4">
+      <b-col cols="12" lg="4">
         <div class="overview-container mb-4">
-          <h6 class="input-label mb-4"><v-icon x-small class="mr-1">mdi-lifebuoy</v-icon> Helpful Links</h6>
+          <h6 class="input-label mb-4"><i class="mdi mdi-lifebuoy mr-1"></i> Helpful Links</h6>
           <nav class="resource-nav">
             <a href="https://docs.hypersign.id" target="_blank" class="resource-link">
-              <v-icon small class="mr-2">mdi-book-open-variant</v-icon> Core Concepts
+              <i class="mdi mdi-book-open-variant mr-2"></i> Core Concepts
             </a>
             <a href="https://docs.hypersign.id" target="_blank" class="resource-link">
-              <v-icon small class="mr-2">mdi-file-document-outline</v-icon> Technical Docs
+              <i class="mdi mdi-file-document-outline mr-2"></i> Technical Docs
             </a>
             <a href="mailto:support@hypersign.id" class="resource-link">
-              <v-icon small class="mr-2">mdi-message-outline</v-icon> Contact Support
+              <i class="mdi mdi-message-outline mr-2"></i> Contact Support
             </a>
           </nav>
         </div>
 
         <div class="overview-container mb-4 secondary-bg">
-          <h6 class="input-label mb-2"><v-icon x-small class="mr-1">mdi-school-outline</v-icon> Tutorials</h6>
-          <p class="x-small text-muted mb-4">Learn by doing with quick, step-by-step guides for KYC & KYB.</p>
-          <v-btn 
-            block 
-            depressed 
-            small 
-            color="white" 
-            class="text-none font-weight-bold"
-            href="https://docs.hypersign.id/hypersign-kyc/tutorials"
-            target="_blank"
-          >
+          <h6 class="input-label mb-2"><i class="mdi mdi-school-outline mr-1"></i> Tutorials</h6>
+          <p class="x-small text-muted mb-4">Learn by doing with quick, step-by-step guides for KYC &amp; KYB.</p>
+          <b-button block variant="white" size="sm" class="font-weight-bold" href="https://docs.hypersign.id/hypersign-kyc/tutorials" target="_blank">
             Explore Tutorials
-          </v-btn>
+          </b-button>
         </div>
 
         <div class="overview-container">
-          <h6 class="input-label mb-2"><v-icon x-small class="mr-1">mdi-file-chart-outline</v-icon> Case Studies</h6>
+          <h6 class="input-label mb-2"><i class="mdi mdi-file-chart-outline mr-1"></i> Case Studies</h6>
           <p class="x-small text-muted mb-4">Discover how companies streamline onboarding with Hypersign.</p>
           <a href="https://www.hypersign.id/blogs" target="_blank" class="text-primary x-small font-weight-bold">
-            Read Success Stories <v-icon x-small color="primary">mdi-open-in-new</v-icon>
+            Read Success Stories <i class="mdi mdi-open-in-new"></i>
           </a>
         </div>
-      </v-col>
-    </v-row>
-  </v-container>
+      </b-col>
+    </b-row>
+  </b-container>
 </template>
 
 <style scoped>

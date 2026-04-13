@@ -120,34 +120,16 @@ h5 span {
 
 
 <template>
-  <div :class="isContainerShift ? 'homeShift' : 'home'">
+  <b-container fluid class="py-3">
     <loadIng :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loadIng>
-    <!-- <div class="row mb-1">
-      <div class="col-12 bg-warning">
-        <b-navbar style="border-radius: 5px;">
-          <b-navbar-nav><b-nav-item href="#">This is an experimental feature!</b-nav-item></b-navbar-nav>
-        </b-navbar>
-      </div>
-    </div> -->
-    <div class="row">
-      <div class="col-6" style="text-align: left">
-        <div class="form-group" style="display:flex">
-          <h3 v-if="onchainconfigs.length > 0" style="text-align: left;" class="position-relative">
 
-            OnChain KYC Configuration
-            <!-- <span class="badge position-absolute  rounded">
-              Beta
-            </span> -->
-            <HFBeta></HFBeta>
-
-          </h3>
-          <h3 v-else style="text-align: left;">No onchain kyc configuration found!</h3>
-        </div>
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
+      <div>
+        <h4 class="mb-1 font-weight-bold mb-0">OnChain KYC Configuration</h4>
+        <p class="text-muted small mb-0">Manage blockchain-based KYC deployments</p>
       </div>
-      <div class="col-6">
-        <hf-buttons name=" Deploy OnChain KYC" iconClass="fa fa-plus" class="ml-auto " @executeAction="openSlider()"
-          style="float: right;">
-        </hf-buttons>
+      <div>
+        <hf-buttons name="Deploy OnChain KYC" iconClass="fa fa-plus" @executeAction="openSlider()"></hf-buttons>
       </div>
     </div>
 
@@ -225,7 +207,7 @@ h5 span {
         <DeployOnChainKYC :key="sliderKey" />
       </div>
     </StudioSideBar>
-  </div>
+  </b-container>
 </template>
 
 <script>
@@ -236,12 +218,11 @@ import StudioSideBar from "../../components/element/StudioSideBar.vue";
 import DeployOnChainKYC from "../../components/deploy-onchain-kyc-popup/deploy.vue";
 import { getCosmosChainConfig } from '@hypersign-protocol/hypersign-kyc-chains-metadata/cosmos/wallet/cosmos-wallet-utils'
 import { getStellarChainConfig } from '@hypersign-protocol/hypersign-kyc-chains-metadata/stellar/wallet/stellar-wallet-utils'
-import HFBeta from '../../components/element/HFBeta.vue';
 import { mapState, mapActions, mapMutations } from "vuex";
 
 export default {
   name: "UsageS",
-  components: { HfButtons, StudioSideBar, DeployOnChainKYC, HFBeta },
+  components: { HfButtons, StudioSideBar, DeployOnChainKYC },
   computed: {
     ...mapState({
       containerShift: state => state.playgroundStore.containerShift,

@@ -1,9 +1,9 @@
 <template>
-  <v-container fluid class="py-6 px-8">
+  <b-container fluid class="py-4">
     <load-ing :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></load-ing>
 
-    <v-row align="center" class="mb-6">
-  <v-col cols="12" md="8">
+    <b-row align="center" class="mb-6">
+  <b-col cols="12" md="8">
     <div class="d-flex align-center">
       <a 
         @click.prevent="goBack" 
@@ -12,26 +12,21 @@
         Business Verifications
       </a>
       
-      <v-icon class="mx-2" color="grey lighten-1">mdi-chevron-right</v-icon>
+      <i class="mdi mdi-chevron-right mx-2 text-muted"></i>
       <span class="company-title text-h6 font-weight-bold">{{ companyName }}</span>
     </div>
     <p class="text-subtitle-2 text-muted mb-0 mt-1">
       Review business documentation and regulatory status
     </p>
-  </v-col>
+  </b-col>
 
-  <v-col 
-    cols="12" 
-    md="4" 
-    v-if="company?.status === 'Completed'"
-    class="d-flex align-center"
->
+  <b-col cols="12" md="4" v-if="company?.status === 'Completed'" class="d-flex align-items-center">
     <div class="d-flex justify-md-end justify-start align-center gap-3 w-100">
 
         <hf-buttons name="Approve" iconClass=""
                                     @executeAction="approveCompany"></hf-buttons>
 
-        <v-btn color="error" text @click="rejectCompany"><v-icon small left color="white">mdi-close-circle-outline</v-icon>Reject</v-btn>
+        <b-button variant="outline-danger" @click="rejectCompany"><i class="mdi mdi-close-circle-outline mr-1"></i>Reject</b-button>
         
         <!-- <button @click="approveCompany" class="theme-btn btn-approve">
             <v-icon small left color="white">mdi-check-decagram</v-icon>
@@ -43,36 +38,36 @@
             Reject
         </button> -->
     </div>
-</v-col>
-</v-row>
-    <v-row>
-      <v-col cols="12" md="3" lg="2">
+</b-col>
+</b-row>
+    <b-row>
+      <b-col cols="12" md="3" lg="2">
         <div class="overview-container pa-0 sticky-sidebar">
           <!-- <div class="sidebar-header border-bottom pa-4">
             <span class="input-label">Verification Sections</span>
           </div> -->
           <nav class="nav-list">
             <a href="#" class="nav-tab" :class="{ active: activeTab === 'business-info' }" @click.prevent="setActiveTab('business-info')">
-              <v-icon small class="mr-3">mdi-office-building</v-icon>
+              <i class="mdi mdi-office-building mr-3"></i>
               Business Info
             </a>
             <a href="#" class="nav-tab" :class="{ active: activeTab === 'documents' }" @click.prevent="setActiveTab('documents')">
-              <v-icon small class="mr-3">mdi-file-document-outline</v-icon>
+              <i class="mdi mdi-file-document-outline mr-3"></i>
               Documents
             </a>
             <a href="#" class="nav-tab" :class="{ active: activeTab === 'ubo-details' }" @click.prevent="setActiveTab('ubo-details')">
-              <v-icon small class="mr-3">mdi-account-group-outline</v-icon>
+              <i class="mdi mdi-account-group-outline mr-3"></i>
               UBO Details
             </a>
             <a href="#" class="nav-tab" :class="{ active: activeTab === 'checks-regulations' }" @click.prevent="setActiveTab('checks-regulations')">
-              <v-icon small class="mr-3">mdi-shield-check-outline</v-icon>
+              <i class="mdi mdi-shield-check-outline mr-3"></i>
               Compliance 
             </a>
           </nav>
         </div>
-      </v-col>
+      </b-col>
 
-      <v-col cols="12" md="9" lg="10">
+      <b-col cols="12" md="9" lg="10">
         <div class="content-view-panel">
           <div v-if="activeTab === 'business-info'" class="tab-fade-in">
             <BusinessInformation :company="company" />
@@ -87,8 +82,8 @@
             <ChecksRegulations :company="company" />
           </div>
         </div>
-      </v-col>
-    </v-row>
+      </b-col>
+    </b-row>
 
      <!-- Custom Modals -->
         <CustomConfirmModal :isVisible="showApproveConfirm" title="Approve Company"
@@ -102,7 +97,7 @@
             placeholder="Enter the reason for rejection (e.g., incomplete documentation, compliance issues, etc.)"
             submitText="Reject" cancelText="Cancel" iconClass="fas fa-times-circle" submitIconClass="fas fa-times"
             @submit="handleRejectSubmit" @cancel="showRejectPrompt = false" />
-  </v-container>
+  </b-container>
 </template>
 
 <style scoped>

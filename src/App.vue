@@ -1,5 +1,17 @@
 <style scoped>
 /* Fix Navbar Appearance */
+.dark-user {
+  color: #555 !important;
+
+
+}
+.mfa-dark{
+  background-color: #555 !important;
+  color: white !important;
+  border-radius: 12px !important;
+  border: 1px solid #555 !important;
+  
+}
 .navStyle {
   background: rgba(255, 255, 255, 0.95) !important;
   backdrop-filter: blur(10px);
@@ -101,11 +113,15 @@
 }
 
 .container-collapsed {
-  margin-left: 15em;
+  margin-right: 250px; /* expanded sidebar width */
+  margin-left: 300px;
+  transition: margin-left 0.3s ease;
 }
 
-.container {
-  max-width: 1300px;
+.container-collapsed-not {
+  margin-right: 250px;
+  margin-left: 250px; /* collapsed sidebar icon width */
+  transition: margin-left 0.3s ease;
 }
 
 .far {
@@ -331,20 +347,20 @@
               <span class="mr-2 d-none d-md-inline text-muted small font-weight-bold"
                 >Acting as:</span
               >
-              <v-chip small color="primary" outlined class="tenant-chip">
+              <span class="badge badge-pill border text-primary tenant-chip d-inline-flex align-items-center dark-user ">
                 <span class="text-truncate" style="max-width: 150px">{{
                   getSwitchedTenantAccount
                 }}</span>
                 <b-icon icon="box-arrow-in-right" class="ml-2"></b-icon>
-              </v-chip>
+              </span>
             </div>
           </b-nav-item>
 
-          <b-nav-item v-if="!isMFAEnabled" to="/studio/settings" class="px-2">
-            <v-chip small color="orange" dark class="mfa-chip">
+          <b-nav-item v-if="!isMFAEnabled" to="/studio/settings" class="px-2 ">
+            <span class="badge badge-pill bg-warning text-dark mfa-chip d-inline-flex align-items-center mfa-dark">
               <b-icon icon="exclamation-triangle-fill" class="mr-1"></b-icon>
               <span>Setup MFA</span>
-            </v-chip>
+            </span>
           </b-nav-item>
 
           <b-nav-item-dropdown
@@ -412,7 +428,7 @@
     <div
       :class="[isSidebarCollapsed ? 'container-collapsed-not' : 'container-collapsed']"
     >
-      <router-view class="container containerData" />
+      <router-view />
     </div>
     <notifications group="foo" />
 
@@ -432,23 +448,19 @@
       :menu="getSideMenu()"
     >
       <div slot="header" style="border-bottom: 1px solid rgba(0, 0, 0, 0.12)">
-        <v-list>
-          <v-list-item>
-            <v-list-item-avatar>
-              <v-img
-                :src="
-                  getSelectedService.logoUrl ||
-                  getProfileIcon(formattedAppName(getSelectedService.appName))
-                "
-              ></v-img>
-            </v-list-item-avatar>
-            <v-list-item-content class="mx-1">
-              <v-list-item-title class="text-h7">
-                {{ getSelectedService ? getSelectedService.appName : "" }}
-              </v-list-item-title>
-            </v-list-item-content>
-          </v-list-item>
-        </v-list>
+        <div class="d-flex align-items-center px-3 py-2">
+          <div class="logo-container mr-2" style="width:40px;height:40px;flex-shrink:0;">
+            <img
+              :src="getSelectedService.logoUrl || getProfileIcon(formattedAppName(getSelectedService.appName))"
+              style="width:100%;height:100%;object-fit:cover;"
+            />
+          </div>
+          <div class="mx-1" style="overflow:hidden;">
+            <div class="font-weight-bold small text-truncate">
+              {{ getSelectedService ? getSelectedService.appName : "" }}
+            </div>
+          </div>
+        </div>
       </div>
     </sidebar-menu>
   </div>

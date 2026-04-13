@@ -2,24 +2,22 @@
   <div>
     <div v-if="step === 1">
       <h5 class="step-title mb-3">Select Your Business Type</h5>
-      <v-row>
-        <v-col v-for="(label, key) in BUSINESS_TYPE" :key="key" cols="12" md="4">
+      <b-row>
+        <b-col v-for="(label, key) in BUSINESS_TYPE" :key="key" cols="12" md="4">
           <div 
             class="step-content-box text-center p-4 selectable-card" 
             :class="{ 'selected-card': localCompany.type === key }"
             @click="selectBusinessType(key)"
           >
-            <v-icon 
-              large 
-              :color="localCompany.type === key ? 'primary' : 'secondary'" 
-              class="mb-4"
-            >
-              {{ getBusinessIcon(key) }}
-            </v-icon>
+            <i
+              :class="[getBusinessIcon(key), localCompany.type === key ? 'text-primary' : 'text-secondary']"
+              style="font-size:2rem"
+              class="mb-4 d-block"
+            ></i>
             <h6 class="font-weight-bold mb-0">{{ label }}</h6>
           </div>
-        </v-col>
-      </v-row>
+        </b-col>
+      </b-row>
     </div>
 
     <div v-else-if="step === 2">
@@ -27,61 +25,58 @@
         Enter Your {{ localCompany.type === 'BUSINESS' ? "Business" : "Community" }} Details
       </h5>
       
-      <v-form @submit.prevent="goToStep3">
-        <v-row>
-          <v-col cols="12" md="6" class="py-0">
+      <form @submit.prevent="goToStep3">
+        <b-row>
+          <b-col cols="12" md="6" class="py-0">
             <label class="input-label mb-2">
               {{ localCompany.type === 'BUSINESS' ? 'Company Name' : 'Community Name' }}
             </label>
-            <v-text-field v-model="localCompany.name" placeholder="ABC Pvt Ltd." outlined dense required />
-          </v-col>
+            <b-form-input v-model="localCompany.name" placeholder="ABC Pvt Ltd." required />
+          </b-col>
 
-          <v-col cols="12" md="6" class="py-0" v-if="localCompany.type === 'BUSINESS'">
+          <b-col cols="12" md="6" class="py-0" v-if="localCompany.type === 'BUSINESS'">
             <label class="input-label mb-2">Domain</label>
-            <v-text-field v-model="localCompany.domain" placeholder="abc.com" outlined dense required />
-          </v-col>
-        </v-row>
+            <b-form-input v-model="localCompany.domain" placeholder="abc.com" required />
+          </b-col>
+        </b-row>
 
-        <v-row v-if="localCompany.type === 'BUSINESS'">
-          <v-col cols="12" md="6" class="py-0">
+        <b-row v-if="localCompany.type === 'BUSINESS'">
+          <b-col cols="12" md="6" class="py-0">
             <label class="input-label mb-2">Country</label>
-            <v-select v-model="localCompany.country" :items="countryOptions" outlined dense required />
-          </v-col>
+            <b-form-select v-model="localCompany.country" :options="countryOptions" required />
+          </b-col>
 
-          <v-col cols="12" md="6" class="py-0">
+          <b-col cols="12" md="6" class="py-0">
             <label class="input-label mb-2">Registration Number</label>
-            <v-text-field v-model="localCompany.registration_number" outlined dense />
-          </v-col>
-        </v-row>
+            <b-form-input v-model="localCompany.registration_number" />
+          </b-col>
+        </b-row>
 
-        <v-row>
-          <v-col cols="12" md="6" class="py-0">
+        <b-row>
+          <b-col cols="12" md="6" class="py-0">
             <label class="input-label mb-2">Business Email</label>
-            <v-text-field type="email" v-model="localCompany.contact_email" placeholder="contact@gmail.com" outlined dense required />
-          </v-col>
+            <b-form-input type="email" v-model="localCompany.contact_email" placeholder="contact@gmail.com" required />
+          </b-col>
 
           <!-- <v-col cols="12" md="6" class="py-0">
             <label class="input-label mb-2">Phone Number</label>
             <v-text-field v-model="localCompany.phone_no" placeholder="9989212929" outlined dense required />
           </v-col> -->
 
-          <v-col cols="12" md="6" class="py-0">
+          <b-col cols="12" md="6" class="py-0">
   <label class="input-label mb-2">Phone Number</label>
-  <v-text-field 
-    v-model="localCompany.phone_no" 
-    placeholder="9999999999" 
-    outlined 
-    dense 
-    required
-    :prefix="selectedCallingCode"
-    :rules="phoneRules"
-  >
-    <template v-slot:prepend-inner>
-      <v-icon small color="grey lighten-1">mdi-phone-outline</v-icon>
-    </template>
-  </v-text-field>
-</v-col>
-        </v-row>
+  <div class="input-group">
+    <div class="input-group-prepend">
+      <span class="input-group-text"><i class="mdi mdi-phone-outline" style="color:#bdbdbd"></i></span>
+    </div>
+    <b-form-input
+      v-model="localCompany.phone_no"
+      placeholder="9999999999"
+      required
+    />
+  </div>
+</b-col>
+        </b-row>
 
         <div class="mb-4">
           <label class="input-label mb-2">Upload Logo</label>
@@ -89,25 +84,34 @@
         </div>
 
         <label class="input-label mb-3">Social Profiles</label>
-        <v-row>
-          <v-col cols="12" md="4" class="py-0">
-            <v-text-field v-model="localCompany.twitterUrl" prepend-inner-icon="mdi-twitter" placeholder="Twitter" outlined dense />
-          </v-col>
-          <v-col cols="12" md="4" class="py-0">
-            <v-text-field v-model="localCompany.telegramUrl" prepend-inner-icon="mdi-send" placeholder="Telegram" outlined dense />
-          </v-col>
-          <v-col cols="12" md="4" class="py-0">
-            <v-text-field v-model="localCompany.linkedinUrl" prepend-inner-icon="mdi-linkedin" placeholder="LinkedIn" outlined dense />
-          </v-col>
-        </v-row>
+        <b-row>
+          <b-col cols="12" md="4" class="py-0">
+            <div class="input-group mb-2">
+              <div class="input-group-prepend"><span class="input-group-text"><i class="mdi mdi-twitter"></i></span></div>
+              <b-form-input v-model="localCompany.twitterUrl" placeholder="Twitter" />
+            </div>
+          </b-col>
+          <b-col cols="12" md="4" class="py-0">
+            <div class="input-group mb-2">
+              <div class="input-group-prepend"><span class="input-group-text"><i class="mdi mdi-send"></i></span></div>
+              <b-form-input v-model="localCompany.telegramUrl" placeholder="Telegram" />
+            </div>
+          </b-col>
+          <b-col cols="12" md="4" class="py-0">
+            <div class="input-group mb-2">
+              <div class="input-group-prepend"><span class="input-group-text"><i class="mdi mdi-linkedin"></i></span></div>
+              <b-form-input v-model="localCompany.linkedinUrl" placeholder="LinkedIn" />
+            </div>
+          </b-col>
+        </b-row>
 
         <div class="d-flex justify-end mt-4 align-center">
-          <v-btn text color="secondary" class="text-none mr-2" @click="handleBack()">Back</v-btn>
+          <button type="button" class="btn btn-link text-secondary mr-2" @click="handleBack()">Back</button>
           <hf-buttons name="Next Step"   @executeAction="handleNext()"></hf-buttons>
 
           
         </div>
-      </v-form>
+      </form>
     </div>
 
     <div v-else-if="step === 3">
@@ -125,15 +129,15 @@
 
       <div v-else-if="subStep === 3">
         <h6 class="font-weight-bold mb-4">Which industry does your business belong to?</h6>
-        <v-row>
-          <v-col cols="12" sm="6" class="py-0">
+        <b-row>
+          <b-col cols="12" sm="6" class="py-0">
             <b-form-checkbox-group v-model="localCompany.fields" :options="fieldOptions" stacked />
-          </v-col>
-        </v-row>
+          </b-col>
+        </b-row>
       </div>
 
       <div class="d-flex justify-end mt-8 align-center">
-        <v-btn text color="secondary" class="text-none mr-2" @click="handleBack()">Back</v-btn>
+        <button type="button" class="btn btn-link text-secondary mr-2" @click="handleBack()">Back</button>
         <!-- <v-btn class="btn button" @click="handleNext()">
           {{ subStep === 3 ? 'Complete Setup' : 'Continue' }}
         </v-btn> -->

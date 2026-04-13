@@ -1,5 +1,5 @@
 <template>
-  <v-container pa-0>
+  <div>
     <load-ing :active.sync="isLoading" :can-cancel="false" :is-full-page="false"></load-ing>
 
     <div class="overview-container">
@@ -7,95 +7,86 @@
         <h2 class="title">Record Identification</h2>
       </div>
       
-      <v-row dense class="mb-6">
-        <v-col cols="12" md="8">
+      <b-row class="mb-4">
+        <b-col cols="12" md="8">
           <label class="input-label">Onboarding Record ID</label>
-          <v-text-field
+          <b-form-input
             v-model="recordId"
             placeholder="e.g. 693d6fa1c15303a8e72a04b9"
-            outlined
-            dense
-            hide-details
-            color="primary"
             class="mono-text"
-          ></v-text-field>
-        </v-col>
-      </v-row>
+          ></b-form-input>
+        </b-col>
+      </b-row>
 
-      <v-divider class="mb-6"></v-divider>
+      <hr class="mb-4">
 
-      <v-row>
-        <v-col cols="12" md="6">
+      <b-row>
+        <b-col cols="12" md="6">
           <div class="warning-box h-100">
-            <div class="d-flex align-center mb-4">
-              <v-icon small color="primary" class="mr-2">mdi-shield-key-outline</v-icon>
+            <div class="d-flex align-items-center mb-4">
+              <i class="mdi mdi-shield-key-outline text-primary mr-2"></i>
               <span class="font-weight-bold text-uppercase small">SSI Credit Detail</span>
             </div>
 
             <div class="mb-3">
               <label class="input-label">Amount (uHID)</label>
-              <v-text-field v-model.number="form.ssiCreditDetail.amount" type="number" outlined dense hide-details bg-white></v-text-field>
+              <b-form-input v-model.number="form.ssiCreditDetail.amount" type="number"></b-form-input>
             </div>
 
-            <v-row dense>
-              <v-col cols="7">
+            <b-row>
+              <b-col cols="7">
                 <label class="input-label">Validity Period</label>
-                <v-text-field v-model.number="form.ssiCreditDetail.validityPeriod" type="number" outlined dense hide-details bg-white></v-text-field>
-              </v-col>
-              <v-col cols="5">
+                <b-form-input v-model.number="form.ssiCreditDetail.validityPeriod" type="number"></b-form-input>
+              </b-col>
+              <b-col cols="5">
                 <label class="input-label">Unit</label>
-                <v-select :items="units" v-model="form.ssiCreditDetail.validityPeriodUnit" outlined dense hide-details bg-white></v-select>
-              </v-col>
-            </v-row>
+                <b-form-select :options="units" v-model="form.ssiCreditDetail.validityPeriodUnit"></b-form-select>
+              </b-col>
+            </b-row>
           </div>
-        </v-col>
+        </b-col>
 
-        <v-col cols="12" md="6">
+        <b-col cols="12" md="6">
           <div class="warning-box h-100">
-            <div class="d-flex align-center mb-4">
-              <v-icon small color="primary" class="mr-2">mdi-account-check-outline</v-icon>
+            <div class="d-flex align-items-center mb-4">
+              <i class="mdi mdi-account-check-outline text-primary mr-2"></i>
               <span class="font-weight-bold text-uppercase small">KYC Credit Detail</span>
             </div>
 
             <div class="mb-3">
               <label class="input-label">Amount (uHID)</label>
-              <v-text-field v-model.number="form.kycCreditDetail.amount" type="number" outlined dense hide-details bg-white></v-text-field>
+              <b-form-input v-model.number="form.kycCreditDetail.amount" type="number"></b-form-input>
             </div>
 
-            <v-row dense>
-              <v-col cols="7">
+            <b-row>
+              <b-col cols="7">
                 <label class="input-label">Validity Period</label>
-                <v-text-field v-model.number="form.kycCreditDetail.validityPeriod" type="number" outlined dense hide-details bg-white></v-text-field>
-              </v-col>
-              <v-col cols="5">
+                <b-form-input v-model.number="form.kycCreditDetail.validityPeriod" type="number"></b-form-input>
+              </b-col>
+              <b-col cols="5">
                 <label class="input-label">Unit</label>
-                <v-select :items="units" v-model="form.kycCreditDetail.validityPeriodUnit" outlined dense hide-details bg-white></v-select>
-              </v-col>
-            </v-row>
+                <b-form-select :options="units" v-model="form.kycCreditDetail.validityPeriodUnit"></b-form-select>
+              </b-col>
+            </b-row>
           </div>
-        </v-col>
-      </v-row>
+        </b-col>
+      </b-row>
 
-      <div class="mt-8 d-flex flex-column align-center">
+      <div class="mt-4 d-flex flex-column align-items-center">
         <p class="x-small text-muted mb-4">Review all credit details carefully before clicking approve.</p>
-        <v-btn
-          :loading="loading"
+        <b-button
           :disabled="loading"
-          color="#111827"
-          class="white--text px-12 font-weight-bold"
-          depressed
-          x-large
+          variant="dark"
+          class="font-weight-bold px-4"
           @click="submitOnboarding"
         >
-        <span style="color: white;">Approve & Onboard Service</span>
-
-          
-        </v-btn>
+          <span>Approve &amp; Onboard Service</span>
+        </b-button>
       </div>
 
-      <v-fade-transition></v-fade-transition>
+      <div v-if="false"></div>
     </div>
-  </v-container>
+  </div>
 </template>
 
 <style scoped>

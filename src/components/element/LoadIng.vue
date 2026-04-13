@@ -1,8 +1,8 @@
 <template>
-  <v-overlay v-model="localActive" :value="localActive" :absolute="!isFullPage" :opacity="0.7" :z-index="zIndex" :class="{ 'full-screen': isFullPage }" @click="handleCancel">
-    <v-progress-circular :size="40" :width="4" color="primary" indeterminate></v-progress-circular>
+  <div v-if="localActive" :class="isFullPage ? 'loading-overlay full-screen' : 'loading-overlay'" :style="{ zIndex }" @click="handleCancel">
+    <b-spinner variant="primary" style="width:40px;height:40px;border-width:4px"></b-spinner>
     <div class="mt-3 text-subtitle-2 grey--text">Please wait...</div>
-  </v-overlay>
+  </div>
 </template>
 
 <script>
@@ -47,9 +47,19 @@ export default {
 </script>
 
 <style scoped>
-.full-screen {
+.loading-overlay {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.7);
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+}
+.loading-overlay.full-screen {
   position: fixed !important;
-  top: 0;
-  left: 0;
+  top: 0; left: 0;
+  width: 100vw;
+  height: 100vh;
 }
 </style>

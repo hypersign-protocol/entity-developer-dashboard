@@ -4,7 +4,7 @@
       <div class="input-group">
         <label class="portal-label">Email Address</label>
         <div class="input-wrapper">
-          <v-icon small class="input-icon">mdi-email-outline</v-icon>
+          <i class="mdi mdi-email-outline input-icon" style="font-size:16px"></i>
           <input 
             v-model="email" 
             type="email" 
@@ -22,7 +22,7 @@
         :class="{ 'btn-loading': loading }"
       >
         <span>{{ loading ? 'Sending...' : 'Continue' }}</span>
-        <v-icon v-if="!loading" right small color="white">mdi-arrow-right</v-icon>
+        <i v-if="!loading" class="mdi mdi-arrow-right text-white" style="font-size:14px"></i>
       </button>
     </div>
 
@@ -32,7 +32,7 @@
         <div class="d-flex align-center justify-center gap-2">
           <span class="active-email">{{ email }}</span>
           <button @click="goBackToEmail" class="change-email-btn" title="Edit Email">
-            <v-icon x-small color="blue">mdi-pencil-outline</v-icon>
+            <i class="mdi mdi-pencil-outline" style="font-size:12px;color:blue"></i>
           </button>
         </div>
       </div>
@@ -42,13 +42,13 @@
           <PIN @pinTakenEvent="verifyOtp" />
         </div>
         <p v-if="loading" class="verifying-status mt-4">
-          <v-progress-circular indeterminate size="16" width="2" color="blue" class="mr-2"></v-progress-circular>
+          <b-spinner small variant="primary" class="mr-2"></b-spinner>
           Verifying identity...
         </p>
       </div>
 
       <div v-if="isOtpExpired" class="expired-alert">
-        <v-icon color="red lighten-1" class="mb-2">mdi-alert-circle-outline</v-icon>
+        <i class="mdi mdi-alert-circle-outline mb-2" style="color:#ef5350;font-size:24px"></i>
         <p class="expired-text">Your security code has expired.</p>
         <button 
           @click="requestOtp" 

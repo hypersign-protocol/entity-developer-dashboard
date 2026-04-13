@@ -1,11 +1,11 @@
 <template>
-  <v-container fluid class="pa-6 profile-page">
+  <div class="pa-6 profile-page">
     <!-- Banner (full-width area) -->
     <div class="banner" :style="bannerStyle"></div>
 
-    <v-row class="mt-6" align="start">
+    <b-row class="mt-6">
       <!-- LEFT: Name, Email, Account Info -->
-      <v-col cols="12" md="8" class="left-section">
+      <b-col cols="12" md="8" class="left-section">
 
         <!-- Name + Email + Chips -->
         <div class="user-header">
@@ -29,10 +29,10 @@
         <div class="section-card">
           <h5>Permissions ({{ totalPermissionsCount }})</h5>
 
-          <v-row dense>
-            <v-col v-for="(items, serviceType) in groupedAccess" :key="serviceType" cols="12" class="mb-3">
+          <b-row>
+            <b-col v-for="(items, serviceType) in groupedAccess" :key="serviceType" cols="12" class="mb-3">
               <div class="permission-header">
-                <v-icon color="green" small>mdi-shield-check</v-icon>
+                <i class="mdi mdi-shield-check text-success mr-1" style="font-size:14px"></i>
                 <span class="ml-2">{{ formatServiceType(serviceType) }} ({{ items.length }})</span>
               </div>
 
@@ -41,23 +41,23 @@
                   {{ access.access }}
                 </span>
               </div>
-            </v-col>
-          </v-row>
+            </b-col>
+          </b-row>
         </div>
-      </v-col>
+      </b-col>
 
-      <!-- RIGHT: Profile avatar (over banner), Permissions, Actions -->
-      <v-col cols="12" md="4" class="right-section">
+      <b-col cols="12" md="4" class="right-section">
         <!-- Avatar container is absolutely positioned relative to .profile-page -->
         <div class="avatar-wrapper">
-          <v-avatar size="140" class="profile-avatar">
-            <!-- <v-img src="" alt="Profile" /> -->
-            <v-img
+          <div class="profile-avatar rounded-circle overflow-hidden" style="width:140px;height:140px">
+            <img
               :src="profileSrc"
               alt="Profile"
               @error="onImageError"
+              class="w-100 h-100"
+              style="object-fit:cover"
             />
-          </v-avatar>
+          </div>
         </div>
 
         <!-- Permissions box -->
@@ -65,68 +65,47 @@
           <h5>Account Information</h5>
 
 
-          <v-list dense style="background-color: transparent;">
-            <v-list-item>
-              <v-list-item-content>
-                <v-list-item-title>Created At</v-list-item-title>
-                <v-list-item-subtitle>{{ formatDate(user.createdAt) }}</v-list-item-subtitle>
-              </v-list-item-content>
-            </v-list-item>
-
-            <v-list-item>
-              <v-list-item-content>
-                <v-list-item-title>Last Updated</v-list-item-title>
-                <v-list-item-subtitle>{{ formatDate(user.updatedAt) }}</v-list-item-subtitle>
-              </v-list-item-content>
-            </v-list-item>
-
-            <v-list-item>
-              <v-list-item-content>
-                <v-list-item-title>Role</v-list-item-title>
-                <v-list-item-subtitle>
-                  <v-chip color="grey lighten-3" small text-color="black">
-                    {{ user.role || 'Admin' }}
-                  </v-chip>
-                </v-list-item-subtitle>
-              </v-list-item-content>
-            </v-list-item>
-
-            <v-list-item v-if="user.authenticators?.length">
-              <v-list-item-content>
-                <v-list-item-title>Authentication Methods</v-list-item-title>
-                <v-list-item-subtitle>
-                  <v-chip v-for="auth in user.authenticators" :key="auth.type"
-                          small class="ma-1"
-                          color="grey lighten-3"
-                          text-color="black">
-                    {{ auth.type }}
-                  </v-chip>
-                </v-list-item-subtitle>
-              </v-list-item-content>
-            </v-list-item>
-          </v-list>
+          <div>
+            <div class="d-flex justify-content-between py-2 border-bottom">
+              <span class="text-muted small">Created At</span>
+              <span>{{ formatDate(user.createdAt) }}</span>
+            </div>
+            <div class="d-flex justify-content-between py-2 border-bottom">
+              <span class="text-muted small">Last Updated</span>
+              <span>{{ formatDate(user.updatedAt) }}</span>
+            </div>
+            <div class="d-flex justify-content-between py-2 border-bottom">
+              <span class="text-muted small">Role</span>
+              <span class="badge badge-secondary">{{ user.role || 'Admin' }}</span>
+            </div>
+            <div class="d-flex justify-content-between py-2" v-if="user.authenticators?.length">
+              <span class="text-muted small">Auth Methods</span>
+              <span>
+                <span v-for="auth in user.authenticators" :key="auth.type" class="badge badge-light border mr-1">{{ auth.type }}</span>
+              </span>
+            </div>
+          </div>
 
           
         </div>
 
         <!-- Action buttons pinned below permissions -->
         <div class="action-buttons">
-          <v-btn v-if="!isMFAEnabled" color="success" outlined class="mr-3" @click="onSetupMFA">
-            <v-icon left>mdi-shield-key</v-icon> Setup MFA
-          </v-btn>
-
-          <v-btn color="error" outlined @click="onLogout">
-            <v-icon left>mdi-logout</v-icon> Logout
-          </v-btn>
+          <button v-if="!isMFAEnabled" class="btn btn-outline-success mr-3" @click="onSetupMFA">
+            <i class="mdi mdi-shield-key mr-1"></i> Setup MFA
+          </button>
+          <button class="btn btn-outline-danger" @click="onLogout">
+            <i class="mdi mdi-logout mr-1"></i> Logout
+          </button>
         </div>
-      </v-col>
-    </v-row>
+      </b-col>
+    </b-row>
 
     <!-- Popup -->
     <hf-pop-up id="setup-mfa-popup" Header="MFA">
       <SetupMFA @closePopup="onPopupClose" />
     </hf-pop-up>
-  </v-container>
+  </div>
 </template>
  
 

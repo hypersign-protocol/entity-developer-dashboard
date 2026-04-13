@@ -1,5 +1,5 @@
 <template>
-  <v-btn  :class="customClass ? `${customClass}` : 'btn button-theme'"
+  <v-btn :class="customClass ? `${customClass}` : 'btn button-theme'"
   :title="title"
   depressed
   @click="emitExecuteAction()"
@@ -43,12 +43,6 @@ export default {
       }
     },
     computed:{
-    //   buttonThemeCss() {
-    //   return {
-    //     '--button-bg-color': config.app.buttonBgColor,
-    //     '--button-text-color':config.app.buttonTextColor
-    //   }
-    //  },
     },
     methods:{
       emitExecuteAction(){

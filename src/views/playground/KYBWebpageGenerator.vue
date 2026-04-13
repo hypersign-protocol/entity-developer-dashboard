@@ -1019,27 +1019,24 @@ textarea.form-control {
 
 
 <template>
-  <div :class="isContainerShift ? 'homeShift' : 'home'">
+  <b-container fluid class="py-3">
     <load-ing :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></load-ing>
 
-    <v-row>
-      <v-col>
-        <h4 class="font-weight-bold mb-0">Business Verifier Page Configuration</h4>
-        <p class="text-subtitle-2 text-muted">Host a landing page for Business Entity verification</p>
-      </v-col>
-      <v-col>
-        <HfButtons name="Save Configuration" @executeAction="saveConfiguration()" v-if="!this.kybWebpageConfigTemp._id"
-          style="float:right"></HfButtons>
-        <div v-else>
-          <b-button variant="link" class="danger" @click="openDeleteModal()" style="float:right;"
-            title="Delete Configuration"><i class="fa fa-trash"></i></b-button>
-          <HfButtons name="Update Configuration" @executeAction="updateConfiguration()" style="float:right" class="mx-1">
-          </HfButtons>
-        </div>
-      </v-col>
-    </v-row>
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
+      <div>
+        <h4 class="mb-1 font-weight-bold mb-0">Business Verifier Page Configuration</h4>
+        <p class="text-muted small mb-0">Host a landing page for Business Entity verification</p>
+      </div>
+      <div class="d-flex align-items-center">
+        <HfButtons name="Save Configuration" @executeAction="saveConfiguration()" v-if="!this.kybWebpageConfigTemp._id"></HfButtons>
+        <template v-else>
+          <HfButtons name="Update Configuration" @executeAction="updateConfiguration()" class="mr-2"></HfButtons>
+          <b-button variant="link" class="text-danger" @click="openDeleteModal()" title="Delete Configuration"><i class="fa fa-trash"></i></b-button>
+        </template>
+      </div>
+    </div>
 
-    <v-card class="serviceCard">
+    <b-card class="serviceCard">
       <!-- Header Section with Logo, Status, Company Name, and URL -->
       <div class="form-header">
         <div class="header-left">
@@ -1285,8 +1282,8 @@ textarea.form-control {
           </div>
         </div>
       </div>
-    </v-card>
-  </div>
+    </b-card>
+  </b-container>
 </template>
 
 <script>

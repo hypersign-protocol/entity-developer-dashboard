@@ -1,12 +1,12 @@
 <template>
 
-    <v-container>
+    <div>
 
         <load-ing :active.sync="isLoading" :can-cancel="true" :is-full-page="true"></load-ing>
 
 
-         <v-row  class="d-flex justify-start align-center" >
-            <v-col cols="12" >
+         <b-row  class="d-flex justify-start align-center" >
+            <b-col cols="12" >
                 <div class="overview-container">
                     <div class="header-row">
                         <h2 class="title">Retrieve Case File</h2>
@@ -15,57 +15,57 @@
                         <p class="text-subtitle-2 text-muted mb-2">
                             Enter <strong>Service ID</strong> and Authenticate.
                         </p>
-                        <v-row align="start" no-gutters class="mb-4">
-                             <v-col cols="12" sm="8" md="8">
-                                <v-text-field v-model="serviceId" label="Service ID"
-                                    placeholder="e.g. 68afa3d8a4975d9c9e4671a7..." outlined dense color="primary"
-                                    class="mono-text mr-sm-4" @keyup.enter="authenticateService" hide-details></v-text-field>
-                            </v-col>
+                        <b-row align="start" no-gutters class="mb-4">
+                             <b-col cols="12" sm="8" md="8">
+                                <b-form-input v-model="serviceId"
+                                    placeholder="e.g. 68afa3d8a4975d9c9e4671a7..."
+                                    class="mono-text mr-sm-4" @keyup.enter="authenticateService"></b-form-input>
+                            </b-col>
 
-                            <v-col cols="12" sm="2" md="2" class="d-flex mt-2 mt-sm-0">
+                            <b-col cols="12" sm="2" md="2" class="d-flex mt-2 mt-sm-0">
                                 <hf-buttons name="Authenticate" style="width: 100%"
                                     @executeAction="authenticateService"></hf-buttons>
-                            </v-col>
+                            </b-col>
 
-                            <v-col cols="12" sm="2" md="2">
+                            <b-col cols="12" sm="2" md="2">
                                 <!-- this should be link button -->
-                                 <v-btn color="error" text style="width: 100%" @click="logout">Logout</v-btn>
-                            </v-col>
-                        </v-row>
+                                 <b-button variant="outline-danger" style="width: 100%" @click="logout">Logout</b-button>
+                            </b-col>
+                        </b-row>
                         
-                        <v-row align="start" no-gutters v-if="accessToken != ''">
+                        <b-row align="start" no-gutters v-if="accessToken != ''">
                             <p class="text-subtitle-2 text-muted mb-2">
                                 Enter a valid <strong>Company ID</strong> to initiate the KYB verification workflow.
                             </p>
-                            <v-col cols="12" sm="8" md="8">
-                                <v-text-field v-model="companyId" label="Company ID"
-                                    placeholder="e.g. 69afa3d8a4976d9c9e4671a7..." outlined dense color="primary"
-                                    class="mono-text mr-sm-4" @keyup.enter="fetchCompany" hide-details></v-text-field>
-                            </v-col>
+                            <b-col cols="12" sm="8" md="8">
+                                <b-form-input v-model="companyId"
+                                    placeholder="e.g. 69afa3d8a4976d9c9e4671a7..."
+                                    class="mono-text mr-sm-4" @keyup.enter="fetchCompany"></b-form-input>
+                            </b-col>
 
-                            <v-col cols="12" sm="2" md="2" class="d-flex mt-2 mt-sm-0">
+                            <b-col cols="12" sm="2" md="2" class="d-flex mt-2 mt-sm-0">
                                 <hf-buttons name="Fetch Details" style="width: 100%"
                                     @executeAction="fetchCompany"></hf-buttons>
-                            </v-col>
+                            </b-col>
 
-                            <v-col cols="12" sm="2" md="2">
+                            <b-col cols="12" sm="2" md="2">
                                 <!-- this should be link button -->
-                                 <v-btn color="error" text style="width: 100%" @click="clearCompany">Clear</v-btn>
-                            </v-col>
-                        </v-row>
+                                 <b-button variant="outline-danger" style="width: 100%" @click="clearCompany">Clear</b-button>
+                            </b-col>
+                        </b-row>
                     </div>
                 </div>
-            </v-col>
-        </v-row>
+            </b-col>
+        </b-row>
 
         <!-- Global status alert - always visible for all operations -->
 
-        <v-row v-if="company">
-            <v-col cols="12" lg="4">
+        <b-row v-if="company">
+            <b-col cols="12" lg="4">
                 <div class="overview-container mb-4">
                     <div class="header-row d-flex justify-space-between align-center">
                         <h2 class="title mb-0">Company Profile</h2>
-                        <v-chip x-small color="primary" outlined class="font-weight-bold">{{ company.status }}</v-chip>
+                        <span class="badge badge-primary font-weight-bold">{{ company.status }}</span>
                     </div>
 
                     <div class="pa-2">
@@ -73,16 +73,16 @@
                             <label class="input-label">Legal Name</label>
                             <p class="font-weight-bold mb-0 text-truncate" :title="company.name">{{ company.name }}</p>
                         </div>
-                        <v-row dense>
-                            <v-col cols="5">
+                        <b-row dense>
+                            <b-col cols="5">
                                 <label class="input-label">Jurisdiction</label>
                                 <p class="small mb-0">{{ company.countryOfRegistration }}</p>
-                            </v-col>
-                            <v-col cols="7">
+                            </b-col>
+                            <b-col cols="7">
                                 <label class="input-label">{{ company.registrationNumberType }}</label>
                                 <p class="small mb-0 mono-text cin-number">{{ company.registrationNumber }}</p>
-                            </v-col>
-                        </v-row>
+                            </b-col>
+                        </b-row>
 
                         <div class="mt-4">
                             <label class="input-label">Registered Address</label>
@@ -102,36 +102,25 @@
                     </div>
 
                     <div v-for="doc in company.documents" :key="doc.id" class="step-item d-flex mb-3 align-center">
-        <div class="step-number"><v-icon x-small style="color: white !important;">mdi-file-document</v-icon></div>
+        <div class="step-number"><i class="mdi mdi-file-document" style="color: white !important;"></i></div>
                         <div class="flex-grow-1 overflow-hidden">
                             <p class="small font-weight-bold mb-0 text-truncate">{{ formatDocType(doc.documentType) }}
                             </p>
                             <p class="x-small text-muted mb-0 text-truncate">{{ doc.fileName }}</p>
                         </div>
 
-                        <v-btn icon x-small color="primary" @click="downloadDoc(doc)" :loading="downloadingDocId === doc.id">
-                            <v-icon>mdi-download</v-icon>
-                        </v-btn>
+                        <b-button variant="link" size="sm" @click="downloadDoc(doc)"><i class="mdi mdi-download"></i></b-button>
 
                     </div>
 
                 </div>
 
-            </v-col>
-            <v-col cols="12" lg="8">
+            </b-col>
+            <b-col cols="12" lg="8">
                 <div class="overview-container h-100">
-                    <v-tabs v-model="activeTab" color="primary" class="mb-4" dense>
+                    <b-tabs v-model="activeTab" class="mb-4">
 
-                        <v-tab class="text-caption font-weight-bold">1. Registry Check</v-tab>
-
-                        <v-tab class="text-caption font-weight-bold">2. Adverse Media</v-tab>
-
-                        <v-tab class="text-caption font-weight-bold">3. Sanction List</v-tab>
-
-                    </v-tabs>
-                    <v-tabs-items v-model="activeTab">
-
-                        <v-tab-item>
+                        <b-tab title="1. Registry Check">
 
                             <div class="p-2">
 
@@ -140,83 +129,82 @@
                                 <p class="small text-muted mb-2">Manual lookup required for <strong>{{
                                     company.countryOfRegistration }}</strong> in official registry.</p>
 
-                                <v-select v-model="form.registry.status" :items="[{text: 'success', value: 'Success'}, {text: 'Fail', value: 'Failed'}]"
-                                    label="Status" outlined dense class="mb-4"></v-select>
+                                <b-form-select v-model="form.registry.status" :options="[{text: 'success', value: 'Success'}, {text: 'Fail', value: 'Failed'}]"
+                                    class="mb-4"></b-form-select>
 
                                 <div v-if="form.registry.status === 'Failed'">
-                                    <v-select v-model="form.registry.reason" :items="registryReasons" item-text="text" item-value="value"
-                                        label="Reason" outlined dense class="mb-4"></v-select>
+                                    <b-form-select v-model="form.registry.reason" :options="registryReasons"
+                                        class="mb-4"></b-form-select>
 
-                                    <v-textarea v-model="form.registry.reasonDetail" label="Registry Verification Remarks"
-                                        placeholder="Enter detailed findings from the official registry lookup..." outlined
-                                        dense class="mono-text"></v-textarea>
+                                    <b-form-textarea v-model="form.registry.reasonDetail"
+                                        placeholder="Enter detailed findings from the official registry lookup..."
+                                        class="mono-text"></b-form-textarea>
                                 </div>
 
 
-                                <div class="d-flex justify-space-between mt-4">
+                                <div class="d-flex justify-content-between mt-4">
                                     <hf-buttons name="Submit Registry Check"
                                         @executeAction="submitCompliance('registry',  form.registry.status)"></hf-buttons>
                                 </div>
 
                             </div>
 
-                        </v-tab-item>
+                        </b-tab>
 
 
 
-                        <v-tab-item>
+                        <b-tab title="2. Adverse Media">
 
                             <div class="p-2">
 
                                 <div class="warning-box mb-2">
 
-                                    <div class="d-flex justify-space-between align-center mb-2">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
                                         <span class="font-weight-bold text-orange small uppercase">AI Compliance
                                             Prompt</span>
-                                        <v-btn x-small color="primary" text @click="copyToClipboard(adversePrompt)">
-                                            <v-icon x-small class="mr-1">mdi-content-copy</v-icon> Copy Prompt
-                                        </v-btn>
+                                        <b-button variant="link" size="sm" @click="copyToClipboard(adversePrompt)">
+                                            <i class="mdi mdi-content-copy mr-1"></i> Copy Prompt
+                                        </b-button>
                                     </div>
                                     <pre class="prompt-preview">{{ adversePrompt }}</pre>
                                 </div>
-                                                <v-select v-model="form.adverse.status" :items="[{text: 'success', value: 'Success'}, {text: 'Fail', value: 'Failed'}]"
-                                label="Status" outlined dense class="mb-4" @change="handleStatusChange('adverse', $event)"></v-select>
+                                <b-form-select v-model="form.adverse.status" :options="[{text: 'success', value: 'Success'}, {text: 'Fail', value: 'Failed'}]"
+                                    class="mb-4" @change="handleStatusChange('adverse', $event)"></b-form-select>
 
                                 <div v-if="form.adverse.status === 'Failed'">
-                                    <!-- <v-select v-model="form.adverse.reason" :items="adverseReasons" item-text="text" item-value="value"
-                                        label="Reason" outlined dense class="mb-4"></v-select> -->
+                                    <!-- <b-form-select removed --> 
 
-                                    <v-textarea v-model="form.adverse.reasonDetail" label="Adverse Media Results"
-                                        placeholder="Paste the Markdown output from the AI here..." outlined
-                                        dense class="mono-text"></v-textarea>
+                                    <b-form-textarea v-model="form.adverse.reasonDetail"
+                                        placeholder="Paste the Markdown output from the AI here..."
+                                        class="mono-text"></b-form-textarea>
                                 </div>
-                                <div class="d-flex justify-end">
+                                <div class="d-flex justify-content-end">
                                     <hf-buttons name="Submit Adverse Check"
                                         @executeAction="submitCompliance('adverse-media', form.adverse.status)"></hf-buttons>
                                 </div>
 
                             </div>
 
-                        </v-tab-item>
+                        </b-tab>
 
 
 
-                        <v-tab-item>
+                        <b-tab title="3. Sanction List">
 
                             <div class="p-2">
 
                                 <div class="warning-box mb-2">
 
-                                    <div class="d-flex justify-space-between align-center mb-2">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
 
                                         <span class="font-weight-bold text-orange small uppercase">AI Sanction
                                             Prompt</span>
 
-                                        <v-btn x-small color="primary" text @click="copyToClipboard(sanctionPrompt)">
+                                        <b-button variant="link" size="sm" @click="copyToClipboard(sanctionPrompt)">
 
-                                            <v-icon x-small class="mr-1">mdi-content-copy</v-icon> Copy Prompt
+                                            <i class="mdi mdi-content-copy mr-1"></i> Copy Prompt
 
-                                        </v-btn>
+                                        </b-button>
 
                                     </div>
 
@@ -225,22 +213,21 @@
                                 </div>
 
 
-                            <v-select v-model="form.sanction.status" :items="[{text: 'success', value: 'Success'}, {text: 'Fail', value: 'Failed'}]"
-                                label="Status" outlined dense class="mb-4"
-                                @change="handleStatusChange('sanction', $event)"></v-select>
+                            <b-form-select v-model="form.sanction.status" :options="[{text: 'success', value: 'Success'}, {text: 'Fail', value: 'Failed'}]"
+                                class="mb-4"
+                                @change="handleStatusChange('sanction', $event)"></b-form-select>
 
                                 <div v-if="form.sanction.status === 'Failed'">
-                                    <!-- <v-select v-model="form.sanction.reason" :items="sanctionReasons" item-text="text" item-value="value"
-                                        label="Reason" outlined dense class="mb-4"></v-select> -->
+                                    <!-- sanction reason removed -->
 
-                                    <v-textarea v-model="form.sanction.reasonDetail" label="Sanction List JSON Detail"
-                                        placeholder="Paste the JSON 'detail' field from the AI here..." outlined
-                                        dense class="mono-text"></v-textarea>
+                                    <b-form-textarea v-model="form.sanction.reasonDetail"
+                                        placeholder="Paste the JSON 'detail' field from the AI here..."
+                                        class="mono-text"></b-form-textarea>
                                 </div>      
 
 
 
-                                <div class="d-flex justify-end">
+                                <div class="d-flex justify-content-end">
 
                                     <hf-buttons name="Submit Sanction Check"
                                         @executeAction="submitCompliance('sanctionlist', form.sanction.status)"></hf-buttons>
@@ -249,25 +236,23 @@
 
                             </div>
 
-                        </v-tab-item>
+                        </b-tab>
 
-                    </v-tabs-items>
-                    <v-divider class="my-2"></v-divider>
+                    </b-tabs>
+                    <hr>
                     <div class="text-center p-2">
                         <p class="small text-muted mb-2">Complete all steps above before finalizing the company status.
                         </p>
-                        <v-btn block x-large depressed color="#111827" class="finalize-btn font-weight-bold"
+                        <b-button block variant="dark" class="finalize-btn font-weight-bold"
                             @click="finalizeCompany">
-
-                            <span style="color: white;">Finalize KYB Review</span>
-
-                        </v-btn>
+                            <span>Finalize KYB Review</span>
+                        </b-button>
                     </div>
                 </div>
 
-            </v-col>
-        </v-row>
-    </v-container>
+            </b-col>
+        </b-row>
+    </div>
 </template>
 
 <style scoped>

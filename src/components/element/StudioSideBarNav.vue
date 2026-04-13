@@ -1,38 +1,21 @@
 <template>
-  <v-navigation-drawer
-    expand-on-hover
-    id="sidebar-right"
-  >
-    <v-list>
-      <v-list-item class="px-2">
-        <v-list-item-avatar>
-          <v-img :src="avatar"></v-img>
-        </v-list-item-avatar>
-      </v-list-item>
+  <div id="sidebar-right">
+    <div class="d-flex align-items-center px-2 py-3">
+      <div class="rounded-circle overflow-hidden border" style="width:40px;height:40px;flex-shrink:0">
+        <img :src="avatar" class="w-100 h-100" style="object-fit:cover" />
+      </div>
+      <div class="ml-2 font-weight-bold small">{{ service_name }}</div>
+    </div>
 
-      <v-list-item link>
-        <v-list-item-content>
-          <v-list-item-title class="text-h6">
-            {{ service_name }}
-          </v-list-item-title>
-        </v-list-item-content>
-      </v-list-item>
-    </v-list>
+    <hr class="my-1" />
 
-    <v-divider></v-divider>
-
-    <v-list
-      nav
-      dense
-    >
-    <v-list-item link v-for="menu in menus" v-bind:key="menu.title">
-        <v-list-item-icon>
-          <v-icon>{{ menu.icon }}</v-icon>
-        </v-list-item-icon>
-        <v-list-item-title>{{ menu.title }}</v-list-item-title>
-    </v-list-item>
-    </v-list>
-  </v-navigation-drawer>
+    <ul class="list-unstyled px-2">
+      <li v-for="menu in menus" :key="menu.title" class="py-2 d-flex align-items-center">
+        <i :class="menu.icon" class="mr-2"></i>
+        <span>{{ menu.title }}</span>
+      </li>
+    </ul>
+  </div>
 </template>
 
 <script>

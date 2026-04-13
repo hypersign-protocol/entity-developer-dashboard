@@ -1,53 +1,49 @@
 <template>
-  <v-container class="py-6">
+  <b-container fluid class="py-3">
     <load-ing :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></load-ing>
 
-    <v-row align="center" class="mb-6">
-  <v-col cols="12" md="6">
-    <h4 class="font-weight-bold mb-0">Business Verifications</h4>
-    <p class="text-subtitle-2 text-muted">Manage and monitor corporate identity verification sessions</p>
-  </v-col>
-  
-  <v-col cols="12" md="6" class="d-flex justify-md-end justify-start">
-    <div class="d-flex flex-sm-row flex-column gap-3 align-center">
-      <div class="copy-input-group search-box">
-        <input 
-          type="text" 
-          placeholder="Search company..." 
-          v-model="searchQuery"
-        >
-        <button><v-icon small>mdi-magnify</v-icon></button>
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
+      <div>
+        <h4 class="font-weight-bold mb-0">Business Verifications</h4>
+        <p class="text-muted small mb-0">Manage and monitor corporate identity verification sessions</p>
       </div>
-
-      <select v-model="statusFilter" v-if="filteredCompanies.length > 0" class="theme-select">
-        <option value="all">All Status</option>
-        <option value="Approved">Approved</option>
-        <option value="Rejected">Rejected</option>
-        <option value="Completed">Completed</option>
-        <option value="InProgress">In Progress</option>
-        <option value="Submitted">Submitted</option>
-      </select>
-    </div>
-  </v-col>
-</v-row>
-
-    <div v-if="isLoading" class="d-flex justify-center py-12">
-      <v-progress-circular indeterminate color="primary"></v-progress-circular>
-    </div>
-
-    <div v-else-if="error" class="warning-box mb-6">
-      <div class="d-flex align-center">
-        <v-icon color="orange darken-2" class="mr-2">mdi-alert</v-icon>
-        <span class="text-orange font-weight-bold">{{ error }}</span>
+      <div class="d-flex flex-sm-row flex-column gap-3 align-center">
+        <div class="copy-input-group search-box">
+          <input
+            type="text"
+            placeholder="Search company..."
+            v-model="searchQuery"
+          >
+          <button><i class="mdi mdi-magnify"></i></button>
+        </div>
+        <select v-model="statusFilter" v-if="filteredCompanies.length > 0" class="theme-select">
+          <option value="all">All Status</option>
+          <option value="Approved">Approved</option>
+          <option value="Rejected">Rejected</option>
+          <option value="Completed">Completed</option>
+          <option value="InProgress">In Progress</option>
+          <option value="Submitted">Submitted</option>
+        </select>
       </div>
     </div>
 
-    <v-row v-else-if="filteredCompanies.length > 0">
-      <v-col 
-        v-for="company in filteredCompanies" 
-        :key="company.id" 
-        cols="12" 
-        md="6" 
+    <div v-if="isLoading" class="d-flex justify-content-center py-5">
+      <b-spinner variant="primary"></b-spinner>
+    </div>
+
+    <div v-else-if="error" class="warning-box mb-4">
+      <div class="d-flex align-items-center">
+        <i class="mdi mdi-alert text-warning mr-2"></i>
+        <span class="font-weight-bold">{{ error }}</span>
+      </div>
+    </div>
+
+    <b-row v-else-if="filteredCompanies.length > 0">
+      <b-col
+        v-for="company in filteredCompanies"
+        :key="company.id"
+        cols="12"
+        md="6"
         lg="4"
       >
         <div :class="['overview-container', 'company-card', 'h-100', statusClass(company.status, company.statusReasons)]" @click="viewBusinessDetails(company)">
@@ -61,7 +57,7 @@
                company.companyId
                }}</p>
             </div>
-            <v-icon small color="grey lighten-1">mdi-chevron-right</v-icon>
+            <i class="mdi mdi-chevron-right text-muted"></i>
           </div>
 
           <div class="mb-4">
@@ -81,11 +77,11 @@
 
           <div class="card-footer-action pt-2">
             <div class="verification-steps">
-              <v-icon x-small :class="company.steps.flag ? 'active' : 'inactive'">mdi-flag</v-icon>
-              <v-icon x-small :class="company.steps.building ? 'active' : 'inactive'">mdi-office-building</v-icon>
-              <v-icon x-small :class="company.steps.document ? 'active' : 'inactive'">mdi-file-document</v-icon>
-              <v-icon x-small :class="company.steps.user ? 'active' : 'inactive'">mdi-account-check</v-icon>
-              <v-icon x-small :class="company.steps.verification ? 'active' : 'inactive'">mdi-check-decagram</v-icon>
+              <i class="mdi mdi-flag" :class="company.steps.flag ? 'step-active' : 'step-inactive'"></i>
+              <i class="mdi mdi-office-building" :class="company.steps.building ? 'step-active' : 'step-inactive'"></i>
+              <i class="mdi mdi-file-document" :class="company.steps.document ? 'step-active' : 'step-inactive'"></i>
+              <i class="mdi mdi-account-check" :class="company.steps.user ? 'step-active' : 'step-inactive'"></i>
+              <i class="mdi mdi-check-decagram" :class="company.steps.verification ? 'step-active' : 'step-inactive'"></i>
             </div>
 
             <div class="status-area">
@@ -96,7 +92,7 @@
                 :data-tooltip="getStatusTooltip(company)"
                 @click.stop
               >
-                <v-icon x-small color="#92400e" class="mr-1">mdi-alert</v-icon>
+                <i class="mdi mdi-alert mr-1" style="color:#92400e;"></i>
                 Completed
               </span>
 
@@ -114,13 +110,13 @@
             </div>
           </div>
         </div>
-      </v-col>
-    </v-row>
+      </b-col>
+    </b-row>
 
     <div v-else>
       <empty-container title="No Business Found" icon="mdi-office-building-marker-outline" />
     </div>
-  </v-container>
+  </b-container>
 </template>
 
 <style scoped>
@@ -267,12 +263,14 @@
   gap: 6px;
 }
 
-.verification-steps .v-icon.active {
-  color: #3b82f6 !important;
+.verification-steps .step-active {
+  color: #3b82f6;
+  font-size: 14px;
 }
 
-.verification-steps .v-icon.inactive {
-  color: #d1d5db !important;
+.verification-steps .step-inactive {
+  color: #d1d5db;
+  font-size: 14px;
 }
 
 /* Status Badges - Thematic Colors */
@@ -436,7 +434,6 @@
   max-width: 280px; /* Adjust this value as needed */
 }
 
-.status-badge-new .v-icon,
 .status-badge-new i {
   display: inline-flex;
   align-items: center;

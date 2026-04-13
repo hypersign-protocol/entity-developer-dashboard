@@ -2,19 +2,14 @@
   <div>
     <loadIng :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loadIng>
     <div>
-      <v-row dense v-if="appList.length > 0 && aSuperAdminUser">
-        <v-col>
-          <h4 style="float: left">
+      <div v-if="appList.length > 0 && aSuperAdminUser" class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
+        <div>
+          <h4 class="font-weight-bold mb-0">
             <i class="fa fa-cogs mr-2" aria-hidden="true"></i>Your Services
           </h4>
-          <b-button
-            variant="outline-dark"
-            class="ml-2 float-right unified-action-btn"
-            @click="goToOnboarding"
-          >
-            Seamless Onboarding
-          </b-button>
-          <b-dropdown split text="Create Service" variant="outline-dark" class="float-right unified-action-btn" menu-class="dropDownPopup"
+        </div>
+        <div>
+          <b-dropdown split text="Create Service" variant="outline-dark" class="unified-action-btn mr-2" menu-class="dropDownPopup"
              @click="openSlider('SSI_API')">
             <b-dropdown-item @click="openSlider('SSI_API')">
               SSI Service
@@ -26,10 +21,17 @@
               Quest Service
             </b-dropdown-item>
           </b-dropdown>
-        </v-col>
-      </v-row>
-      <v-row v-else>
-        <v-col v-if="!isLoading">
+          <b-button
+            variant="outline-dark"
+            class="unified-action-btn"
+            @click="goToOnboarding"
+          >
+            Seamless Onboarding
+          </b-button>
+        </div>
+      </div>
+      <div v-else>
+        <div v-if="!isLoading">
           <div class="no-apps-container mb-1">
             <h3 style="text-align: center;">You have no services yet!</h3>
             <p style="max-width: 500px; margin: 0 auto; text-align: center;">
@@ -51,8 +53,8 @@
       </b-button>
     </div>
   </div>
-</v-col>
-      </v-row>
+</div>
+      </div>
     </div>
 
     <hf-pop-up id="entity-secret-confirmation-popup" Header="API Secret Key Confirmation">
@@ -168,7 +170,7 @@
     </hf-pop-up>
 
     <StudioSideBar :title="edit ? 'Edit Service' : 'Add Service'">
-      <v-form class="container">
+      <div class="container">
         <div class="form-group" v-if="edit === true">
           <tool-tip infoMessage="Your Service Id"></tool-tip>
           <label for="orgDid"><strong>Service Id<span style="color: red">*</span>:
@@ -401,11 +403,11 @@
         <div class="form-group" v-else>
           <hf-buttons name="Save" @executeAction="createAnApp()"></hf-buttons>
         </div>
-      </v-form>
+      </div>
     </StudioSideBar>
 
-    <v-row dense v-if="appList.length > 0 && aSuperAdminUser" class="mt-2">
-      <v-col>
+    <div v-if="appList.length > 0 && aSuperAdminUser" class="mt-2">
+      <div>
         <b-tabs content-class="mt-0">
           <b-tab active class="bg-white p-2">
             <template #title>
@@ -413,28 +415,28 @@
                 getAppsWithSSIServices.length + ')' }}</strong>
             </template>
 
-            <v-row dense v-if="getAppsWithSSIServices.length > 0">
-              <v-col v-for="eachOrg in getAppsWithSSIServices" :key="eachOrg.appId" cols="3">
-                <v-card max-width="344" outlined @click="switchOrg(eachOrg.appId, 'SSI_API')" class="serviceCard">
-                  <v-list-item three-line>
-                    <v-list-item-content>
-                      <div class="text-overline mb-4">
+            <b-row v-if="getAppsWithSSIServices.length > 0">
+              <b-col v-for="eachOrg in getAppsWithSSIServices" :key="eachOrg.appId" md="3" class="mb-3">
+                <b-card @click="switchOrg(eachOrg.appId, 'SSI_API')" class="serviceCard h-100" style="cursor:pointer">
+                  <div class="d-flex align-items-start">
+                    <div class="flex-grow-1 mr-2">
+                      <div class="text-overline mb-2">
                         {{ formattedAppName(eachOrg.appName).toUpperCase() }}
                       </div>
-                      <v-list-item-subtitle>{{
+                      <p class="text-muted small mb-0">{{
                         truncate(
                           eachOrg.description ||
                           "No description for this app..",
                           70
                         )
-                      }}</v-list-item-subtitle>
-                    </v-list-item-content>
-                    <v-list-item-avatar class="logo-container" size="60" color="grey">
-                      <v-img :src="eachOrg.logoUrl || getProfileIcon(formattedAppName(eachOrg.appId))"></v-img>
-                    </v-list-item-avatar>
-                  </v-list-item>
+                      }}</p>
+                    </div>
+                    <div class="logo-container">
+                      <img :src="eachOrg.logoUrl || getProfileIcon(formattedAppName(eachOrg.appId))" style="width:60px;height:60px;object-fit:cover;border-radius:50%;">
+                    </div>
+                  </div>
 
-                  <v-list-item-content style="padding: 10px">
+                  <div style="padding: 10px">
                     <b-card-text>
                       <small class="card-field-label">Service Id:</small>
                       <div class="apiKeySecret" @click.stop="copyToClip(eachOrg.appId, 'Service Id')"
@@ -452,7 +454,7 @@
                         <i class="far fa-copy" style="float: right"></i>
                       </div>
                     </b-card-text>
-                  </v-list-item-content>
+                  </div>
 
                   <div style="text-align: end;display: block;">
                     <!-- <span class="badge rounded-pill bg-danger mx-1" title="Click to generate a new API Secret Key"
@@ -488,9 +490,9 @@
                         Service</b-dropdown-item-button>
                     </b-dropdown>
                   </div>
-                </v-card>
-              </v-col>
-            </v-row>
+                </b-card>
+              </b-col>
+            </b-row>
             <div class="new-service-popup" v-else>
               <h3 class="" style="text-align: left">Spin up your SSI service!</h3>
               <hf-buttons name=" Create" iconClass="fa fa-plus" style="text-align: right" class="ml-auto mt-2"
@@ -507,27 +509,28 @@
               }}</strong>
             </template>
 
-            <v-row dense v-if="getAppsWithKYCServices.length > 0">
-              <v-col v-for="eachOrg in getAppsWithKYCServices" :key="eachOrg.appId" cols="3">
-                <v-card max-width="344" outlined @click="switchOrg(eachOrg.appId, 'CAVACH_API')" class="serviceCard">
-                  <v-list-item three-line>
-                    <v-list-item-content>
-                      <div class="text-overline mb-4">
+            <b-row v-if="getAppsWithKYCServices.length > 0">
+              <b-col v-for="eachOrg in getAppsWithKYCServices" :key="eachOrg.appId" md="3" class="mb-3">
+                <b-card @click="switchOrg(eachOrg.appId, 'CAVACH_API')" class="serviceCard h-100" style="cursor:pointer">
+                  <div class="d-flex align-items-start">
+                    <div class="flex-grow-1 mr-2">
+                      <div class="text-overline mb-2">
                         {{ formattedAppName(eachOrg.appName).toUpperCase() }}
                       </div>
-                      <v-list-item-subtitle>{{
+                      <p class="text-muted small mb-0">{{
                         truncate(
                           eachOrg.description ||
                           "No description for this app..",
                           70
                         )
-                      }}</v-list-item-subtitle>
-                    </v-list-item-content>
-                    <v-list-item-avatar class="logo-container" size="60" color="grey"><v-img
-                        :src="eachOrg.logoUrl || getProfileIcon(formattedAppName(eachOrg.appId))"></v-img></v-list-item-avatar>
-                  </v-list-item>
+                      }}</p>
+                    </div>
+                    <div class="logo-container">
+                      <img :src="eachOrg.logoUrl || getProfileIcon(formattedAppName(eachOrg.appId))" style="width:60px;height:60px;object-fit:cover;border-radius:50%;">
+                    </div>
+                  </div>
 
-                  <v-list-item-content style="padding: 10px">
+                  <div style="padding: 10px">
                     <b-card-text>
                       <small class="card-field-label">Service Id:</small>
                       <div class="apiKeySecret" @click.stop="copyToClip(eachOrg.appId, 'Service Id')"
@@ -545,7 +548,7 @@
                         <i class="far fa-copy" style="float: right"></i>
                       </div>
                     </b-card-text>
-                  </v-list-item-content>
+                  </div>
 
                   <div style="text-align: end;display: block;">
                     <!-- <span class="badge rounded-pill bg-danger mx-1" title="Click to generate a new API Secret Key"
@@ -591,9 +594,9 @@
                         Service</b-dropdown-item-button>
                     </b-dropdown>
                   </div>
-                </v-card>
-              </v-col>
-            </v-row>
+                </b-card>
+              </b-col>
+            </b-row>
             <div class="new-service-popup" v-else>
               <h3 style="text-align: left">Spin up your KYC service!</h3>
               <hf-buttons name=" Create" iconClass="fa fa-plus" style="text-align: right" class="ml-auto mt-2"
@@ -611,27 +614,28 @@
             </template>
 
 
-            <v-row dense v-if="getAppsWithQuestServices.length > 0">
-              <v-col v-for="eachOrg in getAppsWithQuestServices" :key="eachOrg.appId" cols="3">
-                <v-card max-width="344" outlined @click="switchOrg(eachOrg.appId, 'CAVACH_API')" class="serviceCard">
-                  <v-list-item three-line>
-                    <v-list-item-content>
-                      <div class="text-overline mb-4">
+            <b-row v-if="getAppsWithQuestServices.length > 0">
+              <b-col v-for="eachOrg in getAppsWithQuestServices" :key="eachOrg.appId" md="3" class="mb-3">
+                <b-card @click="switchOrg(eachOrg.appId, 'CAVACH_API')" class="serviceCard h-100" style="cursor:pointer">
+                  <div class="d-flex align-items-start">
+                    <div class="flex-grow-1 mr-2">
+                      <div class="text-overline mb-2">
                         {{ formattedAppName(eachOrg.appName).toUpperCase() }}
                       </div>
-                      <v-list-item-subtitle>{{
+                      <p class="text-muted small mb-0">{{
                         truncate(
                           eachOrg.description ||
                           "No description for this app..",
                           70
                         )
-                      }}</v-list-item-subtitle>
-                    </v-list-item-content>
-                    <v-list-item-avatar class="logo-container" size="60" color="grey"><v-img
-                        :src="eachOrg.logoUrl || getProfileIcon(formattedAppName(eachOrg.appId))"></v-img></v-list-item-avatar>
-                  </v-list-item>
+                      }}</p>
+                    </div>
+                    <div class="logo-container">
+                      <img :src="eachOrg.logoUrl || getProfileIcon(formattedAppName(eachOrg.appId))" style="width:60px;height:60px;object-fit:cover;border-radius:50%;">
+                    </div>
+                  </div>
 
-                  <v-list-item-content style="padding: 10px">
+                  <div style="padding: 10px">
                     <b-card-text>
                       <small class="card-field-label">Service Id:</small>
                       <div class="apiKeySecret" @click.stop="copyToClip(eachOrg.appId, 'Service Id')"
@@ -649,7 +653,7 @@
                         <i class="far fa-copy" style="float: right"></i>
                       </div>
                     </b-card-text>
-                  </v-list-item-content>
+                  </div>
 
 
                   <div style="text-align: end;display: block;">
@@ -736,9 +740,9 @@
                       </span>
                   </div>
                 </v-card-actions> -->
-                </v-card>
-              </v-col>
-            </v-row>
+                </b-card>
+              </b-col>
+            </b-row>
             <div class="new-service-popup" v-else>
               <b-skeleton-wrapper :loading="isLoading">
                 <template #loading>
@@ -756,8 +760,8 @@
             </div>
           </b-tab>
         </b-tabs>
-      </v-col>
-    </v-row>
+      </div>
+    </div>
 
   </div>
 </template>

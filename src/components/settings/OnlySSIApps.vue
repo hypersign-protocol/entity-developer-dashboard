@@ -58,7 +58,7 @@
     </hf-pop-up>
 
     <StudioSideBar :title="edit ? 'Edit Service' : 'Add Service'">
-      <v-form class="container">
+      <div class="container">
         <div class="form-group" v-if="edit === true">
           <tool-tip infoMessage="Your Service Id"></tool-tip>
           <label for="orgDid"><strong>Service Id<span style="color: red">*</span>:
@@ -222,39 +222,39 @@
         <div class="form-group" v-else>
           <hf-buttons name="Save" @executeAction="createAnApp()"></hf-buttons>
         </div>
-      </v-form>
+      </div>
     </StudioSideBar>
 
-    <v-row  dense v-if="appList.length > 0" class="mt-2">
-      <v-col>
+    <b-row v-if="appList.length > 0" class="mt-2">
+      <b-col>
 
           <template #title>
             <b-icon icon="credit-card" aria-hidden="true" small></b-icon><strong> {{ 'Self Sovereign Identity (' +
               getAppsWithSSIServices.length + ')' }}</strong>
           </template>
 
-          <v-row dense v-if="getAppsWithSSIServices.length > 0">
-            <v-col v-for="eachOrg in getAppsWithSSIServices" :key="eachOrg.appId" cols="3">
-              <v-card max-width="344" outlined @click="switchOrg(eachOrg.appId, 'SSI_API')" class="serviceCard">
-                <v-list-item three-line>
-                  <v-list-item-content>
+          <b-row v-if="getAppsWithSSIServices.length > 0">
+            <b-col v-for="eachOrg in getAppsWithSSIServices" :key="eachOrg.appId" cols="3" class="mb-3">
+              <b-card style="max-width:344px" outlined @click="switchOrg(eachOrg.appId, 'SSI_API')" class="serviceCard">
+                <div class="d-flex">
+                  <div>
                     <div class="text-overline mb-4">
                       {{ formattedAppName(eachOrg.appName).toUpperCase() }}
                     </div>
-                    <v-list-item-subtitle>{{
+                    <p class="text-muted small">{{
                       truncate(
                         eachOrg.description ||
                         "No description for this app..",
                         70
                       )
-                    }}</v-list-item-subtitle>
-                  </v-list-item-content>
-                  <v-list-item-avatar class="logo-container" size="60" color="grey">
-                    <v-img  :src="eachOrg.logoUrl || getProfileIcon(formattedAppName(eachOrg.appId))"></v-img>
-                  </v-list-item-avatar>
-                </v-list-item>
+                    }}</p>
+                  </div>
+                  <div class="logo-container rounded-circle bg-secondary overflow-hidden ml-auto" style="width:60px;height:60px;flex-shrink:0">
+                    <img :src="eachOrg.logoUrl || getProfileIcon(formattedAppName(eachOrg.appId))" class="w-100 h-100" style="object-fit:cover" />
+                  </div>
+                </div>
 
-                <v-list-item-content style="padding: 10px">
+                <div style="padding: 10px">
                   <b-card-text>
                     <small class="card-field-label">Service Id:</small>
                     <div class="apiKeySecret" @click.stop="copyToClip(eachOrg.appId, 'Service Id')"
@@ -272,42 +272,10 @@
                       <i class="far fa-copy" style="float: right"></i>
                     </div>
                   </b-card-text>
-                </v-list-item-content>
-
-                <div style="text-align: end;display: block;">
-                        <!-- <span class="badge rounded-pill bg-danger mx-1" title="Click to generate a new API Secret Key"
-                          style="cursor: pointer; color: white" @click.stop="openSecretkeyPopUp(eachOrg.appId)">
-                          <i class="fa fa-key"></i> Secret
-                        </span>
-
-                        <span class="badge rounded-pill bg-info mx-1" @click.stop="editOrg(eachOrg.appId)"
-                          title="Click to edit the app" style="cursor: pointer; color: white">
-                          <i class="fas fa-pencil-alt"></i>
-                          Edit</span>
-
-                        <span class="mx-1" @click.stop="openDeleteServicePopUp(eachOrg.appId)"
-                          title="Click to delete the app" style="cursor: pointer; color: red">
-                          <i class="fa fa-trash-alt" aria-hidden="true"></i>
-                        </span> -->
-
-                        <b-dropdown size="sm" variant="link" toggle-class="text-decoration-none" no-caret dropright menu-class="dropDownPopup">
-                          <template #button-content>
-                            <b-icon size="sm" style="color: grey" icon="list" aria-hidden="true"></b-icon>
-                          </template>
-
-                          <b-dropdown-item-button  style="text-align: left" @click.stop="openSecretkeyPopUp(eachOrg.appId)"><i
-                              class="fa fa-key mt-1" aria-hidden="true"></i> Generate API Secret
-                          </b-dropdown-item-button>
-                          <b-dropdown-item-button style="text-align: left" @click.stop="editOrg(eachOrg.appId)"><i
-                              class="fas fa-pencil-alt mt-1" aria-hidden="true"></i> Edit Service
-                          </b-dropdown-item-button>
-                          <b-dropdown-item-button   style="text-align: left" @click.stop="openDeleteServicePopUp(eachOrg.appId)"><i
-                              class="fa fa-trash-alt mt-1"></i> Delete Service</b-dropdown-item-button>  
-                        </b-dropdown>
                 </div>
-              </v-card>
-            </v-col>
-          </v-row>
+              </b-card>
+            </b-col>
+              </b-row>
           <div class="new-service-popup" v-else>
             <empty-container title="No SSI Service Found" icon="fa fa-user-shield" />
             <!-- <h3 class="" style="text-align: left">Spin up your SSI service!</h3>
@@ -316,13 +284,13 @@
             </hf-buttons> -->
           </div>
           
-      </v-col>
-    </v-row>
-    <v-row v-else class="mt-2">
-      <v-col>
+      </b-col>
+    </b-row>
+    <b-row v-else class="mt-2">
+      <b-col>
         <empty-container title="No SSI Service Found" icon="fa fa-user-shield" />
-      </v-col>
-    </v-row>
+      </b-col>
+    </b-row>
   </div>
 </template>
 

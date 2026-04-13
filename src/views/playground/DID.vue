@@ -114,18 +114,16 @@ h5 span {
 }
 </style>
 <template>
-  <div :class="isContainerShift ? 'homeShift' : 'home'">
+  <b-container fluid class="py-3">
     <loadIng :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loadIng>
-    <div class="">
-      <div class="" style="text-align: left">
-        <!-- <Info :message="description" /> -->
-        <div class="form-group" style="display:flex">
-          <h3 v-if="didList.length > 0" style="text-align: left;">
-            Decentralised Identifier</h3>
-          <h3 v-else style="text-align: left;">Create your first decentralised identifier!</h3>
-          <hf-buttons name="Create" iconClass="fa fa-plus" style="text-align: right;" class="ml-auto"
-            @executeAction="createDid()"></hf-buttons>
-        </div>
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
+      <div>
+        <h4 class="font-weight-bold mb-0">Decentralised Identifiers</h4>
+      </div>
+      <div>
+        <hf-buttons name="Create" iconClass="fa fa-plus" @executeAction="createDid()"></hf-buttons>
+      </div>
+    </div>
         <StudioSideBar :title="isEditing ? 'Edit DID' : 'Create DID'">
           <div class="container" style="width: 100%;">
             <div class="form-group">
@@ -158,39 +156,29 @@ h5 span {
               <tool-tip infoMessage="Select one or more key type"></tool-tip>
               <label for="schemaName"><strong>Key Type<span
                     style="color: red">*</span>:</strong></label>
-                <v-select
-                  v-model="selectedKeyTypes"
-                  :items="keyTypeOptions"
-                  multiple
-                  chips
-                  attach
-                  dense
-                  outlined
-                  :disabled="isEditing"
-                ></v-select>
+              <b-form-checkbox-group
+                v-model="selectedKeyTypes"
+                :options="keyTypeOptions"
+                stacked
+                :disabled="isEditing"
+              ></b-form-checkbox-group>
             </div>
             <div class="">
               <tool-tip infoMessage="Select one or more verification relationships"></tool-tip>
               <label for="schemaName"><strong>Verification Relationships<span
                     style="color: red">*</span>:</strong></label>
-              
-                <v-select
-                  v-model="selectedVerificationRelationships"
-                  :items="verificationRelationshipsOptions"
-                  multiple
-                  chips
-                  attach
-                  dense
-                  outlined
-                  :disabled="isEditing"
-                ></v-select>
+              <b-form-checkbox-group
+                v-model="selectedVerificationRelationships"
+                :options="verificationRelationshipsOptions"
+                stacked
+                :disabled="isEditing"
+              ></b-form-checkbox-group>
             </div>
             <div class="">
-              <v-checkbox
+              <b-form-checkbox
                 v-model="shouldRegister"
-                label="Register DID on the blockchain?"
-               :disabled="isEditing && shouldRegister"
-              ></v-checkbox>
+                :disabled="isEditing && shouldRegister"
+              >Register DID on the blockchain?</b-form-checkbox>
             </div>
 
             <div class="form-group row ">
@@ -200,8 +188,6 @@ h5 span {
             </div>
           </div>
         </StudioSideBar>
-      </div>
-    </div>
     <div class="scrollit" v-if="didList.length > 0">
       <div class="">
         <table class="table table-hover event-card">
@@ -296,7 +282,7 @@ h5 span {
         <button @click="verifyDNS01AndUpdateDID()" class="btn btn-primary">{{ verifyButtonText }}</button>
       </div>
     </hf-pop-up>
-  </div>
+  </b-container>
 </template>
 
 <script>

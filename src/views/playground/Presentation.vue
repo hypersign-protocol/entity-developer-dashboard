@@ -47,20 +47,16 @@
 }
 </style>
 <template>
-  <div :class="isContainerShift ? 'homeShift' : 'home'">
+  <b-container fluid class="py-3">
     <loadIng :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loadIng>
-
-    <div class="row">
-      <div class="col-md-12" style="text-align: left">
-        <!-- <Info :message="description" /> -->
-
-        <div class="form-group" style="display:flex">
-          <h3 v-if="templateList.length > 0" class="mt-4" style="text-align: left;">
-            Presentation Templates</h3>
-          <h3 v-else class="mt-4" style="text-align: left;">Create your first presentation template!</h3>
-          <hf-buttons name="Create" iconClass="fa fa-plus" style="text-align: right;" class="ml-auto mt-4"
-            @executeAction="openSlider()"></hf-buttons>
-        </div>
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
+      <div>
+        <h4 class="font-weight-bold mb-0">Presentation Templates</h4>
+      </div>
+      <div>
+        <hf-buttons name="Create" iconClass="fa fa-plus" @executeAction="openSlider()"></hf-buttons>
+      </div>
+    </div>
         <StudioSideBar :title="isEdit ? 'Edit Presentation Template' : 'Create Presentation Template'">
 
           <div class="form-group row container">
@@ -144,8 +140,6 @@
           </div>
         </StudioSideBar>
 
-      </div>
-    </div>
     <div class="row scrollit" style="margin-top: 2%;" v-if="templateList.length > 0">
       <div class="col-md-12">
         <table class="table table-bordered event-card" style="background:#FFFF">
@@ -173,20 +167,22 @@
               <td class="align-middle">{{ row.name }}</td>
               <!-- <td>{{row.issuerDid.toString()}}</td> -->
               <td class="align-middle">
-                <span v-for="eachschema in row.schemaId" v-if="Array.isArray(row.schemaId)">
+                <template v-if="Array.isArray(row.schemaId)">
+                  <span v-for="eachschema in row.schemaId" :key="eachschema">
                   <a :href="`${$config.explorer.BASE_URL}/identity/${eachschema}`" target="_blank">{{
                     shorten(eachschema)}}
                   </a>
                   <i class="far fa-copy" style="cursor:pointer;" title="Click to copy Schema Id"
                     @click="copyToClip(eachschema, 'Schema Id')"></i> <br>
-                </span>
-                <span v-else>
+                  </span>
+                </template>
+                <template v-else>
                   <a :href="`${$config.explorer.BASE_URL}/identity/${row.schemaId}`" target="_blank">{{
                     shorten(row.schemaId)}}
                   </a>
                   <i class="far fa-copy" style="cursor:pointer;" title="Click to copy Schema Id"
                     @click="copyToClip(row.schemaId, 'Schema Id')"></i>
-                </span>
+                </template>
 
               </td>
               <!-- <td class="align-middle">{{row.reason}}</td> -->
@@ -223,7 +219,7 @@
           customClass="btn btn-danger"></hf-buttons>
       </div>
     </hf-pop-up>
-  </div>
+  </b-container>
 </template>
 
 <script>

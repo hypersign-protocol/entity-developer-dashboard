@@ -22,17 +22,14 @@
             <span class="value mono id-with-copy">
               <span class="id-text">{{ company?.companyId || 'N/A' }}</span>
 
-              <v-btn
+              <button
                 v-if="company?.companyId"
-                icon
-                x-small
-                class="copy-btn"
+                class="copy-btn btn btn-link p-0"
                 @click="copyToClipboard(company.companyId)"
                 title="Copy Company ID"
               >
-                <v-icon small>mdi-content-copy</v-icon>
-                
-              </v-btn>
+                <i class="mdi mdi-content-copy" style="font-size:14px"></i>
+              </button>
 
             </span>
             

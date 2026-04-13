@@ -175,7 +175,7 @@ h3 {
 </style>
 
 <template>
-  <div :class="isContainerShift ? 'homeShift' : 'home'">
+  <b-container fluid class="py-3">
     <loadIng
       :active.sync="isLoading"
       :can-cancel="true"
@@ -235,7 +235,7 @@ h3 {
 
     <div class="row">
       <!-- Personal Information -->
-      <v-card
+      <b-card
         id="personal-info"
         class="serviceCard dataCard float-"
         v-if="
@@ -243,11 +243,11 @@ h3 {
           Object.keys(userPersonalDataFromUserConsent).length > 0
         "
       >
-        <v-list-item three-line>
-          <v-list-item-content>
-            <v-list-item-title class="text-h6 font-weight-bold mb-3">
+        <div>
+          <div>
+            <h5 class="font-weight-bold mb-3">
               <i class="fa fa-id-badge mr-2" aria-hidden="true"></i>PERSONAL INFORMATION
-            </v-list-item-title>
+            </h5>
             <div class="p-2">
               <table class="table">
                 <tbody>
@@ -282,11 +282,11 @@ h3 {
                 </tbody>
               </table>
             </div>
-          </v-list-item-content>
-        </v-list-item>
-      </v-card>
+          </div>
+        </div>
+      </b-card>
 
-      <v-card
+      <b-card
         id="personal-info-gov"
         class="serviceCard dataCard float-"
         v-if="
@@ -294,11 +294,11 @@ h3 {
           Object.keys(userPersonalDataGovIdFromUserConsent).length > 0
         "
       >
-        <v-list-item three-line>
-          <v-list-item-content>
-            <v-list-item-title class="text-h6 font-weight-bold mb-3">
+        <div>
+          <div>
+            <h5 class="font-weight-bold mb-3">
               <i class="fa fa-id-badge mr-2" aria-hidden="true"></i>PERSONAL INFORMATION
-            </v-list-item-title>
+            </h5>
             <div class="p-2">
               <table class="table">
                 <tbody>
@@ -326,21 +326,21 @@ h3 {
                 </tbody>
               </table>
             </div>
-          </v-list-item-content>
-        </v-list-item>
-      </v-card>
+          </div>
+        </div>
+      </b-card>
 
       <!-- Device Information -->
-      <v-card
+      <b-card
         id="device-info"
         class="serviceCard dataCard float-"
         v-if="deviceDetails && Object.keys(deviceDetails).length > 0"
       >
-        <v-list-item three-line>
-          <v-list-item-content>
-            <v-list-item-title class="text-h6 font-weight-bold mb-3">
+        <div>
+          <div>
+            <h5 class="font-weight-bold mb-3">
               <i class="fa fa-laptop mr-2" aria-hidden="true"></i>DEVICE INFORMATION
-            </v-list-item-title>
+            </h5>
             <div class="p-2">
               <table class="table">
                 <tbody>
@@ -370,12 +370,12 @@ h3 {
                 </tbody>
               </table>
             </div>
-          </v-list-item-content>
-        </v-list-item>
-      </v-card>
+          </div>
+        </div>
+      </b-card>
 
       <!-- Face Verification -->
-      <v-card
+      <b-card
         id="face-auth-info"
         class="serviceCard dataCard float-"
         :style="{ border: getStatusColor }"
@@ -385,11 +385,11 @@ h3 {
           session.ocriddocsDetails.tokenFaceImage
         "
       >
-        <v-list-item three-line>
-          <v-list-item-content>
-            <v-list-item-title class="text-h6 font-weight-bold mb-3">
+        <div>
+          <div>
+            <h5 class="font-weight-bold mb-3">
               <i class="fa fa-smile mr-2" aria-hidden="true"></i>FACE AUTHENTICATION
-            </v-list-item-title>
+            </h5>
             <div class="">
               <div class="row">
                 <div class="col-md-5 centered-container" style="">
@@ -437,12 +437,12 @@ h3 {
                 </div>
               </div>
             </div>
-          </v-list-item-content>
-        </v-list-item>
-      </v-card>
+          </div>
+        </div>
+      </b-card>
 
       <!-- Liveliness Check -->
-      <v-card
+      <b-card
         id="liveliness-info"
         class="serviceCard dataCard float-"
         :style="{ border: passiveLivelinessData.borderColor }"
@@ -452,11 +452,11 @@ h3 {
           Object.keys(session.selfiDetails).length > 0
         "
       >
-        <v-list-item three-line>
-          <v-list-item-content>
-            <v-list-item-title class="text-h6 font-weight-bold mb-3">
+        <div>
+          <div>
+            <h5 class="font-weight-bold mb-3">
               <i class="fa fa-heartbeat mr-2" aria-hidden="true"></i>LIVELINESS CHECK
-            </v-list-item-title>
+            </h5>
             <div>
               <div class="row">
                 <div class="col-md-12 centered-container" style="">
@@ -482,21 +482,21 @@ h3 {
                 </div>
               </div>
             </div>
-          </v-list-item-content>
-        </v-list-item>
-      </v-card>
+          </div>
+        </div>
+      </b-card>
 
       <!-- Location Information -->
-      <v-card
+      <b-card
         id="location-info"
         class="serviceCard dataCard float-"
         v-if="locationDetails && Object.keys(locationDetails).length > 0"
       >
-        <v-list-item three-line>
-          <v-list-item-content>
-            <v-list-item-title class="text-h6 font-weight-bold mb-3">
+        <div>
+          <div>
+            <h5 class="font-weight-bold mb-3">
               <i class="fa fa-map-marker mr-2" aria-hidden="true"></i>LOCATION INFORMATION
-            </v-list-item-title>
+            </h5>
 
             <div class="p-2">
               <table class="table">
@@ -533,17 +533,17 @@ h3 {
                 </tbody>
               </table>
             </div>
-          </v-list-item-content>
-        </v-list-item>
-      </v-card>
+          </div>
+        </div>
+      </b-card>
 
       <!-- Images / Documentation -->
-      <v-card class="serviceCard dataCard float-" v-if="selfiDataFound || idDocDataFound">
-        <v-list-item three-line>
-          <v-list-item-content>
-            <v-list-item-title class="text-h6 font-weight-bold mb-3">
+      <b-card class="serviceCard dataCard float-" v-if="selfiDataFound || idDocDataFound">
+        <div>
+          <div>
+            <h5 class="font-weight-bold mb-3">
               <i class="fa fa-file mr-2" aria-hidden="true"></i>DOCUMENTS
-            </v-list-item-title>
+            </h5>
 
             <div class="p-2" v-if="selfiDataFound || idDocDataFound">
               <!-- <div class="p-2"
@@ -618,18 +618,18 @@ h3 {
             <!-- <div class="card-body" v-else>
                                 <h4>No record found</h4>
                             </div> -->
-          </v-list-item-content>
-        </v-list-item>
-      </v-card>
+          </div>
+        </div>
+      </b-card>
 
       <!-- SBT Minting -->
       <div v-for="eachSbtMintData in allSbtMintData" v-bind:key="eachSbtMintData">
-        <v-card class="serviceCard dataCard float-" v-if="eachSbtMintData">
-          <v-list-item three-line>
-            <v-list-item-content>
-              <v-list-item-title class="text-h6 font-weight-bold mb-3">
+        <b-card class="serviceCard dataCard float-" v-if="eachSbtMintData">
+          <div>
+            <div>
+              <h5 class="font-weight-bold mb-3">
                 <i class="fa fa-address-book mr-2" aria-hidden="true"></i>SOUL BOUND TOKEN
-              </v-list-item-title>
+              </h5>
               <div>
                 <table class="table">
                   <tbody>
@@ -704,23 +704,23 @@ h3 {
                   </tbody>
                 </table>
               </div>
-            </v-list-item-content>
-          </v-list-item>
-        </v-card>
+            </div>
+          </div>
+        </b-card>
       </div>
     </div>
 
     <div class="row">
-      <v-card
+      <b-card
         id="timelines-info"
         class="serviceCard w-100 mt-3"
         style="max-height: 300px"
       >
-        <v-list-item three-line>
-          <v-list-item-content>
-            <v-list-item-title class="text-h6 font-weight-bold mb-3">
+        <div>
+          <div>
+            <h5 class="font-weight-bold mb-3">
               <i class="fa fa-hourglass-end mr-2" aria-hidden="true"></i>TIMELINES
-            </v-list-item-title>
+            </h5>
             <div>
               <ul class="timeline">
                 <li v-for="(step, index) in sortedTimelineDetails" :key="index">
@@ -744,9 +744,9 @@ h3 {
                 </li>
               </ul>
             </div>
-          </v-list-item-content>
-        </v-list-item>
-      </v-card>
+          </div>
+        </div>
+      </b-card>
     </div>
 
     <hf-pop-up id="zoom-doc" :Header="popupHeader">
@@ -754,7 +754,7 @@ h3 {
         <img :src="popupImage" />
       </div>
     </hf-pop-up>
-  </div>
+  </b-container>
 </template>
 
 <script>

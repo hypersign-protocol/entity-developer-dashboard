@@ -118,42 +118,30 @@ h5 span {
 }
 </style>
 <template>
-  <div :class="isContainerShift ? 'homeShift' : 'home'">
+  <b-container fluid class="py-3">
     <loadIng :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loadIng>
 
-
-    <div class="row mb-3">
-
-      <div class="col">
-        <b-form inline class="mx-1" style="float: inline-end;">
-          <!-- <label for="inline-form-input-name">Start: </label> -->
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
+      <div>
+        <h4 class="font-weight-bold mb-0">API Usage</h4>
+      </div>
+      <div class="d-flex align-items-center">
+        <b-form inline class="mx-1">
           <b-form-datepicker id="startDate-datepicker" placeholder="Start Date" v-model="startDate"
             class="mb-2 mr-sm-1 mb-sm-0"></b-form-datepicker>
-
-          <!-- <label for="inline-form-input-username">End:</label> -->
           <b-form-datepicker id="endDate-datepicker" placeholder="End Date" v-model="endDate"
             class="mb-2 mr-sm-1 mb-sm-0"></b-form-datepicker>
           <b-button variant="outline-secondary" @click="search()"><i class="fa fa-search"></i></b-button>
         </b-form>
-        <!-- </div>
-      <div class="col-4"> -->
-
-        <b-button-group style="float: left;">
+        <b-button-group class="mx-1">
           <b-button :pressed="isGroupByDaily" variant="outline-secondary">Daily</b-button>
-          <b-button :pressed="isGroupByWeekly" variant="outline-secondary" @click="groupByTheChart('weekly')"
-            disabled>Weekly</b-button>
-          <b-button :pressed="isGroupByMonthly" variant="outline-secondary" @click="groupByTheChart('monthly')"
-            disabled>Monthly</b-button>
+          <b-button :pressed="isGroupByWeekly" variant="outline-secondary" @click="groupByTheChart('weekly')" disabled>Weekly</b-button>
+          <b-button :pressed="isGroupByMonthly" variant="outline-secondary" @click="groupByTheChart('monthly')" disabled>Monthly</b-button>
         </b-button-group>
-
-        <b-button-group style="float: left;" class="mx-1">
-          <b-button variant="secondary" @click="changeGraph('bar')" :pressed="isChartBar"><b-icon
-              icon="bar-chart"></b-icon></b-button>
-          <b-button variant="secondary" @click="changeGraph('line')" :pressed="isChartLine"><b-icon
-              icon="graph-up"></b-icon></b-button>
+        <b-button-group class="mx-1">
+          <b-button variant="secondary" @click="changeGraph('bar')" :pressed="isChartBar"><b-icon icon="bar-chart"></b-icon></b-button>
+          <b-button variant="secondary" @click="changeGraph('line')" :pressed="isChartLine"><b-icon icon="graph-up"></b-icon></b-button>
         </b-button-group>
-
-
       </div>
     </div>
 
@@ -215,7 +203,7 @@ h5 span {
       </div>
     </div>
 
-  </div>
+  </b-container>
 </template>
 
 <script>

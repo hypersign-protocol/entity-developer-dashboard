@@ -84,16 +84,12 @@ background-color: #905ab0;
 </style>
 
 <template>
-    <div :class="isContainerShift ?'homeShift':'home'">
+  <b-container fluid class="py-3">
     <loadIng :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loadIng>
-
-    <div class="row">
-        <div class="col-md-12" style="text-align: left">
-            <div class="form-group" style="display:flex">
-                <h3 class="mt-4" style="text-align: left;">
-                Credential Verification</h3>
-            </div>
-        </div>
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
+      <div>
+        <h4 class="font-weight-bold mb-0">Credential Verification</h4>
+      </div>
     </div>
     
     <div class="row">
@@ -139,7 +135,7 @@ background-color: #905ab0;
 
     <hf-pop-up  Header="Credentials Verification Report" >
         <div style="max-height: 600px; overflow-y: scroll;">
-        <div class="card" v-for="eachcredential in verfiableCredentials" style="margin-bottom: 3%;">
+        <div class="card" v-for="eachcredential in verfiableCredentials" :key="eachcredential.id" style="margin-bottom: 3%;">
             <div class="card-header">
                 <div class="row">
                     <div class="col-md-12">
@@ -168,7 +164,7 @@ background-color: #905ab0;
                             style="cursor:pointer;"
                             title="Click to copy issuer DID"
                         @click="copyToClip(eachcredential.issuer,'Issuer DID')"></i></li>
-                    <li class="list-group-item" v-for="eachSubjectField in Object.keys(eachcredential.credentialSubject)">
+                    <li class="list-group-item" v-for="eachSubjectField in Object.keys(eachcredential.credentialSubject)" :key="eachSubjectField">
                         <span style="font-weight: bold;">{{eachSubjectField}} :</span> 
                         <span v-if="eachSubjectField === 'id'"> {{ shorten(eachcredential.credentialSubject[eachSubjectField])}} 
                             <i class="far fa-copy ml-1"
@@ -186,10 +182,7 @@ background-color: #905ab0;
         </div>
     </div>
     </hf-pop-up>
-
-
-    
-    </div>
+  </b-container>
 </template>
 
 <script>

@@ -95,13 +95,13 @@
         <b-button v-if="isCreditAlreadyRequested || isCreditApproved" variant="link" @click="$emit('prev-step')"
           disabled>Back</b-button>
         <b-button v-else variant="link" @click="$emit('prev-step')">Back</b-button>
-        <v-btn v-if="!isCreditApproved" class="btn btn-outline-secondary" disabled>
+        <button v-if="!isCreditApproved" class="btn btn-outline-secondary" disabled>
           Finish
-        </v-btn>
-        <v-btn v-else class="btn btn-outline-secondary" @click="$emit('finish')">
+        </button>
+        <button v-else class="btn btn-outline-secondary" @click="$emit('finish')">
           <i class="mdi mdi-check-circle-outline mr-1"></i>
           Finish
-        </v-btn>
+        </button>
       </div>
     </div>
   </div>

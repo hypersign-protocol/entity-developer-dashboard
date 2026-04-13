@@ -186,6 +186,15 @@ a {
   border: 1px solid #6c757d;
 }
 
+.badge-outline-success,
+.badge-outline-danger,
+.badge-outline-warning,
+.badge-outline-secondary {
+  min-width: 95px;
+  text-align: center;
+  display: inline-block;
+}
+
 
 .sidebar-wrapper {
   position: fixed;

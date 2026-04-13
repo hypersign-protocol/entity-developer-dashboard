@@ -1,16 +1,16 @@
 <template>
-  <b-container fluid class="">
+  <b-container fluid class="py-3">
 
-    <b-row class="align-items-center">
-      <b-col md="8">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
+      <div>
         <div class="d-flex align-items-center">
-          <h4 class="mb-1 font-weight-bold  mb-0">Reusable Identity</h4>
+          <h4 class="font-weight-bold mb-0">Reusable Identity</h4>
           <span class="beta-badge">BETA</span>
         </div>
         <p class="text-muted small mb-0">Streamline onboarding by allowing users to share verified credentials across the
           ecosystem.</p>
-      </b-col>
-    </b-row>
+      </div>
+    </div>
 
     <b-row class="mb-2" style="background-color: #f9fafb;">
       <b-col lg="8">

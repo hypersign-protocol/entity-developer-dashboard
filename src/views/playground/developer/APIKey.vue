@@ -1,147 +1,110 @@
 <template>
-  <v-container class="py-6">
+  <b-container fluid class="py-3">
     <load-ing
       :active.sync="isLoading"
       :can-cancel="true"
       :is-full-page="fullPage"
     ></load-ing>
 
-    <v-row align="center" class="mb-6">
-      <v-col cols="12">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
+      <div>
         <h4 class="font-weight-bold mb-0">API Key Management</h4>
-        <p class="text-subtitle-2 text-muted">
-          Configure authentication for your backend integration
-        </p>
-      </v-col>
-    </v-row>
+        <p class="text-muted small mb-0">Configure authentication for your backend integration</p>
+      </div>
+    </div>
 
-    <v-row>
-      <v-col cols="12" lg="6">
-        <div class="overview-container h-100">
-          <div class="header-row">
-            <h2 class="title">Generate Secret Key</h2>
+    <b-card class="serviceCard">
+      <b-row>
+        <!-- Generate Secret Key -->
+        <b-col cols="12" lg="6" class="mb-4">
+          <p class="section-label mb-3">GENERATE SECRET KEY</p>
+
+          <div class="important-note mb-3">
+            <span class="font-weight-bold d-block text-orange">
+              <i class="mdi mdi-alert mr-1"></i>Important Note
+            </span>
+            <span class="small">
+              Generating a new Secret Key will
+              <strong>immediately deactivate</strong> your current key. Ensure you update your server configuration promptly.
+            </span>
           </div>
 
-          <div class="p-2">
-            <div class="important-note mb-3 d-flex align-center justify-space-between">
-              <div class="d-flex align-center">
-                <v-icon color="orange darken-2" class="mr-2">mdi-alert</v-icon>
-                <div>
-                  <span class="font-weight-bold d-block text-orange">Important Note</span>
-                  <span class="small text-muted">
-                    Generating a new Secret Key will
-                    <strong>immediately deactivate</strong> your current key. Ensure you
-                    update your server configuration promptly.
-                  </span>
-                </div>
-              </div>
+          <div class="p-3 service-block">
+            <div v-if="getSelectedService" class="mb-3">
+              <div class="service-name">{{ getSelectedService.name || getSelectedService.appName || 'Selected Application' }}</div>
+              <div class="service-id mono">{{ getSelectedService.appId }}</div>
             </div>
-
-            <div class="p-3 service-block">
-              <div class="service-info mb-3">
-                <div v-if="getSelectedService">
-                  <div class="service-name">{{ getSelectedService.name || getSelectedService.appName || 'Selected Application' }}</div>
-                  <div class="service-id mono">{{ getSelectedService.appId }}</div>
-                </div>
-                <div v-else class="no-service small text-muted">
-                  No application selected. Select an application from the sidebar to enable generating a Secret Key.
-                </div>
-              </div>
-
-              <div class="d-flex justify-start">
-                <hf-buttons
-                  v-if="getSelectedService"
-                  name="Generate New Secret"
-                  class="px-8"
-                  @executeAction="reGenerateSecretKey"
-                ></hf-buttons>
-
-                <v-btn v-else depressed disabled class="btn btn-outline-secondary px-8">
-                  Generate New Secret
-                </v-btn>
-              </div>
+            <div v-else class="small text-muted mb-3">
+              No application selected. Select an application from the sidebar to enable generating a Secret Key.
             </div>
+            <hf-buttons
+              v-if="getSelectedService"
+              name="Generate New Secret"
+              customClass="btn btn-outline-secondary btn-sm"
+              @executeAction="reGenerateSecretKey"
+            ></hf-buttons>
+            <b-button v-else variant="outline-secondary" disabled>Generate New Secret</b-button>
           </div>
-        </div>
-      </v-col>
+        </b-col>
 
-      <v-col cols="12" lg="6">
-        <div class="overview-container mb-4">
-          <div class="header-row">
-            <h2 class="title">Integration Steps</h2>
-          </div>
-
+        <!-- Right column -->
+        <b-col cols="12" lg="6">
+          <!-- Integration Steps -->
+          <p class="section-label mb-3">INTEGRATION STEPS</p>
           <div class="step-item d-flex mb-4">
             <div class="step-number">1</div>
             <div>
               <p class="font-weight-bold mb-0">Generate Access Token</p>
-              <p class="small text-muted mb-1">
-                Use your Secret Key to authenticate with the Dashboard API.
-              </p>
-              <a
-                target="_blank"
-                class="doc-link"
-                href="https://docs.hypersign.id/hypersign-kyc/kyc-widget/integrations/backend-integration/generate-accesstokens"
-              >
-                Documentation <v-icon x-small color="primary">mdi-open-in-new</v-icon>
+              <p class="small text-muted mb-1">Use your Secret Key to authenticate with the Dashboard API.</p>
+              <a target="_blank" class="doc-link" href="https://docs.hypersign.id/hypersign-kyc/kyc-widget/integrations/backend-integration/generate-accesstokens">
+                Documentation <i class="mdi mdi-open-in-new"></i>
               </a>
             </div>
           </div>
-
-          <div class="step-item d-flex">
+          <div class="step-item d-flex mb-4">
             <div class="step-number">2</div>
             <div>
               <p class="font-weight-bold mb-0">Initialize Session</p>
-              <p class="small text-muted mb-1">
-                Generate a Session ID for every new user verification request.
-              </p>
-              <a
-                target="_blank"
-                class="doc-link"
-                href="https://docs.hypersign.id/hypersign-kyc/kyc-widget/integrations/backend-integration/generate-kyc-session-id"
-              >
-                Documentation <v-icon x-small color="primary">mdi-open-in-new</v-icon>
+              <p class="small text-muted mb-1">Generate a Session ID for every new user verification request.</p>
+              <a target="_blank" class="doc-link" href="https://docs.hypersign.id/hypersign-kyc/kyc-widget/integrations/backend-integration/generate-kyc-session-id">
+                Documentation <i class="mdi mdi-open-in-new"></i>
               </a>
             </div>
           </div>
-        </div>
 
-        <div class="overview-container">
-          <div class="header-row">
-            <h2 class="title">Connection Endpoints</h2>
-          </div>
+          <hr class="my-3" />
 
-          <div class="mb-4">
-            <label class="input-label">Dashboard API URL</label>
-            <div class="copy-input-group">
-              <input type="text" :value="dashboardUrl" readonly />
-              <button @click="copyToClipboard(dashboardUrl)">
-                <v-icon small>mdi-content-copy</v-icon>
-              </button>
-            </div>
-          </div>
-
-          <div>
-            <label class="input-label">Tenant URL</label>
-            <div class="copy-input-group">
-              <input type="text" :value="tenantUrl" readonly />
-              <button @click="copyToClipboard(tenantUrl)">
-                <v-icon small>mdi-content-copy</v-icon>
-              </button>
-            </div>
-          </div>
-        </div>
-      </v-col>
-    </v-row>
+          <!-- Connection Endpoints -->
+          <p class="section-label mb-3">CONNECTION ENDPOINTS</p>
+          <b-form-group label="DASHBOARD API URL">
+            <b-input-group>
+              <b-form-input :value="dashboardUrl" readonly class="custom-input" />
+              <b-input-group-append>
+                <b-button variant="outline-secondary" size="sm" @click="copyToClipboard(dashboardUrl)">
+                  <i class="mdi mdi-content-copy"></i>
+                </b-button>
+              </b-input-group-append>
+            </b-input-group>
+          </b-form-group>
+          <b-form-group label="TENANT URL">
+            <b-input-group>
+              <b-form-input :value="tenantUrl" readonly class="custom-input" />
+              <b-input-group-append>
+                <b-button variant="outline-secondary" size="sm" @click="copyToClipboard(tenantUrl)">
+                  <i class="mdi mdi-content-copy"></i>
+                </b-button>
+              </b-input-group-append>
+            </b-input-group>
+          </b-form-group>
+        </b-col>
+      </b-row>
+    </b-card>
 
     <hf-pop-up id="entity-secretKey-popup" Header="API Secret Key Generated">
-      <div class="pa-4 text-center" v-if="apiKeySecret">
-        <v-icon color="green" size="48" class="mb-2">mdi-key</v-icon>
-        <p class="font-weight-bold">Copy your Secret Key now</p>
-        <p class="small text-muted">
-          For security, we cannot show this key again. Save it in a secure vault.
-        </p>
-
+      <div class="text-center py-2" v-if="apiKeySecret">
+        <i class="mdi mdi-key" style="font-size: 48px; color: green;"></i>
+        <p class="font-weight-bold mt-2">Copy your Secret Key now</p>
+        <p class="small text-muted">For security, we cannot show this key again. Save it in a secure vault.</p>
         <HfFlashNotification
           class="mt-4"
           :text="apiKeySecret"
@@ -151,43 +114,36 @@
         ></HfFlashNotification>
       </div>
     </hf-pop-up>
-  </v-container>
+  </b-container>
 </template>
 
 <style scoped>
-/* Dashboard Container Style */
-.overview-container {
-  padding: 1.5rem;
-  background-color: #f9fafb;
-  border-radius: 0.75rem;
-  border: 1px solid #e5e7eb;
+.custom-input {
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+  padding: 0.6rem 0.8rem;
+  font-size: 0.9rem;
 }
 
-.header-row {
-  margin-bottom: 1.25rem;
-}
-
-.title {
-  font-size: 1rem;
+.section-label {
+  font-size: 0.75rem;
   font-weight: 700;
-  color: #111827;
+  color: #64748b;
   text-transform: uppercase;
-  letter-spacing: 0.025em;
+  letter-spacing: 0.05em;
+  margin-bottom: 0;
 }
 
-/* Warning Box */
-.warning-box {
+.important-note {
   background-color: #fff7ed;
   border: 1px solid #ffedd5;
+  border-left: 4px solid #f97316;
   border-radius: 8px;
-  padding: 1rem;
+  padding: 12px 14px;
 }
 
-.text-orange {
-  color: #c2410c;
-}
+.text-orange { color: #c2410c; }
 
-/* Step Styles */
 .step-number {
   background: #3b82f6;
   color: white;
@@ -201,6 +157,7 @@
   font-weight: bold;
   margin-right: 12px;
   margin-top: 2px;
+  flex-shrink: 0;
 }
 
 .doc-link {
@@ -210,92 +167,24 @@
   text-decoration: none;
 }
 
-.doc-link:hover {
-  text-decoration: underline;
-}
+.doc-link:hover { text-decoration: underline; }
 
-/* Custom Copy Inputs */
-.input-label {
-  display: block;
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: #64748b;
-  text-transform: uppercase;
-  margin-bottom: 4px;
-}
-
-.copy-input-group {
-  display: flex;
-  background: white;
+.service-block {
   border: 1px solid #e2e8f0;
-  border-radius: 6px;
-  overflow: hidden;
+  border-radius: 8px;
+  background: #f9fafb;
 }
 
-.copy-input-group input {
-  flex: 1;
-  padding: 8px 12px;
-  font-size: 0.85rem;
-  color: #475569;
-  font-family: monospace;
-  border: none;
-  background: transparent;
-}
-
-.copy-input-group button {
-  padding: 0 12px;
-  background: #f8fafc;
-  border-left: 1px solid #e2e8f0;
-  transition: background 0.2s;
-}
-
-.copy-input-group button:hover {
-  background: #f1f5f9;
-}
-
-.service-block .service-name {
+.service-name {
   font-weight: 700;
   color: #0f172a;
   margin-bottom: 4px;
 }
 
-.service-block .service-id.mono {
+.service-id.mono {
   font-family: monospace;
   color: #475569;
   font-size: 0.85rem;
-}
-
-.service-block .no-service {
-  color: #6b7280;
-}
-
-.important-note {
-  background-color: #fff7ed;
-  border: 1px solid #ffedd5;
-  border-left: 4px solid #f97316;
-  border-radius: 8px;
-  padding: 12px 14px;
-  width: 100%;
-}
-
-.important-note .text-muted {
-  color: #7c2d12;
-}
-
-/* note-compact removed: Important Note is always visible */
-
-/* Layout adjustments to improve placement and responsiveness */
-.service-block {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 12px;
-  padding-top: 8px;
-  padding-bottom: 8px;
-}
-
-.service-block .service-info {
-  text-align: left;
 }
 </style>
 

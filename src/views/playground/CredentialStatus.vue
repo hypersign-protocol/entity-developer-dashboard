@@ -103,20 +103,15 @@ h5 span {
 }
 </style>
 <template>
-  <div :class="isContainerShift ? 'homeShift' : 'home'">
+  <b-container fluid class="py-3">
     <loadIng :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loadIng>
-    <div class="">
-      <div class="" style="text-align: left">
-        <!-- <Info :message="description" /> -->
-        <div class="form-group" style="display: flex">
-          <h3 v-if="credentialList.length > 0" style="text-align: left">
-            Credentials
-          </h3>
-          <h3 v-else style="text-align: left">
-            Issue your first verifiable credential!
-          </h3>
-          <hf-buttons iconClass="fa fa-plus" name="Create" class="ml-auto" @executeAction="openSlider()"></hf-buttons>
-        </div>
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
+      <div>
+        <h4 class="font-weight-bold mb-0">Credentials</h4>
+        <p class="text-muted small mb-0">Issue and manage verifiable credentials</p>
+      </div>
+      <hf-buttons iconClass="fa fa-plus" name="Create" @executeAction="openSlider()"></hf-buttons>
+    </div>
         <StudioSideBar :title="isEdit ? 'Edit Credential Status' : 'Issue Credential'">
           <div class="container" style="width: 100%;">
 
@@ -278,11 +273,10 @@ h5 span {
                     /> -->
             </div>
             <div class="">
-              <v-checkbox v-model="creadData.persist" label="Store the credential in the data vault?"></v-checkbox>
+              <b-form-checkbox v-model="creadData.persist">Store the credential in the data vault?</b-form-checkbox>
             </div>
             <div class="">
-              <v-checkbox v-model="creadData.registerCredentialStatus"
-                label="Attest the credential status on the blockchain?"></v-checkbox>
+              <b-form-checkbox v-model="creadData.registerCredentialStatus">Attest the credential status on the blockchain?</b-form-checkbox>
             </div>
             <div class="form-group row">
               <div class="col-md-12">
@@ -294,8 +288,6 @@ h5 span {
             </div>
           </div>
         </StudioSideBar>
-      </div>
-    </div>
     <div class="scrollit" v-if="credentialList.length > 0">
       <div class="">
         <table class="table table-hover event-card" style="background: #ffff">
@@ -474,7 +466,7 @@ h5 span {
           <PagiNation :pagesCount="pages" @event-page-number="handleGetPageNumberEvent" />
         </div>
     </div>
-  </div>
+  </b-container>
 </template>
 
 <script>

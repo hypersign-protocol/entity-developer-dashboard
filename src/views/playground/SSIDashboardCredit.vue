@@ -132,18 +132,17 @@ h5 span {
 }
 </style>
 <template>
-    <div>
+    <b-container fluid class="py-3">
         <loadIng :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loadIng>
-        <!-- Credits -->
-          <div class="row">
-            <div class="col-md-6" style="text-align: left">
-                <div class="form-group" style="display:flex">
-                    <h3 style="text-align: left;">Credits</h3>
-                </div>
+
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
+            <div>
+                <h4 class="mb-1 font-weight-bold mb-0">SSI Credits</h4>
+                <p class="text-muted small mb-0">Manage your SSI API balance and subscription history</p>
             </div>
-            <div class="col-6">
-                <hf-buttons name=" Refresh" iconClass="arrow-clockwise" :bIcon="true" class="ml-auto "
-                    style="float: right;" @executeAction="reloadData()"></hf-buttons>
+            <div>
+                <hf-buttons name="Refresh" iconClass="arrow-clockwise" :bIcon="true"
+                    @executeAction="reloadData()"></hf-buttons>
             </div>
         </div>
         <!-- <div>
@@ -161,7 +160,7 @@ h5 span {
             </div>
             <div class="col-2"></div>
             <div class="col-6">
-                   <v-card class="serviceCard p-4 mt-1">
+                   <b-card class="serviceCard p-4 mt-1">
                     <div class="">
                         <div class="">
                             <p><b>Total Credits</b></p>
@@ -196,8 +195,8 @@ h5 span {
                             </p>
                         </div>
                     </div>
-                </v-card>
-                <v-card class="serviceCard p-4 mt-2">
+                </b-card>
+                <b-card class="serviceCard p-4 mt-2">
                     <div>
                         <p><b>Scope(s)</b></p>
                         <p v-if="allowance.scope.length > 0">
@@ -210,7 +209,7 @@ h5 span {
                         </p>
 
                     </div>
-                </v-card>
+                </b-card>
             </div>
         </div>
 
@@ -406,7 +405,7 @@ h5 span {
             </div>
 
         </hf-pop-up>
-    </div>
+    </b-container>
 </template>
 
 
