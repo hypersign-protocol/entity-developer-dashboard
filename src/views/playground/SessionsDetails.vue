@@ -128,7 +128,7 @@
   border: 1px solid #e5e7eb;
   border-radius: 0.75rem;
   overflow: hidden;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
 }
 
 ::v-deep(#zoom-doc .modal-header) {
@@ -172,7 +172,7 @@
   max-height: 72vh;
   object-fit: contain;
   border-radius: 10px;
-  box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.1);
   border: 1px solid #e5e7eb;
   background: #fff;
 }
@@ -239,14 +239,25 @@
 .greyFont {
   color: grey;
 }
+
+.info-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
 </style>
 
 <template>
-  <b-container fluid :class="isContainerShift ? 'homeShift' : 'home'">
-    <loadIng :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loadIng>
+  <b-container fluid py-3 :class="isContainerShift ? 'homeShift' : 'home'">
+    <loadIng
+      :active.sync="isLoading"
+      :can-cancel="true"
+      :is-full-page="fullPage"
+    ></loadIng>
 
     <!-- Breadcrumb + Page Header -->
-    <v-row class="mb-3">
+    <v-row class="">
       <v-col cols="12">
         <div class="d-flex align-items-center mb-2">
           <span class="back-link" @click="goBack">
@@ -255,10 +266,11 @@
           <span class="breadcrumb-sep"><i class="fa fa-angle-right"></i></span>
           <span
             class="text-muted small"
-            style="font-family: monospace; cursor: pointer;"
+            style="font-family: monospace; cursor: pointer"
             @click="copyToClip(sessionId, 'UserId')"
             title="Click to copy"
-          >{{ sessionId }}</span>
+            >{{ sessionId }}</span
+          >
         </div>
 
         <div class="d-flex justify-content-between align-items-center">
@@ -266,49 +278,56 @@
             <h4 class="mb-0 font-weight-bold">User Detail</h4>
             <p class="text-muted small mb-0">KYC verification session details</p>
           </div>
-         
         </div>
       </v-col>
     </v-row>
 
     <!-- Info Bar -->
-    <v-row class="mb-4" v-if="session && session.createdAt">
+    <v-row
+      class="d-flex align-items-center justify-content-between"
+      v-if="session && session.createdAt"
+    >
       <v-col cols="12">
         <div class="info-bar px-4 py-3">
           <div class="row">
-            <div class="col-md-3 col-6 mb-2 mb-md-0">
+            <div class="col-12 col-md-3 mb-2 mb-md-0">
               <div class="info-label">Date</div>
               <div class="info-value">{{ formatDate(session.createdAt) }}</div>
             </div>
-            <div class="col-md-3 col-6 mb-2 mb-md-0">
+            <div class="col-12 col-md-3 mb-2 mb-md-0">
               <div class="info-label">Email</div>
               <div
                 class="info-value"
-                style="cursor: pointer;"
+                style="cursor: pointer"
                 @click="copyToClip(session.email, 'Email')"
                 title="Click to copy"
-              >{{ session ? stringShortner(session.email, 32) : '-' }}</div>
+              >
+                {{ session ? stringShortner(session.email, 32) : "-" }}
+              </div>
             </div>
-            <div class="col-md-3 col-6 mb-2 mb-md-0">
+            <div class="col-12 col-md-3 mb-2 mb-md-0">
               <div class="info-label">Attempts</div>
-              <div class="info-value">{{ session ? session.retryAttempts : '-' }}</div>
+              <div class="info-value">{{ session ? session.retryAttempts : "-" }}</div>
             </div>
-
-
-            <div v-if="session && session.status" class="col-md-3 col-6 mb-2 mb-md-0">
-                 <button
-              @click="downloadKYCReport()"
-              title="Download KYC Report"
-              class="btn btn-sm btn-outline-primary"
-              style="border-radius: 0.375rem; font-size: 12px; padding: 4px 8px; border-color: #e5e7eb;"
+            <div
+              v-if="session && session.status"
+              class="col-12 col-md-2 mb-2 mb-md-0 d-flex align-items-center"
             >
-              <i class="fa fa-download mr-1"></i>Report
-            </button>
-            <span v-html="getUserStatus(session.status)" class="ml-2"></span>
-
-         
-          </div>
-            
+              <span v-html="getUserStatus(session.status)" class="ml-2"></span>
+            </div>
+            <div
+              v-if="session && session.status"
+              class="col-12 col-md-1 mb-2 mb-md-0 d-flex justify-content-end"
+            >
+              <button
+                @click="downloadKYCReport()"
+                title="Download KYC Report"
+                class="btn btn-sm btn-outline-secondary info-actions"
+                style="border-radius: 0.375rem; font-size: 12px; padding: 4px 8px"
+              >
+                <i class="fa fa-download mr-1"></i>Report
+              </button>
+            </div>
           </div>
         </div>
       </v-col>
@@ -318,67 +337,98 @@
     <v-row>
       <!-- Personal Information (Passport) -->
       <v-col
-        cols="12" md="6" lg="4"
+        cols="12"
+        md="6"
+        lg="4"
         id="personal-info"
-        v-if="userPersonalDataFromUserConsent && Object.keys(userPersonalDataFromUserConsent).length > 0"
+        v-if="
+          userPersonalDataFromUserConsent &&
+          Object.keys(userPersonalDataFromUserConsent).length > 0
+        "
       >
         <div class="detail-card p-4">
           <div class="card-section-title">
             <i class="fa fa-id-badge mr-2"></i>Personal Information
           </div>
           <div class="card-table-scroll">
-          <table class="data-table w-100">
-            <tbody>
-              <template v-for="eachkey in Object.keys(userPersonalDataFromUserConsent)">
-                <tr v-if="userPersonalDataFromUserConsent[eachkey]" :key="eachkey">
-                  <td>{{ eachkey.charAt(0).toUpperCase() + eachkey.substring(1) }}</td>
-                  <td>
-                    <span v-if="eachkey === 'issuingStateCode'">
-                      {{ userPersonalDataFromUserConsent[eachkey] }}
-                      <country-flag :country="userPersonalDataFromUserConsent[eachkey]" size="small" />
-                    </span>
-                    <span v-else>{{ formatFieldValue(eachkey, userPersonalDataFromUserConsent[eachkey]) }}</span>
-                  </td>
-                </tr>
-              </template>
-            </tbody>
-          </table>
+            <table class="data-table w-100">
+              <tbody>
+                <template v-for="eachkey in Object.keys(userPersonalDataFromUserConsent)">
+                  <tr v-if="userPersonalDataFromUserConsent[eachkey]" :key="eachkey">
+                    <td>{{ eachkey.charAt(0).toUpperCase() + eachkey.substring(1) }}</td>
+                    <td>
+                      <span v-if="eachkey === 'issuingStateCode'">
+                        {{ userPersonalDataFromUserConsent[eachkey] }}
+                        <country-flag
+                          :country="userPersonalDataFromUserConsent[eachkey]"
+                          size="small"
+                        />
+                      </span>
+                      <span v-else>{{
+                        formatFieldValue(
+                          eachkey,
+                          userPersonalDataFromUserConsent[eachkey]
+                        )
+                      }}</span>
+                    </td>
+                  </tr>
+                </template>
+              </tbody>
+            </table>
           </div>
         </div>
       </v-col>
 
       <!-- Personal Information (Gov ID) -->
       <v-col
-        cols="12" md="6" lg="4"
+        cols="12"
+        md="6"
+        lg="4"
         id="personal-info-gov"
-        v-if="Object.keys(userPersonalDataFromUserConsent).length === 0 && Object.keys(userPersonalDataGovIdFromUserConsent).length > 0"
+        v-if="
+          Object.keys(userPersonalDataFromUserConsent).length === 0 &&
+          Object.keys(userPersonalDataGovIdFromUserConsent).length > 0
+        "
       >
         <div class="detail-card p-4">
           <div class="card-section-title">
             <i class="fa fa-id-badge mr-2"></i>Personal Information
           </div>
           <div class="card-table-scroll">
-          <table class="data-table w-100">
-            <tbody>
-              <tr v-for="eachkey in Object.keys(userPersonalDataGovIdFromUserConsent)" :key="eachkey">
-                <td>{{ eachkey.charAt(0).toUpperCase() + eachkey.substring(1) }}</td>
-                <td>
-                  <span v-if="eachkey === 'issuingStateCode'">
-                    {{ userPersonalDataGovIdFromUserConsent[eachkey] }}
-                    <country-flag :country="userPersonalDataGovIdFromUserConsent[eachkey]" size="small" />
-                  </span>
-                  <span v-else>{{ formatFieldValue(eachkey, userPersonalDataGovIdFromUserConsent[eachkey]) }}</span>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+            <table class="data-table w-100">
+              <tbody>
+                <tr
+                  v-for="eachkey in Object.keys(userPersonalDataGovIdFromUserConsent)"
+                  :key="eachkey"
+                >
+                  <td>{{ eachkey.charAt(0).toUpperCase() + eachkey.substring(1) }}</td>
+                  <td>
+                    <span v-if="eachkey === 'issuingStateCode'">
+                      {{ userPersonalDataGovIdFromUserConsent[eachkey] }}
+                      <country-flag
+                        :country="userPersonalDataGovIdFromUserConsent[eachkey]"
+                        size="small"
+                      />
+                    </span>
+                    <span v-else>{{
+                      formatFieldValue(
+                        eachkey,
+                        userPersonalDataGovIdFromUserConsent[eachkey]
+                      )
+                    }}</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
       </v-col>
 
       <!-- Device Information -->
       <v-col
-        cols="12" md="6" lg="4"
+        cols="12"
+        md="6"
+        lg="4"
         id="device-info"
         v-if="deviceDetails && Object.keys(deviceDetails).length > 0"
       >
@@ -388,10 +438,22 @@
           </div>
           <table class="data-table w-100">
             <tbody>
-              <tr><td>Operating System</td><td>{{ deviceDetails.os || 'N/A' }}</td></tr>
-              <tr><td>OS Version</td><td>{{ deviceDetails.osVer || 'N/A' }}</td></tr>
-              <tr><td>Browser</td><td>{{ deviceDetails.browser || 'N/A' }}</td></tr>
-              <tr><td>Device</td><td>{{ deviceDetails.device || 'N/A' }}</td></tr>
+              <tr>
+                <td>Operating System</td>
+                <td>{{ deviceDetails.os || "N/A" }}</td>
+              </tr>
+              <tr>
+                <td>OS Version</td>
+                <td>{{ deviceDetails.osVer || "N/A" }}</td>
+              </tr>
+              <tr>
+                <td>Browser</td>
+                <td>{{ deviceDetails.browser || "N/A" }}</td>
+              </tr>
+              <tr>
+                <td>Device</td>
+                <td>{{ deviceDetails.device || "N/A" }}</td>
+              </tr>
             </tbody>
           </table>
         </div>
@@ -399,7 +461,9 @@
 
       <!-- Location Information -->
       <v-col
-        cols="12" md="6" lg="4"
+        cols="12"
+        md="6"
+        lg="4"
         id="location-info"
         v-if="locationDetails && Object.keys(locationDetails).length > 0"
       >
@@ -409,16 +473,29 @@
           </div>
           <table class="data-table w-100">
             <tbody>
-              <tr><td>IP</td><td>{{ locationDetails.ip }}</td></tr>
-              <tr><td>Continent</td><td>{{ locationDetails.continentName }}</td></tr>
+              <tr>
+                <td>IP</td>
+                <td>{{ locationDetails.ip }}</td>
+              </tr>
+              <tr>
+                <td>Continent</td>
+                <td>{{ locationDetails.continentName }}</td>
+              </tr>
               <tr>
                 <td>Country</td>
                 <td>
                   {{ locationDetails.countryName }}
-                  <country-flag v-if="locationDetails.countryCode" :country="locationDetails.countryCode" size="small" />
+                  <country-flag
+                    v-if="locationDetails.countryCode"
+                    :country="locationDetails.countryCode"
+                    size="small"
+                  />
                 </td>
               </tr>
-              <tr><td>Region</td><td>{{ locationDetails.region }}</td></tr>
+              <tr>
+                <td>Region</td>
+                <td>{{ locationDetails.region }}</td>
+              </tr>
             </tbody>
           </table>
         </div>
@@ -426,9 +503,15 @@
 
       <!-- Liveliness Check -->
       <v-col
-        cols="12" md="6" lg="4"
+        cols="12"
+        md="6"
+        lg="4"
         id="liveliness-info"
-        v-if="session.selfiDetails && session.selfiDetails.createdAt && Object.keys(session.selfiDetails).length > 0"
+        v-if="
+          session.selfiDetails &&
+          session.selfiDetails.createdAt &&
+          Object.keys(session.selfiDetails).length > 0
+        "
       >
         <div class="detail-card p-4">
           <div class="card-section-title">
@@ -436,10 +519,13 @@
           </div>
           <div class="centered-img mb-3">
             <img :src="session.selfiDetails.tokenSelfiImage" class="face-img" />
-            <span v-if="passiveLivelinessData.success" style="color: #28a745; font-weight: 600; font-size: 13px;">
+            <span
+              v-if="passiveLivelinessData.success"
+              style="color: #28a745; font-weight: 600; font-size: 13px"
+            >
               <i class="fa fa-check-circle mr-1"></i>Passed
             </span>
-            <span v-else style="color: #dc3545; font-weight: 600; font-size: 13px;">
+            <span v-else style="color: #dc3545; font-weight: 600; font-size: 13px">
               <i class="fa fa-times-circle mr-1"></i>{{ passiveLivelinessData.result }}
             </span>
           </div>
@@ -448,22 +534,35 @@
 
       <!-- Face Authentication -->
       <v-col
-        cols="12" md="6" lg="4"
+        cols="12"
+        md="6"
+        lg="4"
         id="face-auth-info"
-        v-if="session.selfiDetails && Object.keys(session.selfiDetails).length > 0 && session.ocriddocsDetails.tokenFaceImage"
+        v-if="
+          session.selfiDetails &&
+          Object.keys(session.selfiDetails).length > 0 &&
+          session.ocriddocsDetails.tokenFaceImage
+        "
       >
         <div class="detail-card p-4">
           <div class="card-section-title">
             <i class="fa fa-smile mr-2"></i>Face Authentication
           </div>
-          <div class="d-flex justify-content-center align-items-center mb-3" style="gap: 16px;">
+          <div
+            class="d-flex justify-content-center align-items-center mb-3"
+            style="gap: 16px"
+          >
             <div class="centered-img">
               <img :src="session.selfiDetails.tokenSelfiImage" class="face-img" />
               <small class="text-muted">Selfie</small>
             </div>
             <div>
-              <i v-if="isFacialAuthenticationSuccess.success" class="fa fa-check-circle fa-2x" style="color: #28a745;"></i>
-              <i v-else class="fa fa-times-circle fa-2x" style="color: #dc3545;"></i>
+              <i
+                v-if="isFacialAuthenticationSuccess.success"
+                class="fa fa-check-circle fa-2x"
+                style="color: #28a745"
+              ></i>
+              <i v-else class="fa fa-times-circle fa-2x" style="color: #dc3545"></i>
             </div>
             <div class="centered-img">
               <img :src="session.ocriddocsDetails.tokenFaceImage" class="face-img" />
@@ -471,11 +570,21 @@
             </div>
           </div>
           <div
-            :class="isFacialAuthenticationSuccess.success ? 'alert alert-success' : 'alert alert-danger'"
+            :class="
+              isFacialAuthenticationSuccess.success
+                ? 'alert alert-success'
+                : 'alert alert-danger'
+            "
             role="alert"
-            style="font-size: 12px; padding: 8px 12px; border-radius: 6px; margin-bottom: 0;"
+            style="
+              font-size: 12px;
+              padding: 8px 12px;
+              border-radius: 6px;
+              margin-bottom: 0;
+            "
           >
-            <i class="fa fa-info-circle mr-1"></i>{{ isFacialAuthenticationSuccess.result }}
+            <i class="fa fa-info-circle mr-1"></i
+            >{{ isFacialAuthenticationSuccess.result }}
           </div>
         </div>
       </v-col>
@@ -483,18 +592,22 @@
       <!-- Documents -->
       <v-col cols="12" md="6" lg="4" v-if="idDocDataFound">
         <div class="detail-card p-4">
-          <div class="card-section-title">
-            <i class="fa fa-file mr-2"></i>Documents
-          </div>
-          <div class="d-flex flex-column" style="gap: 10px;">
+          <div class="card-section-title"><i class="fa fa-file mr-2"></i>Documents</div>
+          <div class="d-flex flex-column" style="gap: 10px">
             <div class="doc-thumb" @click="zoomDocument('Document Front')">
               <img
                 :src="session.ocriddocsDetails.tokenFrontDocumentImage"
-                style="height: 40px; width: 60px; object-fit: cover; border-radius: 4px; border: 1px solid #e5e7eb;"
+                style="
+                  height: 40px;
+                  width: 60px;
+                  object-fit: cover;
+                  border-radius: 4px;
+                  border: 1px solid #e5e7eb;
+                "
               />
               <div class="flex-grow-1">
-                <div style="font-weight: 600; font-size: 13px;">Document Front</div>
-                <div class="text-muted" style="font-size: 11px;">Click to zoom</div>
+                <div style="font-weight: 600; font-size: 13px">Document Front</div>
+                <div class="text-muted" style="font-size: 11px">Click to zoom</div>
               </div>
               <i class="fa fa-search-plus text-muted"></i>
             </div>
@@ -505,11 +618,17 @@
             >
               <img
                 :src="session.ocriddocsDetails.tokenBackDocumentImage"
-                style="height: 40px; width: 60px; object-fit: cover; border-radius: 4px; border: 1px solid #e5e7eb;"
+                style="
+                  height: 40px;
+                  width: 60px;
+                  object-fit: cover;
+                  border-radius: 4px;
+                  border: 1px solid #e5e7eb;
+                "
               />
               <div class="flex-grow-1">
-                <div style="font-weight: 600; font-size: 13px;">Document Back</div>
-                <div class="text-muted" style="font-size: 11px;">Click to zoom</div>
+                <div style="font-weight: 600; font-size: 13px">Document Back</div>
+                <div class="text-muted" style="font-size: 11px">Click to zoom</div>
               </div>
               <i class="fa fa-search-plus text-muted"></i>
             </div>
@@ -519,8 +638,10 @@
 
       <!-- Soul Bound Token -->
       <v-col
-        cols="12" md="6" lg="4"
-        v-for="(eachSbtMintData, sbtIndex) in (allSbtMintData || [])"
+        cols="12"
+        md="6"
+        lg="4"
+        v-for="(eachSbtMintData, sbtIndex) in allSbtMintData || []"
         :key="'sbt-' + sbtIndex"
       >
         <div class="detail-card p-4">
@@ -546,13 +667,21 @@
               </tr>
               <tr>
                 <td>Wallet Address</td>
-                <td style="cursor: pointer;" @click="copyToClip(eachSbtMintData.ownerWalletAddress, 'Wallet Address')">
+                <td
+                  style="cursor: pointer"
+                  @click="
+                    copyToClip(eachSbtMintData.ownerWalletAddress, 'Wallet Address')
+                  "
+                >
                   {{ stringShortner(eachSbtMintData.ownerWalletAddress, 15) }}
                 </td>
               </tr>
               <tr>
                 <td>User's DID</td>
-                <td style="cursor: pointer;" @click="copyToClip(eachSbtMintData.did, 'User Id')">
+                <td
+                  style="cursor: pointer"
+                  @click="copyToClip(eachSbtMintData.did, 'User Id')"
+                >
                   {{ stringShortner(eachSbtMintData.did, 15) }}
                 </td>
               </tr>
@@ -562,13 +691,21 @@
               </tr>
               <tr v-if="eachSbtMintData.sbtContractAddress">
                 <td>Contract Address</td>
-                <td style="cursor: pointer;" @click="copyToClip(eachSbtMintData.sbtContractAddress, 'SBT Contract Address')">
+                <td
+                  style="cursor: pointer"
+                  @click="
+                    copyToClip(eachSbtMintData.sbtContractAddress, 'SBT Contract Address')
+                  "
+                >
                   {{ stringShortner(eachSbtMintData.sbtContractAddress, 15) }}
                 </td>
               </tr>
               <tr>
                 <td>Transaction Hash</td>
-                <td style="cursor: pointer;" @click="copyToClip(eachSbtMintData.transactionHash, 'Transaction hash')">
+                <td
+                  style="cursor: pointer"
+                  @click="copyToClip(eachSbtMintData.transactionHash, 'Transaction hash')"
+                >
                   {{ stringShortner(eachSbtMintData.transactionHash, 15) }}
                 </td>
               </tr>
@@ -594,10 +731,17 @@
               <div class="timeline-dot"></div>
               <div class="d-flex justify-content-between align-items-center">
                 <span class="timeline-step-name">{{ step.stepName }}</span>
-                <div class="d-flex align-items-center" style="gap: 8px;">
+                <div class="d-flex align-items-center" style="gap: 8px">
                   <span
                     v-if="step.error"
-                    style="background: #fee2e2; color: #dc3545; font-size: 11px; padding: 3px 8px; border-radius: 12px; font-weight: 600;"
+                    style="
+                      background: #fee2e2;
+                      color: #dc3545;
+                      font-size: 11px;
+                      padding: 3px 8px;
+                      border-radius: 12px;
+                      font-weight: 600;
+                    "
                   >
                     <i class="fa fa-times-circle mr-1"></i>{{ step.error }}
                   </span>
@@ -610,7 +754,7 @@
       </v-col>
     </v-row>
 
-    <hf-pop-up id="zoom-doc" :Header="popupHeader" size="lg">
+    <hf-pop-up id="zoom-doc" :Header="popupHeader" size="md">
       <img :src="popupImage" />
     </hf-pop-up>
   </b-container>
@@ -626,8 +770,10 @@ import { getStellarChainConfig } from "@hypersign-protocol/hypersign-kyc-chains-
 import HfPopUp from "../../components/element/hfPopup.vue";
 import { HYPERSIGN_PROOF_TYPES } from "@hypersign-protocol/hypersign-kyc-chains-metadata/cosmos/wallet/cosmos-wallet-utils";
 import pdfMake from "pdfmake/build/pdfmake";
-import pdfFonts from "pdfmake/build/vfs_fonts";
+import pdfFonts from "pdfmake/build/vfs_fonts"
 pdfMake.vfs = pdfFonts.vfs;
+
+import logoSrc from "../../assets/hypersign_white_rect.png";
 
 const ServiceLivenessResultEnum = {
   0: "None",
@@ -915,11 +1061,20 @@ export default {
       if (dateKeys.test(key)) {
         // Unix seconds (10 digits) or milliseconds (13 digits)
         const num = Number(value);
-        if (!isNaN(num) && String(value).trim().match(/^\d{9,13}$/)) {
-          const ms = num < 1e12 ? num * 1000 : num;
+        if (
+          !isNaN(num) &&
+          String(value)
+            .trim()
+            .match(/^\d{9,13}$/)
+        ) {
+          const ms = String(value).length === 10 ? num * 1000 : num;
           const d = new Date(ms);
           if (!isNaN(d.getTime())) {
-            return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+            return d.toLocaleDateString("en-IN", {
+              day: "2-digit",
+              month: "short",
+              year: "numeric",
+            });
           }
         }
       }
@@ -930,29 +1085,27 @@ export default {
         this.isLoading = true;
 
         // ── colours ──────────────────────────────────────────────────
-        const navy   = "#1c2336";
+        const navy = "#1c2336";
         const purple = "#905ab0";
-        const dark   = "#1e1e1e";
-        const mid    = "#646e7d";
-        const light  = "#f5f6f8";
-        const bord   = "#e5e7eb";
-        const grn    = "#27ae60";
-        const rd     = "#dc3545";
-        const white  = "#ffffff";
-        const amber  = "#d97706";
+        const dark = "#1e1e1e";
+        const mid = "#646e7d";
+        const light = "#f5f6f8";
+        const bord = "#e5e7eb";
+        const grn = "#27ae60";
+        const rd = "#dc3545";
+        const white = "#ffffff";
+        const amber = "#d97706";
 
         // ── register custom pdfmake table layouts ─────────────────────
         pdfMake.tableLayouts = {
           // zebra-striped data rows, no outer borders
           kycTable: {
-            hLineWidth: (i, node) =>
-              i === 0 || i === node.table.body.length ? 0 : 0.4,
+            hLineWidth: (i, node) => (i === 0 || i === node.table.body.length ? 0 : 0.4),
             vLineWidth: () => 0,
             hLineColor: () => bord,
-            paddingLeft:   (i) => i === 0 ? 12 : 8,
-            paddingRight:  (i, node) =>
-              i === node.table.widths.length - 1 ? 12 : 8,
-            paddingTop:    () => 7,
+            paddingLeft: (i) => (i === 0 ? 12 : 8),
+            paddingRight: (i, node) => (i === node.table.widths.length - 1 ? 12 : 8),
+            paddingTop: () => 7,
             paddingBottom: () => 7,
             fillColor: (rowIndex) => (rowIndex % 2 === 0 ? light : white),
           },
@@ -962,9 +1115,9 @@ export default {
             vLineWidth: (i, node) =>
               i === 0 || i === node.table.widths.length ? 0 : 0.5,
             vLineColor: () => bord,
-            paddingLeft:   () => 16,
-            paddingRight:  () => 16,
-            paddingTop:    () => 14,
+            paddingLeft: () => 16,
+            paddingRight: () => 16,
+            paddingTop: () => 14,
             paddingBottom: () => 14,
             fillColor: () => light,
           },
@@ -972,28 +1125,43 @@ export default {
           resultLayout: {
             hLineWidth: () => 0,
             vLineWidth: () => 0,
-            paddingLeft:   () => 12,
-            paddingRight:  () => 12,
-            paddingTop:    () => 8,
+            paddingLeft: () => 12,
+            paddingRight: () => 12,
+            paddingTop: () => 8,
             paddingBottom: () => 8,
             fillColor: () => light,
           },
         };
 
         // ── helpers ──────────────────────────────────────────────────
-        const toBase64 = (url) => new Promise((resolve) => {
-          const img = new Image();
-          img.crossOrigin = "anonymous";
-          img.onload = () => {
-            const c = document.createElement("canvas");
-            c.width = img.naturalWidth; c.height = img.naturalHeight;
-            c.getContext("2d").drawImage(img, 0, 0);
-            resolve(c.toDataURL("image/jpeg", 0.85));
-          };
-          img.onerror = () => resolve(null);
-          img.src = url;
-        });
-
+        const toBase64 = (url) =>
+          new Promise((resolve) => {
+            const img = new Image();
+            img.crossOrigin = "anonymous";
+            img.onload = () => {
+              const c = document.createElement("canvas");
+              c.width = img.naturalWidth;
+              c.height = img.naturalHeight;
+              c.getContext("2d").drawImage(img, 0, 0);
+              resolve(c.toDataURL("image/jpeg", 0.85));
+            };
+            img.onerror = () => resolve(null);
+            img.src = url;
+          });
+        const toBase64Png = (url) =>
+          new Promise((resolve) => {
+            const img = new Image();
+            img.crossOrigin = "anonymous";
+            img.onload = () => {
+              const c = document.createElement("canvas");
+              c.width = img.naturalWidth;
+              c.height = img.naturalHeight;
+              c.getContext("2d").drawImage(img, 0, 0);
+              resolve(c.toDataURL("image/png"));
+            };
+            img.onerror = () => resolve(null);
+            img.src = url;
+          });
 
         const statusColor = (s) =>
           s === "Completed" ? grn : s === "Failed" ? rd : amber;
@@ -1002,9 +1170,7 @@ export default {
         const sectionTitle = (text) => ({
           columns: [
             {
-              canvas: [
-                { type: "rect", x: 0, y: 1, w: 3, h: 11, color: purple, r: 1 },
-              ],
+              canvas: [{ type: "rect", x: 0, y: 1, w: 3, h: 11, color: purple, r: 1 }],
               width: 8,
             },
             {
@@ -1022,10 +1188,17 @@ export default {
 
         // full-width hairline separator
         const divider = () => ({
-          canvas: [{
-            type: "line", x1: 0, y1: 0, x2: 515, y2: 0,
-            lineWidth: 0.4, lineColor: bord,
-          }],
+          canvas: [
+            {
+              type: "line",
+              x1: 0,
+              y1: 0,
+              x2: 515,
+              y2: 0,
+              lineWidth: 0.4,
+              lineColor: bord,
+            },
+          ],
           margin: [0, 0, 0, 8],
         });
 
@@ -1046,15 +1219,19 @@ export default {
         const pill = (passed) => ({
           table: {
             widths: ["*"],
-            body: [[{
-              text: passed ? " PASSED " : " FAILED ",
-              fontSize: 7,
-              bold: true,
-              color: white,
-              fillColor: passed ? grn : rd,
-              border: [false, false, false, false],
-              alignment: "center",
-            }]],
+            body: [
+              [
+                {
+                  text: passed ? " PASSED " : " FAILED ",
+                  fontSize: 7,
+                  bold: true,
+                  color: white,
+                  fillColor: passed ? grn : rd,
+                  border: [false, false, false, false],
+                  alignment: "center",
+                },
+              ],
+            ],
           },
           layout: "noBorders",
           margin: [0, 0, 0, 0],
@@ -1065,32 +1242,54 @@ export default {
           {
             table: {
               widths: ["*", 54],
-              body: [[
-                { text: label, fontSize: 8.5, color: dark, border: [false,false,false,false] },
-                {
-                  text: passed ? "PASSED" : "FAILED",
-                  fontSize: 7, bold: true, color: white,
-                  fillColor: passed ? grn : rd,
-                  border: [false,false,false,false],
-                  alignment: "center",
-                  margin: [0, 2, 0, 2],
-                },
-              ]],
+              body: [
+                [
+                  {
+                    text: label,
+                    fontSize: 8.5,
+                    color: dark,
+                    border: [false, false, false, false],
+                  },
+                  {
+                    text: passed ? "PASSED" : "FAILED",
+                    fontSize: 7,
+                    bold: true,
+                    color: white,
+                    fillColor: passed ? grn : rd,
+                    border: [false, false, false, false],
+                    alignment: "center",
+                    margin: [0, 2, 0, 2],
+                  },
+                ],
+              ],
             },
             layout: "resultLayout",
             margin: [0, 2, 0, 0],
           },
           ...(detail && !passed
-            ? [{ text: detail, fontSize: 7.5, color: rd, italics: true, margin: [12, 2, 0, 6] }]
-            : [{ text: "", margin: [0, 0, 0, 4] }]
-          ),
+            ? [
+                {
+                  text: detail,
+                  fontSize: 7.5,
+                  color: rd,
+                  italics: true,
+                  margin: [12, 2, 0, 6],
+                },
+              ]
+            : [{ text: "", margin: [0, 0, 0, 4] }]),
         ];
 
         // small label above a bold value (for stat bar cells)
         const statCell = (label, value, valueColor) => ({
           stack: [
             { text: label.toUpperCase(), fontSize: 6.5, color: mid, bold: true },
-            { text: String(value ?? "—"), fontSize: 10, bold: true, color: valueColor || dark, margin: [0, 3, 0, 0] },
+            {
+              text: String(value ?? "—"),
+              fontSize: 10,
+              bold: true,
+              color: valueColor || dark,
+              margin: [0, 3, 0, 0],
+            },
           ],
         });
 
@@ -1104,47 +1303,151 @@ export default {
           return parts.join("\n");
         };
 
-        // one row in the KYC steps checklist
-        const stepCheck = (num, label, done, detail) => ({
-          columns: [
+        const stepStatusColor = (status) => {
+          if (status === "completed") return grn;
+          if (status === "in-progress") return amber;
+          return bord;
+        };
+
+        const stepStatusLabel = (status) => {
+          if (status === "completed") return "Completed";
+          if (status === "in-progress") return "In Progress";
+          return "Not Started";
+        };
+
+        const isStepCompletedValue = (value) => value === 1 || value === "1";
+        const isStepPendingValue = (value) => value === 0 || value === "0";
+
+        const getPdfStepStatus = (stepProperty) => {
+          const currentSessionStatus = this.session.status || "Unknown";
+          const isPendingSession = ["Pending", "In Progress"].includes(
+            currentSessionStatus
+          );
+          if (!(stepProperty in this.session)) return "not-started";
+          if (isStepCompletedValue(this.session[stepProperty])) return "completed";
+          if (isStepPendingValue(this.session[stepProperty]) && isPendingSession) {
+            return "in-progress";
+          }
+          return "not-started";
+        };
+
+        const pdfStepDefinitions = [
+          { key: "step_start", label: "Start", title: "Session Started" },
+          { key: "step_liveliness", label: "Liveness", title: "Liveness Check" },
+          { key: "step_ocrIdVerification", label: "Document", title: "Document Verification" },
+          { key: "step_userConsent", label: "Consent", title: "User Consent" },
+          { key: "step_finish", label: "Done", title: "Completed" },
+        ].map((step) => ({
+          ...step,
+          status: getPdfStepStatus(step.key),
+        }));
+
+        const completedPdfSteps = pdfStepDefinitions.filter(
+          (step) => step.status === "completed"
+        ).length;
+        const progressPct = Math.round(
+          (completedPdfSteps / pdfStepDefinitions.length) * 100
+        );
+
+        const stepMetaCell = (label, value, color = dark) => ({
+          stack: [
+            { text: label.toUpperCase(), fontSize: 6.5, color: mid, bold: true },
             {
-              canvas: [
-                { type: "ellipse", x: 6, y: 6, r1: 6, r2: 6, color: done ? grn : bord },
-              ],
-              width: 16,
-              margin: [0, 0, 0, 0],
-            },
-            {
-              stack: [
-                {
-                  columns: [
-                    { text: `${num}. ${label}`, fontSize: 8.5, bold: true, color: done ? dark : mid, width: "*" },
-                    { text: done ? "COMPLETED" : "NOT REACHED", fontSize: 7, bold: true, color: done ? grn : "#9ca3af", alignment: "right", width: 72 },
-                  ],
-                  columnGap: 6,
-                },
-                ...(detail ? [{ text: detail, fontSize: 7, color: done ? mid : rd, italics: !done, margin: [0, 2, 0, 0] }] : []),
-              ],
-              width: "*",
-              margin: [6, 0, 0, 0],
+              text: String(value ?? "—"),
+              fontSize: 10,
+              bold: true,
+              color,
+              margin: [0, 3, 0, 0],
             },
           ],
-          columnGap: 4,
-          margin: [4, 5, 4, 5],
+        });
+
+        const stepTrackNode = (step) => {
+          // cx is the circle center in the 66pt column, r=8
+          const cx = 33;
+          const cy = 9;
+          const r  = 8;
+          const fill = stepStatusColor(step.status);
+
+          const shapes = [
+            { type: "ellipse", x: cx, y: cy, r1: r, r2: r, color: fill },
+          ];
+
+          if (step.status === "completed") {
+            // white checkmark
+            shapes.push(
+              { type: "line", x1: cx - 4, y1: cy + 0.5, x2: cx - 1, y2: cy + 3.5, lineWidth: 1.8, lineColor: white },
+              { type: "line", x1: cx - 1, y1: cy + 3.5, x2: cx + 5, y2: cy - 3,   lineWidth: 1.8, lineColor: white }
+            );
+          } else if (step.status === "in-progress") {
+            // three white dots
+            shapes.push(
+              { type: "ellipse", x: cx - 4, y: cy, r1: 1.3, r2: 1.3, color: white },
+              { type: "ellipse", x: cx,     y: cy, r1: 1.3, r2: 1.3, color: white },
+              { type: "ellipse", x: cx + 4, y: cy, r1: 1.3, r2: 1.3, color: white }
+            );
+          } else {
+            // grey dash
+            shapes.push(
+              { type: "line", x1: cx - 4, y1: cy, x2: cx + 4, y2: cy, lineWidth: 1.8, lineColor: "#9ca3af" }
+            );
+          }
+
+          return {
+            width: 66,
+            stack: [
+              { canvas: shapes, margin: [0, 0, 0, 3] },
+              { text: step.label, fontSize: 7, bold: true, color: dark, alignment: "center" },
+              {
+                text: stepStatusLabel(step.status),
+                fontSize: 6,
+                color: step.status === "completed" ? grn : step.status === "in-progress" ? amber : mid,
+                alignment: "center",
+                margin: [0, 1, 0, 0],
+              },
+            ],
+          };
+        };
+
+        const stepTrackLine = (done) => ({
+          width: "*",
+          canvas: [
+            {
+              type: "line",
+              x1: 0,
+              y1: 9,
+              x2: 40,
+              y2: 9,
+              lineWidth: 1.5,
+              lineColor: done ? grn : bord,
+            },
+          ],
+          margin: [0, 0, 0, 0],
+        });
+
+        const stepTrackColumns = pdfStepDefinitions.flatMap((step, index) => {
+          const columns = [stepTrackNode(step)];
+          if (index < pdfStepDefinitions.length - 1) {
+            columns.push(stepTrackLine(step.status === "completed"));
+          }
+          return columns;
         });
 
         // ── load images ───────────────────────────────────────────────
         const selfieUrl = this.session.selfiDetails?.tokenSelfiImage;
-        const faceUrl   = this.session.ocriddocsDetails?.tokenFaceImage;
-        const frontUrl  = this.session.ocriddocsDetails?.tokenFrontDocumentImage;
-        const backUrl   = this.session.ocriddocsDetails?.tokenBackDocumentImage;
+        const faceUrl = this.session.ocriddocsDetails?.tokenFaceImage;
+        const frontUrl = this.session.ocriddocsDetails?.tokenFrontDocumentImage;
+        const backUrl = this.session.ocriddocsDetails?.tokenBackDocumentImage;
 
         const [selfieB64, faceB64, frontB64, backB64] = await Promise.all([
           selfieUrl ? toBase64(selfieUrl) : Promise.resolve(null),
-          faceUrl   ? toBase64(faceUrl)   : Promise.resolve(null),
-          frontUrl  ? toBase64(frontUrl)  : Promise.resolve(null),
-          backUrl   ? toBase64(backUrl)   : Promise.resolve(null),
+          faceUrl ? toBase64(faceUrl) : Promise.resolve(null),
+          frontUrl ? toBase64(frontUrl) : Promise.resolve(null),
+          backUrl ? toBase64(backUrl) : Promise.resolve(null),
         ]);
+
+        // embed project logo in PDF header
+        const logoPng = await toBase64Png(logoSrc);
 
         // ── data extraction ───────────────────────────────────────────
         const personalData =
@@ -1154,18 +1457,41 @@ export default {
 
         const personalRows = Object.entries(personalData)
           .filter(([, v]) => v)
-          .map(([k, v]) => [
-            k.replace(/([A-Z])/g, " $1").replace(/^./, (s) => s.toUpperCase()),
-            String(v),
-          ]);
+          .map(([k, v]) => {
+            let value = v;
 
-        const livePass  = this.passiveLivelinessData.success;
+            // Convert Unix timestamp → readable date
+            if (typeof value === "number") {
+              const ts = value.toString().length === 10 ? value * 1000 : value;
+              const date = new Date(ts);
+
+              if (!isNaN(date.getTime())) {
+                value = date.toLocaleString("en-IN"); // better for India
+              }
+            }
+
+            // Decode ONLY if string contains unicode escape sequences
+            if (typeof value === "string" && /\\u[0-9a-fA-F]{4}/.test(value)) {
+              try {
+                value = JSON.parse(`"${value}"`);
+              } catch {
+                // ignore if parsing fails
+              }
+            }
+
+            return [
+              k.replace(/([A-Z])/g, " $1").replace(/^./, (s) => s.toUpperCase()),
+              String(value),
+            ];
+          });
+          
+        const livePass = this.passiveLivelinessData.success;
         const liveLabel = this.passiveLivelinessData.result || "—";
         const liveScore = this.session.selfiDetails?.serviceLivenessResult ?? "—";
 
-        const facePass  = this.isFacialAuthenticationSuccess.success;
+        const facePass = this.isFacialAuthenticationSuccess.success;
         const faceDetail = this.isFacialAuthenticationSuccess.result;
-        const matchPct  = Math.round(
+        const matchPct = Math.round(
           (this.session.ocriddocsDetails?.serviceFacialSimilarityResult || 0) * 100
         );
 
@@ -1175,19 +1501,6 @@ export default {
 
         // duration: prefer userConsent diff, fall back to completedAt - createdAt
 
-        // KYC pipeline step flags — API returns "0"/"1" strings or integers
-        const stepStart   = String(this.session.step_start            || 0) === "1";
-        const stepLive    = String(this.session.step_liveliness        || 0) === "1";
-        const stepOcr     = String(this.session.step_ocrIdVerification || 0) === "1";
-        const stepConsent = String(this.session.step_userConsent       || 0) === "1";
-        const stepFinish  = String(this.session.step_finish            || 0) === "1";
-
-        // failure reason derived from the OCR facial authentication result code
-        const ocrFailCode = this.session.ocriddocsDetails?.serviceFacialAuthenticationResult;
-        const failReason  = sessionStatus !== "Completed" && ocrFailCode !== undefined
-          ? (FaicalAuthenticationError[ocrFailCode] || "Verification could not be completed")
-          : null;
-
         // timeline rows
         const tlRows = (this.sortedTimelineDetails || []).map((step, i) => {
           const isLast = i === this.sortedTimelineDetails.length - 1;
@@ -1195,14 +1508,31 @@ export default {
             columns: [
               {
                 stack: [
-                  { canvas: [
-                    { type: "ellipse", x: 6, y: 6, r1: 5, r2: 5,
-                      color: step.error ? rd : "#905ab0" },
-                    ...(!isLast ? [{
-                      type: "line", x1: 6, y1: 11, x2: 6, y2: 22,
-                      lineWidth: 1, lineColor: bord,
-                    }] : []),
-                  ]},
+                  {
+                    canvas: [
+                      {
+                        type: "ellipse",
+                        x: 6,
+                        y: 6,
+                        r1: 5,
+                        r2: 5,
+                        color: step.error ? rd : "#905ab0",
+                      },
+                      ...(!isLast
+                        ? [
+                            {
+                              type: "line",
+                              x1: 6,
+                              y1: 11,
+                              x2: 6,
+                              y2: 22,
+                              lineWidth: 1,
+                              lineColor: bord,
+                            },
+                          ]
+                        : []),
+                    ],
+                  },
                 ],
                 width: 18,
               },
@@ -1210,14 +1540,25 @@ export default {
                 stack: [
                   { text: step.stepName || "", fontSize: 8.5, bold: true, color: dark },
                   ...(step.error
-                    ? [{ text: step.error, fontSize: 7.5, color: rd, italics: true, margin: [0, 2, 0, 0] }]
+                    ? [
+                        {
+                          text: step.error,
+                          fontSize: 7.5,
+                          color: rd,
+                          italics: true,
+                          margin: [0, 2, 0, 0],
+                        },
+                      ]
                     : []),
                 ],
                 width: "*",
               },
               {
                 text: this.formatDate(step.createdAt),
-                fontSize: 7.5, color: mid, alignment: "right", width: 120,
+                fontSize: 7.5,
+                color: mid,
+                alignment: "right",
+                width: 120,
               },
             ],
             columnGap: 6,
@@ -1228,15 +1569,15 @@ export default {
         // ── document definition ───────────────────────────────────────
         const dd = {
           pageSize: "A4",
-          pageMargins: [36, 60, 36, 52],
+          pageMargins: [36, 70, 36, 52],
 
           // purple accent stripe on every page; full navy block on page 1 only
           background: (currentPage, pageSize) => {
             if (currentPage === 1) {
               return {
                 canvas: [
-                  { type: "rect", x: 0, y: 0, w: pageSize.width, h: 57, color: navy },
-                  { type: "rect", x: 0, y: 57, w: pageSize.width, h: 3, color: purple },
+                  { type: "rect", x: 0, y: 0, w: pageSize.width, h: 67, color: navy },
+                  { type: "rect", x: 0, y: 67, w: pageSize.width, h: 3, color: purple },
                 ],
               };
             }
@@ -1248,22 +1589,31 @@ export default {
           },
 
           // persistent branded header — full on page 1, compact on pages 2+
-          header: (currentPage,) => {
+          header: (currentPage) => {
             if (currentPage === 1) {
               return {
                 margin: [36, 8, 36, 0],
                 columns: [
                   {
-                    stack: [
-                      { text: "HYPERSIGN", bold: true, fontSize: 15, color: white, characterSpacing: 2 },
-                      { text: "Identity Verification Platform", fontSize: 7, color: "#8892a4", margin: [0, 2, 0, 0] },
-                    ],
+                    stack: [{ image: logoPng, width: 180, margin: [0, 0, 0, 4] }],
                     width: "*",
                   },
                   {
                     stack: [
-                      { text: "ID Verification Report", bold: true, fontSize: 11, color: white, alignment: "right" },
-                      { text: new Date().toLocaleString(), fontSize: 7, color: "#8892a4", alignment: "right", margin: [0, 3, 0, 0] },
+                      {
+                        text: "ID Verification Report",
+                        bold: true,
+                        fontSize: 12,
+                        color: white,
+                        alignment: "right",
+                      },
+                      {
+                        text: new Date().toLocaleString(),
+                        fontSize: 7,
+                        color: "#8892a4",
+                        alignment: "right",
+                        margin: [0, 3, 0, 0],
+                      },
                     ],
                     width: "auto",
                   },
@@ -1272,10 +1622,7 @@ export default {
             }
             return {
               margin: [36, 8, 36, 0],
-              columns: [
-                { text: "HYPERSIGN \u00B7 IDENTITY", bold: true, fontSize: 9, color: navy, width: "*", margin: [0, 4, 0, 0] },
-                { text: "ID Verification Report \u2014 CONFIDENTIAL", fontSize: 8, color: mid, alignment: "right", width: "auto", margin: [0, 4, 0, 0] },
-              ],
+              columns: [],
             };
           },
 
@@ -1283,57 +1630,94 @@ export default {
             margin: [36, 8, 36, 10],
             stack: [
               {
-                canvas: [{ type: "line", x1: 0, y1: 0, x2: pageSize.width - 72, y2: 0, lineWidth: 0.4, lineColor: bord }],
+                canvas: [
+                  {
+                    type: "line",
+                    x1: 0,
+                    y1: 0,
+                    x2: pageSize.width - 72,
+                    y2: 0,
+                    lineWidth: 0.4,
+                    lineColor: bord,
+                  },
+                ],
                 margin: [0, 0, 0, 5],
               },
               {
                 columns: [
-                  { text: "CONFIDENTIAL \u2014 Hypersign Identity \u00B7 ID Verification Report", fontSize: 7, color: mid, width: "*" },
-                  { text: `Page ${currentPage} of ${pageCount}`, fontSize: 7, color: mid, bold: true, alignment: "right", width: "auto" },
+                  {
+                    text:
+                      "CONFIDENTIAL \u2014 Hypersign Identity \u00B7 ID Verification Report",
+                    fontSize: 7,
+                    color: mid,
+                    width: "*",
+                  },
+                  {
+                    text: `Page ${currentPage} of ${pageCount}`,
+                    fontSize: 7,
+                    color: mid,
+                    bold: true,
+                    alignment: "right",
+                    width: "auto",
+                  },
                 ],
               },
             ],
           }),
 
           content: [
-
             // ════════════════ STAT BAR ════════════════
             // user ID first (full width)
-            ...(this.session.userId ? [{
-              table: {
-                widths: ["*"],
-                body: [[
+            ...(this.session.userId
+              ? [
                   {
-                    stack: [
-                      { text: "USER ID", fontSize: 6.5, color: mid, bold: true },
-                      { text: this.session.userId || "—", fontSize: 7.5, bold: true, color: dark, margin: [0, 3, 0, 0] },
-                    ],
+                    table: {
+                      widths: ["*"],
+                      body: [
+                        [
+                          {
+                            stack: [
+                              { text: "USER ID", fontSize: 6.5, color: mid, bold: true },
+                              {
+                                text: this.session.userId || "—",
+                                fontSize: 7.5,
+                                bold: true,
+                                color: dark,
+                                margin: [0, 3, 0, 0],
+                              },
+                            ],
+                          },
+                        ],
+                      ],
+                    },
+                    layout: "statBar",
+                    margin: [0, 12, 0, 0],
                   },
-                ]],
-              },
-              layout: "statBar",
-              margin: [0, 12, 0, 0],
-            }] : []),
+                ]
+              : []),
             // date + status
             {
               table: {
                 widths: ["*", "*"],
-                body: [[
-                  statCell("Date", this.formatDate(this.session.createdAt)),
-                  statCell("Status", sessionStatus, statusColor(sessionStatus)),
-                ]],
+                body: [
+                  [
+                    statCell("Date", this.formatDate(this.session.createdAt)),
+                    statCell("Status", sessionStatus, statusColor(sessionStatus)),
+                  ],
+                ],
               },
               layout: "statBar",
               margin: [0, 0, 0, 0],
             },
-            // email + retry row
+            // email (full width)
             {
               table: {
-                widths: ["*", "*"],
-                body: [[
-                  statCell("Email", this.session.email || "—"),
-                  statCell("Retry Attempts", this.session.retryAttempts ?? 0),
-                ]],
+                widths: ["*"],
+                body: [
+                  [
+                    statCell("Email", this.session.email || "—"),
+                  ],
+                ],
               },
               layout: "statBar",
               margin: [0, 0, 0, 0],
@@ -1342,265 +1726,432 @@ export default {
             {
               table: {
                 widths: ["*"],
-                body: [[
-                  {
-                    stack: [
-                      { text: "COMPLETED AT", fontSize: 6.5, color: mid, bold: true },
-                      { text: this.formatDate(this.session.completedAt) || "—", fontSize: 8, bold: true, color: dark, margin: [0, 3, 0, 0] },
-                    ],
-                  },
-                ]],
+                body: [
+                  [
+                    {
+                      stack: [
+                        { text: "COMPLETED AT", fontSize: 6.5, color: mid, bold: true },
+                        {
+                          text: this.formatDate(this.session.completedAt) || "—",
+                          fontSize: 8,
+                          bold: true,
+                          color: dark,
+                          margin: [0, 3, 0, 0],
+                        },
+                      ],
+                    },
+                  ],
+                ],
               },
               layout: "statBar",
               margin: [0, 0, 0, 4],
             },
 
             // ════════════════ VERIFICATION STEPS PROGRESS ════════════════
-            sectionTitle("Verification Steps"),
-            divider(),
-            stepCheck(1, "Session Started",                stepStart,
-              this.formatDate(this.session.createdAt)),
-            stepCheck(2, "Liveness / Selfie Check",        stepLive,
-              stepLive
-                ? `Live person detected  |  Score: ${liveScore}  |  ${liveLabel}`
-                : "Step not reached"),
-            stepCheck(3, "Identity Document Verification", stepOcr,
-              !stepOcr && failReason
-                ? `Failed — ${failReason}`
-                : stepOcr
-                  ? `Face similarity: ${matchPct}%`
-                  : "Step not reached"),
-            stepCheck(4, "User Consent",                  stepConsent,
-              stepConsent ? "Consent recorded" : "Step not reached"),
-            stepCheck(5, "Session Finalised",             stepFinish,
-              stepFinish
-                ? `Completed at: ${this.formatDate(this.session.completedAt)}`
-                : "Step not reached"),
-
-            // ── failure alert box (only when session is not Completed) ──
-            ...(failReason ? [{
-              table: {
-                widths: ["auto", "*"],
-                body: [[
-                  {
-                    text: "FAILED",
-                    fontSize: 7.5, bold: true, color: white,
-                    fillColor: rd,
-                    border: [false, false, false, false],
-                    margin: [10, 14, 10, 14],
-                    alignment: "center",
+            {
+              stack: [
+                sectionTitle("Verification Steps"),
+                divider(),
+                {
+                  table: {
+                    widths: ["*", "*", "*"],
+                    body: [[
+                      stepMetaCell("Progress", `${progressPct}%`),
+                      stepMetaCell("Retries", this.session.retryAttempts ?? 0),
+                      stepMetaCell("Status", sessionStatus, statusColor(sessionStatus)),
+                    ]],
                   },
-                  {
-                    stack: [
-                      { text: "Session could not be completed", bold: true, fontSize: 9, color: rd },
-                      { text: failReason, fontSize: 8, color: "#7f1d1d", margin: [0, 4, 0, 0] },
-                      { text: `Error code: ${ocrFailCode}`, fontSize: 7, color: mid, margin: [0, 3, 0, 0] },
-                    ],
-                    border: [false, false, false, false],
-                    fillColor: "#fff5f5",
-                    margin: [12, 10, 12, 10],
-                  },
-                ]],
-              },
-              layout: "noBorders",
-              margin: [0, 6, 0, 10],
-            }] : []),
+                  layout: "statBar",
+                  margin: [0, 2, 0, 10],
+                },
+                {
+                  columns: stepTrackColumns,
+                  columnGap: 0,
+                  margin: [0, 6, 0, 10],
+                },
+              ],
+              unbreakable: true,
+            },
 
             // ════════════════ PERSONAL INFORMATION ════════════════
-            ...(personalRows.length > 0 ? [
-              sectionTitle("Personal Information"),
-              divider(),
-              dataTable(personalRows),
-            ] : []),
+            ...(personalRows.length > 0
+              ? [sectionTitle("Personal Information"), divider(), dataTable(personalRows)]
+              : []),
 
             // ════════════════ DEVICE & LOCATION ════════════════
-            ...(this.deviceDetails?.os || Object.keys(this.locationDetails).length > 0 ? [
-              sectionTitle("Device & Location"),
-              divider(),
-              {
-                columns: [
-                  // device column
-                  ...(this.deviceDetails?.os ? [{
+            ...(this.deviceDetails?.os || Object.keys(this.locationDetails).length > 0
+              ? [
+                  {
                     stack: [
-                      { text: "Device Information", fontSize: 8, bold: true, color: mid, margin: [0, 0, 0, 4] },
-                      dataTable([
-                        ["Operating System", `${this.deviceDetails.os || "N/A"} ${this.deviceDetails.osVer || ""}`.trim()],
-                        ["Browser",  this.deviceDetails.browser || "N/A"],
-                        ["Device",   this.deviceDetails.device  || "N/A"],
-                        ["CPU",      this.deviceDetails.cpu     || "N/A"],
-                      ]),
+                      sectionTitle("Device & Location"),
+                      divider(),
+                      {
+                        columns: [
+                      // device column
+                      ...(this.deviceDetails?.os
+                        ? [
+                            {
+                              stack: [
+                                {
+                                  text: "Device Information",
+                                  fontSize: 8,
+                                  bold: true,
+                                  color: mid,
+                                  margin: [0, 0, 0, 4],
+                                },
+                                dataTable([
+                                  [
+                                    "Operating System",
+                                    `${this.deviceDetails.os || "N/A"} ${
+                                      this.deviceDetails.osVer || ""
+                                    }`.trim(),
+                                  ],
+                                  ["Browser", this.deviceDetails.browser || "N/A"],
+                                  ["Device", this.deviceDetails.device || "N/A"],
+                                  ["CPU", this.deviceDetails.cpu || "N/A"],
+                                ]),
+                              ],
+                              width: "50%",
+                            },
+                          ]
+                        : []),
+                      // location column
+                      ...(Object.keys(this.locationDetails).length > 0
+                        ? [
+                            {
+                              stack: [
+                                {
+                                  text: "Location Information",
+                                  fontSize: 8,
+                                  bold: true,
+                                  color: mid,
+                                  margin: [0, 0, 0, 4],
+                                },
+                                dataTable([
+                                  ["IP Address", this.locationDetails.ip || "—"],
+                                  ["Country", this.locationDetails.countryName || "—"],
+                                  [
+                                    "Continent",
+                                    this.locationDetails.continentName || "—",
+                                  ],
+                                  ["Region", this.locationDetails.region || "—"],
+                                ]),
+                              ],
+                              width: "50%",
+                            },
+                          ]
+                        : []),
                     ],
-                    width: "50%",
-                  }] : []),
-                  // location column
-                  ...(Object.keys(this.locationDetails).length > 0 ? [{
-                    stack: [
-                      { text: "Location Information", fontSize: 8, bold: true, color: mid, margin: [0, 0, 0, 4] },
-                      dataTable([
-                        ["IP Address", this.locationDetails.ip            || "—"],
-                        ["Country",    this.locationDetails.countryName   || "—"],
-                        ["Continent",  this.locationDetails.continentName || "—"],
-                        ["Region",     this.locationDetails.region        || "—"],
-                      ]),
+                    columnGap: 12,
+                      },
                     ],
-                    width: "50%",
-                  }] : []),
-                ],
-                columnGap: 12,
-              },
-            ] : []),
+                    unbreakable: true,
+                  },
+                ]
+              : []),
 
             // ════════════════ LIVENESS CHECK ════════════════
-            ...(this.selfiDataFound ? [
-              sectionTitle("Liveness Check"),
-              divider(),
-              {
-                columns: [
-                  // selfie image
-                  ...(selfieB64 ? [{
-                    stack: [
-                      { image: selfieB64, width: 96, height: 96, alignment: "center" },
-                      { text: "Captured Selfie", fontSize: 7, color: mid, alignment: "center", margin: [0, 4, 0, 0] },
-                    ],
-                    width: 110,
-                  }] : []),
-                  // results
+            ...(this.selfiDataFound
+              ? [
                   {
                     stack: [
+                      sectionTitle("Liveness Check"),
+                      divider(),
                       {
-                        table: {
-                          widths: ["*"],
-                          body: [[{
-                            stack: [
-                              { text: livePass ? "✓  Live Person Detected" : "✗  Liveness Check Failed",
-                                bold: true, fontSize: 11,
-                                color: livePass ? grn : rd,
-                              },
-                              { text: `Score: ${liveScore}  |  Result: ${liveLabel}`,
-                                fontSize: 8, color: mid, margin: [0, 4, 0, 0] },
-                            ],
-                            border: [false, false, false, false],
-                            fillColor: livePass ? "#f0faf4" : "#fff5f5",
-                            margin: [10, 10, 10, 10],
-                          }]],
-                        },
-                        layout: "noBorders",
-                        margin: [0, 0, 0, 8],
+                    columns: [
+                      // selfie image
+                      ...(selfieB64
+                        ? [
+                            {
+                              stack: [
+                                {
+                                  image: selfieB64,
+                                  width: 96,
+                                  height: 96,
+                                  alignment: "center",
+                                },
+                                {
+                                  text: "Captured Selfie",
+                                  fontSize: 7,
+                                  color: mid,
+                                  alignment: "center",
+                                  margin: [0, 4, 0, 0],
+                                },
+                              ],
+                              width: 110,
+                            },
+                          ]
+                        : []),
+                      // results
+                      {
+                        stack: [
+                          {
+                            table: {
+                              widths: ["*"],
+                              body: [
+                                [
+                                  {
+                                    stack: [
+                                      {
+                                        text: livePass
+                                          ? "✓  Live Person Detected"
+                                          : "✗  Liveness Check Failed",
+                                        bold: true,
+                                        fontSize: 11,
+                                        color: livePass ? grn : rd,
+                                      },
+                                      {
+                                        text: `Score: ${liveScore}  |  Result: ${liveLabel}`,
+                                        fontSize: 8,
+                                        color: mid,
+                                        margin: [0, 4, 0, 0],
+                                      },
+                                    ],
+                                    border: [false, false, false, false],
+                                    fillColor: livePass ? "#f0faf4" : "#fff5f5",
+                                    margin: [10, 10, 10, 10],
+                                  },
+                                ],
+                              ],
+                            },
+                            layout: "noBorders",
+                            margin: [0, 0, 0, 8],
+                          },
+                          pill(livePass),
+                        ],
+                        width: "*",
+                        margin: [12, 0, 0, 0],
                       },
-                      pill(livePass),
                     ],
-                    width: "*",
-                    margin: [12, 0, 0, 0],
+                    columnGap: 0,
+                        margin: [0, 4, 0, 16],
+                      },
+                    ],
+                    unbreakable: true,
                   },
-                ],
-                columnGap: 0,
-                margin: [0, 4, 0, 10],
-              },
-            ] : []),
+                ]
+              : []),
 
             // ════════════════ FACE AUTHENTICATION ════════════════
-            ...(this.selfiDataFound && this.idDocDataFound ? [
-              sectionTitle("Face Authentication"),
-              divider(),
-              // three-column: selfie — match result — id photo
-              {
-                columns: [
+            ...(this.selfiDataFound && this.idDocDataFound
+              ? [
                   {
                     stack: [
-                      ...(selfieB64 ? [{ image: selfieB64, width: 90, height: 90 }] : [
-                        { canvas: [{ type: "rect", x: 0, y: 0, w: 90, h: 90, color: light }] },
-                      ]),
-                      { text: "Live Selfie", fontSize: 7.5, color: mid, alignment: "center", margin: [0, 5, 0, 0] },
-                    ],
-                    alignment: "center",
-                    width: 100,
-                  },
-                  {
-                    stack: [
-                      { text: `${matchPct}%`, bold: true, fontSize: 22,
-                        color: matchPct >= 80 ? grn : rd, alignment: "center" },
-                      { text: "Similarity", fontSize: 7.5, color: mid, alignment: "center" },
-                      { canvas: [{
-                        type: "line", x1: 10, y1: 0, x2: 70, y2: 0,
-                        lineWidth: 0.4, lineColor: bord,
-                      }], margin: [0, 8, 0, 8] },
+                      sectionTitle("Face Authentication"),
+                      divider(),
+                      // three-column: selfie — match result — id photo
                       {
-                        text: facePass ? "✓ MATCH" : "✗ NO MATCH",
-                        bold: true, fontSize: 9,
-                        color: facePass ? grn : rd,
+                    columns: [
+                      {
+                        stack: [
+                          ...(selfieB64
+                            ? [{ image: selfieB64, width: 90, height: 90 }]
+                            : [
+                                {
+                                  canvas: [
+                                    {
+                                      type: "rect",
+                                      x: 0,
+                                      y: 0,
+                                      w: 90,
+                                      h: 90,
+                                      color: light,
+                                    },
+                                  ],
+                                },
+                              ]),
+                          {
+                            text: "Live Selfie",
+                            fontSize: 7.5,
+                            color: mid,
+                            alignment: "center",
+                            margin: [0, 5, 0, 0],
+                          },
+                        ],
                         alignment: "center",
+                        width: 100,
+                      },
+                      {
+                        stack: [
+                          {
+                            text: `${matchPct}%`,
+                            bold: true,
+                            fontSize: 22,
+                            color: matchPct >= 80 ? grn : rd,
+                            alignment: "center",
+                          },
+                          {
+                            text: "Similarity",
+                            fontSize: 7.5,
+                            color: mid,
+                            alignment: "center",
+                          },
+                          {
+                            canvas: [
+                              {
+                                type: "line",
+                                x1: 10,
+                                y1: 0,
+                                x2: 70,
+                                y2: 0,
+                                lineWidth: 0.4,
+                                lineColor: bord,
+                              },
+                            ],
+                            margin: [0, 8, 0, 8],
+                          },
+                          {
+                            text: facePass ? "✓ MATCH" : "✗ NO MATCH",
+                            bold: true,
+                            fontSize: 9,
+                            color: facePass ? grn : rd,
+                            alignment: "center",
+                          },
+                        ],
+                        width: "*",
+                        margin: [0, 16, 0, 0],
+                      },
+                      {
+                        stack: [
+                          ...(faceB64
+                            ? [{ image: faceB64, width: 90, height: 90 }]
+                            : [
+                                {
+                                  canvas: [
+                                    {
+                                      type: "rect",
+                                      x: 0,
+                                      y: 0,
+                                      w: 90,
+                                      h: 90,
+                                      color: light,
+                                    },
+                                  ],
+                                },
+                              ]),
+                          {
+                            text: "ID Photo",
+                            fontSize: 7.5,
+                            color: mid,
+                            alignment: "center",
+                            margin: [0, 5, 0, 0],
+                          },
+                        ],
+                        alignment: "center",
+                        width: 100,
                       },
                     ],
-                    width: "*",
-                    margin: [0, 16, 0, 0],
-                  },
-                  {
-                    stack: [
-                      ...(faceB64 ? [{ image: faceB64, width: 90, height: 90 }] : [
-                        { canvas: [{ type: "rect", x: 0, y: 0, w: 90, h: 90, color: light }] },
-                      ]),
-                      { text: "ID Photo", fontSize: 7.5, color: mid, alignment: "center", margin: [0, 5, 0, 0] },
+                    columnGap: 8,
+                        margin: [0, 4, 0, 10],
+                      },
+                      ...verifyRow(
+                        "Face Authentication Overall Result",
+                        facePass,
+                        faceDetail
+                      ),
                     ],
-                    alignment: "center",
-                    width: 100,
+                    unbreakable: true,
                   },
-                ],
-                columnGap: 8,
-                margin: [0, 4, 0, 10],
-              },
-              ...verifyRow("Face Authentication Overall Result", facePass, faceDetail),
-            ] : []),
+                ]
+              : []),
 
             // ════════════════ SOUL BOUND TOKENS ════════════════
-            ...(this.allSbtMintData?.length > 0 ? [
-              sectionTitle("Soul Bound Tokens"),
-              divider(),
-              ...this.allSbtMintData.map((sbt, idx) => ({
-                stack: [
-                  ...(this.allSbtMintData.length > 1
-                    ? [{ text: `Token ${idx + 1}`, fontSize: 8, color: mid, bold: true, margin: [0, 0, 0, 4] }]
-                    : []),
-                  dataTable([
-                    ["Credential Type",    `${sbt.proofType}SbtCredential`],
-                    ["Blockchain",          sbt.blockchainLabel                    || "—"],
-                    ["Wallet Address",       breakLong(sbt.ownerWalletAddress      || "—", 26)],
-                    ["User DID",             breakLong(sbt.did                     || "—", 26)],
-                    ...(sbt.tokenId            ? [["Token ID",         String(sbt.tokenId)]]                    : []),
-                    ...(sbt.transactionHash    ? [["Transaction Hash", breakLong(sbt.transactionHash, 26)]]     : []),
-                    ...(sbt.sbtContractAddress ? [["Contract Address", breakLong(sbt.sbtContractAddress, 26)]]  : []),
-                  ]),
-                ],
-              })),
-            ] : []),
-
-            // ════════════════ VERIFICATION TIMELINE ════════════════
-            ...(tlRows.length > 0 ? [
-              sectionTitle("Verification Timeline"),
-              divider(),
-              ...tlRows,
-            ] : []),
-
+            ...(this.allSbtMintData?.length > 0
+              ? [
+                  {
+                    stack: [
+                      sectionTitle("Soul Bound Tokens"),
+                      divider(),
+                      ...this.allSbtMintData.map((sbt, idx) => ({
+                        stack: [
+                          ...(this.allSbtMintData.length > 1
+                            ? [
+                                {
+                                  text: `Token ${idx + 1}`,
+                                  fontSize: 8,
+                                  color: mid,
+                                  bold: true,
+                                  margin: [0, 0, 0, 4],
+                                },
+                              ]
+                            : []),
+                          dataTable([
+                            ["Credential Type", `${sbt.proofType}SbtCredential`],
+                            ["Blockchain", sbt.blockchainLabel || "—"],
+                            ["Wallet Address", breakLong(sbt.ownerWalletAddress || "—", 26)],
+                            ["User DID", breakLong(sbt.did || "—", 26)],
+                            ...(sbt.tokenId ? [["Token ID", String(sbt.tokenId)]] : []),
+                            ...(sbt.transactionHash
+                              ? [["Transaction Hash", breakLong(sbt.transactionHash, 26)]]
+                              : []),
+                            ...(sbt.sbtContractAddress
+                              ? [["Contract Address", breakLong(sbt.sbtContractAddress, 26)]]
+                              : []),
+                          ]),
+                        ],
+                      })),
+                    ],
+                    unbreakable: true,
+                  },
+                ]
+              : []),
             // ════════════════ DOCUMENT IMAGES (new page) ═══════════
-            ...((frontB64 || backB64) ? [
-              { ...sectionTitle("Identity Document Images"), pageBreak: "before" },
-              divider(),
-              ...(frontB64 ? [
-                { text: "Front Side", fontSize: 8.5, bold: true, color: mid, margin: [0, 4, 0, 8] },
-                { image: frontB64, width: 400, alignment: "center", margin: [0, 0, 0, 20] },
-              ] : []),
-              ...(backB64 ? [
-                { text: "Back Side", fontSize: 8.5, bold: true, color: mid, margin: [0, 4, 0, 8] },
-                { image: backB64, width: 400, alignment: "center", margin: [0, 0, 0, 20] },
-              ] : []),
-            ] : []),
+            ...(frontB64 || backB64
+              ? [
+                  { ...sectionTitle("Identity Document Images"), pageBreak: "before" },
+                  divider(),
+                  ...(frontB64
+                    ? [
+                        {
+                          text: "Front Side",
+                          fontSize: 8,
+                          bold: true,
+                          color: mid,
+                          margin: [0, 4, 0, 8],
+                        },
+                        {
+                          image: frontB64,
+                          width: 300,
+                          alignment: "center",
+                          margin: [0, 0, 0, 20],
+                        },
+                      ]
+                    : []),
+                  ...(backB64
+                    ? [
+                        {
+                          text: "Back Side",
+                          fontSize: 8,
+                          bold: true,
+                          color: mid,
+                          margin: [0, 4, 0, 8],
+                        },
+                        {
+                          image: backB64,
+                          width: 300,
+                          alignment: "center",
+                          margin: [0, 0, 0, 20],
+                        },
+                      ]
+                    : []),
+                ]
+              : []),
+            // ════════════════ VERIFICATION TIMELINE ════════════════
+            ...(tlRows.length > 0
+              ? [sectionTitle("Verification Timeline"), divider(), ...tlRows]
+              : []),
           ],
 
           defaultStyle: { font: "Roboto", fontSize: 9, lineHeight: 1.35, color: dark },
         };
 
-        pdfMake.createPdf(dd).download(
-          `KYC-Report-${(this.session.userId || this.sessionId || "session")}-${Date.now()}.pdf`
-        );
+        pdfMake
+          .createPdf(dd)
+          .download(
+            `KYC-Report-${
+              this.session.userId || this.sessionId || "session"
+            }-${Date.now()}.pdf`
+          );
         this.isLoading = false;
       } catch (err) {
         this.isLoading = false;
