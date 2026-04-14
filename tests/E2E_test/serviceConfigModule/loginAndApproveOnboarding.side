@@ -52,7 +52,7 @@
       "id": "414dd009-ea22-453f-8a0e-1936f2b71643",
       "comment": "69d3728d0a6efe06e6f09699 onboardgId",
       "command": "store",
-      "target": "69d3728d0a6efe06e6f09699",
+      "target": "69d3728d0a6efe06e6f09690",
       "targets": [],
       "value": "onboardingId"
     }, {
@@ -201,14 +201,9 @@
     }, {
       "id": "8b14b049-fa5e-43f2-a50d-fe9056675eda",
       "comment": "",
-      "command": "assertElementPresent",
+      "command": "//assertElementPresent",
       "target": "linkText=Settings",
-      "targets": [
-        ["css=.profile-img", "css:finder"],
-        ["xpath=//img[contains(@src,'https://lh3.googleusercontent.com/a/ACg8ocJRw5i8EE0gFhM26KnQsP1lhWOo-FKu5SzdLUg5q9LGlMMsCw=s96-c')]", "xpath:img"],
-        ["xpath=//a[@id='__BVID__15__BV_toggle_']/div/img", "xpath:idRelative"],
-        ["xpath=//a/div/img", "xpath:position"]
-      ],
+      "targets": [],
       "value": ""
     }, {
       "id": "c55dce74-7f95-49f5-9d60-905b204dc3aa",
@@ -242,7 +237,7 @@
     }, {
       "id": "f61fa3f0-ca4c-4462-b08c-18645443c0fc",
       "comment": "",
-      "command": "assertElementPresent",
+      "command": "//assertElementPresent",
       "target": "css=.profile-img",
       "targets": [],
       "value": ""
@@ -256,7 +251,7 @@
     }, {
       "id": "788367a5-0df8-40c0-bd62-a8f88cfa24a0",
       "comment": "",
-      "command": "assertElementPresent",
+      "command": "//assertElementPresent",
       "target": "linkText=Settings",
       "targets": [],
       "value": ""

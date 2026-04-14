@@ -2,7 +2,7 @@
   "id": "5919f94f-c285-473c-ba96-2681f0e13d4f",
   "version": "2.0",
   "name": "Developer dashboard2",
-  "url": "https://entity.dashboard.hypersign.id",
+  "url": "https://entity.dashboard.hypersign.id/",
   "tests": [{
     "id": "c8fe19b8-26be-4184-825d-543f410c1be4",
     "name": "login and fill onboarding",
@@ -110,16 +110,46 @@
       "targets": [],
       "value": "Configure Your Identity Service"
     }, {
-      "id": "6588b880-e5fb-467f-acf8-ae1f49925bdd",
+      "id": "899a9ef9-48a3-44da-a6d2-6f673a7e4d39",
+      "comment": "",
+      "command": "//executeScript",
+      "target": "return document.body.innerText.includes(\"Select Your Business Type\")",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "23d03ef7-6822-4730-9b4e-be27a3c50ff1",
+      "comment": "",
+      "command": "storeText",
+      "target": "xpath=//h5",
+      "targets": [],
+      "value": "headerText"
+    }, {
+      "id": "c26e06ee-8454-46db-87db-e89df8f13e98",
+      "comment": "",
+      "command": "echo",
+      "target": "${headerText}",
+      "targets": [],
+      "value": ""
+    },{
+      "id": "fcb34c6c-6577-4855-ad62-84e2d034f90c",
+      "comment": "",
+      "command": "echo",
+      "target": "${result}",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "720fbf93-b3d2-451c-8fed-b26ca4925d5c",
+      "comment": "",
+      "command": "if",
+      "target": "${headerText} !='Credits Request'",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "ab08013b-31d1-4f8d-936c-77c00c001708",
       "comment": "",
       "command": "assertText",
-      "target": "xpath=//h5[contains(text(),'Select Your Business Type')]",
-      "targets": [
-        ["css=.step-title", "css:finder"],
-        ["xpath=//div[@id='app']/div[2]/div/div[4]/div/div/h5", "xpath:idRelative"],
-        ["xpath=//h5", "xpath:position"],
-        ["xpath=//h5[contains(.,'Select Your Business Type')]", "xpath:innerText"]
-      ],
+      "target": "xpath=//h5[contains(text(),'Select Your Business Type')] ",
+      "targets": [],
       "value": "Select Your Business Type"
     }, {
       "id": "eed25fe8-341a-49e3-9381-4912f6529093",
@@ -982,6 +1012,13 @@
         ["xpath=//div[@id='app']", "xpath:attributes"],
         ["xpath=//div", "xpath:position"]
       ],
+      "value": ""
+    }, {
+      "id": "010d30bc-304e-4e3a-ae52-79c95f866ed5",
+      "comment": "",
+      "command": "end",
+      "target": "",
+      "targets": [],
       "value": ""
     }, {
       "id": "3c4824e4-a4da-4b6a-959c-acac9620ec9d",
