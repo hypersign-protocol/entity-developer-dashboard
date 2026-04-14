@@ -220,7 +220,7 @@
 }
 
 .breadcrumb-link:hover {
-  color: #905ab0;
+  color: #00000078; /* Bright blue on hover for clarity it's clickable */
 }
 
 .company-title {

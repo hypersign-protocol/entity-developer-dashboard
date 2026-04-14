@@ -631,6 +631,9 @@ export default {
     },
 
     getStatusTooltip(company) {
+      if(company.status==='Approved') {
+        return 'The business has been verified and approved.'
+      }
       // If there are specific reasons, show them as a numbered list
       if (company.statusReasons && company.statusReasons.length) {
         const mappedReasons = company.statusReasons.map(r =>
