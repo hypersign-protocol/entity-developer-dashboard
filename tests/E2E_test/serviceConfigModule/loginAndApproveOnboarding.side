@@ -50,7 +50,7 @@
       "value": "3000"
     }, {
       "id": "414dd009-ea22-453f-8a0e-1936f2b71643",
-      "comment": "",
+      "comment": "69d3728d0a6efe06e6f09699 onboardgId",
       "command": "store",
       "target": "69d3728d0a6efe06e6f09699",
       "targets": [],
@@ -112,7 +112,7 @@
     }, {
       "id": "8bb0df25-a941-47c9-aa32-e09c714a5b1f",
       "comment": "",
-      "command": "click",
+      "command": "//click",
       "target": "css=.text-muted:nth-child(2)",
       "targets": [],
       "value": ""
@@ -120,7 +120,7 @@
       "id": "0fd5fc4f-bfc0-4acd-9b52-d247c6e83e47",
       "comment": "",
       "command": "assertText",
-      "target": "css=.text-muted:nth-child(2)",
+      "target": "xpath=//p[contains(text(),'Complete the guided steps to set up your identity verification services')] ",
       "targets": [],
       "value": "Complete the guided steps to set up your identity verification services."
     }, {
@@ -133,7 +133,7 @@
     }, {
       "id": "b59863d2-c43b-41e3-ab3f-edd05cfa808a",
       "comment": "",
-      "command": "assertText",
+      "command": "//assertText",
       "target": "css=.container",
       "targets": [],
       "value": "Configure Your Identity Service\\nComplete the guided steps to set up your identity verification services.\\nSelect Your Business Type\\nBusiness\\nCommunity"
@@ -168,13 +168,9 @@
     }, {
       "id": "a598c52d-9f84-4f96-ad61-6f60cff05bfe",
       "comment": "",
-      "command": "assertElementPresent",
+      "command": "//assertElementPresent",
       "target": "css=span:nth-child(2)",
-      "targets": [
-        ["css=span:nth-child(2)", "css:finder"],
-        ["xpath=//div[@id='nav-collapse']/ul/li/a/span/span/span", "xpath:idRelative"],
-        ["xpath=//span/span/span", "xpath:position"]
-      ],
+      "targets": [],
       "value": ""
     }, {
       "id": "2c60908a-6008-4c49-b2e6-02a6b5852418",
@@ -187,6 +183,13 @@
         ["xpath=//a[@id='__BVID__18__BV_toggle_']/div/img", "xpath:idRelative"],
         ["xpath=//div/img", "xpath:position"]
       ],
+      "value": ""
+    }, {
+      "id": "4291a284-14c4-4290-8bd4-92b86e5bde1e",
+      "comment": "",
+      "command": "pause",
+      "target": "2000",
+      "targets": [],
       "value": ""
     }, {
       "id": "8b14b049-fa5e-43f2-a50d-fe9056675eda",
@@ -258,10 +261,17 @@
       "targets": [],
       "value": ""
     }, {
+      "id": "ac685f46-613d-4a87-b0b6-00a740a8469b",
+      "comment": "",
+      "command": "pause",
+      "target": "6000",
+      "targets": [],
+      "value": ""
+    }, {
       "id": "723ef2f1-0b95-4a86-a219-ebcc24873627",
       "comment": "",
       "command": "assertText",
-      "target": "css=#\\__BVID__231___BV_tab_button__ > strong",
+      "target": "//a[@role='tab' and .//strong[contains(.,'Super Admin')]]",
       "targets": [
         ["css=#\\__BVID__231___BV_tab_button__ > strong", "css:finder"],
         ["xpath=//a[@id='__BVID__231___BV_tab_button__']/strong", "xpath:idRelative"],
@@ -273,7 +283,7 @@
       "id": "b5dafa74-2b49-4db0-80c7-035fcc5fa7ec",
       "comment": "",
       "command": "assertText",
-      "target": "css=#\\__BVID__195___BV_tab_button__ > strong",
+      "target": "xpath=//strong[contains(.,' SSI')]",
       "targets": [
         ["css=#\\__BVID__195___BV_tab_button__ > strong", "css:finder"],
         ["xpath=//a[@id='__BVID__195___BV_tab_button__']/strong", "xpath:idRelative"],
@@ -285,7 +295,7 @@
       "id": "77321971-f6e4-4535-a8e0-cb0a6a57e6f0",
       "comment": "",
       "command": "assertText",
-      "target": "css=#\\__BVID__183___BV_tab_button__ > strong",
+      "target": "//a[@role='tab' and .//strong[contains(normalize-space(),'Invitions')]]",
       "targets": [
         ["css=#\\__BVID__183___BV_tab_button__ > strong", "css:finder"],
         ["xpath=//a[@id='__BVID__183___BV_tab_button__']/strong", "xpath:idRelative"],
@@ -297,7 +307,7 @@
       "id": "038a7792-2736-4bb2-b4a8-0c6bce3eb78d",
       "comment": "",
       "command": "assertText",
-      "target": "css=#\\__BVID__147___BV_tab_button__ > strong",
+      "target": "//a[@role='tab' and .//strong[contains(normalize-space(),'Members & Roles')]]",
       "targets": [
         ["css=#\\__BVID__147___BV_tab_button__ > strong", "css:finder"],
         ["xpath=//a[@id='__BVID__147___BV_tab_button__']/strong", "xpath:idRelative"],
@@ -308,25 +318,27 @@
     }, {
       "id": "1d33926b-44e2-4302-b4cc-a971e793ddf0",
       "comment": "",
-      "command": "click",
+      "command": "//click",
       "target": "css=#\\__BVID__231___BV_tab_button__ > strong",
-      "targets": [
-        ["css=#\\__BVID__231___BV_tab_button__ > strong", "css:finder"],
-        ["xpath=//a[@id='__BVID__231___BV_tab_button__']/strong", "xpath:idRelative"],
-        ["xpath=//li[5]/a/strong", "xpath:position"],
-        ["xpath=//strong[contains(.,'Super Admin Toolings')]", "xpath:innerText"]
-      ],
+      "targets": [],
       "value": ""
     }, {
       "id": "a851e50f-91b2-4bd1-b0f1-2dbabdca50e1",
       "comment": "",
       "command": "click",
-      "target": "css=#\\__BVID__235 .overview-container",
+      "target": "//a[@role='tab' and .//strong[contains(.,'Super Admin')]]",
       "targets": [
         ["css=#\\__BVID__235 .overview-container", "css:finder"],
         ["xpath=//div[@id='__BVID__235']/div/div", "xpath:idRelative"],
         ["xpath=//div[5]/div/div[2]/div/div/div", "xpath:position"]
       ],
+      "value": ""
+    }, {
+      "id": "75c404dd-e333-447e-8b57-54d13fcca6dd",
+      "comment": "",
+      "command": "pause",
+      "target": "6000",
+      "targets": [],
       "value": ""
     }, {
       "id": "237b772b-cd30-4d0a-a274-b60537ee5379",
@@ -428,15 +440,32 @@
       ],
       "value": "KYC CREDIT DETAIL\\nAMOUNT (UHID)\\nVALIDITY PERIOD\\nUNIT\\nDAYS"
     }, {
+      "id": "fadccdc9-9041-45df-984d-1f3ab4bad667",
+      "comment": "",
+      "command": "//waitForElementNotVisible",
+      "target": " css=.v-overlay",
+      "targets": [],
+      "value": "10000"
+    }, {
+      "id": "1d94855f-d1e4-4b13-ae41-6ae6715cf124",
+      "comment": "",
+      "command": "waitForElementVisible",
+      "target": " css=.overview-container",
+      "targets": [],
+      "value": "30000"
+    }, {
+      "id": "e3d4b648-b15d-4abf-9037-b95195784542",
+      "comment": "",
+      "command": "executeScript",
+      "target": "document.querySelector('.overview-container').scrollIntoView({block:'center'})",
+      "targets": [],
+      "value": " css=.overview-container"
+    }, {
       "id": "5e96a729-59d9-4f26-8206-f0c6e1469fae",
       "comment": "",
       "command": "click",
-      "target": "css=#\\__BVID__235 .overview-container",
-      "targets": [
-        ["css=#\\__BVID__235 .overview-container", "css:finder"],
-        ["xpath=//div[@id='__BVID__235']/div/div", "xpath:idRelative"],
-        ["xpath=//div[5]/div/div[2]/div/div/div", "xpath:position"]
-      ],
+      "target": " css=.overview-container",
+      "targets": [],
       "value": ""
     }, {
       "id": "358174b8-7229-4c3c-a509-ec2f9e22314a",
@@ -540,13 +569,9 @@
     }, {
       "id": "deca3c7f-cea1-4ed5-837b-e875d3d42068",
       "comment": "",
-      "command": "click",
+      "command": "//click",
       "target": "css=#\\__BVID__235 .overview-container",
-      "targets": [
-        ["css=#\\__BVID__235 .overview-container", "css:finder"],
-        ["xpath=//div[@id='__BVID__235']/div/div", "xpath:idRelative"],
-        ["xpath=//div[5]/div/div[2]/div/div/div", "xpath:position"]
-      ],
+      "targets": [],
       "value": ""
     }, {
       "id": "c08f43bc-a6ce-4c53-b13f-81a2b99734f1",
@@ -604,6 +629,17 @@
       ],
       "value": "599.203125,4.375"
     }, {
+      "id": "af7773a7-44b1-42a7-8d52-eb212b448e6f",
+      "comment": "",
+      "command": "assertText",
+      "target": "xpath=//p[contains(.,'Review all credit details')]",
+      "targets": [
+        ["css=.mt-8", "css:finder"],
+        ["xpath=//div[@id='__BVID__235']/div/div/div[4]", "xpath:idRelative"],
+        ["xpath=//div[5]/div/div[2]/div/div/div/div[4]", "xpath:position"]
+      ],
+      "value": "Review all credit details carefully before clicking approve."
+    }, {
       "id": "1a3382e2-5190-4484-88ca-f58232e0d4b5",
       "comment": "",
       "command": "click",
@@ -615,16 +651,40 @@
       ],
       "value": ""
     }, {
-      "id": "af7773a7-44b1-42a7-8d52-eb212b448e6f",
+      "id": "30b23d49-df15-4cc3-b86b-c123af2d0e84",
       "comment": "",
-      "command": "assertText",
-      "target": "css=.mt-8",
-      "targets": [
-        ["css=.mt-8", "css:finder"],
-        ["xpath=//div[@id='__BVID__235']/div/div/div[4]", "xpath:idRelative"],
-        ["xpath=//div[5]/div/div[2]/div/div/div/div[4]", "xpath:position"]
-      ],
-      "value": "Review all credit details carefully before clicking approve."
+      "command": "pause",
+      "target": "2000",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "708fd2ab-8ba2-4cf6-a8a9-1ff57a4775d0",
+      "comment": "",
+      "command": "verifyElementPresent",
+      "target": " css=.b-toast",
+      "targets": [],
+      "value": "toastMessage"
+    }, {
+      "id": "3d38d7c7-c392-4404-80d3-27913ff2bce2",
+      "comment": "",
+      "command": "store",
+      "target": "${status} ",
+      "targets": [],
+      "value": "isToast"
+    }, {
+      "id": "a4fb6c72-44bc-41aa-be52-aa82e5821105",
+      "comment": "",
+      "command": "echo",
+      "target": "${toastMessage}",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "d350b99d-a011-44a1-b54e-60363c40b8e5",
+      "comment": "",
+      "command": "if",
+      "target": "${isToast} == false",
+      "targets": [],
+      "value": ""
     }, {
       "id": "e3da25db-7456-4022-bc2d-d4ae1673824f",
       "comment": "",
@@ -658,6 +718,48 @@
         ["xpath=//div[2]/div/label", "xpath:position"]
       ],
       "value": "ONBOARDING RECORD ID"
+    }, {
+      "id": "67dd24ba-590f-492a-9f31-54eb0c2caed8",
+      "comment": "",
+      "command": "else",
+      "target": "",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "f9bbd2f3-c5d7-486f-8dfe-f03df20bfba0",
+      "comment": "",
+      "command": "//verifyElementPresent",
+      "target": "css=.toast-body",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "adb90607-1182-4012-bead-f2b7f733f089",
+      "comment": "",
+      "command": "storeText",
+      "target": "css=.toast-body",
+      "targets": [],
+      "value": "toastMessage"
+    }, {
+      "id": "61746f3a-9958-46eb-89c1-8d069c7ff4cc",
+      "comment": "",
+      "command": "echo",
+      "target": " Failed: ${toastMessage}",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "dce405a8-797f-40ab-9966-1bd6d034eb67",
+      "comment": "",
+      "command": "//assertText",
+      "target": "css=.toast-body",
+      "targets": [],
+      "value": "Customer onboarding detail not found for id: ${onboardingId}"
+    }, {
+      "id": "726898e2-3ec5-4882-9901-3fd43b082a2a",
+      "comment": "",
+      "command": "end",
+      "target": "",
+      "targets": [],
+      "value": ""
     }]
   }],
   "suites": [{
