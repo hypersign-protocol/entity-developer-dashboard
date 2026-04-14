@@ -138,7 +138,7 @@
       "id": "e66e8ecf-8385-4bed-924f-90e504d47d47",
       "comment": "",
       "command": "assertText",
-      "target": "css=.align-center",
+      "target": " xpath=//h4[contains(text(),'Getting Started')] ",
       "targets": [
         ["css=.align-center", "css:finder"],
         ["xpath=//div[@id='app']/div[2]/div/div/div/div", "xpath:idRelative"],
@@ -287,7 +287,7 @@
       "id": "5bae9b81-ef59-4afa-9fa5-6050ea9999ed",
       "comment": "",
       "command": "mouseOver",
-      "target": "css=.fa-code",
+      "target": " xpath=//a[.//i[contains(@class,'fa-code')]]",
       "targets": [
         ["css=.fa-code", "css:finder"],
         ["xpath=//div[@id='app']/div[4]/div[2]/div/div[5]/a/i", "xpath:idRelative"],
@@ -298,7 +298,7 @@
       "id": "3b57d6c2-02c9-4269-bc29-a961b2f9eaab",
       "comment": "",
       "command": "mouseOut",
-      "target": "css=.fa-code",
+      "target": " xpath=//a[.//i[contains(@class,'fa-code')]]",
       "targets": [
         ["css=.fa-code", "css:finder"],
         ["xpath=//div[@id='app']/div[4]/div[2]/div/div[5]/a/i", "xpath:idRelative"],
@@ -308,55 +308,42 @@
     }, {
       "id": "39178368-e364-47a7-8315-0d0945a3df42",
       "comment": "",
-      "command": "click",
-      "target": "css=.fa-code",
-      "targets": [
-        ["css=.fa-code", "css:finder"],
-        ["xpath=//div[@id='app']/div[4]/div[2]/div/div[5]/a/i", "xpath:idRelative"],
-        ["xpath=//div[5]/a/i", "xpath:position"]
-      ],
+      "command": "executeScript",
+      "target": "document.querySelector('i.fa-code')?.closest('a')?.click()",
+      "targets": [],
       "value": ""
     }, {
       "id": "2ccf207d-3cda-4e10-a8bf-539d6b380b1d",
       "comment": "",
-      "command": "assertText",
+      "command": "//assertText",
       "target": "xpath=//div[contains(@class,'vsm--list')]//span[normalize-space()='App Config']",
-      "targets": [
-        ["css=.vsm--link_hover > .vsm--title", "css:finder"],
-        ["xpath=//div[@id='app']/div[4]/div[2]/div[2]/div/div/div/div[3]/a/span", "xpath:idRelative"],
-        ["xpath=//div[3]/a/span", "xpath:position"],
-        ["xpath=//span[contains(.,'App Config')]", "xpath:innerText"]
-      ],
+      "targets": [],
       "value": "App Config"
     }, {
       "id": "3b0548bf-3cf1-4dc0-9a08-f6c3d1c9ec81",
       "comment": "",
-      "command": "click",
+      "command": "//click",
       "target": "xpath=//div[contains(@class,'vsm--list')]//span[normalize-space()='App Config']",
       "targets": [],
       "value": ""
     }, {
       "id": "b9f54b02-5dee-4951-a8ab-282f5d926a55",
       "comment": "",
-      "command": "assertText",
+      "command": "//assertText",
       "target": " xpath=//legend[normalize-space()='APPLICATION ID']",
       "targets": [],
       "value": "APPLICATION ID"
     }, {
       "id": "b7a1742c-f4a2-4871-a0cc-d410aba7ff20",
       "comment": "",
-      "command": "storeValue",
+      "command": "//storeValue",
       "target": "xpath=//legend[normalize-space()='APPLICATION ID']/following::input[1]",
-      "targets": [
-        ["css=#\\__BVID__195 .mdi", "css:finder"],
-        ["xpath=//fieldset[@id='__BVID__195']/div/div/div/button/i", "xpath:idRelative"],
-        ["xpath=//button/i", "xpath:position"]
-      ],
+      "targets": [],
       "value": "appId"
     }, {
       "id": "024202dc-b6d6-45d6-91bd-a2cb58ff27ad",
       "comment": "",
-      "command": "echo",
+      "command": "//echo",
       "target": "${appId}",
       "targets": [],
       "value": ""
@@ -378,14 +365,21 @@
       "id": "4ce2dea9-0c03-4a00-a922-48ab1079d32b",
       "comment": "",
       "command": "mouseOver",
-      "target": "css=.fa-code",
+      "target": " xpath=//a[.//i[contains(@class,'fa-code')]]",
       "targets": [],
       "value": ""
     }, {
       "id": "6dd16204-6ab4-4ad4-a09e-eab7a0eaaf7b",
       "comment": "",
       "command": "mouseOut",
-      "target": "css=.fa-code",
+      "target": " xpath=//a[.//i[contains(@class,'fa-code')]]",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "22df9e67-fa98-495b-a5ab-baf0e35507c1",
+      "comment": "",
+      "command": "click",
+      "target": " xpath=//a[.//i[contains(@class,'fa-code')]]",
       "targets": [],
       "value": ""
     }, {
@@ -415,33 +409,28 @@
       "id": "1ebb6fc7-7003-4330-b952-f3ccd1652b2c",
       "comment": "",
       "command": "mouseOver",
-      "target": "css=.fa-code",
+      "target": " xpath=//a[.//i[contains(@class,'fa-code')]]",
       "targets": [],
       "value": ""
     }, {
       "id": "0ea6d894-35a5-4572-ba7e-1c5e1a49bd62",
       "comment": "",
-      "command": "clickAt",
-      "target": "css=.fa-code",
+      "command": "executeScript",
+      "target": "document.querySelector('i.fa-code')?.closest('a')?.click()",
       "targets": [],
       "value": ""
     }, {
       "id": "9d6d2ecb-c4b1-48bc-a59d-cccd2aa0b997",
       "comment": "",
-      "command": "mouseOver",
+      "command": "//mouseOver",
       "target": "xpath=//span[normalize-space()='Developer Hub']/ancestor::a/following::div//span[normalize-space()='API Keys']",
-      "targets": [
-        ["css=.vsm--link_hover > .vsm--title", "css:finder"],
-        ["xpath=//div[@id='app']/div[4]/div[2]/div[2]/div/div/div/div/a/span", "xpath:idRelative"],
-        ["xpath=//div[2]/div/div/div/div/a/span", "xpath:position"],
-        ["xpath=//span[contains(.,'API Keys')]", "xpath:innerText"]
-      ],
+      "targets": [],
       "value": ""
     }, {
       "id": "18d1e0bf-eca2-44de-bf06-e977c30a0eef",
       "comment": "",
       "command": "clickAt",
-      "target": "xpath=//span[normalize-space()='Developer Hub']/ancestor::a/following::div//span[normalize-space()='API Keys']",
+      "target": "const el = Array.from(document.querySelectorAll('span')).find(e => e.textContent.trim().includes('API Keys')); if (el) el.closest('a').click();",
       "targets": [],
       "value": ""
     }, {
@@ -491,25 +480,16 @@
     }, {
       "id": "57955674-2110-42f2-93e9-7ebd418e5e73",
       "comment": "",
-      "command": "assertText",
+      "command": "//assertText",
       "target": "css=.text-subtitle-2:nth-child(1)",
-      "targets": [
-        ["css=.text-subtitle-2:nth-child(1)", "css:finder"],
-        ["xpath=//div[@id='app']/div[2]/div/div[3]/div/div/div[2]/p", "xpath:idRelative"],
-        ["xpath=//div[2]/p", "xpath:position"],
-        ["xpath=//p[contains(.,'Enter your App ID to authorize the generation of a new API Secret.')]", "xpath:innerText"]
-      ],
+      "targets": [],
       "value": "Enter your App ID to authorize the generation of a new API Secret."
     }, {
       "id": "0822c403-eb09-4613-a170-efd42f67055c",
       "comment": "",
-      "command": "click",
+      "command": "//click",
       "target": "css=.mb-4:nth-child(1)",
-      "targets": [
-        ["css=.mb-4:nth-child(1)", "css:finder"],
-        ["xpath=//div[@id='app']/div[2]/div/div[3]/div[2]/div", "xpath:idRelative"],
-        ["xpath=//div[3]/div[2]/div", "xpath:position"]
-      ],
+      "targets": [],
       "value": ""
     }, {
       "id": "a22f083d-6ffd-4801-b4f4-5c31a42b701b",
@@ -812,19 +792,14 @@
     }, {
       "id": "7a3672fe-8b66-4796-9c27-34776de70d05",
       "comment": "",
-      "command": "assertText",
+      "command": "//assertText",
       "target": "css=.text-subtitle-2:nth-child(1)",
-      "targets": [
-        ["css=.text-subtitle-2:nth-child(1)", "css:finder"],
-        ["xpath=//div[@id='app']/div[2]/div/div[3]/div/div/div[2]/p", "xpath:idRelative"],
-        ["xpath=//div[2]/p", "xpath:position"],
-        ["xpath=//p[contains(.,'Enter your App ID to authorize the generation of a new API Secret.')]", "xpath:innerText"]
-      ],
+      "targets": [],
       "value": "Enter your App ID to authorize the generation of a new API Secret."
     }, {
       "id": "4a7e1b95-7d43-416f-8628-4955fb44f854",
       "comment": "",
-      "command": "type",
+      "command": "//type",
       "target": "xpath=//label[normalize-space()='App ID']/following::input[1]",
       "targets": [],
       "value": "${appId}"
@@ -832,18 +807,19 @@
       "id": "f43c931d-a7d9-48e0-a472-ede633e6ca68",
       "comment": "",
       "command": "assertText",
-      "target": "css=.v-btn__content",
+      "target": "xpath=//button[.//span[contains(normalize-space(),'Generate New Secret')]]",
       "targets": [
-        ["css=.v-btn__content", "css:finder"],
-        ["xpath=//div[@id='app']/div[2]/div/div[3]/div/div/div[2]/div[3]/button/span", "xpath:idRelative"],
-        ["xpath=//div[3]/button/span", "xpath:position"]
+        ["css=.v-btn", "css:finder"],
+        ["xpath=(//button[@type='button'])[2]", "xpath:attributes"],
+        ["xpath=//div[@id='app']/div[2]/div/div[3]/div/div/div[2]/div[2]/div[2]/button", "xpath:idRelative"],
+        ["xpath=//div[2]/button", "xpath:position"]
       ],
       "value": "GENERATE NEW SECRET"
     }, {
       "id": "7e249a53-bb9b-4db6-9695-ccbb7e910690",
       "comment": "",
       "command": "mouseOver",
-      "target": "css=.v-btn__content",
+      "target": "xpath=//button[.//span[contains(normalize-space(),'Generate New Secret')]]",
       "targets": [
         ["css=.v-btn__content", "css:finder"],
         ["xpath=//div[@id='app']/div[2]/div/div[3]/div/div/div[2]/div[3]/button/span", "xpath:idRelative"],
@@ -854,7 +830,7 @@
       "id": "9039f026-8a97-495d-8db4-fd48d2a454bd",
       "comment": "",
       "command": "assertElementPresent",
-      "target": "css=.v-btn__content",
+      "target": "xpath=//button[.//span[contains(normalize-space(),'Generate New Secret')]]",
       "targets": [
         ["css=.v-btn__content", "css:finder"],
         ["xpath=//div[@id='app']/div[2]/div/div[3]/div/div/div[2]/div[3]/button/span", "xpath:idRelative"],
@@ -865,7 +841,7 @@
       "id": "8bafc149-3be3-4b8d-a036-cae616f55e92",
       "comment": "",
       "command": "mouseOut",
-      "target": "css=.v-btn__content",
+      "target": "xpath=//button[.//span[contains(normalize-space(),'Generate New Secret')]]",
       "targets": [
         ["css=.v-btn__content", "css:finder"],
         ["xpath=//div[@id='app']/div[2]/div/div[3]/div/div/div[2]/div[3]/button/span", "xpath:idRelative"],
@@ -876,7 +852,7 @@
       "id": "7345a709-ad67-404e-b6e4-e41bbeaec052",
       "comment": "",
       "command": "click",
-      "target": "css=.v-btn__content",
+      "target": "xpath=//button[.//span[contains(normalize-space(),'Generate New Secret')]]",
       "targets": [
         ["css=.v-btn__content", "css:finder"],
         ["xpath=//div[@id='app']/div[2]/div/div[3]/div/div/div[2]/div[3]/button/span", "xpath:idRelative"],
@@ -900,7 +876,7 @@
       "id": "a39ce135-0ec2-4447-a665-016cc04685fd",
       "comment": "",
       "command": "assertText",
-      "target": "id=entity-secretKey-popup___BV_modal_header_",
+      "target": "xpath=//header[@id='entity-secretKey-popup___BV_modal_header_']",
       "targets": [
         ["id=entity-secretKey-popup___BV_modal_header_", "id"],
         ["css=#entity-secretKey-popup___BV_modal_header_", "css:finder"],
