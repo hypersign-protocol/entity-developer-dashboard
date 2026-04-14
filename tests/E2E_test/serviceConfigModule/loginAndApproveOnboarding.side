@@ -173,6 +173,13 @@
       "targets": [],
       "value": ""
     }, {
+      "id": "31170366-fcc3-4093-ae1e-88228e572739",
+      "comment": "",
+      "command": "waitForElementPresent",
+      "target": "css=.profile-img",
+      "targets": [],
+      "value": "30000"
+    }, {
       "id": "2c60908a-6008-4c49-b2e6-02a6b5852418",
       "comment": "",
       "command": "click",
@@ -226,16 +233,23 @@
       "targets": [],
       "value": ""
     }, {
-      "id": "ae9b32ff-0396-4c13-8955-73dd77fd468d",
+      "id": "a406028b-83cf-4cc6-9813-045039b17fee",
       "comment": "",
-      "command": "click",
+      "command": "waitForElementPresent",
       "target": "css=.profile-img",
       "targets": [],
-      "value": ""
+      "value": "30000"
     }, {
       "id": "f61fa3f0-ca4c-4462-b08c-18645443c0fc",
       "comment": "",
       "command": "assertElementPresent",
+      "target": "css=.profile-img",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "ae9b32ff-0396-4c13-8955-73dd77fd468d",
+      "comment": "",
+      "command": "click",
       "target": "css=.profile-img",
       "targets": [],
       "value": ""
