@@ -16,7 +16,7 @@
     }, {
       "id": "f429cfa1-cef3-4a59-96b3-652600427e59",
       "comment": "",
-      "command": "//setWindowSize",
+      "command": "setWindowSize",
       "target": "1936x1048",
       "targets": [],
       "value": ""
@@ -124,7 +124,7 @@
       "id": "e66e8ecf-8385-4bed-924f-90e504d47d47",
       "comment": "",
       "command": "assertText",
-      "target": "css=.align-center",
+      "target": " xpath=//h4[contains(text(),'Getting Started')] ",
       "targets": [
         ["css=.align-center", "css:finder"],
         ["xpath=//div[@id='app']/div[2]/div/div/div/div", "xpath:idRelative"],
@@ -343,41 +343,26 @@
     }, {
       "id": "8117e7f0-03b1-4216-b01c-2fba43040ee7",
       "comment": "",
-      "command": "click",
-      "target": "css=.col",
-      "targets": [
-        ["css=.col", "css:finder"],
-        ["xpath=//div[@id='app']/div[2]/div/div[2]/div", "xpath:idRelative"],
-        ["xpath=//div[2]/div/div[2]/div", "xpath:position"]
-      ],
+      "command": "pause",
+      "target": "6000",
+      "targets": [],
       "value": ""
     }, {
       "id": "10d98984-7d7c-41a3-b751-450e96ebc5d2",
       "comment": "",
       "command": "assertText",
-      "target": "css=.justify-content-between",
+      "target": "xpath=//div/h4",
       "targets": [
         ["css=.justify-content-between", "css:finder"],
         ["xpath=//div[@id='app']/div[2]/div/div[2]/div/div", "xpath:idRelative"],
         ["xpath=//div[2]/div/div[2]/div/div", "xpath:position"]
       ],
-      "value": "Users Verifications\\nManage and track user verifications"
-    }, {
-      "id": "aaf7a5e7-b9c0-4da7-9e0a-588a4b9d5d02",
-      "comment": "",
-      "command": "click",
-      "target": "css=.container-collapsed-not",
-      "targets": [
-        ["css=.container-collapsed-not", "css:finder"],
-        ["xpath=//div[@id='app']/div[2]", "xpath:idRelative"],
-        ["xpath=//div[2]", "xpath:position"]
-      ],
-      "value": ""
+      "value": "Users Verifications"
     }, {
       "id": "0924f2db-dc81-4255-9869-f1f65e8e5520",
       "comment": "",
       "command": "assertText",
-      "target": "css=.text-muted:nth-child(2)",
+      "target": "xpath=//p[contains(.,'Manage and track user verifications')]",
       "targets": [
         ["css=.text-muted:nth-child(2)", "css:finder"],
         ["xpath=//div[@id='app']/div[2]/div/div[2]/div/div/div/p", "xpath:idRelative"],
@@ -386,10 +371,10 @@
       ],
       "value": "Manage and track user verifications"
     }, {
-      "id": "fb8b743c-eca5-45a7-b246-534fc3418d46",
+      "id": "fcc55f0c-c1e8-43bb-909a-66d36319da4b",
       "comment": "",
-      "command": "storeXpathCount",
-      "target": "//h3[normalize-space()='No User Found']",
+      "command": "executeScript",
+      "target": "return document.evaluate(\"//h3[normalize-space()='No User Found']\", document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null).snapshotLength",
       "targets": [],
       "value": "isEmpty"
     }, {
@@ -400,24 +385,10 @@
       "targets": [],
       "value": ""
     }, {
-      "id": "433f0ff1-8eb7-4146-a8cb-bf9f0cb3debe",
-      "comment": "",
-      "command": "//assertElementPresent",
-      "target": "css=.empty-container",
-      "targets": [],
-      "value": ""
-    }, {
-      "id": "a5eefd33-2cb7-44d0-80fb-9757c7f8dbd5",
-      "comment": "",
-      "command": "//assertElementPresent",
-      "target": "//h3[normalize-space()='No User Found'] ",
-      "targets": [],
-      "value": "isEmpty"
-    }, {
       "id": "d711ce30-23a4-4a86-8c0c-136c49932deb",
       "comment": "",
-      "command": "//echo",
-      "target": "${isEmpty}",
+      "command": "echo",
+      "target": "isEmpty= ${isEmpty}",
       "targets": [],
       "value": ""
     }, {
@@ -466,7 +437,7 @@
       "id": "64b7af89-a96a-4a34-8460-8f8604351fa0",
       "comment": "",
       "command": "storeText",
-      "target": "(//p[text()='Total Verifications']/following::h3)[1]",
+      "target": "xpath=(//p[text()='Total Verifications']/following::h3)[1]",
       "targets": [],
       "value": "totalVerification"
     }, {
@@ -652,16 +623,9 @@
       "id": "921d3a67-db8b-4c41-9275-e5b287667cfe",
       "comment": "",
       "command": "storeText",
-      "target": "//p[text()='Total Verifications']/following-sibling::h3",
+      "target": "xpath=//p[text()='Total Verifications']/following-sibling::h3",
       "targets": [],
       "value": "totalVerification"
-    }, {
-      "id": "2e101944-18b2-41b1-b261-08344f55b34a",
-      "comment": "",
-      "command": "//assert",
-      "target": "${totalVerification} ==0",
-      "targets": [],
-      "value": ""
     }, {
       "id": "277ad6f1-0d30-4dca-9bbc-f774c2968c53",
       "comment": "",
@@ -956,20 +920,6 @@
       ],
       "value": "LIVE STATUS"
     }, {
-      "id": "8c87e3ce-1350-4ecd-9614-f9a76e27aa38",
-      "comment": "",
-      "command": "",
-      "target": "",
-      "targets": [],
-      "value": ""
-    }, {
-      "id": "35e55a7b-ce19-4b25-9bb5-36855b5ea050",
-      "comment": "",
-      "command": "",
-      "target": "",
-      "targets": [],
-      "value": ""
-    }, {
       "id": "e0a05c3e-4f8c-42fa-94da-f980e7cf223b",
       "comment": "",
       "command": "else",
@@ -977,10 +927,17 @@
       "targets": [],
       "value": ""
     }, {
+      "id": "4d5f9142-d140-498e-bfb2-c46db1c1e732",
+      "comment": "",
+      "command": "echo",
+      "target": "inside else",
+      "targets": [],
+      "value": ""
+    }, {
       "id": "7c3bba5d-6253-451d-844e-d6d67a2ad32d",
       "comment": "",
-      "command": "storeXpathCount",
-      "target": "xpath=//table//tbody//tr ",
+      "command": "executeScript",
+      "target": "return document.querySelectorAll(\"table tbody tr\").length",
       "targets": [],
       "value": "userCount"
     }, {
@@ -1022,65 +979,34 @@
       "id": "64b7af89-a96a-4a34-8460-8f8604351fa0",
       "comment": "",
       "command": "storeText",
-      "target": "(//p[text()='Total Verifications']/following::h3)[1]",
+      "target": "xpath=(//p[text()='Total Verifications']/following::h3)[1]",
       "targets": [],
       "value": "totalVerification"
     }, {
       "id": "2767d013-4a18-40d8-917f-55838b54a927",
       "comment": "",
-      "command": "click",
-      "target": "css=.row:nth-child(1) > .col",
-      "targets": [
-        ["css=.row:nth-child(1) > .col", "css:finder"],
-        ["xpath=//div[@id='app']/div[2]/div/div/div", "xpath:idRelative"],
-        ["xpath=//div[2]/div/div/div", "xpath:position"]
-      ],
+      "command": "//click",
+      "target": "xpath=//div[@id='app']/div[2]/div/div/div",
+      "targets": [],
       "value": ""
+    }, {
+      "id": "a0327a78-bab8-4ed2-971c-e7c176182ff6",
+      "comment": "",
+      "command": "assertText",
+      "target": "xpath=//h4[normalize-space()='User Analytics']",
+      "targets": [],
+      "value": "User Analytics"
     }, {
       "id": "67869bd7-cac9-446e-97dd-4b8dbd8524c2",
       "comment": "",
       "command": "assertText",
-      "target": "css=.justify-content-between",
+      "target": "xpath=//h4[normalize-space()='User Analytics']/following-sibling::p",
       "targets": [
         ["css=.justify-content-between", "css:finder"],
         ["xpath=//div[@id='app']/div[2]/div/div/div/div", "xpath:idRelative"],
         ["xpath=//div[2]/div/div/div/div", "xpath:position"]
       ],
-      "value": "User Analytics\\nView user engagement and behavior data"
-    }, {
-      "id": "ae4c5687-657c-41f4-953b-1cb95e4d5786",
-      "comment": "",
-      "command": "assertElementPresent",
-      "target": "css=.mb-1",
-      "targets": [
-        ["css=.mb-1", "css:finder"],
-        ["xpath=//div[@id='app']/div[2]/div/div/div/div/div/h4", "xpath:idRelative"],
-        ["xpath=//h4", "xpath:position"],
-        ["xpath=//h4[contains(.,'User Analytics')]", "xpath:innerText"]
-      ],
-      "value": ""
-    }, {
-      "id": "41f31497-a6e0-4a30-af43-b15f8fe9c13b",
-      "comment": "",
-      "command": "click",
-      "target": "css=.justify-content-between",
-      "targets": [
-        ["css=.justify-content-between", "css:finder"],
-        ["xpath=//div[@id='app']/div[2]/div/div/div/div", "xpath:idRelative"],
-        ["xpath=//div[2]/div/div/div/div", "xpath:position"]
-      ],
-      "value": ""
-    }, {
-      "id": "55f5e8e1-9fe6-4122-9f8d-5921b68ef529",
-      "comment": "",
-      "command": "assertText",
-      "target": "css=.justify-content-between",
-      "targets": [
-        ["css=.justify-content-between", "css:finder"],
-        ["xpath=//div[@id='app']/div[2]/div/div/div/div", "xpath:idRelative"],
-        ["xpath=//div[2]/div/div/div/div", "xpath:position"]
-      ],
-      "value": "User Analytics\\nView user engagement and behavior data"
+      "value": "View user engagement and behavior data"
     }, {
       "id": "a5884036-8548-442b-af4c-56fe9591c5d6",
       "comment": "",
@@ -1324,12 +1250,11 @@
       "id": "53a4b371-21c1-4520-a0fa-22c468f1bc7e",
       "comment": "",
       "command": "assertElementPresent",
-      "target": "css=.small:nth-child(2)",
+      "target": "xpath=//div[@id='app']/div[2]/div/div[4]/div/div/div/span",
       "targets": [
-        ["css=.small:nth-child(2)", "css:finder"],
-        ["xpath=//div[@id='app']/div[2]/div/div/div/div/div/p", "xpath:idRelative"],
-        ["xpath=//div/div/p", "xpath:position"],
-        ["xpath=//p[contains(.,'View user engagement and behavior data')]", "xpath:innerText"]
+        ["css=.mt-6 .badge", "css:finder"],
+        ["xpath=//div[@id='app']/div[2]/div/div[4]/div/div/div/span", "xpath:idRelative"],
+        ["xpath=//div[4]/div/div/div/span", "xpath:position"]
       ],
       "value": ""
     }, {

@@ -16,7 +16,7 @@
     }, {
       "id": "f429cfa1-cef3-4a59-96b3-652600427e59",
       "comment": "",
-      "command": "//setWindowSize",
+      "command": "setWindowSize",
       "target": "1936x1048",
       "targets": [],
       "value": ""
@@ -429,7 +429,7 @@
     }, {
       "id": "18d1e0bf-eca2-44de-bf06-e977c30a0eef",
       "comment": "",
-      "command": "clickAt",
+      "command": "//clickAt",
       "target": "const el = Array.from(document.querySelectorAll('span')).find(e => e.textContent.trim().includes('API Keys')); if (el) el.closest('a').click();",
       "targets": [],
       "value": ""
@@ -759,7 +759,7 @@
     }, {
       "id": "6a1addc8-76de-46ed-995d-232b0c607710",
       "comment": "",
-      "command": "click",
+      "command": "//click",
       "target": "css=.warning-box > .d-flex",
       "targets": [
         ["css=.warning-box > .d-flex", "css:finder"],

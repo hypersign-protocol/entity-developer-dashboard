@@ -131,7 +131,7 @@
       "id": "e66e8ecf-8385-4bed-924f-90e504d47d47",
       "comment": "",
       "command": "assertText",
-      "target": "css=.align-center",
+      "target": " xpath=//h4[contains(text(),'Getting Started')] ",
       "targets": [
         ["css=.align-center", "css:finder"],
         ["xpath=//div[@id='app']/div[2]/div/div/div/div", "xpath:idRelative"],
@@ -288,16 +288,18 @@
       ],
       "value": ""
     }, {
+      "id": "789a3a82-737d-420b-9555-0633b7808950",
+      "comment": "",
+      "command": "click",
+      "target": "xpath=//span[normalize-space()='Business']",
+      "targets": [],
+      "value": ""
+    }, {
       "id": "5bdc1f7f-3795-47fc-bbf6-b3528dc1baeb",
       "comment": "",
-      "command": "mouseOver",
+      "command": "//mouseOver",
       "target": "css=.vsm--item:nth-child(5) > .vsm--link",
-      "targets": [
-        ["css=.vsm--item:nth-child(5) > .vsm--link", "css:finder"],
-        ["xpath=//div[@id='app']/div[4]/div[2]/div/div[5]/a", "xpath:idRelative"],
-        ["xpath=(//a[contains(@href, '#')])[12]", "xpath:href"],
-        ["xpath=//div[5]/a", "xpath:position"]
-      ],
+      "targets": [],
       "value": ""
     }, {
       "id": "c95ba211-536e-45e9-82b5-4cac1ab79810",
@@ -315,14 +317,14 @@
       "id": "a6543721-c278-4085-b049-943a66945c10",
       "comment": "",
       "command": "waitForElementVisible",
-      "target": "xpath=//span[normalize-space()='Businesses']",
+      "target": "xpath=//a[.//span[normalize-space()='Businesses']]",
       "targets": [],
       "value": "10000"
     }, {
       "id": "2d8bad49-b5d7-4bb3-9bab-6fd6ed3ca944",
       "comment": "",
-      "command": "clickAt",
-      "target": "xpath=//span[normalize-space()='Businesses']",
+      "command": "click",
+      "target": "xpath=//a[.//span[normalize-space()='Businesses']]",
       "targets": [],
       "value": ""
     }, {
@@ -348,30 +350,28 @@
       ],
       "value": ""
     }, {
+      "id": "28311e30-ff69-4b31-90a8-dc3dd9674dfa",
+      "comment": "",
+      "command": "assertText",
+      "target": "xpath=//h4[contains(.,'Business Verifications')]",
+      "targets": [
+        ["css=.font-weight-bold:nth-child(1)", "css:finder"],
+        ["xpath=//div[@id='app']/div[2]/div/div[2]/div/h4", "xpath:idRelative"],
+        ["xpath=//h4", "xpath:position"],
+        ["xpath=//h4[contains(.,'Business Verifications')]", "xpath:innerText"]
+      ],
+      "value": "Business Verifications"
+    }, {
       "id": "d5e0d4cd-0f40-4de8-b25e-d6eba2853d1a",
       "comment": "",
       "command": "click",
-      "target": "css=.vsm--link_hover > .vsm--title",
+      "target": "xpath=//a[.//span[normalize-space()='Businesses']]",
       "targets": [
         ["css=.vsm--link_hover > .vsm--title", "css:finder"],
         ["xpath=//div[@id='app']/div[4]/div[2]/div[2]/div/div/div/div/a/span", "xpath:idRelative"],
         ["xpath=//div[2]/div[2]/div/div/div/div/a/span", "xpath:position"],
         ["xpath=//span[contains(.,'Businesses')]", "xpath:innerText"]
       ],
-      "value": ""
-    }, {
-      "id": "3ee5b776-abf4-46c5-a9b8-2fc8f1024f77",
-      "comment": "",
-      "command": "//clickAt",
-      "target": "css=.vsm--link_hover > .vsm--title",
-      "targets": [],
-      "value": ""
-    }, {
-      "id": "a9d65001-9696-47a0-9c29-86945de479b9",
-      "comment": "",
-      "command": "mouseOver",
-      "target": "css=.vsm--link_hover > .vsm--title",
-      "targets": [],
       "value": ""
     }, {
       "id": "a638c4f2-17e1-4b85-9e53-a1627fc83fdc",
@@ -384,18 +384,6 @@
         ["xpath=//div[2]/div[2]", "xpath:position"]
       ],
       "value": ""
-    }, {
-      "id": "28311e30-ff69-4b31-90a8-dc3dd9674dfa",
-      "comment": "",
-      "command": "assertText",
-      "target": "css=.font-weight-bold:nth-child(1)",
-      "targets": [
-        ["css=.font-weight-bold:nth-child(1)", "css:finder"],
-        ["xpath=//div[@id='app']/div[2]/div/div[2]/div/h4", "xpath:idRelative"],
-        ["xpath=//h4", "xpath:position"],
-        ["xpath=//h4[contains(.,'Business Verifications')]", "xpath:innerText"]
-      ],
-      "value": "Business Verifications"
     }, {
       "id": "1989c989-c6f1-4274-8dc7-df49f0bd8e94",
       "comment": "",
@@ -486,6 +474,41 @@
         ["xpath=//p[contains(.,'Manage and monitor corporate identity verification sessions')]", "xpath:innerText"]
       ],
       "value": "Manage and monitor corporate identity verification sessions"
+    }, {
+      "id": "bb29b063-4381-49ef-b89b-b64b9703cb71",
+      "comment": "",
+      "command": "executeScript",
+      "target": "return document.evaluate(\"//h3[normalize-space()='No Business Found']\", document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null).snapshotLength ",
+      "targets": [],
+      "value": "isEmpty"
+    }, {
+      "id": "9315b513-5eeb-49c7-94b1-a8f9d76c5d4f",
+      "comment": "",
+      "command": "echo",
+      "target": "${isEmpty}",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "33f61f8f-eb9d-4d02-8df5-ba0e7502d1c3",
+      "comment": "",
+      "command": "//executeScript",
+      "target": "return document.querySelectorAll(\\\"h3\\\").length",
+      "targets": [],
+      "value": "isEmpty1"
+    }, {
+      "id": "40a7ad35-e5a4-4125-8aa0-2fa75fd90baa",
+      "comment": "",
+      "command": "//echo",
+      "target": "${isEmpty1}",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "4779b148-d787-4d1b-94ee-eb06f001a25d",
+      "comment": "",
+      "command": "if",
+      "target": "${isEmpty} == 0",
+      "targets": [],
+      "value": ""
     }, {
       "id": "7bb00d61-3875-42ea-b977-88fb2f77dd3d",
       "comment": "",
@@ -1480,14 +1503,28 @@
       ],
       "value": "Check Type:"
     }, {
-      "id": "cc9621f0-3074-4252-992c-cc1078b632e0",
+      "id": "f07e0d9a-9ab6-4f50-aec9-5141d592cdc8",
       "comment": "",
-      "command": "//echo",
+      "command": "else",
       "target": "",
       "targets": [],
-      "value": "inside else block"
+      "value": ""
+    }, {
+      "id": "cc9621f0-3074-4252-992c-cc1078b632e0",
+      "comment": "",
+      "command": "echo",
+      "target": "No business found",
+      "targets": [],
+      "value": ""
     }, {
       "id": "3c4824e4-a4da-4b6a-959c-acac9620ec9d",
+      "comment": "",
+      "command": "end",
+      "target": "",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "c9be72bf-d213-42c7-9d46-39df4a8b7f18",
       "comment": "",
       "command": "end",
       "target": "",

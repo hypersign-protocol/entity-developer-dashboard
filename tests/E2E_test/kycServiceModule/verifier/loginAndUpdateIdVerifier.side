@@ -16,7 +16,7 @@
     }, {
       "id": "f429cfa1-cef3-4a59-96b3-652600427e59",
       "comment": "",
-      "command": "//setWindowSize",
+      "command": "setWindowSize",
       "target": "1936x1048",
       "targets": [],
       "value": ""
@@ -131,7 +131,7 @@
       "id": "e66e8ecf-8385-4bed-924f-90e504d47d47",
       "comment": "",
       "command": "assertText",
-      "target": "css=.align-center",
+      "target": " xpath=//h4[contains(text(),'Getting Started')] ",
       "targets": [
         ["css=.align-center", "css:finder"],
         ["xpath=//div[@id='app']/div[2]/div/div/div/div", "xpath:idRelative"],

@@ -16,7 +16,7 @@
     }, {
       "id": "f429cfa1-cef3-4a59-96b3-652600427e59",
       "comment": "",
-      "command": "//setWindowSize",
+      "command": "setWindowSize",
       "target": "1936x1048",
       "targets": [],
       "value": ""
@@ -124,7 +124,7 @@
       "id": "e66e8ecf-8385-4bed-924f-90e504d47d47",
       "comment": "",
       "command": "assertText",
-      "target": "css=.align-center",
+      "target": " xpath=//h4[contains(text(),'Getting Started')] ",
       "targets": [
         ["css=.align-center", "css:finder"],
         ["xpath=//div[@id='app']/div[2]/div/div/div/div", "xpath:idRelative"],
@@ -635,13 +635,13 @@
       "id": "604bd4b2-71a5-4291-81b6-d853a0c15fd3",
       "comment": "",
       "command": "assertText",
-      "target": "css=.list-group-item:nth-child(4) .col:nth-child(2)",
+      "target": "xpath=//strong[normalize-space()='Choose Trusted Issuer(s):']",
       "targets": [
         ["css=.list-group-item:nth-child(4) .col:nth-child(2)", "css:finder"],
         ["xpath=//div[@id='app']/div[2]/div/div[3]/ul/li[4]/div/div[2]", "xpath:idRelative"],
         ["xpath=//li[4]/div/div[2]", "xpath:position"]
       ],
-      "value": "Choose Trusted Issuer(s):\\nhypermine_testIde\\nhypermine.in\\nISSUER DID\\ndid:hid:z6MkkD7J11ShSaGV23k58Ut6jaVtNzwpSujkTkAqrKzv5x1S\\nCrypto Daku KYC\\ncryptodaku.hypersign.id\\nISSUER DID\\ndid:hid:efcd9e77-3f84-4394-996b-e6b7a0d7d34b\\nQuillAudits Verified\\nquillaudits.com\\nISSUER DID\\ndid:hid:faf84340-75d7-4103-88a2-e446d29ad463\\nNeo Bank\\nhypermine.in\\nISSUER DID\\ndid:hid:z6MkufpShkyZCVELJf5n6BadFChh5nsdH4ZUURzQwZoHEtAU\\nTelefonica\\nwww.hypersign.id\\nISSUER DID\\ndid:hid:03460ee5-c4e4-4f06-8487-55a6c2303baf\\nzkyc tech\\nkyc.zkyc.tech\\nISSUER DID\\ndid:hid:z6MkiRwFVSVU26NFx9kEAFQURKbL26KtnhWZzxvqEoL6sXw2"
+      "value": "Choose Trusted Issuer(s):"
     }, {
       "id": "8a6a090d-ae34-43f4-80c7-a65e05dde62f",
       "comment": "",

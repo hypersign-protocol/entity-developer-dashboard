@@ -16,7 +16,7 @@
     }, {
       "id": "f429cfa1-cef3-4a59-96b3-652600427e59",
       "comment": "",
-      "command": "//setWindowSize",
+      "command": "setWindowSize",
       "target": "1936x1048",
       "targets": [],
       "value": ""
@@ -131,7 +131,7 @@
       "id": "e66e8ecf-8385-4bed-924f-90e504d47d47",
       "comment": "",
       "command": "assertText",
-      "target": "css=.align-center",
+      "target": " xpath=//h4[contains(text(),'Getting Started')] ",
       "targets": [
         ["css=.align-center", "css:finder"],
         ["xpath=//div[@id='app']/div[2]/div/div/div/div", "xpath:idRelative"],
@@ -550,41 +550,18 @@
       ],
       "value": "You're about to remove this verifier page configuration."
     }, {
-      "id": "52e13a22-8c85-4945-894d-bd90d1938022",
+      "id": "6e7d297b-c902-48fa-afe9-0a067e5c7a47",
       "comment": "",
-      "command": "click",
-      "target": "id=__BVID__151___BV_modal_body_",
-      "targets": [
-        ["id=__BVID__151___BV_modal_body_", "id"],
-        ["css=#\\__BVID__151___BV_modal_body_", "css:finder"],
-        ["xpath=//div[@id='__BVID__151___BV_modal_body_']", "xpath:attributes"],
-        ["xpath=//div[@id='__BVID__151___BV_modal_content_']/div", "xpath:idRelative"],
-        ["xpath=//body/div[3]/div/div/div/div", "xpath:position"]
-      ],
-      "value": ""
+      "command": "waitForElementVisible",
+      "target": "xpath=//div[contains(@class,'modal')]",
+      "targets": [],
+      "value": "10000"
     }, {
-      "id": "5591df00-059c-42bc-89ca-ad485b5f0100",
+      "id": "b58720db-f406-4ea8-afc5-0da40e5fb66a",
       "comment": "",
-      "command": "assertText",
-      "target": "css=.mt-2",
-      "targets": [
-        ["css=.mt-2", "css:finder"],
-        ["xpath=//div[@id='__BVID__151___BV_modal_body_']/div/p[2]", "xpath:idRelative"],
-        ["xpath=//div/div/p[2]", "xpath:position"],
-        ["xpath=//p[contains(.,'This action cannot be undone.')]", "xpath:innerText"]
-      ],
-      "value": "This action cannot be undone."
-    }, {
-      "id": "6547e47a-3154-483b-9716-05563040312b",
-      "comment": "",
-      "command": "assertElementPresent",
-      "target": "css=.mt-2",
-      "targets": [
-        ["css=.mt-2", "css:finder"],
-        ["xpath=//div[@id='__BVID__151___BV_modal_body_']/div/p[2]", "xpath:idRelative"],
-        ["xpath=//div/div/p[2]", "xpath:position"],
-        ["xpath=//p[contains(.,'This action cannot be undone.')]", "xpath:innerText"]
-      ],
+      "command": "pause",
+      "target": "1000",
+      "targets": [],
       "value": ""
     }, {
       "id": "41bb2354-38b4-4cac-985f-36ceeac12456",
@@ -613,6 +590,25 @@
       ],
       "value": "Cancel"
     }, {
+      "id": "5591df00-059c-42bc-89ca-ad485b5f0100",
+      "comment": "",
+      "command": "assertText",
+      "target": "css=.mt-2",
+      "targets": [
+        ["css=.mt-2", "css:finder"],
+        ["xpath=//div[@id='__BVID__151___BV_modal_body_']/div/p[2]", "xpath:idRelative"],
+        ["xpath=//div/div/p[2]", "xpath:position"],
+        ["xpath=//p[contains(.,'This action cannot be undone.')]", "xpath:innerText"]
+      ],
+      "value": "This action cannot be undone."
+    }, {
+      "id": "6547e47a-3154-483b-9716-05563040312b",
+      "comment": "",
+      "command": "//assertElementPresent",
+      "target": "css=.mt-2",
+      "targets": [],
+      "value": ""
+    }, {
       "id": "a52e47a0-e226-45f2-b1f4-96ee3a6f3a44",
       "comment": "",
       "command": "assertText",
@@ -639,17 +635,24 @@
       ],
       "value": ""
     }, {
-      "id": "9bb7bfb9-15db-445a-8325-6114a9eb1fe2",
+      "id": "52e13a22-8c85-4945-894d-bd90d1938022",
       "comment": "",
       "command": "click",
-      "target": "css=.btn-danger",
+      "target": "xpath=//div[contains(@class,'modal')]//button[contains(.,'Delete')]",
       "targets": [
-        ["css=.btn-danger", "css:finder"],
-        ["xpath=(//button[@type='button'])[6]", "xpath:attributes"],
-        ["xpath=//div[@id='__BVID__151___BV_modal_body_']/div[2]/button[2]", "xpath:idRelative"],
-        ["xpath=//div[2]/button[2]", "xpath:position"],
-        ["xpath=//button[contains(.,'Delete')]", "xpath:innerText"]
+        ["id=__BVID__151___BV_modal_body_", "id"],
+        ["css=#\\__BVID__151___BV_modal_body_", "css:finder"],
+        ["xpath=//div[@id='__BVID__151___BV_modal_body_']", "xpath:attributes"],
+        ["xpath=//div[@id='__BVID__151___BV_modal_content_']/div", "xpath:idRelative"],
+        ["xpath=//body/div[3]/div/div/div/div", "xpath:position"]
       ],
+      "value": ""
+    }, {
+      "id": "9bb7bfb9-15db-445a-8325-6114a9eb1fe2",
+      "comment": "",
+      "command": "//click",
+      "target": "css=.btn-danger",
+      "targets": [],
       "value": ""
     }, {
       "id": "bedc31a5-147f-42c2-bae0-8eb2b75a36e7",

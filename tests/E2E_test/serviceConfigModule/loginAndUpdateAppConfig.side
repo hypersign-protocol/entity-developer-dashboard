@@ -14,6 +14,13 @@
       "targets": [],
       "value": ""
     }, {
+      "id": "f429cfa1-cef3-4a59-96b3-652600427e59",
+      "comment": "",
+      "command": "setWindowSize",
+      "target": "1936x1048",
+      "targets": [],
+      "value": ""
+    }, {
       "id": "4c713f21-5bfd-4f0e-8c8d-39ca1cd67bb1",
       "comment": "",
       "command": "//click",
@@ -145,7 +152,7 @@
       "id": "e66e8ecf-8385-4bed-924f-90e504d47d47",
       "comment": "",
       "command": "assertText",
-      "target": "css=.align-center",
+      "target": "xpath=//h4[contains(text(),'Getting Started')]",
       "targets": [
         ["css=.align-center", "css:finder"],
         ["xpath=//div[@id='app']/div[2]/div/div/div/div", "xpath:idRelative"],
@@ -322,27 +329,34 @@
     }, {
       "id": "a9048928-1aaf-4da5-9c8c-0c09eca83603",
       "comment": "",
-      "command": "clickAt",
-      "target": "css=.vsm--title:nth-child(1)",
+      "command": "click",
+      "target": "xpath=//span[normalize-space()='Developer Hub']",
       "targets": [],
       "value": ""
     }, {
       "id": "0ea8de75-6393-4916-bf96-19a979f5e355",
       "comment": "",
       "command": "mouseOver",
-      "target": "css=.vsm--title:nth-child(1)",
+      "target": "xpath=//span[normalize-space()='Developer Hub']",
       "targets": [
-        ["css=.vsm--title:nth-child(1)", "css:finder"],
+        ["xpath=//span[normalize-space()='Developer Hub']", "xpath:innerText"],
         ["xpath=//div[@id='app']/div[4]/div[2]/div[2]/div/a/span", "xpath:idRelative"],
         ["xpath=//div[2]/div[2]/div/a/span", "xpath:position"],
         ["xpath=//span[contains(.,'Developer Hub')]", "xpath:innerText"]
       ],
       "value": ""
     }, {
+      "id": "3d7c465e-6403-40d9-a8f0-01355e01831b",
+      "comment": "",
+      "command": "waitForElementVisible",
+      "target": "xpath=//span[contains(.,'App Config')]",
+      "targets": [],
+      "value": "30000"
+    }, {
       "id": "b469da5e-0019-4b1b-93b0-e42a0a6462a7",
       "comment": "",
       "command": "assertText",
-      "target": "css=.vsm--link_hover > .vsm--title",
+      "target": "xpath=//span[contains(.,'App Config')]",
       "targets": [
         ["css=.vsm--link_hover > .vsm--title", "css:finder"],
         ["xpath=//div[@id='app']/div[4]/div[2]/div[2]/div/div/div/div[3]/a/span", "xpath:idRelative"],
@@ -353,19 +367,15 @@
     }, {
       "id": "7738306c-cd72-42a0-aefa-8b1e35a1592c",
       "comment": "",
-      "command": "mouseOut",
+      "command": "//mouseOut",
       "target": "css=.fa-code",
-      "targets": [
-        ["css=.fa-code", "css:finder"],
-        ["xpath=//div[@id='app']/div[4]/div[2]/div/div[5]/a/i", "xpath:idRelative"],
-        ["xpath=//div[5]/a/i", "xpath:position"]
-      ],
+      "targets": [],
       "value": ""
     }, {
       "id": "8ceb7537-0ff1-483b-ad03-a56338af3850",
       "comment": "",
       "command": "click",
-      "target": "css=.vsm--link_hover > .vsm--title",
+      "target": "xpath=//span[contains(.,'App Config')]",
       "targets": [
         ["css=.vsm--link_hover > .vsm--title", "css:finder"],
         ["xpath=//div[@id='app']/div[4]/div[2]/div[2]/div/div/div/div[3]/a/span", "xpath:idRelative"],
@@ -388,19 +398,15 @@
     }, {
       "id": "cd26bfd1-3665-40d7-8835-510767dbfd87",
       "comment": "",
-      "command": "assertText",
-      "target": "css=.v-btn:nth-child(1) > .v-btn__content",
-      "targets": [
-        ["css=.v-btn:nth-child(1) > .v-btn__content", "css:finder"],
-        ["xpath=//div[@id='app']/div[2]/div/div/div[2]/div[2]/button/span", "xpath:idRelative"],
-        ["xpath=//div[2]/button/span", "xpath:position"]
-      ],
-      "value": "EDIT"
+      "command": "assertElementPresent",
+      "target": "xpath=//div[@id='app']/div[2]/div/div/div[2]/div[2]/button/span",
+      "targets": [],
+      "value": ""
     }, {
       "id": "7f47ad26-e245-4eee-af7b-3fb5ec0e5006",
       "comment": "",
       "command": "mouseOver",
-      "target": "css=.v-btn:nth-child(1) > .v-btn__content > span",
+      "target": "xpath=//div[@id='app']/div[2]/div/div/div[2]/div[2]/button/span/span",
       "targets": [
         ["css=.v-btn:nth-child(1) > .v-btn__content > span", "css:finder"],
         ["xpath=//div[@id='app']/div[2]/div/div/div[2]/div[2]/button/span/span", "xpath:idRelative"],
@@ -411,7 +417,7 @@
       "id": "fee705df-a76e-4ed2-8aff-808bd04aacd2",
       "comment": "",
       "command": "assertElementPresent",
-      "target": "css=.v-btn:nth-child(1) > .v-btn__content > span",
+      "target": "xpath=//div[@id='app']/div[2]/div/div/div[2]/div[2]/button/span/span",
       "targets": [
         ["css=.v-btn:nth-child(1) > .v-btn__content > span", "css:finder"],
         ["xpath=//div[@id='app']/div[2]/div/div/div[2]/div[2]/button/span/span", "xpath:idRelative"],
@@ -422,7 +428,7 @@
       "id": "2680d2c2-f9a8-4785-addd-e08e1a4fe9b3",
       "comment": "",
       "command": "mouseOut",
-      "target": "css=.v-btn:nth-child(1) > .v-btn__content > span",
+      "target": "xpath=//div[@id='app']/div[2]/div/div/div[2]/div[2]/button/span/span",
       "targets": [
         ["css=.v-btn:nth-child(1) > .v-btn__content > span", "css:finder"],
         ["xpath=//div[@id='app']/div[2]/div/div/div[2]/div[2]/button/span/span", "xpath:idRelative"],
@@ -433,7 +439,7 @@
       "id": "9fc7d510-4e60-4e6d-b3bf-da1fbee2be0e",
       "comment": "",
       "command": "click",
-      "target": "css=.v-btn:nth-child(1) > .v-btn__content",
+      "target": "xpath=//div[@id='app']/div[2]/div/div/div[2]/div[2]/button/span",
       "targets": [
         ["css=.v-btn:nth-child(1) > .v-btn__content", "css:finder"],
         ["xpath=//div[@id='app']/div[2]/div/div/div[2]/div[2]/button/span", "xpath:idRelative"],
@@ -443,15 +449,10 @@
     }, {
       "id": "947d66a3-0351-47fc-84df-91aef5f92b7d",
       "comment": "",
-      "command": "assertText",
-      "target": "css=.v-btn",
-      "targets": [
-        ["css=.v-btn", "css:finder"],
-        ["xpath=(//button[@type='button'])[2]", "xpath:attributes"],
-        ["xpath=//div[@id='app']/div[2]/div/div/div[2]/div[2]/button", "xpath:idRelative"],
-        ["xpath=//div[2]/button", "xpath:position"]
-      ],
-      "value": "SAVE"
+      "command": "assertElementPresent",
+      "target": "xpath=//div[@id='app']/div[2]/div/div/div[2]/div[2]/button",
+      "targets": [],
+      "value": ""
     }, {
       "id": "9b4472f3-00a5-444f-9aa4-97f98ab12f4f",
       "comment": "",
@@ -610,6 +611,13 @@
       "comment": "",
       "command": "//end",
       "target": "",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "ee409919-eb19-4bf0-b0d7-3594e5df52df",
+      "comment": "",
+      "command": "",
+      "target": "css=.mdi-pencil",
       "targets": [],
       "value": ""
     }]

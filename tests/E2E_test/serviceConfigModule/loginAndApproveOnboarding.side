@@ -16,7 +16,7 @@
     }, {
       "id": "f429cfa1-cef3-4a59-96b3-652600427e59",
       "comment": "",
-      "command": "//setWindowSize",
+      "command": "setWindowSize",
       "target": "1936x1048",
       "targets": [],
       "value": ""
@@ -40,26 +40,26 @@
       "command": "store",
       "target": "609varsha@gmail.com",
       "targets": [],
-      "value": "adminEmailId"
+      "value": "superAdminEmailId"
     }, {
       "id": "a87588a9-7efa-41d6-b67d-875c1d275f77",
       "comment": "",
       "command": "//waitForElementPresent",
-      "target": "//div[contains(translate(text(), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), '${adminEmailId}')]",
+      "target": "//div[contains(translate(text(), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), '${superAdminEmailId}')]",
       "targets": [],
       "value": "3000"
     }, {
       "id": "414dd009-ea22-453f-8a0e-1936f2b71643",
-      "comment": "69d3728d0a6efe06e6f09699 onboardgId",
+      "comment": " ",
       "command": "store",
-      "target": "69d3728d0a6efe06e6f09690",
+      "target": "69ddd7169793ed74fb75563e",
       "targets": [],
       "value": "onboardingId"
     }, {
       "id": "c7d09428-00dc-4329-b0bc-f9fec8447197",
       "comment": "",
       "command": "//clickAt",
-      "target": "xpath=//div[contains(text(),'${adminEmailId}')]",
+      "target": "xpath=//div[contains(text(),'${superAdminEmailId}')]",
       "targets": [],
       "value": ""
     }, {
@@ -403,7 +403,7 @@
         ["xpath=//div[@id='__BVID__235']/div/div/div[2]/div/div/div/div/div/input", "xpath:idRelative"],
         ["xpath=//div[2]/div/div/div/div/div/input", "xpath:position"]
       ],
-      "value": "${onboardingId}"
+       "value": "${ONBOARDING_ID}"
     }, {
       "id": "c2d08d3d-0766-444f-a93c-44a39b91603e",
       "comment": "",
@@ -761,7 +761,7 @@
       "command": "//assertText",
       "target": "css=.toast-body",
       "targets": [],
-      "value": "Customer onboarding detail not found for id: ${onboardingId}"
+      "value": "Customer onboarding detail not found for id: ${onboarONBOARDING_IDdingId}"
     }, {
       "id": "726898e2-3ec5-4882-9901-3fd43b082a2a",
       "comment": "",
