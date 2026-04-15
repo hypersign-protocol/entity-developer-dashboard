@@ -355,7 +355,7 @@
               <tbody>
                 <template v-for="eachkey in Object.keys(userPersonalDataFromUserConsent)">
                   <tr v-if="userPersonalDataFromUserConsent[eachkey]" :key="eachkey">
-                    <td>{{ eachkey.charAt(0).toUpperCase() + eachkey.substring(1) }}</td>
+                    <td>{{ eachkey.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()) }}</td>
                     <td>
                       <span v-if="eachkey === 'issuingStateCode'">
                         {{ userPersonalDataFromUserConsent[eachkey] }}
@@ -401,7 +401,7 @@
                   v-for="eachkey in Object.keys(userPersonalDataGovIdFromUserConsent)"
                   :key="eachkey"
                 >
-                  <td>{{ eachkey.charAt(0).toUpperCase() + eachkey.substring(1) }}</td>
+                  <td>{{ eachkey.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()) }}</td>
                   <td>
                     <span v-if="eachkey === 'issuingStateCode'">
                       {{ userPersonalDataGovIdFromUserConsent[eachkey] }}
@@ -769,10 +769,27 @@ import { getCosmosChainConfig } from "@hypersign-protocol/hypersign-kyc-chains-m
 import { getStellarChainConfig } from "@hypersign-protocol/hypersign-kyc-chains-metadata/stellar/wallet/stellar-wallet-utils";
 import HfPopUp from "../../components/element/hfPopup.vue";
 import { HYPERSIGN_PROOF_TYPES } from "@hypersign-protocol/hypersign-kyc-chains-metadata/cosmos/wallet/cosmos-wallet-utils";
-import pdfMake from "pdfmake/build/pdfmake";
+import pdfMake from "pdfmake";
 import pdfFonts from "pdfmake/build/vfs_fonts"
-pdfMake.vfs = pdfFonts.vfs;
+import devNagariFont from "@/assets/fonts/vfs_fonts"
+pdfMake.vfs = {
+  ...pdfFonts.vfs,
+  ...devNagariFont.vfs,
+}
 
+
+const fonts={
+   Roboto: {
+    normal: 'Roboto-Regular.ttf',
+    bold: 'Roboto-Medium.ttf',
+    italics: 'Roboto-Italic.ttf',
+    bolditalics: 'Roboto-MediumItalic.ttf'
+  },
+  NotoSansDevanagari: {
+    normal: 'NotoSansDevanagari-Regular.ttf'
+  }
+}
+pdfMake.addFonts(fonts);
 import logoSrc from "../../assets/hypersign_white_rect.png";
 
 const ServiceLivenessResultEnum = {
@@ -1061,6 +1078,9 @@ export default {
       if (dateKeys.test(key)) {
         // Unix seconds (10 digits) or milliseconds (13 digits)
         const num = Number(value);
+        console.log(!isNaN(num));
+        
+        
         if (
           !isNaN(num) &&
           String(value)
@@ -1069,6 +1089,8 @@ export default {
         ) {
           const ms = String(value).length === 10 ? num * 1000 : num;
           const d = new Date(ms);
+          console.log(d);
+          
           if (!isNaN(d.getTime())) {
             return d.toLocaleDateString("en-IN", {
               day: "2-digit",
@@ -1569,15 +1591,15 @@ export default {
         // ── document definition ───────────────────────────────────────
         const dd = {
           pageSize: "A4",
-          pageMargins: [36, 70, 36, 52],
+          pageMargins: [36, 60, 36, 52],
 
           // purple accent stripe on every page; full navy block on page 1 only
           background: (currentPage, pageSize) => {
             if (currentPage === 1) {
               return {
                 canvas: [
-                  { type: "rect", x: 0, y: 0, w: pageSize.width, h: 67, color: navy },
-                  { type: "rect", x: 0, y: 67, w: pageSize.width, h: 3, color: purple },
+                  { type: "rect", x: 0, y: 0, w: pageSize.width, h: 57, color: navy },
+                  { type: "rect", x: 0, y: 57, w: pageSize.width, h: 3, color: purple },
                 ],
               };
             }
@@ -1595,7 +1617,7 @@ export default {
                 margin: [36, 8, 36, 0],
                 columns: [
                   {
-                    stack: [{ image: logoPng, width: 180, margin: [0, 0, 0, 4] }],
+                    stack: [{ image: logoPng, width: 120, margin: [0, 0, 0, 4] }],
                     width: "*",
                   },
                   {
@@ -2142,7 +2164,7 @@ export default {
               : []),
           ],
 
-          defaultStyle: { font: "Roboto", fontSize: 9, lineHeight: 1.35, color: dark },
+          defaultStyle: { font: 'Roboto', fontSize: 9, lineHeight: 1.35, color: dark },
         };
 
         pdfMake
