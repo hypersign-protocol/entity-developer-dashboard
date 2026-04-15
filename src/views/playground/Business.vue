@@ -118,7 +118,7 @@
     </v-row>
 
     <div v-else>
-      <empty-container title="No Business Found" icon="mdi-office-building-marker-outline" />
+      <empty-container title="No Business Found" icon="fa fa-building" />
     </div>
   </b-container>
 </template>
