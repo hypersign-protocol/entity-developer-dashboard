@@ -2,6 +2,7 @@ const readlineSync = require("readline-sync");
 const { exec } = require("child_process");
 const path = require("path");
 const os = require("os");
+const fs = require('fs');
 
 const tests = [
     "tests/E2E_test/serviceConfigModule/loginAndFillOnboarding.side",
@@ -21,7 +22,6 @@ const tests = [
 function getInputs() {
     const baseUrl = readlineSync.question("Enter Base URL (optional): ") || "https://entity.dashboard.hypersign.id";
     const adminEmail = readlineSync.question("Enter Admin Email (optional): ") || "seleniumide609@gmail.com";
-    const onboardingId = readlineSync.question("Enter Onboarding ID (optional): ") || "123456789";
     const superAdminEmailId = readlineSync.question("Enter Super Admin Email ID for approve onboarding (optional): ") || '609varsha@gmail.com'
     const browserIndex = readlineSync.keyInSelect(
         ["chrome", "firefox", "edge", "brave"],
@@ -38,7 +38,6 @@ function getInputs() {
     return {
         baseUrl,
         adminEmail,
-        onboardingId,
         superAdminEmailId,
         browser,
         debugMode,
@@ -56,22 +55,27 @@ function buildConfig(vars, browser, profilePath) {
         config.push(`browserName=${browser}`);
         config.push(`goog:chromeOptions.args=[headless,--window-size=1920,1080,--user-data-dir=${profilePath},--disable-gpu,--no-sandbox]`);
     }
-
-    if (vars.adminEmail) config.push(`vars.ADMIN_EMAIL=${vars.adminEmail}`);
-    if (vars.onboardingId) config.push(`vars.ONBOARDING_ID=${vars.onboardingId}`);
-    if (vars.superAdminEmailId) config.push(`vars.SUPER_ADMIN_EMAIL_ID=${vars.superAdminEmailId}`);
     return config.join(" ");
 }
 
 function runTest(file, config, baseUrl, options) {
+    let sideContent = fs.readFileSync(file, 'utf8');
+    sideContent = sideContent.replace(
+        /"target": "seleniumide609@gmail.com"/g,
+        `"target": "${options.adminEmail}"`
+    );
+    sideContent = sideContent.replace(
+        /"target": "609varsha@gmail.com"/g,
+        `"target": "${options.superAdminEmailId}"`
+    );
+    const tempFile = path.join(os.tmpdir(), `temp_${path.basename(file)}`);
+    fs.writeFileSync(tempFile, sideContent);
     return new Promise((resolve) => {
         console.log("🚀 Running:", file);
-
         const baseUrlFlag = baseUrl ? `--base-url "${baseUrl}"` : "";
         const debugFlag = options.debugMode ? "--debug" : "";
         const screenshotFlag = options.takeScreenshots ? "-z ./error-screenshots" : "";
-
-        const cmd = `selenium-side-runner ${screenshotFlag} ${debugFlag} "${file}" ${baseUrlFlag} -c "${config}"`.trim();
+        const cmd = `selenium-side-runner ${screenshotFlag} ${debugFlag} "${tempFile}" ${baseUrlFlag} -c "${config}"`.trim();
 
         const child = exec(cmd);
 
@@ -79,6 +83,7 @@ function runTest(file, config, baseUrl, options) {
         child.stderr.on("data", (data) => console.error(data.toString()));
 
         child.on("exit", (code) => {
+            fs.unlinkSync(tempFile);
             console.log("✅ Finished:", file, "code:", code);
             resolve();
         });
