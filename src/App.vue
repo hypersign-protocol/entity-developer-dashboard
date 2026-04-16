@@ -248,6 +248,61 @@
   background-color: transparent !important;
   color: #66666a !important;
 }
+
+
+.v-sidebar-menu.vsm_white-theme .vsm--link_level-1.vsm--link_active {
+  box-shadow: 3px 0 0 0 #66666a inset !important;
+}
+
+/* Environment Banner */
+.env-banner {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 8px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  border-radius: 14px;
+}
+
+.env-banner--dev {
+  background-color: #fffbeb;
+  color: #92400e;
+  border: 1px solid #fcd34d33;
+  box-shadow: 0 1px 4px rgba(37, 99, 235, 0.03);
+}
+
+.env-banner__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background-color: #f59e0b;
+}
+
+.env-banner__app {
+  font-weight: 400;
+  opacity: 0.75;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+/* Top-right variant */
+.env-banner--topright {
+  position: fixed;
+  top: 12px;
+  right: 20px;
+  z-index: 1200;
+  padding: 6px 10px;
+  border-radius: 14px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+}
+
+@media (max-width: 767px) {
+  .env-banner--topright { display: none !important; }
+}
 </style>
 <template>
   <div id="app" data-app>
@@ -266,6 +321,12 @@
 
       <b-collapse id="nav-collapse" is-nav v-if="userDetails">
         <b-navbar-nav class="ml-auto align-items-center">
+          <b-nav-item v-if="getSelectedService && getSelectedService.env !== 'prod'" class="px-2">
+            <div class="env-banner env-banner--dev" title="Development Mode">
+              <span class="env-banner__dot"></span>
+              <span class="env-banner__label">DEV</span>
+            </div>
+          </b-nav-item>
           <b-nav-item v-if="getSwitchedTenantAccount" class="px-2">
             <div
               class="d-flex align-items-center tenant-wrapper"
@@ -350,6 +411,8 @@
         </b-navbar-nav>
       </b-collapse>
     </b-navbar>
+
+    <!-- Environment badge rendered inside navbar (Option B) -->
 
     <div
       :class="[isSidebarCollapsed ? 'container-collapsed-not' : 'container-collapsed']"

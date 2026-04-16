@@ -1,5 +1,5 @@
 <template>
-  <v-container class="py-6">
+  <b-container class="py-3">
     <load-ing :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></load-ing>
 
     <v-row align="center" class="mb-6">
@@ -50,8 +50,8 @@
         md="6" 
         lg="4"
       >
-        <div class="overview-container company-card h-100" @click="viewBusinessDetails(company)">
-          <div class="d-flex align-start mb-4">
+        <div :class="['overview-container', 'company-card', 'h-100', statusClass(company.status, company.statusReasons)]" @click="viewBusinessDetails(company)">
+          <div class="d-flex align-start mb-4" :title="company.statusReasons && company.statusReasons.length !== 0 ? getStatusTooltip(company) : ''"> 
             <div class="country-badge mr-3">
               {{ countryCodeToFlag(company.countryCode) }}
             </div>
@@ -88,23 +88,39 @@
               <v-icon x-small :class="company.steps.verification ? 'active' : 'inactive'">mdi-check-decagram</v-icon>
             </div>
 
-            <span 
-              class="status-badge-new" 
-              :class="getStatusBadgeClass(company.status)"
-              :data-tooltip="getStatusTooltip(company)"
-            >
-              <i :class="getCompanyStatusIcon(company.status)" class="mr-1"></i>
-              {{ company.status }}
-            </span>
+            <div class="status-area">
+              <!-- Completed with reasons: amber warning badge -->
+              <span
+                v-if="company.status === 'Completed' && company.statusReasons && company.statusReasons.length"
+                class="status-badge-new status-warning-badge status-with-tooltip"
+                :data-tooltip="getStatusTooltip(company)"
+                @click.stop
+              >
+                <v-icon x-small color="#92400e" class="mr-1">mdi-alert</v-icon>
+                Completed
+              </span>
+
+              <!-- All other statuses: unified tooltip from getStatusTooltip -->
+              <span
+                v-else
+                class="status-badge-new status-with-tooltip"
+                :class="getStatusBadgeClass(company.status)"
+                :data-tooltip="getStatusTooltip(company)"
+                @click.stop
+              >
+                <i :class="getCompanyStatusIcon(company.status)" class="mr-1"></i>
+                {{ company.status }}
+              </span>
+            </div>
           </div>
         </div>
       </v-col>
     </v-row>
 
     <div v-else>
-      <empty-container title="No Business Found" icon="mdi-office-building-marker-outline" />
+      <empty-container title="No Business Found" icon="fa fa-building" />
     </div>
-  </v-container>
+  </b-container>
 </template>
 
 <style scoped>
@@ -116,12 +132,45 @@
   border: 1px solid #e5e7eb;
   transition: all 0.2s ease;
   cursor: pointer;
+  margin-top: -0.85rem;
 }
 
 .overview-container:hover {
   border-color: #3b82f6;
   background-color: #ffffff;
   box-shadow: 0 4px 12px rgba(59, 130, 246, 0.08);
+}
+
+/* Per-status hover overrides */
+.overview-container.status-submitted-card:hover {
+  border-color: #64748b;
+  background-color: #f8fafc;
+  box-shadow: 0 4px 12px rgba(100, 116, 139, 0.08);
+}
+.overview-container.status-inprogress-card:hover {
+  border-color: #2563eb;
+  background-color: #eff6ff;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.08);
+}
+.overview-container.status-completed-card:hover {
+  border-color: #0d9488;
+  background-color: #f0fdfa;
+  box-shadow: 0 4px 12px rgba(13, 148, 136, 0.08);
+}
+.overview-container.status-approved-card:hover {
+  border-color: #16a34a;
+  background-color: #f0fdf4;
+  box-shadow: 0 4px 12px rgba(22, 163, 74, 0.08);
+}
+.overview-container.status-rejected-card:hover {
+  border-color: #dc2626;
+  background-color: #fef2f2;
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.08);
+}
+.overview-container.status-warning-card:hover {
+  border-color: #d97706;
+  background-color: #fffbeb;
+  box-shadow: 0 4px 12px rgba(217, 119, 6, 0.08);
 }
 
 .input-label {
@@ -229,21 +278,42 @@
 
 /* Status Badges - Thematic Colors */
 .status-badge-new {
-  font-size: 0.7rem;
-  font-weight: 700;
-  padding: 4px 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 6px 12px;
   border-radius: 100px;
-  text-transform: uppercase;
+  line-height: 1;
+  vertical-align: middle;
+  min-width: 96px;
+  justify-content: center;
+  box-sizing: border-box;
+  white-space: nowrap;
 }
 
-.status-approved, .status-completed {
+
+
+/* Standard UI color scheme for status badges */
+.status-submitted {
+  background-color: #f3f4f6;
+  color: #374151;
+}
+
+.status-inprogress {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.status-completed {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+.status-approved {
   background-color: #f0fdf4;
   color: #166534;
-}
-
-.status-inprogress, .status-submitted {
-  background-color: #eff6ff;
-  color: #1e40af;
 }
 
 .status-rejected {
@@ -253,26 +323,128 @@
 
 .gap-3 { gap: 12px; }
 
-/* Tooltip (Reuse your existing logic) */
-.status-badge-new[data-tooltip]:hover::after {
-  content: attr(data-tooltip);
-  position: absolute;
-  bottom: 100%;
-  right: 0;
-  background: #1f2937;
-  color: white;
-  padding: 8px 12px;
-  border-radius: 6px;
-  font-size: 0.75rem;
-  white-space: pre-line;
-  z-index: 10;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+/* Status area — wraps badge + issues pill */
+.status-area {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  position: relative;
 }
 
-/* Ensure the search box has a fixed/max width so it can be pushed right */
+/* Completed-with-issues warning badge */
+.status-warning-badge {
+  background-color: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fde68a;
+  cursor: default;
+  position: relative;
+}
+
+/* Hover tooltip on warning badge */
+.status-warning-badge[data-tooltip]:hover::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: calc(100% + 8px);
+  right: 0;
+  min-width: 200px;
+  max-width: 280px;
+  background: #1f2937;
+  color: #f9fafb;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 0.72rem;
+  line-height: 1.6;
+  white-space: pre-line;
+  z-index: 100;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  pointer-events: none;
+}
+.status-warning-badge[data-tooltip]:hover::before {
+  content: '';
+  position: absolute;
+  bottom: calc(100% + 2px);
+  right: 10px;
+  border: 5px solid transparent;
+  border-top-color: #1f2937;
+  z-index: 100;
+}
+
+/* Rejected with reasons: same tooltip behaviour, keep red style */
+.status-with-tooltip {
+  cursor: default;
+  position: relative;
+}
+
+.status-with-tooltip[data-tooltip]:hover::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: calc(100% + 8px);
+  right: 0;
+  min-width: 200px;
+  max-width: 320px;
+  background: #1f2937;
+  color: #f9fafb;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 0.72rem;
+  line-height: 1.4;
+  white-space: pre-line;
+  z-index: 100;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  pointer-events: none;
+}
+
+.status-with-tooltip[data-tooltip]:hover::before {
+  content: '';
+  position: absolute;
+  bottom: calc(100% + 2px);
+  right: 10px;
+  border: 5px solid transparent;
+  border-top-color: #1f2937;
+  z-index: 100;
+}
+
+/* Standard submitted/in-progress/completed/approved/rejected badge styles (single canonical definitions) */
+.status-submitted {
+  background-color: #f8fafc;
+  color: #475569;
+}
+
+.status-inprogress {
+  background-color: #eff6ff;
+  color: #1e3a8a;
+}
+
+.status-completed {
+  background-color: #f0fdfa;
+  color: #0d9488;
+}
+
+.status-approved {
+  background-color: #f0fdf4;
+  color: #166534;
+}
+
+.status-rejected {
+  background-color: #fef2f2;
+  color: #dc2626;
+}
+
 .search-box {
   width: 100%;
   max-width: 280px; /* Adjust this value as needed */
+}
+
+.status-badge-new .v-icon,
+.status-badge-new i {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  line-height: 1;
+  color: inherit !important;
 }
 
 /* Helper for the gap between the search and select */
@@ -404,6 +576,26 @@ export default {
       }
     },
 
+    statusClass(status, statusReasons) {
+      if (status === 'Completed' && statusReasons && statusReasons.length) {
+        return 'status-warning-card';
+      }
+      switch (status) {
+        case 'Submitted':
+          return 'status-submitted-card';
+        case 'InProgress':
+          return 'status-inprogress-card';
+        case 'Approved':
+          return 'status-approved-card';
+        case 'Rejected':
+          return 'status-rejected-card';
+        case 'Completed':
+          return 'status-completed-card';
+        default:
+          return '';
+      }
+    },
+
     toggleDropdown(companyId) {
       // Toggle dropdown - if it's already open, close it, otherwise open it
       this.openDropdownId = this.openDropdownId === companyId ? null : companyId;
@@ -434,18 +626,31 @@ export default {
       });
     },
 
-    getStatusTooltip(company) {
-      if (company.statusReasons && company.statusReasons.length !== 0) {
-        // Use enum from config for user-friendly descriptions
-        const mappedReasons = company.statusReasons.map(reason => {
-          return config.COMPLIANCE_CHECK_FAILURE_REASONS[reason] || reason;
-        });
+    getMappedReason(reason) {
+      return config.COMPLIANCE_CHECK_FAILURE_REASONS[reason] || reason;
+    },
 
-        const reasonsText = mappedReasons.join('\n• ');
-        return `Reason: \n• ${reasonsText}`;
+    getStatusTooltip(company) {
+      if(company.status==='Approved') {
+        return 'The business has been verified and approved.'
+      }
+      // If there are specific reasons, show them as a numbered list
+      if (company.statusReasons && company.statusReasons.length) {
+        const mappedReasons = company.statusReasons.map(r =>
+          config.COMPLIANCE_CHECK_FAILURE_REASONS[r] || r
+        );
+        return `The following issues were identified:\n${mappedReasons.map((r, i) => `${i + 1}. ${r}`).join('\n')}`;
       }
 
-
+      // Default messages per status
+      const defaults = {
+        'Submitted':  'This business verification has been submitted and is awaiting review.',
+        'InProgress': 'Verification is currently in progress. This may take a moment.',
+        'Completed':  'All verification steps have been completed successfully.',
+        'Approved':   'The business has been verified and approved.',
+        'Rejected':   'This business verification was reviewed and could not be approved.',
+      };
+      return defaults[company.status] || '';
     }
   }
 }

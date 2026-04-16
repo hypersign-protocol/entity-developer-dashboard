@@ -1,10 +1,10 @@
 <template>
-    <v-container>
+    <b-container fluid class="py-3">
         <loadIng :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loadIng>
-        <v-row align="center">
+        <v-row align="center" class="mb-6 ">
             <v-col cols="12" md="6">
                 <h4 class="font-weight-bold mb-0">Credits Management</h4>
-                <p class="text-subtitle-2 text-muted mb-0">Manage your API balance and subscription history</p>
+                <p class="text-subtitle-2 text-muted">Manage your API balance and subscription history</p>
             </v-col>
             <v-col cols="12" md="6" class="d-flex justify-end">
                 <div class="ml-auto">
@@ -37,7 +37,7 @@
                         <h2 class="title">Balance Overview</h2>
                     </div>
 
-                    <div class="d-flex flex-column justify-center" style="height: 200px;">
+                    <div class="d-flex flex-column justify-center">
                         <div class="mb-4">
                             <p class="text-muted mb-0 font-weight-medium">Remaining Balance</p>
                             <div class="d-flex align-baseline">
@@ -48,11 +48,10 @@
                                     / {{ numberFormat(myKYCCredits.allAvailableCredits) }} Credits
                                 </span>
                             </div>
+                            <p class="approx-inline mt-1 mb-0">upto ~<strong>{{ numberFormat(approxKYCLeftBestCase) }}</strong> ID Verifications</p>
                         </div>
 
-                        <!-- <v-divider class="mb-4"></v-divider> -->
-
-                        <div class="d-flex flex-column justify-center" style="height: 200px;">
+                        <div>
                             <v-divider class="mb-4"></v-divider>
 
                             <v-row no-gutters>
@@ -72,20 +71,7 @@
                             </v-row>
                         </div>
 
-                        <!-- <div class="d-flex justify-space-between align-center">
-              <div>
-                <p class="text-muted mb-0 small uppercase font-weight-bold">Status</p>
-                <p class="mb-0 font-weight-bold" :class="statusColorClass">
-                  {{ timeRemaining === 'Expired' || timeRemaining === 'InActive' ? timeRemaining : 'Active' }}
-                </p>
-              </div>
-              <div class="text-right">
-                <p class="text-muted mb-0 small uppercase font-weight-bold">Validity</p>
-                <p class="mb-0 font-weight-bold">
-                  {{ timeRemaining === 'Expired' ? 'None' : timeRemaining }}
-                </p>
-              </div>
-            </div> -->
+
                     </div>
                 </div>
             </v-col>
@@ -167,7 +153,7 @@
                 </div>
             </v-col>
         </v-row>
-    </v-container>
+    </b-container>
 </template>
 
 <script>
@@ -188,6 +174,7 @@ export default {
             isLoading: false,
             fullPage: true,
             doughNutChartLabel: ['Used', 'Remaining'],
+            analyticsOverview: null,
         }
     },
     computed: {
@@ -201,6 +188,25 @@ export default {
             if (this.timeRemaining === 'Expired') return 'text-danger';
             if (this.timeRemaining === 'InActive') return 'text-muted';
             return 'color-green';
+        },
+
+        // Formula: (1/completionRate) accounts for sessions that don't complete
+        //          + dropOffRate adds waste from abandoned sessions
+        // Example: 70% completion, 24% drop-off → (1/0.7) + 0.24 = 1.67 → ~125 credits/ID
+        costPerKYC() {
+            if (!this.analyticsOverview) return 75; // no data yet: assume best case
+            const completionRate = Math.max((this.analyticsOverview.completionRate || 100), 1) / 100;
+            const dropOff = (this.analyticsOverview.dropOffRate || 0) / 100;
+            const multiplier = Math.min(Math.max((1 / completionRate) + dropOff, 1.0), 2.5);
+            return Math.ceil(75 * multiplier);
+        },
+
+        approxKYCLeft() {
+            return Math.floor((this.myKYCCredits.allRemainingCredits || 0) / this.costPerKYC);
+        },
+
+        approxKYCLeftBestCase() {
+            return Math.floor((this.myKYCCredits.allRemainingCredits || 0) / 75);
         },
 
         myKYCCredits() {
@@ -242,12 +248,18 @@ export default {
         this.stopTimer();
     },
     methods: {
-        ...mapActions('mainStore', ['fetchKYCCredits', 'activateCredit']),
+        ...mapActions('mainStore', ['fetchKYCCredits', 'activateCredit', 'fetchAnalyticsOverview']),
 
         async reloadData() {
             try {
                 this.isLoading = true;
                 await this.fetchKYCCredits();
+
+                // Non-blocking: fetch analytics to refine estimate
+                this.fetchAnalyticsOverview({ env: this.$store.getters['mainStore/getSelectedService']?.env || 'prod' })
+                    .then(res => { if (res?.data) this.analyticsOverview = res.data; })
+                    .catch(() => {});
+
                 this.startTimer();
                 this.renderChart();
             } catch (e) {
@@ -280,13 +292,6 @@ export default {
 
         stopTimer() {
             clearInterval(this.timer);
-        },
-
-        getProgressColor(row) {
-            if (Date.now() > new Date(row.expiresAt)) return 'grey';
-            const ratio = row.used / row.totalCredits;
-            if (ratio > 0.9) return 'orange';
-            return '#3b82f6';
         },
 
         renderChart() {
@@ -345,11 +350,11 @@ export default {
 <style scoped>
 /* Unified Dashboard Styles */
 .overview-container {
-    padding: 1.5rem;
+    padding:  1.5rem 1.5rem;
     background-color: #f9fafb;
     border-radius: 0.75rem;
     border: 1px solid #e5e7eb;
-    margin-top: 1rem;
+    margin-top: -0.85rem;
 }
 
 .header-row {
@@ -434,6 +439,11 @@ export default {
     letter-spacing: 0.05em;
     line-height: 1;
     /* Keeps label close to the value below it */
+}
+
+.approx-inline {
+    font-size: 0.75rem;
+    color: #9ca3af;
 }
 
 /* Ensure the button doesn't have extra margin pushing it away from the edge */

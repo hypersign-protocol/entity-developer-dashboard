@@ -171,14 +171,14 @@
 }
 
 .nav-tab.active {
-  background-color: #eff6ff;
-  color: #3b82f6;
+  background-color: #f1f5f9;
+  color: #374151;
   font-weight: 700;
-  border-left-color: #3b82f6;
+  border-left-color: #94a3b8;
 }
 
 .nav-tab.active .v-icon {
-  color: #3b82f6 !important;
+  color: #64748b !important;
 }
 
 /* Content Panel */
@@ -220,7 +220,7 @@
 }
 
 .breadcrumb-link:hover {
-  color: #3b82f6; /* Theme primary blue on hover */
+  color: #00000078; /* Bright blue on hover for clarity it's clickable */
 }
 
 .company-title {
@@ -381,20 +381,17 @@ export default {
         },
 
         async handleApproveConfirm() {
+            this.showApproveConfirm = false;
+            this.isLoading = true;
             try {
-                this.showApproveConfirm = false;
-                this.isLoading = true;
-
-                // Call store action to approve company
-                await this.approveOrRejectVerification({
-                    companyId: this.companyId,
-                    status: 'Approved'
-                });
-
-                await this.loadCompanyDetails();
-
+                await this.approveOrRejectVerification({ companyId: this.companyId, status: 'Approved' });
+                this.company = this.companies.find(c => c.companyId === this.companyId) || this.company;
+                this.notifySuccess(`${this.companyName} has been approved successfully.`);
             } catch (error) {
-                console.error('Error approving company:', error);
+                this.notifyErr(error?.message || `Failed to approve ${this.companyName}.`);
+                // Refresh to reflect any partial state change
+                await this.fetchAppKybs().catch(() => {});
+                this.company = this.companies.find(c => c.companyId === this.companyId) || this.company;
             } finally {
                 this.isLoading = false;
             }
@@ -405,22 +402,17 @@ export default {
         },
 
         async handleRejectSubmit(reason) {
+            this.showRejectPrompt = false;
+            this.isLoading = true;
             try {
-                this.showRejectPrompt = false;
-                this.isLoading = true;
-
-                // Call store action to reject company
-                await this.approveOrRejectVerification({
-                    companyId: this.companyId,
-                    status: 'Rejected',
-                    reason: reason
-                });
-
-
-                await this.loadCompanyDetails();
-
+                await this.approveOrRejectVerification({ companyId: this.companyId, status: 'Rejected', reason });
+                this.company = this.companies.find(c => c.companyId === this.companyId) || this.company;
+                this.notifySuccess(`${this.companyName} has been rejected.`);
             } catch (error) {
-                console.error('Error rejecting company:', error);
+                this.notifyErr(error?.message || `Failed to reject ${this.companyName}.`);
+                // Refresh to reflect any partial state change
+                await this.fetchAppKybs().catch(() => {});
+                this.company = this.companies.find(c => c.companyId === this.companyId) || this.company;
             } finally {
                 this.isLoading = false;
             }

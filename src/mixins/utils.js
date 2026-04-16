@@ -135,8 +135,31 @@ export default {
                 solid: true,
             });
         },
-        formatDate(dateString) {
-            return new Date(dateString).toLocaleString('en-us')
+        formatDate(input) {
+            if (!input) return "";
+
+            let date;
+
+            // Handle numbers (Unix timestamps)
+            if (typeof input === "number") {
+                const ts = input.toString().length === 10 ? input * 1000 : input;
+                date = new Date(ts);
+            }
+            // Handle numeric strings (timestamps as string)
+            else if (!isNaN(input)) {
+                const num = Number(input);
+                const ts = input.length === 10 ? num * 1000 : num;
+                date = new Date(ts);
+            }
+            // Handle normal date strings
+            else {
+                date = new Date(input);
+            }
+
+            // Guard against invalid dates
+            if (isNaN(date.getTime())) return input;
+
+            return date.toLocaleString("en-US");
         },
         getProfileIcon(name) {
             return "https://api.dicebear.com/7.x/identicon/svg?seed=" + name;
@@ -259,7 +282,7 @@ export default {
             }
             catch (e) {
                 return true;
-            } 
+            }
         }
     }
 }
