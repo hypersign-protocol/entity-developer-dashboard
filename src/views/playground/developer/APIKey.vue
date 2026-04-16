@@ -1,5 +1,5 @@
 <template>
-  <v-container class="py-6">
+  <b-container fluid class="py-3">
     <load-ing
       :active.sync="isLoading"
       :can-cancel="true"
@@ -40,19 +40,23 @@
             <div class="p-3 service-block">
               <div class="service-info mb-3">
                 <div v-if="getSelectedService">
-                  <div class="service-name">{{ getSelectedService.name || getSelectedService.appName || 'Selected Application' }}</div>
-                  <div class="service-id mono">{{ getSelectedService.appId }}</div>
+                  <label class="input-label">Application ID</label>
+                  <div class="copy-input-group">
+                    <input type="text" :value="getSelectedService.appId" readonly />
+                    <button class="copy-id-btn" @click="copyToClipboard(getSelectedService.appId)" title="Copy App ID">
+                      <v-icon small color="grey">mdi-content-copy</v-icon>
+                    </button>
+                  </div>
                 </div>
                 <div v-else class="no-service small text-muted">
                   No application selected. Select an application from the sidebar to enable generating a Secret Key.
                 </div>
               </div>
 
-              <div class="d-flex justify-start">
+              <div class="generate-section">
                 <hf-buttons
                   v-if="getSelectedService"
                   name="Generate New Secret"
-                  class="px-8"
                   @executeAction="reGenerateSecretKey"
                 ></hf-buttons>
 
@@ -151,7 +155,7 @@
         ></HfFlashNotification>
       </div>
     </hf-pop-up>
-  </v-container>
+  </b-container>
 </template>
 
 <style scoped>
@@ -161,6 +165,7 @@
   background-color: #f9fafb;
   border-radius: 0.75rem;
   border: 1px solid #e5e7eb;
+  margin-top: -0.85rem;
 }
 
 .header-row {
@@ -234,23 +239,40 @@
 
 .copy-input-group input {
   flex: 1;
-  padding: 8px 12px;
-  font-size: 0.85rem;
+  padding: 10px 14px;
+  font-size: 0.95rem;
   color: #475569;
   font-family: monospace;
   border: none;
   background: transparent;
+  height: 44px;
+  width: 25vw;
 }
 
 .copy-input-group button {
-  padding: 0 12px;
+  padding: 0 14px;
   background: #f8fafc;
   border-left: 1px solid #e2e8f0;
   transition: background 0.2s;
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
 }
 
 .copy-input-group button:hover {
   background: #f1f5f9;
+}
+
+.service-block .copy-input-group {
+  margin-top: 6px;
+}
+
+.service-info .input-label {
+  text-transform: none;
+  font-weight: 600;
+  color: #374151;
+  font-size: 0.85rem;
+  margin-bottom: 6px;
 }
 
 .service-block .service-name {
@@ -296,6 +318,52 @@
 
 .service-block .service-info {
   text-align: left;
+}
+
+.info-value {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #111827;
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+  word-break: break-all;
+}
+
+.copy-id-btn {
+  background: transparent;
+  border: none;
+  padding: 4px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #905ab0;
+}
+
+.copy-id-btn:hover {
+  background: rgba(144,90,176,0.06);
+}
+
+.generate-btn .hf-button {
+  background: #905ab0 !important;
+  color: #fff !important;
+  border-radius: 8px !important;
+  padding: 10px 18px !important;
+  box-shadow: 0 6px 18px rgba(144,90,176,0.12) !important;
+  text-transform: none !important;
+  letter-spacing: 0.01em !important;
+}
+
+.generate-full .hf-button {
+  width: 100% !important;
+  display: block !important;
+  padding: 12px 20px !important;
+  height: 44px !important;
+  font-size: 1rem !important;
+}
+
+.generate-section {
+  margin-top: 6px;
 }
 </style>
 

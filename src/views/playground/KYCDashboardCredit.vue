@@ -1,7 +1,7 @@
 <template>
-    <v-container class="py-6">
+    <b-container fluid class="py-3">
         <loadIng :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loadIng>
-        <v-row align="center" class="mb-6">
+        <v-row align="center" class="mb-6 ">
             <v-col cols="12" md="6">
                 <h4 class="font-weight-bold mb-0">Credits Management</h4>
                 <p class="text-subtitle-2 text-muted">Manage your API balance and subscription history</p>
@@ -153,7 +153,7 @@
                 </div>
             </v-col>
         </v-row>
-    </v-container>
+    </b-container>
 </template>
 
 <script>
@@ -350,11 +350,11 @@ export default {
 <style scoped>
 /* Unified Dashboard Styles */
 .overview-container {
-    padding: 1.5rem;
+    padding:  1.5rem 1.5rem;
     background-color: #f9fafb;
     border-radius: 0.75rem;
     border: 1px solid #e5e7eb;
-    margin-top: 1rem;
+    margin-top: -0.85rem;
 }
 
 .header-row {

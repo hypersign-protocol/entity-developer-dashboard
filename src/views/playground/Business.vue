@@ -1,5 +1,5 @@
 <template>
-  <v-container class="py-6">
+  <b-container class="py-3">
     <load-ing :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></load-ing>
 
     <v-row align="center" class="mb-6">
@@ -118,9 +118,9 @@
     </v-row>
 
     <div v-else>
-      <empty-container title="No Business Found" icon="mdi-office-building-marker-outline" />
+      <empty-container title="No Business Found" icon="fa fa-building" />
     </div>
-  </v-container>
+  </b-container>
 </template>
 
 <style scoped>
@@ -132,6 +132,7 @@
   border: 1px solid #e5e7eb;
   transition: all 0.2s ease;
   cursor: pointer;
+  margin-top: -0.85rem;
 }
 
 .overview-container:hover {
@@ -630,6 +631,9 @@ export default {
     },
 
     getStatusTooltip(company) {
+      if(company.status==='Approved') {
+        return 'The business has been verified and approved.'
+      }
       // If there are specific reasons, show them as a numbered list
       if (company.statusReasons && company.statusReasons.length) {
         const mappedReasons = company.statusReasons.map(r =>

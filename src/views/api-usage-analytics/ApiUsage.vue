@@ -1,5 +1,5 @@
 <template>
-  <v-container class="py-6">
+    <b-container fluid class="py-3">
     <v-row align="center" class="mb-6">
       <v-col cols="12" md="6">
         <h4 class="font-weight-bold mb-0">API Usage Analytics</h4>
@@ -128,7 +128,7 @@
         </div>
       </v-col>
     </v-row>
-  </v-container>
+  </b-container>
 </template>
 
 <script>
@@ -324,6 +324,7 @@ export default {
   background-color: #f9fafb;
   border-radius: 0.75rem;
   border: 1px solid #e5e7eb;
+  margin-top: -0.85rem;
 }
 .chart-wrapper {
   height: 320px;

@@ -1,5 +1,5 @@
 <template>
-    <v-container class="py-6">
+    <b-container class="py-3" fluid>
         <v-row align="center" class="mb-6">
             <v-col cols="12" md="6">
                 <h4 class="font-weight-bold mb-0">User Analytics</h4>
@@ -23,7 +23,7 @@
             </v-col>
 
         </v-row>
-    </v-container>
+    </b-container>
 </template>
 
 <script>
