@@ -61,9 +61,6 @@ For best compatibility, use **Selenium IDE version 3.17.2**
 - Ensure Selenium IDE (v3.17.2) is installed  
 - **Use Brave Browser (recommended)** for 100% test compatibility  
   - Some features may not work properly in Firefox due to browser security restrictions  
-- Use an email account that is **already logged into the dashboard**
-  - This avoids entering email and password during test execution  
-  - The test will automatically pick the account from the login prompt  
 - Enable **pop-ups** in the browser  
 - Disable **Brave Shields (security protections)** for the site    
 - Update email IDs in test files if needed:
