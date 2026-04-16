@@ -1,5 +1,7 @@
 const readlineSync = require("readline-sync");
 const { exec } = require("child_process");
+const path = require("path");
+const os = require("os");
 
 const tests = [
     "tests/E2E_test/serviceConfigModule/loginAndFillOnboarding.side",
@@ -85,8 +87,19 @@ function runTest(file, config, baseUrl, options) {
 
 async function run() {
     const inputs = getInputs(); // 👈 sync now
-    const defaultProfilePath = "C:\\selenium-profile";
-    const superAdminProfilePath = "C:\\selenium-profile-superadmin";
+
+    // Build OS-specific profile paths
+    let defaultProfilePath, superAdminProfilePath;
+    console.log(os.platform())
+    if (os.platform() === "win32") {
+        // Windows
+        defaultProfilePath = "C:\\selenium-profile";
+        superAdminProfilePath = "C:\\selenium-profile-superadmin";
+    } else {
+        // Linux/Mac
+        defaultProfilePath = path.join(os.homedir(), "selenium-profile");
+        superAdminProfilePath = path.join(os.homedir(), "selenium-profile-superadmin");
+    }
 
     console.log("\n⚙️ Default profile:", defaultProfilePath);
     console.log("⚙️ Super admin profile:", superAdminProfilePath);
