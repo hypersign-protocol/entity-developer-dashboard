@@ -92,10 +92,14 @@ Selenium Side Runner is already included in this project as a dev dependency, so
   - Chrome: `chromedriver`
   - Firefox: `geckodriver`
   - Edge: `msedgedriver`
-- Create a browser profile named `selenium-profile`
-- Open the dashboard URL in that profile and log in with any email account you want to use for tests
+- Create two browser profiles:
+  - `selenium-profile` for normal admin use
+  - `selenium-profile-superadmin` for approve-onboarding flow
+- Open the dashboard URL in each profile and log in with the appropriate account
+  - `selenium-profile`: normal admin email
+  - `selenium-profile-superadmin`: super admin email
 
-> The profile must already have an authenticated session before running the CLI test.
+> Each profile must already have an authenticated session before running the CLI tests.
 
 ### Windows profile setup
 From PowerShell, create and launch a browser profile with a custom user data directory:
@@ -111,6 +115,19 @@ From PowerShell, create and launch a browser profile with a custom user data dir
 
 After the browser opens, navigate to the dashboard URL and sign in with your email.
 
+#### Super admin Windows profile setup
+Use the same browser binary but a different profile directory:
+- Chrome:
+  - `& "C:\Program Files\Google\Chrome\Application\chrome.exe" --user-data-dir="C:\selenium-profile-superadmin"`
+- Brave:
+  - `& "C:\Program Files\BraveSoftware\Brave-Browser\Application\brave.exe" --user-data-dir="C:\selenium-profile-superadmin"`
+- Firefox:
+  - `& "C:\Program Files\Mozilla Firefox\firefox.exe" -profile "C:\selenium-profile-superadmin"`
+- Edge:
+  - `& "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe" --user-data-dir="C:\selenium-profile-superadmin"`
+
+After the browser opens, log in with the super admin email and close the browser before running `loginAndApproveOnboarding.side`.
+
 ### Linux profile setup
 Use the browser binary from your distribution and set a profile directory under `~/selenium-profile`:
 
@@ -125,6 +142,21 @@ Use the browser binary from your distribution and set a profile directory under 
   - `microsoft-edge --user-data-dir="$HOME/selenium-profile"`
 
 Open the dashboard URL in that profile and log in before running tests.
+- Close the browser after logging in so the profile can be reused during CLI test execution.
+
+#### Super admin Linux profile setup
+Use the same browser binary but a different profile directory:
+- Chrome / Chromium:
+  - `google-chrome --user-data-dir="$HOME/selenium-profile-superadmin"`
+  - `chromium-browser --user-data-dir="$HOME/selenium-profile-superadmin"`
+- Brave:
+  - `brave-browser --user-data-dir="$HOME/selenium-profile-superadmin"`
+- Firefox:
+  - `firefox -profile "$HOME/selenium-profile-superadmin"`
+- Edge:
+  - `microsoft-edge --user-data-dir="$HOME/selenium-profile-superadmin"`
+
+Open the dashboard URL in that profile and log in with the super admin email before running `loginAndApproveOnboarding.side`.
 - Close the browser after logging in so the profile can be reused during CLI test execution.
 
 ### Browser driver installation

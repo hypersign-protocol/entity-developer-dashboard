@@ -44,15 +44,15 @@ function getInputs() {
     };
 }
 
-function buildConfig(vars, browser) {
+function buildConfig(vars, browser, profilePath) {
     const config = [];
 
     if (browser === "firefox") {
         config.push(`browserName=firefox`);
-        config.push(`moz:firefoxOptions.args=[-profile,C:\\selenium-profile,-headless]`);
+        config.push(`moz:firefoxOptions.args=[-profile,${profilePath},-headless]`);
     } else {
         config.push(`browserName=${browser}`);
-        config.push(`goog:chromeOptions.args=[headless,--window-size=1920,1080,--user-data-dir=C:\\selenium-profile,--disable-gpu,--no-sandbox]`);
+        config.push(`goog:chromeOptions.args=[headless,--window-size=1920,1080,--user-data-dir=${profilePath},--disable-gpu,--no-sandbox]`);
     }
 
     if (vars.adminEmail) config.push(`vars.ADMIN_EMAIL=${vars.adminEmail}`);
@@ -85,13 +85,20 @@ function runTest(file, config, baseUrl, options) {
 
 async function run() {
     const inputs = getInputs(); // 👈 sync now
-    const config = buildConfig(inputs, inputs.browser);
+    const defaultProfilePath = "C:\\selenium-profile";
+    const superAdminProfilePath = "C:\\selenium-profile-superadmin";
 
-    console.log("\n⚙️ Final Config:", config, "\n");
+    console.log("\n⚙️ Default profile:", defaultProfilePath);
+    console.log("⚙️ Super admin profile:", superAdminProfilePath);
 
     for (const file of tests) {
-        await runTest(file, config, inputs.baseUrl, inputs);
+        const profilePath = file.includes("loginAndApproveOnboarding.side")
+            ? superAdminProfilePath
+            : defaultProfilePath;
+        const fileConfig = buildConfig(inputs, inputs.browser, profilePath);
+        await runTest(file, fileConfig, inputs.baseUrl, inputs);
     }
 }
+
 
 run();
