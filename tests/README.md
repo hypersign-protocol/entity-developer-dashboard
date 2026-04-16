@@ -1,65 +1,94 @@
-### Selenium Browser Extension - UI Testing
+# Selenium Browser Extension - UI Testing
 
-#### Introduction
-Selenium is a widely-used open-source framework for automating web applications. It allows developers and testers to simulate user interactions with a web application in a real browser environment. Selenium supports various programming languages and browser drivers, making it an ideal choice for end-to-end (E2E) testing.
+## Introduction
+Selenium is a widely-used open-source framework for automating web applications. It allows developers and testers to simulate user interactions in a real browser environment. Selenium supports multiple programming languages and browser drivers, making it ideal for end-to-end (E2E) testing.
 
-##### Why use Selenium Browser Extension for UI Testing?
- The Selenium Browser Extension (also known as Selenium IDE) is a powerful tool that enables recording, editing, and debugging of tests. It is particularly useful for quick test creation and playback, without needing to write complex scripts manually. This tool is preferred because:
- - It is easy to install and use as a browser extension.
+## Why use Selenium Browser Extension for UI Testing?
+The Selenium Browser Extension (Selenium IDE) is a powerful tool for recording, editing, and debugging tests. It is especially useful for quickly creating and running UI tests without writing complex scripts.
 
- - Supports rapid test case creation via recording.
- - Allows exporting test cases in various formats for automation.
- - Ideal for testing Vue 2 projects where quick UI testing and interaction simulation are required.
+**Key benefits:**
+- Easy to install and use as a browser extension  
+- Supports rapid test case creation via recording  
+- Allows exporting test cases in multiple formats  
+- Ideal for quick UI testing and interaction simulation (especially for Vue 2 projects)
 
-#### Installation
- For the best compatibility, use Selenium IDE version 3.17.4.
- Follow these steps to install Selenium IDE:
-  - For Firefox
-      - Visit the official Selenium IDE download page: [Selenium IDE Download](https://addons.mozilla.org/en-US/firefox/addon/selenium_ide/)
-      - Click 'Add to Firefox' to install the extension
- - For brave
-      - Go to [chrome web store]('https://chromewebstore.google.com/?pli=1')
-      - Search for `Selenium IDE`
-      - Select the selenium Extension
-      - Click 'Add to Brave'
-  #### Test Scenarios
-  The following table lists the test scenarios along with their respective test files:
- |Module | Scenario |  File |
-|---------|---------|----------|
-| Service | Login   | [LoginTest](./E2E_test/serviceModule/Login.side)   |   
-| Service | Login and invite a member and accept invitation   |[Invite people](./E2E_test//serviceModule//LoginAndSettingsModule.side)  | 
-|SSI Service |Login and create a new service   |[CreateSSIApp](./E2E_test/ssiServiceModule/loginAndCreateSSIService.side)  |
-|SSI Service | Login and perform did operations in specific service   | [Perform did operations](./E2E_test/ssiServiceModule/loginAndDidOperations.side)  |    
-|SSI Service | Login and perform schema operations in specific service  |  [Perform schema operations](./E2E_test/ssiServiceModule/loginAndSchemaOperations.side)  |
-|SSI Service | Login and perform credential operations in specific service |  [Perform credential operations](./E2E_test/ssiServiceModule/loginAndCredentialOperation.side)  |
-|KYC Service | Login and create kyc service   | [Create Kyc service](./E2E_test/kycServiceModule//loginAndCreateKycService.side)  |    
-|KYC Service | Login and configure onchain kyc  |  [Configure onchain kyc](./E2E_test/kycServiceModule/loginAndConfigureOnchainKyc.side)  |
-|KYC Service | Login and configure widget |  [Add widget configuration](./E2E_test/kycServiceModule/loginAndWidgetConfiguration.side)  |
-|KYC Service | Login and perform webhook configuration |  [Add webhook configuration](./E2E_test/kycServiceModule/loginAndWebhookConfiguration.side)  |
+---
 
-#### Steps to Run
-##### Running Selenium IDE
-Follow these steps to set up and run Selenium IDE with your test files:
-**Prerequisites**
- - Ensure you have the latest version of Selenium IDE installed as a browser extension.
- - Update the email ID in the test file before uploading it to Selenium IDE.
-     - Open the test file in a text editor and use the Find & Replace feature to replace the  `"target": "seleniumtest963@gmail.com"` with your own email ID.
-    - Save the changes after updating the email ID.
- - You can also change the value after uploading to Selenium IDE by replacing the `adminEmailId` value with your own email ID.
- - If you want to run the Login and Settings module, you must have an additional email to add as a teammate. To do this, replace "target": "seleniumide609@gmail.com" with your teammate's email ID directly in the test file, or update the value of teamMateEmailId after uploading it to Selenium IDE.
- - In order to run the KYC module test cases, you must first create an SSI service.
-Please run [Create SSI Service Test](./E2E_test/ssiServiceModule/loginAndCreateSSIService.side) and [Perform DID Operations](./E2E_test/ssiServiceModule/loginAndDidOperations.side) before proceeding.
+## Installation
+For best compatibility, use **Selenium IDE version 3.17.2**
 
-**Steps to Run Tests**
+### For Firefox
+- Visit: https://addons.mozilla.org/en-US/firefox/addon/selenium_ide/  
+- Click **Add to Firefox**
 
-- Open Selenium IDE in your browser.
-- Click on the `Open an existing project` button and upload the test file from the E2E folder inside test folder in this repository.
+### For Brave (Recommended)
+- Go to: https://chromewebstore.google.com/  
+- Search for **Selenium IDE**  
+- Select the extension and click **Add to Brave**
 
-> **NOTES**:
-> - If the email ID is already in use within the Entity Developer Dashboard, it must not have 2FA enabled. You can verify this by logging into the dashboard before running the tests.
-> - After running [LoginAndCreateSSIService](./E2E_test/ssiServiceModule/LoginAndCreateSSIService.side) request credits to your service by contacting the admin, and then run other tests.
-  
+---
+
+## Test Scenarios
+
+| Module | Scenario | File |
+|--------|---------|------|
+| Service | Login | [LoginTest](./E2E_test/login/login.side) |
+| Service | Login and setup MFA | [Setup MFA](./E2E_test/login/setupAndLoginWithMfa.side) |
+| Service | Login and invite a member and accept invitation | [Invite people](./E2E_test/serviceConfigModule/loginAndSetting.side) |
+| Service | Login and fill onboarding form | [Fill onboarding form](./E2E_test/serviceConfigModule/loginAndFillOnboarding.side) |
+| Service | Login and approve onboarding by Super-admin | [Approve onboarding](./E2E_test/serviceConfigModule/loginAndApproveOnboarding.side) |
+| Service | Login and re-generate API key | [Regenerate API key](./E2E_test/serviceConfigModule/loginAndGenerateApiKey.side) |
+| Service | Login and update app | [Update app configuration](./E2E_test/serviceConfigModule/loginAndUpdateAppConfig.side) |
+| SSI Service | Perform DID operations | [Perform DID operations](./E2E_test/ssiServiceModule/loginAndDidOperations.side) |
+| SSI Service | Perform schema operations | [Perform schema operations](./E2E_test/ssiServiceModule/loginAndSchemaOperations.side) |
+| SSI Service | Perform credential operations | [Perform credential operations](./E2E_test/ssiServiceModule/loginAndCredentialOperation.side) |
+| KYC Service | Configure ID verifier page | [Configure Verifier page](./E2E_test/kycServiceModule/verifier/loginAndDeleteIdVerifier.side) |
+| KYC Service | Update ID verifier page | [Update ID Verifier page](./E2E_test/kycServiceModule/verifier/loginAndUpdateIdVerifier.side) |
+| KYC Service | Configure ID widget | [Add ID widget configuration](./E2E_test/kycServiceModule/widget/loginAndUpdateIdWidget.side) |
+| KYC Service | Configure KYB widget | [Add business widget configuration](./E2E_test/kycServiceModule/widget/loginAndConfigureKybWidget.side) |
+| KYC Service | Configure webhook | [Add webhook configuration](./E2E_test/kycServiceModule/loginAndWebhookConfiguration.side) |
+| KYC Service | Visit analytics | [Visit analytics](./E2E_test/kycServiceModule/loginAndVisitAnalytics.side) |
+| KYC Service | Visit ID dashboard | [Visit ID dashboard](./E2E_test/kycServiceModule/loginAndVisitIdDashboard.side) |
+| KYC Service | Visit business dashboard | [Visit business dashboard](./E2E_test/kycServiceModule/loginAndVisitBusinessDashboard.side) |
+
+---
+
+## Steps to Run
+
+### Running Selenium IDE
+
+#### Prerequisites
+- Ensure Selenium IDE (v3.17.2) is installed  
+- **Use Brave Browser (recommended)** for 100% test compatibility  
+  - Some features may not work properly in Firefox due to browser security restrictions  
+- Use an email account that is **already logged into the dashboard**
+  - This avoids entering email and password during test execution  
+  - The test will automatically pick the account from the login prompt  
+- Enable **pop-ups** in the browser  
+- Disable **Brave Shields (security protections)** for the site    
+- Update email IDs in test files if needed:
+  - Replace `"target": "seleniumtest609@gmail.com"` with your email  
+  - Replace teammate email (`teamMateEmailId`) if running invite tests  
+
+- For running certain flows:
+  - To test **team invitation**, you need an additional email  
+  - To test **Approve onboarding** you must have super admin emailId and its access.  
+---
+
+### Steps to Run Tests
+- Open Selenium IDE in your browser  
+- Click **"Open an existing project"**  
+- Upload the required `.side` file from the `E2E_test` folder  
+- Run the test  
+
+---
+
+## Notes
+- If the email ID is already used in the Entity Developer Dashboard, ensure **2FA is disabled**  
+- Close the browser **manually after finishing each test case**  
+- Tests have been fully validated on:
+  - **Brave Browser v1.88.138**
+  - **Selenium IDE v3.17.2**
 ## Demo 
-
-![Demo](../src/assets/test_demo.gif)
+![Demo](../src/assets/seleniumTestDemo.mp4)
   

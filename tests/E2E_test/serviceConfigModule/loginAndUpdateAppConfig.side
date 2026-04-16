@@ -1,0 +1,627 @@
+{
+  "id": "5919f94f-c285-473c-ba96-2681f0e13d4f",
+  "version": "2.0",
+  "name": "Developer dashboard2",
+  "url": "https://entity.dashboard.hypersign.id",
+  "tests": [{
+    "id": "c8fe19b8-26be-4184-825d-543f410c1be4",
+    "name": "login test update app config",
+    "commands": [{
+      "id": "65181502-7bfa-44a9-aa1a-1f4215a15157",
+      "comment": "",
+      "command": "open",
+      "target": "/",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "4c713f21-5bfd-4f0e-8c8d-39ca1cd67bb1",
+      "comment": "",
+      "command": "//click",
+      "target": "css=.v-btn__content",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "e617481c-5373-4c4a-8330-4bc00be62670",
+      "comment": "",
+      "command": "pause",
+      "target": "3000",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "b626176e-4726-4890-a471-a6787d070669",
+      "comment": "",
+      "command": "store",
+      "target": "seleniumide609@gmail.com",
+      "targets": [],
+      "value": "adminEmailId"
+    }, {
+      "id": "a87588a9-7efa-41d6-b67d-875c1d275f77",
+      "comment": "",
+      "command": "//waitForElementPresent",
+      "target": "//div[contains(translate(text(), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), '${adminEmailId}')]",
+      "targets": [],
+      "value": "3000"
+    }, {
+      "id": "c7d09428-00dc-4329-b0bc-f9fec8447197",
+      "comment": "",
+      "command": "//clickAt",
+      "target": "xpath=//div[contains(text(),'${adminEmailId}')]",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "f4b08ee9-bd85-4f3e-a258-8876bf75b9d6",
+      "comment": "",
+      "command": "storeText",
+      "target": "css=h4",
+      "targets": [],
+      "value": "pageHeader"
+    }, {
+      "id": "d410be9e-9673-4d5f-ab71-8f2c7a569eb4",
+      "comment": "",
+      "command": "store",
+      "target": "hypermine_testIde",
+      "targets": [],
+      "value": "updatedAppName"
+    }, {
+      "id": "b9da4289-51b5-44a4-a12a-e2a8dc7b7810",
+      "comment": "",
+      "command": "echo",
+      "target": "${pageHeader}",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "4f63b5e5-8aa4-4575-9ea2-f8e9263d8a69",
+      "comment": "",
+      "command": "if",
+      "target": "${pageHeader} == \"Configure Your Identity Service\"",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "f026eaf0-87b1-4d82-a7ee-b5c0d1ef1268",
+      "comment": "",
+      "command": "click",
+      "target": "css=h4",
+      "targets": [
+        ["css=h4", "css:finder"],
+        ["xpath=//div[@id='app']/div[2]/div/div[2]/h4", "xpath:idRelative"],
+        ["xpath=//h4", "xpath:position"],
+        ["xpath=//h4[contains(.,' Configure Your Identity Service')]", "xpath:innerText"]
+      ],
+      "value": ""
+    }, {
+      "id": "54e12084-324e-4cff-85c3-6a7d27c20e74",
+      "comment": "",
+      "command": "assertText",
+      "target": "css=h4",
+      "targets": [],
+      "value": "Configure Your Identity Service"
+    }, {
+      "id": "8bb0df25-a941-47c9-aa32-e09c714a5b1f",
+      "comment": "",
+      "command": "click",
+      "target": "css=.text-muted:nth-child(2)",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "0fd5fc4f-bfc0-4acd-9b52-d247c6e83e47",
+      "comment": "",
+      "command": "assertText",
+      "target": "css=.text-muted:nth-child(2)",
+      "targets": [],
+      "value": "Complete the guided steps to set up your identity verification services."
+    }, {
+      "id": "0e086ac9-d6c6-4c09-abe8-3d4f8d72e1d9",
+      "comment": "",
+      "command": "click",
+      "target": "css=.container-collapsed-not",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "b59863d2-c43b-41e3-ab3f-edd05cfa808a",
+      "comment": "",
+      "command": "assertText",
+      "target": "css=.container",
+      "targets": [],
+      "value": "Configure Your Identity Service\\nComplete the guided steps to set up your identity verification services.\\nSelect Your Business Type\\nBusiness\\nCommunity"
+    }, {
+      "id": "9181497b-a86d-4a06-80bb-f5ba0dfe7aff",
+      "comment": "",
+      "command": "else",
+      "target": "",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "16fc42be-bd91-4847-8b41-93e91a5ead82",
+      "comment": "",
+      "command": "click",
+      "target": "css=.container-collapsed-not",
+      "targets": [
+        ["css=.container-collapsed-not", "css:finder"],
+        ["xpath=//div[@id='app']/div[2]", "xpath:idRelative"],
+        ["xpath=//div[2]", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "e66e8ecf-8385-4bed-924f-90e504d47d47",
+      "comment": "",
+      "command": "assertText",
+      "target": "css=.align-center",
+      "targets": [
+        ["css=.align-center", "css:finder"],
+        ["xpath=//div[@id='app']/div[2]/div/div/div/div", "xpath:idRelative"],
+        ["xpath=//div[2]/div/div/div/div", "xpath:position"]
+      ],
+      "value": "Getting Started"
+    }, {
+      "id": "d163f7b8-43c5-4456-9f74-646874d77309",
+      "comment": "",
+      "command": "click",
+      "target": "css=.step-card:nth-child(1) .step-content-box",
+      "targets": [
+        ["css=.step-card:nth-child(1) .step-content-box", "css:finder"],
+        ["xpath=//div[@id='app']/div[2]/div/div/div/div[2]/div/div[2]/div[2]", "xpath:idRelative"],
+        ["xpath=//div[2]/div[2]", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "f7a8cdf6-498e-41a1-8bf4-066fe7ada51d",
+      "comment": "",
+      "command": "assertText",
+      "target": "css=.step-card:nth-child(1) .step-title",
+      "targets": [
+        ["css=.step-card:nth-child(1) .step-title", "css:finder"],
+        ["xpath=//div[@id='app']/div[2]/div/div/div/div[2]/div/div[2]/div[2]/h5", "xpath:idRelative"],
+        ["xpath=//h5", "xpath:position"],
+        ["xpath=//h5[contains(.,'1. Understand Hypersign Basics')]", "xpath:innerText"]
+      ],
+      "value": "1. Understand Hypersign Basics"
+    }, {
+      "id": "d4af00fe-bb14-4a91-97b4-06bd51a47d41",
+      "comment": "",
+      "command": "click",
+      "target": "css=.step-card:nth-child(2) .step-content-box",
+      "targets": [
+        ["css=.step-card:nth-child(2) .step-content-box", "css:finder"],
+        ["xpath=//div[@id='app']/div[2]/div/div/div/div[2]/div[2]/div[2]/div[2]", "xpath:idRelative"],
+        ["xpath=//div[2]/div[2]/div[2]/div[2]", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "4430aa30-ab1f-4d61-b53a-12fe8cfb2fe6",
+      "comment": "",
+      "command": "assertText",
+      "target": "css=.step-card:nth-child(2) .step-content-box",
+      "targets": [
+        ["css=.step-card:nth-child(2) .step-content-box", "css:finder"],
+        ["xpath=//div[@id='app']/div[2]/div/div/div/div[2]/div[2]/div[2]/div[2]", "xpath:idRelative"],
+        ["xpath=//div[2]/div[2]/div[2]/div[2]", "xpath:position"]
+      ],
+      "value": "2. Configure Your KYC Widget\\nSet up your KYC widget according to your needs — choose between liveliness checks, ID document verification, and consent capture. You’ll also learn how to customize branding and themes.\\nRead Documentation"
+    }, {
+      "id": "2a4bc934-4fac-42b1-af87-210d1e5a0f56",
+      "comment": "",
+      "command": "click",
+      "target": "css=.step-card:nth-child(3) .step-content-box",
+      "targets": [
+        ["css=.step-card:nth-child(3) .step-content-box", "css:finder"],
+        ["xpath=//div[@id='app']/div[2]/div/div/div/div[2]/div[3]/div[2]/div[2]", "xpath:idRelative"],
+        ["xpath=//div[3]/div[2]/div[2]", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "4425c777-decb-4872-8297-5fb5b0cfa376",
+      "comment": "",
+      "command": "assertText",
+      "target": "css=.step-card:nth-child(3) .step-title",
+      "targets": [
+        ["css=.step-card:nth-child(3) .step-title", "css:finder"],
+        ["xpath=//div[@id='app']/div[2]/div/div/div/div[2]/div[3]/div[2]/div[2]/h5", "xpath:idRelative"],
+        ["xpath=//div[3]/div[2]/div[2]/h5", "xpath:position"],
+        ["xpath=//h5[contains(.,'3. Create Your Custom KYC Verifier URL')]", "xpath:innerText"]
+      ],
+      "value": "3. Create Your Custom KYC Verifier URL"
+    }, {
+      "id": "ef34aa5f-e9bb-4e7b-a3fa-6f5d1abc5d6b",
+      "comment": "",
+      "command": "click",
+      "target": "css=.step-card:nth-child(4) .step-content-box",
+      "targets": [
+        ["css=.step-card:nth-child(4) .step-content-box", "css:finder"],
+        ["xpath=//div[@id='app']/div[2]/div/div/div/div[2]/div[4]/div[2]/div[2]", "xpath:idRelative"],
+        ["xpath=//div[4]/div[2]/div[2]", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "89ea6c2d-a07c-4c3d-b6b1-927e95d34cc1",
+      "comment": "",
+      "command": "click",
+      "target": "css=.step-card:nth-child(4) .step-title",
+      "targets": [
+        ["css=.step-card:nth-child(4) .step-title", "css:finder"],
+        ["xpath=//div[@id='app']/div[2]/div/div/div/div[2]/div[4]/div[2]/div[2]/h5", "xpath:idRelative"],
+        ["xpath=//div[4]/div[2]/div[2]/h5", "xpath:position"],
+        ["xpath=//h5[contains(.,'4. Integrate into Your App')]", "xpath:innerText"]
+      ],
+      "value": ""
+    }, {
+      "id": "c4b8cc1d-141b-4543-a904-5f5ab23f4542",
+      "comment": "",
+      "command": "click",
+      "target": "css=.step-card:nth-child(4) .step-title",
+      "targets": [
+        ["css=.step-card:nth-child(4) .step-title", "css:finder"],
+        ["xpath=//div[@id='app']/div[2]/div/div/div/div[2]/div[4]/div[2]/div[2]/h5", "xpath:idRelative"],
+        ["xpath=//div[4]/div[2]/div[2]/h5", "xpath:position"],
+        ["xpath=//h5[contains(.,'4. Integrate into Your App')]", "xpath:innerText"]
+      ],
+      "value": ""
+    }, {
+      "id": "30b96bcb-d9da-4063-a0a9-97774cc6f666",
+      "comment": "",
+      "command": "doubleClick",
+      "target": "css=.step-card:nth-child(4) .step-title",
+      "targets": [
+        ["css=.step-card:nth-child(4) .step-title", "css:finder"],
+        ["xpath=//div[@id='app']/div[2]/div/div/div/div[2]/div[4]/div[2]/div[2]/h5", "xpath:idRelative"],
+        ["xpath=//div[4]/div[2]/div[2]/h5", "xpath:position"],
+        ["xpath=//h5[contains(.,'4. Integrate into Your App')]", "xpath:innerText"]
+      ],
+      "value": ""
+    }, {
+      "id": "00421ba8-5865-4eb7-9dd0-343dbe063881",
+      "comment": "",
+      "command": "click",
+      "target": "css=.step-card:nth-child(4) .step-content-box",
+      "targets": [
+        ["css=.step-card:nth-child(4) .step-content-box", "css:finder"],
+        ["xpath=//div[@id='app']/div[2]/div/div/div/div[2]/div[4]/div[2]/div[2]", "xpath:idRelative"],
+        ["xpath=//div[4]/div[2]/div[2]", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "7ca3db85-d240-471f-ba66-2a9d10aad6ab",
+      "comment": "",
+      "command": "assertText",
+      "target": "css=.step-card:nth-child(4) .step-title",
+      "targets": [
+        ["css=.step-card:nth-child(4) .step-title", "css:finder"],
+        ["xpath=//div[@id='app']/div[2]/div/div/div/div[2]/div[4]/div[2]/div[2]/h5", "xpath:idRelative"],
+        ["xpath=//div[4]/div[2]/div[2]/h5", "xpath:position"],
+        ["xpath=//h5[contains(.,'4. Integrate into Your App')]", "xpath:innerText"]
+      ],
+      "value": "4. Integrate into Your App"
+    }, {
+      "id": "cc9621f0-3074-4252-992c-cc1078b632e0",
+      "comment": "",
+      "command": "echo",
+      "target": "",
+      "targets": [],
+      "value": "inside else block"
+    }, {
+      "id": "0b285f19-43c4-40b1-90f6-c7840552f6bf",
+      "comment": "",
+      "command": "mouseOver",
+      "target": "css=.fa-code",
+      "targets": [
+        ["css=.fa-code", "css:finder"],
+        ["xpath=//div[@id='app']/div[4]/div[2]/div/div[5]/a/i", "xpath:idRelative"],
+        ["xpath=//div[5]/a/i", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "14e78f11-f893-49f7-8715-1a07c4e927f8",
+      "comment": "",
+      "command": "click",
+      "target": "css=.fa-code",
+      "targets": [
+        ["css=.fa-code", "css:finder"],
+        ["xpath=//div[@id='app']/div[4]/div[2]/div/div[5]/a/i", "xpath:idRelative"],
+        ["xpath=//div[5]/a/i", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "a9048928-1aaf-4da5-9c8c-0c09eca83603",
+      "comment": "",
+      "command": "clickAt",
+      "target": "css=.vsm--title:nth-child(1)",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "0ea8de75-6393-4916-bf96-19a979f5e355",
+      "comment": "",
+      "command": "mouseOver",
+      "target": "css=.vsm--title:nth-child(1)",
+      "targets": [
+        ["css=.vsm--title:nth-child(1)", "css:finder"],
+        ["xpath=//div[@id='app']/div[4]/div[2]/div[2]/div/a/span", "xpath:idRelative"],
+        ["xpath=//div[2]/div[2]/div/a/span", "xpath:position"],
+        ["xpath=//span[contains(.,'Developer Hub')]", "xpath:innerText"]
+      ],
+      "value": ""
+    }, {
+      "id": "b469da5e-0019-4b1b-93b0-e42a0a6462a7",
+      "comment": "",
+      "command": "assertText",
+      "target": "css=.vsm--link_hover > .vsm--title",
+      "targets": [
+        ["css=.vsm--link_hover > .vsm--title", "css:finder"],
+        ["xpath=//div[@id='app']/div[4]/div[2]/div[2]/div/div/div/div[3]/a/span", "xpath:idRelative"],
+        ["xpath=//div[3]/a/span", "xpath:position"],
+        ["xpath=//span[contains(.,'App Config')]", "xpath:innerText"]
+      ],
+      "value": "App Config"
+    }, {
+      "id": "7738306c-cd72-42a0-aefa-8b1e35a1592c",
+      "comment": "",
+      "command": "mouseOut",
+      "target": "css=.fa-code",
+      "targets": [
+        ["css=.fa-code", "css:finder"],
+        ["xpath=//div[@id='app']/div[4]/div[2]/div/div[5]/a/i", "xpath:idRelative"],
+        ["xpath=//div[5]/a/i", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "8ceb7537-0ff1-483b-ad03-a56338af3850",
+      "comment": "",
+      "command": "click",
+      "target": "css=.vsm--link_hover > .vsm--title",
+      "targets": [
+        ["css=.vsm--link_hover > .vsm--title", "css:finder"],
+        ["xpath=//div[@id='app']/div[4]/div[2]/div[2]/div/div/div/div[3]/a/span", "xpath:idRelative"],
+        ["xpath=//div[3]/a/span", "xpath:position"],
+        ["xpath=//span[contains(.,'App Config')]", "xpath:innerText"]
+      ],
+      "value": ""
+    }, {
+      "id": "6aa8233a-accc-4364-bb12-39b7ff9d214a",
+      "comment": "",
+      "command": "assertText",
+      "target": "css=.status-badge",
+      "targets": [
+        ["css=.status-badge", "css:finder"],
+        ["xpath=//div[@id='app']/div[2]/div/div/div[2]/div/span", "xpath:idRelative"],
+        ["xpath=//div/span", "xpath:position"],
+        ["xpath=//span[contains(.,'Development')]", "xpath:innerText"]
+      ],
+      "value": "Development"
+    }, {
+      "id": "cd26bfd1-3665-40d7-8835-510767dbfd87",
+      "comment": "",
+      "command": "assertText",
+      "target": "css=.v-btn:nth-child(1) > .v-btn__content",
+      "targets": [
+        ["css=.v-btn:nth-child(1) > .v-btn__content", "css:finder"],
+        ["xpath=//div[@id='app']/div[2]/div/div/div[2]/div[2]/button/span", "xpath:idRelative"],
+        ["xpath=//div[2]/button/span", "xpath:position"]
+      ],
+      "value": "EDIT"
+    }, {
+      "id": "7f47ad26-e245-4eee-af7b-3fb5ec0e5006",
+      "comment": "",
+      "command": "mouseOver",
+      "target": "css=.v-btn:nth-child(1) > .v-btn__content > span",
+      "targets": [
+        ["css=.v-btn:nth-child(1) > .v-btn__content > span", "css:finder"],
+        ["xpath=//div[@id='app']/div[2]/div/div/div[2]/div[2]/button/span/span", "xpath:idRelative"],
+        ["xpath=//button/span/span", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "fee705df-a76e-4ed2-8aff-808bd04aacd2",
+      "comment": "",
+      "command": "assertElementPresent",
+      "target": "css=.v-btn:nth-child(1) > .v-btn__content > span",
+      "targets": [
+        ["css=.v-btn:nth-child(1) > .v-btn__content > span", "css:finder"],
+        ["xpath=//div[@id='app']/div[2]/div/div/div[2]/div[2]/button/span/span", "xpath:idRelative"],
+        ["xpath=//button/span/span", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "2680d2c2-f9a8-4785-addd-e08e1a4fe9b3",
+      "comment": "",
+      "command": "mouseOut",
+      "target": "css=.v-btn:nth-child(1) > .v-btn__content > span",
+      "targets": [
+        ["css=.v-btn:nth-child(1) > .v-btn__content > span", "css:finder"],
+        ["xpath=//div[@id='app']/div[2]/div/div/div[2]/div[2]/button/span/span", "xpath:idRelative"],
+        ["xpath=//button/span/span", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "9fc7d510-4e60-4e6d-b3bf-da1fbee2be0e",
+      "comment": "",
+      "command": "click",
+      "target": "css=.v-btn:nth-child(1) > .v-btn__content",
+      "targets": [
+        ["css=.v-btn:nth-child(1) > .v-btn__content", "css:finder"],
+        ["xpath=//div[@id='app']/div[2]/div/div/div[2]/div[2]/button/span", "xpath:idRelative"],
+        ["xpath=//div[2]/button/span", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "947d66a3-0351-47fc-84df-91aef5f92b7d",
+      "comment": "",
+      "command": "assertText",
+      "target": "css=.v-btn",
+      "targets": [
+        ["css=.v-btn", "css:finder"],
+        ["xpath=(//button[@type='button'])[2]", "xpath:attributes"],
+        ["xpath=//div[@id='app']/div[2]/div/div/div[2]/div[2]/button", "xpath:idRelative"],
+        ["xpath=//div[2]/button", "xpath:position"]
+      ],
+      "value": "SAVE"
+    }, {
+      "id": "9b4472f3-00a5-444f-9aa4-97f98ab12f4f",
+      "comment": "",
+      "command": "click",
+      "target": "xpath=//legend[normalize-space()='APPLICATION NAME']/following::input[1]",
+      "targets": [
+        ["id=__BVID__276", "id"],
+        ["css=#\\__BVID__276", "css:finder"],
+        ["xpath=//input[@id='__BVID__276']", "xpath:attributes"],
+        ["xpath=//fieldset[@id='__BVID__275']/div/input", "xpath:idRelative"],
+        ["xpath=//fieldset/div/input", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "0a614d64-2eea-49e5-b3d4-2d02a122720b",
+      "comment": "",
+      "command": "type",
+      "target": "xpath=//legend[normalize-space()='APPLICATION NAME']/following::input[1]",
+      "targets": [
+        ["id=__BVID__276", "id"],
+        ["css=#\\__BVID__276", "css:finder"],
+        ["xpath=//input[@id='__BVID__276']", "xpath:attributes"],
+        ["xpath=//fieldset[@id='__BVID__275']/div/input", "xpath:idRelative"],
+        ["xpath=//fieldset/div/input", "xpath:position"]
+      ],
+      "value": "${updatedAppName}"
+    }, {
+      "id": "7b6607c7-1842-42ba-b6ba-c335727db545",
+      "comment": "",
+      "command": "click",
+      "target": "css=.v-btn__content",
+      "targets": [
+        ["css=.v-btn__content", "css:finder"],
+        ["xpath=//div[@id='app']/div[2]/div/div/div[2]/div[2]/button/span", "xpath:idRelative"],
+        ["xpath=//div[2]/button/span", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "335e4368-46d3-4ece-b2d6-3323ee52bc4a",
+      "comment": "",
+      "command": "assertText",
+      "target": "css=.toast-body",
+      "targets": [
+        ["css=.toast-body", "css:finder"],
+        ["xpath=//div[@id='__BVID__307']/div", "xpath:idRelative"],
+        ["xpath=//div[3]/div/div/div/div", "xpath:position"]
+      ],
+      "value": "Service configuration updated successfully!"
+    }, {
+      "id": "6317097e-c990-4246-a94d-6726fdb0a3e4",
+      "comment": "",
+      "command": "assertValue",
+      "target": "xpath=//legend[normalize-space()='APPLICATION NAME']/following::input[1]",
+      "targets": [],
+      "value": "${updatedAppName}"
+    }, {
+      "id": "3c4824e4-a4da-4b6a-959c-acac9620ec9d",
+      "comment": "",
+      "command": "end",
+      "target": "",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "5913392e-ccb3-4115-b90f-10bd2c6cf8cb",
+      "comment": "",
+      "command": "//executeScript",
+      "target": "return document.querySelector(\"img[src*='https://lh3.googleusercontent.com/']\") != null",
+      "targets": [],
+      "value": "isAvatar"
+    }, {
+      "id": "20931243-3ceb-4828-978b-8c603b52c00a",
+      "comment": "",
+      "command": "//echo",
+      "target": "${isAvatar}",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "d1e15d71-e11d-4f14-aa8b-181738b0f336",
+      "comment": "",
+      "command": "//if",
+      "target": "${isAvatar}",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "a598c52d-9f84-4f96-ad61-6f60cff05bfe",
+      "comment": "",
+      "command": "//assertElementPresent",
+      "target": "css=span:nth-child(2)",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "2c60908a-6008-4c49-b2e6-02a6b5852418",
+      "comment": "",
+      "command": "//click",
+      "target": "css=.profile-img",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "c015a7e2-bc08-45ab-a9cb-113187c2e229",
+      "comment": "",
+      "command": "//assertElementPresent",
+      "target": "linkText=Logout",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "06da064e-d8f1-47c4-a8d0-198ceaf9fce1",
+      "comment": "",
+      "command": "//click",
+      "target": "linkText=Logout",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "e41f5d24-00ba-4209-9606-77dc05eeff30",
+      "comment": "",
+      "command": "//else",
+      "target": "",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "bd5c3621-2797-4519-813c-f6ee2ae3a1f2",
+      "comment": "",
+      "command": "//assertElementPresent",
+      "target": "css=.profile-img",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "0f5c0c1f-ea7a-426b-aa01-3f756ada0222",
+      "comment": "",
+      "command": "//click",
+      "target": "css=.profile-img",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "b06c7f02-1b8e-40db-ace0-cf9aff8e84db",
+      "comment": "",
+      "command": "//assertElementPresent",
+      "target": "linkText=Logout",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "5f66b91d-ce34-48cc-adc9-29d8f5f8d4cb",
+      "comment": "",
+      "command": "//assertText",
+      "target": "linkText=Logout",
+      "targets": [],
+      "value": "Logout"
+    }, {
+      "id": "50d2bd8b-b64a-45b6-afef-91906cff1d6c",
+      "comment": "",
+      "command": "//click",
+      "target": "linkText=Logout",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "394747a5-c68b-4c3f-a74d-1acd1547ba47",
+      "comment": "",
+      "command": "//end",
+      "target": "",
+      "targets": [],
+      "value": ""
+    }]
+  }],
+  "suites": [{
+    "id": "98341582-aabd-42ef-89e5-ba549ad01f60",
+    "name": "Default Suite",
+    "persistSession": false,
+    "parallel": false,
+    "timeout": 300,
+    "tests": ["c8fe19b8-26be-4184-825d-543f410c1be4"]
+  }],
+  "urls": ["https://entity.dashboard.hypersign.id/"],
+  "plugins": []
+}

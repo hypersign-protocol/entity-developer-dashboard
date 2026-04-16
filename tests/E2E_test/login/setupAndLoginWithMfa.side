@@ -1,0 +1,595 @@
+{
+  "id": "5919f94f-c285-473c-ba96-2681f0e13d4f",
+  "version": "2.0",
+  "name": "Developer dashboard2",
+  "url": "https://entity.dashboard.hypersign.id",
+  "tests": [{
+    "id": "c8fe19b8-26be-4184-825d-543f410c1be4",
+    "name": "setupAndLoginWithMfa",
+    "commands": [{
+      "id": "65181502-7bfa-44a9-aa1a-1f4215a15157",
+      "comment": "",
+      "command": "open",
+      "target": "/",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "f429cfa1-cef3-4a59-96b3-652600427e59",
+      "comment": "",
+      "command": "//setWindowSize",
+      "target": "1936x1048",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "4c713f21-5bfd-4f0e-8c8d-39ca1cd67bb1",
+      "comment": "",
+      "command": "click",
+      "target": "css=.v-btn__content",
+      "targets": [
+        ["css=.v-btn__content", "css:finder"],
+        ["xpath=//div[@id='app']/div[2]/div/button/span", "xpath:idRelative"],
+        ["xpath=//span", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "e617481c-5373-4c4a-8330-4bc00be62670",
+      "comment": "",
+      "command": "pause",
+      "target": "3000",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "b626176e-4726-4890-a471-a6787d070669",
+      "comment": "",
+      "command": "store",
+      "target": "1989waarsha123@gmail.com",
+      "targets": [],
+      "value": "adminEmailId"
+    }, {
+      "id": "a87588a9-7efa-41d6-b67d-875c1d275f77",
+      "comment": "",
+      "command": "waitForElementPresent",
+      "target": "//div[contains(translate(text(), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), '${adminEmailId}')]",
+      "targets": [],
+      "value": "3000"
+    }, {
+      "id": "c7d09428-00dc-4329-b0bc-f9fec8447197",
+      "comment": "",
+      "command": "clickAt",
+      "target": "xpath=//div[contains(text(),'${adminEmailId}')]",
+      "targets": [
+        ["css=.col > .ml-auto", "css:finder"],
+        ["xpath=(//button[@type='button'])[5]", "xpath:attributes"],
+        ["xpath=//div[@id='app']/div[2]/div/div/div/div/div[2]/div/div/button", "xpath:idRelative"],
+        ["xpath=//div/button", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "50e4f862-ab3a-4d6f-87ae-c2a8ba8eed76",
+      "comment": "",
+      "command": "pause",
+      "target": "6000",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "73752639-ac53-45ea-96d8-0fd047dd8ab3",
+      "comment": "",
+      "command": "executeScript",
+      "target": "return document.body.innerText",
+      "targets": [],
+      "value": "pageText"
+    }, {
+      "id": "5abfe9c0-c387-4e99-8f57-7974d3268ab4",
+      "comment": "",
+      "command": "echo",
+      "target": "${pageText}",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "ee63a093-2a2a-4d02-b69d-c408f26d0eb5",
+      "comment": "",
+      "command": "executeScript",
+      "target": "return [...document.querySelectorAll('.v-chip__content span')]   .some(el => el.innerText.trim() === 'Setup MFA');",
+      "targets": [],
+      "value": "isMfaSetupVisible"
+    }, {
+      "id": "48897946-4839-4736-b707-24cbfc32308f",
+      "comment": "",
+      "command": "echo",
+      "target": "${isMfaSetupVisible}",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "3bb5e17d-c610-48e5-a37d-16224be8c82f",
+      "comment": "",
+      "command": "if",
+      "target": "${isMfaSetupVisible} == true",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "4b29d658-a2fc-478f-bdf4-d201b87c0acc",
+      "comment": "",
+      "command": "assertElementPresent",
+      "target": "css=.bi-exclamation-triangle-fill",
+      "targets": [
+        ["css=.bi-exclamation-triangle-fill", "css:finder"]
+      ],
+      "value": ""
+    }, {
+      "id": "df5cb8f3-6995-4923-a5e1-c47180aeee87",
+      "comment": "",
+      "command": "assertText",
+      "target": "css=.v-chip__content > span",
+      "targets": [
+        ["css=.v-chip__content > span", "css:finder"],
+        ["xpath=//div[@id='nav-collapse']/ul/li/a/span/span/span", "xpath:idRelative"],
+        ["xpath=//span/span/span", "xpath:position"]
+      ],
+      "value": "Setup MFA"
+    }, {
+      "id": "726d5c47-dbc7-41e0-97a1-5d49c5547ff1",
+      "comment": "",
+      "command": "click",
+      "target": "css=.v-chip__content > span",
+      "targets": [
+        ["css=.v-chip__content > span", "css:finder"],
+        ["xpath=//div[@id='nav-collapse']/ul/li/a/span/span/span", "xpath:idRelative"],
+        ["xpath=//span/span/span", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "291e8925-c998-47ea-af57-d5e55e3599ac",
+      "comment": "",
+      "command": "assertElementPresent",
+      "target": "css=.mr-3 > .v-btn__content",
+      "targets": [
+        ["css=.mr-3 > .v-btn__content", "css:finder"],
+        ["xpath=//div[@id='__BVID__161']/div/div[2]/div[2]/div[3]/button/span", "xpath:idRelative"],
+        ["xpath=//div[3]/button/span", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "71b20cc2-2b76-48e7-9bec-dcf2a2c427d6",
+      "comment": "",
+      "command": "click",
+      "target": "css=.mr-3 > .v-btn__content",
+      "targets": [
+        ["css=.mr-3 > .v-btn__content", "css:finder"],
+        ["xpath=//div[@id='__BVID__161']/div/div[2]/div[2]/div[3]/button/span", "xpath:idRelative"],
+        ["xpath=//div[3]/button/span", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "4fdc664f-124c-4f39-8ec2-c4ccb0a959a1",
+      "comment": "",
+      "command": "click",
+      "target": "id=setup-mfa-popup___BV_modal_header_",
+      "targets": [
+        ["id=setup-mfa-popup___BV_modal_header_", "id"],
+        ["css=#setup-mfa-popup___BV_modal_header_", "css:finder"],
+        ["xpath=//header[@id='setup-mfa-popup___BV_modal_header_']", "xpath:attributes"],
+        ["xpath=//div[@id='setup-mfa-popup___BV_modal_content_']/header", "xpath:idRelative"],
+        ["xpath=//div[3]/div/div/div/header", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "796928d5-b228-4b28-96e0-c540a5f341f4",
+      "comment": "",
+      "command": "assertText",
+      "target": "id=setup-mfa-popup___BV_modal_header_",
+      "targets": [
+        ["id=setup-mfa-popup___BV_modal_header_", "id"],
+        ["css=#setup-mfa-popup___BV_modal_header_", "css:finder"],
+        ["xpath=//header[@id='setup-mfa-popup___BV_modal_header_']", "xpath:attributes"],
+        ["xpath=//div[@id='setup-mfa-popup___BV_modal_content_']/header", "xpath:idRelative"],
+        ["xpath=//div[3]/div/div/div/header", "xpath:position"]
+      ],
+      "value": "MFA\\n×"
+    }, {
+      "id": "c56af850-bc9d-4605-9c5b-ce2e8e8f0bb2",
+      "comment": "",
+      "command": "click",
+      "target": "id=setup-mfa-popup___BV_modal_body_",
+      "targets": [
+        ["id=setup-mfa-popup___BV_modal_body_", "id"],
+        ["css=#setup-mfa-popup___BV_modal_body_", "css:finder"],
+        ["xpath=//div[@id='setup-mfa-popup___BV_modal_body_']", "xpath:attributes"],
+        ["xpath=//div[@id='setup-mfa-popup___BV_modal_content_']/div", "xpath:idRelative"],
+        ["xpath=//body/div[3]/div/div/div/div", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "2afb22b1-df82-480a-9e13-363935fe3e39",
+      "comment": "",
+      "command": "assertText",
+      "target": "css=h4",
+      "targets": [
+        ["css=h4", "css:finder"],
+        ["xpath=//div[@id='setup-mfa-popup___BV_modal_body_']/div/h4", "xpath:idRelative"],
+        ["xpath=//h4", "xpath:position"],
+        ["xpath=//h4[contains(.,'Setup Authenticator as a MFA method')]", "xpath:innerText"]
+      ],
+      "value": "Setup Authenticator as a MFA method"
+    }, {
+      "id": "5f403c14-76f0-43fc-8d2d-dc6557daaf9b",
+      "comment": "",
+      "command": "click",
+      "target": "css=.serviceCard > ul > li",
+      "targets": [
+        ["css=.serviceCard > ul > li", "css:finder"],
+        ["xpath=//div[@id='setup-mfa-popup___BV_modal_body_']/div/div[2]/ul/li", "xpath:idRelative"],
+        ["xpath=//div/div/div/div[2]/ul/li", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "b80aa7c2-72c7-4c48-ae62-b92733548b8d",
+      "comment": "",
+      "command": "assertText",
+      "target": "css=li > div:nth-child(1)",
+      "targets": [
+        ["css=li > div:nth-child(1)", "css:finder"],
+        ["xpath=//div[@id='setup-mfa-popup___BV_modal_body_']/div/div[2]/ul/li/div", "xpath:idRelative"],
+        ["xpath=//div[2]/ul/li/div", "xpath:position"]
+      ],
+      "value": "STEP ONE"
+    }, {
+      "id": "806c9486-34fa-4e2a-91ab-35e057781362",
+      "comment": "",
+      "command": "click",
+      "target": "css=.serviceCard > ul > li",
+      "targets": [
+        ["css=.serviceCard > ul > li", "css:finder"],
+        ["xpath=//div[@id='setup-mfa-popup___BV_modal_body_']/div/div[2]/ul/li", "xpath:idRelative"],
+        ["xpath=//div/div/div/div[2]/ul/li", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "4561e423-ea13-4872-b936-73e4cd188b53",
+      "comment": "",
+      "command": "assertText",
+      "target": "css=.serviceCard > ul div:nth-child(2)",
+      "targets": [
+        ["css=.serviceCard > ul div:nth-child(2)", "css:finder"],
+        ["xpath=//div[@id='setup-mfa-popup___BV_modal_body_']/div/div[2]/ul/li/div[2]", "xpath:idRelative"],
+        ["xpath=//div[2]/ul/li/div[2]", "xpath:position"]
+      ],
+      "value": "Download/Use any authenticator application like Google Authenticator or Okta Authenticator on your mobile device."
+    }, {
+      "id": "8d2d655a-dab0-49bf-a9dc-be3e0de2856c",
+      "comment": "",
+      "command": "click",
+      "target": "css=.form-group:nth-child(1) > #selectService",
+      "targets": [
+        ["css=.form-group:nth-child(1) > #selectService", "css:finder"],
+        ["xpath=(//select[@id='selectService'])[2]", "xpath:attributes"],
+        ["xpath=//div[@id='setup-mfa-popup___BV_modal_body_']/div/div[2]/ul/li/div[3]/div/select", "xpath:idRelative"],
+        ["xpath=//div[3]/div/select", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "7cc6c2b7-f006-4818-bb53-2aee7abb65d8",
+      "comment": "",
+      "command": "select",
+      "target": "css=.form-group:nth-child(1) > #selectService",
+      "targets": [],
+      "value": "label=OKTA AUTHENTICATOR"
+    }, {
+      "id": "6a54cef6-cbb9-44de-9785-6422075f63a7",
+      "comment": "",
+      "command": "click",
+      "target": "css=li:nth-child(3) > div:nth-child(1)",
+      "targets": [
+        ["css=li:nth-child(3) > div:nth-child(1)", "css:finder"],
+        ["xpath=//div[@id='setup-mfa-popup___BV_modal_body_']/div/div[2]/ul/li[3]/div", "xpath:idRelative"],
+        ["xpath=//div[2]/ul/li[3]/div", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "ca8169c4-849f-4647-8264-b93e1752e6db",
+      "comment": "",
+      "command": "assertText",
+      "target": "css=li:nth-child(3) > div:nth-child(1)",
+      "targets": [
+        ["css=li:nth-child(3) > div:nth-child(1)", "css:finder"],
+        ["xpath=//div[@id='setup-mfa-popup___BV_modal_body_']/div/div[2]/ul/li[3]/div", "xpath:idRelative"],
+        ["xpath=//div[2]/ul/li[3]/div", "xpath:position"]
+      ],
+      "value": "STEP THREE"
+    }, {
+      "id": "57c18e97-79eb-40d4-851e-5a61fa59c96e",
+      "comment": "",
+      "command": "click",
+      "target": "css=.serviceCard > ul > li:nth-child(3)",
+      "targets": [
+        ["css=.serviceCard > ul > li:nth-child(3)", "css:finder"],
+        ["xpath=//div[@id='setup-mfa-popup___BV_modal_body_']/div/div[2]/ul/li[3]", "xpath:idRelative"],
+        ["xpath=//div[2]/ul/li[3]", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "813ce497-6404-47ae-bbef-30310e43c50f",
+      "comment": "",
+      "command": "assertText",
+      "target": "css=.serviceCard > ul > li:nth-child(3)",
+      "targets": [
+        ["css=.serviceCard > ul > li:nth-child(3)", "css:finder"],
+        ["xpath=//div[@id='setup-mfa-popup___BV_modal_body_']/div/div[2]/ul/li[3]", "xpath:idRelative"],
+        ["xpath=//div[2]/ul/li[3]", "xpath:position"]
+      ],
+      "value": "STEP THREE\\nOnce the QR code has been scanned, enter the 6-digit code generated by the application."
+    }, {
+      "id": "542948e2-2c01-4ece-a4b6-bcdc9a8cd856",
+      "comment": "",
+      "command": "pause",
+      "target": "10000",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "2fd2b5fa-ef85-43c5-8ee2-330eebd55b9f",
+      "comment": "",
+      "command": "executeScript",
+      "target": "let code = window.prompt(\"Enter TOTP code:\"); return code || \"\";",
+      "targets": [],
+      "value": "setupTotpCode"
+    }, {
+      "id": "ff5ae51e-95e6-47e0-8654-e743ae37e28d",
+      "comment": "",
+      "command": "echo",
+      "target": "${setupTotpCode}",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "1a676760-9443-4447-afb3-ec16ecdb6608",
+      "comment": "",
+      "command": "type",
+      "target": " css=.otp-field-box--0 ",
+      "targets": [],
+      "value": "${setupTotpCode}"
+    }, {
+      "id": "5679244d-128c-4300-9d4c-2f2bf63ad8b1",
+      "comment": "",
+      "command": "assertText",
+      "target": "css=.v-btn--outlined",
+      "targets": [],
+      "value": "LOGOUT"
+    }, {
+      "id": "b8213443-7cc3-4cc9-9ae4-7f6182aab285",
+      "comment": "",
+      "command": "else",
+      "target": "",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "73623f67-dae5-47f4-9ca2-08733e62fd99",
+      "comment": "",
+      "command": "echo",
+      "target": "inside else",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "03ce3ce6-8ce5-43f3-9060-27c6b806ae30",
+      "comment": "",
+      "command": "click",
+      "target": "css=.container-collapsed-not",
+      "targets": [
+        ["css=.container-collapsed-not", "css:finder"],
+        ["xpath=//div[@id='app']/div[2]", "xpath:idRelative"],
+        ["xpath=//div[2]", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "c5b3197f-6cd1-4ea8-b5ac-f7fce040eff4",
+      "comment": "",
+      "command": "",
+      "target": "",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "c13f7eab-b2ed-4a48-bf08-f66d242d8540",
+      "comment": "",
+      "command": "assertText",
+      "target": "css=.mt-3",
+      "targets": [
+        ["css=.mt-3", "css:finder"],
+        ["xpath=//div[@id='app']/div[2]/div", "xpath:idRelative"],
+        ["xpath=//div[2]/div", "xpath:position"]
+      ],
+      "value": "Verify Your Identity\\nⓘ Select An Authentication App*:\\nAuthenticator App\\nOKTA AUTHENTICATOR\\nGOOGLE AUTHENTICATOR\\nⓘ A 6-digit authentication code has been sent to your device. Enter the code to continue:\\nLost App? Contact Us / Logout"
+    }, {
+      "id": "310da5d4-d110-4403-b54f-747a2464c419",
+      "comment": "",
+      "command": "click",
+      "target": "css=.row:nth-child(1) .form-group",
+      "targets": [
+        ["css=.row:nth-child(1) .form-group", "css:finder"],
+        ["xpath=//div[@id='app']/div[2]/div/div/div[2]/div/div/div/div", "xpath:idRelative"],
+        ["xpath=//div/div/div[2]/div/div/div/div", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "f1afac71-1ee8-406d-9669-4cd0f19910a7",
+      "comment": "",
+      "command": "click",
+      "target": "css=.mt-3",
+      "targets": [
+        ["css=.mt-3", "css:finder"],
+        ["xpath=//div[@id='app']/div[2]/div", "xpath:idRelative"],
+        ["xpath=//div[2]/div", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "a5888868-4b05-4e66-8aba-0e4cf83ad111",
+      "comment": "",
+      "command": "doubleClick",
+      "target": "css=.mt-3",
+      "targets": [
+        ["css=.mt-3", "css:finder"],
+        ["xpath=//div[@id='app']/div[2]/div", "xpath:idRelative"],
+        ["xpath=//div[2]/div", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "8e2990de-dada-4155-970b-b050df7aac93",
+      "comment": "",
+      "command": "assertText",
+      "target": "css=.mt-3",
+      "targets": [
+        ["css=.mt-3", "css:finder"],
+        ["xpath=//div[@id='app']/div[2]/div", "xpath:idRelative"],
+        ["xpath=//div[2]/div", "xpath:position"]
+      ],
+      "value": "Verify Your Identity\\nⓘ Select An Authentication App*:\\nAuthenticator App\\nOKTA AUTHENTICATOR\\nGOOGLE AUTHENTICATOR\\nⓘ A 6-digit authentication code has been sent to your device. Enter the code to continue:\\nLost App? Contact Us / Logout"
+    }, {
+      "id": "c9d3b486-348b-423a-bf55-c9e6472be694",
+      "comment": "",
+      "command": "click",
+      "target": "css=.row:nth-child(2) > .col",
+      "targets": [
+        ["css=.row:nth-child(2) > .col", "css:finder"],
+        ["xpath=//div[@id='app']/div[2]/div/div/div[2]/div/div[2]/div", "xpath:idRelative"],
+        ["xpath=//div[2]/div/div[2]/div", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "16139e3c-d383-457e-b661-9b778b6ba0f4",
+      "comment": "",
+      "command": "assertText",
+      "target": "css=.row:nth-child(2) > .col",
+      "targets": [
+        ["css=.row:nth-child(2) > .col", "css:finder"],
+        ["xpath=//div[@id='app']/div[2]/div/div/div[2]/div/div[2]/div", "xpath:idRelative"],
+        ["xpath=//div[2]/div/div[2]/div", "xpath:position"]
+      ],
+      "value": "ⓘ A 6-digit authentication code has been sent to your device. Enter the code to continue:"
+    }, {
+      "id": "9c4f5682-705b-4e75-88de-25edfc4ed973",
+      "comment": "",
+      "command": "click",
+      "target": "css=.row:nth-child(1) .info",
+      "targets": [
+        ["css=.row:nth-child(1) .info", "css:finder"],
+        ["xpath=//div[@id='app']/div[2]/div/div/div[2]/div/div/div/div/span", "xpath:idRelative"],
+        ["xpath=//span", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "2a845995-8fc5-4a58-ba60-fba50437268a",
+      "comment": "",
+      "command": "click",
+      "target": "css=.row:nth-child(2) .info",
+      "targets": [
+        ["css=.row:nth-child(2) .info", "css:finder"],
+        ["xpath=//div[@id='app']/div[2]/div/div/div[2]/div/div[2]/div/div/span", "xpath:idRelative"],
+        ["xpath=//div[2]/div/div/span", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "fe9691ce-fd19-45e1-8602-462ecff1a316",
+      "comment": "",
+      "command": "executeScript",
+      "target": "let auth = new URLSearchParams(window.location.hash.split('?')[1]).get('authenticators'); return auth && auth.includes('okta') ? 'okta' : 'google';",
+      "targets": [],
+      "value": "selectedAuthenticator"
+    }, {
+      "id": "8f3c9abe-4138-4226-86ad-f5e34534ff3c",
+      "comment": "",
+      "command": "echo",
+      "target": "${selectedAuthenticator}",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "ee802029-7b91-43d1-8a4b-5473557e3c1d",
+      "comment": "",
+      "command": "if",
+      "target": "${selectedAuthenticator} == \"okta\"",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "72d49471-2c60-416c-8e50-88a483dcda8f",
+      "comment": "",
+      "command": "select",
+      "target": "id=selectService",
+      "targets": [],
+      "value": "value=okta"
+    }, {
+      "id": "dc3ce747-e87d-4872-a01b-0ca51e2ee29b",
+      "comment": "",
+      "command": "else",
+      "target": "",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "62e59d48-7a3b-4252-87ea-e00bdc65904a",
+      "comment": "",
+      "command": "select",
+      "target": "id=selectService",
+      "targets": [],
+      "value": "value=google"
+    }, {
+      "id": "674a5d4a-5de5-4f70-8f4d-2fe9e527a85e",
+      "comment": "",
+      "command": "end",
+      "target": "",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "f645688d-1719-4a23-aebf-3ab88cc878b6",
+      "comment": "",
+      "command": "click",
+      "target": "id=input-20--0",
+      "targets": [
+        ["id=input-20--0", "id"],
+        ["css=#input-20--0", "css:finder"],
+        ["xpath=//input[@id='input-20--0']", "xpath:attributes"],
+        ["xpath=//div[@id='app']/div[2]/div/div/div[2]/div/div[2]/div/div/div/div/form/div/div/div/div/div/input", "xpath:idRelative"],
+        ["xpath=//input", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "48caffbb-50c7-4743-8bb5-27debf86a915",
+      "comment": "",
+      "command": "executeScript",
+      "target": "let code = window.prompt(\"Enter TOTP code:\"); return code || \"\";",
+      "targets": [],
+      "value": "totpCode"
+    }, {
+      "id": "df052e8e-1b1e-476f-9f31-c7da00ba4361",
+      "comment": "",
+      "command": "echo",
+      "target": "${totpCode}",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "5c32d585-0576-4478-9a36-873edcf3582f",
+      "comment": "",
+      "command": "type",
+      "target": "id=input-20--0",
+      "targets": [],
+      "value": "${totpCode}"
+    }, {
+      "id": "efa68336-babd-47e8-a80d-c0a92a6ca3d0",
+      "comment": "",
+      "command": "pause",
+      "target": "10000",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "b9dfdbf6-28ca-4364-baee-b060bf5ba14a",
+      "comment": "",
+      "command": "end",
+      "target": "",
+      "targets": [],
+      "value": ""
+    }]
+  }],
+  "suites": [{
+    "id": "98341582-aabd-42ef-89e5-ba549ad01f60",
+    "name": "Default Suite",
+    "persistSession": false,
+    "parallel": false,
+    "timeout": 300,
+    "tests": ["c8fe19b8-26be-4184-825d-543f410c1be4"]
+  }],
+  "urls": ["https://entity.dashboard.hypersign.id/"],
+  "plugins": []
+}
