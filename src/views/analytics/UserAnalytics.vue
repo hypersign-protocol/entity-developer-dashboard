@@ -1,14 +1,9 @@
 <template>
-    <v-container>
-        <v-row>
-            <!-- Left Column -->
-            <v-col cols="12">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h4 class="mb-1 font-weight-bold mb-0">User Analytics</h4>
-                        <p class="text-muted small mb-0">View user engagement and behavior data</p>
-                    </div>
-                </div>
+    <b-container class="py-3" fluid>
+        <v-row align="center" class="mb-6">
+            <v-col cols="12" md="6">
+                <h4 class="font-weight-bold mb-0">User Analytics</h4>
+                <p class="text-subtitle-2 text-muted">View user engagement and behavior data</p>
             </v-col>
         </v-row>
         <v-row>
@@ -28,8 +23,13 @@
             </v-col>
 
         </v-row>
-    </v-container>
+    </b-container>
 </template>
+<style>
+.py-3 {
+  width: 80vw!important;
+}
+</style>
 
 <script>
 import Overview from './components/Overview.vue';

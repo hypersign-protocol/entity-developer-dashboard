@@ -1,17 +1,11 @@
 <template>
-  <v-container>
-    <v-row>
-      <v-col>
-        <div class="form-group" style="display: flex">
-          <div>
-            <h4 class="font-weight-bold mb-0">API Usage Analytics</h4>
-            <p class="text-subtitle-2 text-muted">
-              Monitor consumption and service costs
-            </p>
-          </div>
-        </div>
+    <b-container fluid class="py-3">
+    <v-row align="center" class="mb-6">
+      <v-col cols="12" md="6">
+        <h4 class="font-weight-bold mb-0">API Usage Analytics</h4>
+        <p class="text-subtitle-2 text-muted">Monitor consumption and service costs</p>
       </v-col>
-      <v-col>
+      <v-col cols="12" md="6">
         <div class="date-picker-group d-flex align-center">
           <b-form-datepicker
             v-model="startDate"
@@ -134,7 +128,7 @@
         </div>
       </v-col>
     </v-row>
-  </v-container>
+  </b-container>
 </template>
 
 <script>
@@ -325,11 +319,15 @@ export default {
 </script>
 
 <style scoped>
+.py-3 {
+  width: 80vw !important;
+}
 .overview-container {
   padding: 1.5rem;
   background-color: #f9fafb;
   border-radius: 0.75rem;
   border: 1px solid #e5e7eb;
+  margin-top: -0.85rem;
 }
 .chart-wrapper {
   height: 320px;

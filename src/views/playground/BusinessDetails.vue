@@ -1,5 +1,5 @@
 <template>
-  <v-container fluid class="py-6 px-8">
+  <b-container fluid class="py-3">
     <load-ing :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></load-ing>
 
     <v-row align="center" class="mb-6">
@@ -102,10 +102,13 @@
             placeholder="Enter the reason for rejection (e.g., incomplete documentation, compliance issues, etc.)"
             submitText="Reject" cancelText="Cancel" iconClass="fas fa-times-circle" submitIconClass="fas fa-times"
             @submit="handleRejectSubmit" @cancel="showRejectPrompt = false" />
-  </v-container>
+  </b-container>
 </template>
 
 <style scoped>
+.py-3 {
+  width: 80vw !important;
+}
 
 .w-100 {
     width: 100%;
@@ -171,14 +174,14 @@
 }
 
 .nav-tab.active {
-  background-color: #eff6ff;
-  color: #3b82f6;
+  background-color: #f1f5f9;
+  color: #374151;
   font-weight: 700;
-  border-left-color: #3b82f6;
+  border-left-color: #94a3b8;
 }
 
 .nav-tab.active .v-icon {
-  color: #3b82f6 !important;
+  color: #64748b !important;
 }
 
 /* Content Panel */
@@ -220,7 +223,7 @@
 }
 
 .breadcrumb-link:hover {
-  color: #3b82f6; /* Theme primary blue on hover */
+  color: #00000078; /* Bright blue on hover for clarity it's clickable */
 }
 
 .company-title {

@@ -3,7 +3,7 @@
         
         <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
             <div>
-                <h4 class="mb-1 font-weight-bold mb-0">App Configuration</h4>
+                <h4 class="mb-1 font-weight-bold mb-1">App Configuration</h4>
                 <p class="text-muted small mb-0">Manage platform environment and identity settings</p>
             </div>
 
@@ -21,7 +21,7 @@
 
                 <div class="d-flex align-items-center">
                     <template v-if="!isEditing">
-                        <hf-buttons  name="Edit" @executeAction="startEdit()" 
+                        <hf-buttons  name="" @executeAction="startEdit()" 
                         iconClass="mdi mdi-pencil mr-1">
                         </hf-buttons>
                         <hf-buttons title="Delete the application" name="" @executeAction="openDeleteServicePopUp()" iconClass="fa fa-trash-alt"
@@ -30,12 +30,12 @@
                     </template>
                     
                     <template v-else>
-                        <hf-buttons name="Save" @executeAction="saveChanges()" iconClass="mdi mdi-content-save mr-1">
+                        <hf-buttons name="" @executeAction="saveChanges()" iconClass="mdi mdi-content-save mr-1"  style= "color: green" >
                         </hf-buttons>
                         
-                        <button type="button" class="btn btn-link text-muted" @click="resetDeleteServicePopUp()" style="margin-left: 8px">
-                            Cancel
-                        </button>
+                        <hf-buttons name="" @executeAction="resetDeleteServicePopUp()" iconClass="mdi mdi-cancel mr-1"  style="margin-left: 8px; color: red">
+
+                        </hf-buttons>
                     </template>
                 </div>
             </div>
@@ -254,6 +254,9 @@
 </template>
 
 <style scoped>
+.py-3 {
+  width: 80vw!important;
+}
 /* Field Styling */
 .custom-input {
     border: 1px solid #e2e8f0;

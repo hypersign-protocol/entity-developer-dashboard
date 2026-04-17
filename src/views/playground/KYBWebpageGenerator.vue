@@ -1019,7 +1019,7 @@ textarea.form-control {
 
 
 <template>
-  <div :class="isContainerShift ? 'homeShift' : 'home'">
+  <b-container fluid class="py-3" :class="isContainerShift ? 'homeShift' : 'home'">
     <load-ing :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></load-ing>
 
     <v-row>
@@ -1286,7 +1286,7 @@ textarea.form-control {
         </div>
       </div>
     </v-card>
-  </div>
+  </b-container>
 </template>
 
 <script>

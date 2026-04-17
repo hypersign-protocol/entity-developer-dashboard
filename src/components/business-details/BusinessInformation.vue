@@ -19,7 +19,23 @@
           </div>
           <div class="info-row">
             <span class="label">ID:</span>
-            <span class="value mono">{{ company?.companyId || 'N/A' }}</span>
+            <span class="value mono id-with-copy">
+              <span class="id-text">{{ company?.companyId || 'N/A' }}</span>
+
+              <v-btn
+                v-if="company?.companyId"
+                icon
+                x-small
+                class="copy-btn"
+                @click="copyToClipboard(company.companyId)"
+                title="Copy Company ID"
+              >
+                <v-icon small>mdi-content-copy</v-icon>
+                
+              </v-btn>
+
+            </span>
+            
           </div>
           <div class="info-row">
             <span class="label">Registration Number:</span>
@@ -41,7 +57,7 @@
           <div class="info-row">
             <span class="label">Country:</span>
             <span class="value">
-              {{ countryCodeToFlag(company?.countryCode) }} {{ company?.countryCode || 'N/A' }}
+             {{ countryCodeToName(company?.countryCode) || 'N/A' }}  {{ countryCodeToFlag(company?.countryCode) }} 
             </span>
           </div>
           <div class="info-row">
@@ -63,9 +79,9 @@
           <div class="info-row">
             <span class="label">Current Status:</span>
             <span class="value">
-              <span class="status-badge" :class="getStatusBadgeClass(company?.status)">
-                <i :class="getCompanyStatusIcon(company?.status)"></i>
-                {{ company?.status || 'N/A' }}
+              <span class="status-badge" :class="getStatusBadgeClass(company?.status, company?.statusReasons)">
+                <i :class="getCompanyStatusIcon(company?.status, company?.statusReasons)"></i>
+                {{ company?.status === 'InProgress' ? 'In Progress' : company?.status || 'N/A' }}
               </span>
             </span>
           </div>
@@ -106,8 +122,7 @@
           </div>
           <div class="info-row">
             <span class="label">Country:</span>
-            <span class="value"> {{ countryCodeToFlag(company?.address?.country) }} {{ company.address.country || 'N/A'
-              }}</span>
+            <span class="value">  {{ countryCodeToName(company?.address?.country) || 'N/A' }} {{ countryCodeToFlag(company?.address?.country) }}</span>
           </div>
         </div>
       </div>
@@ -171,6 +186,7 @@
 </template>
 
 <script>
+import UtilsMixin from "../../mixins/utils.js";
 export default {
   name: "BusinessInformation",
   props: {
@@ -179,6 +195,7 @@ export default {
       default: () => ({})
     }
   },
+  mixins: [UtilsMixin],
   methods: {
     countryCodeToFlag(countryCode) {
       if (!countryCode) return '';
@@ -189,24 +206,30 @@ export default {
         );
     },
 
-    getStatusBadgeClass(status) {
+    getStatusBadgeClass(status, statusReasons) {
+      if (status === 'Completed' && statusReasons && statusReasons.length) {
+        return 'status-warning';
+      }
       const statusMap = {
-        "Submitted": 'status-submitted',
+        "Submitted":  'status-submitted',
         "InProgress": 'status-inprogress',
-        "Approved": 'status-approved',
-        "Rejected": 'status-rejected',
-        "Completed": 'status-completed'
+        "Approved":   'status-approved',
+        "Rejected":   'status-rejected',
+        "Completed":  'status-completed'
       };
       return statusMap[status] || 'status-submitted';
     },
 
-    getCompanyStatusIcon(status) {
+    getCompanyStatusIcon(status, statusReasons) {
+      if (status === 'Completed' && statusReasons && statusReasons.length) {
+        return 'fas fa-exclamation-triangle';
+      }
       const iconMap = {
-        "Approved": 'fas fa-check-circle',
-        "Rejected": 'fas fa-times-circle',
-        "Completed": 'fas fa-check-double',
+        "Approved":   'fas fa-check-circle',
+        "Rejected":   'fas fa-times-circle',
+        "Completed":  'fas fa-check-double',
         "InProgress": 'fas fa-spinner fa-spin',
-        "Submitted": 'fas fa-clock'
+        "Submitted":  'fas fa-clock'
       };
       return iconMap[status] || 'fas fa-info-circle';
     },
@@ -218,6 +241,29 @@ export default {
         month: 'long',
         day: 'numeric'
       });
+    }
+    ,
+    copyToClipboard(value) {
+      if (!value) return;
+      try {
+        navigator.clipboard.writeText(value);
+        if (this.notifySuccess) this.notifySuccess('Copied to clipboard!');
+      } catch (e) {
+        console.error('Clipboard copy failed', e);
+      }
+    }
+    ,
+    countryCodeToName(countryCode) {
+      if (!countryCode) return '';
+      try {
+        if (typeof Intl !== 'undefined' && Intl.DisplayNames) {
+          const dn = new Intl.DisplayNames(['en'], { type: 'region' });
+          return dn.of(countryCode.toUpperCase());
+        }
+      } catch (e) {
+        // fall through to fallback
+      }
+      return countryCode.toUpperCase();
     }
   }
 }
@@ -322,6 +368,35 @@ export default {
   color: #4b5563;
 }
 
+.id-with-copy {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.copy-btn {
+  padding: 0;
+  border: none;
+  color: #475569;
+  opacity: 10;
+  transition: opacity 0.12s ease, color 0.12s ease;
+  min-width: 0;
+}
+.id-with-copy:hover .copy-btn {
+  opacity: 1;
+}
+.copy-btn:hover {
+  color: #111827;
+}
+
+.id-text {
+  max-width: 220px;
+  display: inline-block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: middle;
+}
+
 /* Status badges */
 .status-badge {
   display: inline-flex;
@@ -335,18 +410,18 @@ export default {
 }
 
 .status-submitted {
-  background-color: #f3f4f6;
-  color: #374151;
+  background-color: #f8fafc;
+  color: #475569;
 }
 
 .status-inprogress {
-  background-color: #fef3c7;
-  color: #92400e;
+  background-color: #eff6ff;
+  color: #1e3a8a;
 }
 
 .status-completed {
-  background-color: #dbeafe;
-  color: #1e40af;
+  background-color: #f0fdfa;
+  color: #0d9488;
 }
 
 .status-approved {
@@ -356,7 +431,13 @@ export default {
 
 .status-rejected {
   background-color: #fef2f2;
-  color: #991b1b;
+  color: #dc2626;
+}
+
+/* Completed with issues — amber warning, mirrors Business.vue */
+.status-warning {
+  background-color: #fef3c7;
+  color: #92400e;
 }
 
 /* Verification Progress */

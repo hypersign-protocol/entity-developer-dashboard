@@ -1,4 +1,5 @@
 <style scoped>
+
 .sticky-header {
   position: sticky;
   top: 0;
@@ -136,18 +137,18 @@ ul {
 }
 </style>
 <template>
-  <div :class="isContainerShift ? 'homeShift' : 'home'">
+  <b-container fluid class="py-3" :class="isContainerShift ? 'homeShift' : 'home'">
     <load-ing :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></load-ing>
     <v-row>
       <v-col>
         <div class="form-group" style="display:flex">
-          <div>
+          <div class="mb-3">
               <h4 class="mb-1 font-weight-bold mb-0">ID Widget Configuration</h4>
               <p class="text-muted small mb-0">Configure the ID widget for your application</p>
           </div>
         </div>
       </v-col>
-      <v-col>
+      <v-col >
         <HfButtons name="Save Configuration" @executeAction="saveConfiguration()" v-if="!widgetConfigTemp._id"
           style="float:right"></HfButtons>
         <HfButtons name="Update Configuration" @executeAction="updateConfiguration()" style="float:right" v-else>
@@ -345,7 +346,7 @@ ul {
 
 
 
-  </div>
+  </b-container>
 </template>
 
 <script>

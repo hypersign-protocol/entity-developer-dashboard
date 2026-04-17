@@ -130,6 +130,7 @@ export default {
   background-color: #f9fafb;
   border-radius: 0.75rem;
   border: 1px solid #e5e7eb;
+  margin-top: -0.85rem;
 }
 
 .header-row {
