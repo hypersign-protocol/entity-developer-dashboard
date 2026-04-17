@@ -1,4 +1,7 @@
 <style scoped>
+.py-3 {
+  width: 80vw!important;
+}
 /* ── Page Header ─────────────────────────────────────────── */
 .page-title {
   font-size: 1.1rem;

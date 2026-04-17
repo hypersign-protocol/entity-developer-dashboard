@@ -474,9 +474,9 @@ export default {
   flex-shrink: 0;
 }
 
-.status-approved  { background: #ede9fe; color: #5b21b6; }
-.status-inprogress { background: #fff7ed; color: #9a3412; }
-.status-rejected  { background: #fee2e2; color: #991b1b; }
+.status-approved { background-color: #f0fdf4; color: #166534; }
+.status-inprogress { background-color: #fef3c7; color: #92400e; }
+.status-rejected { background-color: #fef2f2; color: #991b1b; }
 
 /* ── meta row: key stats ─────────────────────────────────── */
 .card-meta {

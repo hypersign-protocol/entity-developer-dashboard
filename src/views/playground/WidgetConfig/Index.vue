@@ -1,4 +1,5 @@
 <style scoped>
+
 .sticky-header {
   position: sticky;
   top: 0;
@@ -136,7 +137,7 @@ ul {
 }
 </style>
 <template>
-  <b-container fluid py-3 :class="isContainerShift ? 'homeShift' : 'home'">
+  <b-container fluid class="py-3" :class="isContainerShift ? 'homeShift' : 'home'">
     <load-ing :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></load-ing>
     <v-row>
       <v-col>
