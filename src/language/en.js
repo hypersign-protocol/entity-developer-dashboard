@@ -1,14 +1,14 @@
 export const NAV = {
     GETTING_STARTED: "Getting Started",
     IDENTITY_VERIFICATION: {
-        TITLE: "Identity",
-        USERS: "Users",
+        TITLE: "User",
+        USERS: "Verifications",
         USER_ANALYTICS: "Analytics",
         KYC_WIDGET: "Widget",
     },
     BUSINESS_VERIFICATION: {
         TITLE: "Business",
-        BUSINESSES: "Businesses",
+        BUSINESSES: "Verifications",
         KYB_WIDGET: "Widget",
     },
     DEVELOPERS_HUB: {

@@ -1,5 +1,5 @@
 <template>
-  <b-container fluid py-3 :class="isContainerShift ? 'homeShift' : 'home'">
+  <b-container fluid class="py-3" :class="isContainerShift ? 'homeShift' : 'home'">
     <load-ing :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></load-ing>
     
     <v-row class="align-center mb-3">
@@ -163,8 +163,9 @@
 
 
 <style scoped>
-
-
+.py-3 {
+  width: 80vw !important;
+}
 /* Visual Consistency */
 .serviceCard {
   border-radius: 12px;
