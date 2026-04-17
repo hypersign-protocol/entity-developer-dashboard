@@ -742,8 +742,6 @@ export default {
             icon: "fa fa-flag-checkered",
           });
 
-          menu.push({ header: true, title: '' });
-
           // Identity Verification
           const ivChildren = [
             { href: "/studio/sessions/" + appId, title: EN.NAV.IDENTITY_VERIFICATION.USERS, icon: "fa fa-users" },
