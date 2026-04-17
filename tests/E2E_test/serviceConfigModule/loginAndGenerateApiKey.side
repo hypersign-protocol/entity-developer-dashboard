@@ -775,11 +775,7 @@
       "comment": "",
       "command": "//click",
       "target": "css=.warning-box > .d-flex",
-      "targets": [
-        ["css=.warning-box > .d-flex", "css:finder"],
-        ["xpath=//div[@id='app']/div[2]/div/div[3]/div/div/div[2]/div[2]/div", "xpath:idRelative"],
-        ["xpath=//div[2]/div[2]/div", "xpath:position"]
-      ],
+      "targets": [],
       "value": ""
     }, {
       "id": "9b2cb2c2-f63e-4637-96cd-25a19a9c0223",
@@ -886,6 +882,20 @@
         ["xpath=//div[4]/div/div/div/header", "xpath:position"]
       ],
       "value": ""
+    }, {
+      "id": "2de3c0f0-0cb5-42ab-91e3-682b91b37319",
+      "comment": "",
+      "command": "pause",
+      "target": "10000",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "284ef093-7a25-46ee-93af-7327e5168fdd",
+      "comment": "",
+      "command": "waitForElementVisible",
+      "target": "css=.pa-4 > .font-weight-bold",
+      "targets": [],
+      "value": "30000"
     }, {
       "id": "a39ce135-0ec2-4447-a665-016cc04685fd",
       "comment": "",

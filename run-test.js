@@ -19,6 +19,7 @@ const tests = [
     "tests/E2E_test/kycServiceModule/verifier/loginAndUpdateIdVerifier.side",
     "tests/E2E_test/kycServiceModule/widget/loginAndUpdateIdWidget.side",
     "tests/E2E_test/kycServiceModule/widget/loginAndConfigureKybWidget.side",
+    "tests/E2E_test/serviceConfigModule/deleteApp.side",
 ];
 
 function getInputs() {

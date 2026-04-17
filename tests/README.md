@@ -91,6 +91,7 @@ Selenium Side Runner is included as a dev dependency, so no global install is ne
 ### Prerequisites
 Before running CLI tests, ensure:
 - Run `npm install` to install dependencies.
+- The developer dashboard UI is built and running via `npm run serve` from the project root.
 - These backend services are running:
   - `entity-develop-dashboard-service`
   - `entity-ssi-api-service`
