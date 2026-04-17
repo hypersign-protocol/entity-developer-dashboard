@@ -83,6 +83,11 @@
 </template>
 
 <style scoped>
+
+.py-3 {
+  width: 80vw!important;
+}
+
 .overview-container {
   padding: 1.5rem;
   background-color: #f9fafb;

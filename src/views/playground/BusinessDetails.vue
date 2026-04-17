@@ -1,5 +1,5 @@
 <template>
-  <v-container fluid class="py-6 px-8">
+  <b-container fluid class="py-3">
     <load-ing :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></load-ing>
 
     <v-row align="center" class="mb-6">
@@ -102,10 +102,13 @@
             placeholder="Enter the reason for rejection (e.g., incomplete documentation, compliance issues, etc.)"
             submitText="Reject" cancelText="Cancel" iconClass="fas fa-times-circle" submitIconClass="fas fa-times"
             @submit="handleRejectSubmit" @cancel="showRejectPrompt = false" />
-  </v-container>
+  </b-container>
 </template>
 
 <style scoped>
+.py-3 {
+  width: 80vw !important;
+}
 
 .w-100 {
     width: 100%;

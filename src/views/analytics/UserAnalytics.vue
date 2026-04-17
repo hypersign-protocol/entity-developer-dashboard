@@ -25,6 +25,11 @@
         </v-row>
     </b-container>
 </template>
+<style>
+.py-3 {
+  width: 80vw!important;
+}
+</style>
 
 <script>
 import Overview from './components/Overview.vue';
