@@ -1,7 +1,7 @@
 {
   "id": "5919f94f-c285-473c-ba96-2681f0e13d4f",
   "version": "2.0",
-  "name": "Developer dashboard2",
+  "name": "Developer dashboard",
   "url": "http://localhost:9001",
   "tests": [{
     "id": "c8fe19b8-26be-4184-825d-543f410c1be4",
