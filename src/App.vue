@@ -207,16 +207,7 @@
   background: #ffffff !important;
 }
 
-/* Section separator headers */
-.v-sidebar-menu.vsm_white-theme .vsm--header {
-  height: 0 !important;
-  padding: 0 !important;
-  margin: 6px 16px !important;
-  border: none !important;
-  border-top: 1px solid #eef0f2 !important;
-  font-size: 0 !important;
-  overflow: hidden !important;
-}
+
 
 /* All links */
 .v-sidebar-menu.vsm_white-theme .vsm--link {
@@ -237,7 +228,7 @@
 /* Icons */
 .v-sidebar-menu.vsm_white-theme .vsm--link_level-1 .vsm--icon {
   background-color: transparent !important;
-  color: #9a9aaa !important;
+  color: #313131b1 !important;
   font-size: 0.95rem !important;
   width: 36px !important;
 }
@@ -253,11 +244,12 @@
   background: transparent !important;
   color: #1a1a2e !important;
   font-weight: 600 !important;
-  box-shadow: 3px 0px 0px 0px #1a1a2e inset !important;
+  box-shadow: none !important;
+  -webkit-box-shadow: none !important;
 }
 
 .v-sidebar-menu.vsm_white-theme .vsm--link_level-1.vsm--link_active .vsm--icon {
-  color: #3d3d4e !important;
+  color: #1a1a1a !important;
 }
 
 /* Open parent item — no highlight on parent */
@@ -308,9 +300,16 @@ color: #1a1a2e !important;
   color: #9a9aaa !important;
 }
 
+/* Remove shadow on collapsed popup dropdown */
+.v-sidebar-menu.vsm_white-theme .vsm--mobile-item .vsm--item,
+.v-sidebar-menu.vsm_white-theme .vsm--dropdown {
+  box-shadow: none !important;
+  -webkit-box-shadow: none !important;
+}
+
 /* Collapsed: parent icon color when a child link is active */
 .v-sidebar-menu.vsm_white-theme.vsm_collapsed .vsm--link_level-1.vsm--link_active .vsm--icon {
-  color: #3d3d4e !important;
+  color: #1a1a1a !important;;
 }
 
 /* Collapsed: active child item icon in the popup */
@@ -743,8 +742,6 @@ export default {
             icon: "fa fa-flag-checkered",
           });
 
-          menu.push({ header: true, title: '' });
-
           // Identity Verification
           const ivChildren = [
             { href: "/studio/sessions/" + appId, title: EN.NAV.IDENTITY_VERIFICATION.USERS, icon: "fa fa-users" },
@@ -760,8 +757,6 @@ export default {
           ];
           menu.push({ href: "", title: EN.NAV.BUSINESS_VERIFICATION.TITLE, icon: "fa fa-building", opened: isParentOpen(bvChildren), child: bvChildren });
 
-          menu.push({ header: true, title: '' });
-
           // Solutions
           const solChildren = [
             { href: "/studio/kyc-webpage-generator/" + appId, title: EN.NAV.SOLUTIONS.KYC_VERIFIER_CONFIGURATION, icon: "fa fa-globe" },
@@ -769,8 +764,6 @@ export default {
             { href: "/studio/solutions/reusable-id/" + appId, title: EN.NAV.SOLUTIONS.RESUABLE_ID, icon: "fa fa-circle-notch" },
           ];
           menu.push({ href: "", title: EN.NAV.SOLUTIONS.TITLE, icon: "fa fa-lightbulb", opened: isParentOpen(solChildren), child: solChildren });
-
-          menu.push({ header: true, title: '' });
 
           // Developer Hub
           const devChildren = [
@@ -804,8 +797,6 @@ export default {
             title: "Credential",
             icon: "fa fa-certificate",
           });
-
-          menu.push({ header: true, title: '' });
 
           menu.push({
             href: "/studio/ssi/usage/" + appId,
