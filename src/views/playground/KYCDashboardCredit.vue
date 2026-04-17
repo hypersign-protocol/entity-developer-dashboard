@@ -348,6 +348,9 @@ export default {
 </script>
 
 <style scoped>
+.py-3 {
+    width: 80vw !important;
+}
 /* Unified Dashboard Styles */
 .overview-container {
     padding:  1.5rem 1.5rem;

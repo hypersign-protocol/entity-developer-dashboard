@@ -1,4 +1,5 @@
 <style scoped>
+
 .detail-card {
   background-color: #fff;
   border: 1px solid #e5e7eb;
@@ -249,7 +250,7 @@
 </style>
 
 <template>
-  <b-container fluid py-3 :class="isContainerShift ? 'homeShift' : 'home'">
+  <b-container fluid class="py-3" :class="isContainerShift ? 'homeShift' : 'home'" style="width : 80vw!important">
     <loadIng
       :active.sync="isLoading"
       :can-cancel="true"

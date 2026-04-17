@@ -124,6 +124,9 @@
 </template>
 
 <style scoped>
+.py-3 {
+  width: 80vw!important;
+}
 /* Inherited Theme Patterns */
 .overview-container {
   padding: 1.25rem;

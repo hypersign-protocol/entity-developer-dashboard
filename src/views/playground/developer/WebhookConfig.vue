@@ -85,6 +85,9 @@
 </template>
 
 <style scoped>
+.py-3 {
+  width: 80vw !important;
+}
 /* Dashboard Container Style */
 .overview-container {
   padding: 1.5rem;
