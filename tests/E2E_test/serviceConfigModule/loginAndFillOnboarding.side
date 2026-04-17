@@ -35,6 +35,20 @@
       "targets": [],
       "value": "adminEmailId"
     }, {
+      "id": "65181502-7bfa-44a9-ab1a-1f4215a15157",
+      "comment": "",
+      "command": "executeScript",
+      "target": "BYPASS_LOGIN",
+      "targets": [],
+      "value": ""
+    },{
+      "id": "e617481c-5373-4c4a-8630-4bc00be62670",
+      "comment": "",
+      "command": "pause",
+      "target": "10000",
+      "targets": [],
+      "value": ""
+    }, {
       "id": "64546b38-2567-487a-b2db-8d3ebf9639b9",
       "comment": "",
       "command": "executeScript",

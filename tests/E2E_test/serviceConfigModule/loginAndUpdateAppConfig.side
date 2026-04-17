@@ -13,7 +13,21 @@
       "target": "/",
       "targets": [],
       "value": ""
-    }, {
+    },  {
+      "id": "65181502-7bfa-44a9-ab1a-1f4215a15157",
+      "comment": "",
+      "command": "executeScript",
+      "target": "BYPASS_LOGIN",
+      "targets": [],
+      "value": ""
+    },{
+      "id": "e617481c-5373-4c4a-8630-4bc00be62670",
+      "comment": "",
+      "command": "pause",
+      "target": "10000",
+      "targets": [],
+      "value": ""
+    },{
       "id": "f429cfa1-cef3-4a59-96b3-652600427e59",
       "comment": "",
       "command": "setWindowSize",

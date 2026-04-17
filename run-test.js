@@ -2,7 +2,9 @@ const readlineSync = require("readline-sync");
 const { exec } = require("child_process");
 const path = require("path");
 const os = require("os");
-const fs = require('fs');
+const fs = require("fs");
+
+const cookiesData = JSON.parse(fs.readFileSync("./cookies.json", "utf8"));
 
 const tests = [
     "tests/E2E_test/serviceConfigModule/loginAndFillOnboarding.side",
@@ -20,20 +22,40 @@ const tests = [
 ];
 
 function getInputs() {
-    const baseUrl = readlineSync.question("Enter Base URL (optional): ") || "https://entity.dashboard.hypersign.id";
-    const adminEmail = readlineSync.question("Enter Admin Email (optional): ") || "seleniumide609@gmail.com";
-    const superAdminEmailId = readlineSync.question("Enter Super Admin Email ID for approve onboarding (optional): ") || '609varsha@gmail.com'
+    const baseUrl =
+        readlineSync.question("Enter Base URL: ") ||
+        "http://localhost:9001";
+
+    const adminEmail =
+        readlineSync.question("Enter Admin Email: ") ||
+        "seleniumide609@gmail.com";
+
+    const superAdminEmailId =
+        readlineSync.question(
+            "Enter Super Admin Email ID: "
+        ) || "609varsha@gmail.com";
+    const concurrency =
+        parseInt(readlineSync.question("How many tests to run in parallel? [2]: ")) || 2;
+
     const browserIndex = readlineSync.keyInSelect(
         ["chrome", "firefox", "edge", "brave"],
         "Select browser:"
     );
 
-    const browser = ["chrome", "firefox", "edge", "brave"][browserIndex] || "chrome";
-    const debugModeInput = readlineSync.question("Enable debug mode? (y/n) [n]: ").toLowerCase().trim();
-    const debugMode = debugModeInput === 'y' || debugModeInput === 'yes';
+    const browser =
+        ["chrome", "firefox", "edge", "brave"][browserIndex] || "chrome";
 
-    const takeScreenshotsInput = readlineSync.question("Take error screenshots? (y/n) [n]: ").toLowerCase().trim();
-    const takeScreenshots = takeScreenshotsInput === 'y' || takeScreenshotsInput === 'yes';
+    const debugMode =
+        readlineSync
+            .question("Enable debug mode? (y/n) [n]: ")
+            .toLowerCase()
+            .trim() === "y";
+
+    const takeScreenshots =
+        readlineSync
+            .question("Take error screenshots? (y/n) [n]: ")
+            .toLowerCase()
+            .trim() === "y";
 
     return {
         baseUrl,
@@ -42,40 +64,68 @@ function getInputs() {
         browser,
         debugMode,
         takeScreenshots,
+        concurrency
     };
 }
 
-function buildConfig(vars, browser, profilePath) {
+function buildConfig(browser) {
     const config = [];
 
     if (browser === "firefox") {
         config.push(`browserName=firefox`);
-        config.push(`moz:firefoxOptions.args=[-profile,${profilePath},-headless]`);
+        config.push(`moz:firefoxOptions.args=[-headless]`);
+
     } else {
         config.push(`browserName=${browser}`);
-        config.push(`goog:chromeOptions.args=[headless,--window-size=1920,1080,--user-data-dir=${profilePath},--disable-gpu,--no-sandbox]`);
+        config.push(
+            `goog:chromeOptions.args=[--headless,--window-size=1920,1080,--disable-gpu,--no-sandbox]`
+        );
     }
+
     return config.join(" ");
 }
 
-function runTest(file, config, baseUrl, options) {
-    let sideContent = fs.readFileSync(file, 'utf8');
+function runTest(file, config, baseUrl, options, cookies) {
+    let sideContent = fs.readFileSync(file, "utf8");
+
+    console.log("🔐 Using cookies:", cookies);
+
+    // Inject AFTER first open command
+    const script =
+        "document.cookie='accessToken=" + cookies.accessToken + "; path=/;';" +
+        "document.cookie='refreshToken=" + cookies.refreshToken + "; path=/;';" +
+        "document.cookie='isLoggedIn=" + cookies.isLoggedIn + "; path=/;';" +
+        "window.location.href='/#/studio/home';";
+
+    sideContent = sideContent.replace(/BYPASS_LOGIN/g, script);
+
+    // Replace emails dynamically
     sideContent = sideContent.replace(
         /"target": "seleniumide609@gmail.com"/g,
         `"target": "${options.adminEmail}"`
     );
+
     sideContent = sideContent.replace(
         /"target": "609varsha@gmail.com"/g,
         `"target": "${options.superAdminEmailId}"`
     );
-    const tempFile = path.join(os.tmpdir(), `temp_${path.basename(file)}`);
+
+    const tempFile = path.join(
+        os.tmpdir(),
+        `temp_${Date.now()}_${Math.random()}_${path.basename(file)}`
+    );
     fs.writeFileSync(tempFile, sideContent);
+
     return new Promise((resolve) => {
         console.log("🚀 Running:", file);
+
         const baseUrlFlag = baseUrl ? `--base-url "${baseUrl}"` : "";
         const debugFlag = options.debugMode ? "--debug" : "";
-        const screenshotFlag = options.takeScreenshots ? "-z ./error-screenshots" : "";
-        const cmd = `selenium-side-runner ${screenshotFlag} ${debugFlag} "${tempFile}" ${baseUrlFlag} -c "${config}"`.trim();
+        const screenshotFlag = options.takeScreenshots
+            ? "-z ./error-screenshots"
+            : "";
+
+        const cmd = `selenium-side-runner  ${screenshotFlag} ${debugFlag} "${tempFile}" ${baseUrlFlag} -c "${config}"`.trim();
 
         const child = exec(cmd);
 
@@ -91,32 +141,48 @@ function runTest(file, config, baseUrl, options) {
 }
 
 async function run() {
-    const inputs = getInputs(); // 👈 sync now
+    const inputs = getInputs();
+    const fileConfig = buildConfig(inputs.browser);
 
-    // Build OS-specific profile paths
-    let defaultProfilePath, superAdminProfilePath;
-    console.log(os.platform())
-    if (os.platform() === "win32") {
-        // Windows
-        defaultProfilePath = "C:\\selenium-profile";
-        superAdminProfilePath = "C:\\selenium-profile-superadmin";
-    } else {
-        // Linux/Mac
-        defaultProfilePath = path.join(os.homedir(), "selenium-profile");
-        superAdminProfilePath = path.join(os.homedir(), "selenium-profile-superadmin");
+    const queue = [...tests];
+    const running = [];
+
+    async function runNext() {
+        if (queue.length === 0) return;
+
+        const file = queue.shift();
+
+        const isSuperAdmin = file.includes(
+            "loginAndApproveOnboarding.side"
+        );
+        const cookies = isSuperAdmin
+            ? cookiesData.superAdmin
+            : cookiesData.admin;
+
+        const p = runTest(file, fileConfig, inputs.baseUrl, inputs, cookies)
+            .then(() => {
+                running.splice(running.indexOf(p), 1);
+            });
+
+        running.push(p);
+
+        let next = Promise.resolve();
+
+        if (running.length >= inputs.concurrency) {
+            next = Promise.race(running);
+        }
+
+        await next;
+        await runNext();
     }
 
-    console.log("\n⚙️ Default profile:", defaultProfilePath);
-    console.log("⚙️ Super admin profile:", superAdminProfilePath);
+    const workers = Array(inputs.concurrency)
+        .fill(0)
+        .map(() => runNext());
 
-    for (const file of tests) {
-        const profilePath = file.includes("loginAndApproveOnboarding.side")
-            ? superAdminProfilePath
-            : defaultProfilePath;
-        const fileConfig = buildConfig(inputs, inputs.browser, profilePath);
-        await runTest(file, fileConfig, inputs.baseUrl, inputs);
-    }
+    await Promise.all(workers);
+
+    console.log("🎉 All tests finished");
 }
-
 
 run();
