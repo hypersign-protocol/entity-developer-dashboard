@@ -87,7 +87,7 @@
       "id": "f4b08ee9-bd85-4f3e-a258-8876bf75b9d6",
       "comment": "",
       "command": "storeText",
-      "target": "css=h4",
+      "target": "css=h3",
       "targets": [],
       "value": "pageHeader"
     }, {
@@ -101,28 +101,28 @@
       "id": "4f63b5e5-8aa4-4575-9ea2-f8e9263d8a69",
       "comment": "",
       "command": "if",
-      "target": "${pageHeader} == \"Configure Your Identity Service\"",
+      "target": "${pageHeader} == \"You have no services yet!\"",
       "targets": [],
       "value": ""
     }, {
       "id": "f026eaf0-87b1-4d82-a7ee-b5c0d1ef1268",
       "comment": "",
       "command": "click",
-      "target": "css=h4",
+      "target": "css=h3",
       "targets": [
         ["css=h4", "css:finder"],
-        ["xpath=//div[@id='app']/div[2]/div/div[2]/h4", "xpath:idRelative"],
+        ["xpath=//div[@id='app']/div[2]/div/div[2]/h3", "xpath:idRelative"],
         ["xpath=//h4", "xpath:position"],
-        ["xpath=//h4[contains(.,' Configure Your Identity Service')]", "xpath:innerText"]
+        ["xpath=//h4[contains(.,'You have no services yet!')]", "xpath:innerText"]
       ],
       "value": ""
     }, {
       "id": "54e12084-324e-4cff-85c3-6a7d27c20e74",
       "comment": "",
       "command": "assertText",
-      "target": "css=h4",
+      "target": "css=h3",
       "targets": [],
-      "value": "Configure Your Identity Service"
+      "value": "You have no services yet!"
     }, {
       "id": "8bb0df25-a941-47c9-aa32-e09c714a5b1f",
       "comment": "",
@@ -134,9 +134,9 @@
       "id": "0fd5fc4f-bfc0-4acd-9b52-d247c6e83e47",
       "comment": "",
       "command": "assertText",
-      "target": "xpath=//p[contains(text(),'Complete the guided steps to set up your identity verification services')] ",
+      "target": "xpath=//p[contains(text(),'Services help you manage your applications and APIs. Create your first service to get started.')] ",
       "targets": [],
-      "value": "Complete the guided steps to set up your identity verification services."
+      "value": " Services help you manage your applications and APIs. Create your first service to get started. "
     }, {
       "id": "0e086ac9-d6c6-4c09-abe8-3d4f8d72e1d9",
       "comment": "",
@@ -417,7 +417,7 @@
         ["xpath=//div[@id='__BVID__235']/div/div/div[2]/div/div/div/div/div/input", "xpath:idRelative"],
         ["xpath=//div[2]/div/div/div/div/div/input", "xpath:position"]
       ],
-       "value": "${ONBOARDING_ID}"
+       "value": "${onboardingId}"
     }, {
       "id": "c2d08d3d-0766-444f-a93c-44a39b91603e",
       "comment": "",
@@ -677,7 +677,7 @@
       "id": "30b23d49-df15-4cc3-b86b-c123af2d0e84",
       "comment": "",
       "command": "pause",
-      "target": "2000",
+      "target": "40000",
       "targets": [],
       "value": ""
     }, {
@@ -775,7 +775,7 @@
       "command": "//assertText",
       "target": "css=.toast-body",
       "targets": [],
-      "value": "Customer onboarding detail not found for id: ${onboarONBOARDING_IDdingId}"
+      "value": "Customer onboarding detail not found for id: ${onboardingId}"
     }, {
       "id": "726898e2-3ec5-4882-9901-3fd43b082a2a",
       "comment": "",

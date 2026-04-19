@@ -126,7 +126,7 @@
     }, {
       "id": "b59863d2-c43b-41e3-ab3f-edd05cfa808a",
       "comment": "",
-      "command": "assertText",
+      "command": "//assertText",
       "target": "css=.container",
       "targets": [],
       "value": "Configure Your Identity Service\\nComplete the guided steps to set up your identity verification services.\\nSelect Your Business Type\\nBusiness\\nCommunity"

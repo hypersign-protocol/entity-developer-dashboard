@@ -126,7 +126,7 @@
     }, {
       "id": "b59863d2-c43b-41e3-ab3f-edd05cfa808a",
       "comment": "",
-      "command": "assertText",
+      "command": "//assertText",
       "target": "xpath=//h4",
       "targets": [],
       "value": "Configure Your Identity Service"
@@ -549,6 +549,14 @@
       "targets": [],
       "value": ""
     }, {
+      "id":"f530bb37-0011-4946-b1df-d99041b1bec7",
+      "comment":"",
+      "command":"pause",
+      "target":"10000",
+      "targets":[],
+      "value":""
+    },
+    {
       "id": "c7ae30e1-be1f-4e11-b45b-f2bcb03e2eec",
       "comment": "",
       "command": "assertElementPresent",
