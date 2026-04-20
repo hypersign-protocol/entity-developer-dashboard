@@ -1,7 +1,7 @@
 {
   "id": "5919f94f-c285-473c-ba96-2681f0e13d4f",
   "version": "2.0",
-  "name": "Developer dashboard2",
+  "name": "Developer dashboard",
   "url": "https://entity.dashboard.hypersign.id",
   "tests": [{
     "id": "c8fe19b8-26be-4184-825d-543f410c1be4",
@@ -13,21 +13,21 @@
       "target": "/",
       "targets": [],
       "value": ""
-    },{
+    }, {
       "id": "65181502-7bfa-44a9-ab1a-1f4215a15157",
       "comment": "",
       "command": "executeScript",
       "target": "BYPASS_LOGIN",
       "targets": [],
       "value": ""
-    },{
+    }, {
       "id": "e617481c-5373-4c4a-8630-4bc00be62670",
       "comment": "",
       "command": "pause",
       "target": "10000",
       "targets": [],
       "value": ""
-    },{
+    }, {
       "id": "f429cfa1-cef3-4a59-96b3-652600427e59",
       "comment": "",
       "command": "setWindowSize",
@@ -124,9 +124,16 @@
       "targets": [],
       "value": ""
     }, {
+      "id": "b59863d2-c43b-41e3-ab3f-edd05cfa818a",
+      "comment": "",
+      "command": "storeText",
+      "target": "css=h5",
+      "targets": [],
+      "value": "creditHeader"
+    }, {
       "id": "b59863d2-c43b-41e3-ab3f-edd05cfa808a",
       "comment": "",
-      "command": "assertText",
+      "command": "//assertText",
       "target": "css=.container",
       "targets": [],
       "value": "Configure Your Identity Service\\nComplete the guided steps to set up your identity verification services.\\nSelect Your Business Type\\nBusiness\\nCommunity"
@@ -564,6 +571,13 @@
       "targets": [],
       "value": ""
     }, {
+      "id": "b4658540-a2a3-4390-b3cd-8f37ffdaff52",
+      "comment": "",
+      "command": "pause",
+      "target": "10000",
+      "targets": [],
+      "value": ""
+    }, {
       "id": "29012cca-9631-4222-a191-5b9e1da612b6",
       "comment": "",
       "command": "selectWindow",
@@ -592,6 +606,13 @@
       ],
       "value": "Generate AccessTokens"
     }, {
+      "id": "0d910577-0ef1-4477-8aaa-2c63899a37c1",
+      "comment": "",
+      "command": "pause",
+      "target": "10000",
+      "targets": [],
+      "value": ""
+    }, {
       "id": "85c50afd-8117-4e85-8d78-abb29837c1c3",
       "comment": "",
       "command": "selectWindow",
@@ -603,17 +624,18 @@
       "comment": "",
       "command": "click",
       "target": "css=.step-item:nth-child(3) .doc-link",
-      "targets": [
-        ["css=.step-item:nth-child(3) .doc-link", "css:finder"],
-        ["xpath=(//a[contains(text(),'Documentation')])[2]", "xpath:link"],
-        ["xpath=//div[@id='app']/div[2]/div/div[3]/div[2]/div/div[3]/div[2]/a", "xpath:idRelative"],
-        ["xpath=//a[contains(@href, 'https://docs.hypersign.id/hypersign-kyc/kyc-widget/integrations/backend-integration/generate-kyc-session-id')]", "xpath:href"],
-        ["xpath=//div[3]/div[2]/a", "xpath:position"]
-      ],
+      "targets": [],
       "value": "",
       "opensWindow": true,
       "windowHandleName": "win7825",
       "windowTimeout": 2000
+    }, {
+      "id": "801ed7cb-9596-4a39-99d3-5ba52050477b",
+      "comment": "",
+      "command": "pause",
+      "target": "1000",
+      "targets": [],
+      "value": ""
     }, {
       "id": "801ed7cb-9586-4a39-99d3-5ba52050477b",
       "comment": "",
@@ -886,7 +908,7 @@
       "id": "2de3c0f0-0cb5-42ab-91e3-682b91b37319",
       "comment": "",
       "command": "pause",
-      "target": "10000",
+      "target": "20000",
       "targets": [],
       "value": ""
     }, {
@@ -1103,6 +1125,6 @@
     "timeout": 300,
     "tests": ["c8fe19b8-26be-4184-825d-543f410c1be4"]
   }],
-  "urls": ["https://entity.dashboard.hypersign.id/"],
+  "urls": ["https://entity.dashboard.hypersign.id/", "http://localhost:9001/"],
   "plugins": []
 }

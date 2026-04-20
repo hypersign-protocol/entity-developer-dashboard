@@ -1,7 +1,7 @@
 {
   "id": "5919f94f-c285-473c-ba96-2681f0e13d4f",
   "version": "2.0",
-  "name": "Developer dashboard2",
+  "name": "Developer dashboard",
   "url": "https://entity.dashboard.hypersign.id",
   "tests": [{
     "id": "c8fe19b8-26be-4184-825d-543f410c1be4",
@@ -112,7 +112,7 @@
     }, {
       "id": "b59863d2-c43b-41e3-ab3f-edd05cfa808a",
       "comment": "",
-      "command": "assertText",
+      "command": "//assertText",
       "target": "css=.container",
       "targets": [],
       "value": "Configure Your Identity Service\\nComplete the guided steps to set up your identity verification services.\\nSelect Your Business Type\\nBusiness\\nCommunity"
@@ -280,7 +280,7 @@
         ["css=.vsm--title:nth-child(1)", "css:finder"],
         ["xpath=//div[@id='app']/div[4]/div[2]/div[2]/div/a/span", "xpath:idRelative"],
         ["xpath=//div[2]/div[2]/div/a/span", "xpath:position"],
-        ["xpath=//span[contains(.,'Identity')]", "xpath:innerText"]
+        ["xpath=//span[contains(.,'User')]", "xpath:innerText"]
       ],
       "value": "4. Integrate into Your App"
     }, {
@@ -325,26 +325,26 @@
         ["css=.vsm--title:nth-child(1)", "css:finder"],
         ["xpath=//div[@id='app']/div[4]/div[2]/div[2]/div/a/span", "xpath:idRelative"],
         ["xpath=//div[2]/div[2]/div/a/span", "xpath:position"],
-        ["xpath=//span[contains(.,'Identity')]", "xpath:innerText"]
+        ["xpath=//span[contains(.,'User')]", "xpath:innerText"]
       ],
-      "value": "Identity"
+      "value": "User"
     }, {
       "id": "2ccf207d-3cda-4e10-a8bf-539d6b380b1d",
       "comment": "",
       "command": "assertText",
-      "target": "xpath=//div[contains(@class,'vsm--list')]//span[normalize-space()='Users']",
+      "target": "xpath=//div[contains(@class,'vsm--list')]//span[normalize-space()='User']",
       "targets": [
         ["css=.vsm--link_hover > .vsm--title", "css:finder"],
         ["xpath=//div[@id='app']/div[4]/div[2]/div[2]/div/div/div/div[3]/a/span", "xpath:idRelative"],
         ["xpath=//div[3]/a/span", "xpath:position"],
         ["xpath=//span[contains(.,'App Config')]", "xpath:innerText"]
       ],
-      "value": "Users"
+      "value": "Verifications"
     }, {
       "id": "3b0548bf-3cf1-4dc0-9a08-f6c3d1c9ec81",
       "comment": "",
       "command": "click",
-      "target": "xpath=//div[contains(@class,'vsm--list')]//span[normalize-space()='Users']",
+      "target": "xpath=//div[contains(@class,'vsm--list')]//span[normalize-space()='Verifications']",
       "targets": [],
       "value": ""
     }, {

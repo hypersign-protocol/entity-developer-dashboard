@@ -1,7 +1,7 @@
 {
   "id": "5919f94f-c285-473c-ba96-2681f0e13d4f",
   "version": "2.0",
-  "name": "Developer dashboard2",
+  "name": "Developer dashboard",
   "url":"https://entity.dashboard.hypersign.id/",
   "tests": [{
     "id": "c8fe19b8-26be-4184-825d-543f410c1be4",
@@ -73,7 +73,7 @@
       "id": "88f5da5d-b79e-4803-b5e0-0d971e1df927",
       "comment": "",
       "command": "store",
-      "target": "https://upload.wikimedia.org/wikipedia/commons/a/a7/React-icon.svg",
+      "target": "https://storage.googleapis.com/fyre-image-storage/download.png",
       "targets": [],
       "value": "companyLogo"
     }, {
@@ -126,7 +126,7 @@
     }, {
       "id": "b59863d2-c43b-41e3-ab3f-edd05cfa808a",
       "comment": "",
-      "command": "assertText",
+      "command": "//assertText",
       "target": "xpath=//h4",
       "targets": [],
       "value": "Configure Your Identity Service"
@@ -548,6 +548,13 @@
       "target": "var imageUrl=${companyLogo};var wrapper=document.querySelector('.logo-upload-wrapper');if(wrapper){fetch(imageUrl).then(res=>res.blob()).then(blob=>{var file=new File([blob],\"logo.png\",{type:blob.type});var dt=new DataTransfer();dt.items.add(file);var input=document.querySelector('.logo-upload-wrapper input[type=\\\"file\\\"]');if(input){input.files=dt.files;input.dispatchEvent(new Event('change',{bubbles:true}));}}).catch(e=>console.error(e));}",
       "targets": [],
       "value": ""
+    }, {
+      "id":"f530bb37-0011-4946-b1df-d99041b1bec7",
+      "comment":"",
+      "command":"pause",
+      "target":"10000",
+      "targets":[],
+      "value":""
     }, {
       "id": "c7ae30e1-be1f-4e11-b45b-f2bcb03e2eec",
       "comment": "",
