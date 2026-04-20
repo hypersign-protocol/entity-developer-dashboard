@@ -88,13 +88,13 @@ function buildConfig(browser) {
 
     if (browser === "firefox") {
         config.push(`browserName=firefox`);
-        // config.push(`moz:firefoxOptions.args=[-headless]`);
-        config.push(`moz:firefoxOptions.args=[]`);
+        config.push(`moz:firefoxOptions.args=[-headless]`);
+        // config.push(`moz:firefoxOptions.args=[]`); // for headed mode
     } else {
         config.push(`browserName=${browser}`);
         config.push(
-            // `goog:chromeOptions.args=[--headless,--window-size=1920,1080,--disable-gpu,--no-sandbox]`
-            `goog:chromeOptions.args=[--window-size=1920,1080,--disable-gpu,--no-sandbox]`
+            `goog:chromeOptions.args=[--headless,--window-size=1920,1080,--disable-gpu,--no-sandbox]`
+            // `goog:chromeOptions.args=[--window-size=1920,1080,--disable-gpu,--no-sandbox]` // for headed mode
         );
     }
 
@@ -162,7 +162,7 @@ function runTest(file, config, baseUrl, options, cookies) {
             ? "-z ./error-screenshots"
             : "";
 
-        const cmd = `selenium-side-runner ${screenshotFlag} ${debugFlag} "${tempFile}" ${baseUrlFlag} -c "${config}"`.trim();
+        const cmd = `selenium-side-runner  --jest-timeout 180000 ${screenshotFlag} ${debugFlag} "${tempFile}" ${baseUrlFlag} -c "${config}"`.trim();
         const child = exec(cmd);
         let stdoutLogs = "";
         let stderrLogs = "";
@@ -181,7 +181,6 @@ function runTest(file, config, baseUrl, options, cookies) {
 
         child.on("exit", (code) => {
             fs.unlinkSync(tempFile);
-
             const status = code === 0 ? "PASSED" : "FAILED";
             const errorSnippet =
                 status === "FAILED"
