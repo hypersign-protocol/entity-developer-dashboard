@@ -555,8 +555,7 @@
       "target":"10000",
       "targets":[],
       "value":""
-    },
-    {
+    }, {
       "id": "c7ae30e1-be1f-4e11-b45b-f2bcb03e2eec",
       "comment": "",
       "command": "assertElementPresent",

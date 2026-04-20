@@ -11,7 +11,6 @@ const fillTest =
     "tests/E2E_test/serviceConfigModule/loginAndFillOnboarding.side";
 const approveTest =
     "tests/E2E_test/serviceConfigModule/loginAndApproveOnboarding.side";
-
 const otherTests = [
     "tests/E2E_test/serviceConfigModule/loginAndGenerateApiKey.side",
     "tests/E2E_test/serviceConfigModule/loginAndUpdateAppConfig.side",
@@ -81,8 +80,6 @@ function getInputs(runType) {
         onboardingId,
     };
 }
-
-// Browser config
 function buildConfig(browser) {
     const config = [];
 
@@ -95,6 +92,7 @@ function buildConfig(browser) {
         config.push(
             `goog:chromeOptions.args=[--headless,--window-size=1920,1080,--disable-gpu,--no-sandbox]`
             // `goog:chromeOptions.args=[--window-size=1920,1080,--disable-gpu,--no-sandbox]` // for headed mode
+
         );
     }
 
@@ -102,6 +100,7 @@ function buildConfig(browser) {
 }
 
 // Run single test
+
 function runTest(file, config, baseUrl, options, cookies) {
     let sideContent = fs.readFileSync(file, "utf8");
 
@@ -118,11 +117,13 @@ function runTest(file, config, baseUrl, options, cookies) {
         "document.cookie='isLoggedIn=" +
         cookies.isLoggedIn +
         "; path=/;';" +
+
         "window.location.href='/#/studio/home';";
 
     sideContent = sideContent.replace(/BYPASS_LOGIN/g, script);
 
     // Replace emails
+
     sideContent = sideContent.replace(
         /"target": "seleniumide609@gmail.com"/g,
         `"target": "${options.adminEmail}"`
@@ -146,6 +147,7 @@ function runTest(file, config, baseUrl, options, cookies) {
         );
     }
 
+
     const tempFile = path.join(
         os.tmpdir(),
         `temp_${Date.now()}_${Math.random()}_${path.basename(file)}`
@@ -161,7 +163,6 @@ function runTest(file, config, baseUrl, options, cookies) {
         const screenshotFlag = options.takeScreenshots
             ? "-z ./error-screenshots"
             : "";
-
         const cmd = `selenium-side-runner  --jest-timeout 180000 ${screenshotFlag} ${debugFlag} "${tempFile}" ${baseUrlFlag} -c "${config}"`.trim();
         const child = exec(cmd);
         let stdoutLogs = "";
@@ -223,6 +224,7 @@ async function run() {
     const running = [];
     const results = [];
 
+
     async function runNext() {
         if (queue.length === 0) return;
 
@@ -231,7 +233,6 @@ async function run() {
         const isSuperAdmin = file.includes(
             "loginAndApproveOnboarding.side"
         );
-
         const cookies = isSuperAdmin
             ? cookiesData.superAdmin
             : cookiesData.admin;
@@ -259,7 +260,6 @@ async function run() {
         .map(() => runNext());
 
     await Promise.all(workers);
-
     // Summary
     console.log("\n📊 Test Summary:\n");
 
@@ -279,6 +279,7 @@ async function run() {
     );
 
     console.log("\n💾 Results saved to test-results.json");
+
     console.log("🎉 All tests finished");
 }
 

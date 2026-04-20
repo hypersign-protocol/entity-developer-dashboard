@@ -553,6 +553,9 @@ export default {
       if (c.twitterUrl && !/^https?:\/\/(twitter\.com|x\.com)\/[A-Za-z0-9_]+\/?$/.test(c.twitterUrl.trim()))
         return this.showToast("Invalid Twitter/X profile URL");
 
+      if (c.telegramUrl && !/^https?:\/\/(t\.me|telegram\.me)\/[A-Za-z0-9_]+\/?$/.test(c.telegramUrl.trim()))
+        return this.showToast("Invalid Telegram profile URL");
+
       if (c.linkedinUrl && !/^https?:\/\/(www\.)?linkedin\.com\/(in|company)\/[A-Za-z0-9_-]+\/?$/.test(c.linkedinUrl.trim()))
         return this.showToast("Invalid LinkedIn profile URL");
 
