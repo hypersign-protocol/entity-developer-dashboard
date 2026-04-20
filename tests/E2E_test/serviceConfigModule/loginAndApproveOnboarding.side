@@ -24,7 +24,7 @@
       "id": "e617481c-5373-4c4a-8630-4bc00be62670",
       "comment": "",
       "command": "pause",
-      "target": "10000",
+      "target": "30000",
       "targets": [],
       "value": ""
     }, {
@@ -66,7 +66,7 @@
       "id": "414dd009-ea22-453f-8a0e-1936f2b71643",
       "comment": " ",
       "command": "store",
-      "target": "69ddd7169793ed74fb75563e",
+      "target": "DOCUMENT_ID_PLACEHOLDER",
       "targets": [],
       "value": "onboardingId"
     }, {
@@ -677,7 +677,7 @@
       "id": "30b23d49-df15-4cc3-b86b-c123af2d0e84",
       "comment": "",
       "command": "pause",
-      "target": "40000",
+      "target": "10000",
       "targets": [],
       "value": ""
     }, {

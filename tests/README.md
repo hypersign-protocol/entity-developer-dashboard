@@ -63,11 +63,6 @@ For best compatibility, use **Selenium IDE version 3.17.2**
   - Some features may not work properly in Firefox due to browser security restrictions  
 - Enable **pop-ups** in the browser  
 - Disable **Brave Shields (security protections)** for the site    
-- These backend services are running:
-  - `entity-develop-dashboard-service`
-  - `entity-ssi-api-service`
-  - `Id service`
-  - `authserver`
 - Update email IDs in test files if needed:
   - Replace `"target": "seleniumtest609@gmail.com"` with your email  
   - Replace teammate email (`teamMateEmailId`) if running invite tests  
@@ -93,7 +88,11 @@ Before running CLI tests, ensure:
 - Run `npm install` to install dependencies.
 - The developer dashboard UI is built and running via `npm run serve` from the project root.
 - These backend services are running:
+
   - `entity-develop-dashboard-service`
+  - `db`
+  - `vault`
+  - `redis`
   - `entity-ssi-api-service`
   - `Id service`
   - `authserver`
@@ -150,7 +149,91 @@ For parallel execution, store auth tokens in `cookies.json` to avoid manual logi
 ```
 
 4. Save `cookies.json` before running tests.
+### ▶️ Run Test
 
+Run from project root:
+
+```bash
+npm run test
+```
+
+---
+### 🔁 Test Execution Flow (Important)
+
+You will be prompted:
+
+```
+1) Fill Onboarding
+2) Approve Onboarding
+3) Run Others
+```
+
+---
+
+### ✅ Recommended Order
+
+1. Fill Onboarding
+2. Approve Onboarding
+3. Run Others
+
+---
+### ▶️ Step-by-step
+
+#### 1. Fill Onboarding
+
+* Select **Fill Onboarding**
+* Creates onboarding request
+* Copy onboarding ID from:
+
+  * URL (preferred)
+  * or UI
+
+---
+
+#### 2. Approve Onboarding
+
+Run again:
+
+```bash
+npm run test
+```
+
+* Select **Approve Onboarding**
+* Enter onboarding ID when prompted
+
+---
+
+### ⚠️ Dev Environment Limitation
+
+#### ❗ Approve Onboarding may fail on first attempt
+
+##### Reason
+
+- During approval, an **SSI service is created**
+- This service has **no funds initially**
+- Due to this, approval fails
+
+---
+
+#### 3. Run Remaining Tests
+
+```bash
+npm run test
+```
+
+* Select **Run Others**
+
+---
+
+### 📊 Test Results
+
+After execution:
+
+```
+📊 Test Summary:
+
+Passed / Failed
+```
 ### Supported Browsers
 - Chrome
 - Brave (recommended)
