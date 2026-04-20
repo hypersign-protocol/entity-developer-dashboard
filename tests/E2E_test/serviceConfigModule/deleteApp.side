@@ -2,7 +2,7 @@
   "id": "5919f94f-c285-473c-ba96-2681f0e13d4f",
   "version": "2.0",
   "name": "Developer dashboard",
-  "url": "http://localhost:9001",
+  "url": "https://entity.dashboard.hypersign.id/",
   "tests": [{
     "id": "c8fe19b8-26be-4184-825d-543f410c1be4",
     "name": "delete apps",
@@ -783,22 +783,66 @@
       ],
       "value": ""
     }, {
+      "id": "e6f2b723-9a69-4eac-8dad-4a0a9d405f6d",
+      "comment": "",
+      "command": "pause",
+      "target": "10000",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "b54c3af7-c4e2-48dc-aad0-f28a9dd28d77",
+      "comment": "",
+      "command": "click",
+      "target": "css=.row--dense:nth-child(1)",
+      "targets": [
+        ["css=.row--dense:nth-child(1)", "css:finder"],
+        ["xpath=//div[@id='__BVID__154']/div/div[3]/div/div", "xpath:idRelative"],
+        ["xpath=//div[4]/div/div[3]/div/div", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "567daeaf-5f7a-463e-9882-9c0b33ec97d9",
+      "comment": "",
+      "command": "click",
+      "target": "css=.card-text:nth-child(1) .far",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "ce122f56-af23-4d1c-9ec8-c37905eb4828",
+      "comment": "",
+      "command": "waitForElementVisible",
+      "target": "css=.card",
+      "targets": [],
+      "value": "30000"
+    }, {
+      "id": "fa53a3c0-f233-4201-bee0-2e8f247b4b05",
+      "comment": "",
+      "command": "waitForElementVisible",
+      "target": "xpath=(//button[@aria-haspopup='menu'])[1]",
+      "targets": [],
+      "value": "30000"
+    }, {
+      "id": "02db7e99-a6ba-4942-8052-8d833c9d5a64",
+      "comment": "",
+      "command": "click",
+      "target": "xpath=(//button[@aria-haspopup='menu'])[1]",
+      "targets": [
+        ["css=#\\__BVID__186__BV_toggle_ > .bi-list", "css:finder"]
+      ],
+      "value": ""
+    }, {
       "id": "b583e7d1-d59f-4e53-be3b-203e4ee07b75",
       "comment": "",
-      "command": "assertElementPresent",
+      "command": "//assertElementPresent",
       "target": "xpath=//button[@aria-haspopup='menu']",
-      "targets": [
-        ["css=#\\__BVID__338__BV_toggle_ > .bi-list", "css:finder"]
-      ],
+      "targets": [],
       "value": ""
     }, {
       "id": "7f8dd0e4-188e-4e4a-b4c3-047d6b8b84bf",
       "comment": "",
-      "command": "click",
+      "command": "//click",
       "target": "xpath=//button[@aria-haspopup='menu']",
-      "targets": [
-        ["css=#\\__BVID__331__BV_toggle_ > .bi-list", "css:finder"]
-      ],
+      "targets": [],
       "value": ""
     }, {
       "id": "f325bd14-7993-427e-a0bd-1b1d3a2385af",

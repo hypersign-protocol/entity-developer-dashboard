@@ -1,103 +1,160 @@
-# Selenium Browser Extension - UI Testing
+# Selenium IDE & Side Runner — UI Testing Guide
 
 ## Introduction
-Selenium is a widely-used open-source framework for automating web applications. It allows developers and testers to simulate user interactions in a real browser environment. Selenium supports multiple programming languages and browser drivers, making it ideal for end-to-end (E2E) testing.
 
-## Why use Selenium Browser Extension for UI Testing?
-The Selenium Browser Extension (Selenium IDE) is a powerful tool for recording, editing, and debugging tests. It is especially useful for quickly creating and running UI tests without writing complex scripts.
+**Selenium** is a widely used open-source framework for automating web applications. It enables testers and developers to simulate real user interactions in a browser for reliable end-to-end (E2E) testing.
 
-**Key benefits:**
-- Easy to install and use as a browser extension  
-- Supports rapid test case creation via recording  
-- Allows exporting test cases in multiple formats  
-- Ideal for quick UI testing and interaction simulation (especially for Vue 2 projects)
+This project supports two ways of running UI tests:
+
+1. **Selenium IDE (Browser Extension)** — quick, visual test runs
+2. **Selenium Side Runner (CLI)** — automation, CI, Linux, headless runs
 
 ---
 
-## Installation
-For best compatibility, use **Selenium IDE version 3.17.2**
+## Why Selenium IDE?
 
-### For Firefox
-- Visit: https://addons.mozilla.org/en-US/firefox/addon/selenium_ide/  
-- Click **Add to Firefox**
+Selenium IDE is ideal for fast UI testing without writing complex scripts.
 
-### For Brave (Recommended)
-- Go to: https://chromewebstore.google.com/  
-- Search for **Selenium IDE**  
-- Select the extension and click **Add to Brave**
+**Benefits**
+
+* Record and replay tests easily
+* Simple debugging
+* No coding required
+* Very useful for Vue 2 UI interaction testing
+
+> ✅ Recommended IDE version: **3.17.2**
+
+---
+
+## ⚠️ Very Important — Pre-Test Requirement for Dashboards
+
+Before running any test related to:
+
+* **ID Dashboard**
+* **Business Dashboard**
+
+You **must first complete**:
+
+1. **ID Verification**
+2. **Business Verification**
+
+### What happens if you skip this?
+
+If verification is **not** completed:
+
+* Dashboards appear empty
+* Tests validate the **empty state**
+* Assertions like **“No user found”** pass
+* The test exits without actually validating real dashboard data
+
+### Reason
+
+When verification is not done, the application legitimately shows an empty dashboard with no user records.
+Selenium correctly detects this state and validates **“no user found”**, then returns successfully.
+
+This creates a **false impression that the dashboard test passed**, while in reality, no real user data was tested.
+
+> ❗ This is **not** a Selenium issue. The application simply has no verification data to display.
+
+### ✅ Correct Order
+
+Always follow this order:
+
+1. Login
+2. Perform **ID Verification**
+3. Perform **Business Verification**
+4. Run dashboard tests
+
+This applies to **both IDE and Side Runner**.
+
+---
+
+## Installation (Selenium IDE)
+
+### Firefox
+
+Install Selenium IDE from Mozilla Add-ons.
+
+### Brave (Recommended)
+
+Install Selenium IDE from Chrome Web Store in Brave.
+
+> Disable **Brave Shields** and allow **pop-ups** for the site.
 
 ---
 
 ## Test Scenarios
 
-| Module | Scenario | File |
-|--------|---------|------|
-| Service | Login | [LoginTest](./E2E_test/login/login.side) |
-| Service | Login and setup MFA | [Setup MFA](./E2E_test/login/setupAndLoginWithMfa.side) |
-| Service | Login and invite a member and accept invitation | [Invite people](./E2E_test/serviceConfigModule/loginAndSetting.side) |
-| Service | Login and fill onboarding form | [Fill onboarding form](./E2E_test/serviceConfigModule/loginAndFillOnboarding.side) |
-| Service | Login and approve onboarding by Super-admin | [Approve onboarding](./E2E_test/serviceConfigModule/loginAndApproveOnboarding.side) |
-| Service | Login and re-generate API key | [Regenerate API key](./E2E_test/serviceConfigModule/loginAndGenerateApiKey.side) |
-| Service | Login and update app | [Update app configuration](./E2E_test/serviceConfigModule/loginAndUpdateAppConfig.side) |
-| SSI Service | Perform DID operations | [Perform DID operations](./E2E_test/ssiServiceModule/loginAndDidOperations.side) |
-| SSI Service | Perform schema operations | [Perform schema operations](./E2E_test/ssiServiceModule/loginAndSchemaOperations.side) |
-| SSI Service | Perform credential operations | [Perform credential operations](./E2E_test/ssiServiceModule/loginAndCredentialOperation.side) |
-| KYC Service | Configure ID verifier page | [Configure Verifier page](./E2E_test/kycServiceModule/verifier/loginAndDeleteIdVerifier.side) |
-| KYC Service | Update ID verifier page | [Update ID Verifier page](./E2E_test/kycServiceModule/verifier/loginAndUpdateIdVerifier.side) |
-| KYC Service | Configure ID widget | [Add ID widget configuration](./E2E_test/kycServiceModule/widget/loginAndUpdateIdWidget.side) |
-| KYC Service | Configure KYB widget | [Add business widget configuration](./E2E_test/kycServiceModule/widget/loginAndConfigureKybWidget.side) |
-| KYC Service | Configure webhook | [Add webhook configuration](./E2E_test/kycServiceModule/loginAndWebhookConfiguration.side) |
-| KYC Service | Visit analytics | [Visit analytics](./E2E_test/kycServiceModule/loginAndVisitAnalytics.side) |
-| KYC Service | Visit ID dashboard | [Visit ID dashboard](./E2E_test/kycServiceModule/loginAndVisitIdDashboard.side) |
-| KYC Service | Visit business dashboard | [Visit business dashboard](./E2E_test/kycServiceModule/loginAndVisitBusinessDashboard.side) |
+| Module  | Scenario                 | File                                                               |
+| ------- | ------------------------ | ------------------------------------------------------------------ |
+| Service | Login                    | `E2E_test/login/login.side`                                        |
+| Service | Setup MFA                | `E2E_test/login/setupAndLoginWithMfa.side`                         |
+| Service | Invite member            | `E2E_test/serviceConfigModule/loginAndSetting.side`                |
+| Service | Fill onboarding          | `E2E_test/serviceConfigModule/loginAndFillOnboarding.side`         |
+| Service | Approve onboarding       | `E2E_test/serviceConfigModule/loginAndApproveOnboarding.side`      |
+| Service | Regenerate API key       | `E2E_test/serviceConfigModule/loginAndGenerateApiKey.side`         |
+| Service | Update app               | `E2E_test/serviceConfigModule/loginAndUpdateAppConfig.side`        |
+| SSI     | DID operations           | `E2E_test/ssiServiceModule/loginAndDidOperations.side`             |
+| SSI     | Schema operations        | `E2E_test/ssiServiceModule/loginAndSchemaOperations.side`          |
+| SSI     | Credential operations    | `E2E_test/ssiServiceModule/loginAndCredentialOperation.side`       |
+| KYC     | Configure ID verifier    | `E2E_test/kycServiceModule/verifier/loginAndDeleteIdVerifier.side` |
+| KYC     | Update ID verifier       | `E2E_test/kycServiceModule/verifier/loginAndUpdateIdVerifier.side` |
+| KYC     | Configure ID widget      | `E2E_test/kycServiceModule/widget/loginAndUpdateIdWidget.side`     |
+| KYC     | Configure KYB widget     | `E2E_test/kycServiceModule/widget/loginAndConfigureKybWidget.side` |
+| KYC     | Configure webhook        | `E2E_test/kycServiceModule/loginAndWebhookConfiguration.side`      |
+| KYC     | Visit analytics          | `E2E_test/kycServiceModule/loginAndVisitAnalytics.side`            |
+| KYC     | Visit ID dashboard       | `E2E_test/kycServiceModule/loginAndVisitIdDashboard.side`          |
+| KYC     | Visit business dashboard | `E2E_test/kycServiceModule/loginAndVisitBusinessDashboard.side`    |
 
 ---
 
-## Steps to Run
+# Running Tests with Selenium IDE
 
-### Running Selenium IDE
+## Prerequisites
 
-#### Prerequisites
-- Ensure Selenium IDE (v3.17.2) is installed  
-- **Use Brave Browser (recommended)** for 100% test compatibility  
-  - Some features may not work properly in Firefox due to browser security restrictions  
-- Enable **pop-ups** in the browser  
-- Disable **Brave Shields (security protections)** for the site    
-- Update email IDs in test files if needed:
-  - Replace `"target": "seleniumtest609@gmail.com"` with your email  
-  - Replace teammate email (`teamMateEmailId`) if running invite tests  
+* Selenium IDE v3.17.2
+* Use **Brave browser**
+* Disable shields and allow popups
+* Update email IDs inside tests:
 
-- For running certain flows:
-  - To test **team invitation**, you need an additional email
-  - To test **Approve onboarding** you must have super admin emailId and its access.  
----
+  * `seleniumtest609@gmail.com`
+  * `teamMateEmailId`
+* Super admin email required for onboarding approval tests
 
-### Steps to Run Tests
-- Open Selenium IDE in your browser  
-- Click **"Open an existing project"**  
-- Upload the required `.side` file from the `E2E_test` folder  
-- Run the test  
+## Steps
+
+1. Open Selenium IDE
+2. Open existing project
+3. Load required `.side` file
+4. Run
+
+> ⚠️ Before dashboard tests, manually run ID & Business verification tests.
 
 ---
 
-## Running from CLI with Selenium Side Runner
-Selenium Side Runner is included as a dev dependency, so no global install is needed.
+# Running Tests with Selenium Side Runner (CLI / Linux / CI)
 
-### Prerequisites
-Before running CLI tests, ensure:
-- Run `npm install` to install dependencies.
-- The developer dashboard UI is built and running via `npm run serve` from the project root.
-- These backend services are running:
+Side Runner is included as a dev dependency. No global install needed.
 
-  - `entity-develop-dashboard-service`
-  - `db`
-  - `vault`
-  - `redis`
-  - `entity-ssi-api-service`
-  - `Id service`
-  - `authserver`
-- Cookie injection is set up for parallel tests ([see below](#cookie-injection-for-parallel-tests)).
-- Browser drivers are required and installation instructions are [below](#browser-driver-installation).
+## Prerequisites
+
+* Run `npm install`
+* UI running with `npm run serve`
+* Required services running:
+
+  * dashboard service
+  * db
+  * vault
+  * redis
+  * ssi api
+  * id service
+  * auth server
+  * Kyc-Widget
+  * vrifier ui
+* Browser drivers installed
+* Cookie injection configured
+
+---
 
 #### Browser Driver Installation
 Install drivers for your preferred browser. Supported: Chrome, Brave, Firefox, Edge.
@@ -126,6 +183,8 @@ Install drivers for your preferred browser. Supported: Chrome, Brave, Firefox, E
 4. Make executable: `sudo chmod +x /usr/local/bin/chromedriver`.
 5. Verify: Run `chromedriver --version`, etc.
 
+---
+
 #### Cookie Injection for Parallel Tests
 For parallel execution, store auth tokens in `cookies.json` to avoid manual logins.
 
@@ -133,32 +192,29 @@ For parallel execution, store auth tokens in `cookies.json` to avoid manual logi
 2. In devtools, capture `accessToken` and `refreshToken` from cookies/network.
 3. Update root `cookies.json` like this:
 
-```json
-{
-  "admin": {
-    "accessToken": "<admin-access-token>",
-    "refreshToken": "<admin-refresh-token>",
-    "isLoggedIn": "true"
-  },
-  "superAdmin": {
-    "accessToken": "<superadmin-access-token>",
-    "refreshToken": "<superadmin-refresh-token>",
-    "isLoggedIn": "true"
-  }
-}
-```
+    ```json
+    {
+      "admin": {
+        "accessToken": "<admin-access-token>",
+        "refreshToken": "<admin-refresh-token>",
+        "isLoggedIn": "true"
+      },
+      "superAdmin": {
+        "accessToken": "<superadmin-access-token>",
+        "refreshToken": "<superadmin-refresh-token>",
+        "isLoggedIn": "true"
+      }
+    }
 
 4. Save `cookies.json` before running tests.
-### ▶️ Run Test
 
-Run from project root:
+## Running Tests
+
+From the project root:
 
 ```bash
 npm run test
 ```
-
----
-### 🔁 Test Execution Flow (Important)
 
 You will be prompted:
 
@@ -170,82 +226,47 @@ You will be prompted:
 
 ---
 
-### ✅ Recommended Order
+## ✅ Correct Execution Order
 
-1. Fill Onboarding
-2. Approve Onboarding
-3. Run Others
+### Step 1 — Fill Onboarding
 
----
-### ▶️ Step-by-step
+Creates onboarding request. Copy onboarding ID from the URL.
 
-#### 1. Fill Onboarding
+### Step 2 — Approve Onboarding
 
-* Select **Fill Onboarding**
-* Creates onboarding request
-* Copy onboarding ID from:
+Run again and provide onboarding ID.
 
-  * URL (preferred)
-  * or UI
+### ⚠️ Dev Limitation
 
----
+First approval may fail because the SSI service has no funds initially.
 
-#### 2. Approve Onboarding
+### Step 3 — Run Others
 
-Run again:
+Runs remaining tests including dashboards.
 
-```bash
-npm run test
-```
-
-* Select **Approve Onboarding**
-* Enter onboarding ID when prompted
+> At this stage, ID & Business verification should already be completed.
 
 ---
 
-### ⚠️ Dev Environment Limitation
+## Supported Browsers
 
-#### ❗ Approve Onboarding may fail on first attempt
-
-##### Reason
-
-- During approval, an **SSI service is created**
-- This service has **no funds initially**
-- Due to this, approval fails
+* Brave (recommended)
+* Chrome
+* Firefox
+* Edge
 
 ---
 
-#### 3. Run Remaining Tests
+## Test Results
 
-```bash
-npm run test
-```
-
-* Select **Run Others**
-
----
-
-### 📊 Test Results
-
-After execution:
+After completion:
 
 ```
-📊 Test Summary:
-
-Passed / Failed
+Test Summary: Passed / Failed
 ```
-### Supported Browsers
-- Chrome
-- Brave (recommended)
-- Firefox
-- Edge
-
-### Running Tests
-From repo root: `npm run test`
 
 ---
-
 
 ## Demo
-![Demo](../src/assets/seleniumTestDemo.mp4)
-  
+
+`src/assets/seleniumTestDemo.mp4`
