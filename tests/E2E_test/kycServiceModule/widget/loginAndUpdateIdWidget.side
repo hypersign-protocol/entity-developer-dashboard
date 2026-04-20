@@ -280,7 +280,7 @@
         ["css=.vsm--title:nth-child(1)", "css:finder"],
         ["xpath=//div[@id='app']/div[4]/div[2]/div[2]/div/a/span", "xpath:idRelative"],
         ["xpath=//div[2]/div[2]/div/a/span", "xpath:position"],
-        ["xpath=//span[contains(.,'Identity')]", "xpath:innerText"]
+        ["xpath=//span[contains(.,'User')]", "xpath:innerText"]
       ],
       "value": "4. Integrate into Your App"
     }, {
@@ -325,9 +325,9 @@
         ["css=.vsm--title:nth-child(1)", "css:finder"],
         ["xpath=//div[@id='app']/div[4]/div[2]/div[2]/div/a/span", "xpath:idRelative"],
         ["xpath=//div[2]/div[2]/div/a/span", "xpath:position"],
-        ["xpath=//span[contains(.,'Identity')]", "xpath:innerText"]
+        ["xpath=//span[contains(.,'User')]", "xpath:innerText"]
       ],
-      "value": "Identity"
+      "value": "User"
     }, {
       "id": "2ccf207d-3cda-4e10-a8bf-539d6b380b1d",
       "comment": "",

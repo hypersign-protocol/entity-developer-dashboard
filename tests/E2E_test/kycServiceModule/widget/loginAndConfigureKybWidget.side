@@ -12,14 +12,14 @@
       "target": "/",
       "targets": [],
       "value": ""
-    },{
+    }, {
       "id": "65181502-7bfa-44a9-ab1a-1f4215a15157",
       "comment": "",
       "command": "executeScript",
       "target": "BYPASS_LOGIN",
       "targets": [],
       "value": ""
-    },{
+    }, {
       "id": "e617481c-5373-4c4a-8630-4bc00be62670",
       "comment": "",
       "command": "pause",
@@ -965,9 +965,16 @@
       "id": "109a49a9-7828-4591-b8bf-2b0592c97614",
       "comment": "",
       "command": "pause",
-      "target": "10000",
+      "target": "20000",
       "targets": [],
       "value": ""
+    }, {
+      "id": "bfc205e7-592d-465d-8cd6-195eeab66267",
+      "comment": "",
+      "command": "waitForElementVisible",
+      "target": "css=.v-btn__content",
+      "targets": [],
+      "value": "30000"
     }, {
       "id": "bfc205e7-592d-465d-8cd6-195eeab66265",
       "comment": "",
@@ -1050,6 +1057,6 @@
     "timeout": 300,
     "tests": ["c8fe19b8-26be-4184-825d-543f410c1be4"]
   }],
-  "urls": ["https://entity.dashboard.hypersign.id/"],
+  "urls": ["https://entity.dashboard.hypersign.id/", "http://localhost:9001/"],
   "plugins": []
 }
