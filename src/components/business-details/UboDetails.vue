@@ -2,8 +2,11 @@
   <div class="ubo-details">
 
     <!-- Loading State -->
-    <div v-if="loading" class="text-center py-5 text-muted" style="font-size: 13px;">
-      <i class="fas fa-spinner fa-spin mr-2"></i>Loading UBO details...
+    <div v-if="loading" class="loading-state">
+      <div class="loading-spinner">
+        <i class="fas fa-spinner fa-spin"></i>
+      </div>
+      <p class="loading-text">Loading UBO details...</p>
     </div>
 
     <!-- Individual UBO Cards -->
@@ -88,12 +91,12 @@
     </div>
 
     <!-- Empty State -->
-    <div v-else class="detail-card p-5 text-center">
-      <div style="font-size: 2rem; color: #9ca3af; margin-bottom: 12px;">
+    <div v-else class="empty-state">
+      <div class="empty-icon">
         <i class="fas fa-users"></i>
       </div>
-      <h6 class="font-weight-bold text-dark mb-1">No UBO Information</h6>
-      <p class="text-muted small mb-0">No Ultimate Beneficial Owner information has been provided for this business yet.</p>
+      <h3 class="empty-title">No UBO Information</h3>
+      <p class="empty-description">No Ultimate Beneficial Owner information has been provided for this business yet.</p>
     </div>
 
   </div>
@@ -382,6 +385,23 @@ export default {
 </script>
 
 <style scoped>
+/* Loading & Empty states (match ChecksRegulations) */
+.loading-state,
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1rem;
+  text-align: center;
+}
+
+.loading-spinner { font-size: 2rem; color: #3b82f6; margin-bottom: 1rem; }
+.loading-text, .empty-description { color: #6b7280; font-size: 0.875rem; margin: 0; line-height: 1.5; }
+
+.empty-icon { font-size: 3rem; color: #d1d5db; margin-bottom: 1rem; }
+.empty-title { font-size: 1.25rem; font-weight: 600; color: #374151; margin: 0 0 0.5rem 0; }
+
 /* ── grid — one column, full-width horizontal cards ──── */
 .ubo-grid {
   display: flex;
@@ -566,6 +586,8 @@ export default {
 .step-line.done {
   background: #6b7280;
 }
+
+
 
 /* ── responsive ─────────────────────────────────────────── */
 @media (max-width: 600px) {
