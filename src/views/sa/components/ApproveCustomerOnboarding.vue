@@ -1,6 +1,6 @@
 <template>
   <v-container pa-0>
-    
+    <load-ing :active.sync="isLoading" :can-cancel="false" :is-full-page="false"></load-ing>
 
     <div class="overview-container">
       <div class="header-row">
@@ -93,16 +93,7 @@
         </v-btn>
       </div>
 
-      <v-fade-transition>
-        <div v-if="message" :class="['mt-6 feedback-box', isError ? 'error-style' : 'success-style']">
-          <div class="d-flex align-center">
-            <v-icon small :color="isError ? 'red' : 'green'" class="mr-2">
-              {{ isError ? 'mdi-alert-circle' : 'mdi-check-circle' }}
-            </v-icon>
-            <span class="small font-weight-bold">{{ message }}</span>
-          </div>
-        </div>
-      </v-fade-transition>
+      <v-fade-transition></v-fade-transition>
     </div>
   </v-container>
 </template>
@@ -167,15 +158,16 @@
 
 
 import { mapActions } from "vuex/dist/vuex.common.js";
-// import UtilsMixin from '../../../mixins/utils';
+import loadIng from '../../../components/element/LoadIng.vue';
+import UtilsMixin from '../../../mixins/utils.js';
 
 export default {
-  // mixins: [UtilsMixin],
+  components: { loadIng },
+  mixins: [UtilsMixin],
   data() {
     return {
       loading: false,
-      message: '',
-      isError: false,
+      isLoading: false,
       recordId: '', // This should be captured from the UI or route params
       units: ['DAYS', 'MONTH', 'YEAR'],
       form: {
@@ -198,34 +190,28 @@ export default {
     
     ...mapActions("mainStore", ["approveOnboardingRequest"]),
     async submitOnboarding() {
-
         if (!this.recordId) {
-        this.setError("Please provide a Record ID.");
+          this.notifyErr("Please provide a Record ID.");
           return;
         }
-
         this.loading = true;
-        this.message = '';
-        this.isError = false;
-      try{
-        await this.approveOnboardingRequest({
-          recordId: this.recordId,
-          ssiCreditDetail: this.form.ssiCreditDetail,
-          kycCreditDetail: this.form.kycCreditDetail
-        });
-
-        this.message = "Customer onboarded successfully!";
-      } catch (e) {
-        this.setError(e.message);
-      } finally {
-        this.loading = false; 
-  }
-
+        this.isLoading = true;
+        try {
+          await this.approveOnboardingRequest({
+            recordId: this.recordId,
+            ssiCreditDetail: this.form.ssiCreditDetail,
+            kycCreditDetail: this.form.kycCreditDetail
+          });
+          this.notifySuccess("Customer onboarded successfully!");
+        } catch (e) {
+          this.notifyErr(e.message || 'An unexpected error occurred.');
+        } finally {
+          this.loading = false;
+          this.isLoading = false;
+        }
     },
     setError(msg) {
-      this.isError = true;
-      this.message = msg;
-      this.loading = false;
+      this.notifyErr(msg);
     }
   }
 };

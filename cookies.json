@@ -1,0 +1,12 @@
+{
+    "admin": {
+        "accessToken": "<admin-access-token>",
+        "refreshToken": "<admin-refresh-token>",
+        "isLoggedIn": "true"
+    },
+    "superAdmin": {
+        "accessToken": "<superadmin-access-token>",
+        "refreshToken": "<superadmin-refresh-token>",
+        "isLoggedIn": "true"
+    }
+}

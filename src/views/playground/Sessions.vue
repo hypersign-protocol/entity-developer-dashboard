@@ -1,311 +1,336 @@
 <style scoped>
-.sticky-header {
+.py-3 {
+  width: 80vw!important;
+}
+/* ── Page Header ─────────────────────────────────────────── */
+.page-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #111827;
+  margin: 0;
+}
+
+.page-subtitle {
+  font-size: 0.8rem;
+  color: #6b7280;
+  margin: 2px 0 0 0;
+}
+
+/* ── Search bar ──────────────────────────────────────────── */
+.search-wrap {
+  display: flex;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  overflow: hidden;
+  width: 300px;
+}
+
+.search-wrap input {
+  flex: 1;
+  border: none;
+  padding: 8px 12px;
+  font-size: 0.84rem;
+  color: #374151;
+  outline: none;
+  background: transparent;
+}
+
+.search-wrap .search-btn {
+  padding: 0 13px;
+  background: #f8fafc;
+  border-left: 1px solid #e2e8f0;
+  color: #6b7280;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+.search-wrap .search-btn:hover {
+  background: #f1f5f9;
+  color: #374151;
+}
+
+/* ── Table container ─────────────────────────────────────── */
+.table-card {
+  background-color: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+}
+
+.table-scroll {
+  overflow-y: auto;
+  max-height: 72vh;
+}
+
+/* ── Table ───────────────────────────────────────────────── */
+.sessions-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.sessions-table thead th {
   position: sticky;
   top: 0;
+  z-index: 1;
+  background: #f9fafb;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #6b7280;
+  padding: 10px 16px;
+  border-bottom: 1px solid #e5e7eb;
+  white-space: nowrap;
 }
 
-.container {
-  width: 80vw;
+.sessions-table tbody tr {
+  cursor: pointer;
+  border-bottom: 1px solid #f3f4f6;
+  transition: background 0.1s;
 }
 
-.UI--c-kbgiPT-iehgGlf-css {
-  background-color: #9cb5f9;
+.sessions-table tbody tr:last-child {
+  border-bottom: none;
 }
 
-.step-notStarted {
-  background-color: #e1e1e3;
+.sessions-table tbody tr:hover {
+  background: #f9fafb;
 }
 
-.step-failed {
-  background-color: rgba(252, 94, 94, 0.736);
+.sessions-table tbody td {
+  padding: 12px 16px;
+  vertical-align: middle;
+  font-size: 0.83rem;
+  color: #444;
 }
 
-.step-finished {
-  background-color: #673ab76e;
+/* ── User cell ───────────────────────────────────────────── */
+.user-name {
+  font-weight: 600;
+  color: #111827;
+  font-size: 0.85rem;
 }
 
+.user-id-text {
+  font-size: 0.75rem;
+  color: #9ca3af;
+  margin-top: 2px;
+  font-family: monospace;
+}
 
-.UI--c-dhzjXW-iexswVt-css {
+/* ── Date cell ───────────────────────────────────────────── */
+.date-primary {
+  font-size: 0.82rem;
+  color: #374151;
+}
+
+.date-secondary {
+  font-size: 0.75rem;
+  color: #9ca3af;
+}
+
+/* ── Steps ───────────────────────────────────────────────── */
+.steps-row {
+  display: flex;
+  align-items: center;
+}
+
+.stepSpan {
+  cursor: pointer;
+  margin: 2px;
+  padding: 0px;
+  border: 0px;
+  font: inherit;
+  vertical-align: baseline;
+}
+
+.step {
+  height: 28px;
+  width: 48px;
+  display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .UI--c-kbgiPT-bUORwj-isFirst-true {
-  padding: 0px 0.4rem 0px 0px;
+  
+  padding: 0px 0.4rem 0px .7rem;
   clip-path: polygon(75% 0%, 100% 50%, 75% 100%, 0% 100%, 0% 100%, 0% 0%);
 }
 
 .UI--c-kbgiPT {
-  height: 100%;
-  width: 4.8rem;
+  height: 2rem;
+  width: 3.6rem;
   clip-path: polygon(75% 0%, 100% 50%, 75% 100%, 0% 100%, 25% 50%, 0% 0%);
-  margin-left: -0.9rem;
-  padding: 0px 0.4rem 0px 0.8rem;
+  margin-left: -0.8rem;
+  padding: 0px .4rem 0px .7rem;
 }
 
 .UI--c-dhzjXW {
   display: flex;
 }
 
-.stepSpan {
-  cursor: pointer;
-  margin: 3px;
-  padding: 0px;
-  border: 0px;
-  font: inherit;
-  vertical-align: baseline;
-  float: left
-}
-
-.step {
-  height: 32px;
-  width: 50px;
-}
-
-.card-header {
-  background: aliceblue;
-  padding: 0px;
-}
-
-.card {
-  border-radius: 10px;
-}
-
-.goschema {
-  color: #339af0;
-}
-
-.goschema:hover {
-  text-decoration: underline;
-  cursor: pointer;
-}
-
-.far {
-  color: gray;
-  font-size: 1.5em;
-  display: inline;
-  cursor: pointer;
-}
-
-.datetime-picker {
-  background-color: #fff;
-  background-clip: content-box;
-  border: 1px solid #ced4da;
-  border-radius: 0.25rem;
-  padding: 0.375rem 0.75rem;
-}
-
-.linkdiv {
-  background-clip: content-box;
-  background-color: rgba(173, 232, 255, .5607843137254902);
-  border-radius: 0.25rem;
-  height: 50px;
-  text-align: left;
-}
-
-h5 {
-  width: 100%;
-  text-align: center;
-  border-bottom: 1px solid #80808045;
-  line-height: 0.1em;
-  margin: 10px 0 20px;
-}
-
-h5 span {
-  background: #fff;
-  padding: 0 10px;
-}
-
-.scrollit {
-  overflow: hidden;
-  height: 800px;
-}
-
-.scrollit:hover {
-  overflow-y: auto;
-}
-
-.custom-active {
-  background-color: #e0e0e0 !important;
-  color: #000 !important;
-}
-
-
-::v-deep(.dropdown-item.custom-active:hover) {
-  background-color: #cfcfcf !important;
-  color: #000 !important;
-}
-
-::v-deep(.dropdown-item:hover) {
-  background-color: #f0f0f0 !important;
-  color: #000 !important;
-}
-
-.overview-card {
-  background-color: white;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
-  min-height: 120px;
-  display: flex;
+.UI--c-dhzjXW-iexswVt-css {
   align-items: center;
   justify-content: center;
 }
 
-.overview-value {
-  font-size: 38px;
-  font-weight: 700;
-  color: #212121;
-}
+.step-notStarted { background-color: #e1e1e3; }
+.step-failed     { background-color: rgba(252, 94, 94, 0.736); }
+.step-finished   { background-color: #673ab76e; }
 
-.overview-title {
-  font-size: 14px;
-  color: #757575;
-  margin-top: 6px;
-}
-
-.v-tooltip__content {
-  font-size: 12px;
-  max-width: 200px;
+/* ── Attempts chip ───────────────────────────────────────── */
+.attempts-chip {
+  display: inline-block;
+  min-width: 28px;
   text-align: center;
-}
-
-.steps-wrapper {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1px;
-}
-
-
-.user-avatar {
-  background-color: #888;
-  /* or your theme color */
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  background: #f3f4f6;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #374151;
+  padding: 2px 10px;
 }
 </style>
+
 <template>
-  <div :class="isContainerShift ? 'homeShift' : 'home'">
+  <b-container fluid class="py-3" :class="isContainerShift ? 'homeShift' : 'home'">
     <loadIng :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loadIng>
-    <v-row class="mb-0">
-      <v-col cols="12">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-          
-          <div>
-              <h4 class="mb-1 font-weight-bold mb-0">Users Verifications</h4>
-              <p class="text-muted small mb-0">Manage and track user verifications</p>
-          </div>
 
-          <div class="d-flex align-items-center">
-            <div class="input-group" style="width: 350px;" v-if="userList.length > 0">
-              <input type="text" class="form-control" placeholder="Search by user Id or email"
-                aria-label="Search by user Id" aria-describedby="basic-addon2" v-model="sessionIdTemp"
-                @keyup.enter="viewSessionDetails(sessionIdTemp)">
-              <div class="input-group-append" style="cursor: pointer;">
-                <span class="input-group-text" id="basic-addon2" @click="viewSessionDetails(sessionIdTemp)">
-                  <i class="fa fa-search" aria-hidden="true"></i>
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <div>
+        <h4 class="page-title">Users Verifications</h4>
+        <p class="page-subtitle">Manage and track user verifications</p>
+      </div>
+      <div v-if="userList.length > 0" class="search-wrap">
+        <input
+          type="text"
+          placeholder="Search by user ID or email"
+          v-model="sessionIdTemp"
+          @keyup.enter="viewSessionDetails(sessionIdTemp)"
+        />
+        <button class="search-btn" @click="viewSessionDetails(sessionIdTemp)">
+          <i class="fa fa-search"></i>
+        </button>
+      </div>
+    </div>
 
-        <div v-if="userList.length > 0">
-          <div class="scrollit">
-            <div class="card">
-              <table class="table table-hover">
-                <thead class="thead-light">
-                  <tr>
-                    <th class="sticky-header" v-for="header in headers" v-bind:key="header.value">
-                      {{ header.text }}
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="row in userList" v-bind:key="row.userId" style="cursor: pointer"
-                    @click="viewSessionDetails(row.userId)">
-                    <td>
-                      <div class="d-flex align-center">
-                        <v-avatar :style="getAvatarStyle()" size="37" class="font-weight-bold">
-                          {{ (row.name || row.email || row.userId || 'U').charAt(0).toUpperCase() }}
-                        </v-avatar>
-                        <div class="ml-3 d-flex flex-column justify-center" style="line-height: 1.2;">
-                          <span class="font-weight-bold" v-if="row.email || row.name">
-                            {{ row.name || row.email || 'Unnamed User' }}
-                          </span>
-                          <span style="color: grey; font-size: 12px;" class="mt-1">
-                            {{ row.userId ? stringShortner(row.userId, 28) : '-' }}
-                          </span>
-                        </div>
-                      </div>
-                    </td>
-                    <td>
-                      {{ row.createdAt ? new Date(row.createdAt).toLocaleString('en-us') : "-" }}
-                    </td>
-                    <td>
-                      {{ row.completedAt ? new Date(row.completedAt).toLocaleString('en-us') : "-" }}
-                    </td>
-                    <td>
-                      {{ row.retries ? row.retries : 0 }}
-                    </td>
-                    <td>
-                      <div class="steps-wrapper">
-                        <span class="stepSpan" v-for="step in filteredSteps(row)" :key="step.field" :title="step.title">
-                          <div
-                            class="step step UI--c-dhzjXW UI--c-dhzjXW-iexswVt-css UI--c-kbgiPT UI--c-kbgiPT-ihMjrWH-css"
-                            :class="{
-                              'step-finished': row[step.field] == 1,
-                              'step-notStarted': row[step.field] == 0,
-                              'step-failed': row.status === 'Failed' && step.field === row.failureInfo?.failureStep
-                            }">
-                            <span class="fa-stack fa-sm">
-                              <i class="fa fa-circle fa-stack-2x fa-inverse" style="color: #f4f3f39c;"></i>
-                              <i :class="'fa ' + step.icon + ' fa-stack-1x'"></i>
-                            </span>
-                          </div>
+    <!-- Table -->
+    <div v-if="userList.length > 0">
+      <div class="table-card">
+        <div class="table-scroll">
+          <table class="sessions-table">
+            <thead>
+              <tr>
+                <th>User</th>
+                <th>Started</th>
+                <th>Completed</th>
+                <th>Attempts</th>
+                <th>Steps</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                v-for="row in userList"
+                :key="row.userId"
+                @click="viewSessionDetails(row.userId)"
+              >
+                <!-- User -->
+                <td>
+                  <div class="d-flex align-center">
+                    <v-avatar :style="getAvatarStyle()" size="34" class="font-weight-bold mr-3">
+                      {{ (row.name || row.email || row.userId || 'U').charAt(0).toUpperCase() }}
+                    </v-avatar>
+                    <div>
+                      <div class="user-name">{{ row.name || row.email || 'Unnamed User' }}</div>
+                      <div class="user-id-text">{{ row.userId ? stringShortner(row.userId, 30) : '-' }}</div>
+                    </div>
+                  </div>
+                </td>
+
+                <!-- Started -->
+                <td>
+                  <div class="date-primary">
+                    {{ row.createdAt ? new Date(row.createdAt).toLocaleDateString('en-us', { day: 'numeric', month: 'short', year: 'numeric' }) : '-' }}
+                  </div>
+                  <div class="date-secondary">
+                    {{ row.createdAt ? new Date(row.createdAt).toLocaleTimeString('en-us', { hour: '2-digit', minute: '2-digit' }) : '' }}
+                  </div>
+                </td>
+
+                <!-- Completed -->
+                <td>
+                  <div class="date-primary">
+                    {{ row.completedAt ? new Date(row.completedAt).toLocaleDateString('en-us', { day: 'numeric', month: 'short', year: 'numeric' }) : '-' }}
+                  </div>
+                  <div class="date-secondary">
+                    {{ row.completedAt ? new Date(row.completedAt).toLocaleTimeString('en-us', { hour: '2-digit', minute: '2-digit' }) : '' }}
+                  </div>
+                </td>
+
+                <!-- Attempts -->
+                <td>
+                  <span class="attempts-chip">{{ row.retries ? row.retries : 0 }}</span>
+                </td>
+
+                <!-- Steps -->
+                <td>
+                  <div class="steps-row">
+                    <span class="stepSpan" v-for="(step, idx) in filteredSteps(row)" :key="step.field" :title="step.title">
+                      <div
+                        class="step UI--c-dhzjXW UI--c-dhzjXW-iexswVt-css UI--c-kbgiPT"
+                        :class="[
+                          idx === 0 ? 'UI--c-kbgiPT-bUORwj-isFirst-true' : '',
+                          row[step.field] == 1 && !(row.status === 'Failed' && row.failureInfo && row.failureInfo.failureStep === step.field) ? 'step-finished' : '',
+                          row.status === 'Failed' && row.failureInfo && row.failureInfo.failureStep === step.field ? 'step-failed' : '',
+                          row[step.field] == 0 ? 'step-notStarted' : ''
+                        ]"
+                      >
+                        <span class="fa-stack fa-sm">
+                          <i class="fa fa-circle fa-stack-2x fa-inverse" style="color: #f4f3f39c;"></i>
+                          <i :class="'fa ' + step.icon + ' fa-stack-1x'"></i>
                         </span>
                       </div>
-                    </td>
-                    <td>
-                      <span v-html="getUserStatus(row.status)"></span>
-                      <span v-if="row.status == 'Failed'">
-                        <span></span>
-                        <span>
-                          <v-tooltip bottom>
-                            <template v-slot:activator="{ on, attrs }">
-                              <v-icon v-bind="attrs" v-on="on" small color="red darken-1" class="ml-1"
-                                style="color:red">
-                                mdi-alert-circle-outline
-                              </v-icon>
-                            </template>
-                            <span>{{ getFailureReason(row.failureInfo?.failureReason, row.failureInfo?.failureStep)
-                              }}</span>
+                    </span>
+                  </div>
+                </td>
 
-                          </v-tooltip>
-                        </span>
-                      </span>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-          <div class="row mt-2">
-            <div class="col-md-12 d-flex justify-content-center align-items-center">
-              <PagiNation :pagesCount="pages" @event-page-number="handleGetPageNumberEvent" />
-            </div>
-          </div>
+                <!-- Status -->
+                <td>
+                  <div class="d-flex align-center" style="gap: 4px;">
+                    <span v-html="getUserStatus(row.status)"></span>
+                    <v-tooltip bottom v-if="row.status === 'Failed'">
+                      <template v-slot:activator="{ on, attrs }">
+                        <v-icon v-bind="attrs" v-on="on" small color="red darken-1">mdi-alert-circle-outline</v-icon>
+                      </template>
+                      <span>{{ getFailureReason(row.failureInfo && row.failureInfo.failureReason, row.failureInfo && row.failureInfo.failureStep) }}</span>
+                    </v-tooltip>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
-        <div v-else-if="!hasPermission" style="text-align: left;">
-          <hf-upgrade-plan></hf-upgrade-plan>
-        </div>
-        <div v-else>
-          <empty-container title="No User Found" icon="fa fa-users" />
-        </div>
-      </v-col>
-    </v-row>
-  </div>
+      </div>
+
+      <!-- Pagination -->
+      <div class="d-flex justify-content-center mt-3">
+        <PagiNation :pagesCount="pages" @event-page-number="handleGetPageNumberEvent" />
+      </div>
+    </div>
+
+    <div v-else-if="!hasPermission" style="text-align: left;">
+      <hf-upgrade-plan></hf-upgrade-plan>
+    </div>
+    <div v-else>
+      <empty-container title="No User Found" icon="fa fa-users" />
+    </div>
+  </b-container>
 </template>
 
 <script>

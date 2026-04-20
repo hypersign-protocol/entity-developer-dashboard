@@ -6,7 +6,7 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        - VUE_APP_TITLE=Entity Developer Dashboard
+        - VUE_APP_TITLE=Hypersign Dashboard
         - VUE_APP_DESC=A dashboard for developers to manage their tenants and API keys
         - VUE_APP_VERSION=v1.0.0 
         - VUE_APP_STUDIO_SERVER_BASE_URL=http://localhost:3002/

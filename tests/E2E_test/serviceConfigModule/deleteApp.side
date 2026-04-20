@@ -1,0 +1,1178 @@
+{
+  "id": "5919f94f-c285-473c-ba96-2681f0e13d4f",
+  "version": "2.0",
+  "name": "Developer dashboard",
+  "url": "https://entity.dashboard.hypersign.id/",
+  "tests": [{
+    "id": "c8fe19b8-26be-4184-825d-543f410c1be4",
+    "name": "delete kyc apps",
+    "commands": [{
+      "id": "65181502-7bfa-44a9-aa1a-1f4215a15157",
+      "comment": "",
+      "command": "open",
+      "target": "/",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "65181502-7bfa-44a9-ab1a-1f4215a15157",
+      "comment": "",
+      "command": "executeScript",
+      "target": "BYPASS_LOGIN",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "e617481c-5373-4c4a-8630-4bc00be62670",
+      "comment": "",
+      "command": "pause",
+      "target": "10000",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "f429cfa1-cef3-4a59-96b3-652600427e59",
+      "comment": "",
+      "command": "setWindowSize",
+      "target": "1936x1048",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "e617481c-5373-4c4a-8330-4bc00be62670",
+      "comment": "",
+      "command": "pause",
+      "target": "3000",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "b626176e-4726-4890-a471-a6787d070669",
+      "comment": "",
+      "command": "store",
+      "target": "seleniumide609@gmail.com",
+      "targets": [],
+      "value": "adminEmailId"
+    }, {
+      "id": "a87588a9-7efa-41d6-b67d-875c1d275f77",
+      "comment": "",
+      "command": "//waitForElementPresent",
+      "target": "//div[contains(translate(text(), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), '${adminEmailId}')]",
+      "targets": [],
+      "value": "3000"
+    }, {
+      "id": "c7d09428-00dc-4329-b0bc-f9fec8447197",
+      "comment": "",
+      "command": "//clickAt",
+      "target": "xpath=//div[contains(text(),'${adminEmailId}')]",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "f4b08ee9-bd85-4f3e-a258-8876bf75b9d6",
+      "comment": "",
+      "command": "storeText",
+      "target": "css=h4",
+      "targets": [],
+      "value": "pageHeader"
+    }, {
+      "id": "b9da4289-51b5-44a4-a12a-e2a8dc7b7810",
+      "comment": "",
+      "command": "echo",
+      "target": "${pageHeader}",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "4f63b5e5-8aa4-4575-9ea2-f8e9263d8a69",
+      "comment": "",
+      "command": "if",
+      "target": "${pageHeader} == \"Configure Your Identity Service\"",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "f026eaf0-87b1-4d82-a7ee-b5c0d1ef1268",
+      "comment": "",
+      "command": "click",
+      "target": "css=h4",
+      "targets": [
+        ["css=h4", "css:finder"],
+        ["xpath=//div[@id='app']/div[2]/div/div[2]/h4", "xpath:idRelative"],
+        ["xpath=//h4", "xpath:position"],
+        ["xpath=//h4[contains(.,' Configure Your Identity Service')]", "xpath:innerText"]
+      ],
+      "value": ""
+    }, {
+      "id": "54e12084-324e-4cff-85c3-6a7d27c20e74",
+      "comment": "",
+      "command": "assertText",
+      "target": "css=h4",
+      "targets": [],
+      "value": "Configure Your Identity Service"
+    }, {
+      "id": "8bb0df25-a941-47c9-aa32-e09c714a5b1f",
+      "comment": "",
+      "command": "click",
+      "target": "css=.text-muted:nth-child(2)",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "0fd5fc4f-bfc0-4acd-9b52-d247c6e83e47",
+      "comment": "",
+      "command": "assertText",
+      "target": "css=.text-muted:nth-child(2)",
+      "targets": [],
+      "value": "Complete the guided steps to set up your identity verification services."
+    }, {
+      "id": "0e086ac9-d6c6-4c09-abe8-3d4f8d72e1d9",
+      "comment": "",
+      "command": "click",
+      "target": "css=.container-collapsed-not",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "b59863d2-c43b-41e3-ab3f-edd05cfa808a",
+      "comment": "",
+      "command": "//assertText",
+      "target": "css=.container",
+      "targets": [],
+      "value": "Configure Your Identity Service\\nComplete the guided steps to set up your identity verification services.\\nSelect Your Business Type\\nBusiness\\nCommunity"
+    }, {
+      "id": "9181497b-a86d-4a06-80bb-f5ba0dfe7aff",
+      "comment": "",
+      "command": "else",
+      "target": "",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "16fc42be-bd91-4847-8b41-93e91a5ead82",
+      "comment": "",
+      "command": "click",
+      "target": "css=.container-collapsed-not",
+      "targets": [
+        ["css=.container-collapsed-not", "css:finder"],
+        ["xpath=//div[@id='app']/div[2]", "xpath:idRelative"],
+        ["xpath=//div[2]", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "e66e8ecf-8385-4bed-924f-90e504d47d47",
+      "comment": "",
+      "command": "assertText",
+      "target": " xpath=//h4[contains(text(),'Getting Started')] ",
+      "targets": [
+        ["css=.align-center", "css:finder"],
+        ["xpath=//div[@id='app']/div[2]/div/div/div/div", "xpath:idRelative"],
+        ["xpath=//div[2]/div/div/div/div", "xpath:position"]
+      ],
+      "value": "Getting Started"
+    }, {
+      "id": "d163f7b8-43c5-4456-9f74-646874d77309",
+      "comment": "",
+      "command": "click",
+      "target": "css=.step-card:nth-child(1) .step-content-box",
+      "targets": [
+        ["css=.step-card:nth-child(1) .step-content-box", "css:finder"],
+        ["xpath=//div[@id='app']/div[2]/div/div/div/div[2]/div/div[2]/div[2]", "xpath:idRelative"],
+        ["xpath=//div[2]/div[2]", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "f7a8cdf6-498e-41a1-8bf4-066fe7ada51d",
+      "comment": "",
+      "command": "assertText",
+      "target": "css=.step-card:nth-child(1) .step-title",
+      "targets": [
+        ["css=.step-card:nth-child(1) .step-title", "css:finder"],
+        ["xpath=//div[@id='app']/div[2]/div/div/div/div[2]/div/div[2]/div[2]/h5", "xpath:idRelative"],
+        ["xpath=//h5", "xpath:position"],
+        ["xpath=//h5[contains(.,'1. Understand Hypersign Basics')]", "xpath:innerText"]
+      ],
+      "value": "1. Understand Hypersign Basics"
+    }, {
+      "id": "d4af00fe-bb14-4a91-97b4-06bd51a47d41",
+      "comment": "",
+      "command": "click",
+      "target": "css=.step-card:nth-child(2) .step-content-box",
+      "targets": [
+        ["css=.step-card:nth-child(2) .step-content-box", "css:finder"],
+        ["xpath=//div[@id='app']/div[2]/div/div/div/div[2]/div[2]/div[2]/div[2]", "xpath:idRelative"],
+        ["xpath=//div[2]/div[2]/div[2]/div[2]", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "4430aa30-ab1f-4d61-b53a-12fe8cfb2fe6",
+      "comment": "",
+      "command": "assertText",
+      "target": "css=.step-card:nth-child(2) .step-content-box",
+      "targets": [
+        ["css=.step-card:nth-child(2) .step-content-box", "css:finder"],
+        ["xpath=//div[@id='app']/div[2]/div/div/div/div[2]/div[2]/div[2]/div[2]", "xpath:idRelative"],
+        ["xpath=//div[2]/div[2]/div[2]/div[2]", "xpath:position"]
+      ],
+      "value": "2. Configure Your KYC Widget\\nSet up your KYC widget according to your needs — choose between liveliness checks, ID document verification, and consent capture. You’ll also learn how to customize branding and themes.\\nRead Documentation"
+    }, {
+      "id": "2a4bc934-4fac-42b1-af87-210d1e5a0f56",
+      "comment": "",
+      "command": "click",
+      "target": "css=.step-card:nth-child(3) .step-content-box",
+      "targets": [
+        ["css=.step-card:nth-child(3) .step-content-box", "css:finder"],
+        ["xpath=//div[@id='app']/div[2]/div/div/div/div[2]/div[3]/div[2]/div[2]", "xpath:idRelative"],
+        ["xpath=//div[3]/div[2]/div[2]", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "4425c777-decb-4872-8297-5fb5b0cfa376",
+      "comment": "",
+      "command": "assertText",
+      "target": "css=.step-card:nth-child(3) .step-title",
+      "targets": [
+        ["css=.step-card:nth-child(3) .step-title", "css:finder"],
+        ["xpath=//div[@id='app']/div[2]/div/div/div/div[2]/div[3]/div[2]/div[2]/h5", "xpath:idRelative"],
+        ["xpath=//div[3]/div[2]/div[2]/h5", "xpath:position"],
+        ["xpath=//h5[contains(.,'3. Create Your Custom KYC Verifier URL')]", "xpath:innerText"]
+      ],
+      "value": "3. Create Your Custom KYC Verifier URL"
+    }, {
+      "id": "ef34aa5f-e9bb-4e7b-a3fa-6f5d1abc5d6b",
+      "comment": "",
+      "command": "click",
+      "target": "css=.step-card:nth-child(4) .step-content-box",
+      "targets": [
+        ["css=.step-card:nth-child(4) .step-content-box", "css:finder"],
+        ["xpath=//div[@id='app']/div[2]/div/div/div/div[2]/div[4]/div[2]/div[2]", "xpath:idRelative"],
+        ["xpath=//div[4]/div[2]/div[2]", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "89ea6c2d-a07c-4c3d-b6b1-927e95d34cc1",
+      "comment": "",
+      "command": "click",
+      "target": "css=.step-card:nth-child(4) .step-title",
+      "targets": [
+        ["css=.step-card:nth-child(4) .step-title", "css:finder"],
+        ["xpath=//div[@id='app']/div[2]/div/div/div/div[2]/div[4]/div[2]/div[2]/h5", "xpath:idRelative"],
+        ["xpath=//div[4]/div[2]/div[2]/h5", "xpath:position"],
+        ["xpath=//h5[contains(.,'4. Integrate into Your App')]", "xpath:innerText"]
+      ],
+      "value": ""
+    }, {
+      "id": "c4b8cc1d-141b-4543-a904-5f5ab23f4542",
+      "comment": "",
+      "command": "click",
+      "target": "css=.step-card:nth-child(4) .step-title",
+      "targets": [
+        ["css=.step-card:nth-child(4) .step-title", "css:finder"],
+        ["xpath=//div[@id='app']/div[2]/div/div/div/div[2]/div[4]/div[2]/div[2]/h5", "xpath:idRelative"],
+        ["xpath=//div[4]/div[2]/div[2]/h5", "xpath:position"],
+        ["xpath=//h5[contains(.,'4. Integrate into Your App')]", "xpath:innerText"]
+      ],
+      "value": ""
+    }, {
+      "id": "30b96bcb-d9da-4063-a0a9-97774cc6f666",
+      "comment": "",
+      "command": "doubleClick",
+      "target": "css=.step-card:nth-child(4) .step-title",
+      "targets": [
+        ["css=.step-card:nth-child(4) .step-title", "css:finder"],
+        ["xpath=//div[@id='app']/div[2]/div/div/div/div[2]/div[4]/div[2]/div[2]/h5", "xpath:idRelative"],
+        ["xpath=//div[4]/div[2]/div[2]/h5", "xpath:position"],
+        ["xpath=//h5[contains(.,'4. Integrate into Your App')]", "xpath:innerText"]
+      ],
+      "value": ""
+    }, {
+      "id": "00421ba8-5865-4eb7-9dd0-343dbe063881",
+      "comment": "",
+      "command": "click",
+      "target": "css=.step-card:nth-child(4) .step-content-box",
+      "targets": [
+        ["css=.step-card:nth-child(4) .step-content-box", "css:finder"],
+        ["xpath=//div[@id='app']/div[2]/div/div/div/div[2]/div[4]/div[2]/div[2]", "xpath:idRelative"],
+        ["xpath=//div[4]/div[2]/div[2]", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "7ca3db85-d240-471f-ba66-2a9d10aad6ab",
+      "comment": "",
+      "command": "assertText",
+      "target": "css=.step-card:nth-child(4) .step-title",
+      "targets": [
+        ["css=.step-card:nth-child(4) .step-title", "css:finder"],
+        ["xpath=//div[@id='app']/div[2]/div/div/div/div[2]/div[4]/div[2]/div[2]/h5", "xpath:idRelative"],
+        ["xpath=//div[4]/div[2]/div[2]/h5", "xpath:position"],
+        ["xpath=//h5[contains(.,'4. Integrate into Your App')]", "xpath:innerText"]
+      ],
+      "value": "4. Integrate into Your App"
+    }, {
+      "id": "5bae9b81-ef59-4afa-9fa5-6050ea9999ed",
+      "comment": "",
+      "command": "mouseOver",
+      "target": "css=.fa-code",
+      "targets": [
+        ["css=.fa-code", "css:finder"],
+        ["xpath=//div[@id='app']/div[4]/div[2]/div/div[5]/a/i", "xpath:idRelative"],
+        ["xpath=//div[5]/a/i", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "3b57d6c2-02c9-4269-bc29-a961b2f9eaab",
+      "comment": "",
+      "command": "//mouseOut",
+      "target": "xpath=//span[normalize-space()='Developer Hub']",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "39178368-e364-47a7-8315-0d0945a3df42",
+      "comment": "",
+      "command": "click",
+      "target": "xpath=//span[normalize-space()='Developer Hub']",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "2ccf207d-3cda-4e10-a8bf-539d6b380b1d",
+      "comment": "",
+      "command": "//assertText",
+      "target": "xpath=//div[contains(@class,'vsm--list')]//span[normalize-space()='App Config']",
+      "targets": [],
+      "value": "App Config"
+    }, {
+      "id": "2ccf207d-3cda-4e10-a8bf-539d6b380b1d",
+      "comment": "",
+      "command": "waitForElementVisible",
+      "target": "xpath=//a[.//span[normalize-space()='App Config']]",
+      "targets": [],
+      "value": "App Config"
+    }, {
+      "id": "3b0548bf-3cf1-4dc0-9a08-f6c3d1c9ec81",
+      "comment": "",
+      "command": "click",
+      "target": "xpath=//a[.//span[normalize-space()='App Config']]",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "b9f54b02-5dee-4951-a8ab-282f5d926a55",
+      "comment": "",
+      "command": "assertText",
+      "target": " xpath=//legend[normalize-space()='APPLICATION ID']",
+      "targets": [],
+      "value": "APPLICATION ID"
+    }, {
+      "id": "b7a1742c-f4a2-4871-a0cc-d410aba7ff20",
+      "comment": "",
+      "command": "storeValue",
+      "target": "xpath=//legend[normalize-space()='APPLICATION ID']/following::input[1]",
+      "targets": [],
+      "value": "appId"
+    }, {
+      "id": "024202dc-b6d6-45d6-91bd-a2cb58ff27ad",
+      "comment": "",
+      "command": "echo",
+      "target": "${appId}",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "fe0db5c0-79d0-4e3f-a55a-89c82403d0d7",
+      "comment": "",
+      "command": "mouseOver",
+      "target": "css=.fa-code",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "52dfb435-f6f4-4fa0-a75f-828f380627b5",
+      "comment": "",
+      "command": "assertElementPresent",
+      "target": "css=.v-btn:nth-child(2)",
+      "targets": [
+        ["css=.v-btn:nth-child(2)", "css:finder"],
+        ["xpath=(//button[@type='button'])[3]", "xpath:attributes"],
+        ["xpath=//div[@id='app']/div[2]/div/div/div[2]/div[2]/button[2]", "xpath:idRelative"],
+        ["xpath=//button[2]", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "3d8cb70e-d656-44c5-8949-552de9d24137",
+      "comment": "",
+      "command": "click",
+      "target": "css=.fa-trash-alt",
+      "targets": [
+        ["css=.fa-trash-alt", "css:finder"],
+        ["xpath=//div[@id='app']/div[2]/div/div/div[2]/div[2]/button[2]/span/span/i", "xpath:idRelative"],
+        ["xpath=//button[2]/span/span/i", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "7b94ede5-38e3-4d4e-a580-2d441ad4508c",
+      "comment": "",
+      "command": "click",
+      "target": "css=.close",
+      "targets": [
+        ["css=.close", "css:finder"],
+        ["xpath=(//button[@type='button'])[9]", "xpath:attributes"],
+        ["xpath=//header[@id='entity-delete-service-confirmation-popup___BV_modal_header_']/button", "xpath:idRelative"],
+        ["xpath=//header/button", "xpath:position"],
+        ["xpath=//button[contains(.,'×')]", "xpath:innerText"]
+      ],
+      "value": ""
+    }, {
+      "id": "b95c2f10-03fd-4cdc-9839-eca05377b23d",
+      "comment": "",
+      "command": "click",
+      "target": "css=.v-btn:nth-child(2) > .v-btn__content > span",
+      "targets": [
+        ["css=.v-btn:nth-child(2) > .v-btn__content > span", "css:finder"],
+        ["xpath=//div[@id='app']/div[2]/div/div/div[2]/div[2]/button[2]/span/span", "xpath:idRelative"],
+        ["xpath=//button[2]/span/span", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "37923cae-d025-435a-97b5-d7b302fa997b",
+      "comment": "",
+      "command": "mouseOut",
+      "target": "css=.v-btn:nth-child(2) > .v-btn__content > span",
+      "targets": [
+        ["css=.v-btn:nth-child(2) > .v-btn__content > span", "css:finder"],
+        ["xpath=//div[@id='app']/div[2]/div/div/div[2]/div[2]/button[2]/span/span", "xpath:idRelative"],
+        ["xpath=//button[2]/span/span", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "72b3ad96-106d-4525-9764-d61461caea22",
+      "comment": "",
+      "command": "click",
+      "target": "id=entity-delete-service-confirmation-popup___BV_modal_header_",
+      "targets": [
+        ["id=entity-delete-service-confirmation-popup___BV_modal_header_", "id"],
+        ["css=#entity-delete-service-confirmation-popup___BV_modal_header_", "css:finder"],
+        ["xpath=//header[@id='entity-delete-service-confirmation-popup___BV_modal_header_']", "xpath:attributes"],
+        ["xpath=//div[@id='entity-delete-service-confirmation-popup___BV_modal_content_']/header", "xpath:idRelative"],
+        ["xpath=//div[4]/div/div/div/header", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "3a844594-971a-42ad-a419-21d6497b2ffa",
+      "comment": "",
+      "command": "assertText",
+      "target": "id=entity-delete-service-confirmation-popup___BV_modal_header_",
+      "targets": [
+        ["id=entity-delete-service-confirmation-popup___BV_modal_header_", "id"],
+        ["css=#entity-delete-service-confirmation-popup___BV_modal_header_", "css:finder"],
+        ["xpath=//header[@id='entity-delete-service-confirmation-popup___BV_modal_header_']", "xpath:attributes"],
+        ["xpath=//div[@id='entity-delete-service-confirmation-popup___BV_modal_content_']/header", "xpath:idRelative"],
+        ["xpath=//div[4]/div/div/div/header", "xpath:position"]
+      ],
+      "value": "Delete Confirmation\\n×"
+    }, {
+      "id": "90437a56-cfb2-4d56-9b58-c6c577471bc4",
+      "comment": "",
+      "command": "click",
+      "target": "id=entity-delete-service-confirmation-popup___BV_modal_body_",
+      "targets": [
+        ["id=entity-delete-service-confirmation-popup___BV_modal_body_", "id"],
+        ["css=#entity-delete-service-confirmation-popup___BV_modal_body_", "css:finder"],
+        ["xpath=//div[@id='entity-delete-service-confirmation-popup___BV_modal_body_']", "xpath:attributes"],
+        ["xpath=//div[@id='entity-delete-service-confirmation-popup___BV_modal_content_']/div", "xpath:idRelative"],
+        ["xpath=//body/div[4]/div/div/div/div", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "dec42add-734d-43c2-8189-224a585a77fe",
+      "comment": "",
+      "command": "click",
+      "target": "id=appId",
+      "targets": [
+        ["id=appId", "id"],
+        ["css=#appId", "css:finder"],
+        ["xpath=//input[@id='appId']", "xpath:attributes"],
+        ["xpath=//div[@id='entity-delete-service-confirmation-popup___BV_modal_body_']/div/input", "xpath:idRelative"],
+        ["xpath=//div[4]/div/div/div/div/div/input", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "e2bc309b-8b12-417a-ae87-7e967a00e855",
+      "comment": "",
+      "command": "click",
+      "target": "css=#entity-delete-service-confirmation-popup___BV_modal_body_ p",
+      "targets": [
+        ["css=#entity-delete-service-confirmation-popup___BV_modal_body_ p", "css:finder"],
+        ["xpath=//div[@id='entity-delete-service-confirmation-popup___BV_modal_body_']/div/p", "xpath:idRelative"],
+        ["xpath=//div[4]/div/div/div/div/div/p", "xpath:position"],
+        ["xpath=//p[contains(.,'Warning: This is a destructive feature. It will clean all your metadata and delete your data vault. If you sure you want to delete this app, please enter the app Id:')]", "xpath:innerText"]
+      ],
+      "value": ""
+    }, {
+      "id": "1bf3113a-aacd-46a5-87ea-4531bfd21cf6",
+      "comment": "",
+      "command": "click",
+      "target": "css=#entity-delete-service-confirmation-popup___BV_modal_body_ p",
+      "targets": [
+        ["css=#entity-delete-service-confirmation-popup___BV_modal_body_ p", "css:finder"],
+        ["xpath=//div[@id='entity-delete-service-confirmation-popup___BV_modal_body_']/div/p", "xpath:idRelative"],
+        ["xpath=//div[4]/div/div/div/div/div/p", "xpath:position"],
+        ["xpath=//p[contains(.,'Warning: This is a destructive feature. It will clean all your metadata and delete your data vault. If you sure you want to delete this app, please enter the app Id:')]", "xpath:innerText"]
+      ],
+      "value": ""
+    }, {
+      "id": "17d9f1ab-f4b5-446a-a49a-6dd1cd339d5f",
+      "comment": "",
+      "command": "doubleClick",
+      "target": "css=#entity-delete-service-confirmation-popup___BV_modal_body_ p",
+      "targets": [
+        ["css=#entity-delete-service-confirmation-popup___BV_modal_body_ p", "css:finder"],
+        ["xpath=//div[@id='entity-delete-service-confirmation-popup___BV_modal_body_']/div/p", "xpath:idRelative"],
+        ["xpath=//div[4]/div/div/div/div/div/p", "xpath:position"],
+        ["xpath=//p[contains(.,'Warning: This is a destructive feature. It will clean all your metadata and delete your data vault. If you sure you want to delete this app, please enter the app Id:')]", "xpath:innerText"]
+      ],
+      "value": ""
+    }, {
+      "id": "7f651c01-fe00-486b-9adc-6250d35a8ae8",
+      "comment": "",
+      "command": "assertElementPresent",
+      "target": "css=#entity-delete-service-confirmation-popup___BV_modal_body_ p",
+      "targets": [
+        ["css=#entity-delete-service-confirmation-popup___BV_modal_body_ p", "css:finder"],
+        ["xpath=//div[@id='entity-delete-service-confirmation-popup___BV_modal_body_']/div/p", "xpath:idRelative"],
+        ["xpath=//div[4]/div/div/div/div/div/p", "xpath:position"],
+        ["xpath=//p[contains(.,'Warning: This is a destructive feature. It will clean all your metadata and delete your data vault. If you sure you want to delete this app, please enter the app Id:')]", "xpath:innerText"]
+      ],
+      "value": ""
+    }, {
+      "id": "1c170739-3759-4c8c-86d0-7ecdecce4635",
+      "comment": "",
+      "command": "click",
+      "target": "id=appId",
+      "targets": [
+        ["id=appId", "id"],
+        ["css=#appId", "css:finder"],
+        ["xpath=//input[@id='appId']", "xpath:attributes"],
+        ["xpath=//div[@id='entity-delete-service-confirmation-popup___BV_modal_body_']/div/input", "xpath:idRelative"],
+        ["xpath=//div[4]/div/div/div/div/div/input", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "44720bf3-fad8-403d-8d5e-ded77420381b",
+      "comment": "",
+      "command": "type",
+      "target": "id=appId",
+      "targets": [
+        ["id=appId", "id"],
+        ["css=#appId", "css:finder"],
+        ["xpath=//input[@id='appId']", "xpath:attributes"],
+        ["xpath=//div[@id='entity-delete-service-confirmation-popup___BV_modal_body_']/div/input", "xpath:idRelative"],
+        ["xpath=//div[4]/div/div/div/div/div/input", "xpath:position"]
+      ],
+      "value": "${appId}"
+    }, {
+      "id": "254e6c8b-4baa-441f-996d-ee9849011981",
+      "comment": "",
+      "command": "assertElementPresent",
+      "target": "css=.btn-primary > .v-btn__content",
+      "targets": [
+        ["css=.btn-primary > .v-btn__content", "css:finder"],
+        ["xpath=//div[@id='entity-delete-service-confirmation-popup___BV_modal_body_']/div/div/button/span", "xpath:idRelative"],
+        ["xpath=//div[4]/div/div/div/div/div/div/button/span", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "f7f5146f-99c4-4649-97c7-c1a95b4d5642",
+      "comment": "",
+      "command": "mouseOver",
+      "target": "css=.btn-primary > .v-btn__content",
+      "targets": [
+        ["css=.btn-primary > .v-btn__content", "css:finder"],
+        ["xpath=//div[@id='entity-delete-service-confirmation-popup___BV_modal_body_']/div/div/button/span", "xpath:idRelative"],
+        ["xpath=//div[4]/div/div/div/div/div/div/button/span", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "a26566fe-8f06-4c6e-9775-1b628e29f3bd",
+      "comment": "",
+      "command": "click",
+      "target": "css=.btn-primary > .v-btn__content",
+      "targets": [
+        ["css=.btn-primary > .v-btn__content", "css:finder"],
+        ["xpath=//div[@id='entity-delete-service-confirmation-popup___BV_modal_body_']/div/div/button/span", "xpath:idRelative"],
+        ["xpath=//div[4]/div/div/div/div/div/div/button/span", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "1bebfa5a-0309-4b11-afcb-a24a3353ecff",
+      "comment": "",
+      "command": "mouseOut",
+      "target": "css=.fa-code",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "4ce2dea9-0c03-4a00-a922-48ab1079d32b",
+      "comment": "",
+      "command": "mouseOver",
+      "target": " xpath=//a[.//i[contains(@class,'fa-code')]]",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "24c889ca-c274-4ff5-87aa-5e9b023b75b2",
+      "comment": "",
+      "command": "click",
+      "target": "css=.profile-img",
+      "targets": [
+        ["css=.profile-img", "css:finder"],
+        ["xpath=//img[contains(@src,'https://lh3.googleusercontent.com/a/ACg8ocLvMGQmDY4bjGoSjcv9KxRf3ctzmnZZoFCznx7t7OaRLMvoMw=s96-c')]", "xpath:img"],
+        ["xpath=//a[@id='__BVID__19__BV_toggle_']/div/img", "xpath:idRelative"],
+        ["xpath=//div/img", "xpath:position"]
+      ],
+      "value": ""
+    },
+    {
+      "id": "b0ed9609-9adf-49fb-b78d-e383eb79d462",
+      "comment": "",
+      "command": "pause",
+      "target": "10000",
+      "targets": [],
+      "value": ""
+    } ,{
+      "id": "b0ed9609-9adf-49fa-b78d-e383eb79d462",
+      "comment": "",
+      "command": "end",
+      "target": "",
+      "targets": [],
+      "value": ""
+    }]
+  }, {
+    "id": "df151841-ee39-4be5-8aec-4ff78fa475d1",
+    "name": "delete ssi app",
+    "commands": [{
+      "id": "abc124f9-9299-475b-a475-8615273fdc28",
+      "comment": "",
+      "command": "open",
+      "target": "/",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "8d192478-6a03-4d2d-9ff0-252f4ec2508a",
+      "comment": "",
+      "command": "executeScript",
+      "target": "BYPASS_LOGIN",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "82add1a2-0f81-41ab-8c81-1d255f496c1b",
+      "comment": "",
+      "command": "pause",
+      "target": "10000",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "88c33d0b-b23f-498c-ac09-a5a92b146c30",
+      "comment": "",
+      "command": "setWindowSize",
+      "target": "1936x1048",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "0bb17421-9f42-4d47-9cf1-da25f45e1a50",
+      "comment": "",
+      "command": "pause",
+      "target": "3000",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "656d2be5-030d-4c9b-9870-e72ecd5931d3",
+      "comment": "",
+      "command": "store",
+      "target": "seleniumide609@gmail.com",
+      "targets": [],
+      "value": "adminEmailId"
+    }, {
+      "id": "6b69d612-0089-455c-8c80-9c82160f8d5a",
+      "comment": "",
+      "command": "//waitForElementPresent",
+      "target": "//div[contains(translate(text(), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), '${adminEmailId}')]",
+      "targets": [],
+      "value": "3000"
+    }, {
+      "id": "71446bb4-bbc3-4819-8cd3-9325295ccb92",
+      "comment": "",
+      "command": "//clickAt",
+      "target": "xpath=//div[contains(text(),'${adminEmailId}')]",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "aa33381a-5a91-4394-8423-7ed504f5162e",
+      "comment": "",
+      "command": "storeText",
+      "target": "css=h4",
+      "targets": [],
+      "value": "pageHeader"
+    }, {
+      "id": "ac748eb3-c06f-4504-be3f-c859b3ae1722",
+      "comment": "",
+      "command": "echo",
+      "target": "${pageHeader}",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "3fc336f7-1bd5-44bf-bc61-0d1636c271dd",
+      "comment": "",
+      "command": "if",
+      "target": "${pageHeader} == \"Configure Your Identity Service\"",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "8cf0f6bd-c22c-4535-9721-ea181466e4cc",
+      "comment": "",
+      "command": "click",
+      "target": "css=h4",
+      "targets": [
+        ["css=h4", "css:finder"],
+        ["xpath=//div[@id='app']/div[2]/div/div[2]/h4", "xpath:idRelative"],
+        ["xpath=//h4", "xpath:position"],
+        ["xpath=//h4[contains(.,' Configure Your Identity Service')]", "xpath:innerText"]
+      ],
+      "value": ""
+    }, {
+      "id": "1fdf4e40-42b8-404b-820e-f95049e71471",
+      "comment": "",
+      "command": "assertText",
+      "target": "css=h4",
+      "targets": [],
+      "value": "Configure Your Identity Service"
+    }, {
+      "id": "a555e948-e318-419f-b34f-3352c83fe57e",
+      "comment": "",
+      "command": "click",
+      "target": "css=.text-muted:nth-child(2)",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "4948c951-1e01-4fd2-b47c-8786fa0ac273",
+      "comment": "",
+      "command": "assertText",
+      "target": "css=.text-muted:nth-child(2)",
+      "targets": [],
+      "value": "Complete the guided steps to set up your identity verification services."
+    }, {
+      "id": "c8806aa1-4088-49ab-9710-23091fdda7de",
+      "comment": "",
+      "command": "click",
+      "target": "css=.container-collapsed-not",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "a7590943-501e-4e3c-a9cb-5209b65ece55",
+      "comment": "",
+      "command": "//assertText",
+      "target": "css=.container",
+      "targets": [],
+      "value": "Configure Your Identity Service\\nComplete the guided steps to set up your identity verification services.\\nSelect Your Business Type\\nBusiness\\nCommunity"
+    }, {
+      "id": "d7007f16-c61e-42bb-81e0-defe5ca70058",
+      "comment": "",
+      "command": "else",
+      "target": "",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "fdb5cba4-f99a-4d68-82dc-cac0dc6d2b13",
+      "comment": "",
+      "command": "click",
+      "target": "css=.container-collapsed-not",
+      "targets": [
+        ["css=.container-collapsed-not", "css:finder"],
+        ["xpath=//div[@id='app']/div[2]", "xpath:idRelative"],
+        ["xpath=//div[2]", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "2aaff042-8c48-4768-ab10-18eed8689b62",
+      "comment": "",
+      "command": "assertText",
+      "target": " xpath=//h4[contains(text(),'Getting Started')] ",
+      "targets": [
+        ["css=.align-center", "css:finder"],
+        ["xpath=//div[@id='app']/div[2]/div/div/div/div", "xpath:idRelative"],
+        ["xpath=//div[2]/div/div/div/div", "xpath:position"]
+      ],
+      "value": "Getting Started"
+    }, {
+      "id": "71368efc-15bb-4964-9f43-992d631e60d3",
+      "comment": "",
+      "command": "click",
+      "target": "css=.step-card:nth-child(1) .step-content-box",
+      "targets": [
+        ["css=.step-card:nth-child(1) .step-content-box", "css:finder"],
+        ["xpath=//div[@id='app']/div[2]/div/div/div/div[2]/div/div[2]/div[2]", "xpath:idRelative"],
+        ["xpath=//div[2]/div[2]", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "ce542053-caed-466c-9273-c538a4b76f06",
+      "comment": "",
+      "command": "assertText",
+      "target": "css=.step-card:nth-child(1) .step-title",
+      "targets": [
+        ["css=.step-card:nth-child(1) .step-title", "css:finder"],
+        ["xpath=//div[@id='app']/div[2]/div/div/div/div[2]/div/div[2]/div[2]/h5", "xpath:idRelative"],
+        ["xpath=//h5", "xpath:position"],
+        ["xpath=//h5[contains(.,'1. Understand Hypersign Basics')]", "xpath:innerText"]
+      ],
+      "value": "1. Understand Hypersign Basics"
+    }, {
+      "id": "f23a9da2-6ba3-4d7a-9852-9cccd67c204e",
+      "comment": "",
+      "command": "click",
+      "target": "css=.step-card:nth-child(2) .step-content-box",
+      "targets": [
+        ["css=.step-card:nth-child(2) .step-content-box", "css:finder"],
+        ["xpath=//div[@id='app']/div[2]/div/div/div/div[2]/div[2]/div[2]/div[2]", "xpath:idRelative"],
+        ["xpath=//div[2]/div[2]/div[2]/div[2]", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "4be1ebe0-4500-44f6-984d-bb550ad7583f",
+      "comment": "",
+      "command": "assertText",
+      "target": "css=.step-card:nth-child(2) .step-content-box",
+      "targets": [
+        ["css=.step-card:nth-child(2) .step-content-box", "css:finder"],
+        ["xpath=//div[@id='app']/div[2]/div/div/div/div[2]/div[2]/div[2]/div[2]", "xpath:idRelative"],
+        ["xpath=//div[2]/div[2]/div[2]/div[2]", "xpath:position"]
+      ],
+      "value": "2. Configure Your KYC Widget\\nSet up your KYC widget according to your needs — choose between liveliness checks, ID document verification, and consent capture. You’ll also learn how to customize branding and themes.\\nRead Documentation"
+    }, {
+      "id": "6a3f9aed-e71b-4e8a-be2e-caee01cc6a9f",
+      "comment": "",
+      "command": "click",
+      "target": "css=.step-card:nth-child(3) .step-content-box",
+      "targets": [
+        ["css=.step-card:nth-child(3) .step-content-box", "css:finder"],
+        ["xpath=//div[@id='app']/div[2]/div/div/div/div[2]/div[3]/div[2]/div[2]", "xpath:idRelative"],
+        ["xpath=//div[3]/div[2]/div[2]", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "82ac616c-57b9-4eba-8114-4da1874c7165",
+      "comment": "",
+      "command": "assertText",
+      "target": "css=.step-card:nth-child(3) .step-title",
+      "targets": [
+        ["css=.step-card:nth-child(3) .step-title", "css:finder"],
+        ["xpath=//div[@id='app']/div[2]/div/div/div/div[2]/div[3]/div[2]/div[2]/h5", "xpath:idRelative"],
+        ["xpath=//div[3]/div[2]/div[2]/h5", "xpath:position"],
+        ["xpath=//h5[contains(.,'3. Create Your Custom KYC Verifier URL')]", "xpath:innerText"]
+      ],
+      "value": "3. Create Your Custom KYC Verifier URL"
+    }, {
+      "id": "7c76ff0c-ce87-40d3-a522-9f485c2b8f84",
+      "comment": "",
+      "command": "click",
+      "target": "css=.step-card:nth-child(4) .step-content-box",
+      "targets": [
+        ["css=.step-card:nth-child(4) .step-content-box", "css:finder"],
+        ["xpath=//div[@id='app']/div[2]/div/div/div/div[2]/div[4]/div[2]/div[2]", "xpath:idRelative"],
+        ["xpath=//div[4]/div[2]/div[2]", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "2df271e5-6156-4a1b-aa79-73875d2da0e8",
+      "comment": "",
+      "command": "click",
+      "target": "css=.step-card:nth-child(4) .step-title",
+      "targets": [
+        ["css=.step-card:nth-child(4) .step-title", "css:finder"],
+        ["xpath=//div[@id='app']/div[2]/div/div/div/div[2]/div[4]/div[2]/div[2]/h5", "xpath:idRelative"],
+        ["xpath=//div[4]/div[2]/div[2]/h5", "xpath:position"],
+        ["xpath=//h5[contains(.,'4. Integrate into Your App')]", "xpath:innerText"]
+      ],
+      "value": ""
+    }, {
+      "id": "24c5c792-9d23-43fa-9aca-a439698d277f",
+      "comment": "",
+      "command": "click",
+      "target": "css=.step-card:nth-child(4) .step-title",
+      "targets": [
+        ["css=.step-card:nth-child(4) .step-title", "css:finder"],
+        ["xpath=//div[@id='app']/div[2]/div/div/div/div[2]/div[4]/div[2]/div[2]/h5", "xpath:idRelative"],
+        ["xpath=//div[4]/div[2]/div[2]/h5", "xpath:position"],
+        ["xpath=//h5[contains(.,'4. Integrate into Your App')]", "xpath:innerText"]
+      ],
+      "value": ""
+    }, {
+      "id": "2f940b17-3a97-4d81-9a05-5886377461c1",
+      "comment": "",
+      "command": "doubleClick",
+      "target": "css=.step-card:nth-child(4) .step-title",
+      "targets": [
+        ["css=.step-card:nth-child(4) .step-title", "css:finder"],
+        ["xpath=//div[@id='app']/div[2]/div/div/div/div[2]/div[4]/div[2]/div[2]/h5", "xpath:idRelative"],
+        ["xpath=//div[4]/div[2]/div[2]/h5", "xpath:position"],
+        ["xpath=//h5[contains(.,'4. Integrate into Your App')]", "xpath:innerText"]
+      ],
+      "value": ""
+    }, {
+      "id": "a4994b42-55ce-4ea2-b506-06194877d02f",
+      "comment": "",
+      "command": "click",
+      "target": "css=.step-card:nth-child(4) .step-content-box",
+      "targets": [
+        ["css=.step-card:nth-child(4) .step-content-box", "css:finder"],
+        ["xpath=//div[@id='app']/div[2]/div/div/div/div[2]/div[4]/div[2]/div[2]", "xpath:idRelative"],
+        ["xpath=//div[4]/div[2]/div[2]", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "f710b6c5-0ba8-460f-b3f9-9b8cc7635b9f",
+      "comment": "",
+      "command": "assertText",
+      "target": "css=.step-card:nth-child(4) .step-title",
+      "targets": [
+        ["css=.step-card:nth-child(4) .step-title", "css:finder"],
+        ["xpath=//div[@id='app']/div[2]/div/div/div/div[2]/div[4]/div[2]/div[2]/h5", "xpath:idRelative"],
+        ["xpath=//div[4]/div[2]/div[2]/h5", "xpath:position"],
+        ["xpath=//h5[contains(.,'4. Integrate into Your App')]", "xpath:innerText"]
+      ],
+      "value": "4. Integrate into Your App"
+    }, {
+      "id": "0c24f393-3d8d-451e-b32a-fa15dca82ca8",
+      "comment": "",
+      "command": "end",
+      "target": "",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "b5977910-c2e3-4562-943a-60f238a4c6bc",
+      "comment": "",
+      "command": "click",
+      "target": "css=.profile-img",
+      "targets": [
+        ["css=.profile-img", "css:finder"],
+        ["xpath=//img[contains(@src,'https://lh3.googleusercontent.com/a/ACg8ocLvMGQmDY4bjGoSjcv9KxRf3ctzmnZZoFCznx7t7OaRLMvoMw=s96-c')]", "xpath:img"],
+        ["xpath=//a[@id='__BVID__19__BV_toggle_']/div/img", "xpath:idRelative"],
+        ["xpath=//div/img", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "fb40bf4a-6b3f-49d2-9441-53157719369c",
+      "comment": "",
+      "command": "click",
+      "target": "linkText=Settings",
+      "targets": [
+        ["linkText=Settings", "linkText"],
+        ["css=li:nth-child(5) > .dropdown-item", "css:finder"],
+        ["xpath=//a[contains(text(),'Settings')]", "xpath:link"],
+        ["xpath=//ul[@id='__BVID__19__BV_toggle_menu_']/li[4]/a", "xpath:idRelative"],
+        ["xpath=(//a[contains(@href, '#')])[6]", "xpath:href"],
+        ["xpath=//li[4]/a", "xpath:position"],
+        ["xpath=//a[contains(.,' Settings')]", "xpath:innerText"]
+      ],
+      "value": ""
+    }, {
+      "id": "2f2fe03b-4cfc-4727-910f-5f296a298340",
+      "comment": "",
+      "command": "click",
+      "target": "xpath=//a[.//strong[contains(normalize-space(),'SSI')]]//strong",
+      "targets": [
+        ["css=#\\__BVID__154___BV_tab_button__ > strong", "css:finder"],
+        ["xpath=//a[@id='__BVID__154___BV_tab_button__']/strong", "xpath:idRelative"],
+        ["xpath=//li[4]/a/strong", "xpath:position"],
+        ["xpath=//strong[contains(.,' SSI')]", "xpath:innerText"]
+      ],
+      "value": ""
+    }, {
+      "id": "b406c0c7-3b31-429f-b261-d3aa2cf27fe6",
+      "comment": "",
+      "command": "click",
+      "target": "css=.card-text:nth-child(1) .far",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "9fd1f09d-cc1f-462e-ab0d-4d28430aef00",
+      "comment": "",
+      "command": "click",
+      "target": "xpath=//div[@title='Copy Service Id']//i",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "5cf7c553-d9e3-4f69-9cb2-58814c2ca39c",
+      "comment": "",
+      "command": "mouseDown",
+      "target": "xpath=(//div[contains(@class,'serviceCard')]//button[@aria-haspopup='menu'])[1] ",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "323faab6-1fcd-4813-9884-a747e3870592",
+      "comment": "",
+      "command": "assertElementPresent",
+      "target": "xpath=(//div[contains(@class,'serviceCard')]//button[@aria-haspopup='menu'])[1] ",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "ace32ea0-369f-4dce-89d8-941d7474d4dc",
+      "comment": "",
+      "command": "click",
+      "target": "xpath=(//div[contains(@class,'serviceCard')]//button[@aria-haspopup='menu'])[1] ",
+      "targets": [
+        ["css=#\\__BVID__215__BV_toggle_ > .bi-list", "css:finder"]
+      ],
+      "value": ""
+    }, {
+      "id": "1e5bfc8e-5177-4640-8e2f-982574945376",
+      "comment": "",
+      "command": "click",
+      "target": "css=.show > li:nth-child(2) > .dropdown-item",
+      "targets": [
+        ["css=.show > li:nth-child(2) > .dropdown-item", "css:finder"],
+        ["xpath=(//button[@type='button'])[19]", "xpath:attributes"],
+        ["xpath=//div[@id='__BVID__215']/ul/li[2]/button", "xpath:idRelative"],
+        ["xpath=//div[3]/div/ul/li[2]/button", "xpath:position"],
+        ["xpath=//button[contains(.,' Edit Service')]", "xpath:innerText"]
+      ],
+      "value": ""
+    }, {
+      "id": "85430dd2-cfb9-48f0-8b80-ce2317128e84",
+      "comment": "",
+      "command": "storeValue",
+      "target": "id=orgDid",
+      "targets": [
+        ["id=orgDid", "id"],
+        ["css=.mb-3 > #orgDid", "css:finder"],
+        ["xpath=//input[@id='orgDid']", "xpath:attributes"],
+        ["xpath=//div[@id='sidebar-right']/div/form/div/div/input", "xpath:idRelative"],
+        ["xpath=//form/div/div/input", "xpath:position"]
+      ],
+      "value": "serviceId"
+    }, {
+      "id": "bed6c764-2abd-4115-af85-80b5a0024ee8",
+      "comment": "",
+      "command": "click",
+      "target": "css=div:nth-child(2) > .b-sidebar-outer > #sidebar-right .bi-x",
+      "targets": [
+        ["css=div:nth-child(2) > .b-sidebar-outer > #sidebar-right .bi-x", "css:finder"]
+      ],
+      "value": ""
+    }, {
+      "id": "755ee54e-4edf-42ca-a040-08a64ba1b6b3",
+      "comment": "",
+      "command": "click",
+      "target": "xpath=(//div[contains(@class,'serviceCard')]//button[@aria-haspopup='menu'])[1] ",
+      "targets": [
+        ["css=#\\__BVID__215__BV_toggle_ path", "css:finder"]
+      ],
+      "value": ""
+    }, {
+      "id": "73ff87a0-c23c-49f0-9931-0e6bda4f552e",
+      "comment": "",
+      "command": "click",
+      "target": "css=li:nth-child(3) > .dropdown-item",
+      "targets": [
+        ["css=li:nth-child(3) > .dropdown-item", "css:finder"],
+        ["xpath=(//button[@type='button'])[20]", "xpath:attributes"],
+        ["xpath=//div[@id='__BVID__215']/ul/li[3]/button", "xpath:idRelative"],
+        ["xpath=//li[3]/button", "xpath:position"],
+        ["xpath=//button[contains(.,' Delete Service')]", "xpath:innerText"]
+      ],
+      "value": ""
+    }, {
+      "id": "db40d77d-d07e-44c4-a7d5-35dbb0d06747",
+      "comment": "",
+      "command": "click",
+      "target": "id=appId",
+      "targets": [
+        ["id=appId", "id"],
+        ["css=#appId", "css:finder"],
+        ["xpath=//input[@id='appId']", "xpath:attributes"],
+        ["xpath=//div[@id='entity-delete-service-confirmation-popup___BV_modal_body_']/div/input", "xpath:idRelative"],
+        ["xpath=//div[4]/div/div/div/div/div/input", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "f4d400c8-2943-4150-8eaa-262a79e22b5b",
+      "comment": "",
+      "command": "type",
+      "target": "id=appId",
+      "targets": [
+        ["id=appId", "id"],
+        ["css=#appId", "css:finder"],
+        ["xpath=//input[@id='appId']", "xpath:attributes"],
+        ["xpath=//div[@id='entity-delete-service-confirmation-popup___BV_modal_body_']/div/input", "xpath:idRelative"],
+        ["xpath=//div[4]/div/div/div/div/div/input", "xpath:position"]
+      ],
+      "value": "${serviceId}"
+    }, {
+      "id": "96beb8cc-c311-4bc9-9c37-62e925981d46",
+      "comment": "",
+      "command": "click",
+      "target": "id=entity-delete-service-confirmation-popup___BV_modal_header_",
+      "targets": [
+        ["id=entity-delete-service-confirmation-popup___BV_modal_header_", "id"],
+        ["css=#entity-delete-service-confirmation-popup___BV_modal_header_", "css:finder"],
+        ["xpath=//header[@id='entity-delete-service-confirmation-popup___BV_modal_header_']", "xpath:attributes"],
+        ["xpath=//div[@id='entity-delete-service-confirmation-popup___BV_modal_content_']/header", "xpath:idRelative"],
+        ["xpath=//div[4]/div/div/div/header", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "70dfe841-4c25-412a-8dc3-e380853d188d",
+      "comment": "",
+      "command": "assertText",
+      "target": "id=entity-delete-service-confirmation-popup___BV_modal_header_",
+      "targets": [
+        ["id=entity-delete-service-confirmation-popup___BV_modal_header_", "id"],
+        ["css=#entity-delete-service-confirmation-popup___BV_modal_header_", "css:finder"],
+        ["xpath=//header[@id='entity-delete-service-confirmation-popup___BV_modal_header_']", "xpath:attributes"],
+        ["xpath=//div[@id='entity-delete-service-confirmation-popup___BV_modal_content_']/header", "xpath:idRelative"],
+        ["xpath=//div[4]/div/div/div/header", "xpath:position"]
+      ],
+      "value": "Delete Service Confirmation\\n×"
+    }, {
+      "id": "dfd4924a-3317-4597-a009-80e2fe6f8f0e",
+      "comment": "",
+      "command": "click",
+      "target": "id=entity-delete-service-confirmation-popup___BV_modal_body_",
+      "targets": [
+        ["id=entity-delete-service-confirmation-popup___BV_modal_body_", "id"],
+        ["css=#entity-delete-service-confirmation-popup___BV_modal_body_", "css:finder"],
+        ["xpath=//div[@id='entity-delete-service-confirmation-popup___BV_modal_body_']", "xpath:attributes"],
+        ["xpath=//div[@id='entity-delete-service-confirmation-popup___BV_modal_content_']/div", "xpath:idRelative"],
+        ["xpath=//body/div[4]/div/div/div/div", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "8075b882-5fb2-4daa-a0c8-c5cec96aa786",
+      "comment": "",
+      "command": "assertElementPresent",
+      "target": "css=#entity-delete-service-confirmation-popup___BV_modal_body_ p",
+      "targets": [
+        ["css=#entity-delete-service-confirmation-popup___BV_modal_body_ p", "css:finder"],
+        ["xpath=//div[@id='entity-delete-service-confirmation-popup___BV_modal_body_']/div/p", "xpath:idRelative"],
+        ["xpath=//div[4]/div/div/div/div/div/p", "xpath:position"],
+        ["xpath=//p[contains(.,'Warning: This is a destructive feature. It will clean all your metadata and delete your data vault. If you sure you want to delete this service, please enter the service Id:')]", "xpath:innerText"]
+      ],
+      "value": ""
+    }, {
+      "id": "3f7ef14e-8037-444a-9e8f-beff5c6d1adb",
+      "comment": "",
+      "command": "assertElementPresent",
+      "target": "css=.text-center > .v-btn__content",
+      "targets": [
+        ["css=.text-center > .v-btn__content", "css:finder"],
+        ["xpath=//div[@id='entity-delete-service-confirmation-popup___BV_modal_body_']/div/div/button/span", "xpath:idRelative"],
+        ["xpath=//div[4]/div/div/div/div/div/div/button/span", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "fb33c853-fd8d-47ca-b67d-ec18c8a7804c",
+      "comment": "",
+      "command": "click",
+      "target": "css=.text-center > .v-btn__content",
+      "targets": [
+        ["css=.text-center > .v-btn__content", "css:finder"],
+        ["xpath=//div[@id='entity-delete-service-confirmation-popup___BV_modal_body_']/div/div/button/span", "xpath:idRelative"],
+        ["xpath=//div[4]/div/div/div/div/div/div/button/span", "xpath:position"]
+      ],
+      "value": ""
+    }]
+  }],
+  "suites": [{
+    "id": "98341582-aabd-42ef-89e5-ba549ad01f60",
+    "name": "Default Suite",
+    "persistSession": false,
+    "parallel": false,
+    "timeout": 300,
+    "tests": ["c8fe19b8-26be-4184-825d-543f410c1be4", "df151841-ee39-4be5-8aec-4ff78fa475d1"]
+  }],
+  "urls": ["https://entity.dashboard.hypersign.id/", "http://localhost:9001/"],
+  "plugins": []
+}

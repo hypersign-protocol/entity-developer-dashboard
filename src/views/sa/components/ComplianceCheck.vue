@@ -57,6 +57,9 @@
                 </div>
             </v-col>
         </v-row>
+
+        <!-- Global status alert - always visible for all operations -->
+
         <v-row v-if="company">
             <v-col cols="12" lg="4">
                 <div class="overview-container mb-4">
@@ -99,15 +102,15 @@
                     </div>
 
                     <div v-for="doc in company.documents" :key="doc.id" class="step-item d-flex mb-3 align-center">
-                        <div class="step-number"><v-icon x-small color="white">mdi-file-document</v-icon></div>
+        <div class="step-number"><v-icon x-small style="color: white !important;">mdi-file-document</v-icon></div>
                         <div class="flex-grow-1 overflow-hidden">
                             <p class="small font-weight-bold mb-0 text-truncate">{{ formatDocType(doc.documentType) }}
                             </p>
                             <p class="x-small text-muted mb-0 text-truncate">{{ doc.fileName }}</p>
                         </div>
 
-                        <v-btn icon x-small color="primary" @click="viewDoc(doc)">
-                            <v-icon>mdi-eye</v-icon>
+                        <v-btn icon x-small color="primary" @click="downloadDoc(doc)" :loading="downloadingDocId === doc.id">
+                            <v-icon>mdi-download</v-icon>
                         </v-btn>
 
                     </div>
@@ -259,23 +262,6 @@
                             <span style="color: white;">Finalize KYB Review</span>
 
                         </v-btn>
-            <v-fade-transition>
-            <div
-                    v-if="statusMessage"
-                    :class="['mt-4 feedback-box', isError ? 'error-style' : 'success-style']"
-                >
-                <div class="d-flex align-center justify-center">
-                    <v-icon small :color="isError ? 'red' : 'green'" class="mr-2">
-                        {{ isError ? 'mdi-alert-circle' : 'mdi-check-circle' }}
-                    </v-icon>
-
-                    <span class="small font-weight-bold">
-                        {{ statusMessage }}
-                    </span>
-                </div>
-             </div>
-        </v-fade-transition>
-
                     </div>
                 </div>
 
@@ -367,13 +353,19 @@
 
 .step-number {
 
-    background: #3b82f6;
+    background: #111827;
 
     color: white;
 
     width: 20px;
 
     height: 20px;
+
+    min-width: 20px;
+
+    min-height: 20px;
+
+    flex-shrink: 0;
 
     border-radius: 50%;
 
@@ -440,7 +432,7 @@ export default {
     data() {
         return {
             isLoading: false,
-            statusMessage: '',
+            downloadingDocId: null,
             activeTab: 0,
             companyId: '',
             serviceId: '', 
@@ -554,41 +546,58 @@ If no matches, return exactly:
         }
     },
     methods: {
-     ...mapActions('mainStore', ['fetchAppKybById','keepAccessTokenReadyForApp','submitComplianceDetail','finalizeCompanyReview']),
+     ...mapActions('mainStore', ['fetchAppKybById','keepAccessTokenReadyForApp','submitComplianceDetail','finalizeCompanyReview','downloadKybUploadedFile']),
+        async downloadDoc(doc) {
+            this.downloadingDocId = doc.id;
+            try {
+                const blob = await this.downloadKybUploadedFile({ fileId: doc.id });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = doc.fileName || `${doc.documentType || 'document'}`;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                URL.revokeObjectURL(url);
+            } catch (e) {
+                this.notifyErr(e.message || 'Failed to download document.');
+            } finally {
+                this.downloadingDocId = null;
+            }
+        },
         formatDocType(t) { return t.replace(/([A-Z])/g, ' $1'); },
         async fetchCompany() {
             if (!this.accessToken) {
                 this.showFeedback("Please authenticate first", true);
-
                 return;
             }
             if (!this.companyId) {
                 this.showFeedback("Please fill in all required fields.", true);
                 return;
             }
-            // Set the selected app
             this.$store.commit('mainStore/setSelectedAppId', this.serviceId);
-            try{
-                this.company= await this.fetchAppKybById({companyId: this.companyId, accessToken: this.accessToken, serviceId:this.serviceId});
-            }catch(e){
+            this.isLoading = true;
+            this.statusMessage = '';
+            try {
+                this.company = await this.fetchAppKybById({ companyId: this.companyId, accessToken: this.accessToken, serviceId: this.serviceId });
+            } catch(e) {
                 const errorMsg = e.response?.data?.message || e.message || "Fetch failed.";
-                this.showFeedback(`Error: ${errorMsg}`, true);
-            }finally {
-              this.loading = false;
-         }
-           
+                this.notifyErr(errorMsg);
+            } finally {
+                this.isLoading = false;
+            }
         },
       
         async submitCompliance(type, status) {
             if (this.isSubmitting) return;
             this.isSubmitting = true;
             if (!this.serviceId) {
-                this.showFeedback("Please select a KYC service first.", true);
+                this.notifyErr("Please select a KYC service first.");
                 this.isSubmitting = false;
                 return;
             }
             if (!this.companyId) {
-                this.showFeedback("Please fetch a company first.", true);
+                this.notifyErr("Please fetch a company first.");
                 this.isSubmitting = false;
                 return;
             }
@@ -596,7 +605,7 @@ If no matches, return exactly:
             const formData = this.form[formKey];
             if (status === 'Failed') {
                 if (!formData.reasonDetail.trim()) {
-                    this.showFeedback("Please provide details.", true);
+                    this.notifyErr("Please provide details.");
                     this.isSubmitting = false;
                     return;
                 }
@@ -608,51 +617,52 @@ If no matches, return exactly:
                     status,
                     accessToken: this.accessToken,
                     serviceId: this.serviceId,
-
                 };
                 if (status === 'Failed') {
                     payload.reasonDetail = formData.reasonDetail;
                     if (formData.reason) payload.reason = formData.reason;
                 }
+                this.isLoading = true;
                 await this.submitComplianceDetail(payload);
-                this.showFeedback(`${type} compliance submitted successfully.`, false);
+                this.notifySuccess(`${type} compliance submitted successfully.`);
             } catch (error) {
-                this.showFeedback(`Error submitting ${type} compliance: ${error.message}`, true);
+                this.notifyErr(`Error submitting ${type} compliance: ${error.message}`);
             } finally {
                 this.isSubmitting = false;
+                this.isLoading = false;
             }
         },
         async finalizeCompany() {
-              if (!this.accessToken) {
-                this.showFeedback("Please authenticate first", true);
+            if (!this.accessToken) {
+                this.notifyErr("Please authenticate first");
                 return;
             }
-             if (!this.companyId) {
-                this.showFeedback("Please fill in all required fields.", true);
+            if (!this.companyId) {
+                this.notifyErr("Please fill in all required fields.");
                 return;
             }
-            try{
-                const data= await this.finalizeCompanyReview({companyId: this.companyId, accessToken:this.accessToken, status:"Completed", serviceId:this.serviceId});
-                if(data && data.success){
-                  this.showFeedback(`Success: Company is verified successfully!`);
-                }else{
-                  throw new Error(
-                    data?.error?.details?.[0] ||
-                    data?.message ||
-                    "Failed to finalize company review"
+            this.isLoading = true;
+            try {
+                const data = await this.finalizeCompanyReview({ companyId: this.companyId, accessToken: this.accessToken, status: "Completed", serviceId: this.serviceId });
+                if (data && data.success) {
+                    this.notifySuccess(`Company verified and finalized successfully!`);
+                } else {
+                    throw new Error(
+                        data?.error?.details?.[0] ||
+                        data?.message ||
+                        "Failed to finalize company review"
                     );
                 }
-            }catch(e){
-               const errorMsg =
-                e.response?.data?.error?.details?.[0] ||
-                e.response?.data?.message ||
-                e.message ||
-                "Request failed.";
-                this.showFeedback(`Error: ${errorMsg}`, true);
-            }finally {
-              this.loading = false;
-         }
-           
+            } catch(e) {
+                const errorMsg =
+                    e.response?.data?.error?.details?.[0] ||
+                    e.response?.data?.message ||
+                    e.message ||
+                    "Request failed.";
+                this.notifyErr(errorMsg);
+            } finally {
+                this.isLoading = false;
+            }
         },
         copyToClipboard(value) {
             navigator.clipboard.writeText(value);
@@ -673,24 +683,34 @@ If no matches, return exactly:
             },
         
         showFeedback(msg, isErr = false) {
-            this.statusMessage = msg;
-            this.isError = isErr;
+            if (isErr) {
+                this.notifyErr(msg);
+            } else {
+                this.notifySuccess(msg);
+            }
         },
-        async authenticateService(){
+        async authenticateService() {
             if (!this.serviceId) {
-                this.showFeedback("Please select a KYC service.", true);
+                this.notifyErr("Please select a KYC service.");
                 return;
             }
-            const data= await this.keepAccessTokenReadyForApp({
-              serviceId: this.serviceId,
-              grant_type: config.GRANT_TYPES_ENUM['CAVACH_KYB_API'],
-            });
-             if(data && data.access_token){
-                this.accessToken = data.access_token;
-                this.showFeedback("Authentication successful! You can now fetch company details.");
-             }else{
-                this.showFeedback("Authentication failed. Please try again.", true);
-             }
+            this.isLoading = true;
+            try {
+                const data = await this.keepAccessTokenReadyForApp({
+                    serviceId: this.serviceId,
+                    grant_type: config.GRANT_TYPES_ENUM['CAVACH_KYB_API'],
+                });
+                if (data && data.access_token) {
+                    this.accessToken = data.access_token;
+                    this.notifySuccess("Authentication successful! You can now fetch company details.");
+                } else {
+                    this.notifyErr("Authentication failed. Please try again.");
+                }
+            } catch(e) {
+                this.notifyErr(e.message || "Authentication failed.");
+            } finally {
+                this.isLoading = false;
+            }
         },
           handleStatusChange(type, value) {
             const reasons = {

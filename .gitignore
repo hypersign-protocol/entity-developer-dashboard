@@ -1,4 +1,6 @@
 # Logs
+error-screenshots
+test-results.json
 dist
 logs
 *.log

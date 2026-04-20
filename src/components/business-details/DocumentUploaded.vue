@@ -14,7 +14,7 @@
                 </div>
                 <div class="document-content">
                     <p class="document-type">{{ formatDocumentType(document.type) }}</p>
-                    <p class="document-name">{{ document.name || `Document ${index + 1}` }}</p>
+                    <p class="document-name" :title="document.name || `Document ${index + 1}`">{{ document.name || `Document ${index + 1}` }}</p>
                     <p class="document-description">{{ document.description }}</p>
                 </div>
                 <div class="document-actions">
@@ -188,9 +188,11 @@ export default {
 
 /* Documents Grid */
 .documents-grid {
-    display: grid;
-    gap: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
     margin-bottom: 2rem;
+    width: 100%;
 }
 
 .document-card {
@@ -204,6 +206,8 @@ export default {
     align-items: center;
     gap: 0.75rem;
     min-height: 4rem;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .document-card:hover {
@@ -244,10 +248,13 @@ export default {
     font-size: 0.75rem;
     color: #6b7280;
     margin: 0;
-    line-height: 1.25;
+    line-height: 1.2;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
     overflow: hidden;
     text-overflow: ellipsis;
-    white-space: nowrap;
+    word-break: break-word;
 }
 
 .document-description {

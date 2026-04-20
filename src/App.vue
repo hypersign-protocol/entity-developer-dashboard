@@ -2,7 +2,6 @@
 /* Fix Navbar Appearance */
 .navStyle {
   background: rgba(255, 255, 255, 0.95) !important;
-  backdrop-filter: blur(10px);
   border-bottom: 1px solid #eef0f2;
   height: 60px;
   padding: 0 20px !important;
@@ -12,11 +11,6 @@
   height: 28px;
   width: auto;
   opacity: 0.9;
-  transition: opacity 0.2s;
-}
-
-.nav-logo-img:hover {
-  opacity: 1;
 }
 
 /* Chips & Wrappers */
@@ -41,11 +35,6 @@
   border-radius: 50%;
   border: 1px solid #e2e8f0;
   overflow: hidden;
-  transition: border-color 0.2s;
-}
-
-.avatar-container:hover {
-  border-color: #667eea;
 }
 
 .profile-img {
@@ -55,23 +44,8 @@
 }
 
 .logo {
-  /* width: 144px; */
   padding-top: 1.5%;
   padding-left: 25px;
-}
-
-.selectedButton {
-  border-bottom: 1px solid #8080809e;
-  font-weight: bold;
-}
-
-.row .nav-style {
-  position: absolute;
-  z-index: 0;
-}
-
-.rightAlign {
-  text-align: end;
 }
 
 .card-radius {
@@ -80,7 +54,6 @@
 
 .logo-style {
   width: 144px;
-  /* height: 40px; */
   margin-top: 9px;
   margin-left: 5px;
 }
@@ -90,13 +63,11 @@
   margin: 0;
   width: 100%;
   min-height: 100vh;
-  /* background: #f6f6f687; */
 }
 
 .subtitle {
   padding-left: 10px;
   color: gray;
-  /* font-size: larger; */
   margin-top: auto;
 }
 
@@ -115,35 +86,64 @@
   padding-left: 5px;
 }
 
-.hov {
-  padding: 0 1.5em 0 1.5em;
-}
-
-.hov:hover {
-  background-color: #dee2e6;
-  cursor: pointer;
-}
-
-.f-36 {
-  font-size: 36px;
-}
-
 .dropDownPopup {
-  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.47);
   border-radius: 8px;
   border: 0 solid grey;
+}
+
+/* Sidebar app header */
+.sidebar-app-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  border-bottom: 1px solid #eef0f2;
+  min-height: 56px;
+  overflow: hidden;
+}
+
+.sidebar-app-avatar {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid #eef0f2;
+  overflow: hidden;
+  background: #f9f7fc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sidebar-app-logo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.sidebar-app-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #2d2d3a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-family: Roboto, sans-serif;
 }
 </style>
 
 <style>
 .v-sidebar-menu .vsm--link_level-1 .vsm--icon {
-  font-size: 16px;
+  font-size: 1rem;
   width: 40px !important;
+}
+
+.v-sidebar-menu .vsm--dropdown>.vsm--list {
+  background: #ffffff !important;
 }
 
 .dropdown-menu.show {
   text-align: center;
-  box-shadow: 2px 0 10px rgb(0 0 0 / 47%);
 }
 
 .navbar {
@@ -152,11 +152,9 @@
 
 .navStyle {
   background: #ffffff;
-  margin-bottom: 1%;
   padding: 5px !important;
   padding-left: 1.5%;
   text-align: left;
-  box-shadow: 0 2px 6px 0 rgba(32, 33, 37, 0.1);
 }
 
 .orgNameCss {
@@ -180,12 +178,6 @@
   color: #42b983;
 }
 
-.centeralign {
-  display: block;
-  margin-left: auto;
-  margin-right: auto;
-}
-
 .leftAlign {
   text-align: left;
 }
@@ -194,66 +186,190 @@
   text-align: right;
 }
 
-.marginLeft {
-  margin-left: 13%;
-}
-
-.marginRight {
-  margin-right: 12%;
-}
-
-#view.collapsed {
-  padding-left: 50px;
-}
-
-#view {
-  padding-left: 350px;
-}
-
 .sidebar-wrapper {
   min-width: 70px;
   margin-top: 5.8vh;
-  /* box-shadow: 0 0 15px 0 rgba(34, 41, 47, 0.05); */
-  box-shadow: 0 2px 6px 0 rgba(32, 33, 37, 0.1);
-  border-right: 1px solid rgba(128, 128, 128, 0.21);
+  border-right: 1px solid #eef0f2;
+  background: #ffffff;
+}
+
+/* Sidebar base */
+.v-sidebar-menu.vsm_white-theme {
+  background-color: #ffffff !important;
+  color: #4a4a5a !important;
 }
 
 .v-sidebar-menu.vsm_white-theme .vsm--mobile-bg {
-  background: grey;
+  background: #ffffff !important;
 }
 
 .vsm--mobile-bg {
-  background: whitesmoke !important;
+  background: #ffffff !important;
 }
 
-.v-sidebar-menu.vsm_white-theme {
-  background-color: white !important;
-  color: rgba(0, 0, 0, 0.87) !important;
-}
 
-.v-sidebar-menu.vsm_white-theme .vsm--header {
-  color: rgba(0, 0, 0, 0.87) !important;
-}
 
+/* All links */
 .v-sidebar-menu.vsm_white-theme .vsm--link {
-  color: rgba(0, 0, 0, 0.87) !important;
+  color: #4a4a5a !important;
+  font-size: 13px !important;
+  font-family: Roboto, sans-serif !important;
+  border-radius: 0 !important;
+  margin: 0 !important;
+  padding: 9px 16px !important;
+  background: transparent !important;
+  transition: background 0.2s ease !important;
 }
 
-.v-sidebar-menu.vsm_white-theme .vsm--link_level-1 .vsm--link:hover {
-  color: rgba(0, 0, 0, 0.87) !important;
-  background: whitesmoke !important;
+.v-sidebar-menu.vsm_white-theme .vsm--link:hover {
+  background: rgba(0, 0, 0, 0.05) !important;
 }
 
+/* Icons */
 .v-sidebar-menu.vsm_white-theme .vsm--link_level-1 .vsm--icon {
   background-color: transparent !important;
-  color: #66666a !important;
+  color: #313131b1 !important;
+  font-size: 0.95rem !important;
+  width: 36px !important;
+}
+
+
+.v-sidebar-menu.vsm_expanded{
+  width: 200px !important;
+  /* border:  1px solid #eef0f2 !important; */
+}
+
+/* Active level-1 link — just color, no background */
+.v-sidebar-menu.vsm_white-theme .vsm--link_level-1.vsm--link_active {
+  background: transparent !important;
+  color: #1a1a2e !important;
+  font-weight: 600 !important;
+  box-shadow: none !important;
+  -webkit-box-shadow: none !important;
+}
+
+.v-sidebar-menu.vsm_white-theme .vsm--link_level-1.vsm--link_active .vsm--icon {
+  color: #1a1a1a !important;
+}
+
+/* Open parent item — no highlight on parent */
+.v-sidebar-menu.vsm_white-theme .vsm--item_open > .vsm--link {
+  background: transparent !important;
+  color: #4a4a5a !important;
+}
+
+.v-sidebar-menu.vsm_white-theme .vsm--item_open > .vsm--link .vsm--icon {
+  color: #636363 !important;
+}
+
+/* Child (level-2) links — text only, indented */
+.v-sidebar-menu.vsm_white-theme .vsm--link_level-2 {
+  color: #636363 !important;
+  font-size: 13px !important;
+  padding: 7px 16px 7px 52px !important;
+  background: transparent !important;
+}
+
+.v-sidebar-menu.vsm_white-theme .vsm--link_level-2 .vsm--icon {
+  display: none !important;
+  color: #1a1a2e !important;
+}
+
+.v-sidebar-menu.vsm_white-theme .vsm--link_level-2.vsm--link_active {
+  color: #1a1a2e !important;
+  font-weight: 600 !important;
+  background: transparent !important;
+
+}
+
+.v-sidebar-menu.vsm_white-theme .vsm--link_level-2.vsm--link_active .vsm--icon {
+color: #1a1a2e !important;
+}
+
+
+
+
+
+/* No indent in collapsed mode */
+.v-sidebar-menu.vsm_white-theme.vsm_collapsed .vsm--link_level-2 {
+  padding-left: 16px !important;
+}
+
+.v-sidebar-menu.vsm_white-theme.vsm_collapsed .vsm--link_level-2 .vsm--icon {
+  display: inline-flex !important;
+  color: #9a9aaa !important;
+}
+
+/* Remove shadow on collapsed popup dropdown */
+.v-sidebar-menu.vsm_white-theme .vsm--mobile-item .vsm--item,
+.v-sidebar-menu.vsm_white-theme .vsm--dropdown {
+  box-shadow: none !important;
+  -webkit-box-shadow: none !important;
+}
+
+/* Collapsed: parent icon color when a child link is active */
+.v-sidebar-menu.vsm_white-theme.vsm_collapsed .vsm--link_level-1.vsm--link_active .vsm--icon {
+  color: #1a1a1a !important;;
+}
+
+/* Collapsed: active child item icon in the popup */
+.v-sidebar-menu.vsm_white-theme.vsm_collapsed .vsm--link_level-2.vsm--link_active .vsm--icon {
+  color: #1a1a2e !important;
+}
+
+/* Environment Banner */
+.env-banner {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 8px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  border-radius: 14px;
+}
+
+.env-banner--dev {
+  background-color: #fffbeb;
+  color: #92400e;
+  border: 1px solid #fcd34d33;
+}
+
+.env-banner__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background-color: #f59e0b;
+}
+
+.env-banner__app {
+  font-weight: 400;
+  opacity: 0.75;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+/* Top-right variant */
+.env-banner--topright {
+  position: fixed;
+  top: 12px;
+  right: 20px;
+  z-index: 1200;
+  padding: 6px 10px;
+  border-radius: 14px;
+}
+
+@media (max-width: 767px) {
+  .env-banner--topright { display: none !important; }
 }
 </style>
 <template>
   <div id="app" data-app>
     <load-ing :active.sync="isLoading" :can-cancel="true" :is-full-page="true"></load-ing>
 
-    <b-navbar toggleable="lg" class="navStyle shadow-sm" v-if="getIfAuthenticated" sticky>
+    <b-navbar toggleable="lg" class="navStyle " v-if="getIfAuthenticated" sticky>
       <b-navbar-brand
         href="javascript:void(0)"
         @click="route('dashboard')"
@@ -266,6 +382,12 @@
 
       <b-collapse id="nav-collapse" is-nav v-if="userDetails">
         <b-navbar-nav class="ml-auto align-items-center">
+          <b-nav-item v-if="getSelectedService && getSelectedService.env !== 'prod'" class="px-2">
+            <div class="env-banner env-banner--dev" title="Development Mode">
+              <span class="env-banner__dot"></span>
+              <span class="env-banner__label">DEV</span>
+            </div>
+          </b-nav-item>
           <b-nav-item v-if="getSwitchedTenantAccount" class="px-2">
             <div
               class="d-flex align-items-center tenant-wrapper"
@@ -351,6 +473,8 @@
       </b-collapse>
     </b-navbar>
 
+    <!-- Environment badge rendered inside navbar (Option B) -->
+
     <div
       :class="[isSidebarCollapsed ? 'container-collapsed-not' : 'container-collapsed']"
     >
@@ -359,6 +483,7 @@
     <notifications group="foo" />
 
     <sidebar-menu
+      :key="sidebarKey"
       :relative="false"
       class="sidebar-wrapper"
       v-if="
@@ -370,27 +495,23 @@
       @toggle-collapse="onToggleCollapse"
       :collapsed="isSidebarCollapsed"
       :theme="'white-theme'"
-      width="220px"
+      width="200px"
       :menu="getSideMenu()"
     >
-      <div slot="header" style="border-bottom: 1px solid rgba(0, 0, 0, 0.12)">
-        <v-list>
-          <v-list-item>
-            <v-list-item-avatar>
-              <v-img
-                :src="
-                  getSelectedService.logoUrl ||
-                  getProfileIcon(formattedAppName(getSelectedService.appName))
-                "
-              ></v-img>
-            </v-list-item-avatar>
-            <v-list-item-content class="mx-1">
-              <v-list-item-title class="text-h7">
-                {{ getSelectedService ? getSelectedService.appName : "" }}
-              </v-list-item-title>
-            </v-list-item-content>
-          </v-list-item>
-        </v-list>
+      <div slot="header" class="sidebar-app-header">
+        <div class="sidebar-app-avatar">
+          <img
+            :src="
+              getSelectedService.logoUrl ||
+              getProfileIcon(formattedAppName(getSelectedService.appName))
+            "
+            class="sidebar-app-logo"
+            alt="App logo"
+          />
+        </div>
+        <span class="sidebar-app-name">
+          {{ getSelectedService ? getSelectedService.appName : "" }}
+        </span>
       </div>
     </sidebar-menu>
   </div>
@@ -431,6 +552,7 @@ export default {
       isLoading: false,
       collapsed: true,
       isSidebarCollapsed: true,
+      sidebarKey: 0,
       schema_page: 1,
       authRoutes: ["register", "PKIIdLogin"],
       userDetails: {},
@@ -477,6 +599,13 @@ export default {
     EventBus.$on("logoutAll", () => {
       this.logoutAll();
     });
+  },
+  watch: {
+    // Re-mount the sidebar on every navigation so that only the active
+    // category stays open and all others collapse.
+    $route() {
+      this.sidebarKey++;
+    },
   },
   methods: {
     ...mapActions("mainStore", [
@@ -596,6 +725,10 @@ export default {
 
     getSideMenu() {
       const menu = [];
+      // Determine which parent category should be open based on the current route
+      const currentPath = this.$route ? this.$route.path : '';
+      const isParentOpen = (children) =>
+        children.some((c) => c.href && currentPath.startsWith(c.href));
 
       if (this.getSelectedService && this.getSelectedService.services.length > 0) {
         const id = this.getSelectedService.services[0].id;
@@ -610,111 +743,42 @@ export default {
           });
 
           // Identity Verification
-          menu.push({
-            href: "",
-            title: EN.NAV.IDENTITY_VERIFICATION.TITLE,
-            icon: "fa fa-user-check",
-            child: [
-              {
-                href: "/studio/sessions/" + appId,
-                title: EN.NAV.IDENTITY_VERIFICATION.USERS,
-                icon: "fa fa-users",
-              },
-              {
-                href: "/studio/user-analytics/" + appId,
-                title: EN.NAV.IDENTITY_VERIFICATION.USER_ANALYTICS,
-                icon: "fa fa-chart-line",
-              },
-              {
-                href: "/studio/widget-config/" + appId,
-                title: EN.NAV.IDENTITY_VERIFICATION.KYC_WIDGET,
-                icon: "fa fa-puzzle-piece",
-              },
-            ],
-          });
-          // Buniness Verification
-          menu.push({
-            href: "",
-            title: EN.NAV.BUSINESS_VERIFICATION.TITLE,
-            icon: "fa fa-building",
-            child: [
-              {
-                href: "/studio/business/" + this.getSelectedService.appId,
-                title: EN.NAV.BUSINESS_VERIFICATION.BUSINESSES,
-                icon: "fa fa-briefcase",
-              },
-              {
-                href: "/studio/kyb-widget-config/" + this.getSelectedService.appId,
-                title: EN.NAV.BUSINESS_VERIFICATION.KYB_WIDGET,
-                icon: "fa fa-puzzle-piece",
-              },
-            ],
-          });
+          const ivChildren = [
+            { href: "/studio/sessions/" + appId, title: EN.NAV.IDENTITY_VERIFICATION.USERS, icon: "fa fa-users" },
+            { href: "/studio/user-analytics/" + appId, title: EN.NAV.IDENTITY_VERIFICATION.USER_ANALYTICS, icon: "fa fa-chart-line" },
+            { href: "/studio/widget-config/" + appId, title: EN.NAV.IDENTITY_VERIFICATION.KYC_WIDGET, icon: "fa fa-puzzle-piece" },
+          ];
+          menu.push({ href: "", title: EN.NAV.IDENTITY_VERIFICATION.TITLE, icon: "fa fa-user-check", opened: isParentOpen(ivChildren), child: ivChildren });
+
+          // Business Verification
+          const bvChildren = [
+            { href: "/studio/business/" + appId, title: EN.NAV.BUSINESS_VERIFICATION.BUSINESSES, icon: "fa fa-briefcase" },
+            { href: "/studio/kyb-widget-config/" + appId, title: EN.NAV.BUSINESS_VERIFICATION.KYB_WIDGET, icon: "fa fa-puzzle-piece" },
+          ];
+          menu.push({ href: "", title: EN.NAV.BUSINESS_VERIFICATION.TITLE, icon: "fa fa-building", opened: isParentOpen(bvChildren), child: bvChildren });
+
           // Solutions
-          menu.push({
-            href: "",
-            title: EN.NAV.SOLUTIONS.TITLE,
-            icon: "fa fa-lightbulb",
-            child: [
-              {
-                href: "/studio/kyc-webpage-generator/" + appId,
-                title: EN.NAV.SOLUTIONS.KYC_VERIFIER_CONFIGURATION,
-                icon: "fa fa-globe",
-              },
-              {
-                href: "/studio/kyb-webpage-generator/" + appId,
-                title: EN.NAV.SOLUTIONS.KYB_VERIFIER_CONFIGURATION,
-                icon: "fa fa-globe",
-              },
-              {
-                href: "/studio/solutions/reusable-id/" + appId,
-                title: EN.NAV.SOLUTIONS.RESUABLE_ID,
-                icon: "fa fa-circle-notch",
-              },
-            ],
-          });
+          const solChildren = [
+            { href: "/studio/kyc-webpage-generator/" + appId, title: EN.NAV.SOLUTIONS.KYC_VERIFIER_CONFIGURATION, icon: "fa fa-globe" },
+            { href: "/studio/kyb-webpage-generator/" + appId, title: EN.NAV.SOLUTIONS.KYB_VERIFIER_CONFIGURATION, icon: "fa fa-globe" },
+            { href: "/studio/solutions/reusable-id/" + appId, title: EN.NAV.SOLUTIONS.RESUABLE_ID, icon: "fa fa-circle-notch" },
+          ];
+          menu.push({ href: "", title: EN.NAV.SOLUTIONS.TITLE, icon: "fa fa-lightbulb", opened: isParentOpen(solChildren), child: solChildren });
 
           // Developer Hub
-          menu.push({
-            href: "",
-            title: EN.NAV.DEVELOPERS_HUB.TITLE,
-            icon: "fa fa-code",
-            child: [
-              {
-                href: "/studio/developer/api-key/" + appId,
-                title: EN.NAV.DEVELOPERS_HUB.API_KEY,
-                icon: "fa fa-key",
-              },
-              {
-                href: "/studio/developer/webhook/" + appId,
-                title: EN.NAV.DEVELOPERS_HUB.WEBHOOK,
-                icon: "fa fa-anchor",
-              },
-              {
-                href: "/studio/service-config/" + appId,
-                title: EN.NAV.DEVELOPERS_HUB.SERVICE_CONFIGURATION,
-                icon: "fa fa-cog",
-              },
-            ],
-          });
+          const devChildren = [
+            { href: "/studio/developer/api-key/" + appId, title: EN.NAV.DEVELOPERS_HUB.API_KEY, icon: "fa fa-key" },
+            { href: "/studio/developer/webhook/" + appId, title: EN.NAV.DEVELOPERS_HUB.WEBHOOK, icon: "fa fa-anchor" },
+            { href: "/studio/service-config/" + appId, title: EN.NAV.DEVELOPERS_HUB.SERVICE_CONFIGURATION, icon: "fa fa-cog" },
+          ];
+          menu.push({ href: "", title: EN.NAV.DEVELOPERS_HUB.TITLE, icon: "fa fa-code", opened: isParentOpen(devChildren), child: devChildren });
+
           // Billing & Usage
-          menu.push({
-            href: "",
-            title: EN.NAV.BILLING_AND_USAGE.TITLE,
-            icon: "fa fa-credit-card",
-            child: [
-              {
-                href: "/studio/onchainkyc/credit/" + appId,
-                title: EN.NAV.BILLING_AND_USAGE.CREDIT,
-                icon: "fas fa-hand-holding-usd",
-              },
-              {
-                href: "/studio/usage/" + appId,
-                title: EN.NAV.BILLING_AND_USAGE.USAGES,
-                icon: "fa fa-chart-bar",
-              },
-            ],
-          });
+          const billingChildren = [
+            { href: "/studio/onchainkyc/credit/" + appId, title: EN.NAV.BILLING_AND_USAGE.CREDIT, icon: "fas fa-hand-holding-usd" },
+            { href: "/studio/usage/" + appId, title: EN.NAV.BILLING_AND_USAGE.USAGES, icon: "fa fa-chart-bar" },
+          ];
+          menu.push({ href: "", title: EN.NAV.BILLING_AND_USAGE.TITLE, icon: "fa fa-credit-card", opened: isParentOpen(billingChildren), child: billingChildren });
         } else if (id === "SSI_API") {
           menu.push({
             href: "/studio/ssi/did/" + appId,
@@ -733,6 +797,8 @@ export default {
             title: "Credential",
             icon: "fa fa-certificate",
           });
+
+          menu.push({ header: true, title: '' });
 
           menu.push({
             href: "/studio/ssi/usage/" + appId,

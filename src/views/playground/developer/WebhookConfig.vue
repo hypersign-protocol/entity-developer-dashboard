@@ -1,8 +1,8 @@
 <template>
-  <v-container>
+  <b-container fluid class="py-3">
     <load-ing :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></load-ing>
 
-    <v-row align="center">
+    <v-row align="center" class="mb-6">
       <v-col cols="12" md="6">
         <h4 class="font-weight-bold mb-0">Webhook Configuration</h4>
         <p class="text-subtitle-2 text-muted">Receive real-time notifications for verification events</p>
@@ -81,16 +81,20 @@
         </div>
       </v-col>
     </v-row>
-  </v-container>
+  </b-container>
 </template>
 
 <style scoped>
+.py-3 {
+  width: 80vw !important;
+}
 /* Dashboard Container Style */
 .overview-container {
   padding: 1.5rem;
   background-color: #f9fafb;
   border-radius: 0.75rem;
   border: 1px solid #e5e7eb;
+  margin-top: -0.85rem;
 }
 
 .header-row {

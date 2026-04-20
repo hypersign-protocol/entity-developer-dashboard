@@ -1,8 +1,8 @@
 <template>
-  <div :class="isContainerShift ? 'homeShift' : 'home'">
+  <b-container fluid class="py-3" :class="isContainerShift ? 'homeShift' : 'home'">
     <load-ing :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></load-ing>
     
-    <v-row class="align-center mb-4">
+    <v-row class="align-center mb-3">
       <v-col>
         <!-- <h3 class="mb-0 text-left">KYB Widget Configuration</h3> -->
         <div>
@@ -157,14 +157,15 @@
 
       </ul>
     </v-card>
-  </div>
+  </b-container>
 </template> 
 
 
 
 <style scoped>
-
-
+.py-3 {
+  width: 80vw !important;
+}
 /* Visual Consistency */
 .serviceCard {
   border-radius: 12px;
@@ -363,7 +364,7 @@ export default {
           },
           title: {
             label: "Widget Title",
-            description: "Title displayed on the KYB KYB widget"
+            description: "Title displayed on the KYB widget"
           },
           logoUrl: {
             label: "Logo URL",
