@@ -254,6 +254,9 @@
 </template>
 
 <style scoped>
+.py-3 {
+  width: 80vw!important;
+}
 /* Field Styling */
 .custom-input {
     border: 1px solid #e2e8f0;

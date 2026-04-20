@@ -1,5 +1,5 @@
 <template>
-  <b-container fluid class="py-3">
+  <b-container fluid class="py-3" style="width:80vw !important">
 
     <b-row class="align-items-center">
       <b-col md="8">
