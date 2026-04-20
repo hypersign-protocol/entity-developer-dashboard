@@ -359,6 +359,13 @@
       "targets": [],
       "value": ""
     }, {
+      "id": "91a4011d-4c53-4198-91fb-ea9f86778c1b",
+      "comment": "",
+      "command": "pause",
+      "target": "10000",
+      "targets": [],
+      "value": ""
+    },{
       "id": "5850f4aa-be8a-43d6-b3ab-e1d83ef1a08f",
       "comment": "",
       "command": "assertText",

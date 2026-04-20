@@ -331,15 +331,17 @@
     }, {
       "id": "2ccf207d-3cda-4e10-a8bf-539d6b380b1d",
       "comment": "",
-      "command": "assertText",
+      "command": "//assertText",
       "target": "xpath=//div[contains(@class,'vsm--list')]//span[normalize-space()='User']",
-      "targets": [
-        ["css=.vsm--link_hover > .vsm--title", "css:finder"],
-        ["xpath=//div[@id='app']/div[4]/div[2]/div[2]/div/div/div/div[3]/a/span", "xpath:idRelative"],
-        ["xpath=//div[3]/a/span", "xpath:position"],
-        ["xpath=//span[contains(.,'App Config')]", "xpath:innerText"]
-      ],
+      "targets": [],
       "value": "Verifications"
+    }, {
+      "id": "2ccf207d-3cda-4e10-a8bf-539d6b380b1d",
+      "comment": "",
+      "command": "assertText",
+      "target": "//span[normalize-space()='User']",
+      "targets": [],
+      "value": "User"
     }, {
       "id": "3b0548bf-3cf1-4dc0-9a08-f6c3d1c9ec81",
       "comment": "",
@@ -1302,6 +1304,6 @@
     "timeout": 300,
     "tests": ["c8fe19b8-26be-4184-825d-543f410c1be4"]
   }],
-  "urls": ["https://entity.dashboard.hypersign.id/"],
+  "urls": ["https://entity.dashboard.hypersign.id/", "http://localhost:9001/"],
   "plugins": []
 }

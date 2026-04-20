@@ -2,7 +2,7 @@
   "id": "5919f94f-c285-473c-ba96-2681f0e13d4f",
   "version": "2.0",
   "name": "Developer dashboard",
-  "url": "https://entity.dashboard.hypersign.id",
+  "url": "https://entity.dashboard.hypersign.id/",
   "tests": [{
     "id": "c8fe19b8-26be-4184-825d-543f410c1be4",
     "name": "loginAndVisitBusinessDashboard",
@@ -13,14 +13,14 @@
       "target": "/",
       "targets": [],
       "value": ""
-    },{
+    }, {
       "id": "65181502-7bfa-44a9-ab1a-1f4215a15157",
       "comment": "",
       "command": "executeScript",
       "target": "BYPASS_LOGIN",
       "targets": [],
       "value": ""
-    },{
+    }, {
       "id": "e617481c-5373-4c4a-8630-4bc00be62670",
       "comment": "",
       "command": "pause",
@@ -331,14 +331,14 @@
       "id": "a6543721-c278-4085-b049-943a66945c10",
       "comment": "",
       "command": "waitForElementVisible",
-      "target": "xpath=//a[.//span[normalize-space()='Businesses']]",
+      "target": "xpath=//a[.//span[normalize-space()='Verifications']]",
       "targets": [],
       "value": "10000"
     }, {
       "id": "2d8bad49-b5d7-4bb3-9bab-6fd6ed3ca944",
       "comment": "",
       "command": "click",
-      "target": "xpath=//a[.//span[normalize-space()='Businesses']]",
+      "target": "xpath=//a[.//span[normalize-space()='Verifications']]",
       "targets": [],
       "value": ""
     }, {
@@ -378,14 +378,9 @@
     }, {
       "id": "d5e0d4cd-0f40-4de8-b25e-d6eba2853d1a",
       "comment": "",
-      "command": "click",
-      "target": "xpath=//a[.//span[normalize-space()='Businesses']]",
-      "targets": [
-        ["css=.vsm--link_hover > .vsm--title", "css:finder"],
-        ["xpath=//div[@id='app']/div[4]/div[2]/div[2]/div/div/div/div/a/span", "xpath:idRelative"],
-        ["xpath=//div[2]/div[2]/div/div/div/div/a/span", "xpath:position"],
-        ["xpath=//span[contains(.,'Businesses')]", "xpath:innerText"]
-      ],
+      "command": "//click",
+      "target": "xpath=//a[.//span[normalize-space()='Verifications']]",
+      "targets": [],
       "value": ""
     }, {
       "id": "a638c4f2-17e1-4b85-9e53-a1627fc83fdc",
@@ -1554,6 +1549,6 @@
     "timeout": 300,
     "tests": ["c8fe19b8-26be-4184-825d-543f410c1be4"]
   }],
-  "urls": ["https://entity.dashboard.hypersign.id/"],
+  "urls": ["https://entity.dashboard.hypersign.id/", "http://localhost:9001/"],
   "plugins": []
 }

@@ -73,7 +73,7 @@
       "id": "88f5da5d-b79e-4803-b5e0-0d971e1df927",
       "comment": "",
       "command": "store",
-      "target": "https://storage.googleapis.com/fyre-image-storage/download.png",
+      "target": "https://upload.wikimedia.org/wikipedia/commons/a/a7/React-icon.svg",
       "targets": [],
       "value": "companyLogo"
     }, {

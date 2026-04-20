@@ -695,6 +695,13 @@
       "target": "xpath=//div[@id='app']/div[2]/div/div[2]/div[2]/button/span/i",
       "targets": [],
       "value": ""
+    },{
+      "id": "6ac822ac-4dea-4cbc-89b9-e5150c380ce5",
+      "comment": "",
+      "command": "pause",
+      "target": "7000",
+      "targets": [],
+      "value": ""
     }, {
       "id": "5671f233-3a17-4e11-bb27-7edd43b05e9a",
       "comment": "",
@@ -706,13 +713,6 @@
         ["xpath=//div[@id='app']/div[2]/div/div[2]/div[2]/button[2]", "xpath:idRelative"],
         ["xpath=//button[2]", "xpath:position"]
       ],
-      "value": ""
-    }, {
-      "id": "6ac822ac-4dea-4cbc-89b9-e5150c380ce5",
-      "comment": "",
-      "command": "pause",
-      "target": "7000",
-      "targets": [],
       "value": ""
     }, {
       "id": "b2c69645-ce9c-4e99-b681-dea930989ea8",
@@ -984,6 +984,6 @@
     "timeout": 300,
     "tests": ["c8fe19b8-26be-4184-825d-543f410c1be4"]
   }],
-  "urls": ["https://entity.dashboard.hypersign.id/", "http://localhost:9001/#/"],
+  "urls": ["https://entity.dashboard.hypersign.id/", "http://localhost:9001/#/", "http://localhost:9001/"],
   "plugins": []
 }

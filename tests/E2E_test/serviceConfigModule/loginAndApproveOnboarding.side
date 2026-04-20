@@ -676,10 +676,10 @@
     }, {
       "id": "30b23d49-df15-4cc3-b86b-c123af2d0e84",
       "comment": "",
-      "command": "pause",
-      "target": "10000",
+      "command": "waitForElementPresent ",
+      "target": "css=.b-toast",
       "targets": [],
-      "value": ""
+      "value": "10000"
     }, {
       "id": "708fd2ab-8ba2-4cf6-a8a9-1ff57a4775d0",
       "comment": "",

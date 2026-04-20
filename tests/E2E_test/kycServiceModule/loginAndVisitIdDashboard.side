@@ -2,7 +2,7 @@
   "id": "5919f94f-c285-473c-ba96-2681f0e13d4f",
   "version": "2.0",
   "name": "Developer dashboard",
-  "url": "https://entity.dashboard.hypersign.id",
+  "url": "https://entity.dashboard.hypersign.id/",
   "tests": [{
     "id": "c8fe19b8-26be-4184-825d-543f410c1be4",
     "name": "loginAndVisitIdDashboard",
@@ -320,12 +320,12 @@
       "id": "f9257156-bc9a-4775-b2f6-5fb67326f40d",
       "comment": "",
       "command": "click",
-      "target": "xpath=//span[normalize-space()='Identity']",
+      "target": "xpath=//span[normalize-space()='User']",
       "targets": [
         ["css=.vsm--title:nth-child(1)", "css:finder"],
         ["xpath=//div[@id='app']/div[4]/div[2]/div[2]/div/a/span", "xpath:idRelative"],
         ["xpath=//div[2]/div[2]/div/a/span", "xpath:position"],
-        ["xpath=//span[contains(.,'Identity')]", "xpath:innerText"]
+        ["xpath=//span[contains(.,'User')]", "xpath:innerText"]
       ],
       "value": ""
     }, {
@@ -339,19 +339,19 @@
       "id": "6b777bb4-14d7-486e-83f8-041e92e004b6",
       "comment": "",
       "command": "waitForElementVisible",
-      "target": "xpath=//a[.//span[normalize-space()='Users']]",
+      "target": "xpath=//a[.//span[normalize-space()='Verifications']]",
       "targets": [],
       "value": "30000"
     }, {
       "id": "102d8ec1-1e9a-4338-9f14-b67100df3430",
       "comment": "",
       "command": "click",
-      "target": "xpath=//a[.//span[normalize-space()='Users']]",
+      "target": "xpath=//a[.//span[normalize-space()='Verifications']]",
       "targets": [
         ["css=.vsm--link_hover > .vsm--title", "css:finder"],
         ["xpath=//div[@id='app']/div[4]/div[2]/div[2]/div/div/div/div/a/span", "xpath:idRelative"],
         ["xpath=//div[2]/div[2]/div/div/div/div/a/span", "xpath:position"],
-        ["xpath=//span[contains(.,'Users')]", "xpath:innerText"]
+        ["xpath=//span[contains(.,'Verifications')]", "xpath:innerText"]
       ],
       "value": ""
     }, {
@@ -1052,6 +1052,6 @@
     "timeout": 300,
     "tests": ["c8fe19b8-26be-4184-825d-543f410c1be4"]
   }],
-  "urls": ["https://entity.dashboard.hypersign.id/"],
+  "urls": ["https://entity.dashboard.hypersign.id/", "http://localhost:9001/"],
   "plugins": []
 }
