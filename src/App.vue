@@ -725,10 +725,7 @@ export default {
 
     getSideMenu() {
       const menu = [];
-      // Determine which parent category should be open based on the current route
-      const currentPath = this.$route ? this.$route.path : '';
-      const isParentOpen = (children) =>
-        children.some((c) => c.href && currentPath.startsWith(c.href));
+
 
       if (this.getSelectedService && this.getSelectedService.services.length > 0) {
         const id = this.getSelectedService.services[0].id;
@@ -744,18 +741,18 @@ export default {
 
           // Identity Verification
           const ivChildren = [
-            { href: "/studio/sessions/" + appId, title: EN.NAV.IDENTITY_VERIFICATION.USERS, icon: "fa fa-users" },
+            { href: "/studio/sessions/" + appId, title: EN.NAV.IDENTITY_VERIFICATION.USERS, icon: "fa fa-users", alias: "/studio/sessions/:appId/:sessionId" },
             { href: "/studio/user-analytics/" + appId, title: EN.NAV.IDENTITY_VERIFICATION.USER_ANALYTICS, icon: "fa fa-chart-line" },
             { href: "/studio/widget-config/" + appId, title: EN.NAV.IDENTITY_VERIFICATION.KYC_WIDGET, icon: "fa fa-puzzle-piece" },
           ];
-          menu.push({ href: "", title: EN.NAV.IDENTITY_VERIFICATION.TITLE, icon: "fa fa-user-check", opened: isParentOpen(ivChildren), child: ivChildren });
+          menu.push({ href: "", title: EN.NAV.IDENTITY_VERIFICATION.TITLE, icon: "fa fa-user-check", child: ivChildren });
 
           // Business Verification
           const bvChildren = [
-            { href: "/studio/business/" + appId, title: EN.NAV.BUSINESS_VERIFICATION.BUSINESSES, icon: "fa fa-briefcase" },
+            { href: "/studio/business/" + appId, title: EN.NAV.BUSINESS_VERIFICATION.BUSINESSES, icon: "fa fa-briefcase", alias: ["/studio/business/:appId/details/:companyId", "/studio/business/:appId/details/:companyId/:tab"] },
             { href: "/studio/kyb-widget-config/" + appId, title: EN.NAV.BUSINESS_VERIFICATION.KYB_WIDGET, icon: "fa fa-puzzle-piece" },
           ];
-          menu.push({ href: "", title: EN.NAV.BUSINESS_VERIFICATION.TITLE, icon: "fa fa-building", opened: isParentOpen(bvChildren), child: bvChildren });
+          menu.push({ href: "", title: EN.NAV.BUSINESS_VERIFICATION.TITLE, icon: "fa fa-building", child: bvChildren });
 
           // Solutions
           const solChildren = [
@@ -763,7 +760,7 @@ export default {
             { href: "/studio/kyb-webpage-generator/" + appId, title: EN.NAV.SOLUTIONS.KYB_VERIFIER_CONFIGURATION, icon: "fa fa-globe" },
             { href: "/studio/solutions/reusable-id/" + appId, title: EN.NAV.SOLUTIONS.RESUABLE_ID, icon: "fa fa-circle-notch" },
           ];
-          menu.push({ href: "", title: EN.NAV.SOLUTIONS.TITLE, icon: "fa fa-lightbulb", opened: isParentOpen(solChildren), child: solChildren });
+          menu.push({ href: "", title: EN.NAV.SOLUTIONS.TITLE, icon: "fa fa-lightbulb", child: solChildren });
 
           // Developer Hub
           const devChildren = [
@@ -771,14 +768,14 @@ export default {
             { href: "/studio/developer/webhook/" + appId, title: EN.NAV.DEVELOPERS_HUB.WEBHOOK, icon: "fa fa-anchor" },
             { href: "/studio/service-config/" + appId, title: EN.NAV.DEVELOPERS_HUB.SERVICE_CONFIGURATION, icon: "fa fa-cog" },
           ];
-          menu.push({ href: "", title: EN.NAV.DEVELOPERS_HUB.TITLE, icon: "fa fa-code", opened: isParentOpen(devChildren), child: devChildren });
+          menu.push({ href: "", title: EN.NAV.DEVELOPERS_HUB.TITLE, icon: "fa fa-code", child: devChildren });
 
           // Billing & Usage
           const billingChildren = [
             { href: "/studio/onchainkyc/credit/" + appId, title: EN.NAV.BILLING_AND_USAGE.CREDIT, icon: "fas fa-hand-holding-usd" },
             { href: "/studio/usage/" + appId, title: EN.NAV.BILLING_AND_USAGE.USAGES, icon: "fa fa-chart-bar" },
           ];
-          menu.push({ href: "", title: EN.NAV.BILLING_AND_USAGE.TITLE, icon: "fa fa-credit-card", opened: isParentOpen(billingChildren), child: billingChildren });
+          menu.push({ href: "", title: EN.NAV.BILLING_AND_USAGE.TITLE, icon: "fa fa-credit-card", child: billingChildren });
         } else if (id === "SSI_API") {
           menu.push({
             href: "/studio/ssi/did/" + appId,

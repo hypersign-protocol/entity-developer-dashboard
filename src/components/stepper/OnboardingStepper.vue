@@ -251,13 +251,26 @@ export default {
         
       } catch (error) {
         console.error('Error processing credit request:', error);
-        
-        // Handle different error types
+
+        // Extract meaningful message from error (supports Error objects and strings)
         let errorMessage = 'Failed to process credit request';
-        
-          // Set error message for display
+        if (error) {
+          if (typeof error === 'string') {
+            errorMessage = error;
+          } else if (error.message) {
+            errorMessage = error.message;
+          } else {
+            try {
+              errorMessage = JSON.stringify(error);
+            } catch (e) {
+              // fallback
+            }
+          }
+        }
+
+        // Set error message for display
         this.creditErrorMessage = errorMessage;
-        
+
       } finally {
         this.isProcessingCredit = false;
       }
