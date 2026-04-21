@@ -676,7 +676,7 @@
     }, {
       "id": "30b23d49-df15-4cc3-b86b-c123af2d0e84",
       "comment": "",
-      "command": "waitForElementPresent ",
+      "command": "waitForElementPresent",
       "target": "css=.b-toast",
       "targets": [],
       "value": "10000"

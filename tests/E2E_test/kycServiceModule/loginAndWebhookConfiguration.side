@@ -699,7 +699,7 @@
       "id": "6ac822ac-4dea-4cbc-89b9-e5150c380ce5",
       "comment": "",
       "command": "pause",
-      "target": "7000",
+      "target": "20000",
       "targets": [],
       "value": ""
     }, {

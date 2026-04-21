@@ -27,7 +27,7 @@
       "target": "10000",
       "targets": [],
       "value": ""
-    } {
+    }, {
       "id": "f429cfa1-cef3-4a59-96b3-652600427e59",
       "comment": "",
       "command": "setWindowSize",
