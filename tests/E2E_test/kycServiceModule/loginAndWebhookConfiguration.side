@@ -699,10 +699,16 @@
       "id": "6ac822ac-4dea-4cbc-89b9-e5150c380ce5",
       "comment": "",
       "command": "pause",
-      "target": "20000",
+      "target": "30000",
       "targets": [],
       "value": ""
     }, {
+      "id": "6ac827ac-4dea-4cbc-89b9-e5150c380ce5",
+      "command": "waitForText",
+      "target": "css=.v-btn--has-bg > .v-btn__content",
+      "targets": [],
+      "value": "UPDATE CONFIGURATION"
+    },{
       "id": "5671f233-3a17-4e11-bb27-7edd43b05e9a",
       "comment": "",
       "command": "assertElementPresent",
