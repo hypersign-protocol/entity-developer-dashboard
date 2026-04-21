@@ -25,9 +25,9 @@
         </v-row>
     </b-container>
 </template>
-<style>
+<style scoped>
 .py-3 {
-  width: 80vw!important;
+    width: 80vw!important;
 }
 </style>
 
