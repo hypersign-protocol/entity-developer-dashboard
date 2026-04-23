@@ -157,6 +157,11 @@
   text-align: left;
 }
 
+/* Ensure navbar stays above other content */
+.navStyle {
+  z-index: 1200;
+}
+
 .orgNameCss {
   overflow-wrap: break-word;
   color: grey;
@@ -188,7 +193,8 @@
 
 .sidebar-wrapper {
   min-width: 70px;
-  margin-top: 5.8vh;
+  /* Align sidebar below the top navbar (navbar height = 60px) */
+  margin-top: 60px;
   border-right: 1px solid #eef0f2;
   background: #ffffff;
 }
@@ -292,11 +298,11 @@ color: #1a1a2e !important;
 
 /* No indent in collapsed mode */
 .v-sidebar-menu.vsm_white-theme.vsm_collapsed .vsm--link_level-2 {
-  padding-left: 16px !important;
+  padding-left: 24px !important;
 }
 
 .v-sidebar-menu.vsm_white-theme.vsm_collapsed .vsm--link_level-2 .vsm--icon {
-  display: inline-flex !important;
+  display: none !important;
   color: #9a9aaa !important;
 }
 
