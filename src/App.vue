@@ -227,9 +227,19 @@
   transition: background 0.2s ease !important;
 }
 
-.v-sidebar-menu.vsm_white-theme .vsm--link:hover {
-  background: rgba(0, 0, 0, 0.05) !important;
+
+.v-sidebar-menu.vsm_white-theme.v-sidebar-menu.vsm_expanded  .vsm--link:hover {
+ background: rgba(0, 0, 0, 0.05) !important;
+  transition: background 0.2s ease !important;
 }
+
+
+.v-sidebar-menu.vsm_white-theme.vsm_collapsed .vsm--link_level-2:hover  {
+ background: rgba(0, 0, 0, 0.05) !important;
+  transition: background 0.2s ease !important;
+}
+
+
 
 /* Icons */
 .v-sidebar-menu.vsm_white-theme .vsm--link_level-1 .vsm--icon {
