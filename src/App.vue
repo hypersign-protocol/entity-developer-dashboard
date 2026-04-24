@@ -158,9 +158,9 @@
 }
 
 /* Ensure navbar stays above other content */
-.navStyle {
-  z-index: 1200;
-}
+/* .navStyle { */
+  /* z-index: 1200; */
+/* } */
 
 .orgNameCss {
   overflow-wrap: break-word;
