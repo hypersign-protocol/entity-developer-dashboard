@@ -1,0 +1,87 @@
+name: PR hygiene checks
+
+on:
+  pull_request:
+    types: [ opened, synchronize, reopened ]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  validate:
+    name: Validate PR hygiene
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+
+    - name: Get changed files
+      id: changed
+      run: |
+        base_ref="${{ github.event.pull_request.base.ref }}"
+        git fetch origin "$base_ref"
+        files=$(git diff --name-only "origin/$base_ref"...HEAD || true)
+        printf "%s\n" "$files" > changed_files.txt
+        echo "list<<EOF" >> $GITHUB_OUTPUT
+        printf "%s\n" "$files" >> $GITHUB_OUTPUT
+        echo "EOF" >> $GITHUB_OUTPUT
+
+    - name: Check for skip label
+      id: skip
+      run: |
+        labels='${{ toJson(github.event.pull_request.labels) }}'
+        echo "$labels" | grep -qi 'hygiene-skip' && echo "skip=true" >> $GITHUB_OUTPUT || echo "skip=false" >> $GITHUB_OUTPUT
+
+    - name: Require changelog changed
+      if: ${{ steps.skip.outputs.skip != 'true' }}
+      run: |
+        files="${{ steps.changed.outputs.list }}"
+        echo "$files" > /tmp/changed.txt
+        if ! grep -Eiq '(^|/)(CHANGELOG|changelog)(\.md)?$' /tmp/changed.txt; then
+          echo "No changelog update detected (expect CHANGELOG.md or docs/changelog)."
+          exit 1
+        fi
+
+    - name: Require package.json changed and version bump
+      if: ${{ steps.skip.outputs.skip != 'true' }}
+      run: |
+        files="${{ steps.changed.outputs.list }}"
+        echo "$files" > /tmp/changed.txt
+        if ! grep -q 'package.json' /tmp/changed.txt; then
+          echo "No package.json changed in this PR — skipping package version check."
+          exit 0
+        fi
+        base_ref="${{ github.event.pull_request.base.ref }}"
+        set -e
+        while read -r p; do
+          # normalize path
+          file=$(echo "$p" | tr -d '\r')
+          echo "Checking package.json: $file"
+          git show "origin/$base_ref:$file" > /tmp/base_pkg.json || true
+          git show "HEAD:$file" > /tmp/head_pkg.json || true
+          node -e "const fs=require('fs'); const b=fs.existsSync('/tmp/base_pkg.json')?require('/tmp/base_pkg.json'):{version:null}; const h=fs.existsSync('/tmp/head_pkg.json')?require('/tmp/head_pkg.json'):{}; if(!h.version){console.error('head package.json has no version'); process.exit(1);} if(!b.version||b.version===h.version){console.error('package.json version unchanged for $file'); process.exit(1);} console.log('version changed for $file')"
+        done < <(grep -Eo '(^|/)[^ ]*package.json' /tmp/changed.txt || true)
+
+    - name: Require at least one approving review
+      uses: actions/github-script@v6
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          const pr = context.payload.pull_request;
+          const { data: reviews } = await github.rest.pulls.listReviews({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            pull_number: pr.number
+          });
+          const approved = reviews.some(r => r.state === 'APPROVED');
+          if (!approved) {
+            core.setFailed('Pull Request has no approved review yet.');
+          }
