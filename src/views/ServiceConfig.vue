@@ -69,7 +69,10 @@
                     
                     <b-col cols="6">
                         <b-form-group label="UPLOAD LOGO">
-                            <LogoUploader v-model="formData.logoUrl" />
+                        <LogoUploader 
+                        v-model="formData.logoUrl" 
+                        :allowReupload="isEditing"
+                        />
                         </b-form-group>
                     </b-col>
                     <b-col cols="6">
