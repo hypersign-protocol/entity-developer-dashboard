@@ -540,7 +540,7 @@ export default {
                 const isIssuerChanged = isEditing && this.formData.issuerDid !== this.backupData?.issuerDid;
                 const isAppNameChanged = isEditing && this.formData.appName !== this.backupData?.appName;
                 await this.updateAnAppOnServer({ ...this.formData })
-                 if (!isLogoChanged && !isIssuerChanged) {
+                 if (!isLogoChanged && !isIssuerChanged && !isAppNameChanged) {
                     this.isEditing = false;
                     return this.notifySuccess("Service configuration updated successfully!");
                 }
