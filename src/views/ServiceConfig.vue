@@ -538,6 +538,7 @@ export default {
                 const isEditing = this.isEditing;
                 const isLogoChanged = isEditing && this.formData.logoUrl !== this.backupData?.logoUrl;
                 const isIssuerChanged = isEditing && this.formData.issuerDid !== this.backupData?.issuerDid;
+                const isAppNameChanged = isEditing && this.formData.appName !== this.backupData?.appName;
                 await this.updateAnAppOnServer({ ...this.formData })
                  if (!isLogoChanged && !isIssuerChanged) {
                     this.isEditing = false;
@@ -581,6 +582,13 @@ export default {
                         updatedKybWidgetConfig.branding = {
                         ...(updatedKybWidgetConfig.branding || {}),
                         logoUrl: this.formData.logoUrl,
+                        };
+                        shouldUpdateKybWidgetConfig = true;
+                    }
+                    if(isAppNameChanged){
+                        updatedKybWidgetConfig.branding = {
+                        ...(updatedKybWidgetConfig.branding || {}),
+                        businessName: this.formData.appName,
                         };
                         shouldUpdateKybWidgetConfig = true;
                     }
