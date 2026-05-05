@@ -373,7 +373,7 @@ export default {
         }
     },
     methods: {
-        ...mapActions("mainStore", ["updateAnAppOnServer", "deleteAnAppOnServer", "fetchDIDsForAService", "resolveDIDForAKycService", "updateAppsWidgetConfig","updateAppsKybWidgetConfig"]),
+        ...mapActions("mainStore", ["updateAnAppOnServer", "deleteAnAppOnServer", "fetchDIDsForAService", "resolveDIDForAKycService", "updateAppsWidgetConfig","updateAppsKybWidgetConfig","fetchAppsWidgetConfig","fetchAppsKybWidgetConfig"]),
         ...mapMutations("mainStore", ["setWidgetConfig","setKybWidgetConfig"]),
         async fetchDIDsForDisplay() {
             try {
@@ -512,7 +512,8 @@ export default {
         async startEdit() {
             this.backupData = JSON.parse(JSON.stringify(this.formData));
             this.isEditing = true;
-            
+            // Fetch configs if not already loaded
+              await this.ensureWidgetConfigsLoaded();
             // Fetch DIDs if not already loaded
             if (!this.associatedSSIServiceDIDs.length) {
                 await this.fetchDIDs();
@@ -726,6 +727,20 @@ export default {
                 }
             }
         },
+        async ensureWidgetConfigsLoaded() {
+          try {
+                // ID service widget config
+                if (!this.widgetConfig || Object.keys(this.widgetConfig).length === 0) {
+                    await this.fetchAppsWidgetConfig();
+                }
+                // KYB widget config
+                if (!this.kybWidgetConfig || Object.keys(this.kybWidgetConfig).length === 0) {
+                    await this.fetchAppsKybWidgetConfig();
+                }
+            } catch (e) {
+                console.warn("Widget config not found or failed to fetch:", e.message);
+            }
+       }
     },
     mixins: [UtilsMixin]
 };
