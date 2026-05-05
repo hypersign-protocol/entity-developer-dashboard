@@ -33,7 +33,7 @@
                         <hf-buttons name="" @executeAction="saveChanges()" iconClass="mdi mdi-content-save mr-1"  style= "color: green" >
                         </hf-buttons>
                         
-                        <hf-buttons name="" @executeAction="resetDeleteServicePopUp()" iconClass="mdi mdi-cancel mr-1"  style="margin-left: 8px; color: red">
+                        <hf-buttons name="" @executeAction="cancelEdit()" iconClass="mdi mdi-cancel mr-1"  style="margin-left: 8px; color: red">
 
                         </hf-buttons>
                     </template>
@@ -85,44 +85,75 @@
                     <b-col cols="6">
                         <b-form-group label="DOMAIN">
                             <b-input-group>
-                                <b-form-input v-model="formData.domain" :readonly="!isEditing"
+                                <b-form-input v-model="formData.domain" :readonly="!isEditing && !isEditingDomain" :disabled="!isEditing && !isEditingDomain"
                                     placeholder="Enter your domain"  class="custom-input" />
 
-                                <!-- Case 1: Domain verified -->
-                                <b-input-group-append v-if="formData.hasDomainVerified">
+                                <!-- View mode, verified: badge + Change button -->
+                                <b-input-group-append v-if="!isEditing && !isEditingDomain && formData.hasDomainVerified">
                                     <b-input-group-text class="bg-success text-white">
                                         <i class="mdi mdi-shield-check mr-1"></i>Verified
                                     </b-input-group-text>
-                                </b-input-group-append>
-
-                                <!-- Case 2: Editing and not verified -->
-                                <b-input-group-append v-else-if="isEditing">
-                                    <b-button variant="outline-primary" size="sm" @click="verifyDomain">
-                                        <i class="mdi mdi-shield-sync-outline mr-1"></i>Verify Domain
+                                    <b-button variant="outline-secondary" size="sm" class="ml-2" @click="startDomainEdit" title="Change Domain">
+                                        <i class="mdi mdi-pencil"></i>
                                     </b-button>
                                 </b-input-group-append>
 
-                                <!-- Case 3: Not editing and not verified -->
+                                <!-- Full app-config edit mode: show verified chip (if applicable) + Verify + guide toggle -->
+                                <b-input-group-append v-else-if="isEditing">
+                                    <b-input-group-text v-if="formData.hasDomainVerified" class="bg-success text-white">
+                                        <i class="mdi mdi-shield-check mr-1"></i>Verified
+                                    </b-input-group-text>
+                                    <b-button variant="outline-primary" size="sm" @click="verifyDomain">
+                                        <i class="mdi mdi-shield-sync-outline mr-1"></i>Verify Domain
+                                    </b-button>
+                                    <b-button variant="outline-secondary" size="sm" class="ml-1" @click="toggleVerificationInfo" :title="showVerificationInfo ? 'Hide Guide' : 'Show Guide'">
+                                        <i :class="showVerificationInfo ? 'mdi mdi-chevron-up' : 'mdi mdi-help-circle-outline'"></i>
+                                    </b-button>
+                                </b-input-group-append>
+
+                                <!-- Domain-only edit mode: Verify + Save + Cancel + guide toggle -->
+                                <b-input-group-append v-else-if="isEditingDomain">
+                                    <b-button variant="outline-primary" size="sm" @click="verifyDomain">
+                                        <i class="mdi mdi-shield-sync-outline mr-1"></i>Verify Domain
+                                    </b-button>
+                                    <b-button variant="outline-secondary" size="sm" class="ml-1" @click="toggleVerificationInfo" :title="showVerificationInfo ? 'Hide Guide' : 'Show Guide'">
+                                        <i :class="showVerificationInfo ? 'mdi mdi-chevron-up' : 'mdi mdi-help-circle-outline'"></i>
+                                    </b-button>
+                                    <b-button variant="outline-success" size="sm" class="ml-1" @click="saveDomainChange">
+                                        <i class="mdi mdi-content-save mr-1"></i>Save
+                                    </b-button>
+                                    <b-button variant="outline-secondary" size="sm" class="ml-1" @click="cancelDomainEdit">
+                                        <i class="mdi mdi-cancel mr-1"></i>Cancel
+                                    </b-button>
+                                </b-input-group-append>
+
+                                <!-- View mode, not verified -->
                                 <b-input-group-append v-else>
                                     <b-button variant="outline-warning" size="sm" @click="toggleVerificationInfo">
-                                        <i class="mdi mdi-shield-alert mr-1"></i>Unverified - View Guide
+                                        <i :class="showVerificationInfo ? 'mdi mdi-chevron-up mr-1' : 'mdi mdi-shield-alert mr-1'"></i>
+                                        {{ showVerificationInfo ? 'Hide Guide' : 'Unverified - View Guide' }}
                                     </b-button>
                                 </b-input-group-append>
                             </b-input-group>
                         </b-form-group>
 
-                        <!-- Inline Verification Instructions (when editing or info expanded) -->
+                        <!-- Inline Verification Instructions -->
                         <b-collapse v-model="showVerificationInfo" class="mt-2">
                             <b-card bg-variant="light" border-variant="none">
+                                <div class="d-flex justify-content-between align-items-start mb-3">
+                                    <h6 class="mb-0"><i class="mdi mdi-information-outline mr-2"></i><strong>Domain Verification Guide (DNS01)</strong></h6>
+                                    <b-button variant="link" size="sm" class="p-0 text-muted" @click="showVerificationInfo = false" title="Close">
+                                        <i class="mdi mdi-close"></i>
+                                    </b-button>
+                                </div>
                                 <div class="mb-3">
-                                    <h6 class="mb-2"><i class="mdi mdi-information-outline mr-2"></i><strong>Domain Verification Guide (DNS01)</strong></h6>
                                     <ol style="font-size: 0.9rem; margin-bottom: 0;">
                                         <li>Log in to your domain registrar or DNS provider</li>
                                         <li>Locate the DNS settings or TXT records section</li>
                                         <li>Add the TXT record shown below</li>
-                                        <li>Wait for DNS propagation (5-30 minutes)</li>
-                                        <li v-if="isEditing">Click "Verify Domain" to complete verification</li>
-                                        <li v-else>Click "Edit" then "Verify Domain" when DNS is ready</li>
+                                        <li>Wait for DNS propagation (5–30 minutes)</li>
+                                        <li v-if="isEditing || isEditingDomain">Click "Verify Domain" to complete verification</li>
+                                        <li v-else>Click the pencil icon next to the domain, then click "Verify Domain"</li>
                                     </ol>
                                 </div>
 
@@ -299,6 +330,9 @@ export default {
     data() {
         return {
             isEditing: false,
+            // allow editing domain independently of full-form edit
+            isEditingDomain: false,
+            domainBackup: null,
             isProd: false,
             appIdToGenerateSecret: "",
             linkedAppErrorMessage: "",
@@ -524,9 +558,51 @@ export default {
                 await this.resolveDid(this.formData.issuerDid);
             }
         },
+        // Domain-only edit flow
+        startDomainEdit() {
+            this.domainBackup = { domain: this.formData.domain, hasDomainVerified: this.formData.hasDomainVerified };
+            this.isEditingDomain = true;
+            // Changing domain invalidates previous verification
+            this.formData.hasDomainVerified = false;
+        },
+        cancelDomainEdit() {
+            if (this.domainBackup) {
+                this.formData.domain = this.domainBackup.domain;
+                this.formData.hasDomainVerified = this.domainBackup.hasDomainVerified;
+            }
+            this.domainBackup = null;
+            this.isEditingDomain = false;
+        },
+        async saveDomainChange() {
+            try {
+                if (!this.formData.domain || !this.formData.domain.trim()) {
+                    return this.notifyErr('Domain cannot be empty.');
+                }
+                this.isLoading = true;
+                await this.updateAnAppOnServer({ ...this.formData });
+                this.isEditingDomain = false;
+                this.domainBackup = null;
+                this.notifySuccess('Domain updated. Please verify the domain to re-enable verification.');
+            } catch (e) {
+                // revert on error
+                if (this.domainBackup) {
+                    this.formData.domain = this.domainBackup.domain;
+                    this.formData.hasDomainVerified = this.domainBackup.hasDomainVerified;
+                }
+                this.notifyErr(e.message || e);
+            } finally {
+                this.isLoading = false;
+            }
+        },
         cancelEdit() {
-            this.formData = JSON.parse(JSON.stringify(this.backupData));
+            if (this.backupData) {
+                this.formData = JSON.parse(JSON.stringify(this.backupData));
+                this.isProd = this.formData.env === 'prod';
+            }
             this.isEditing = false;
+            this.isEditingDomain = false;
+            this.domainBackup = null;
+            this.showVerificationInfo = false;
         },
         setEnv(flag) {
             // toggle environment and update formData.env
@@ -535,6 +611,9 @@ export default {
         },
         async saveChanges() {
             try{
+                if (!this.formData.domain || !this.formData.domain.trim()) {
+                    return this.notifyErr('Domain cannot be empty.');
+                }
                 this.isLoading = true;
                 const isEditing = this.isEditing;
                 const isLogoChanged = isEditing && this.formData.logoUrl !== this.backupData?.logoUrl;
@@ -599,6 +678,8 @@ export default {
                     }
                 }
                this.isEditing = false;
+               this.isEditingDomain = false;
+               this.domainBackup = null;
                 this.notifySuccess("Service configuration updated successfully!");
             }catch(err){
                 this.formData = JSON.parse(JSON.stringify(this.backupData));
@@ -666,6 +747,8 @@ export default {
                 if (result && result.verified) {
                     this.formData.hasDomainVerified = true;
                     await this.updateAnAppOnServer({ ...this.formData });
+                    this.isEditingDomain = false;
+                    this.domainBackup = null;
                     this.notifySuccess("Domain verified successfully!");
                     this.showVerificationInfo = false;
                 } else {
