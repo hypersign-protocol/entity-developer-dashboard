@@ -69,7 +69,10 @@
                     
                     <b-col cols="6">
                         <b-form-group label="UPLOAD LOGO">
-                            <LogoUploader v-model="formData.logoUrl" />
+                        <LogoUploader 
+                        v-model="formData.logoUrl" 
+                        :allowReupload="isEditing"
+                        />
                         </b-form-group>
                     </b-col>
                     <b-col cols="6">
@@ -316,7 +319,8 @@ export default {
     },
     computed: {
         ...mapGetters("mainStore", ["getSelectedService", "getAppsWithSSIServices"]),
-        ...mapState({ widgetConfig: state => state.mainStore.widgetConfig }),
+        ...mapState({ widgetConfig: state => state.mainStore.widgetConfig ,
+            kybWidgetConfig: state => state.mainStore.kybWidgetConfig}),
         formattedErrorMessage() {
             return this.linkedAppErrorMessage.replace(/\n/g, "<br>");
         },
@@ -369,8 +373,8 @@ export default {
         }
     },
     methods: {
-        ...mapActions("mainStore", ["updateAnAppOnServer", "deleteAnAppOnServer", "fetchDIDsForAService", "resolveDIDForAKycService", "updateAppsWidgetConfig"]),
-        ...mapMutations("mainStore", ["setWidgetConfig"]),
+        ...mapActions("mainStore", ["updateAnAppOnServer", "deleteAnAppOnServer", "fetchDIDsForAService", "resolveDIDForAKycService", "updateAppsWidgetConfig","updateAppsKybWidgetConfig","fetchAppsWidgetConfig","fetchAppsKybWidgetConfig"]),
+        ...mapMutations("mainStore", ["setWidgetConfig","setKybWidgetConfig"]),
         async fetchDIDsForDisplay() {
             try {
                 const ssiServiceId = this.formData.dependentServices && this.formData.dependentServices[0];
@@ -508,7 +512,8 @@ export default {
         async startEdit() {
             this.backupData = JSON.parse(JSON.stringify(this.formData));
             this.isEditing = true;
-            
+            // Fetch configs if not already loaded
+              await this.ensureWidgetConfigsLoaded();
             // Fetch DIDs if not already loaded
             if (!this.associatedSSIServiceDIDs.length) {
                 await this.fetchDIDs();
@@ -530,22 +535,70 @@ export default {
         },
         async saveChanges() {
             try{
-                this.isEditing = false;
                 this.isLoading = true;
-                
+                const isEditing = this.isEditing;
+                const isLogoChanged = isEditing && this.formData.logoUrl !== this.backupData?.logoUrl;
+                const isIssuerChanged = isEditing && this.formData.issuerDid !== this.backupData?.issuerDid;
+                const isAppNameChanged = isEditing && this.formData.appName !== this.backupData?.appName;
                 await this.updateAnAppOnServer({ ...this.formData })
-
-                // Sync issuerDid and issuerVerificationMethodId into widget config
-                if (this.formData.issuerDid && Object.keys(this.widgetConfig).length > 0) {
-                    const updatedWidgetConfig = {
-                        ...this.widgetConfig,
-                        issuerDID: this.formData.issuerDid,
-                        issuerVerificationMethodId: this.formData.issuerVerificationMethodId || this.widgetConfig.issuerVerificationMethodId,
-                    }
-                    this.setWidgetConfig(updatedWidgetConfig)
-                    await this.updateAppsWidgetConfig()
+                 if (!isLogoChanged && !isIssuerChanged && !isAppNameChanged) {
+                    this.isEditing = false;
+                    return this.notifySuccess("Service configuration updated successfully!");
                 }
-
+                // Sync logo, issuerDid and issuerVerificationMethodId into widget config
+                if (Object.keys(this.widgetConfig).length > 0) {
+                      let shouldUpdateWidgetConfig = false;
+                      let updatedWidgetConfig = { ...this.widgetConfig };
+                      if (isIssuerChanged && this.formData.issuerDid) {
+                        updatedWidgetConfig.issuerDID = this.formData.issuerDid;
+                        updatedWidgetConfig.issuerVerificationMethodId =
+                        this.formData.issuerVerificationMethodId ||
+                        this.widgetConfig.issuerVerificationMethodId;
+                        shouldUpdateWidgetConfig = true;
+                     }
+                    if (isLogoChanged) {
+                          updatedWidgetConfig.userConsent = {
+                          ...(updatedWidgetConfig.userConsent || {}),
+                          logoUrl: this.formData.logoUrl,
+                        };
+                      shouldUpdateWidgetConfig = true;
+                    }
+                    if (shouldUpdateWidgetConfig) {
+                    this.setWidgetConfig(updatedWidgetConfig);
+                    await this.updateAppsWidgetConfig();
+                    }
+                }
+            // update kyb widget
+                if(Object.keys(this.kybWidgetConfig).length > 0 ){
+                  let updatedKybWidgetConfig = { ...this.kybWidgetConfig };
+                  let shouldUpdateKybWidgetConfig = false;
+                  if (isIssuerChanged && this.formData.issuerDid) {
+                        updatedKybWidgetConfig.issuerDID = this.formData.issuerDid;
+                        updatedKybWidgetConfig.issuerVerificationMethodId =
+                        this.formData.issuerVerificationMethodId ||
+                        this.kybWidgetConfig.issuerVerificationMethodId;
+                        shouldUpdateKybWidgetConfig = true;
+                   }
+                    if (isLogoChanged) {
+                        updatedKybWidgetConfig.branding = {
+                        ...(updatedKybWidgetConfig.branding || {}),
+                        logoUrl: this.formData.logoUrl,
+                        };
+                        shouldUpdateKybWidgetConfig = true;
+                    }
+                    if(isAppNameChanged){
+                        updatedKybWidgetConfig.branding = {
+                        ...(updatedKybWidgetConfig.branding || {}),
+                        businessName: this.formData.appName,
+                        };
+                        shouldUpdateKybWidgetConfig = true;
+                    }
+                  if (shouldUpdateKybWidgetConfig) {
+                    this.setKybWidgetConfig(updatedKybWidgetConfig);
+                    await this.updateAppsKybWidgetConfig();
+                    }
+                }
+               this.isEditing = false;
                 this.notifySuccess("Service configuration updated successfully!");
             }catch(err){
                 this.formData = JSON.parse(JSON.stringify(this.backupData));
@@ -674,6 +727,20 @@ export default {
                 }
             }
         },
+        async ensureWidgetConfigsLoaded() {
+          try {
+                // ID service widget config
+                if (!this.widgetConfig || Object.keys(this.widgetConfig).length === 0) {
+                    await this.fetchAppsWidgetConfig();
+                }
+                // KYB widget config
+                if (!this.kybWidgetConfig || Object.keys(this.kybWidgetConfig).length === 0) {
+                    await this.fetchAppsKybWidgetConfig();
+                }
+            } catch (e) {
+                console.warn("Widget config not found or failed to fetch:", e.message);
+            }
+       }
     },
     mixins: [UtilsMixin]
 };
