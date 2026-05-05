@@ -455,7 +455,9 @@ export default {
 
                 };
                 const didDocument = await this.resolveDIDForAKycService(payload);
-                this.issuerVerificationMethodIds = didDocument.verificationMethod.filter(vm => vm);
+                this.issuerVerificationMethodIds = Array.isArray(didDocument?.verificationMethod)
+                    ? didDocument.verificationMethod.filter(vm => vm)
+                    : [];
             } catch (e) {
                 // Silently fail for display purposes
                 console.error('Error fetching verification methods for display:', e);
@@ -536,6 +538,9 @@ export default {
 
                 };
                 const didDocument = await this.resolveDIDForAKycService(payload);
+                if (!didDocument?.verificationMethod) {
+                    throw new Error('DID document has no verification methods.');
+                }
                 this.issuerVerificationMethodIds = didDocument.verificationMethod.filter(vm => vm);
                 this.isLoading = false;
             } catch (e) {
@@ -731,11 +736,18 @@ export default {
                 // Import DomainLinkage for verification
                 const DomainLinkage = (await import("@hypersign-protocol/domain-linkage-verifier")).default;
                 const domainLinkage = new DomainLinkage(cleanDomainUrl);
-                
-                const result = await domainLinkage.verifyDnsTxtRecord(
-                    new URL(cleanDomainUrl),
-                    this.txtRecord
-                );
+
+                let result;
+                try {
+                    result = await domainLinkage.verifyDnsTxtRecord(
+                        new URL(cleanDomainUrl),
+                        this.txtRecord
+                    );
+                } catch {
+                    throw new Error(
+                        "No TXT record found for this domain. Please add the TXT record to your DNS and try again. It may take up to 30 minutes to propagate."
+                    );
+                }
 
                 if (result && result.error) {
                     throw new Error(
