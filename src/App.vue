@@ -811,7 +811,6 @@ export default {
             icon: "fa fa-certificate",
           });
 
-          menu.push({ header: true, title: '' });
 
           menu.push({
             href: "/studio/ssi/usage/" + appId,
