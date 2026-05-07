@@ -310,7 +310,7 @@ ul {
             </div>
           </div>
         </li>
-        <li class="list-group-item">
+        <!-- <li class="list-group-item">
           <div class="row">
             <div class="col-md-6">
               <b-form-checkbox switch size="lg" v-model="widgetConfigTemp.onChainId.enabled">{{
@@ -326,7 +326,7 @@ ul {
               </div>
             </div>
           </div>
-        </li>
+        </li> -->
         <li class="list-group-item">
           <div class="row">
             <div class="col-md-6">

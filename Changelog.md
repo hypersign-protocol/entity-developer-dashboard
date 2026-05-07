@@ -6,9 +6,9 @@
 
 ### Fixed
 
--  Domain verification bug fixed.
+-  Removed extra space from the SSI side navigation.
 
--  While updating the app configuration, the kyc and kyc configuration were not getting updated. This issue has been resolved.
+-  Hid the on-chain configuration form in the ID-service widget.
 
 ## [3.7.23] - 2026-04-28
 
