@@ -247,7 +247,7 @@
             </div>
         </hf-pop-up>
 
-        <hf-pop-up id="domain-verification-guide-popup" Header="Domain Verification Guide (DNS01)">
+        <hf-pop-up id="domain-verification-guide-popup" Header="Domain Verification Guide (DNS01)" @hidden="showVerificationInfo = false">
             <div>
                 <div class="mb-3">
                     <ol class="verification-guide-list" style="font-size: 0.9rem; margin-bottom: 0;">

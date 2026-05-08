@@ -10,7 +10,9 @@
     centered
     header-bg-variant="dark"
     header-text-variant='light'
-     :hide-header-close="hideHeaderClose"
+    :hide-header-close="hideHeaderClose"
+    @hide="$emit('hide')"
+    @hidden="$emit('hidden')"
     >
     <slot />
   </b-modal>
