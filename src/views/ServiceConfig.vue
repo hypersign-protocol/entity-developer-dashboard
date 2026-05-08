@@ -137,45 +137,7 @@
                             </b-input-group>
                         </b-form-group>
 
-                        <!-- Inline Verification Instructions -->
-                        <b-collapse v-model="showVerificationInfo" class="mt-2">
-                            <b-card bg-variant="light" border-variant="none">
-                                <div class="d-flex justify-content-between align-items-start mb-3">
-                                    <h6 class="mb-0"><i class="mdi mdi-information-outline mr-2"></i><strong>Domain Verification Guide (DNS01)</strong></h6>
-                                    <b-button variant="link" size="sm" class="p-0 text-muted" @click="showVerificationInfo = false" title="Close">
-                                        <i class="mdi mdi-close"></i>
-                                    </b-button>
-                                </div>
-                                <div class="mb-3">
-                                    <ol style="font-size: 0.9rem; margin-bottom: 0;">
-                                        <li>Log in to your domain registrar or DNS provider</li>
-                                        <li>Locate the DNS settings or TXT records section</li>
-                                        <li>Add the TXT record shown below</li>
-                                        <li>Wait for DNS propagation (5–30 minutes)</li>
-                                        <li v-if="isEditing || isEditingDomain">Click "Verify Domain" to complete verification</li>
-                                        <li v-else>Click the pencil icon next to the domain, then click "Verify Domain"</li>
-                                    </ol>
-                                </div>
 
-                                <div v-if="formData.issuerDid" class="mt-3 pt-3 border-top">
-                                    <label class="mb-2"><strong>TXT Record to Add:</strong></label>
-                                    <b-input-group>
-                                        <b-form-input v-model="txtRecord" readonly type="text" />
-                                        <b-input-group-append>
-                                            <b-button variant="outline-secondary" size="sm"
-                                                @click="copyToClip(txtRecord, 'TXT Record')" title="Copy TXT Record">
-                                                <i class="mdi mdi-content-copy"></i>
-                                            </b-button>
-                                        </b-input-group-append>
-                                    </b-input-group>
-                                    <small class="form-text text-muted d-block mt-2">Copy this entire value to your DNS TXT record.</small>
-                                </div>
-
-                                <div v-else class="alert alert-info mb-0 mt-3">
-                                    <small><strong>Note:</strong> To complete domain verification, you must click "Edit" and set an Issuer DID first.</small>
-                                </div>
-                            </b-card>
-                        </b-collapse>
                     </b-col>
 
                     <b-col md="6">
@@ -284,6 +246,44 @@
                 </div>
             </div>
         </hf-pop-up>
+
+        <hf-pop-up id="domain-verification-guide-popup" Header="Domain Verification Guide (DNS01)">
+            <div>
+                <div class="mb-3">
+                    <ol class="verification-guide-list" style="font-size: 0.9rem; margin-bottom: 0;">
+                        <li>Log in to your domain registrar or DNS provider</li>
+                        <li>Locate the DNS settings or TXT records section</li>
+                        <li>Add the TXT record shown below</li>
+                        <li>Wait for DNS propagation (5–30 minutes)</li>
+                        <li v-if="isEditing || isEditingDomain">Click "Verify Domain" to complete verification</li>
+                        <li v-else>Click the pencil icon next to the domain, then click "Verify Domain"</li>
+                    </ol>
+                </div>
+
+                <div v-if="formData.issuerDid" class="mt-3 pt-3 border-top">
+                    <label class="mb-2"><strong>TXT Record to Add:</strong></label>
+                    <b-input-group>
+                        <b-form-input v-model="txtRecord" readonly type="text" />
+                        <b-input-group-append>
+                            <b-button variant="outline-secondary" size="sm"
+                                @click="copyToClip(txtRecord, 'TXT Record')" title="Copy TXT Record">
+                                <i class="mdi mdi-content-copy"></i>
+                            </b-button>
+                        </b-input-group-append>
+                    </b-input-group>
+                    <small class="form-text text-muted d-block mt-2">Copy this entire value to your DNS TXT record.</small>
+                </div>
+
+                <div v-else class="alert alert-info mb-0 mt-3">
+                    <small><strong>Note:</strong> To complete domain verification, you must click "Edit" and set an Issuer DID first.</small>
+                </div>
+
+                <div class="text-center mt-3">
+                    <hf-buttons name="Close" class="btn btn-primary" 
+                        @executeAction="closeVerificationGuidePopup"></hf-buttons>
+                </div>
+            </div>
+        </hf-pop-up>
     </b-container>
 </template>
 
@@ -316,7 +316,10 @@
 
 .status-active { background-color: #3b82f6; }
 .status-warning { background-color: #f59e0b; } */
-
+.verification-guide-list {
+  padding-left: 1.5rem;
+  margin-right: 0.5rem;
+}
 </style>
 
 <script>
@@ -624,8 +627,9 @@ export default {
                 const isLogoChanged = isEditing && this.formData.logoUrl !== this.backupData?.logoUrl;
                 const isIssuerChanged = isEditing && this.formData.issuerDid !== this.backupData?.issuerDid;
                 const isAppNameChanged = isEditing && this.formData.appName !== this.backupData?.appName;
+                const isDomainChanged = isEditing && this.formData.domain !== this.backupData?.domain;
                 await this.updateAnAppOnServer({ ...this.formData })
-                 if (!isLogoChanged && !isIssuerChanged && !isAppNameChanged) {
+                 if (!isLogoChanged && !isIssuerChanged && !isAppNameChanged && !isDomainChanged) {
                     this.isEditing = false;
                     return this.notifySuccess("Service configuration updated successfully!");
                 }
@@ -646,6 +650,14 @@ export default {
                           logoUrl: this.formData.logoUrl,
                         };
                       shouldUpdateWidgetConfig = true;
+                    }
+                      if(isDomainChanged){
+                        updatedWidgetConfig.userConsent = {
+                          ...(updatedWidgetConfig.userConsent || {}),
+                          domain: this.formData.domain,
+                        };
+                      shouldUpdateWidgetConfig = true;
+
                     }
                     if (shouldUpdateWidgetConfig) {
                     this.setWidgetConfig(updatedWidgetConfig);
@@ -780,6 +792,15 @@ export default {
         },
         toggleVerificationInfo() {
             this.showVerificationInfo = !this.showVerificationInfo;
+            if (this.showVerificationInfo) {
+                this.openVerificationGuide();
+            } else {
+                this.closeVerificationGuide();
+            }
+        },
+        closeVerificationGuidePopup() {
+            this.showVerificationInfo = false;
+            this.closeVerificationGuide();
         },
 
         closeLinkedServiceDetailPopup() {
