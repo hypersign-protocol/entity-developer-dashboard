@@ -250,7 +250,7 @@
         <hf-pop-up id="domain-verification-guide-popup" Header="Domain Verification Guide (DNS01)">
             <div>
                 <div class="mb-3">
-                    <ol style="font-size: 0.9rem; margin-bottom: 0;">
+                    <ol class="verification-guide-list" style="font-size: 0.9rem; margin-bottom: 0;">
                         <li>Log in to your domain registrar or DNS provider</li>
                         <li>Locate the DNS settings or TXT records section</li>
                         <li>Add the TXT record shown below</li>
@@ -316,7 +316,10 @@
 
 .status-active { background-color: #3b82f6; }
 .status-warning { background-color: #f59e0b; } */
-
+.verification-guide-list {
+  padding-left: 1.5rem;
+  margin-right: 0.5rem;
+}
 </style>
 
 <script>

@@ -15,6 +15,7 @@
 - Used hfpopup to show guid for domain verification
 
 - Updating kyc widget once we update domain in appConfig
+- Added space in domain verification guid popup
 
 ## [3.7.23] - 2026-04-28
 
