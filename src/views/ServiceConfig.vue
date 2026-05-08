@@ -137,45 +137,7 @@
                             </b-input-group>
                         </b-form-group>
 
-                        <!-- Inline Verification Instructions -->
-                        <b-collapse v-model="showVerificationInfo" class="mt-2">
-                            <b-card bg-variant="light" border-variant="none">
-                                <div class="d-flex justify-content-between align-items-start mb-3">
-                                    <h6 class="mb-0"><i class="mdi mdi-information-outline mr-2"></i><strong>Domain Verification Guide (DNS01)</strong></h6>
-                                    <b-button variant="link" size="sm" class="p-0 text-muted" @click="showVerificationInfo = false" title="Close">
-                                        <i class="mdi mdi-close"></i>
-                                    </b-button>
-                                </div>
-                                <div class="mb-3">
-                                    <ol style="font-size: 0.9rem; margin-bottom: 0;">
-                                        <li>Log in to your domain registrar or DNS provider</li>
-                                        <li>Locate the DNS settings or TXT records section</li>
-                                        <li>Add the TXT record shown below</li>
-                                        <li>Wait for DNS propagation (5–30 minutes)</li>
-                                        <li v-if="isEditing || isEditingDomain">Click "Verify Domain" to complete verification</li>
-                                        <li v-else>Click the pencil icon next to the domain, then click "Verify Domain"</li>
-                                    </ol>
-                                </div>
 
-                                <div v-if="formData.issuerDid" class="mt-3 pt-3 border-top">
-                                    <label class="mb-2"><strong>TXT Record to Add:</strong></label>
-                                    <b-input-group>
-                                        <b-form-input v-model="txtRecord" readonly type="text" />
-                                        <b-input-group-append>
-                                            <b-button variant="outline-secondary" size="sm"
-                                                @click="copyToClip(txtRecord, 'TXT Record')" title="Copy TXT Record">
-                                                <i class="mdi mdi-content-copy"></i>
-                                            </b-button>
-                                        </b-input-group-append>
-                                    </b-input-group>
-                                    <small class="form-text text-muted d-block mt-2">Copy this entire value to your DNS TXT record.</small>
-                                </div>
-
-                                <div v-else class="alert alert-info mb-0 mt-3">
-                                    <small><strong>Note:</strong> To complete domain verification, you must click "Edit" and set an Issuer DID first.</small>
-                                </div>
-                            </b-card>
-                        </b-collapse>
                     </b-col>
 
                     <b-col md="6">
@@ -281,6 +243,44 @@
                 <div class="text-center mt-3">
                     <hf-buttons name="Delete" class="btn btn-primary text-center" customClass="btn btn-danger"
                         iconClass="fa fa-trash-alt" @executeAction="deleteOrg"></hf-buttons>
+                </div>
+            </div>
+        </hf-pop-up>
+
+        <hf-pop-up id="domain-verification-guide-popup" Header="Domain Verification Guide (DNS01)">
+            <div>
+                <div class="mb-3">
+                    <ol style="font-size: 0.9rem; margin-bottom: 0;">
+                        <li>Log in to your domain registrar or DNS provider</li>
+                        <li>Locate the DNS settings or TXT records section</li>
+                        <li>Add the TXT record shown below</li>
+                        <li>Wait for DNS propagation (5–30 minutes)</li>
+                        <li v-if="isEditing || isEditingDomain">Click "Verify Domain" to complete verification</li>
+                        <li v-else>Click the pencil icon next to the domain, then click "Verify Domain"</li>
+                    </ol>
+                </div>
+
+                <div v-if="formData.issuerDid" class="mt-3 pt-3 border-top">
+                    <label class="mb-2"><strong>TXT Record to Add:</strong></label>
+                    <b-input-group>
+                        <b-form-input v-model="txtRecord" readonly type="text" />
+                        <b-input-group-append>
+                            <b-button variant="outline-secondary" size="sm"
+                                @click="copyToClip(txtRecord, 'TXT Record')" title="Copy TXT Record">
+                                <i class="mdi mdi-content-copy"></i>
+                            </b-button>
+                        </b-input-group-append>
+                    </b-input-group>
+                    <small class="form-text text-muted d-block mt-2">Copy this entire value to your DNS TXT record.</small>
+                </div>
+
+                <div v-else class="alert alert-info mb-0 mt-3">
+                    <small><strong>Note:</strong> To complete domain verification, you must click "Edit" and set an Issuer DID first.</small>
+                </div>
+
+                <div class="text-center mt-3">
+                    <hf-buttons name="Close" class="btn btn-primary" 
+                        @executeAction="closeVerificationGuidePopup"></hf-buttons>
                 </div>
             </div>
         </hf-pop-up>
@@ -780,6 +780,15 @@ export default {
         },
         toggleVerificationInfo() {
             this.showVerificationInfo = !this.showVerificationInfo;
+            if (this.showVerificationInfo) {
+                this.openVerificationGuide();
+            } else {
+                this.closeVerificationGuide();
+            }
+        },
+        closeVerificationGuidePopup() {
+            this.showVerificationInfo = false;
+            this.closeVerificationGuide();
         },
 
         closeLinkedServiceDetailPopup() {
