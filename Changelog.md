@@ -16,6 +16,7 @@
 
 - Updating kyc widget once we update domain in appConfig
 - Added space in domain verification guid popup
+- Updated hf-popup to accept hide event
 
 ## [3.7.23] - 2026-04-28
 
