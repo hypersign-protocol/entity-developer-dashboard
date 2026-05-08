@@ -6,9 +6,9 @@
 
 ### Fixed
 
--  Removed extra space from the SSI side navigation.
+- Used hfpopup to show guid for domain verification
 
--  Hid the on-chain configuration form in the ID-service widget.
+- Updating kyc widget once we update domain in appConfig
 
 ## [3.7.23] - 2026-04-28
 

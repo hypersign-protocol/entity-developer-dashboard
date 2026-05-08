@@ -624,8 +624,9 @@ export default {
                 const isLogoChanged = isEditing && this.formData.logoUrl !== this.backupData?.logoUrl;
                 const isIssuerChanged = isEditing && this.formData.issuerDid !== this.backupData?.issuerDid;
                 const isAppNameChanged = isEditing && this.formData.appName !== this.backupData?.appName;
+                const isDomainChanged = isEditing && this.formData.domain !== this.backupData?.domain;
                 await this.updateAnAppOnServer({ ...this.formData })
-                 if (!isLogoChanged && !isIssuerChanged && !isAppNameChanged) {
+                 if (!isLogoChanged && !isIssuerChanged && !isAppNameChanged && !isDomainChanged) {
                     this.isEditing = false;
                     return this.notifySuccess("Service configuration updated successfully!");
                 }
@@ -646,6 +647,14 @@ export default {
                           logoUrl: this.formData.logoUrl,
                         };
                       shouldUpdateWidgetConfig = true;
+                    }
+                      if(isDomainChanged){
+                        updatedWidgetConfig.userConsent = {
+                          ...(updatedWidgetConfig.userConsent || {}),
+                          domain: this.formData.domain,
+                        };
+                      shouldUpdateWidgetConfig = true;
+
                     }
                     if (shouldUpdateWidgetConfig) {
                     this.setWidgetConfig(updatedWidgetConfig);
