@@ -33,7 +33,7 @@
                         <hf-buttons name="" @executeAction="saveChanges()" iconClass="mdi mdi-content-save mr-1"  style= "color: green" >
                         </hf-buttons>
                         
-                        <hf-buttons name="" @executeAction="resetDeleteServicePopUp()" iconClass="mdi mdi-cancel mr-1"  style="margin-left: 8px; color: red">
+                        <hf-buttons name="" @executeAction="cancelEdit()" iconClass="mdi mdi-cancel mr-1"  style="margin-left: 8px; color: red">
 
                         </hf-buttons>
                     </template>
@@ -69,7 +69,10 @@
                     
                     <b-col cols="6">
                         <b-form-group label="UPLOAD LOGO">
-                            <LogoUploader v-model="formData.logoUrl" />
+                        <LogoUploader 
+                        v-model="formData.logoUrl" 
+                        :allowReupload="isEditing"
+                        />
                         </b-form-group>
                     </b-col>
                     <b-col cols="6">
@@ -82,66 +85,59 @@
                     <b-col cols="6">
                         <b-form-group label="DOMAIN">
                             <b-input-group>
-                                <b-form-input v-model="formData.domain" :readonly="!isEditing"
+                                <b-form-input v-model="formData.domain" :readonly="!isEditing && !isEditingDomain" :disabled="!isEditing && !isEditingDomain"
                                     placeholder="Enter your domain"  class="custom-input" />
 
-                                <!-- Case 1: Domain verified -->
-                                <b-input-group-append v-if="formData.hasDomainVerified">
+                                <!-- View mode, verified: badge + Change button -->
+                                <b-input-group-append v-if="!isEditing && !isEditingDomain && formData.hasDomainVerified">
                                     <b-input-group-text class="bg-success text-white">
                                         <i class="mdi mdi-shield-check mr-1"></i>Verified
                                     </b-input-group-text>
-                                </b-input-group-append>
-
-                                <!-- Case 2: Editing and not verified -->
-                                <b-input-group-append v-else-if="isEditing">
-                                    <b-button variant="outline-primary" size="sm" @click="verifyDomain">
-                                        <i class="mdi mdi-shield-sync-outline mr-1"></i>Verify Domain
+                                    <b-button variant="outline-secondary" size="sm" class="ml-2" @click="startDomainEdit" title="Change Domain">
+                                        <i class="mdi mdi-pencil"></i>
                                     </b-button>
                                 </b-input-group-append>
 
-                                <!-- Case 3: Not editing and not verified -->
+                                <!-- Full app-config edit mode: show verified chip (if applicable) + Verify + guide toggle -->
+                                <b-input-group-append v-else-if="isEditing">
+                                    <b-input-group-text v-if="formData.hasDomainVerified" class="bg-success text-white">
+                                        <i class="mdi mdi-shield-check mr-1"></i>Verified
+                                    </b-input-group-text>
+                                    <b-button variant="outline-primary" size="sm" @click="verifyDomain">
+                                        <i class="mdi mdi-shield-sync-outline mr-1"></i>Verify Domain
+                                    </b-button>
+                                    <b-button variant="outline-secondary" size="sm" class="ml-1" @click="toggleVerificationInfo" :title="showVerificationInfo ? 'Hide Guide' : 'Show Guide'">
+                                        <i :class="showVerificationInfo ? 'mdi mdi-chevron-up' : 'mdi mdi-help-circle-outline'"></i>
+                                    </b-button>
+                                </b-input-group-append>
+
+                                <!-- Domain-only edit mode: Verify + Save + Cancel + guide toggle -->
+                                <b-input-group-append v-else-if="isEditingDomain">
+                                    <b-button variant="outline-primary" size="sm" @click="verifyDomain">
+                                        <i class="mdi mdi-shield-sync-outline mr-1"></i>Verify Domain
+                                    </b-button>
+                                    <b-button variant="outline-secondary" size="sm" class="ml-1" @click="toggleVerificationInfo" :title="showVerificationInfo ? 'Hide Guide' : 'Show Guide'">
+                                        <i :class="showVerificationInfo ? 'mdi mdi-chevron-up' : 'mdi mdi-help-circle-outline'"></i>
+                                    </b-button>
+                                    <b-button variant="outline-success" size="sm" class="ml-1" @click="saveDomainChange">
+                                        <i class="mdi mdi-content-save mr-1"></i>Save
+                                    </b-button>
+                                    <b-button variant="outline-secondary" size="sm" class="ml-1" @click="cancelDomainEdit">
+                                        <i class="mdi mdi-cancel mr-1"></i>Cancel
+                                    </b-button>
+                                </b-input-group-append>
+
+                                <!-- View mode, not verified -->
                                 <b-input-group-append v-else>
                                     <b-button variant="outline-warning" size="sm" @click="toggleVerificationInfo">
-                                        <i class="mdi mdi-shield-alert mr-1"></i>Unverified - View Guide
+                                        <i :class="showVerificationInfo ? 'mdi mdi-chevron-up mr-1' : 'mdi mdi-shield-alert mr-1'"></i>
+                                        {{ showVerificationInfo ? 'Hide Guide' : 'Unverified - View Guide' }}
                                     </b-button>
                                 </b-input-group-append>
                             </b-input-group>
                         </b-form-group>
 
-                        <!-- Inline Verification Instructions (when editing or info expanded) -->
-                        <b-collapse v-model="showVerificationInfo" class="mt-2">
-                            <b-card bg-variant="light" border-variant="none">
-                                <div class="mb-3">
-                                    <h6 class="mb-2"><i class="mdi mdi-information-outline mr-2"></i><strong>Domain Verification Guide (DNS01)</strong></h6>
-                                    <ol style="font-size: 0.9rem; margin-bottom: 0;">
-                                        <li>Log in to your domain registrar or DNS provider</li>
-                                        <li>Locate the DNS settings or TXT records section</li>
-                                        <li>Add the TXT record shown below</li>
-                                        <li>Wait for DNS propagation (5-30 minutes)</li>
-                                        <li v-if="isEditing">Click "Verify Domain" to complete verification</li>
-                                        <li v-else>Click "Edit" then "Verify Domain" when DNS is ready</li>
-                                    </ol>
-                                </div>
 
-                                <div v-if="formData.issuerDid" class="mt-3 pt-3 border-top">
-                                    <label class="mb-2"><strong>TXT Record to Add:</strong></label>
-                                    <b-input-group>
-                                        <b-form-input v-model="txtRecord" readonly type="text" />
-                                        <b-input-group-append>
-                                            <b-button variant="outline-secondary" size="sm"
-                                                @click="copyToClip(txtRecord, 'TXT Record')" title="Copy TXT Record">
-                                                <i class="mdi mdi-content-copy"></i>
-                                            </b-button>
-                                        </b-input-group-append>
-                                    </b-input-group>
-                                    <small class="form-text text-muted d-block mt-2">Copy this entire value to your DNS TXT record.</small>
-                                </div>
-
-                                <div v-else class="alert alert-info mb-0 mt-3">
-                                    <small><strong>Note:</strong> To complete domain verification, you must click "Edit" and set an Issuer DID first.</small>
-                                </div>
-                            </b-card>
-                        </b-collapse>
                     </b-col>
 
                     <b-col md="6">
@@ -250,6 +246,44 @@
                 </div>
             </div>
         </hf-pop-up>
+
+        <hf-pop-up id="domain-verification-guide-popup" Header="Domain Verification Guide (DNS01)" @hidden="showVerificationInfo = false">
+            <div>
+                <div class="mb-3">
+                    <ol class="verification-guide-list" style="font-size: 0.9rem; margin-bottom: 0;">
+                        <li>Log in to your domain registrar or DNS provider</li>
+                        <li>Locate the DNS settings or TXT records section</li>
+                        <li>Add the TXT record shown below</li>
+                        <li>Wait for DNS propagation (5–30 minutes)</li>
+                        <li v-if="isEditing || isEditingDomain">Click "Verify Domain" to complete verification</li>
+                        <li v-else>Click the pencil icon next to the domain, then click "Verify Domain"</li>
+                    </ol>
+                </div>
+
+                <div v-if="formData.issuerDid" class="mt-3 pt-3 border-top">
+                    <label class="mb-2"><strong>TXT Record to Add:</strong></label>
+                    <b-input-group>
+                        <b-form-input v-model="txtRecord" readonly type="text" />
+                        <b-input-group-append>
+                            <b-button variant="outline-secondary" size="sm"
+                                @click="copyToClip(txtRecord, 'TXT Record')" title="Copy TXT Record">
+                                <i class="mdi mdi-content-copy"></i>
+                            </b-button>
+                        </b-input-group-append>
+                    </b-input-group>
+                    <small class="form-text text-muted d-block mt-2">Copy this entire value to your DNS TXT record.</small>
+                </div>
+
+                <div v-else class="alert alert-info mb-0 mt-3">
+                    <small><strong>Note:</strong> To complete domain verification, you must click "Edit" and set an Issuer DID first.</small>
+                </div>
+
+                <div class="text-center mt-3">
+                    <hf-buttons name="Close" class="btn btn-primary" 
+                        @executeAction="closeVerificationGuidePopup"></hf-buttons>
+                </div>
+            </div>
+        </hf-pop-up>
     </b-container>
 </template>
 
@@ -282,7 +316,10 @@
 
 .status-active { background-color: #3b82f6; }
 .status-warning { background-color: #f59e0b; } */
-
+.verification-guide-list {
+  padding-left: 1.5rem;
+  margin-right: 0.5rem;
+}
 </style>
 
 <script>
@@ -296,6 +333,9 @@ export default {
     data() {
         return {
             isEditing: false,
+            // allow editing domain independently of full-form edit
+            isEditingDomain: false,
+            domainBackup: null,
             isProd: false,
             appIdToGenerateSecret: "",
             linkedAppErrorMessage: "",
@@ -316,7 +356,8 @@ export default {
     },
     computed: {
         ...mapGetters("mainStore", ["getSelectedService", "getAppsWithSSIServices"]),
-        ...mapState({ widgetConfig: state => state.mainStore.widgetConfig }),
+        ...mapState({ widgetConfig: state => state.mainStore.widgetConfig ,
+            kybWidgetConfig: state => state.mainStore.kybWidgetConfig}),
         formattedErrorMessage() {
             return this.linkedAppErrorMessage.replace(/\n/g, "<br>");
         },
@@ -369,8 +410,8 @@ export default {
         }
     },
     methods: {
-        ...mapActions("mainStore", ["updateAnAppOnServer", "deleteAnAppOnServer", "fetchDIDsForAService", "resolveDIDForAKycService", "updateAppsWidgetConfig"]),
-        ...mapMutations("mainStore", ["setWidgetConfig"]),
+        ...mapActions("mainStore", ["updateAnAppOnServer", "deleteAnAppOnServer", "fetchDIDsForAService", "resolveDIDForAKycService", "updateAppsWidgetConfig","updateAppsKybWidgetConfig","fetchAppsWidgetConfig","fetchAppsKybWidgetConfig"]),
+        ...mapMutations("mainStore", ["setWidgetConfig","setKybWidgetConfig"]),
         async fetchDIDsForDisplay() {
             try {
                 const ssiServiceId = this.formData.dependentServices && this.formData.dependentServices[0];
@@ -417,7 +458,9 @@ export default {
 
                 };
                 const didDocument = await this.resolveDIDForAKycService(payload);
-                this.issuerVerificationMethodIds = didDocument.verificationMethod.filter(vm => vm);
+                this.issuerVerificationMethodIds = Array.isArray(didDocument?.verificationMethod)
+                    ? didDocument.verificationMethod.filter(vm => vm)
+                    : [];
             } catch (e) {
                 // Silently fail for display purposes
                 console.error('Error fetching verification methods for display:', e);
@@ -498,6 +541,9 @@ export default {
 
                 };
                 const didDocument = await this.resolveDIDForAKycService(payload);
+                if (!didDocument?.verificationMethod) {
+                    throw new Error('DID document has no verification methods.');
+                }
                 this.issuerVerificationMethodIds = didDocument.verificationMethod.filter(vm => vm);
                 this.isLoading = false;
             } catch (e) {
@@ -508,7 +554,8 @@ export default {
         async startEdit() {
             this.backupData = JSON.parse(JSON.stringify(this.formData));
             this.isEditing = true;
-            
+            // Fetch configs if not already loaded
+              await this.ensureWidgetConfigsLoaded();
             // Fetch DIDs if not already loaded
             if (!this.associatedSSIServiceDIDs.length) {
                 await this.fetchDIDs();
@@ -519,9 +566,51 @@ export default {
                 await this.resolveDid(this.formData.issuerDid);
             }
         },
+        // Domain-only edit flow
+        startDomainEdit() {
+            this.domainBackup = { domain: this.formData.domain, hasDomainVerified: this.formData.hasDomainVerified };
+            this.isEditingDomain = true;
+            // Changing domain invalidates previous verification
+            this.formData.hasDomainVerified = false;
+        },
+        cancelDomainEdit() {
+            if (this.domainBackup) {
+                this.formData.domain = this.domainBackup.domain;
+                this.formData.hasDomainVerified = this.domainBackup.hasDomainVerified;
+            }
+            this.domainBackup = null;
+            this.isEditingDomain = false;
+        },
+        async saveDomainChange() {
+            try {
+                if (!this.formData.domain || !this.formData.domain.trim()) {
+                    return this.notifyErr('Domain cannot be empty.');
+                }
+                this.isLoading = true;
+                await this.updateAnAppOnServer({ ...this.formData });
+                this.isEditingDomain = false;
+                this.domainBackup = null;
+                this.notifySuccess('Domain updated. Please verify the domain to re-enable verification.');
+            } catch (e) {
+                // revert on error
+                if (this.domainBackup) {
+                    this.formData.domain = this.domainBackup.domain;
+                    this.formData.hasDomainVerified = this.domainBackup.hasDomainVerified;
+                }
+                this.notifyErr(e.message || e);
+            } finally {
+                this.isLoading = false;
+            }
+        },
         cancelEdit() {
-            this.formData = JSON.parse(JSON.stringify(this.backupData));
+            if (this.backupData) {
+                this.formData = JSON.parse(JSON.stringify(this.backupData));
+                this.isProd = this.formData.env === 'prod';
+            }
             this.isEditing = false;
+            this.isEditingDomain = false;
+            this.domainBackup = null;
+            this.showVerificationInfo = false;
         },
         setEnv(flag) {
             // toggle environment and update formData.env
@@ -530,22 +619,84 @@ export default {
         },
         async saveChanges() {
             try{
-                this.isEditing = false;
-                this.isLoading = true;
-                
-                await this.updateAnAppOnServer({ ...this.formData })
-
-                // Sync issuerDid and issuerVerificationMethodId into widget config
-                if (this.formData.issuerDid && Object.keys(this.widgetConfig).length > 0) {
-                    const updatedWidgetConfig = {
-                        ...this.widgetConfig,
-                        issuerDID: this.formData.issuerDid,
-                        issuerVerificationMethodId: this.formData.issuerVerificationMethodId || this.widgetConfig.issuerVerificationMethodId,
-                    }
-                    this.setWidgetConfig(updatedWidgetConfig)
-                    await this.updateAppsWidgetConfig()
+                if (!this.formData.domain || !this.formData.domain.trim()) {
+                    return this.notifyErr('Domain cannot be empty.');
                 }
+                this.isLoading = true;
+                const isEditing = this.isEditing;
+                const isLogoChanged = isEditing && this.formData.logoUrl !== this.backupData?.logoUrl;
+                const isIssuerChanged = isEditing && this.formData.issuerDid !== this.backupData?.issuerDid;
+                const isAppNameChanged = isEditing && this.formData.appName !== this.backupData?.appName;
+                const isDomainChanged = isEditing && this.formData.domain !== this.backupData?.domain;
+                await this.updateAnAppOnServer({ ...this.formData })
+                 if (!isLogoChanged && !isIssuerChanged && !isAppNameChanged && !isDomainChanged) {
+                    this.isEditing = false;
+                    return this.notifySuccess("Service configuration updated successfully!");
+                }
+                // Sync logo, issuerDid and issuerVerificationMethodId into widget config
+                if (Object.keys(this.widgetConfig).length > 0) {
+                      let shouldUpdateWidgetConfig = false;
+                      let updatedWidgetConfig = { ...this.widgetConfig };
+                      if (isIssuerChanged && this.formData.issuerDid) {
+                        updatedWidgetConfig.issuerDID = this.formData.issuerDid;
+                        updatedWidgetConfig.issuerVerificationMethodId =
+                        this.formData.issuerVerificationMethodId ||
+                        this.widgetConfig.issuerVerificationMethodId;
+                        shouldUpdateWidgetConfig = true;
+                     }
+                    if (isLogoChanged) {
+                          updatedWidgetConfig.userConsent = {
+                          ...(updatedWidgetConfig.userConsent || {}),
+                          logoUrl: this.formData.logoUrl,
+                        };
+                      shouldUpdateWidgetConfig = true;
+                    }
+                      if(isDomainChanged){
+                        updatedWidgetConfig.userConsent = {
+                          ...(updatedWidgetConfig.userConsent || {}),
+                          domain: this.formData.domain,
+                        };
+                      shouldUpdateWidgetConfig = true;
 
+                    }
+                    if (shouldUpdateWidgetConfig) {
+                    this.setWidgetConfig(updatedWidgetConfig);
+                    await this.updateAppsWidgetConfig();
+                    }
+                }
+            // update kyb widget
+                if(Object.keys(this.kybWidgetConfig).length > 0 ){
+                  let updatedKybWidgetConfig = { ...this.kybWidgetConfig };
+                  let shouldUpdateKybWidgetConfig = false;
+                  if (isIssuerChanged && this.formData.issuerDid) {
+                        updatedKybWidgetConfig.issuerDID = this.formData.issuerDid;
+                        updatedKybWidgetConfig.issuerVerificationMethodId =
+                        this.formData.issuerVerificationMethodId ||
+                        this.kybWidgetConfig.issuerVerificationMethodId;
+                        shouldUpdateKybWidgetConfig = true;
+                   }
+                    if (isLogoChanged) {
+                        updatedKybWidgetConfig.branding = {
+                        ...(updatedKybWidgetConfig.branding || {}),
+                        logoUrl: this.formData.logoUrl,
+                        };
+                        shouldUpdateKybWidgetConfig = true;
+                    }
+                    if(isAppNameChanged){
+                        updatedKybWidgetConfig.branding = {
+                        ...(updatedKybWidgetConfig.branding || {}),
+                        businessName: this.formData.appName,
+                        };
+                        shouldUpdateKybWidgetConfig = true;
+                    }
+                  if (shouldUpdateKybWidgetConfig) {
+                    this.setKybWidgetConfig(updatedKybWidgetConfig);
+                    await this.updateAppsKybWidgetConfig();
+                    }
+                }
+               this.isEditing = false;
+               this.isEditingDomain = false;
+               this.domainBackup = null;
                 this.notifySuccess("Service configuration updated successfully!");
             }catch(err){
                 this.formData = JSON.parse(JSON.stringify(this.backupData));
@@ -597,11 +748,18 @@ export default {
                 // Import DomainLinkage for verification
                 const DomainLinkage = (await import("@hypersign-protocol/domain-linkage-verifier")).default;
                 const domainLinkage = new DomainLinkage(cleanDomainUrl);
-                
-                const result = await domainLinkage.verifyDnsTxtRecord(
-                    new URL(cleanDomainUrl),
-                    this.txtRecord
-                );
+
+                let result;
+                try {
+                    result = await domainLinkage.verifyDnsTxtRecord(
+                        new URL(cleanDomainUrl),
+                        this.txtRecord
+                    );
+                } catch {
+                    throw new Error(
+                        "No TXT record found for this domain. Please add the TXT record to your DNS and try again. It may take up to 30 minutes to propagate."
+                    );
+                }
 
                 if (result && result.error) {
                     throw new Error(
@@ -613,6 +771,8 @@ export default {
                 if (result && result.verified) {
                     this.formData.hasDomainVerified = true;
                     await this.updateAnAppOnServer({ ...this.formData });
+                    this.isEditingDomain = false;
+                    this.domainBackup = null;
                     this.notifySuccess("Domain verified successfully!");
                     this.showVerificationInfo = false;
                 } else {
@@ -632,6 +792,15 @@ export default {
         },
         toggleVerificationInfo() {
             this.showVerificationInfo = !this.showVerificationInfo;
+            if (this.showVerificationInfo) {
+                this.openVerificationGuide();
+            } else {
+                this.closeVerificationGuide();
+            }
+        },
+        closeVerificationGuidePopup() {
+            this.showVerificationInfo = false;
+            this.closeVerificationGuide();
         },
 
         closeLinkedServiceDetailPopup() {
@@ -674,6 +843,20 @@ export default {
                 }
             }
         },
+        async ensureWidgetConfigsLoaded() {
+          try {
+                // ID service widget config
+                if (!this.widgetConfig || Object.keys(this.widgetConfig).length === 0) {
+                    await this.fetchAppsWidgetConfig();
+                }
+                // KYB widget config
+                if (!this.kybWidgetConfig || Object.keys(this.kybWidgetConfig).length === 0) {
+                    await this.fetchAppsKybWidgetConfig();
+                }
+            } catch (e) {
+                console.warn("Widget config not found or failed to fetch:", e.message);
+            }
+       }
     },
     mixins: [UtilsMixin]
 };
