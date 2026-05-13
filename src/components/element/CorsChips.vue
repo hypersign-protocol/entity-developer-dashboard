@@ -2,13 +2,14 @@
   <div class="chips-input-container">
     <div class="chips-display">
       <div
-        v-for="(chip, index) in modelValue"
+        v-for="(chip, index) in currentValue"
         :key="chip + index"
         class="chip"
       >
         {{ chip }}
 
-        <button
+       <button
+          v-if="!readonly"
           type="button"
           class="chip-remove"
           @click="removeChip(index)"
@@ -19,10 +20,11 @@
     </div>
 
     <input
+      v-if="!readonly"
       v-model="newChip"
       type="text"
       class="chip-input"
-      placeholder="Enter domain/origin"
+      :placeholder="placeholder"
       @keydown="addChip"
       @blur="processNewChip"
       @paste="handlePaste"
@@ -36,9 +38,31 @@ export default {
   name: "CorsChipsInput",
 
   props: {
-    modelValue: {
+    value: {
       type: Array,
       default: () => []
+    },
+    modelValue: {
+      type: Array,
+      default: null
+    },
+    placeholder: {
+      type: String,
+      default: "Enter domain/origin"
+    },
+      readonly: {
+        type: Boolean,
+        default: false
+   }
+  },
+
+  computed: {
+    currentValue() {
+      return Array.isArray(this.modelValue)
+        ? this.modelValue
+        : Array.isArray(this.value)
+        ? this.value
+        : [];
     }
   },
 
@@ -79,7 +103,7 @@ export default {
         .map(v => v.trim())
         .filter(Boolean);
 
-      const updated = [...this.modelValue];
+      const updated = [...this.currentValue];
 
       values.forEach(val => {
         const normalized = normalizeCorsOrigin(val);
@@ -91,16 +115,18 @@ export default {
         }
       });
 
+      this.$emit("input", updated);
       this.$emit("update:modelValue", updated);
 
       this.newChip = "";
     },
 
     removeChip(index) {
-      const updated = [...this.modelValue];
+      const updated = [...this.currentValue];
 
       updated.splice(index, 1);
 
+      this.$emit("input", updated);
       this.$emit("update:modelValue", updated);
     },
   }

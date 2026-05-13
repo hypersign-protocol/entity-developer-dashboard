@@ -387,19 +387,14 @@
           </select>
         </div>
 
-         <div class="form-group">
+        <div class="form-group">
           <tool-tip
             infoMessage="Listed origins allowed to make CORS requests. Enter comman seperated URLs to whitelist"></tool-tip>
           <label for="orgName"><strong>Allowed Origins (CORS):</strong></label>
-          <div class="chips-input-container">
-            <div class="chips-display">
-              <span v-for="(chip, index) in appModel.whitelistedCors" :key="index" class="chip">
-                {{ chip }}
-                <button type="button" @click="removeChip(index)" class="chip-remove">&times;</button>
-              </span>
-            </div>
-            <input v-model="newChip" @keydown="addChip" @blur="addChip" placeholder="Add CORS origin (e.g., https://api.example.com, https://localhost:3000)" class="chip-input" />
-          </div>
+          <CorsChipsInput
+            v-model="appModel.whitelistedCors"
+            placeholder="Add CORS origin (e.g., https://api.example.com, https://localhost:3000)"
+          />
         </div>
 
         <div class="form-group" v-if="edit">
@@ -937,44 +932,6 @@
   text-align: center;
   padding: 40px 20px;
 }
-.chips-input-container {
-  border: 1px solid #e2e8f0;
-  border-radius: 0.5rem;
-  padding: 0.5rem;
-  display: flex;
-  flex-direction: column;
-}
-.chips-display {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-bottom: 0.5rem;
-}
-.chip {
-  display: inline-flex;
-  align-items: center;
-  background: #f0f4ff;
-  border: 1px solid #c9d8ff;
-  border-radius: 4px;
-  padding: 2px 8px;
-  font-size: 0.78rem;
-  color: #3b5bdb;
-}
-.chip-remove {
-  background: none;
-  border: none;
-  color: #3b5bdb;
-  cursor: pointer;
-  margin-left: 4px;
-  font-size: 1rem;
-  line-height: 1;
-}
-.chip-input {
-  border: none;
-  outline: none;
-  font-size: 0.9rem;
-  padding: 0.25rem 0;
-}
 
 </style>
 
@@ -995,6 +952,7 @@ import DomainLinkage from "@hypersign-protocol/domain-linkage-verifier";
 import config from "../config";
 import {isValidOrigin} from '../mixins/fieldValidation.js';
 import LogoUploader from "../components/element/LogoUploader.vue";
+import CorsChipsInput from "../components/element/CorsChips.vue";
 import {normalizeCorsOrigin} from '../utils/utils.js'
 export default {
   name: "AppList",
@@ -1181,8 +1139,7 @@ export default {
       authToken: localStorage.getItem("authToken"),
       domain: "",
       associatedSSIServiceDIDs: [],
-      issuerVerificationMethodIds: [],
-      newChip: ''
+      issuerVerificationMethodIds: []
     };
   },
   components: {
@@ -1192,6 +1149,7 @@ export default {
     HfButtons,
     ToolTip,
     HfFlashNotification,
+    CorsChipsInput,
   },
   methods: {
     ...mapMutations("mainStore", ["updateAnApp", "setMainSideNavBar"]),
@@ -1778,31 +1736,6 @@ export default {
       this.domain = "";
       this.associatedSSIServiceDIDs = [];
       this.issuerVerificationMethodIds = [];
-      this.newChip = '';
-    },
-    addChip(event) {
-      const key = event.key;
-      if (event.type === 'blur' || key === 'Enter' || key === ',' || key === ';' || (key === ' ' && this.newChip.trim())) {
-        event.preventDefault();
-        this.processNewChip();
-      }
-    },
-    processNewChip() {
-      let values = this.newChip.split(/[,\s;]+/).map(v => v.trim()).filter(v => v);
-      values.forEach(val => {
-        const normalizedVal = normalizeCorsOrigin(val);
-        if (!normalizedVal) {
-          this.notifyErr(`Invalid URL: ${val}`);
-          return;
-        }
-        if (!this.appModel.whitelistedCors.includes(normalizedVal)) {
-          this.appModel.whitelistedCors.push(normalizedVal);
-        }
-      });
-      this.newChip = '';
-    },
-    removeChip(index) {
-      this.appModel.whitelistedCors.splice(index, 1);
     },
   },
   beforeDestroy() {
