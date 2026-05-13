@@ -391,8 +391,15 @@
           <tool-tip
             infoMessage="Listed origins allowed to make CORS requests. Enter comman seperated URLs to whitelist"></tool-tip>
           <label for="orgName"><strong>Allowed Origins (CORS):</strong></label>
-          <textarea class="form-control" v-model="appModel.whitelistedCors" rows="3"
-            placeholder="http://your-domain.com,http://test.com"></textarea>
+          <div class="chips-input-container">
+            <div class="chips-display">
+              <span v-for="(chip, index) in appModel.whitelistedCors" :key="index" class="chip">
+                {{ chip }}
+                <button type="button" @click="removeChip(index)" class="chip-remove">&times;</button>
+              </span>
+            </div>
+            <input v-model="newChip" @keydown="addChip" @blur="addChip" placeholder="Add CORS origin (e.g., https://api.example.com, https://localhost:3000)" class="chip-input" />
+          </div>
         </div>
 
         <div class="form-group" v-if="edit">
@@ -930,6 +937,44 @@
   text-align: center;
   padding: 40px 20px;
 }
+.chips-input-container {
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+  padding: 0.5rem;
+  display: flex;
+  flex-direction: column;
+}
+.chips-display {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+.chip {
+  display: inline-flex;
+  align-items: center;
+  background: #f0f4ff;
+  border: 1px solid #c9d8ff;
+  border-radius: 4px;
+  padding: 2px 8px;
+  font-size: 0.78rem;
+  color: #3b5bdb;
+}
+.chip-remove {
+  background: none;
+  border: none;
+  color: #3b5bdb;
+  cursor: pointer;
+  margin-left: 4px;
+  font-size: 1rem;
+  line-height: 1;
+}
+.chip-input {
+  border: none;
+  outline: none;
+  font-size: 0.9rem;
+  padding: 0.25rem 0;
+}
 
 </style>
 
@@ -950,7 +995,7 @@ import DomainLinkage from "@hypersign-protocol/domain-linkage-verifier";
 import config from "../config";
 import {isValidOrigin} from '../mixins/fieldValidation.js';
 import LogoUploader from "../components/element/LogoUploader.vue";
-
+import {normalizeCorsOrigin} from '../utils/utils.js'
 export default {
   name: "AppList",
   computed: {
@@ -1121,7 +1166,7 @@ export default {
         walletAddress: "",
         edvId: "",
         description: "",
-        whitelistedCors: "*",
+        whitelistedCors: [],
         logoUrl: "",
         tenantUrl: "",
         services: [],
@@ -1136,7 +1181,8 @@ export default {
       authToken: localStorage.getItem("authToken"),
       domain: "",
       associatedSSIServiceDIDs: [],
-      issuerVerificationMethodIds: []
+      issuerVerificationMethodIds: [],
+      newChip: ''
     };
   },
   components: {
@@ -1312,9 +1358,11 @@ export default {
       if (appModel.services && appModel.services.length > 0) {
         this.selectedServiceId = appModel.services[0].id;
       }
-       appModel.whitelistedCors = appModel.whitelistedCors.toString();
-
-      Object.assign(this.appModel, { ...appModel });
+      appModel.whitelistedCors = Array.isArray(appModel.whitelistedCors)
+        ? appModel.whitelistedCors.map(v => normalizeCorsOrigin(v)).filter(Boolean)
+        : [];
+      appModel.whitelistedCors = [...new Set(appModel.whitelistedCors)];
+      this.appModel = { ...appModel };
       this.selectedAssociatedSSIAppId = appModel.dependentServices[0];
       await this.prepareDIDList(this.selectedAssociatedSSIAppId);
 
@@ -1350,7 +1398,14 @@ export default {
         }
       }
 
-       if (!Array.isArray(this.appModel.whitelistedCors)) {
+      if (Array.isArray(this.appModel.whitelistedCors)) {
+        for (const corsOrigin of this.appModel.whitelistedCors) {
+          if (!isValidOrigin(corsOrigin)) {
+            m.push(messages.APPLICATION.INVALID_CORS);
+            break;
+          }
+        }
+      } else if (this.appModel.whitelistedCors) {
         const newArray = this.appModel.whitelistedCors?.split(",").map((x) => x.trim()).filter((x) => x.length > 0);
         for (let i = 0; i < newArray.length; i++) {
            if (!isValidOrigin(newArray[i])) {
@@ -1401,23 +1456,20 @@ export default {
         }
 
         this.isLoading = true;
-        let whitelistCors = [];
-        if (!isEmpty(this.appModel.whitelistedCors)) {
-          whitelistCors = this.appModel.whitelistedCors?.split(",").filter((x) => x != " ").map((x) => x.trim());
-          const cors = config?.studioServer?.WHITELIST_CORS?.split(",");
+        let whitelistCors = this.appModel.whitelistedCors || [];
+        const cors = config?.studioServer?.WHITELIST_CORS?.split(",");
 
-          cors.forEach((e) => {
-            if (
-              !whitelistCors.includes(e) &&
-              !whitelistCors.includes(e + "/")
-            ) {
-              whitelistCors.push(e);
-            }
-          });
-          const s = new Set(whitelistCors);
-          if (whitelistCors.length !== s.size) {
-            throw new Error(messages.APPLICATION.DUPLICATE_ORIGIN_VALUES);
+        cors.forEach((e) => {
+          if (
+            !whitelistCors.includes(e) &&
+            !whitelistCors.includes(e + "/")
+          ) {
+            whitelistCors.push(e);
           }
+        });
+        const s = new Set(whitelistCors);
+        if (whitelistCors.length !== s.size) {
+          throw new Error(messages.APPLICATION.DUPLICATE_ORIGIN_VALUES);
         }
 
         const t = await this.saveAnAppOnServer({
@@ -1598,30 +1650,21 @@ export default {
         }
 
         this.isLoading = true;
-        let whitelistCors = [];
-        if (!Array.isArray(this.appModel.whitelistedCors)) {
-          whitelistCors = this.appModel.whitelistedCors
-            .split(",")
-            .filter((x) => x != " ")
-            .map((x) => x.trim());
+        let whitelistCors = this.appModel.whitelistedCors || [];
+        const cors = config?.studioServer?.WHITELIST_CORS?.split(",");
 
-          const cors = config?.studioServer?.WHITELIST_CORS?.split(",");
-
-          cors.forEach((e) => {
-            if (
-              !whitelistCors.includes(e) &&
-              !whitelistCors.includes(e + "/")
-            ) {
-              whitelistCors.push(e);
-            }
-          });
-
-          const s = new Set(whitelistCors);
-          if (whitelistCors.length !== s.size) {
-            throw new Error(messages.APPLICATION.DUPLICATE_ORIGIN_VALUES);
+        cors.forEach((e) => {
+          if (
+            !whitelistCors.includes(e) &&
+            !whitelistCors.includes(e + "/")
+          ) {
+            whitelistCors.push(e);
           }
-        } else {
-          whitelistCors = this.appModel.whitelistedCors;
+        });
+
+        const s = new Set(whitelistCors);
+        if (whitelistCors.length !== s.size) {
+          throw new Error(messages.APPLICATION.DUPLICATE_ORIGIN_VALUES);
         }
         const t = await this.updateAnAppOnServer({
           appId: this.appModel.appId,
@@ -1729,12 +1772,37 @@ export default {
         domain: "",
         hasDomainVerified: false,
         domainLinkageCredentialString: "",
+        whitelistedCors: [],
       };
       this.selectedAssociatedSSIAppId = "";
       this.domain = "";
       this.associatedSSIServiceDIDs = [];
-      this.issuerVerificationMethodIds = []
-
+      this.issuerVerificationMethodIds = [];
+      this.newChip = '';
+    },
+    addChip(event) {
+      const key = event.key;
+      if (event.type === 'blur' || key === 'Enter' || key === ',' || key === ';' || (key === ' ' && this.newChip.trim())) {
+        event.preventDefault();
+        this.processNewChip();
+      }
+    },
+    processNewChip() {
+      let values = this.newChip.split(/[,\s;]+/).map(v => v.trim()).filter(v => v);
+      values.forEach(val => {
+        const normalizedVal = normalizeCorsOrigin(val);
+        if (!normalizedVal) {
+          this.notifyErr(`Invalid URL: ${val}`);
+          return;
+        }
+        if (!this.appModel.whitelistedCors.includes(normalizedVal)) {
+          this.appModel.whitelistedCors.push(normalizedVal);
+        }
+      });
+      this.newChip = '';
+    },
+    removeChip(index) {
+      this.appModel.whitelistedCors.splice(index, 1);
     },
   },
   beforeDestroy() {

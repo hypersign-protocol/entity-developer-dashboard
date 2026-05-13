@@ -212,10 +212,25 @@
 
 
 
-                    <b-col cols="12">
-                        <b-form-group label="WHITELISTED CORS">
-                            <b-form-textarea v-model="corsDisplay" :readonly="!isEditing" rows="3" class="custom-input" />
-                        </b-form-group>
+                <b-col cols="12">
+                    <b-form-group label="WHITELISTED CORS">
+
+                        <CorsChipsInput
+                        v-if="isEditing"
+                        v-model="formData.whitelistedCors"
+                        />
+
+                        <div v-else class="chips-display">
+                        <span
+                            v-for="(chip, index) in formData.whitelistedCors"
+                            :key="index"
+                            class="chip"
+                        >
+                            {{ chip }}
+                        </span>
+                        </div>
+
+                    </b-form-group>
                     </b-col>
                 </b-row>
             </b-form>
@@ -320,6 +335,44 @@
   padding-left: 1.5rem;
   margin-right: 0.5rem;
 }
+.chips-input-container {
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+  padding: 0.5rem;
+  display: flex;
+  flex-direction: column;
+}
+.chips-display {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+.chip {
+  display: inline-flex;
+  align-items: center;
+  background: #f0f4ff;
+  border: 1px solid #c9d8ff;
+  border-radius: 4px;
+  padding: 2px 8px;
+  font-size: 0.78rem;
+  color: #3b5bdb;
+}
+.chip-remove {
+  background: none;
+  border: none;
+  color: #3b5bdb;
+  cursor: pointer;
+  margin-left: 4px;
+  font-size: 1rem;
+  line-height: 1;
+}
+.chip-input {
+  border: none;
+  outline: none;
+  font-size: 0.9rem;
+  padding: 0.25rem 0;
+}
 </style>
 
 <script>
@@ -343,7 +396,7 @@ export default {
             associatedSSIServiceDIDs: [],
             issuerVerificationMethodIds: [],
             formData: {
-
+                whitelistedCors: []
             },
             backupData: null,
             serviceFields: [
@@ -352,6 +405,7 @@ export default {
                 { key: "description", label: "Description" },
                 { key: "swaggerAPIDocPath", label: "Swagger API Path" },
             ],
+            newChip: '',
         };
     },
     computed: {
@@ -360,18 +414,6 @@ export default {
             kybWidgetConfig: state => state.mainStore.kybWidgetConfig}),
         formattedErrorMessage() {
             return this.linkedAppErrorMessage.replace(/\n/g, "<br>");
-        },
-        corsDisplay: {
-            get() {
-
-                return typeof this.formData.whitelistedCors === 'string' ? this.formData.whitelistedCors : this.formData.whitelistedCors?.join("\n");
-            },
-            set(value) {
-                this.formData.whitelistedCors = value
-                    .split("\n")
-                    .map((v) => v.trim())
-                    .filter(Boolean);
-            },
         },
         txtRecord() {
             return this.formData.issuerDid
@@ -390,11 +432,20 @@ export default {
     },
     components: {
         HfPopUp,
-        LogoUploader
+        LogoUploader,
     },
     async created() {
         this.formData = { ...this.getSelectedService };
         this.isProd = this.formData.env === "prod";
+        
+        // Normalize CORS origins to URL origin form and remove duplicates
+        if (!Array.isArray(this.formData.whitelistedCors)) {
+            this.formData.whitelistedCors = [];
+        }
+        this.formData.whitelistedCors = this.formData.whitelistedCors
+            .map(v => this.normalizeCorsOrigin(v))
+            .filter(Boolean)
+            .filter((origin, index, self) => self.indexOf(origin) === index);
         
         // Fetch DIDs for display/selection
         await this.fetchDIDsForDisplay();
@@ -856,7 +907,32 @@ export default {
             } catch (e) {
                 console.warn("Widget config not found or failed to fetch:", e.message);
             }
-       }
+       },
+        addChip(event) {
+            const key = event.key;
+            if (event.type === 'blur' || key === 'Enter' || key === ',' || key === ';' || (key === ' ' && this.newChip.trim())) {
+                event.preventDefault();
+                this.processNewChip();
+            }
+        },
+        processNewChip() {
+            let values = this.newChip.split(/[,\s;]+/).map(v => v.trim()).filter(v => v);
+            values.forEach(val => {
+                const normalizedVal = this.normalizeCorsOrigin(val);
+                if (!normalizedVal) {
+                    this.notifyErr(`Invalid URL: ${val}`);
+                    return;
+                }
+                if (!this.formData.whitelistedCors.includes(normalizedVal)) {
+                    this.formData.whitelistedCors.push(normalizedVal);
+                }
+            });
+            this.newChip = '';
+        },
+        removeChip(index) {
+            this.formData.whitelistedCors.splice(index, 1);
+        },
+      
     },
     mixins: [UtilsMixin]
 };
