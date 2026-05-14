@@ -302,11 +302,18 @@ export default {
     },
     groupedAccess() {
       const groups = {};
-
       if (!this.user.accessList) return groups;
+      const uniqueEntries = new Map();
+      this.user.accessList
+        .filter(access => access.serviceType != config.SERVICE_TYPES.QUEST)
+        .forEach(item => {
+          const key = `${item.serviceType}::${item.access}`;
+          if (!uniqueEntries.has(key)) {
+            uniqueEntries.set(key, item);
+          }
+        });
 
-      this.user.accessList.filter(access => access.serviceType != config.SERVICE_TYPES.QUEST)
-      .forEach(item => {
+      Array.from(uniqueEntries.values()).forEach(item => {
         if (!groups[item.serviceType]) {
           groups[item.serviceType] = [];
         }
@@ -314,11 +321,14 @@ export default {
       });
 
       return groups;
-    }, 
+    },
 
     totalPermissionsCount() {
-      const listwithoutQuest = this.user.accessList?.filter(access => access.serviceType != config.SERVICE_TYPES.QUEST)
-      return listwithoutQuest ? listwithoutQuest.length : 0;
+      const listWithoutQuest = this.user.accessList?.filter(access => access.serviceType != config.SERVICE_TYPES.QUEST) || [];
+      const uniqueKeys = new Set(
+        listWithoutQuest.map(item => `${item.serviceType}::${item.access}`)
+      );
+      return uniqueKeys.size;
     }
   },
   methods: {

@@ -387,12 +387,14 @@
           </select>
         </div>
 
-         <div class="form-group">
+        <div class="form-group">
           <tool-tip
             infoMessage="Listed origins allowed to make CORS requests. Enter comman seperated URLs to whitelist"></tool-tip>
           <label for="orgName"><strong>Allowed Origins (CORS):</strong></label>
-          <textarea class="form-control" v-model="appModel.whitelistedCors" rows="3"
-            placeholder="http://your-domain.com,http://test.com"></textarea>
+          <CorsChipsInput
+            v-model="appModel.whitelistedCors"
+            placeholder="Add CORS origin (e.g., https://api.example.com, https://localhost:3000)"
+          />
         </div>
 
         <div class="form-group" v-if="edit">
@@ -950,7 +952,8 @@ import DomainLinkage from "@hypersign-protocol/domain-linkage-verifier";
 import config from "../config";
 import {isValidOrigin} from '../mixins/fieldValidation.js';
 import LogoUploader from "../components/element/LogoUploader.vue";
-
+import CorsChipsInput from "../components/element/CorsChips.vue";
+import {normalizeCorsOrigin} from '../utils/utils.js'
 export default {
   name: "AppList",
   computed: {
@@ -1121,7 +1124,7 @@ export default {
         walletAddress: "",
         edvId: "",
         description: "",
-        whitelistedCors: "*",
+        whitelistedCors: [],
         logoUrl: "",
         tenantUrl: "",
         services: [],
@@ -1146,6 +1149,7 @@ export default {
     HfButtons,
     ToolTip,
     HfFlashNotification,
+    CorsChipsInput,
   },
   methods: {
     ...mapMutations("mainStore", ["updateAnApp", "setMainSideNavBar"]),
@@ -1312,9 +1316,11 @@ export default {
       if (appModel.services && appModel.services.length > 0) {
         this.selectedServiceId = appModel.services[0].id;
       }
-       appModel.whitelistedCors = appModel.whitelistedCors.toString();
-
-      Object.assign(this.appModel, { ...appModel });
+      appModel.whitelistedCors = Array.isArray(appModel.whitelistedCors)
+        ? appModel.whitelistedCors.map(v => normalizeCorsOrigin(v)).filter(Boolean)
+        : [];
+      appModel.whitelistedCors = [...new Set(appModel.whitelistedCors)];
+      this.appModel = { ...appModel };
       this.selectedAssociatedSSIAppId = appModel.dependentServices[0];
       await this.prepareDIDList(this.selectedAssociatedSSIAppId);
 
@@ -1350,7 +1356,14 @@ export default {
         }
       }
 
-       if (!Array.isArray(this.appModel.whitelistedCors)) {
+      if (Array.isArray(this.appModel.whitelistedCors)) {
+        for (const corsOrigin of this.appModel.whitelistedCors) {
+          if (!isValidOrigin(corsOrigin)) {
+            m.push(messages.APPLICATION.INVALID_CORS);
+            break;
+          }
+        }
+      } else if (this.appModel.whitelistedCors) {
         const newArray = this.appModel.whitelistedCors?.split(",").map((x) => x.trim()).filter((x) => x.length > 0);
         for (let i = 0; i < newArray.length; i++) {
            if (!isValidOrigin(newArray[i])) {
@@ -1401,23 +1414,20 @@ export default {
         }
 
         this.isLoading = true;
-        let whitelistCors = [];
-        if (!isEmpty(this.appModel.whitelistedCors)) {
-          whitelistCors = this.appModel.whitelistedCors?.split(",").filter((x) => x != " ").map((x) => x.trim());
-          const cors = config?.studioServer?.WHITELIST_CORS?.split(",");
+        let whitelistCors = this.appModel.whitelistedCors || [];
+        const cors = config?.studioServer?.WHITELIST_CORS?.split(",");
 
-          cors.forEach((e) => {
-            if (
-              !whitelistCors.includes(e) &&
-              !whitelistCors.includes(e + "/")
-            ) {
-              whitelistCors.push(e);
-            }
-          });
-          const s = new Set(whitelistCors);
-          if (whitelistCors.length !== s.size) {
-            throw new Error(messages.APPLICATION.DUPLICATE_ORIGIN_VALUES);
+        cors.forEach((e) => {
+          if (
+            !whitelistCors.includes(e) &&
+            !whitelistCors.includes(e + "/")
+          ) {
+            whitelistCors.push(e);
           }
+        });
+        const s = new Set(whitelistCors);
+        if (whitelistCors.length !== s.size) {
+          throw new Error(messages.APPLICATION.DUPLICATE_ORIGIN_VALUES);
         }
 
         const t = await this.saveAnAppOnServer({
@@ -1598,30 +1608,21 @@ export default {
         }
 
         this.isLoading = true;
-        let whitelistCors = [];
-        if (!Array.isArray(this.appModel.whitelistedCors)) {
-          whitelistCors = this.appModel.whitelistedCors
-            .split(",")
-            .filter((x) => x != " ")
-            .map((x) => x.trim());
+        let whitelistCors = this.appModel.whitelistedCors || [];
+        const cors = config?.studioServer?.WHITELIST_CORS?.split(",");
 
-          const cors = config?.studioServer?.WHITELIST_CORS?.split(",");
-
-          cors.forEach((e) => {
-            if (
-              !whitelistCors.includes(e) &&
-              !whitelistCors.includes(e + "/")
-            ) {
-              whitelistCors.push(e);
-            }
-          });
-
-          const s = new Set(whitelistCors);
-          if (whitelistCors.length !== s.size) {
-            throw new Error(messages.APPLICATION.DUPLICATE_ORIGIN_VALUES);
+        cors.forEach((e) => {
+          if (
+            !whitelistCors.includes(e) &&
+            !whitelistCors.includes(e + "/")
+          ) {
+            whitelistCors.push(e);
           }
-        } else {
-          whitelistCors = this.appModel.whitelistedCors;
+        });
+
+        const s = new Set(whitelistCors);
+        if (whitelistCors.length !== s.size) {
+          throw new Error(messages.APPLICATION.DUPLICATE_ORIGIN_VALUES);
         }
         const t = await this.updateAnAppOnServer({
           appId: this.appModel.appId,
@@ -1729,12 +1730,12 @@ export default {
         domain: "",
         hasDomainVerified: false,
         domainLinkageCredentialString: "",
+        whitelistedCors: [],
       };
       this.selectedAssociatedSSIAppId = "";
       this.domain = "";
       this.associatedSSIServiceDIDs = [];
-      this.issuerVerificationMethodIds = []
-
+      this.issuerVerificationMethodIds = [];
     },
   },
   beforeDestroy() {

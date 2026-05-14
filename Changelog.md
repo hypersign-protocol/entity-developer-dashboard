@@ -17,9 +17,13 @@
 - Updating kyc widget once we update domain in appConfig
 - Added space in domain verification guid popup
 - Updated hf-popup to accept hide event
+- Fixed the duplicate ALL access issue on the profile page.
 
 ## [3.7.23] - 2026-04-28
 
 ### Added
 
 - Changelog added to the project to track changes and updates.
+
+- Changed the whitelisted CORS input from a normal textbox to a chip-based input.
+- Added a reusable chip component that can be used in multiple places.

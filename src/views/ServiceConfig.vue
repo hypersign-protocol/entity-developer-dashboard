@@ -209,14 +209,17 @@
                             </template>
                         </b-form-group>
                     </b-col>
-
-
-
                     <b-col cols="12">
                         <b-form-group label="WHITELISTED CORS">
-                            <b-form-textarea v-model="corsDisplay" :readonly="!isEditing" rows="3" class="custom-input" />
+
+                            <CorsChipsInput
+                            v-model="formData.whitelistedCors"
+                            :readonly="!isEditing"
+                            placeholder="Add CORS origin (e.g., https://api.example.com, https://localhost:3000)"
+                            />
+
                         </b-form-group>
-                    </b-col>
+                        </b-col>
                 </b-row>
             </b-form>
         </b-card>
@@ -328,6 +331,8 @@ import UtilsMixin from '../mixins/utils'
 import messages from "../mixins/messages";
 import { mapGetters, mapActions, mapMutations, mapState } from 'vuex/dist/vuex.common.js';
 import LogoUploader from "../components/element/LogoUploader.vue";
+import CorsChipsInput from "../components/element/CorsChips.vue";
+import { normalizeCorsOrigin } from '../utils/utils.js';
 export default {
     name: "ServiceConfig",
     data() {
@@ -343,7 +348,7 @@ export default {
             associatedSSIServiceDIDs: [],
             issuerVerificationMethodIds: [],
             formData: {
-
+                whitelistedCors: []
             },
             backupData: null,
             serviceFields: [
@@ -360,18 +365,6 @@ export default {
             kybWidgetConfig: state => state.mainStore.kybWidgetConfig}),
         formattedErrorMessage() {
             return this.linkedAppErrorMessage.replace(/\n/g, "<br>");
-        },
-        corsDisplay: {
-            get() {
-
-                return typeof this.formData.whitelistedCors === 'string' ? this.formData.whitelistedCors : this.formData.whitelistedCors?.join("\n");
-            },
-            set(value) {
-                this.formData.whitelistedCors = value
-                    .split("\n")
-                    .map((v) => v.trim())
-                    .filter(Boolean);
-            },
         },
         txtRecord() {
             return this.formData.issuerDid
@@ -390,11 +383,20 @@ export default {
     },
     components: {
         HfPopUp,
-        LogoUploader
+        LogoUploader,
+        CorsChipsInput,
     },
     async created() {
         this.formData = { ...this.getSelectedService };
         this.isProd = this.formData.env === "prod";
+        // Normalize CORS origins to URL origin form and remove duplicates
+        if (!Array.isArray(this.formData.whitelistedCors)) {
+            this.formData.whitelistedCors = [];
+        }
+        this.formData.whitelistedCors = this.formData.whitelistedCors
+            .map(v => normalizeCorsOrigin(v))
+            .filter(Boolean)
+            .filter((origin, index, self) => self.indexOf(origin) === index);
         
         // Fetch DIDs for display/selection
         await this.fetchDIDsForDisplay();
@@ -856,7 +858,8 @@ export default {
             } catch (e) {
                 console.warn("Widget config not found or failed to fetch:", e.message);
             }
-       }
+       },
+      
     },
     mixins: [UtilsMixin]
 };
