@@ -109,3 +109,32 @@ export function JWTExpiredErrorMessageHandling(responseJson) {
         return "An unknown error occurred";
     }
 }
+
+export function normalizeCorsOrigin(value) {
+    if (!value) return null;
+    const normalized = value.trim();
+
+    try {
+        const parsed = new URL(normalized);
+
+        // Allow only http/https
+        if (!['http:', 'https:'].includes(parsed.protocol)) {
+            return null;
+        }
+        if (!parsed.hostname) {
+            return null;
+        }
+
+        if (
+            parsed.pathname !== '/' ||
+            parsed.search ||
+            parsed.hash
+        ) {
+            return null;
+        }
+
+        return parsed.origin;
+    } catch (e) {
+        return null;
+    }
+}

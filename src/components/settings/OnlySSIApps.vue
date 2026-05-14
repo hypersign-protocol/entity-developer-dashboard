@@ -208,12 +208,14 @@
             <option value="prod">Production</option>
           </select>
         </div>
-        <div class="form-group">
+                <div class="form-group">
           <tool-tip
             infoMessage="Listed origins allowed to make CORS requests. Enter comman seperated URLs to whitelist"></tool-tip>
           <label for="orgName"><strong>Allowed Origins (CORS):</strong></label>
-          <textarea class="form-control" v-model="appModel.whitelistedCors" rows="3"
-            placeholder="http://your-domain.com,http://test.com"></textarea>
+          <CorsChipsInput
+            v-model="appModel.whitelistedCors"
+            placeholder="Add CORS origin (e.g., https://api.example.com, https://localhost:3000)"
+          />
         </div>
         <div class="form-group" v-if="edit">
           <hf-buttons name="Update" class="btn btn-primary"
@@ -498,6 +500,8 @@ import { sanitizeUrl } from "../../utils/common";
 import DomainLinkage from "@hypersign-protocol/domain-linkage-verifier";
 import config from "../../config";
 import LogoUploader from "../element/LogoUploader.vue";
+import CorsChipsInput from "../element/CorsChips.vue";
+import {normalizeCorsOrigin} from '../../utils/utils.js';
 export default {
   name: "AppList",
   computed: {
@@ -609,7 +613,7 @@ export default {
         walletAddress: "",
         edvId: "",
         description: "",
-        whitelistedCors: "*",
+        whitelistedCors: [],
         logoUrl: "",
         tenantUrl: "",
         services: [],
@@ -634,6 +638,7 @@ export default {
     ToolTip,
     HfFlashNotification,
     LogoUploader,
+    CorsChipsInput,
   },
   methods: {
     ...mapMutations("mainStore", ["updateAnApp", "setMainSideNavBar"]),
@@ -818,10 +823,10 @@ export default {
       this.$root.$emit("bv::toggle::collapse", "sidebar-right");
       const appModel = this.getAppByAppId(appId);
 
-      //// commeting it for time being 
-       appModel.whitelistedCors = appModel.whitelistedCors.toString();
-
-      Object.assign(this.appModel, { ...appModel });
+      appModel.whitelistedCors = Array.isArray(appModel.whitelistedCors)
+        ? appModel.whitelistedCors.map(v => normalizeCorsOrigin(v)).filter(Boolean)
+        : [];
+      this.appModel = { ...appModel };
       this.selectedAssociatedSSIAppId = appModel.dependentServices[0];
       await this.prepareDIDList(this.selectedAssociatedSSIAppId);
 
@@ -913,7 +918,11 @@ export default {
         this.isLoading = true;
         let whitelistCors = [];
         if (!isEmpty(this.appModel.whitelistedCors)) {
-          whitelistCors = this.appModel.whitelistedCors?.split(",").filter((x) => x != " ").map((x) => x.trim());
+          if (Array.isArray(this.appModel.whitelistedCors)) {
+            whitelistCors = [...this.appModel.whitelistedCors];
+          } else {
+            whitelistCors = this.appModel.whitelistedCors?.split(",").filter((x) => x != " ").map((x) => x.trim());
+          }
           const cors = config?.studioServer?.WHITELIST_CORS?.split(",");
 
           cors.forEach((e) => {
@@ -1240,13 +1249,12 @@ export default {
         domain: "",
         hasDomainVerified: false,
         domainLinkageCredentialString: "",
-        whitelistedCors: "*"
+        whitelistedCors: []
       };
       this.selectedAssociatedSSIAppId = "";
       this.domain = "";
       this.associatedSSIServiceDIDs = [];
-      this.issuerVerificationMethodIds = []
-
+      this.issuerVerificationMethodIds = [];
     },
   },
   beforeDestroy() {
