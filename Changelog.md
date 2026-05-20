@@ -2,6 +2,14 @@
 
 ## [Unreleased]
 
+## [3.7.32] - 2026-06-20
+
+
+### Fixed
+
+- Fixed the search box on the business page
+- Fixed the issue where the name field disappeared when clicking buttons
+
 ## [3.7.27] - 2026-05-05
 
 ### Fixed
