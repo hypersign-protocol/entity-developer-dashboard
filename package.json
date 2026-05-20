@@ -1,6 +1,6 @@
 {
   "name": "entity-developer-dashboard",
-  "version": "3.7.28",
+  "version": "3.7.31",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve --mode production",
