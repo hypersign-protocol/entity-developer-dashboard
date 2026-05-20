@@ -4,6 +4,7 @@
 
 ## [3.7.32] - 2026-06-20
 
+
 ### Fixed
 
 - Fixed the search box on the business page
