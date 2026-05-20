@@ -235,3 +235,46 @@ a {
     padding-top: 1.5rem !important;
     padding-bottom: 1.5rem !important;
 }
+
+/* Shared search control used by playground listing pages. */
+.search-wrap {
+  display: flex;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  overflow: hidden;
+  width: 300px;
+  height: 40px;
+}
+
+.search-wrap--business {
+  width: 100%;
+  max-width: 280px;
+}
+
+.search-wrap input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  padding: 8px 12px;
+  font-size: 0.84rem;
+  color: #374151;
+  outline: none;
+  background: transparent;
+}
+
+.search-wrap .search-btn {
+  padding: 0 13px;
+  background: #f8fafc;
+  border: none;
+  border-left: 1px solid #e2e8f0;
+  color: #6b7280;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+.search-wrap .search-btn:hover {
+  background: #f1f5f9;
+  color: #374151;
+}

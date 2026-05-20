@@ -859,7 +859,6 @@ export default {
                 console.warn("Widget config not found or failed to fetch:", e.message);
             }
        },
-      
     },
     mixins: [UtilsMixin]
 };

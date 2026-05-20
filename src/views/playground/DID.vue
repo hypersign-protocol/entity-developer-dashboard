@@ -315,9 +315,9 @@ export default {
   selectedDid: {
     handler(newValue) {
       if (newValue) {
-         this.did.name= newValue.name;
+         this.did.options.name = newValue.name || "";
          this.shouldRegister = (newValue.status === 'Registered');
-         this.did.methodSpecificId= newValue.did.split(':')[3];
+         this.did.methodSpecificId = this.getMethodSpecificId(newValue);
       }
     },
     immediate: true 
@@ -561,10 +561,10 @@ export default {
         this.isEditing = true;
         this.selectedDid = this.didList.find(didDoc => didDoc.did === didDocId);
           if (this.selectedDid) {
-            this.did.name= this.selectedDid.name,
+            this.did.options.name = this.selectedDid.name || "",
             this.did.namespace= '',
-            this.did.methodSpecificId = this.selectedDid.did.split(':')[3],
-            this.selectedKeyTypes= this.selectedDid?.didDocument?.verificationMethod.map((vm)=>vm.type)
+            this.did.methodSpecificId = this.getMethodSpecificId(this.selectedDid),
+            this.selectedKeyTypes= this.selectedDid?.didDocument?.verificationMethod?.map((vm)=>vm.type) || []
           }
         this.openSlider();
     },
@@ -595,7 +595,8 @@ export default {
           verificationRelationships: [
             { text: "assertionMethod", value: "assertionMethod" },
             { text: "authentication", value: "authentication" },
-          ]
+          ],
+          name: ""
         }
       },
       this.shouldRegister = false
@@ -756,6 +757,20 @@ export default {
 
     generateRandomMethodSepcificId() {
       this.did.methodSpecificId = self.crypto.randomUUID()
+    },
+    getMethodSpecificId(didDoc) {
+      const did = didDoc?.didDocument?.id || didDoc.did;
+      const didWithoutFragment = did.split("#")[0];
+      const didParts = didWithoutFragment.split(":");
+      if (didParts.length > 3) {
+        return didParts.slice(3).join(":");
+      }
+
+      if (didParts.length > 2) {
+        return didParts.slice(2).join(":");
+      }
+
+      return "";
     }
    },
   mixins: [UtilsMixin],
