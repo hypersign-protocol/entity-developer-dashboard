@@ -10,13 +10,15 @@
   
   <v-col cols="12" md="6" class="d-flex justify-md-end justify-start">
     <div class="d-flex flex-sm-row flex-column gap-3 align-center">
-      <div class="copy-input-group search-box">
+      <div class="search-wrap search-wrap--business">
         <input 
           type="text" 
           placeholder="Search company..." 
           v-model="searchQuery"
         >
-        <button><v-icon small>mdi-magnify</v-icon></button>
+        <button type="button" class="search-btn">
+          <i class="fa fa-search"></i>
+        </button>
       </div>
 
       <select v-model="statusFilter" v-if="filteredCompanies.length > 0" class="theme-select">
@@ -192,23 +194,6 @@
 }
 
 .text-orange { color: #c2410c; }
-
-/* Custom Inputs to match theme */
-.copy-input-group {
-  display: flex;
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 6px;
-  overflow: hidden;
-  height: 40px;
-}
-
-.copy-input-group input {
-  padding: 0 12px;
-  font-size: 0.85rem;
-  border: none;
-  width: 100%;
-}
 
 .theme-select {
   height: 40px;
@@ -433,11 +418,6 @@
 .status-rejected {
   background-color: #fef2f2;
   color: #dc2626;
-}
-
-.search-box {
-  width: 100%;
-  max-width: 280px; /* Adjust this value as needed */
 }
 
 .status-badge-new .v-icon,
