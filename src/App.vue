@@ -422,7 +422,7 @@ color: #1a1a2e !important;
             </div>
           </b-nav-item>
 
-          <b-nav-item v-if="!isMFAEnabled" to="/studio/settings" class="px-2">
+          <b-nav-item v-if="!isMFAEnabled" to="/studio/settings?ref=mfa" class="px-2">
             <v-chip small color="orange" dark class="mfa-chip">
               <b-icon icon="exclamation-triangle-fill" class="mr-1"></b-icon>
               <span>Setup MFA</span>

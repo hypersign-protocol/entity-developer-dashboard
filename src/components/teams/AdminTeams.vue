@@ -1,97 +1,317 @@
 <template>
-    <div>
+    <div class="admin-teams-root">
         <load-ing :active.sync="isLoading" :can-cancel="true" :is-full-page="true"></load-ing>
 
-        <div class="row">
-            <div class="col-md-4">
-            </div>
-            <div class="col-md-8">
-                <hf-buttons name="" title="Reload" class="mx-1" :bIcon="true"  style="float: inline-end"  iconClass="arrow-clockwise" @executeAction="getMyRolesAction">
-                </hf-buttons>
-                <hf-buttons name="Create Custom Role" title="Reload" style="float: inline-end"  iconClass="fa fa-gamepad" @executeAction="openSlider('add')">
-                </hf-buttons>
-            </div>
+        <!-- ── Action bar ──────────────────────────────────────── -->
+        <div class="action-bar">
+          <div class="action-bar-title">
+            <v-icon small class="mr-1" color="#4b5563">mdi-shield-account-outline</v-icon>
+            <span>Roles &amp; Permissions
+              <v-chip x-small class="ml-2" color="blue lighten-5" text-color="blue darken-2">
+                {{ getAllRoles.length }}
+              </v-chip>
+            </span>
+          </div>
+          <div class="action-bar-btns">
+            <v-btn icon small title="Reload" @click="getMyRolesAction" class="mr-1">
+              <v-icon small>mdi-refresh</v-icon>
+            </v-btn>
+            <hf-buttons name="Create Role" iconClass="fa fa-gamepad" @executeAction="openSlider('add')" />
+          </div>
         </div>
-        <div class="row" v-if="getAllRoles.length > 0">
-            <table class="table">
-                <tbody>
-                    <tr v-for="role in getAllRoles" v-bind:key="role.roleName">                        
-                        
-                            <div class="list-group-item list-group-item-action align-items-start d-flex align-items-center ">
-                            <b-avatar size="4em" rounded="lg" variant="info" :text="role.roleName.charAt(0)"></b-avatar>
-                            <div class="w-100 mx-3 mt-3 align-items-center">
-                                <h5 class="mb-1">{{ role.roleName }}</h5>
-                                <p>
-                                    {{ role.roleDescription }}
-                                </p>
-                            </div>
-                            <div class="d-flex  align-items-center">
-                                <b-badge pill variant="warning">{{ role.permissions.length }}
-                                    permissions</b-badge>
-                                <b-dropdown size="sm" variant="link" toggle-class="text-decoration-none" menu-class="dropDownPopup"
-                                    dropleft>
-                                    <template #button-content>
-                                        <b-icon style="color:grey" icon="list" aria-hidden="true"></b-icon>
-                                    </template>
-                                    <b-dropdown-item-button style="text-align: left;" @click="openSliderForEdit(role)">
-                                        <b-icon icon="pencil-square" aria-hidden="true"></b-icon>
-                                        Edit</b-dropdown-item-button>
-                                    <b-dropdown-item-button style="text-align: left;"
-                                        @click="deleteThisRole(role._id)"><i class="fa fa-trash"></i>
-                                        Delete</b-dropdown-item-button>
-                                </b-dropdown>
-                            </div>
-                            </div> 
-                        
-                    </tr> 
-                </tbody>
-            </table>
+
+        <v-divider class="mb-3"></v-divider>
+
+        <!-- ── Role cards ─────────────────────────────────────── -->
+        <div v-if="getAllRoles.length > 0" class="role-list">
+          <v-card
+            v-for="role in getAllRoles"
+            :key="role.roleName"
+            flat
+            outlined
+            class="role-card"
+          >
+            <div class="role-card-inner">
+              <!-- Avatar -->
+              <v-avatar size="44" color="blue lighten-4" class="role-avatar mr-3">
+                <span class="role-initial">{{ role.roleName.charAt(0).toUpperCase() }}</span>
+              </v-avatar>
+
+              <!-- Info -->
+              <div class="role-info">
+                <div class="role-name">{{ role.roleName }}</div>
+                <div class="role-desc">{{ role.roleDescription || 'No description' }}</div>
+                <v-chip x-small color="orange lighten-4" text-color="orange darken-3" class="mt-1">
+                  {{ role.permissions.length }} permission{{ role.permissions.length !== 1 ? 's' : '' }}
+                </v-chip>
+              </div>
+
+              <!-- Actions menu -->
+              <v-menu offset-y left>
+                <template #activator="{ on }">
+                  <v-btn icon small v-on="on">
+                    <v-icon small color="grey">mdi-dots-vertical</v-icon>
+                  </v-btn>
+                </template>
+                <v-list dense>
+                  <v-list-item @click="openSliderForEdit(role)">
+                    <v-list-item-icon><v-icon small>mdi-pencil-outline</v-icon></v-list-item-icon>
+                    <v-list-item-title>Edit</v-list-item-title>
+                  </v-list-item>
+                  <v-list-item @click="promptDeleteRole(role._id, role.roleName)" class="red--text">
+                    <v-list-item-icon><v-icon small color="red">mdi-trash-can-outline</v-icon></v-list-item-icon>
+                    <v-list-item-title class="red--text">Delete</v-list-item-title>
+                  </v-list-item>
+                </v-list>
+              </v-menu>
+            </div>
+          </v-card>
         </div>
+
         <div v-else>
-            <empty-container title="No Role Found" icon="fa fa-shield-alt" />
+            <empty-container title="No roles yet. Create a custom role to get started." icon="fa fa-shield-alt" />
         </div>
 
-        <StudioSideBar :title="edit ? 'Edit Role' : 'Add Role'">
-            <div class="container">
-                <b-form-group id="input-group-2" style="font-weight: bold;" label="Role Name:" label-for="input-1">
-                    <b-form-input v-model="roleModel.roleName" id="input-2" placeholder="Admin" required></b-form-input>
-                    <small style="color: grey; font-size: x-small;">Upto 50 chars</small>
-                </b-form-group>
+        <!-- ── Delete confirmation dialog ──────────────────── -->
+        <v-dialog v-model="confirmDialog" max-width="420" persistent>
+          <v-card>
+            <v-card-title class="text-h6">
+              <v-icon color="red" class="mr-2">mdi-alert-circle-outline</v-icon>
+              Delete Role
+            </v-card-title>
+            <v-card-text>
+              Are you sure you want to delete <strong>"{{ roleToDeleteName }}"</strong>?
+              All users linked with this role will lose access immediately.
+            </v-card-text>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn text @click="confirmDialog = false">Cancel</v-btn>
+              <v-btn color="red darken-1" depressed dark :loading="isLoading" @click="confirmDeleteRole">
+                Delete
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
 
-                <b-form-group id="input-group-2" style="font-weight: bold;" label="Role Description:"
-                    label-for="textarea">
-                    <b-form-textarea v-model="roleModel.roleDescription" id="textarea"
-                        placeholder="To allow access to all users" rows="3" max-rows="6"></b-form-textarea>
-                    <small style="color: grey; font-size: x-small;">Upto 200 chars</small>
-                </b-form-group>
-                <b-form-group label="Role Permissions:" style="font-weight: bold;" label-for="input-3">
-                    <div id="input-3" class="card" style="padding:10px; max-height: 350px; overflow-y: auto;">
-                        <ul class="list-unstyled">
-                            <li v-for="eachService in localAllServices" v-bind:key="eachService.id"
-                                style="border-bottom: 1px solid lightgray; padding: 10px;">
-                                <label><strong>{{ eachService.name }}</strong></label>
+        <!-- ── Sidebar: Create / Edit Role ───────────────────── -->
+        <StudioSideBar :title="edit ? 'Edit Role' : 'Create Role'">
+            <div class="container px-4 py-2">
+                <div class="mb-4">
+                  <label class="field-label">Role Name <span class="required">*</span></label>
+                  <v-text-field
+                    v-model="roleModel.roleName"
+                    placeholder="e.g. Admin"
+                    outlined
+                    dense
+                    hide-details="auto"
+                    :counter="50"
+                    :rules="[v => !!v || 'Role name is required', v => v.length <= 50 || 'Max 50 characters']"
+                  ></v-text-field>
+                </div>
 
-                                <div class="form-check" v-for="eachAccess in Object.keys(eachService.accessList)"
-                                    v-bind:key="eachAccess">
-                                    <input class="form-check-input" type="checkbox"
-                                        :value="{ serviceType: eachService.id, access: eachAccess }"
-                                        v-on:change="onCheck($event)"
-                                        :checked="checkIfAccessIsThereInThatService(eachAccess, eachService.id)">
-                                    <label class="form-check-label" for="flexCheckDefault">
-                                        <code> {{ eachAccess }}</code>
-                                    </label>
-                                </div>
-                            </li>
-                        </ul>
+                <div class="mb-4">
+                  <label class="field-label">Description</label>
+                  <v-textarea
+                    v-model="roleModel.roleDescription"
+                    placeholder="Describe what this role can do..."
+                    outlined
+                    dense
+                    rows="3"
+                    hide-details="auto"
+                    :counter="200"
+                    :rules="[v => !v || v.length <= 200 || 'Max 200 characters']"
+                  ></v-textarea>
+                </div>
+
+                <div class="mb-4">
+                  <label class="field-label">Permissions <span class="required">*</span></label>
+                  <div class="permissions-box">
+                    <div
+                      v-for="eachService in localAllServices"
+                      :key="eachService.id"
+                      class="service-section"
+                    >
+                      <div class="service-name">{{ eachService.name }}</div>
+                      <div class="permission-checks">
+                        <label
+                          v-for="eachAccess in Object.keys(eachService.accessList)"
+                          :key="eachAccess"
+                          class="perm-check-label"
+                        >
+                          <input
+                            type="checkbox"
+                            class="perm-checkbox"
+                            :value="{ serviceType: eachService.id, access: eachAccess }"
+                            v-on:change="onCheck($event)"
+                            :checked="checkIfAccessIsThereInThatService(eachAccess, eachService.id)"
+                          />
+                          <code class="perm-code">{{ eachAccess }}</code>
+                        </label>
+                      </div>
                     </div>
-                </b-form-group>
+                    <div v-if="!localAllServices || localAllServices.length === 0" class="text-center py-4 text--secondary caption">
+                      No services available
+                    </div>
+                  </div>
+                </div>
 
-                <hf-buttons name="Save" @executeAction="saveRole()">Save</hf-buttons>
+                <hf-buttons name="Save Role" @executeAction="saveRole" />
             </div>
         </StudioSideBar>
     </div>
-
 </template>
+
+<style scoped>
+.admin-teams-root {
+  padding: 4px 0;
+}
+
+.action-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 4px 8px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.action-bar-title {
+  display: flex;
+  align-items: center;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #111827;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.action-bar-btns {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* ─── Role card ─────────────────────────────────────── */
+.role-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.role-card {
+  border-radius: 8px !important;
+  border: 1px solid rgba(0, 0, 0, 0.125) !important;
+  box-shadow: 0 0 2rem 0 rgba(136, 152, 170, 0.12) !important;
+  background: #ffffff;
+  transition: box-shadow 0.15s;
+}
+
+.role-card:hover {
+  box-shadow: 0 0 2rem 0 rgba(136, 152, 170, 0.3) !important;
+}
+
+.role-card-inner {
+  display: flex;
+  align-items: center;
+  padding: 14px 16px;
+  gap: 4px;
+}
+
+.role-avatar {
+  flex-shrink: 0;
+}
+
+.role-initial {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1d4ed8;
+}
+
+.role-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.role-name {
+  font-weight: 600;
+  font-size: 14px;
+  color: #111827;
+}
+
+.role-desc {
+  font-size: 12px;
+  color: #6b7280;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 360px;
+}
+
+/* ─── Permissions box ───────────────────────────────── */
+.permissions-box {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  max-height: 340px;
+  overflow-y: auto;
+  padding: 10px;
+}
+
+.service-section {
+  border-bottom: 1px solid #f3f4f6;
+  padding: 8px 4px;
+}
+
+.service-section:last-child {
+  border-bottom: none;
+}
+
+.service-name {
+  font-weight: 600;
+  font-size: 12px;
+  color: #374151;
+  margin-bottom: 6px;
+}
+
+.permission-checks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.perm-check-label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+}
+
+.perm-checkbox {
+  cursor: pointer;
+}
+
+.perm-code {
+  font-size: 11px;
+  background: #f3f4f6;
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: #374151;
+}
+
+/* ─── Sidebar form ───────────────────────────────────── */
+.field-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.required {
+  color: #ef4444;
+}
+</style>
 
 <script>
 // import HfPopUp from "../element/hfPopup.vue";
@@ -113,6 +333,9 @@ export default {
         return {
             isLoading: false,
             edit: false,
+            confirmDialog: false,
+            roleToDelete: null,
+            roleToDeleteName: '',
             roleModel: {
                 "roleName": "",
                 "roleDescription": "",
@@ -219,22 +442,24 @@ export default {
             }
         },
 
-        async deleteThisRole(roleId) {
+        promptDeleteRole(roleId, roleName) {
+            this.roleToDelete = roleId;
+            this.roleToDeleteName = roleName;
+            this.confirmDialog = true;
+        },
 
+        async confirmDeleteRole() {
             try {
-                const result = confirm('Are you sure you want to delete this role? Once deleted, all users linked with this role will loose access.')
-                if (result) {
-                    // do all validations...
-                    this.isLoading = true
-                    await this.deleteARole(roleId)
-                    this.isLoading = false
-                    this.notifySuccess('Role is deleted successfully')
-                }
-
-
+                this.isLoading = true;
+                await this.deleteARole(this.roleToDelete);
+                this.isLoading = false;
+                this.confirmDialog = false;
+                this.roleToDelete = null;
+                this.roleToDeleteName = '';
+                this.notifySuccess('Role deleted successfully');
             } catch (e) {
-                this.notifyErr(e.message)
-                this.isLoading = false
+                this.notifyErr(e.message);
+                this.isLoading = false;
             }
         },
 

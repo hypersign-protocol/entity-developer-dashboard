@@ -35,13 +35,18 @@ export async function RequestHandler(url, method = 'GET', body = {}, headers = {
     const json = await response.json().catch(() => null);
 
 
+
     // ❗ check special cases (like 2FA)
     let message = "";
 
     if (Array.isArray(json?.message)) {
         message = json.message.join(", ");
-    } else if (typeof json?.message === "string") {
+    }
+    else if (typeof json?.message === "string") {
         message = json.message;
+    }
+    else if (typeof json === "string") {
+        message = json;
     } else {
         message = "Unknown error";
     }

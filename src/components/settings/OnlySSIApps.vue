@@ -189,11 +189,15 @@
           <tool-tip infoMessage="Select a service type"></tool-tip>
           <label for="selectService"><strong>Service Type<span style="color: red">*</span>:
             </strong></label>
-          <select class="custom-select" id="selectService" v-model="selectedServiceId">
-            <option :value="eachService.id" v-for="eachService in selectServicesOptions" v-bind:key="eachService.id">
-              {{ eachService.name }}
-            </option>
-          </select>
+          <v-select
+            v-model="selectedServiceId"
+            :items="selectServicesOptions"
+            item-text="name"
+            item-value="id"
+            outlined
+            dense
+            hide-details="auto"
+          ></v-select>
           <small>{{ serviceDescrition }}</small>
         </div>
 
@@ -203,10 +207,15 @@
           <tool-tip infoMessage="Select an environment"></tool-tip>
           <label for="selectService"><strong>Select Environment<span style="color: red">*</span>:
             </strong></label>
-          <select class="custom-select" id="selectService" v-model="appModel.env">
-            <option value="dev">Development</option>
-            <option value="prod">Production</option>
-          </select>
+          <v-select
+            v-model="appModel.env"
+            :items="[{ text: 'Development', value: 'dev' }, { text: 'Production', value: 'prod' }]"
+            item-text="text"
+            item-value="value"
+            outlined
+            dense
+            hide-details
+          ></v-select>
         </div>
                 <div class="form-group">
           <tool-tip
@@ -230,12 +239,7 @@
     <v-row  dense v-if="appList.length > 0" class="mt-2">
       <v-col>
 
-          <template #title>
-            <b-icon icon="credit-card" aria-hidden="true" small></b-icon><strong> {{ 'Self Sovereign Identity (' +
-              getAppsWithSSIServices.length + ')' }}</strong>
-          </template>
-
-          <v-row dense v-if="getAppsWithSSIServices.length > 0">
+              <v-row dense v-if="getAppsWithSSIServices.length > 0">
             <v-col v-for="eachOrg in getAppsWithSSIServices" :key="eachOrg.appId" cols="3">
               <v-card max-width="344" outlined @click="switchOrg(eachOrg.appId, 'SSI_API')" class="serviceCard">
                 <v-list-item three-line>
@@ -257,55 +261,45 @@
                 </v-list-item>
 
                 <v-list-item-content style="padding: 10px">
-                  <b-card-text>
+                  <div>
                     <small class="card-field-label">Service Id:</small>
                     <div class="apiKeySecret" @click.stop="copyToClip(eachOrg.appId, 'Service Id')"
                       title="Copy Service Id">
                       {{ truncate(eachOrg.appId, 35) }}
                       <i class="far fa-copy" style="float: right"></i>
                     </div>
-                  </b-card-text>
-                  <b-card-text>
+                  </div>
+                  <div>
                     <small class="card-field-label">Tenant Url:</small>
-                    <div class="apiKeySecret" @click.stop="
-                      copyToClip(eachOrg.tenantUrl, 'Tenant Url')
-                      " title="Copy Tenant Url">
+                    <div class="apiKeySecret" @click.stop="copyToClip(eachOrg.tenantUrl, 'Tenant Url')" title="Copy Tenant Url">
                       {{ truncate(eachOrg.tenantUrl, 43) }}
                       <i class="far fa-copy" style="float: right"></i>
                     </div>
-                  </b-card-text>
+                  </div>
                 </v-list-item-content>
 
-                <div style="text-align: end;display: block;">
-                        <!-- <span class="badge rounded-pill bg-danger mx-1" title="Click to generate a new API Secret Key"
-                          style="cursor: pointer; color: white" @click.stop="openSecretkeyPopUp(eachOrg.appId)">
-                          <i class="fa fa-key"></i> Secret
-                        </span>
-
-                        <span class="badge rounded-pill bg-info mx-1" @click.stop="editOrg(eachOrg.appId)"
-                          title="Click to edit the app" style="cursor: pointer; color: white">
-                          <i class="fas fa-pencil-alt"></i>
-                          Edit</span>
-
-                        <span class="mx-1" @click.stop="openDeleteServicePopUp(eachOrg.appId)"
-                          title="Click to delete the app" style="cursor: pointer; color: red">
-                          <i class="fa fa-trash-alt" aria-hidden="true"></i>
-                        </span> -->
-
-                        <b-dropdown size="sm" variant="link" toggle-class="text-decoration-none" no-caret dropright menu-class="dropDownPopup">
-                          <template #button-content>
-                            <b-icon size="sm" style="color: grey" icon="list" aria-hidden="true"></b-icon>
-                          </template>
-
-                          <b-dropdown-item-button  style="text-align: left" @click.stop="openSecretkeyPopUp(eachOrg.appId)"><i
-                              class="fa fa-key mt-1" aria-hidden="true"></i> Generate API Secret
-                          </b-dropdown-item-button>
-                          <b-dropdown-item-button style="text-align: left" @click.stop="editOrg(eachOrg.appId)"><i
-                              class="fas fa-pencil-alt mt-1" aria-hidden="true"></i> Edit Service
-                          </b-dropdown-item-button>
-                          <b-dropdown-item-button   style="text-align: left" @click.stop="openDeleteServicePopUp(eachOrg.appId)"><i
-                              class="fa fa-trash-alt mt-1"></i> Delete Service</b-dropdown-item-button>  
-                        </b-dropdown>
+                <div style="text-align: end; display: block; padding: 4px 8px 8px;">
+                  <v-menu offset-y left>
+                    <template #activator="{ on }">
+                      <v-btn icon small v-on="on">
+                        <v-icon small color="grey">mdi-dots-vertical</v-icon>
+                      </v-btn>
+                    </template>
+                    <v-list dense>
+                      <v-list-item @click.stop="openSecretkeyPopUp(eachOrg.appId)">
+                        <v-list-item-icon><v-icon small>mdi-key-outline</v-icon></v-list-item-icon>
+                        <v-list-item-title>Generate API Secret</v-list-item-title>
+                      </v-list-item>
+                      <v-list-item @click.stop="editOrg(eachOrg.appId)">
+                        <v-list-item-icon><v-icon small>mdi-pencil-outline</v-icon></v-list-item-icon>
+                        <v-list-item-title>Edit Service</v-list-item-title>
+                      </v-list-item>
+                      <v-list-item @click.stop="openDeleteServicePopUp(eachOrg.appId)" class="red--text">
+                        <v-list-item-icon><v-icon small color="red">mdi-trash-can-outline</v-icon></v-list-item-icon>
+                        <v-list-item-title class="red--text">Delete Service</v-list-item-title>
+                      </v-list-item>
+                    </v-list>
+                  </v-menu>
                 </div>
               </v-card>
             </v-col>
@@ -403,8 +397,13 @@
 }
 
 .card-field-label {
-  color: grey;
-  font-weight: bold;
+  display: block;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 2px;
 }
 
 .bcard {
