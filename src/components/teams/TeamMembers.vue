@@ -45,42 +45,33 @@
     <hf-pop-up id="invite-member" Header="Invite New Member">
       <div>
         <template v-if="invitionData.inviteCode === ''">
-          <div class="mb-3">
-            <label class="field-label">Email Address <span class="required">*</span></label>
-            <v-text-field
+          <div class="form-group">
+            <label for="inviteeEmail"><strong>Email Address <span style="color:red">*</span>:</strong></label>
+            <input
+              type="email"
+              class="form-control"
+              id="inviteeEmail"
               v-model="inviteeEmailId"
               placeholder="user@company.com"
-              outlined
-              dense
-              hide-details="auto"
-              :error-messages="inviteeEmailId && !checkIfValidEmail ? ['Enter a valid email address'] : []"
-              prepend-inner-icon="mdi-email-outline"
-              type="email"
-            ></v-text-field>
+            />
+            <small v-if="inviteeEmailId && !checkIfValidEmail" class="text-danger">Enter a valid email address</small>
           </div>
-          <div class="mb-3">
-            <label class="field-label">Assign Role <span class="required">*</span></label>
-            <v-select
-              v-model="selectedRoleId"
-              :items="getAllRoles"
-              item-text="roleName"
-              item-value="_id"
-              outlined
-              dense
-              hide-details="auto"
-              :disabled="!getAllRoles || getAllRoles.length === 0"
-              placeholder="Select a role"
-              prepend-inner-icon="mdi-shield-account-outline"
-            >
-              <template #no-data>
-                <div class="px-4 py-2 text--secondary caption">No roles found. Create a role first.</div>
-              </template>
-            </v-select>
-            <small v-if="getAllRoles && getAllRoles.length === 0" class="text--secondary">No role found, please create a role to proceed</small>
+          <div class="form-group">
+            <label for="assignRole"><strong>Assign Role <span style="color:red">*</span>:</strong></label>
+            <select class="custom-select" id="assignRole" v-model="selectedRoleId" :disabled="!getAllRoles || getAllRoles.length === 0">
+              <option value="" disabled>Select a role</option>
+              <option v-for="role in getAllRoles" :value="role._id" :key="role._id">{{ role.roleName }}</option>
+            </select>
+            <small v-if="getAllRoles && getAllRoles.length === 0" class="text-muted">No role found, please create a role to proceed</small>
           </div>
-          <v-btn color="primary" depressed :disabled="!checkIfValidEmail || !selectedRoleId" @click="sendInvite" class="mt-1">
-            <v-icon left small>mdi-send</v-icon> Send Invitation
-          </v-btn>
+          <div class="text-center mt-3">
+            <hf-buttons
+              name="Send Invitation"
+              iconClass="mdi-send"
+              customClass="btn btn-primary"
+              @executeAction="sendInvite"
+            />
+          </div>
         </template>
         <template v-else>
           <v-alert type="success" outlined dense class="mb-3">
@@ -93,8 +84,8 @@
             description="Invitation Code"
             @click="resetInvition()"
           />
-          <div class="text-right mt-3">
-            <v-btn text small @click="resetInvition()">Invite Another</v-btn>
+          <div class="text-center mt-3">
+            <hf-buttons name="Invite Another" customClass="btn btn-outline-secondary" @executeAction="resetInvition" />
           </div>
         </template>
       </div>
@@ -269,17 +260,5 @@ export default {
   display: none;
 }
 
-.field-label {
-  display: block;
-  font-size: 12px;
-  font-weight: 600;
-  color: #374151;
-  margin-bottom: 6px;
-  text-transform: uppercase;
-  letter-spacing: 0.3px;
-}
 
-.required {
-  color: #ef4444;
-}
 </style>

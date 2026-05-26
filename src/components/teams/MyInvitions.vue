@@ -44,28 +44,21 @@
     <!-- ── Accept Invitation Popup ──────────────────────────────── -->
     <hf-pop-up id="accept-invition" Header="Accept Invitation">
       <div>
-        <label class="field-label">Invitation Code <span class="required">*</span></label>
-        <v-text-field
-          v-model="invitionCodeToAccept"
-          placeholder="Paste your invitation code here"
-          outlined
-          dense
-          hide-details="auto"
-          prepend-inner-icon="mdi-key-outline"
-          :error-messages="error ? [error] : []"
-          clearable
-          @keyup.enter="acceptedInvition"
-        ></v-text-field>
-        <div class="d-flex justify-end mt-4" style="gap:8px">
-          <v-btn text @click="acceptInvitePopup('hide')">Cancel</v-btn>
-          <v-btn
-            color="primary"
-            depressed
-            :disabled="!invitionCodeToAccept || isLoading"
-            @click="acceptedInvition"
-          >
-            <v-icon left small>mdi-check</v-icon> Accept
-          </v-btn>
+        <div class="form-group">
+          <label for="inviteCode"><strong>Invitation Code <span style="color:red">*</span>:</strong></label>
+          <input
+            type="text"
+            class="form-control"
+            id="inviteCode"
+            v-model="invitionCodeToAccept"
+            placeholder="Paste your invitation code here"
+            @keyup.enter="acceptedInvition"
+          />
+          <small v-if="error" class="text-danger">{{ error }}</small>
+        </div>
+        <div class="text-center mt-3">
+          <hf-buttons name="Cancel" customClass="btn btn-outline-secondary" @executeAction="acceptInvitePopup('hide')" />
+          <hf-buttons name="Accept" customClass="btn btn-primary ml-2" iconClass="mdi-check" @executeAction="acceptedInvition" />
         </div>
       </div>
     </hf-pop-up>
@@ -210,17 +203,5 @@ export default {
   display: none;
 }
 
-.field-label {
-  display: block;
-  font-size: 12px;
-  font-weight: 600;
-  color: #374151;
-  margin-bottom: 6px;
-  text-transform: uppercase;
-  letter-spacing: 0.3px;
-}
 
-.required {
-  color: #ef4444;
-}
 </style>
