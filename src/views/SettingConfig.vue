@@ -192,29 +192,36 @@ export default {
       ],
     };
   },
+  watch: {
+    '$route.query.ref'(ref) {
+      this.applyRouteRef(ref);
+    }
+  },
   methods: {
     ...mapMutations("mainStore", ["setMainSideNavBar"]),
-    ...mapActions('mainStore', ['getMyRolesAction', 'getPeopleMembers',])
+    ...mapActions('mainStore', ['getMyRolesAction', 'getPeopleMembers',]),
+    applyRouteRef(ref) {
+      if (ref === 'invitions') {
+        this.$nextTick(() => {
+          this.activeMainTab = 2;
+        })
+      } else if (ref === 'roles') {
+        this.activeMainTab = 1;
+        this.$nextTick(() => {
+          this.activeMembersSubTab = 1;
+        });
+      } else if (ref === 'mfa') {
+        this.activeMainTab = 0;
+      } else {
+        this.activeMainTab = 1;
+        this.activeMembersSubTab = 0;
+      }
+    }
   },
   async mounted() {
     
     this.setMainSideNavBar(false);
-    const ref = this.$route.query.ref;
-    if (ref === 'invitions') {
-      this.$nextTick(() => {
-        this.activeMainTab = 2;
-      })
-    } else if (ref === 'roles') {
-      this.activeMainTab = 1;
-      this.$nextTick(() => {
-        this.activeMembersSubTab = 1;
-      });
-    } else if (ref === 'mfa') {
-      this.activeMainTab = 0;
-    } else {
-      this.activeMainTab = 1;
-      this.activeMembersSubTab = 0;
-    }
+    this.applyRouteRef(this.$route.query.ref);
 
     try{
       await this.getMyRolesAction()

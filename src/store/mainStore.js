@@ -728,6 +728,33 @@ const mainStore = {
                 throw new Error(e)
             }
         },
+        removeMfaAuthenticator: async ({ getters, dispatch }, payload) => {
+            try {
+                const { authenticatorType, twoFactorAuthenticationCode } = payload
+                if (!authenticatorType) throw new Error('Authenticator type must be provided')
+                if (!twoFactorAuthenticationCode) throw new Error('MFA PIN must be provided')
+
+                const url = `${apiServerBaseUrl}/auth/mfa`;
+
+                const resp = await RequestHandler(url, 'DELETE', {
+                    authenticatorType,
+                    twoFactorAuthenticationCode
+                },
+                    UtilsMixin.methods.getHeader(getters.getAuthToken)
+                )
+
+                if (!resp || Array.isArray(resp.message)) {
+                    throw new Error(resp?.message?.join(',') || resp?.message);
+                } else if ('statusCode' in resp && resp?.statusCode !== 200 && resp?.statusCode !== 201) {
+                    throw new Error(resp.message)
+                }
+
+                await dispatch('getMyUserDetails')
+                return resp;
+            } catch (e) {
+                throw new Error(e.message || e)
+            }
+        },
 
         // eslint-disable-next-line no-empty-pattern
         mfaVerify: async ({ getters }, payload) => {

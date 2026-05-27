@@ -318,6 +318,7 @@
 import { mapGetters, mapActions } from "vuex/dist/vuex.common.js";
 import StudioSideBar from "../element/StudioSideBar.vue";
 import UtilsMixin from "../../mixins/utils";
+import config from "../../config";
 
 export default {
     name: "AdminTeams",
@@ -328,6 +329,14 @@ export default {
     computed: {
         ...mapGetters("mainStore", ["getAllServices", "getAllRoles"]),
 
+    },
+    watch: {
+        getAllServices: {
+            handler(services) {
+                this.localAllServices = this.getRoleServices(services);
+            },
+            immediate: true
+        }
     },
     data() {
         return {
@@ -352,10 +361,13 @@ export default {
             this.fetchServicesList()
 
         }
-        this.localAllServices = this.getAllServices
+        this.localAllServices = this.getRoleServices(this.getAllServices)
     },
     methods: {
         ...mapActions("mainStore", ["getMyRolesAction", "createARole", "deleteARole", "fetchServicesList", "updateARole",]),
+        getRoleServices(services = []) {
+            return services.filter(service => service.id !== config.SERVICE_TYPES.QUEST);
+        },
         createTeamPopup() {
             this.$root.$emit("bv::show::modal", "create-team");
         },
