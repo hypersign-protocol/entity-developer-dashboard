@@ -127,27 +127,47 @@
                   <label class="field-label">Permissions <span class="required">*</span></label>
                   <div class="permissions-box">
                     <div
-                      v-for="eachService in localAllServices"
-                      :key="eachService.id"
-                      class="service-section"
+                      v-for="category in categorizedServices"
+                      :key="category.label"
+                      class="category-section"
                     >
-                      <div class="service-name">{{ eachService.name }}</div>
-                      <div class="permission-checks">
-                        <label
-                          v-for="eachAccess in Object.keys(eachService.accessList)"
-                          :key="eachAccess"
-                          class="perm-check-label"
+                        <div class="category-header">
+                          <v-icon x-small :color="category.iconColor" class="mr-1">{{ category.icon }}</v-icon>
+                          {{ category.label }}
+                        </div>
+                        <div
+                          v-for="eachService in category.services"
+                          :key="eachService.id"
+                          class="service-section"
                         >
-                          <input
-                            type="checkbox"
-                            class="perm-checkbox"
-                            :value="{ serviceType: eachService.id, access: eachAccess }"
-                            v-on:change="onCheck($event)"
-                            :checked="checkIfAccessIsThereInThatService(eachAccess, eachService.id)"
-                          />
-                          <code class="perm-code">{{ eachAccess }}</code>
-                        </label>
-                      </div>
+                          <div class="service-name">{{ eachService.name }}</div>
+                          <div
+                            v-for="subGroup in getPermSubGroups(eachService.id, eachService.accessList)"
+                            :key="subGroup.label"
+                            class="perm-subgroup"
+                          >
+                              <div class="perm-subgroup-header">
+                                <v-icon x-small :color="subGroup.iconColor" class="mr-1">{{ subGroup.icon }}</v-icon>
+                                {{ subGroup.label }}
+                              </div>
+                              <div class="permission-checks">
+                                <label
+                                  v-for="eachAccess in subGroup.permissions"
+                                  :key="eachAccess"
+                                  class="perm-check-label"
+                                >
+                                  <input
+                                    type="checkbox"
+                                    class="perm-checkbox"
+                                    :value="{ serviceType: eachService.id, access: eachAccess }"
+                                    v-on:change="onCheck($event, eachService)"
+                                    :checked="checkIfAccessIsThereInThatService(eachAccess, eachService.id)"
+                                  />
+                                  <code class="perm-code">{{ eachAccess }}</code>
+                                </label>
+                              </div>
+                          </div>
+                        </div>
                     </div>
                     <div v-if="!localAllServices || localAllServices.length === 0" class="text-center py-4 text--secondary caption">
                       No services available
@@ -249,16 +269,41 @@
 
 /* ─── Permissions box ───────────────────────────────── */
 .permissions-box {
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  max-height: 340px;
+  border: 1px solid #d0d7de;
+  border-radius: 6px;
+  max-height: 380px;
   overflow-y: auto;
-  padding: 10px;
+  font-size: 13px;
+}
+
+/* ─── Category headers ──────────────────────────────── */
+.category-section {
+  border-bottom: 1px solid #d0d7de;
+}
+
+.category-section:last-child {
+  border-bottom: none;
+}
+
+.category-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #57606a;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  background: #f6f8fa;
+  padding: 6px 12px;
+  border-bottom: 1px solid #d0d7de;
+  position: sticky;
+  top: 0;
+  z-index: 1;
 }
 
 .service-section {
-  border-bottom: 1px solid #f3f4f6;
-  padding: 8px 4px;
+  padding: 0;
 }
 
 .service-section:last-child {
@@ -267,34 +312,71 @@
 
 .service-name {
   font-weight: 600;
-  font-size: 12px;
-  color: #374151;
-  margin-bottom: 6px;
+  font-size: 11px;
+  color: #57606a;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  padding: 5px 12px 3px;
+  background: #f6f8fa;
+  border-bottom: 1px solid #eaeef2;
+}
+
+/* ─── Permission sub-groups ────────────────────────── */
+.perm-subgroup {
+  border-bottom: 1px solid #eaeef2;
+}
+
+.perm-subgroup:last-child {
+  border-bottom: none;
+}
+
+.perm-subgroup-header {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #57606a;
+  padding: 5px 12px 4px 20px;
+  background: #fafbfc;
+  border-bottom: 1px solid #eaeef2;
 }
 
 .permission-checks {
   display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
+  flex-direction: column;
 }
 
 .perm-check-label {
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 8px;
+  padding: 5px 12px 5px 28px;
   cursor: pointer;
+  border-bottom: 1px solid #f3f4f6;
+  transition: background 0.1s;
+}
+
+.perm-check-label:last-child {
+  border-bottom: none;
+}
+
+.perm-check-label:hover {
+  background: #f0f6ff;
 }
 
 .perm-checkbox {
   cursor: pointer;
+  accent-color: #0969da;
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
 }
 
 .perm-code {
-  font-size: 11px;
-  background: #f3f4f6;
-  padding: 2px 6px;
-  border-radius: 4px;
-  color: #374151;
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 12px;
+  color: #24292f;
 }
 
 /* ─── Sidebar form ───────────────────────────────────── */
@@ -328,7 +410,28 @@ export default {
     },
     computed: {
         ...mapGetters("mainStore", ["getAllServices", "getAllRoles"]),
-
+        categorizedServices() {
+            const ssiServices = this.localAllServices.filter(s => s.id === config.SERVICE_TYPES.SSI_API);
+            const idServices = this.localAllServices.filter(
+                s => s.id === config.SERVICE_TYPES.CAVACH_API || s.id === 'CAVACH_KYB_API'
+            );
+            const otherServices = this.localAllServices.filter(
+                s => s.id !== config.SERVICE_TYPES.SSI_API &&
+                     s.id !== config.SERVICE_TYPES.CAVACH_API &&
+                     s.id !== 'CAVACH_KYB_API'
+            );
+            const categories = [];
+            if (ssiServices.length) {
+                categories.push({ label: 'SSI Service', icon: 'mdi-link-variant', iconColor: '#3b82f6', services: ssiServices });
+            }
+            if (idServices.length) {
+                categories.push({ label: 'ID Service', icon: 'mdi-shield-account-outline', iconColor: '#10b981', services: idServices });
+            }
+            if (otherServices.length) {
+                categories.push({ label: 'Other Services', icon: 'mdi-apps', iconColor: '#6b7280', services: otherServices });
+            }
+            return categories;
+        }
     },
     watch: {
         getAllServices: {
@@ -367,6 +470,46 @@ export default {
         ...mapActions("mainStore", ["getMyRolesAction", "createARole", "deleteARole", "fetchServicesList", "updateARole",]),
         getRoleServices(services = []) {
             return services.filter(service => service.id !== config.SERVICE_TYPES.QUEST);
+        },
+        getPermSubGroups(serviceId, accessList) {
+            const allKeys = Object.keys(accessList);
+            const SSI_GROUPS = [
+                { label: 'General',             icon: 'mdi-star-outline',                iconColor: '#6366f1', keys: ['ALL'] },
+                { label: 'DID',                 icon: 'mdi-identifier',                  iconColor: '#3b82f6', keys: ['READ_DID', 'WRITE_DID', 'VERIFY_DID_SIGNATURE', 'ISSUE_DID_JWT'] },
+                { label: 'Schema',              icon: 'mdi-file-tree-outline',           iconColor: '#8b5cf6', keys: ['READ_SCHEMA', 'WRITE_SCHEMA'] },
+                { label: 'Credential',          icon: 'mdi-card-account-details-outline',iconColor: '#059669', keys: ['READ_CREDENTIAL', 'VERIFY_CREDENTIAL', 'WRITE_CREDENTIAL'] },
+                { label: 'Presentation',        icon: 'mdi-presentation',                iconColor: '#0891b2', keys: ['WRITE_PRESENTATION', 'VERIFY_PRESENTATION'] },
+                { label: 'Credit',              icon: 'mdi-credit-card-outline',         iconColor: '#d97706', keys: ['WRITE_CREDIT', 'READ_CREDIT'] },
+                { label: 'Usage & Tx',          icon: 'mdi-chart-line',                  iconColor: '#dc2626', keys: ['READ_USAGE', 'READ_TX', 'CHECK_LIVE_STATUS'] },
+            ];
+            const ID_GROUPS = [
+                { label: 'General',               icon: 'mdi-star-outline',              iconColor: '#6366f1', keys: ['ALL'] },
+                { label: 'Session & Users',        icon: 'mdi-account-multiple-outline',  iconColor: '#3b82f6', keys: ['READ_USER_CONSENT', 'WRITE_USER_CONSENT', 'READ_SESSION', 'WRITE_SESSION', 'READ_VERIFIED_USER'] },
+                { label: 'Biometrics',             icon: 'mdi-face-recognition',          iconColor: '#8b5cf6', keys: ['WRITE_PASSIVE_LIVELINESS', 'WRITE_DOC_OCR', 'CHECK_LIVE_STATUS'] },
+                { label: 'Widget Config',          icon: 'mdi-widgets-outline',           iconColor: '#059669', keys: ['READ_WIDGET_CONFIG', 'WRITE_WIDGET_CONFIG', 'UPDATE_WIDGET_CONFIG'] },
+                { label: 'Webhook Config',         icon: 'mdi-webhook',                   iconColor: '#0891b2', keys: ['WRITE_WEBHOOK_CONFIG', 'READ_WEBHOOK_CONFIG', 'UPDATE_WEBHOOK_CONFIG', 'DELETE_WEBHOOK_CONFIG'] },
+                { label: 'Analytics & Usage',      icon: 'mdi-chart-bar',                 iconColor: '#d97706', keys: ['READ_ANALYTICS', 'READ_USAGE', 'WRITE_AUTH'] },
+                { label: 'Credit',                 icon: 'mdi-credit-card-outline',       iconColor: '#dc2626', keys: ['WRITE_CREDIT', 'READ_CREDIT'] },
+                { label: 'Company',                icon: 'mdi-domain',                    iconColor: '#7c3aed', keys: ['READ_COMPANY', 'WRITE_COMPANY', 'UPDATE_COMPANY', 'DELETE_COMPANY', 'UPDATE_COMPANY_STATUS'] },
+                { label: 'Company Executives',     icon: 'mdi-account-tie-outline',       iconColor: '#065f46', keys: ['READ_COMPANY_EXECUTIVES', 'WRITE_COMPANY_EXECUTIVES', 'UPDATE_COMPANY_EXECUTIVES', 'DELETE_COMPANY_EXECUTIVES', 'RESEND_COMPANY_EXECUTIVES_MAIL'] },
+                { label: 'Document',               icon: 'mdi-file-document-outline',     iconColor: '#92400e', keys: ['WRITE_DOCUMENT', 'READ_DOCUMENT', 'DELETE_DOCUMENT', 'VERIFY_DOCUMENT'] },
+                { label: 'Compliance',             icon: 'mdi-shield-check-outline',      iconColor: '#1d4ed8', keys: ['WRITE_COMPLIANCE', 'READ_COMPLIANCE'] },
+            ];
+            const groupDefs = serviceId === config.SERVICE_TYPES.SSI_API ? SSI_GROUPS : ID_GROUPS;
+            const assignedKeys = new Set();
+            const result = [];
+            for (const group of groupDefs) {
+                const perms = group.keys.filter(k => allKeys.includes(k));
+                if (perms.length) {
+                    result.push({ ...group, permissions: perms });
+                    perms.forEach(k => assignedKeys.add(k));
+                }
+            }
+            const remaining = allKeys.filter(k => !assignedKeys.has(k));
+            if (remaining.length) {
+                result.push({ label: 'Other', icon: 'mdi-dots-horizontal', iconColor: '#6b7280', permissions: remaining });
+            }
+            return result;
         },
         createTeamPopup() {
             this.$root.$emit("bv::show::modal", "create-team");
@@ -407,15 +550,28 @@ export default {
             this.$root.$emit("bv::toggle::collapse", "sidebar-right");
         },
 
-        onCheck(event) {
-            const ev = event.target._value
-            if (ev) {
-                const index = this.roleModel.permissions.findIndex(x => ((x.serviceType == ev.serviceType) && (x.access == ev.access)))
-                if (index > -1) {
-                    this.roleModel.permissions.splice(index, 1)
-                } else {
-                    this.roleModel.permissions.push(ev)
+        onCheck(event, service) {
+            const ev = event.target._value;
+            if (!ev) return;
+
+            if (ev.access === 'ALL') {
+                const allKeys = Object.keys(service.accessList);
+                // Remove all existing permissions for this service
+                this.roleModel.permissions = this.roleModel.permissions.filter(x => x.serviceType !== ev.serviceType);
+                if (event.target.checked) {
+                    // Add every permission for this service
+                    allKeys.forEach(key => {
+                        this.roleModel.permissions.push({ serviceType: ev.serviceType, access: key });
+                    });
                 }
+                return;
+            }
+
+            const index = this.roleModel.permissions.findIndex(x => x.serviceType == ev.serviceType && x.access == ev.access);
+            if (index > -1) {
+                this.roleModel.permissions.splice(index, 1);
+            } else {
+                this.roleModel.permissions.push(ev);
             }
         },
 
