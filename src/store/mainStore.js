@@ -3206,13 +3206,27 @@ const mainStore = {
                         })
 
                     })
-                        .then(response => response.json())
+                        .then(async response => {
+                            const json = await response.json().catch(() => null)
+                            if (!response.ok || json?.error || (json?.statusCode && json.statusCode >= 400)) {
+                                const message = Array.isArray(json?.message)
+                                    ? json.message.join(', ')
+                                    : json?.message || json?.error || 'Could not update DID for this service'
+                                throw new Error(message)
+                            }
+                            return json
+                        })
                         .then(json => {
                             if (json) {
-                                //dispatch('resolveDIDForAService', json.did)
-                                resolve()
+                                if (!payload.didDocument && payload.did) {
+                                    commit('updateADID', {
+                                        did: payload.did,
+                                        name: payload.name
+                                    })
+                                }
+                                resolve(json)
                             } else {
-                                reject(new Error('Could not register DID for this service'))
+                                reject(new Error('Could not update DID for this service'))
                             }
                         }).catch(e => {
                             reject(e)
@@ -3802,6 +3816,9 @@ const mainStore = {
                         .then(response => response.json())
                         .then(json => {
                             if (json) {
+                                if (json.error) {
+                                    reject(new Error(json.message[0]))
+                                }
                                 if (json.data.length > 0) {
                                     const payload = json.data.map(x => {
                                         return {
@@ -3974,6 +3991,9 @@ const mainStore = {
                     })
                         .then(response => response.json())
                         .then(async json => {
+                            if (json.error) {
+                                reject(new Error(json.message[0]))
+                            }
                             if (json && json.metadata) {
                                 const data = {
                                     id: json.metadata.credentialId,
@@ -4022,7 +4042,10 @@ const mainStore = {
                     })
                         .then(response => response.json())
                         .then(async json => {
-                            if (json && !json.error) {
+                            if (json) {
+                                if (json.error) {
+                                    reject(new Error(json.message[0]))
+                                }
                                 const data = {
                                     id: json.id,
                                     status: ''//json.proof && Object.keys(json.proof).length > 0 ? 'Registered' : 'Created',

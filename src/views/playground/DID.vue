@@ -343,14 +343,10 @@ export default {
     },
     didName:{
       get(){
-        return this.selectedDid? this.selectedDid.name : this.did.options.name;
+        return this.did.options.name;
       },
       set(value){
-        if(this.selectedDid){
-          this.selectedDid.name= value;
-        }else{
-          this.did.options.name= value;
-        }
+        this.did.options.name= value;
       }
     }
   },
@@ -688,16 +684,16 @@ export default {
     async updateDID(){
       try{
       this.isLoading= true
-      if(!this.selectedDid.name && !this.shouldRegister){
+      if(!this.did.options.name && !this.shouldRegister){
         this.notifyErr('Please pass name or tick the checkbox to register the did')
         this.isLoading = false;
         return;
       }
       const payload={
         did: this.selectedDid.did,
-        name:this.selectedDid.name
+        name:this.did.options.name
       }
-      if(this.selectedDid.name){
+      if(this.did.options.name){
         await this.updateDIDsForAService(payload)
       }
         if(this.shouldRegister && this.selectedDid.status!=='Registered'){
