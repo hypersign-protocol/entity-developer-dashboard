@@ -130,11 +130,29 @@ h5 span {
 .progress {
     background-color: rgba(0, 128, 0, 0.645);
 }
+
+.pd-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 48px 32px;
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    border-radius: 8px;
+}
 </style>
 <template>
     <div>
         <loadIng :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loadIng>
+        <div v-if="accessDenied" class="pd-wrap mx-3 mt-3">
+          <v-icon size="36" color="#b45309">mdi-lock-outline</v-icon>
+          <div style="font-size:18px;font-weight:700;color:#92400e;margin:12px 0 6px">Access Denied</div>
+          <div style="font-size:13px;color:#78350f">{{ accessDeniedMsg || 'You don\'t have permission to access this resource.' }}</div>
+        </div>
         <!-- Credits -->
+        <template v-if="!accessDenied">
           <div class="row">
             <div class="col-md-6" style="text-align: left">
                 <div class="form-group" style="display:flex">
@@ -406,6 +424,7 @@ h5 span {
             </div>
 
         </hf-pop-up>
+        </template><!-- end v-if !accessDenied -->
     </div>
 </template>
 
@@ -474,19 +493,13 @@ export default {
             return Math.floor(budgetAfterBananas / this.orangePrice);
         },
           getSortedSSICredits() {
-            const t =  this.getSsiCredits
-            return t.sort((a, b) => new Date(b.expiresAt) - new Date(a.expiresAt))
+            if (!Array.isArray(this.getSsiCredits)) return [];
+            const t = this.getSsiCredits.slice();
+            return t.sort((a, b) => new Date(b.expiresAt) - new Date(a.expiresAt));
         },
         mySSICredits() {
-            let expiryAt = (new Date()).toISOString()
-            if (this.getSsiCredits.length == 0) {
-                return {
-                    allAvailableCredits: 0,
-                    allUsedCredits: 0,
-                    allRemainingCredits: 0,
-                    expiresAt: expiryAt
-                }
-            }
+            const empty = { allAvailableCredits: 0, allUsedCredits: 0, allRemainingCredits: 0, expiresAt: (new Date()).toISOString() };
+            if (!Array.isArray(this.getSsiCredits) || this.getSsiCredits.length === 0) return empty;
             const now = new Date()
             let not_expired_credits = this.getSsiCredits.filter(x => {
                 if (x.expiresAt) {
@@ -500,12 +513,7 @@ export default {
                 return x
             })
             if (not_expired_credits.length == 0) {
-                return {
-                    allAvailableCredits: 0,
-                    allUsedCredits: 0,
-                    allRemainingCredits: 0,
-                    expiresAt: expiryAt
-                }
+                return empty;
             }
             const total = not_expired_credits.reduce((accumulator, currentValue) => {
                 return {
@@ -517,7 +525,7 @@ export default {
                 allUsedCredits: 0
             })
             not_expired_credits = not_expired_credits.sort((a, b) => new Date(b.expiresAt) - new Date(a.expiresAt))
-            expiryAt = not_expired_credits[0]
+            const expiryAt = not_expired_credits[0]
            
             return {
                 ...total,
@@ -546,7 +554,9 @@ export default {
     },
     data() {
         return {
-            timeRemaining: '', 
+            timeRemaining: '',
+            accessDenied: false,
+            accessDeniedMsg: '',
             timer: null,
             doughNutChart: null,
             didChart: null,
@@ -627,6 +637,7 @@ export default {
         ...mapActions('mainStore', ['ssiDashboardTxStats', 'ssiDashboardAllowanceStats', 'fetchSSICredits', 'ssiDashboardGrantsStats','activateSSICredit']),
 
        renderChart() {
+            if (!Array.isArray(this.getSsiCredits)) return;
             const expired = this.getSsiCredits.every(element => Date.now() > new Date(element.expiresAt));
             const used = this.mySSICredits.allUsedCredits || 0;
             const remaining = this.mySSICredits.allRemainingCredits || 0;
@@ -829,8 +840,9 @@ export default {
             this.isLoading = true
             const credits = await this.fetchSSICredits()
             this.startTimer();
-            this.ssiCredits = credits;
-            const credit = credits.filter(each => {
+            const creditsArr = Array.isArray(credits) ? credits : [];
+            this.ssiCredits = creditsArr;
+            const credit = creditsArr.filter(each => {
                 if (each.status == 'Active') {
                     return each
                 }
@@ -840,17 +852,23 @@ export default {
             }
             this.isLoading = false
         } catch (e) {
-            this.isLoading = false
-            this.notifyErr(e.message)
-            console.error(e)
+            this.isLoading = false;
+            const msg = (e?.message || '').toLowerCase();
+            if (msg.includes('permission denied') || msg.includes('forbidden') || msg.includes('access denied') || msg.includes('not authorized')) {
+                this.accessDenied = true;
+                this.accessDeniedMsg = e.message;
+            } else {
+                this.notifyErr(e.message);
+            }
+            console.error(e);
         } finally {
-            if (this.allowance.expiration) {
+            if (!this.accessDenied && this.allowance.expiration) {
                 this.expiration = this.getTimeUntilEvent(this.allowance.expiration)
                 this.interval = setInterval(() => {
                     this.expiration = this.getTimeUntilEvent(this.allowance.expiration)
                 }, 1000)
             }
-            this.renderChart()
+            if (!this.accessDenied) this.renderChart();
         }
 
     }

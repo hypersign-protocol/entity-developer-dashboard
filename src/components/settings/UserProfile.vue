@@ -74,10 +74,10 @@
             </span>
           </div>
           <div class="info-row" v-if="user.authenticators && user.authenticators.length">
-            <span class="info-label">Auth Methods</span>
+            <span class="info-label">MFA Methods</span>
             <div class="chips-wrap mt-1">
               <v-chip
-                v-for="auth in user.authenticators"
+                v-for="auth in user.authenticators.filter(a => a.isTwoFactorAuthenticated)"
                 :key="auth.type"
                 small
                 class="auth-chip mr-1 mb-1"

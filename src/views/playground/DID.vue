@@ -116,7 +116,12 @@ h5 span {
 <template>
   <div :class="isContainerShift ? 'homeShift' : 'home'">
     <loadIng :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loadIng>
-    <div class="">
+    <div v-if="accessDenied" style="display:flex;flex-direction:column;align-items:center;text-align:center;padding:48px 32px;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;margin:16px 0">
+      <v-icon size="36" color="#b45309">mdi-lock-outline</v-icon>
+      <div style="font-size:18px;font-weight:700;color:#92400e;margin:12px 0 6px">Access Denied</div>
+      <div style="font-size:13px;color:#78350f">{{ accessDeniedMsg || 'You don\'t have permission to access this resource.' }}</div>
+    </div>
+    <div v-if="!accessDenied" class="">
       <div class="" style="text-align: left">
         <!-- <Info :message="description" /> -->
         <div class="form-group" style="display:flex">
@@ -360,6 +365,8 @@ export default {
       user: {},
       fullPage: true,
       isLoading: false,
+      accessDenied: false,
+      accessDeniedMsg: '',
       viewDidDocument: "",
       namespaceOptions: [
         { text: "Select a DID method namespace", value: null },
@@ -413,8 +420,18 @@ export default {
       this.isLoading = false
     } catch (e) {
       this.isLoading = false
-      this.notifyErr(e.message)
-      this.$router.push({ path: '/studio/dashboard' });
+      const msg = (e?.message || '').toLowerCase();
+      if (
+        msg.includes('permission denied') || msg.includes('forbidden') ||
+        msg.includes('access denied') || msg.includes('not authorized') ||
+        msg.includes('unauthorized') || msg.includes('an unknown error occurred') ||
+        e instanceof TypeError
+      ) {
+        this.accessDenied = true;
+        this.accessDeniedMsg = e.message;
+      } else {
+        this.notifyErr(e.message)
+      }
     }
   },
   beforeRouteEnter(to, from, next) {
@@ -673,13 +690,15 @@ export default {
       this.isLoading= true
       if(!this.selectedDid.name && !this.shouldRegister){
         this.notifyErr('Please pass name or tick the checkbox to register the did')
+        this.isLoading = false;
+        return;
       }
       const payload={
         did: this.selectedDid.did,
         name:this.selectedDid.name
       }
       if(this.selectedDid.name){
-        this.updateDIDsForAService(payload)
+        await this.updateDIDsForAService(payload)
       }
         if(this.shouldRegister && this.selectedDid.status!=='Registered'){
           this.notifySuccess('Proceeding to register the DID...')

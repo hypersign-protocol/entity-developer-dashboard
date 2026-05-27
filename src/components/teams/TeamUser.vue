@@ -48,8 +48,8 @@
       <!-- Action buttons -->
       <div class="user-actions">
 
-        <!-- Switch Account — visible only for accepted Admin invitations -->
-        <v-tooltip bottom v-if="mode === 'Admin' && invitationStatus">
+        <!-- Switch Account — visible outside menu whenever invitation is accepted -->
+        <v-tooltip bottom v-if="invitationStatus">
           <template #activator="{ on }">
             <v-btn icon small v-on="on" @click="switchToAdminAccount" class="action-btn">
               <v-icon small color="primary">mdi-swap-horizontal-circle-outline</v-icon>

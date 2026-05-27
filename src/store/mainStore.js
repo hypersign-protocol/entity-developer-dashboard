@@ -728,6 +728,7 @@ const mainStore = {
                 throw new Error(e)
             }
         },
+
         removeMfaAuthenticator: async ({ getters, dispatch }, payload) => {
             try {
                 const { authenticatorType, twoFactorAuthenticationCode } = payload
@@ -1077,8 +1078,8 @@ const mainStore = {
                     tokenStorageKey: 'kyb_access_token'
                 })
                     .then((token) => {
-                        let url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyb/verification/company`;
-                        // let url = 'http://localhost:3001/api/v1/e-kyb/verification/company'
+                        // let url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyb/verification/company`;
+                        let url = 'http://localhost:3009/api/v1/e-kyb/verification/company'
                         const headers = UtilsMixin.methods.getKycServiceHeader(token);
                         return fetch(url, {
                             method: 'GET',
@@ -1137,8 +1138,8 @@ const mainStore = {
                     tokenStorageKey: 'kyb_access_token'
                 }).then((token) => {
                     const headers = UtilsMixin.methods.getKycServiceHeader(token);
-                    const url = `${sanitizeUrl(config.KYC_SERVER_BASE_URL)}/api/v1/e-kyb/verification/company/${companyId}`;
-                    // const url = `http://localhost:3001/api/v1/e-kyb/verification/company/${companyId}`;
+                    // const url = `${sanitizeUrl(config.KYC_SERVER_BASE_URL)}/api/v1/e-kyb/verification/company/${companyId}`;
+                    const url = `http://localhost:3009/api/v1/e-kyb/verification/company/${companyId}`;
                     return fetch(url, {
                         method: 'GET',
                         headers,
@@ -1232,8 +1233,8 @@ const mainStore = {
                     return reject(new Error('Tenant url is null or empty, service is not selected'))
                 }
 
-                let url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/user`;
-                // let url = 'http://localhost:3001/api/v1/user'
+                // let url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/user`;
+                let url = 'http://localhost:3009/api/v1/user'
 
                 const paramsObject = {}
                 if (payload.env) {
@@ -2340,8 +2341,8 @@ const mainStore = {
                 if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
                     return reject(new Error('Tenant url is null or empty, service is not selected'))
                 }
-                const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/user/${sessionId}?env=${encodeURIComponent(envVal)}`;
-                // let url = `http://localhost:3001/api/v1/user/${sessionId}?env=${encodeURIComponent(envVal)}`;
+                // const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/user/${sessionId}?env=${encodeURIComponent(envVal)}`;
+                let url = `http://localhost:3009/api/v1/user/${sessionId}?env=${encodeURIComponent(envVal)}`;
                 const authToken = getters.getSelectedService.access_token
                 if (!authToken) {
                     return reject(new Error('authToken is invalid, service is not selected'))
@@ -2533,8 +2534,8 @@ const mainStore = {
             if (!companyId) {
                 throw new Error('Company Id is null or empty')
             }
-            const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyb/verification/company/${companyId}/company-executives`;
-            // const url = `http://localhost:3001/api/v1/e-kyb/verification/company/${companyId}/company-executives`;
+            // const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyb/verification/company/${companyId}/company-executives`;
+            const url = `http://localhost:3009/api/v1/e-kyb/verification/company/${companyId}/company-executives`;
             const authToken = getters.getSelectedService.kyb_access_token
             if (!authToken) {
                 throw (new Error('authToken is invalid, service is not selected'))
@@ -2583,8 +2584,8 @@ const mainStore = {
                     return reject(new Error('Invalid status'))
                 }
 
-                let url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyb/verification/company/${companyId}`;
-                // let url = `http://localhost:3001/api/v1/e-kyb/verification/company/${companyId}`;
+                // let url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyb/verification/company/${companyId}`;
+                let url = `http://localhost:3009/api/v1/e-kyb/verification/company/${companyId}`;
                 dispatch('getValidToken', {
                     serviceId: getters.getSelectedService.appId,
                     grant_type: config.GRANT_TYPES_ENUM.CAVACH_API,
@@ -2676,7 +2677,9 @@ const mainStore = {
             if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
                 throw new Error('Tenant url is null or empty, service is not selected')
             }
-            const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/credit`;
+            // const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/credit`;
+            const url = `http://localhost:3009/api/v1/credit`;
+
             const authToken = getters.getSelectedService.access_token
             if (!authToken) {
                 throw (new Error('authToken is invalid, service is not selected'))
@@ -2742,8 +2745,8 @@ const mainStore = {
             if (!companyId) {
                 throw new Error('Company Id is null or empty')
             }
-            const url = `${sanitizeUrl(config.KYC_SERVER_BASE_URL)}/api/v1/e-kyb/verification/company/${companyId}/status`;
-            // const url = `http://localhost:3001/api/v1/e-kyb/verification/company/${companyId}/status`;
+            // const url = `${sanitizeUrl(config.KYC_SERVER_BASE_URL)}/api/v1/e-kyb/verification/company/${companyId}/status`;
+            const url = `http://localhost:3009/api/v1/e-kyb/verification/company/${companyId}/status`;
             const token = await dispatch('getValidToken', {
                 token: accessToken,
                 serviceId,
@@ -2833,7 +2836,7 @@ const mainStore = {
                         tokenStorageKey: "access_token",
                         token: accessToken
                     }).then((token) => {
-                        const url = `${sanitizeUrl(tenantUrl)}/api/v1/did?page=1&limit=100`;
+                        const url = `${sanitizeUrl('http://localhost:3008')}/api/v1/did?page=1&limit=100`;
                         const options = {
                             method: "GET",
                             headers: {
@@ -2917,7 +2920,7 @@ const mainStore = {
                         token: accessToken
                     }).then((token) => {
 
-                        const url = `${sanitizeUrl(tenantUrl)}/api/v1/did/resolve/${payload.did}`;
+                        const url = `${sanitizeUrl('http://localhost:3008')}/api/v1/did/resolve/${payload.did}`;
                         const options = {
                             method: "GET",
                             headers: {
@@ -2974,8 +2977,8 @@ const mainStore = {
                         tokenStorageKey: "access_token",
                         token: selectedService.access_token
                     }).then((token) => {
-                        const url = `${sanitizeUrl(selectedService.tenantUrl)}/api/v1/did/resolve/${payload}`;
-                        // const url = `http://ent-8ee83cc.localhost:3003/api/v1/did/resolve/${payload}`;
+                        // const url = `${sanitizeUrl(selectedService.tenantUrl)}/api/v1/did/resolve/${payload}`;
+                        const url = `http://localhost:3008/api/v1/did/resolve/${payload}`;
                         const options = {
                             method: "GET",
                             headers: {
@@ -3026,7 +3029,7 @@ const mainStore = {
                         grant_type: config.GRANT_TYPES_ENUM.SSI_API,
                         tokenStorageKey: "access_token"
                     }).then((token) => {
-                        const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/did/create`;
+                        const url = `${sanitizeUrl('http://localhost:3008')}/api/v1/did/create`;
                         const options = {
                             method: "POST",
                             body: JSON.stringify(payload),
@@ -3079,7 +3082,7 @@ const mainStore = {
                         grant_type: config.GRANT_TYPES_ENUM.SSI_API,
                         tokenStorageKey: "access_token"
                     }).then((token) => {
-                        const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/did/register/v2`;
+                        const url = `${sanitizeUrl('http://localhost:3008')}/api/v1/did/register/v2`;
                         const options = {
                             method: "POST",
                             body: JSON.stringify(body),
@@ -3095,6 +3098,7 @@ const mainStore = {
                     })
                         .then(response => response.json())
                         .then(async json => {
+                            console.log(json)
                             if (json && json.did) {
                                 const data = {
                                     did: json.did,
@@ -3105,6 +3109,7 @@ const mainStore = {
                                 commit('updateADID', data)
                                 resolve(json)
                             } else {
+                                console.log('inside else')
                                 if (json && json.statusCode != 200 && json.message && json.message.length > 0) {
                                     reject(new Error(json.message.join(',')))
                                 }
@@ -3129,7 +3134,7 @@ const mainStore = {
                         grant_type: config.GRANT_TYPES_ENUM.SSI_API,
                         tokenStorageKey: "access_token"
                     }).then((token) => {
-                        const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/status/ssi/${payload}?page=1&limit=10`;
+                        const url = `${sanitizeUrl('http://localhost:3008')}/api/v1/status/ssi/${payload}?page=1&limit=10`;
                         const options = {
                             method: "GET",
                             headers: {
@@ -3185,7 +3190,7 @@ const mainStore = {
                     }).then((token) => {
 
                         // const url = `http://ent-2af45c1.localhost:4001/api/v1/did/`;
-                        const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/did/`;
+                        const url = `${sanitizeUrl('http://localhost:3008')}/api/v1/did/`;
                         const options = {
                             method: "PATCH",
                             body: JSON.stringify(body),
@@ -3373,7 +3378,7 @@ const mainStore = {
                 grant_type: config.GRANT_TYPES_ENUM.SSI_API,
                 tokenStorageKey: "access_token"
             })
-            const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/credit`;
+            const url = `http://localhost:3008/api/v1/credit`;
             const options = {
                 method: "GET",
                 headers: {
@@ -3520,7 +3525,7 @@ const mainStore = {
                         tokenStorageKey: "access_token",
                         token: selectedService.access_token
                     }).then((token) => {
-                        const url = `${sanitizeUrl(selectedService.tenantUrl)}/api/v1/did/auth/sign`;
+                        const url = `${sanitizeUrl('http://localhost:3008')}/api/v1/did/auth/sign`;
                         const options = {
                             method: "POST",
                             body: JSON.stringify(payload),
@@ -3577,7 +3582,7 @@ const mainStore = {
                         token: accessToken,
                     }).then((token) => {
 
-                        const url = `${sanitizeUrl(tenantUrl)}/api/v1/schema?page=1&limit=100`;
+                        const url = `${sanitizeUrl('http://localhost:3008')}/api/v1/schema?page=1&limit=100`;
                         const options = {
                             method: "GET",
                             headers: {
@@ -3649,7 +3654,7 @@ const mainStore = {
                     tokenStorageKey: "access_token",
                     token: selectedService.access_token
                 })
-                const url = `${sanitizeUrl(selectedService.tenantUrl)}/api/v1/schema/${payload}`;
+                const url = `${sanitizeUrl('http://localhost:3008')}/api/v1/schema/${payload}`;
                 // const url = `http://ent-8ee83cc.localhost:3003/api/v1/schema/${payload}`;
 
                 const options = {
@@ -3709,7 +3714,7 @@ const mainStore = {
                         grant_type: config.GRANT_TYPES_ENUM.SSI_API,
                         tokenStorageKey: "access_token"
                     }).then((token) => {
-                        const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/schema`;
+                        const url = `${sanitizeUrl('http://localhost:3008')}/api/v1/schema`;
                         const options = {
                             method: "POST",
                             body: JSON.stringify(payload),

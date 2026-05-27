@@ -105,7 +105,12 @@ h5 span {
 <template>
   <div :class="isContainerShift ? 'homeShift' : 'home'">
     <loadIng :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loadIng>
-    <div class="">
+    <div v-if="accessDenied" style="display:flex;flex-direction:column;align-items:center;text-align:center;padding:48px 32px;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;margin:16px 0">
+      <v-icon size="36" color="#b45309">mdi-lock-outline</v-icon>
+      <div style="font-size:18px;font-weight:700;color:#92400e;margin:12px 0 6px">Access Denied</div>
+      <div style="font-size:13px;color:#78350f">{{ accessDeniedMsg || 'You don\'t have permission to access this resource.' }}</div>
+    </div>
+    <div v-if="!accessDenied" class="">
       <div class="" style="text-align: left">
         <!-- <Info :message="description" /> -->
         <div class="form-group" style="display: flex">
@@ -469,7 +474,7 @@ h5 span {
         </hf-pop-up>
       </div>
     </div>
-     <div class="row mt-2" v-if="credentialList.length > 0">
+     <div class="row mt-2" v-if="!accessDenied && credentialList.length > 0">
         <div class="col-md-12 d-flex justify-content-center align-items-center">
           <PagiNation :pagesCount="pages" @event-page-number="handleGetPageNumberEvent" />
         </div>
@@ -605,6 +610,8 @@ export default {
       // schemaList: [],
       fullPage: true,
       isLoading: false,
+      accessDenied: false,
+      accessDeniedMsg: '',
       holderDid: "did:hid:testnet:20571bbd-2a8f-4a30-836a-c35630053e46",
       issuanceDate: null,
       expiryDateTime: null,
@@ -708,9 +715,25 @@ export default {
       await this.fetchCredentialList({ page: this.currentPage, limit: this.pageLimit });
       this.isLoading = false
     } catch (e) {
-      this.isLoading = false
-      this.notifyErr(e.message)
-      this.$router.push({ path: '/studio/dashboard' });
+      this.isLoading = false;
+      const msg = (e?.message || '').toLowerCase();
+      if (
+        msg.includes('permission denied') ||
+        msg.includes('forbidden') ||
+        msg.includes('access denied') ||
+        msg.includes('not authorized') ||
+        msg.includes('unauthorized') ||
+        // TypeError from fetchCredentialList: json.data is undefined on a 403 response
+        // (the store does json.data.length without checking json.data exists)
+        e instanceof TypeError
+      ) {
+        this.accessDenied = true;
+        this.accessDeniedMsg = (msg.includes('permission denied') || msg.includes('forbidden') || msg.includes('access denied'))
+          ? e.message
+          : 'You don\'t have permission to access credentials.';
+      } else {
+        this.notifyErr(e.message || 'Failed to load credentials');
+      }
     }
     },
     debounce(fn, delay) {

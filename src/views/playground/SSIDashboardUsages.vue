@@ -129,6 +129,13 @@ h5 span {
 
         <loadIng :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loadIng>
 
+        <div v-if="accessDenied" style="display:flex;flex-direction:column;align-items:center;text-align:center;padding:48px 32px;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;margin:16px 0">
+          <v-icon size="36" color="#b45309">mdi-lock-outline</v-icon>
+          <div style="font-size:18px;font-weight:700;color:#92400e;margin:12px 0 6px">Access Denied</div>
+          <div style="font-size:13px;color:#78350f">{{ accessDeniedMsg || 'You don\'t have permission to access this resource.' }}</div>
+        </div>
+
+        <div v-if="!accessDenied">
 
         <!-- -------- -->
 
@@ -186,14 +193,14 @@ h5 span {
         <div class="mt-3">
             <div class="">
                 <div class="form-group">
-                    <h3 v-if="usageDetails.serviceDetails.length > 0" style="text-align: left;">
+                    <h3 v-if="usageDetails.serviceDetails && usageDetails.serviceDetails.length > 0" style="text-align: left;">
                         API Consumptions </h3>
                     <h3 v-else style="text-align: left;">No usage found!</h3>
                 </div>
             </div>
         </div>
 
-        <div class="row scrollit mt-1" v-if="usageDetails.serviceDetails.length > 0">
+        <div class="row scrollit mt-1" v-if="usageDetails.serviceDetails && usageDetails.serviceDetails.length > 0">
             <div class="col-md-12">
                 <table class="table table-hover event-card" style="background:#FFFF">
                     <thead class="thead-light">
@@ -226,6 +233,7 @@ h5 span {
             </div>
         </div>
 
+        </div><!-- end v-if !accessDenied -->
     </div>
 </template>
 
@@ -394,6 +402,8 @@ export default {
             user: {},
             fullPage: true,
             isLoading: false,
+            accessDenied: false,
+            accessDeniedMsg: '',
 
             startDate: "",
             endDate: "",
@@ -432,6 +442,11 @@ export default {
             this.isLoading = true
             this.setDate()
             await this.fetchUsageForASSIService({ startDate: this.startDate, endDate: this.endDate }).then((data) => {
+                // fetchUsageForASSIService returns the error object instead of throwing on 403
+                if (data && (data.statusCode >= 400 || data.error)) {
+                    const msg = Array.isArray(data.message) ? data.message.join(', ') : (data.message || data.error || 'Access denied');
+                    throw new Error(msg);
+                }
                 this.usageDetails = data;
             })
             await this.fetchUsageDetailsForASSIService({ startDate: this.startDate, endDate: this.endDate });
@@ -440,8 +455,21 @@ export default {
             this.isLoading = false
         } catch (e) {
             this.isLoading = false
-            this.notifyErr(e.message)
-             this.$router.push({ path: '/studio/dashboard' });
+            const msg = (e?.message || '').toLowerCase();
+            if (
+                msg.includes('permission denied') ||
+                msg.includes('forbidden') ||
+                msg.includes('access denied') ||
+                msg.includes('not authorized') ||
+                msg.includes('unauthorized') ||
+                msg.includes('an unknown error occurred') ||
+                e instanceof TypeError
+            ) {
+                this.accessDenied = true;
+                this.accessDeniedMsg = e.message;
+            } else {
+                this.notifyErr(e.message);
+            }
         }
     },
 

@@ -615,6 +615,10 @@ export default {
     EventBus.$on("logoutAll", () => {
       this.logoutAll();
     });
+
+    EventBus.$on("permissionDenied", (message) => {
+      this.notifyErr(message || "You don't have permission to perform this action.");
+    });
   },
   watch: {
     // Re-mount the sidebar on every navigation so that only the active

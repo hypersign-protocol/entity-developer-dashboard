@@ -164,8 +164,12 @@
 <template>
   <b-container fluid class="py-3" :class="isContainerShift ? 'homeShift' : 'home'">
     <loadIng :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loadIng>
-
-    <!-- Page Header -->
+    <div v-if="accessDenied" style="display:flex;flex-direction:column;align-items:center;text-align:center;padding:48px 32px;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;margin:16px 0">
+      <v-icon size="36" color="#b45309">mdi-lock-outline</v-icon>
+      <div style="font-size:18px;font-weight:700;color:#92400e;margin:12px 0 6px">Access Denied</div>
+      <div style="font-size:13px;color:#78350f">{{ accessDeniedMsg || 'You don\'t have permission to access this resource.' }}</div>
+    </div>
+    <div v-if="!accessDenied">
     <div class="d-flex justify-content-between align-items-center mb-4">
       <div>
         <h4 class="page-title">Users Verifications</h4>
@@ -295,6 +299,7 @@
     <div v-else>
       <empty-container title="No User Found" icon="fa fa-users" />
     </div>
+    </div><!-- end v-if !accessDenied -->
   </b-container>
 </template>
 
@@ -353,6 +358,8 @@ export default {
       user: {},
       fullPage: true,
       isLoading: false,
+      accessDenied: false,
+      accessDeniedMsg: '',
       sessionIdTemp: null,
       hasPermission: false,
       selectedSessionStatus: 'All',
@@ -382,11 +389,18 @@ export default {
 
     } catch (e) {
       this.isLoading = false
-      this.notifyErr(e.message || 'An error occurred while fetching users.')
-      setTimeout(() => {
-        this.$router.push({ path: '/studio/dashboard' });
-      }, 1000)
-      
+      const msg = (e?.message || '').toLowerCase();
+      if (
+        msg.includes('permission denied') || msg.includes('forbidden') ||
+        msg.includes('access denied') || msg.includes('not authorized') ||
+        msg.includes('unauthorized') || msg.includes('an unknown error occurred') ||
+        e instanceof TypeError
+      ) {
+        this.accessDenied = true;
+        this.accessDeniedMsg = e.message;
+      } else {
+        this.notifyErr(e.message || 'An error occurred while fetching users.')
+      }
     }
   },
   beforeRouteEnter(to, from, next) {

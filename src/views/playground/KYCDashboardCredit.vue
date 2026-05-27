@@ -1,6 +1,11 @@
 <template>
     <b-container fluid class="py-3">
         <loadIng :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loadIng>
+        <div v-if="accessDenied" style="display:flex;flex-direction:column;align-items:center;text-align:center;padding:48px 32px;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;margin:16px 0">
+          <v-icon size="36" color="#b45309">mdi-lock-outline</v-icon>
+          <div style="font-size:18px;font-weight:700;color:#92400e;margin:12px 0 6px">Access Denied</div>
+          <div style="font-size:13px;color:#78350f">{{ accessDeniedMsg || 'You don\'t have permission to access this resource.' }}</div>
+        </div>
         <v-row align="center" class="mb-6 ">
             <v-col cols="12" md="6">
                 <h4 class="font-weight-bold mb-0">Credits Management</h4>
@@ -172,6 +177,8 @@ export default {
             timer: null,
             doughNutChart: null,
             isLoading: false,
+            accessDenied: false,
+            accessDeniedMsg: '',
             fullPage: true,
             doughNutChartLabel: ['Used', 'Remaining'],
             analyticsOverview: null,
@@ -181,6 +188,7 @@ export default {
         ...mapGetters('mainStore', ['getKYCCredits']),
 
         getSortedKYCCredits() {
+            if (!Array.isArray(this.getKYCCredits)) return [];
             return [...this.getKYCCredits].sort((a, b) => new Date(b.expiresAt) - new Date(a.expiresAt));
         },
 
@@ -210,10 +218,8 @@ export default {
         },
 
         myKYCCredits() {
-            let expiryAt = (new Date()).toISOString();
-            if (this.getKYCCredits.length === 0) {
-                return { allAvailableCredits: 0, allUsedCredits: 0, allRemainingCredits: 0, expiresAt: expiryAt };
-            }
+            const empty = { allAvailableCredits: 0, allUsedCredits: 0, allRemainingCredits: 0, expiresAt: (new Date()).toISOString() };
+            if (!Array.isArray(this.getKYCCredits) || this.getKYCCredits.length === 0) return empty;
 
             const now = new Date();
             let active_credits = this.getKYCCredits.filter(x => {
@@ -225,7 +231,7 @@ export default {
             });
 
             if (active_credits.length === 0) {
-                return { allAvailableCredits: 0, allUsedCredits: 0, allRemainingCredits: 0, expiresAt: expiryAt };
+                return empty;
             }
 
             const total = active_credits.reduce((acc, curr) => ({
@@ -263,7 +269,13 @@ export default {
                 this.startTimer();
                 this.renderChart();
             } catch (e) {
-                this.notifyErr(e.message);
+                const msg = (e?.message || '').toLowerCase();
+                if (msg.includes('permission denied') || msg.includes('forbidden') || msg.includes('access denied') || msg.includes('not authorized')) {
+                    this.accessDenied = true;
+                    this.accessDeniedMsg = e.message;
+                } else {
+                    this.notifyErr(e.message);
+                }
             } finally {
                 this.isLoading = false;
             }
@@ -295,6 +307,7 @@ export default {
         },
 
         renderChart() {
+            if (!Array.isArray(this.getKYCCredits)) return;
             const expired = this.getKYCCredits.every(el => Date.now() > new Date(el.expiresAt));
             const used = this.myKYCCredits.allUsedCredits || 0;
             const remaining = this.myKYCCredits.allRemainingCredits || 0;
