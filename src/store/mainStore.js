@@ -3163,7 +3163,7 @@ const mainStore = {
 
         },
 
-        updateDIDsForAService({ getters, dispatch }, payload) {
+        updateDIDsForAService({ commit, getters, dispatch }, payload) {
             return new Promise(function (resolve, reject) {
                 let body;
                 if (payload.didDocument) {
@@ -3613,6 +3613,9 @@ const mainStore = {
                         .then(response => response.json())
                         .then(json => {
                             if (json) {
+                                if (json.error) {
+                                    reject(new Error(json.message[0]))
+                                }
                                 if (json.data.length > 0) {
                                     const payload = json.data.map(x => {
                                         return {
