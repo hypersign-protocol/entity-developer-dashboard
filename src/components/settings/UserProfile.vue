@@ -439,10 +439,11 @@ export default {
   },
   mounted() {
     this.user = this.getUserDetails;
-    if (this.$route.query.ref === 'mfa') {
-      this.$nextTick(() => {
-        this.$root.$emit('bv::show::modal', 'setup-mfa-popup');
-      });
+    this.openSetupMfaFromRoute(this.$route.query.ref);
+  },
+  watch: {
+    '$route.query.ref'(ref) {
+      this.openSetupMfaFromRoute(ref);
     }
   },
   computed: {
@@ -492,6 +493,12 @@ export default {
     }
   },
   methods: {
+    openSetupMfaFromRoute(ref) {
+      if (ref !== 'mfa') return;
+      this.$nextTick(() => {
+        this.$root.$emit('bv::show::modal', 'setup-mfa-popup');
+      });
+    },
     formatDate(date) {
       return new Date(date).toLocaleString();
     },
