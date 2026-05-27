@@ -103,7 +103,7 @@ config['DashboardTypes'] = DashboardTypes
 config['SERVICE_TYPES'] = Object.freeze({
     SSI_API: 'SSI_API',
     CAVACH_API: 'CAVACH_API',
-    // QUEST: 'QUEST',
+    QUEST: 'QUEST',
 })
 
 config['GRANT_TYPES_ENUM'] = Object.freeze({
