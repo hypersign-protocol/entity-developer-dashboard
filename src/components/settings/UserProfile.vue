@@ -130,45 +130,57 @@
       <SetupMFA @closePopup="onPopupClose" />
     </hf-pop-up>
 
-    <hf-pop-up id="confirm-remove-auth" Header="Remove Authenticator">
-      <div class="confirm-body">
-        <template v-if="removeAuthStep === 'confirm'">
-          <p class="confirm-text">
-            Are you sure you want to remove
-            <strong>{{ pendingAuthToRemove && pendingAuthToRemove.type }}</strong>?
-          </p>
-          <div class="confirm-actions">
-            <v-btn outlined @click="hideConfirmModal">Cancel</v-btn>
-            <v-btn color="error" class="ml-2" @click="showRemoveAuthCodeStep">Proceed</v-btn>
-          </div>
-        </template>
+  <hf-pop-up id="confirm-remove-auth" Header="Remove Authenticator">
+  <div class="confirm-body">
+  <div class="card remove-auth-card">
+      <div class="card-body">
+        <!-- Authenticator Selection -->
+        <div class="form-group">
 
-        <template v-else>
-          <div class="form-group">
-            <select class="custom-select" id="removeAuthType" v-model="removeAuthType" @change="onRemoveAuthTypeChange">
-              <option value="" selected disabled>Authenticator App</option>
-              <option
-                v-for="method in authenticationMethodsList"
-                :value="method.value"
-                :key="method.name"
-              >
-                {{ method.name.toUpperCase() }}
-              </option>
-            </select>
+          <div class="d-flex align-items-center mb-2">
+            <tool-tip infoMessage="Select An Authentication App"></tool-tip>
+            <label class="mb-0 ml-1">
+              <strong>
+                Select An Authentication App
+                <span style="color:red">*</span>:
+              </strong>
+            </label>
           </div>
-          <tool-tip infoMessage="Enter the 6-digit code from your authentication app"></tool-tip>
-          <label class="remove-auth-label">
-            <strong>Enter authenticator code<span style="color: red">*</span>:</strong>
-          </label>
-          <PIN :key="removeAuthPinKey" inputType="number" @pinTakenEvent="pinTakenEventHandler" />
-          <small v-if="removeAuthError" class="remove-auth-error">{{ removeAuthError }}</small>
-          <div class="confirm-actions">
-            <v-btn outlined @click="showRemoveAuthConfirmStep">Back</v-btn>
-            <v-btn color="error" class="ml-2" @click="removeAuth">Remove</v-btn>
+          <select class="custom-select"  v-model="removeAuthType"@change="onRemoveAuthTypeChange">
+            <option
+              v-for="method in authenticationMethodsList"
+              :value="method.value"
+              :key="method.name"
+            >
+              {{ method.name.toUpperCase() }}
+            </option>
+          </select>
+        </div>
+        <!-- MFA Code -->
+        <div class="form-group mt-4">
+          <div class="d-flex align-items-center mb-2">
+            <tool-tip infoMessage="Enter the 6-digit code from your authentication app"></tool-tip>
+            <label class="mb-0 ml-1">
+              <strong> Enter Authenticator Code<span style="color: red">*</span>:</strong>
+            </label>
           </div>
-        </template>
+          <div class="pin-wrapper">
+            <PIN :key="removeAuthPinKey"  inputType="number"  @pinTakenEvent="pinTakenEventHandler" />
+          </div>
+          <small v-if="removeAuthError" class="remove-auth-error" >
+            {{ removeAuthError }}
+          </small>
+        </div>
+        <div class="confirm-actions">
+          <v-btn outlined @click="hideConfirmModal">
+            Cancel
+          </v-btn>
+          <v-btn color="error" dark class="ml-2" @click="removeAuth"> Remove</v-btn>
+        </div>
       </div>
-    </hf-pop-up>
+    </div>
+  </div>
+</hf-pop-up>
   </v-container>
 </template>
  
@@ -288,7 +300,7 @@
 
 /* confirm modal */
 .confirm-body {
-  padding: 4px 0 8px;
+  padding: 0;
 }
 
 .confirm-text {
@@ -314,6 +326,33 @@
 
 .remove-auth-error {
   color: red;
+}
+
+.form-group label {
+  margin-bottom: 8px;
+  display: inline-block;
+}
+.remove-auth-card {
+  width: 100%;
+  margin: 0;
+  border-radius: 14px;
+  border: 1px solid #e5e7eb;
+  box-shadow: none;
+}
+.remove-auth-card .card-body {
+  padding: 20px;
+}
+
+.form-group .tool-tip,
+.form-group .tooltip-wrapper {
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
+  margin-right: 4px;
+}
+
+.form-group {
+  margin-bottom: 20px;
 }
 
 /* RESPONSIVE ADJUSTMENTS */
@@ -357,7 +396,6 @@ export default {
       user: {},
        hasImageError: false,
       pendingAuthToRemove: null,
-      removeAuthStep: 'confirm',
       removeAuthType: '',
       authenticationMethodsList: AUTHENTICATION_METHODS_LIST,
       removeAuthCode: '',
@@ -471,17 +509,16 @@ export default {
     onPopupClose() {
       this.$root.$emit("bv::hide::modal", "setup-mfa-popup");
     },
-    confirmRemoveAuth(auth) {
-      this.pendingAuthToRemove = auth;
-      this.removeAuthStep = 'confirm';
-      this.removeAuthType = auth?.type || '';
-      this.removeAuthCode = '';
-      this.removeAuthError = '';
-      this.removeAuthPinKey += 1;
-      this.$nextTick(() => {
-        this.$root.$emit('bv::show::modal', 'confirm-remove-auth');
-      });
-    },
+   confirmRemoveAuth(auth) {
+  this.pendingAuthToRemove = auth;
+  this.removeAuthType = auth?.type || '';
+  this.removeAuthCode = '';
+  this.removeAuthError = '';
+  this.removeAuthPinKey += 1;
+  this.$nextTick(() => {
+    this.$root.$emit('bv::show::modal', 'confirm-remove-auth');
+  });
+},
     hideConfirmModal() {
       this.pendingAuthToRemove = null;
       this.removeAuthStep = 'confirm';
@@ -491,21 +528,6 @@ export default {
       this.$root.$emit('bv::hide::modal', 'confirm-remove-auth');
     },
     ...mapActions('mainStore', ['removeMfaAuthenticator']),
-    showRemoveAuthCodeStep() {
-      if (!this.removeAuthType) {
-        this.removeAuthError = 'Authenticator type must be provided';
-        return;
-      }
-      this.removeAuthStep = 'code';
-      this.removeAuthCode = '';
-      this.removeAuthError = '';
-      this.removeAuthPinKey += 1;
-    },
-    showRemoveAuthConfirmStep() {
-      this.removeAuthStep = 'confirm';
-      this.removeAuthCode = '';
-      this.removeAuthError = '';
-    },
     onRemoveAuthTypeChange() {
       this.removeAuthCode = '';
       this.removeAuthError = '';
@@ -531,7 +553,7 @@ export default {
           twoFactorAuthenticationCode: this.removeAuthCode,
         });
         this.user = this.getUserDetails;
-        this.notifySuccess('Authenticator removed');
+        this.notifySuccess('Authentication method removed successfully');
         this.hideConfirmModal();
       } catch (e) {
         const message = e.message || 'Failed to remove authenticator';
