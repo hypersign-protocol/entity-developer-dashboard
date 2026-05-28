@@ -386,17 +386,9 @@ export default {
 
     } catch (e) {
       this.isLoading = false
-      const msg = (e?.message || '').toLowerCase();
-      if (
-        msg.includes('permission denied') || msg.includes('forbidden') ||
-        msg.includes('access denied') || msg.includes('not authorized') ||
-        msg.includes('unauthorized') || msg.includes('an unknown error occurred') ||
-        e instanceof TypeError
-      ) {
-        this.accessDenied = true;
-        this.accessDeniedMsg = e.message;
-      } else {
-        this.notifyErr(e.message || 'An error occurred while fetching users.')
+      if (!this.handleAccessDeniedError(e)) {
+        const errorMessage = typeof e === 'string' ? e : e.message;
+        this.notifyErr(errorMessage || 'An error occurred while fetching users.')
       }
     }
   },
@@ -460,12 +452,36 @@ export default {
       this.hasPermission = true;
     },
 
+    handleAccessDeniedError(error) {
+      const errorMessage = typeof error === 'string' ? error : (error?.message || '');
+      const msg = errorMessage.toLowerCase();
+      if (
+        msg.includes('permission denied') || msg.includes('forbidden') ||
+        msg.includes('access denied') || msg.includes('not authorized') ||
+        msg.includes('unauthorized') || msg.includes('an unknown error occurred') ||
+        error instanceof TypeError
+      ) {
+        this.accessDenied = true;
+        this.accessDeniedMsg = errorMessage;
+        return true;
+      }
+
+      return false;
+    },
+
     async fetchsession(filter) {
-      const t = await this.fetchAppsUsers(filter)
-      if (t && t.length == 0) {
-        localStorage.setItem('selectedSessionStatus', 'All');
-        localStorage.setItem('selectedPage', 1);
-        // this.fetchAppsUsers({ appId: "" })
+      try {
+        this.accessDenied = false;
+        const t = await this.fetchAppsUsers(filter)
+        if (t && t.length == 0) {
+          localStorage.setItem('selectedSessionStatus', 'All');
+          localStorage.setItem('selectedPage', 1);
+          // this.fetchAppsUsers({ appId: "" })
+        }
+      } catch (e) {
+        if (!this.handleAccessDeniedError(e)) {
+          throw e;
+        }
       }
     },
 

@@ -6,23 +6,27 @@
                 <p class="text-subtitle-2 text-muted">View user engagement and behavior data</p>
             </v-col>
         </v-row>
-        <v-row>
-            <v-col cols="12">
-                <Overview :env="env" />
-            </v-col>
-        </v-row>
-        <v-row>
-            <v-col cols="12">
-                <DemographicStats :env="env" />
-            </v-col>
 
-        </v-row>
-        <v-row>
-            <v-col cols="12">
-                <DeviceStats :env="env" />
-            </v-col>
+        <AccessDenied v-if="accessDenied" />
+        <template v-else>
+            <v-row>
+                <v-col cols="12">
+                    <Overview :env="env" @access-denied="handleAccessDeniedError" />
+                </v-col>
+            </v-row>
+            <v-row>
+                <v-col cols="12">
+                    <DemographicStats :env="env" @access-denied="handleAccessDeniedError" />
+                </v-col>
 
-        </v-row>
+            </v-row>
+            <v-row>
+                <v-col cols="12">
+                    <DeviceStats :env="env" @access-denied="handleAccessDeniedError" />
+                </v-col>
+
+            </v-row>
+        </template>
     </b-container>
 </template>
 <style scoped>
@@ -35,11 +39,14 @@
 import Overview from './components/Overview.vue';
 import DemographicStats from './components/DemographicStats.vue';
 import DeviceStats from './components/DeviceStats.vue';
+import AccessDenied from '../AccessDenied.vue';
 export default {
     name: "UserAnalytics",
     data() {
         return {
             isProd: false,
+            accessDenied: false,
+            accessDeniedMsg: '',
         };
     },
     computed: {
@@ -50,10 +57,27 @@ export default {
     components: {
         Overview,
         DemographicStats,
-        DeviceStats
+        DeviceStats,
+        AccessDenied
     },
     methods: {
         handleEnvironmentChange() {
+        },
+        handleAccessDeniedError(error) {
+            const errorMessage = typeof error === 'string' ? error : (error?.message || '');
+            const msg = errorMessage.toLowerCase();
+            if (
+                msg.includes('permission denied') || msg.includes('forbidden') ||
+                msg.includes('access denied') || msg.includes('not authorized') ||
+                msg.includes('unauthorized') || msg.includes('an unknown error occurred') ||
+                error instanceof TypeError
+            ) {
+                this.accessDenied = true;
+                this.accessDeniedMsg = errorMessage;
+                return true;
+            }
+
+            return false;
         }
     },
     created() {
@@ -64,4 +88,3 @@ export default {
     },
 };
 </script>
-

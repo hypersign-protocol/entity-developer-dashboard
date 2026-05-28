@@ -113,10 +113,24 @@ export default {
         }
       } catch (err) {
         this.metrics = getDefaultMetrics();
+        if (this.isAccessDeniedError(err)) {
+          this.$emit('access-denied', err);
+          return;
+        }
         this.error = "Unable to load dashboard data.";
       } finally {
         this.loading = false;
       }
+    },
+    isAccessDeniedError(error) {
+      const errorMessage = typeof error === 'string' ? error : (error?.message || '');
+      const msg = errorMessage.toLowerCase();
+      return (
+        msg.includes('permission denied') || msg.includes('forbidden') ||
+        msg.includes('access denied') || msg.includes('not authorized') ||
+        msg.includes('unauthorized') || msg.includes('an unknown error occurred') ||
+        error instanceof TypeError
+      );
     }
   }
 };
