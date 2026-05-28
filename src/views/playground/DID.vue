@@ -116,11 +116,7 @@ h5 span {
 <template>
   <div :class="isContainerShift ? 'homeShift' : 'home'">
     <loadIng :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loadIng>
-    <div v-if="accessDenied" style="display:flex;flex-direction:column;align-items:center;text-align:center;padding:48px 32px;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;margin:16px 0">
-      <v-icon size="36" color="#b45309">mdi-lock-outline</v-icon>
-      <div style="font-size:18px;font-weight:700;color:#92400e;margin:12px 0 6px">Access Denied</div>
-      <div style="font-size:13px;color:#78350f">{{ accessDeniedMsg || 'You don\'t have permission to access this resource.' }}</div>
-    </div>
+    <AccessDenied v-if="accessDenied" />
     <div v-if="!accessDenied" class="">
       <div class="" style="text-align: left">
         <!-- <Info :message="description" /> -->
@@ -207,7 +203,7 @@ h5 span {
         </StudioSideBar>
       </div>
     </div>
-    <div class="scrollit" v-if="didList.length > 0">
+    <div class="scrollit" v-if="!accessDenied && didList.length > 0">
       <div class="">
         <table class="table table-hover event-card">
           <thead class="thead-light">
@@ -313,9 +309,10 @@ import ToolTip from "../../components/element/ToolTip.vue"
 import DomainLinkage from '@hypersign-protocol/domain-linkage-verifier'
 import { mapState, mapGetters, mapActions, mapMutations } from "vuex";
 import LogoUploader from '../../components/element/LogoUploader.vue';
+import AccessDenied from '../AccessDenied.vue';
 export default {
   name: "DIDs",
-  components: { HfPopUp, StudioSideBar, HfButtons, ToolTip, LogoUploader },
+  components: { HfPopUp, StudioSideBar, HfButtons, ToolTip, LogoUploader, AccessDenied },
   watch: {
   selectedDid: {
     handler(newValue) {

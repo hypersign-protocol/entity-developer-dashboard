@@ -146,11 +146,7 @@ h5 span {
 <template>
     <div>
         <loadIng :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loadIng>
-        <div v-if="accessDenied" class="pd-wrap mx-3 mt-3">
-          <v-icon size="36" color="#b45309">mdi-lock-outline</v-icon>
-          <div style="font-size:18px;font-weight:700;color:#92400e;margin:12px 0 6px">Access Denied</div>
-          <div style="font-size:13px;color:#78350f">{{ accessDeniedMsg || 'You don\'t have permission to access this resource.' }}</div>
-        </div>
+        <AccessDenied v-if="accessDenied" />
         <!-- Credits -->
         <template v-if="!accessDenied">
           <div class="row">
@@ -437,12 +433,14 @@ import Chart from 'chart.js/auto';
 import HfPopUp from "../../components/element/hfPopup.vue";
 import { mapActions, mapGetters } from "vuex";
 import UtilsMixin from '../../mixins/utils';
+import AccessDenied from '../AccessDenied.vue';
 
 export default {
     name: "SSIDashboardCredit",
     components: {
         // CChart,
         HfPopUp,
+        AccessDenied
     },
     computed: {
         ...mapGetters('mainStore', ['getSsiCredits']),

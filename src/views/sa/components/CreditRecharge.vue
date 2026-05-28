@@ -6,12 +6,7 @@
         <h2 class="title">Service Credit Recharge</h2>
       </div>
 
-      <!-- Permission Denied state -->
-      <div v-if="accessDenied" class="access-denied-box">
-        <v-icon color="#dc2626" size="36" class="mb-3">mdi-shield-alert-outline</v-icon>
-        <p class="access-denied-title">Access Denied</p>
-        <p class="access-denied-msg">You don't have permission to access the Credits API. Please contact your administrator.</p>
-      </div>
+      <AccessDenied v-if="accessDenied" />
 
       <div v-else class="pa-2">
         <p class="text-subtitle-2 text-muted mb-6">
@@ -168,10 +163,11 @@
 import { mapActions } from 'vuex/dist/vuex.common.js';
 import loadIng from '../../../components/element/LoadIng.vue';
 import UtilsMixin from '../../../mixins/utils.js';
+import AccessDenied from '../../AccessDenied.vue';
 
 export default {
   name: 'CreditRecharge',
-  components: { loadIng },
+  components: { loadIng, AccessDenied },
   mixins: [UtilsMixin],
   data() {
     return {

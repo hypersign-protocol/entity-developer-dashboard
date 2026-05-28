@@ -140,11 +140,7 @@
 <template>
   <div :class="isContainerShift ? 'homeShift' : 'home'">
     <loadIng :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loadIng>
-    <div v-if="accessDenied" style="display:flex;flex-direction:column;align-items:center;text-align:center;padding:48px 32px;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;margin:16px 0">
-      <v-icon size="36" color="#b45309">mdi-lock-outline</v-icon>
-      <div style="font-size:18px;font-weight:700;color:#92400e;margin:12px 0 6px">Access Denied</div>
-      <div style="font-size:13px;color:#78350f">{{ accessDeniedMsg || 'You don\'t have permission to access this resource.' }}</div>
-    </div>
+    <AccessDenied v-if="accessDenied" />
     <div v-if="!accessDenied" class="">
       <div class="" style="text-align: left">
         <!-- <Info :message="description" /> -->
@@ -275,7 +271,7 @@
         </StudioSideBar>
       </div>
     </div>
-    <div class="scrollit" v-if="schemaList.length > 0">
+    <div class="scrollit" v-if="!accessDenied && schemaList.length > 0">
       <div class="">
         <table class="table table-hover event-card">
           <thead class="thead-light">
@@ -415,9 +411,11 @@ import ToolTip from "../../components/element/ToolTip.vue"
 import { isValidURL, isEmpty, ifSpaceExists, isValidSchemaAttrName } from '../../mixins/fieldValidation'
 import message from '../../mixins/messages'
 import { mapGetters, mapState, mapActions, mapMutations } from "vuex";
+import AccessDenied from '../AccessDenied.vue';
+
 export default {
   name: "SchemaS",
-  components: { HfPopUp, StudioSideBar, HfButtons, HfSelectDropDown, ToolTip },
+  components: { HfPopUp, StudioSideBar, HfButtons, HfSelectDropDown, ToolTip, AccessDenied },
   computed: {
     ...mapState({
       schemaList: state => state.mainStore.schemaList,

@@ -30,11 +30,7 @@
       </v-col>
     </v-row>
 
-    <div v-if="accessDenied" style="display:flex;flex-direction:column;align-items:center;text-align:center;padding:48px 32px;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;margin:16px 0">
-      <v-icon size="36" color="#b45309">mdi-lock-outline</v-icon>
-      <div style="font-size:18px;font-weight:700;color:#92400e;margin:12px 0 6px">Access Denied</div>
-      <div style="font-size:13px;color:#78350f">{{ accessDeniedMsg || 'You don\'t have permission to view API usage data.' }}</div>
-    </div>
+    <AccessDenied v-if="accessDenied" />
     <div v-else-if="errorMessage" style="display:flex;flex-direction:column;align-items:center;text-align:center;padding:48px 32px;background:#fef2f2;border:1px solid #fecaca;border-radius:8px;margin:16px 0">
       <v-icon size="36" color="#dc2626">mdi-alert-circle-outline</v-icon>
       <div style="font-size:18px;font-weight:700;color:#991b1b;margin:12px 0 6px">Failed to Load</div>
@@ -148,9 +144,13 @@
 import { mapActions } from "vuex";
 import * as echarts from "echarts";
 import moment from "moment";
+import AccessDenied from '../AccessDenied.vue';
 
 export default {
   name: "ApiUsageAnalytics",
+  components: {
+    AccessDenied
+  },
   data() {
     return {
       loading: false,

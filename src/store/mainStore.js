@@ -1079,7 +1079,7 @@ const mainStore = {
                 })
                     .then((token) => {
                         // let url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyb/verification/company`;
-                        let url = 'http://localhost:3009/api/v1/e-kyb/verification/company'
+                        let url = 'http://localhost:3001/api/v1/e-kyb/verification/company'
                         const headers = UtilsMixin.methods.getKycServiceHeader(token);
                         return fetch(url, {
                             method: 'GET',
@@ -1139,7 +1139,7 @@ const mainStore = {
                 }).then((token) => {
                     const headers = UtilsMixin.methods.getKycServiceHeader(token);
                     // const url = `${sanitizeUrl(config.KYC_SERVER_BASE_URL)}/api/v1/e-kyb/verification/company/${companyId}`;
-                    const url = `http://localhost:3009/api/v1/e-kyb/verification/company/${companyId}`;
+                    const url = `http://localhost:3001/api/v1/e-kyb/verification/company/${companyId}`;
                     return fetch(url, {
                         method: 'GET',
                         headers,
@@ -1161,8 +1161,8 @@ const mainStore = {
                     return reject(new Error('Tenant url is null or empty, service is not selected'))
                 }
 
-                let url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/session`;
-                // let url = 'http://localhost:3001/api/v1/e-kyc/verification/session'
+                // let url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/session`;
+                let url = 'http://localhost:3001/api/v1/e-kyc/verification/session'
 
                 const paramsObject = {}
 
@@ -1234,7 +1234,7 @@ const mainStore = {
                 }
 
                 // let url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/user`;
-                let url = 'http://localhost:3009/api/v1/user'
+                let url = 'http://localhost:3001/api/v1/user'
 
                 const paramsObject = {}
                 if (payload.env) {
@@ -1509,8 +1509,8 @@ const mainStore = {
                 if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
                     return reject(new Error('Tenant url is null or empty, service is not selected'))
                 }
-                const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/widget-config`;
-                // const url = `http://localhost:3001/api/v1/e-kyc/verification/widget-config`
+                // const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/widget-config`;
+                const url = `http://localhost:3001/api/v1/e-kyc/verification/widget-config`
                 const authToken = getters.getSelectedService.access_token
                 if (!authToken) {
                     return reject(new Error('authToken is invalid, service is not selected'))
@@ -1545,8 +1545,8 @@ const mainStore = {
                 if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
                     return reject(new Error('Tenant url is null or empty, service is not selected'))
                 }
-                const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/widget-config`;
-                // const url = `http://localhost:3001/api/v1/e-kyc/verification/widget-config/`
+                // const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/widget-config`;
+                const url = `http://localhost:3001/api/v1/e-kyc/verification/widget-config/`
                 const authToken = getters.getSelectedService.access_token
                 if (!authToken) {
                     return reject(new Error('authToken is invalid, service is not selected'))
@@ -1624,7 +1624,8 @@ const mainStore = {
                 if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
                     return reject(new Error('Tenant url is null or empty, service is not selected'))
                 }
-                let url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/analytics/overview`;
+                // let url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/analytics/overview`;
+                let url = `http://localhost:3001/api/v1/e-kyc/analytics/overview`;
                 // append env query param if provided
                 if (payload.env) {
                     url += `?env=${encodeURIComponent(payload.env)}`;
@@ -1916,8 +1917,8 @@ const mainStore = {
                 if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
                     return reject(new Error('Tenant url is null or empty, service is not selected'))
                 }
-                const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/webhook-config`;
-                // const url = `http://localhost:3001/api/v1/e-kyc/verification/webhook-config`
+                // const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/webhook-config`;
+                const url = `http://localhost:3001/api/v1/e-kyc/verification/webhook-config`
                 const authToken = getters.getSelectedService.access_token
                 if (!authToken) {
                     return reject(new Error('authToken is invalid, service is not selected'))
@@ -2342,7 +2343,7 @@ const mainStore = {
                     return reject(new Error('Tenant url is null or empty, service is not selected'))
                 }
                 // const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/user/${sessionId}?env=${encodeURIComponent(envVal)}`;
-                let url = `http://localhost:3009/api/v1/user/${sessionId}?env=${encodeURIComponent(envVal)}`;
+                let url = `http://localhost:3001/api/v1/user/${sessionId}?env=${encodeURIComponent(envVal)}`;
                 const authToken = getters.getSelectedService.access_token
                 if (!authToken) {
                     return reject(new Error('authToken is invalid, service is not selected'))
@@ -2379,8 +2380,8 @@ const mainStore = {
             if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
                 throw new Error('Tenant url is null or empty, service is not selected')
             }
-            const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/usage?serviceId=${getters.getSelectedService.appId}&startDate=${startDate}&endDate=${endDate}`;
-            // const url = `http://localhost:3001/api/v1/usage?serviceId=${getters.getSelectedService.appId}&startDate=${startDate}&endDate=${endDate}`;            
+            // const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/usage?serviceId=${getters.getSelectedService.appId}&startDate=${startDate}&endDate=${endDate}`;
+            const url = `http://localhost:3008/api/v1/usage?serviceId=${getters.getSelectedService.appId}&startDate=${startDate}&endDate=${endDate}`;
             const authToken = getters.getSelectedService.access_token
             const headers = UtilsMixin.methods.getHeader(authToken);
             const resp = await fetch(url, {
@@ -2436,7 +2437,8 @@ const mainStore = {
             if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
                 throw new Error('Tenant url is null or empty, service is not selected')
             }
-            const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/usage/detail?serviceId=${getters.getSelectedService.appId}&startDate=${startDate}&endDate=${endDate}`;
+            // const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/usage/detail?serviceId=${getters.getSelectedService.appId}&startDate=${startDate}&endDate=${endDate}`;
+            const url = `http://localhost:3008/api/v1/usage/detail?serviceId=${getters.getSelectedService.appId}&startDate=${startDate}&endDate=${endDate}`;
             const authToken = getters.getSelectedService.access_token
             const headers = UtilsMixin.methods.getHeader(authToken);
             const resp = await fetch(url, {
@@ -2499,7 +2501,7 @@ const mainStore = {
                 throw new Error('Tenant url is null or empty, service is not selected')
             }
             const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/usage/detail?serviceId=${getters.getSelectedService.appId}&startDate=${startDate}&endDate=${endDate}&env=${envVal}`;
-            // const url = `http://localhost:3009/api/v1/usage/detail?serviceId=${getters.getSelectedService.appId}&startDate=${startDate}&endDate=${endDate}&env=${envVal}`;
+            // const url = `http://localhost:3001/api/v1/usage/detail?serviceId=${getters.getSelectedService.appId}&startDate=${startDate}&endDate=${endDate}&env=${envVal}`;
             const authToken = getters.getSelectedService.access_token
             if (!authToken) {
                 throw new Error('authToken is invalid, service is not selected')
@@ -2535,7 +2537,7 @@ const mainStore = {
                 throw new Error('Company Id is null or empty')
             }
             // const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyb/verification/company/${companyId}/company-executives`;
-            const url = `http://localhost:3009/api/v1/e-kyb/verification/company/${companyId}/company-executives`;
+            const url = `http://localhost:3001/api/v1/e-kyb/verification/company/${companyId}/company-executives`;
             const authToken = getters.getSelectedService.kyb_access_token
             if (!authToken) {
                 throw (new Error('authToken is invalid, service is not selected'))
@@ -2585,7 +2587,7 @@ const mainStore = {
                 }
 
                 // let url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyb/verification/company/${companyId}`;
-                let url = `http://localhost:3009/api/v1/e-kyb/verification/company/${companyId}`;
+                let url = `http://localhost:3001/api/v1/e-kyb/verification/company/${companyId}`;
                 dispatch('getValidToken', {
                     serviceId: getters.getSelectedService.appId,
                     grant_type: config.GRANT_TYPES_ENUM.CAVACH_API,
@@ -2678,7 +2680,7 @@ const mainStore = {
                 throw new Error('Tenant url is null or empty, service is not selected')
             }
             // const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/credit`;
-            const url = `http://localhost:3009/api/v1/credit`;
+            const url = `http://localhost:3001/api/v1/credit`;
 
             const authToken = getters.getSelectedService.access_token
             if (!authToken) {
@@ -2695,9 +2697,11 @@ const mainStore = {
                 headers
             })
             const json = await resp.json()
-            if (json.error) {
-                throw new Error(json.error?.details.join(' ') || json.error.join(' '))
+            if (!resp.ok || json.error) {
+                const msg = Array.isArray(json.message) ? json.message.join(', ') : (json.message || json.error || 'Failed to fetch KYC credits');
+                throw new Error(msg);
             }
+
             if (json.data) {
                 commit('setKYCCredits', json.data)
                 return json.data
@@ -2746,7 +2750,7 @@ const mainStore = {
                 throw new Error('Company Id is null or empty')
             }
             // const url = `${sanitizeUrl(config.KYC_SERVER_BASE_URL)}/api/v1/e-kyb/verification/company/${companyId}/status`;
-            const url = `http://localhost:3009/api/v1/e-kyb/verification/company/${companyId}/status`;
+            const url = `http://localhost:3001/api/v1/e-kyb/verification/company/${companyId}/status`;
             const token = await dispatch('getValidToken', {
                 token: accessToken,
                 serviceId,
@@ -3407,6 +3411,10 @@ const mainStore = {
                 ...options
             })
             const json = await resp.json()
+            if (!resp.ok || json.error) {
+                const msg = Array.isArray(json.message) ? json.message.join(', ') : (json.message || json.error || 'Failed to fetch SSI credits');
+                throw new Error(msg);
+            }
             if (json) {
                 commit('setSSICredits', json)
                 return json
@@ -3802,7 +3810,8 @@ const mainStore = {
                         token: accessToken
 
                     }).then((token) => {
-                        const url = `${sanitizeUrl(tenantUrl)}/api/v1/credential?page=${page}&limit=${limit}`;
+                        // const url = `${sanitizeUrl(tenantUrl)}/api/v1/credential?page=${page}&limit=${limit}`;
+                        const url = `${sanitizeUrl('http://localhost:3008')}/api/v1/credential?page=${page}&limit=${limit}`;
                         const options = {
                             method: "GET",
                             headers: {

@@ -6,7 +6,7 @@
             <div class="col-md-4">
             </div>
             <div class="col-md-8">
-                <hf-buttons name="" title="Reload" class="mx-1" :bIcon="true"  style="float: inline-end"  iconClass="arrow-clockwise" @executeAction="getMyRolesAction">
+                <hf-buttons name="" title="Reload" class="mx-1" :bIcon="true"  style="float: inline-end"  iconClass="fas fa-sync-alt" @executeAction="getMyRolesAction">
                 </hf-buttons>
                 <hf-buttons name="Create Custom Role" title="Reload" style="float: inline-end"  iconClass="fa fa-gamepad" @executeAction="openSlider('add')">
                 </hf-buttons>
@@ -37,7 +37,7 @@
                                         <b-icon icon="pencil-square" aria-hidden="true"></b-icon>
                                         Edit</b-dropdown-item-button>
                                     <b-dropdown-item-button style="text-align: left;"
-                                        @click="deleteThisRole(role._id)"><i class="fa fa-trash"></i>
+                                        @click="promptDeleteRole(role._id, role.roleName)"><i class="fa fa-trash"></i>
                                         Delete</b-dropdown-item-button>
                                 </b-dropdown>
                             </div>
@@ -50,6 +50,27 @@
         <div v-else>
             <empty-container title="No Role Found" icon="fa fa-shield-alt" />
         </div>
+
+        <!-- Delete confirmation dialog -->
+        <v-dialog v-model="confirmDialog" max-width="420" persistent>
+          <v-card>
+            <v-card-title class="text-h6">
+              <v-icon color="red" class="mr-2">mdi-alert-circle-outline</v-icon>
+              Delete Role
+            </v-card-title>
+            <v-card-text>
+              Are you sure you want to delete <strong>"{{ roleToDeleteName }}"</strong>?
+              All users linked with this role will lose access immediately.
+            </v-card-text>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn text @click="confirmDialog = false">Cancel</v-btn>
+              <v-btn color="red darken-1" depressed dark :loading="isLoading" @click="confirmDeleteRole">
+                Delete
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
 
         <StudioSideBar :title="edit ? 'Edit Role' : 'Add Role'">
             <div class="container">
@@ -75,7 +96,7 @@
                                     v-bind:key="eachAccess">
                                     <input class="form-check-input" type="checkbox"
                                         :value="{ serviceType: eachService.id, access: eachAccess }"
-                                        v-on:change="onCheck($event)"
+                                        v-on:change="onCheck($event, eachService)"
                                         :checked="checkIfAccessIsThereInThatService(eachAccess, eachService.id)">
                                     <label class="form-check-label" for="flexCheckDefault">
                                         <code> {{ eachAccess }}</code>
@@ -98,6 +119,7 @@
 import { mapGetters, mapActions } from "vuex/dist/vuex.common.js";
 import StudioSideBar from "../element/StudioSideBar.vue";
 import UtilsMixin from "../../mixins/utils";
+import config from "../../config";
 
 export default {
     name: "AdminTeams",
@@ -107,12 +129,38 @@ export default {
     },
     computed: {
         ...mapGetters("mainStore", ["getAllServices", "getAllRoles"]),
-
+        categorizedServices() {
+            const ssiServices = this.localAllServices.filter(s => s.id === config.SERVICE_TYPES.SSI_API);
+            const idServices = this.localAllServices.filter(
+                s => s.id === config.SERVICE_TYPES.CAVACH_API || s.id === 'CAVACH_KYB_API'
+            );
+            const otherServices = this.localAllServices.filter(
+                s => s.id !== config.SERVICE_TYPES.SSI_API &&
+                     s.id !== config.SERVICE_TYPES.CAVACH_API &&
+                     s.id !== 'CAVACH_KYB_API'
+            );
+            const categories = [];
+            if (ssiServices.length) categories.push({ label: 'SSI Service', icon: 'mdi-link-variant', iconColor: '#3b82f6', services: ssiServices });
+            if (idServices.length) categories.push({ label: 'ID Service', icon: 'mdi-shield-account-outline', iconColor: '#10b981', services: idServices });
+            if (otherServices.length) categories.push({ label: 'Other Services', icon: 'mdi-apps', iconColor: '#6b7280', services: otherServices });
+            return categories;
+        }
+    },
+    watch: {
+        getAllServices: {
+            handler(services) {
+                this.localAllServices = this.getRoleServices(services);
+            },
+            immediate: true
+        }
     },
     data() {
         return {
             isLoading: false,
             edit: false,
+            confirmDialog: false,
+            roleToDelete: null,
+            roleToDeleteName: '',
             roleModel: {
                 "roleName": "",
                 "roleDescription": "",
@@ -129,10 +177,53 @@ export default {
             this.fetchServicesList()
 
         }
-        this.localAllServices = this.getAllServices
+        this.localAllServices = this.getRoleServices(this.getAllServices)
     },
     methods: {
         ...mapActions("mainStore", ["getMyRolesAction", "createARole", "deleteARole", "fetchServicesList", "updateARole",]),
+        getRoleServices(services = []) {
+            return services.filter(service => service.id !== config.SERVICE_TYPES.QUEST);
+        },
+        getPermSubGroups(serviceId, accessList) {
+            const allKeys = Object.keys(accessList);
+            const SSI_GROUPS = [
+                { label: 'General',          icon: 'mdi-star-outline',                 iconColor: '#6366f1', keys: ['ALL'] },
+                { label: 'DID',              icon: 'mdi-identifier',                   iconColor: '#3b82f6', keys: ['READ_DID', 'WRITE_DID', 'VERIFY_DID_SIGNATURE', 'ISSUE_DID_JWT'] },
+                { label: 'Schema',           icon: 'mdi-file-tree-outline',            iconColor: '#8b5cf6', keys: ['READ_SCHEMA', 'WRITE_SCHEMA'] },
+                { label: 'Credential',       icon: 'mdi-card-account-details-outline', iconColor: '#059669', keys: ['READ_CREDENTIAL', 'VERIFY_CREDENTIAL', 'WRITE_CREDENTIAL'] },
+                { label: 'Presentation',     icon: 'mdi-presentation',                 iconColor: '#0891b2', keys: ['WRITE_PRESENTATION', 'VERIFY_PRESENTATION'] },
+                { label: 'Credit',           icon: 'mdi-credit-card-outline',          iconColor: '#d97706', keys: ['WRITE_CREDIT', 'READ_CREDIT'] },
+                { label: 'Usage & Tx',       icon: 'mdi-chart-line',                   iconColor: '#dc2626', keys: ['READ_USAGE', 'READ_TX', 'CHECK_LIVE_STATUS'] },
+            ];
+            const ID_GROUPS = [
+                { label: 'General',               icon: 'mdi-star-outline',             iconColor: '#6366f1', keys: ['ALL'] },
+                { label: 'Session & Users',        icon: 'mdi-account-multiple-outline', iconColor: '#3b82f6', keys: ['READ_USER_CONSENT', 'WRITE_USER_CONSENT', 'READ_SESSION', 'WRITE_SESSION', 'READ_VERIFIED_USER'] },
+                { label: 'Biometrics',             icon: 'mdi-face-recognition',         iconColor: '#8b5cf6', keys: ['WRITE_PASSIVE_LIVELINESS', 'WRITE_DOC_OCR', 'CHECK_LIVE_STATUS'] },
+                { label: 'Widget Config',          icon: 'mdi-widgets-outline',          iconColor: '#059669', keys: ['READ_WIDGET_CONFIG', 'WRITE_WIDGET_CONFIG', 'UPDATE_WIDGET_CONFIG'] },
+                { label: 'Webhook Config',         icon: 'mdi-webhook',                  iconColor: '#0891b2', keys: ['WRITE_WEBHOOK_CONFIG', 'READ_WEBHOOK_CONFIG', 'UPDATE_WEBHOOK_CONFIG', 'DELETE_WEBHOOK_CONFIG'] },
+                { label: 'Analytics & Usage',      icon: 'mdi-chart-bar',                iconColor: '#d97706', keys: ['READ_ANALYTICS', 'READ_USAGE', 'WRITE_AUTH'] },
+                { label: 'Credit',                 icon: 'mdi-credit-card-outline',      iconColor: '#dc2626', keys: ['WRITE_CREDIT', 'READ_CREDIT'] },
+                { label: 'Company',                icon: 'mdi-domain',                   iconColor: '#7c3aed', keys: ['READ_COMPANY', 'WRITE_COMPANY', 'UPDATE_COMPANY', 'DELETE_COMPANY', 'UPDATE_COMPANY_STATUS'] },
+                { label: 'Company Executives',     icon: 'mdi-account-tie-outline',      iconColor: '#065f46', keys: ['READ_COMPANY_EXECUTIVES', 'WRITE_COMPANY_EXECUTIVES', 'UPDATE_COMPANY_EXECUTIVES', 'DELETE_COMPANY_EXECUTIVES', 'RESEND_COMPANY_EXECUTIVES_MAIL'] },
+                { label: 'Document',               icon: 'mdi-file-document-outline',    iconColor: '#92400e', keys: ['WRITE_DOCUMENT', 'READ_DOCUMENT', 'DELETE_DOCUMENT', 'VERIFY_DOCUMENT'] },
+                { label: 'Compliance',             icon: 'mdi-shield-check-outline',     iconColor: '#1d4ed8', keys: ['WRITE_COMPLIANCE', 'READ_COMPLIANCE'] },
+            ];
+            const groupDefs = serviceId === config.SERVICE_TYPES.SSI_API ? SSI_GROUPS : ID_GROUPS;
+            const assignedKeys = new Set();
+            const result = [];
+            for (const group of groupDefs) {
+                const perms = group.keys.filter(k => allKeys.includes(k));
+                if (perms.length) {
+                    result.push({ ...group, permissions: perms });
+                    perms.forEach(k => assignedKeys.add(k));
+                }
+            }
+            const remaining = allKeys.filter(k => !assignedKeys.has(k));
+            if (remaining.length) {
+                result.push({ label: 'Other', icon: 'mdi-dots-horizontal', iconColor: '#6b7280', permissions: remaining });
+            }
+            return result;
+        },
         createTeamPopup() {
             this.$root.$emit("bv::show::modal", "create-team");
         },
@@ -172,15 +263,26 @@ export default {
             this.$root.$emit("bv::toggle::collapse", "sidebar-right");
         },
 
-        onCheck(event) {
-            const ev = event.target._value
-            if (ev) {
-                const index = this.roleModel.permissions.findIndex(x => ((x.serviceType == ev.serviceType) && (x.access == ev.access)))
-                if (index > -1) {
-                    this.roleModel.permissions.splice(index, 1)
-                } else {
-                    this.roleModel.permissions.push(ev)
+        onCheck(event, service) {
+            const ev = event.target._value;
+            if (!ev) return;
+
+            if (ev.access === 'ALL') {
+                const allKeys = Object.keys(service.accessList);
+                this.roleModel.permissions = this.roleModel.permissions.filter(x => x.serviceType !== ev.serviceType);
+                if (event.target.checked) {
+                    allKeys.forEach(key => {
+                        this.roleModel.permissions.push({ serviceType: ev.serviceType, access: key });
+                    });
                 }
+                return;
+            }
+
+            const index = this.roleModel.permissions.findIndex(x => x.serviceType == ev.serviceType && x.access == ev.access);
+            if (index > -1) {
+                this.roleModel.permissions.splice(index, 1);
+            } else {
+                this.roleModel.permissions.push(ev);
             }
         },
 
@@ -219,22 +321,24 @@ export default {
             }
         },
 
-        async deleteThisRole(roleId) {
+        promptDeleteRole(roleId, roleName) {
+            this.roleToDelete = roleId;
+            this.roleToDeleteName = roleName;
+            this.confirmDialog = true;
+        },
 
+        async confirmDeleteRole() {
             try {
-                const result = confirm('Are you sure you want to delete this role? Once deleted, all users linked with this role will loose access.')
-                if (result) {
-                    // do all validations...
-                    this.isLoading = true
-                    await this.deleteARole(roleId)
-                    this.isLoading = false
-                    this.notifySuccess('Role is deleted successfully')
-                }
-
-
+                this.isLoading = true;
+                await this.deleteARole(this.roleToDelete);
+                this.isLoading = false;
+                this.confirmDialog = false;
+                this.roleToDelete = null;
+                this.roleToDeleteName = '';
+                this.notifySuccess('Role deleted successfully');
             } catch (e) {
-                this.notifyErr(e.message)
-                this.isLoading = false
+                this.notifyErr(e.message);
+                this.isLoading = false;
             }
         },
 

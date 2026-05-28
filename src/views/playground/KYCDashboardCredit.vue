@@ -1,11 +1,8 @@
 <template>
     <b-container fluid class="py-3">
         <loadIng :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loadIng>
-        <div v-if="accessDenied" style="display:flex;flex-direction:column;align-items:center;text-align:center;padding:48px 32px;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;margin:16px 0">
-          <v-icon size="36" color="#b45309">mdi-lock-outline</v-icon>
-          <div style="font-size:18px;font-weight:700;color:#92400e;margin:12px 0 6px">Access Denied</div>
-          <div style="font-size:13px;color:#78350f">{{ accessDeniedMsg || 'You don\'t have permission to access this resource.' }}</div>
-        </div>
+        <AccessDenied v-if="accessDenied" />
+        <template v-if="!accessDenied">
         <v-row align="center" class="mb-6 ">
             <v-col cols="12" md="6">
                 <h4 class="font-weight-bold mb-0">Credits Management</h4>
@@ -158,6 +155,7 @@
                 </div>
             </v-col>
         </v-row>
+        </template>
     </b-container>
 </template>
 
@@ -166,10 +164,11 @@ import Chart from 'chart.js/auto';
 import { mapActions, mapGetters } from "vuex";
 import UtilsMixin from '../../mixins/utils';
 import HfButtons from "../../components/element/HfButtons.vue";
+import AccessDenied from '../AccessDenied.vue';
 
 export default {
     name: "SSIDashboardCredit",
-    components: { HfButtons },
+    components: { HfButtons, AccessDenied },
     mixins: [UtilsMixin],
     data() {
         return {
