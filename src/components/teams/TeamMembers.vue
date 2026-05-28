@@ -1,95 +1,130 @@
 <template>
-  <div class="team-members-root">
+  <div>
     <load-ing :active.sync="isLoading" :can-cancel="true" :is-full-page="true"></load-ing>
-
-    <!-- ── Action bar ──────────────────────────────────────────── -->
-    <div class="action-bar">
-      <div class="action-bar-title">
-        <v-icon small class="mr-1" color="#4b5563">mdi-account-multiple-outline</v-icon>
-        <span>Team Members
-          <v-chip x-small class="ml-2" color="blue lighten-5" text-color="blue darken-2">
-            {{ getAdminMembersgetter.length }}
-          </v-chip>
-        </span>
+    <div class="row">
+      <div class="col-md-4">        
       </div>
-      <div class="action-bar-btns">
-        <hf-buttons name="" title="Reload" iconClass="mdi-refresh" @executeAction="getPeopleMembers" />
-        <hf-buttons name="Invite Member" iconClass="mdi-account-plus" @executeAction="inviteMemberPopup" />
+      <div class="col-md-8">
+        <!-- <v-btn variant="link" class="btn btn-outline-secondary mx-1" style="float: inline-end"
+          @click="getPeopleMembers()" title="Reload">
+          <b-icon icon="arrow-clockwise"></b-icon>
+        </v-btn> -->
+
+        <hf-buttons name="" title="Reload" class="mx-1" :bIcon="true"  style="float: inline-end"  iconClass="arrow-clockwise" @executeAction="getPeopleMembers">
+        </hf-buttons>
+
+        <hf-buttons name="Invite Member" class="ml-auto"  style="float: inline-end"  iconClass="fa fa-user-plus" @executeAction="inviteMemberPopup">
+        </hf-buttons>
+
+        <!-- <v-btn type="button" class="btn btn-secondary" style="float: inline-end" @click="inviteMemberPopup()">
+          <b-icon icon="person-plus-fill"></b-icon> Invite Member
+        </v-btn> -->
       </div>
     </div>
-
-    <v-divider class="mb-3"></v-divider>
-    <!-- ── Member list ────────────────────────────────────────── -->
-    <div v-if="getAdminMembersgetter.length > 0" class="member-list">
-      <div v-for="person in getAdminMembersgetter" :key="person.userId" class="member-row">
-        <TeamUser
-          :email="person.userEmailId"
-          :twoFactor="person.authenticatorEnabled"
-          :invitationStatus="person.accepted"
-          :createdAt="toDateTime(person.createdAt)"
-          :deleteMemberMenu="true"
-          :inviteCode="person.inviteCode"
-          :numberOfTeams="0"
-          :userId="person.userId"
-          :assignedRoleId="person.roleId"
-          :mode="'Member'"
-        />
-        <v-divider></v-divider>
-      </div>
+    <div class="row" v-if="getAdminMembersgetter.length > 0">
+      <table class="table">
+        <!-- <thead class="thead-light">
+          <tr>
+            <th scope="col">Members</th>
+          </tr>
+        </thead> -->
+        <tbody>
+          <tr v-for="person in getAdminMembersgetter" :key="person.userId">
+            <TeamUser :email="person.userEmailId" :twoFactor="person.authenticatorEnabled"
+              :invitationStatus="person.accepted" :createdAt="toDateTime(person.createdAt)" :deleteMemberMenu="true"
+              :inviteCode="person.inviteCode" :numberOfTeams="0" :userId="person.userId" :assignedRoleId="person.roleId"
+              :mode="'Member'" />
+          </tr>
+        </tbody>
+      </table>
     </div>
     <div v-else>
-      <empty-container title="No members yet. Invite someone to get started." icon="fa fa-users" />
+      <empty-container title="No Member Found" icon="fa fa-user-friends" />
     </div>
 
-    <!-- ── Invite Member Popup ────────────────────────────────── -->
+    <!-- <div class="row mb-3" style="padding: 20px">No member found, please invite a member to your account!</div> -->
+
     <hf-pop-up id="invite-member" Header="Invite New Member">
-      <div>
-        <template v-if="invitionData.inviteCode === ''">
-          <div class="form-group">
-            <label for="inviteeEmail"><strong>Email Address <span style="color:red">*</span>:</strong></label>
-            <input
-              type="email"
-              class="form-control"
-              id="inviteeEmail"
-              v-model="inviteeEmailId"
-              placeholder="user@company.com"
-            />
-            <small v-if="inviteeEmailId && !checkIfValidEmail" class="text-danger">Enter a valid email address</small>
-          </div>
-          <div class="form-group">
-            <label for="assignRole"><strong>Assign Role <span style="color:red">*</span>:</strong></label>
-            <select class="custom-select" id="assignRole" v-model="selectedRoleId" :disabled="!getAllRoles || getAllRoles.length === 0">
-              <option value="" disabled>Select a role</option>
-              <option v-for="role in getAllRoles" :value="role._id" :key="role._id">{{ role.roleName }}</option>
-            </select>
-            <small v-if="getAllRoles && getAllRoles.length === 0" class="text-muted">No role found, please create a role to proceed</small>
-          </div>
-          <div class="text-center mt-3">
-            <hf-buttons
-              name="Send Invitation"
-              iconClass="mdi-send"
-              customClass="btn btn-primary"
-              @executeAction="sendInvite"
-            />
-          </div>
-        </template>
-        <template v-else>
-          <v-alert type="success" outlined dense class="mb-3">
-            Invitation sent to <strong>{{ inviteeEmailId }}</strong>.
-            Valid until <strong>{{ toDateTime(invitionData.invitationValidTill) }}</strong>.
-          </v-alert>
-          <HfFlashNotification
-            :text="invitionData.inviteCode"
-            type="Invitation Code"
-            description="Invitation Code"
-            @click="resetInvition()"
-          />
-          <div class="text-center mt-3">
-            <hf-buttons name="Invite Another" customClass="btn btn-outline-secondary" @executeAction="resetInvition" />
-          </div>
-        </template>
+    <div>
+    <div class="form-group mb-3">
+
+      <!-- EMAIL INPUT (only if invitation not generated yet) -->
+      <label v-if="invitionData.inviteCode === ''">Email:</label>
+
+      <div class="input-group" v-if="invitionData.inviteCode === ''">
+        <input
+          type="email"
+          class="form-control"
+          placeholder="user@companymail.com"
+          v-model="inviteeEmailId"
+        />
+
+        <!-- VALID / INVALID ICON -->
+        <div class="input-group-append" v-if="checkIfValidEmail">
+          <button type="submit" class="btn btn-outline-success">
+            <b-icon icon="check-circle"></b-icon>
+          </button>
+        </div>
+
+        <div class="input-group-append" v-else>
+          <button type="submit" class="btn btn-outline-danger">
+            <b-icon icon="x-circle"></b-icon>
+          </button>
+        </div>
       </div>
-    </hf-pop-up>
+
+      <!-- ROLE DROPDOWN -->
+      <div class="form-group mt-3" v-if="invitionData.inviteCode === ''">
+        
+          <label>Select A Role:</label>
+          <select class="form-control" v-model="selectedRoleId" :disabled="getAllRoles.length == 0">
+            <option
+              v-for="role in getAllRoles"
+              :key="role._id"
+              :value="role._id"
+            >
+              {{ role.roleName }}
+            </option>
+          </select>
+          <small v-if="getAllRoles && getAllRoles.length == 0">No role found, please create a role to proceed</small>
+      </div>
+
+      <!-- INVITE BUTTON -->
+      <div class="input-group-append mt-3" v-if="invitionData.inviteCode === ''">
+        <v-btn
+          type="submit"
+          class="btn btn-secondary"
+          :disabled="!checkIfValidEmail || !selectedRoleId"
+          @click="sendInvite"
+        >
+          <b-icon icon="share"></b-icon> Invite
+        </v-btn>
+      </div>
+
+      <!-- AFTER INVITATION SENT BLOCK -->
+      <div class="mt-2" v-if="invitionData.inviteCode !== ''">
+        <p>
+          <small>
+            An invitation has been sent to {{ inviteeEmailId }}.
+            The recipient may accept it via the provided email link or through their platform dashboard.
+            This invitation is valid until {{
+              toDateTime(invitionData.invitationValidTill)
+            }}.
+          </small>
+        </p>
+
+        <HfFlashNotification
+          class="mt-2"
+          :text="`${invitionData.inviteCode}`"
+          type="Invitation Code"
+          description="Invitation Code"
+          @click="resetInvition()"
+        ></HfFlashNotification>
+      </div>
+
+    </div>
+  </div>
+</hf-pop-up>
 
   </div>
 </template>
@@ -218,47 +253,3 @@ export default {
   mixins: [UtilsMixin],
 };
 </script>
-
-<style scoped>
-.team-members-root {
-  padding: 4px 0;
-}
-
-.action-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 8px 4px;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.action-bar-title {
-  display: flex;
-  align-items: center;
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: #111827;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.action-bar-btns {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.member-list {
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  overflow: hidden;
-  background: #ffffff;
-}
-
-.member-row:last-child .v-divider {
-  display: none;
-}
-
-
-</style>

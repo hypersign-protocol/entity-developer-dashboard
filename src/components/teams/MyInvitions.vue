@@ -1,66 +1,50 @@
 <template>
-  <div class="my-invitations-root">
+  <div class="my-3">
     <load-ing :active.sync="isLoading" :can-cancel="true" :is-full-page="true"></load-ing>
-
-    <!-- ── Action bar ────────────────────────────────────────── -->
-    <div class="action-bar">
-      <div class="action-bar-title">
-        <v-icon small class="mr-1" color="#4b5563">mdi-email-check-outline</v-icon>
-        <span>My Invitations
-          <v-chip x-small class="ml-2" color="blue lighten-5" text-color="blue darken-2">
-            {{ getMyInvitions.length }}
-          </v-chip>
-        </span>
+    <div class="row">
+      <div class="col-md-4">
       </div>
-      <div class="action-bar-btns">
-        <hf-buttons name="" title="Reload" iconClass="mdi-refresh" @executeAction="getInvitions" />
-        <hf-buttons name="Accept Invitation" iconClass="mdi-check-circle-outline" @executeAction="acceptInvitePopup" />
+      <div class="col-md-8">
+        <hf-buttons name="" title="Reload" class="mx-1" :bIcon="true"  style="float: inline-end"  iconClass="arrow-clockwise" @executeAction="getInvitions">
+                </hf-buttons>
+                <hf-buttons name="Accept Invition" title="Reload" style="float: inline-end"  iconClass="fa fa-gamepad" @executeAction="acceptInvitePopup">
+                </hf-buttons>
+
       </div>
     </div>
+    <div class="row mb-1" v-if="getMyInvitions.length > 0">
+      <table class="table">
+        <tbody>
+          <tr v-for="person in getMyInvitions" :key="person.adminId">
+            
+            <TeamUser :email="person.adminEmailId" :twoFactor="person.authenticatorEnabled"
+              :invitationStatus="person.accepted" :createdAt="toDateTime(person.createdAt)" :acceptInvitionMenu="true"
+              :inviteCode="person.inviteCode" :userId="person.adminId" :numberOfTeams="0" :mode="'Admin'" />
+              
 
-    <v-divider class="mb-3"></v-divider>
-
-    <!-- ── Invitation list ────────────────────────────────────── -->
-    <div v-if="getMyInvitions.length > 0" class="member-list">
-      <div v-for="person in getMyInvitions" :key="person.adminId" class="member-row">
-        <TeamUser
-          :email="person.adminEmailId"
-          :twoFactor="person.authenticatorEnabled"
-          :invitationStatus="person.accepted"
-          :createdAt="toDateTime(person.createdAt)"
-          :acceptInvitionMenu="true"
-          :inviteCode="person.inviteCode"
-          :userId="person.adminId"
-          :numberOfTeams="0"
-          :mode="'Admin'"
-        />
-        <v-divider></v-divider>
-      </div>
+          </tr>
+        </tbody>
+      </table>
     </div>
     <div v-else>
-      <empty-container title="No pending invitations" icon="fa fa-envelope-open-text" />
+      <empty-container title="No Invitition Found" icon="fa fa-envelope" />
     </div>
 
-    <!-- ── Accept Invitation Popup ──────────────────────────────── -->
-    <hf-pop-up id="accept-invition" Header="Accept Invitation">
-      <div>
-        <div class="form-group">
-          <label for="inviteCode"><strong>Invitation Code <span style="color:red">*</span>:</strong></label>
-          <input
-            type="text"
-            class="form-control"
-            id="inviteCode"
-            v-model="invitionCodeToAccept"
-            placeholder="Paste your invitation code here"
-            @keyup.enter="acceptedInvition"
-          />
-          <small v-if="error" class="text-danger">{{ error }}</small>
+    <!-- <div class="row mb-3" style="padding: 20px">No member found, please invite a member to your account!</div> -->
+    <hf-pop-up id="accept-invition" Header="Accept Invition">
+      <form>
+        <div class="form-group mb-3">
+          <label for="exampleInputEmail1">Invition Code:</label>
+          <div class="input-group">
+            <input type="email" class="form-control" placeholder="Enter invition code" v-model="invitionCodeToAccept" />
+            <div class="input-group-append">
+              <button type="submit" class="btn btn-outline-secondary" @click="acceptedInvition">
+                 Accept
+              </button>
+            </div>
+          </div>
         </div>
-        <div class="text-center mt-3">
-          <hf-buttons name="Cancel" customClass="btn btn-outline-secondary" @executeAction="acceptInvitePopup('hide')" />
-          <hf-buttons name="Accept" customClass="btn btn-primary ml-2" iconClass="mdi-check" @executeAction="acceptedInvition" />
-        </div>
-      </div>
+      </form>
     </hf-pop-up>
   </div>
 </template>
@@ -161,47 +145,3 @@ export default {
   mixins: [UtilsMixin],
 };
 </script>
-
-<style scoped>
-.my-invitations-root {
-  padding: 4px 0;
-}
-
-.action-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 8px 4px;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.action-bar-title {
-  display: flex;
-  align-items: center;
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: #111827;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.action-bar-btns {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.member-list {
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  overflow: hidden;
-  background: #ffffff;
-}
-
-.member-row:last-child .v-divider {
-  display: none;
-}
-
-
-</style>
