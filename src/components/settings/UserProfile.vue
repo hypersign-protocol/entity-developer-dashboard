@@ -146,7 +146,7 @@
               </strong>
             </label>
           </div>
-          <select class="custom-select"  v-model="removeAuthType"@change="onRemoveAuthTypeChange">
+          <select class="custom-select"  v-model="removeAuthType" @change="onRemoveAuthTypeChange">
             <option
               v-for="method in authenticationMethodsList"
               :value="method.value"
