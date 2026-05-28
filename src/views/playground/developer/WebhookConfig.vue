@@ -2,6 +2,8 @@
   <b-container fluid class="py-3">
     <load-ing :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></load-ing>
 
+    <AccessDenied v-if="accessDenied" />
+    <template v-if="!accessDenied">
     <v-row align="center" class="mb-6">
       <v-col cols="12" md="6">
         <h4 class="font-weight-bold mb-0">Webhook Configuration</h4>
@@ -81,6 +83,7 @@
         </div>
       </v-col>
     </v-row>
+    </template>
   </b-container>
 </template>
 
@@ -149,11 +152,13 @@ import UtilsMixin from '../../../mixins/utils.js';
 import { mapGetters, mapActions } from "vuex";
 import HfButtons from '../../../components/element/HfButtons.vue';
 import { isValidURL } from '../../../mixins/fieldValidation.js'
+import AccessDenied from '../../AccessDenied.vue';
 export default {
   name: "WEbhookConfig",
   mixins: [UtilsMixin],
   components: {
     HfButtons,
+    AccessDenied,
   },
   computed: {
     ...mapGetters('mainStore', ['getWebhookConfig']),
@@ -169,8 +174,17 @@ export default {
       this.isLoading = false
     } catch (e) {
       this.isLoading = false
-      console.error(e)
-      if (e.message) {
+      const msg = (e?.message || '').toLowerCase();
+      if (
+        msg.includes('permission denied') || msg.includes('forbidden') ||
+        msg.includes('access denied') || msg.includes('not authorized') ||
+        msg.includes('unauthorized') || msg.includes('an unknown error occurred') ||
+        e instanceof TypeError
+      ) {
+        this.accessDenied = true;
+        this.accessDeniedMsg = e.message;
+        return;
+      } else if (e.message) {
         this.notifyErr(e.message)
       }
       // this.$router.push({ path: '/studio/dashboard' });
@@ -184,6 +198,8 @@ export default {
     return {
       fullPage: true,
       isLoading: false,
+      accessDenied: false,
+      accessDeniedMsg: '',
       headers: [
         { key: "", value: "" }, // Initial header
       ],

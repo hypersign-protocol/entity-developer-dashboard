@@ -2,6 +2,8 @@
   <b-container fluid class="py-3" :class="isContainerShift ? 'homeShift' : 'home'">
     <load-ing :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></load-ing>
     
+    <AccessDenied v-if="accessDenied" />
+    <template v-if="!accessDenied">
     <v-row class="align-center mb-3">
       <v-col>
         <!-- <h3 class="mb-0 text-left">KYB Widget Configuration</h3> -->
@@ -157,6 +159,7 @@
 
       </ul>
     </v-card>
+    </template>
   </b-container>
 </template> 
 
@@ -264,12 +267,14 @@ import UtilsMixin from '../../../mixins/utils';
 import { mapState, mapActions } from "vuex";
 import HfButtons from '../../../components/element/HfButtons.vue';
 import { mapGetters, mapMutations } from 'vuex/dist/vuex.common.js';
+import AccessDenied from '../../AccessDenied.vue';
 
 export default {
   name: "KybWidgetConfig",
   mixins: [UtilsMixin],
   components: {
-    HfButtons
+    HfButtons,
+    AccessDenied
   },
   computed: {
     ...mapState({
@@ -312,8 +317,16 @@ export default {
 
     } catch (e) {
       this.isLoading = false
-      console.error(e)
-      if (e.message) {
+      const msg = (e?.message || '').toLowerCase();
+      if (
+        msg.includes('permission denied') || msg.includes('forbidden') ||
+        msg.includes('access denied') || msg.includes('not authorized') ||
+        msg.includes('unauthorized') || msg.includes('an unknown error occurred') ||
+        e instanceof TypeError
+      ) {
+        this.accessDenied = true;
+        this.accessDeniedMsg = e.message;
+      } else if (e.message) {
         this.notifyErr(e.message)
       }
     }
@@ -382,6 +395,8 @@ export default {
       },
       fullPage: true,
       isLoading: false,
+      accessDenied: false,
+      accessDeniedMsg: '',
       appId: "",
       app: {},
       kybWidgetConfigTemp: {
