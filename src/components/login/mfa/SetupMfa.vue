@@ -130,8 +130,8 @@ export default {
                     this.error = "Invalid code or expired, please try again"
                 } else {
                     this.notifySuccess(`Identity verified successfully`);
-                    this.getMyUserDetails()
-                    this.$emit("closePopup");
+                    const user = await this.getMyUserDetails()
+                    this.$emit("closePopup", user);
                 }
                 this.isLoading = false
             } catch (e) {

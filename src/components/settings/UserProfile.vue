@@ -409,6 +409,13 @@ export default {
     this.openSetupMfaFromRoute(this.$route.query.ref);
   },
   watch: {
+    getUserDetails: {
+      handler(user) {
+        this.user = user || {};
+      },
+      immediate: true,
+      deep: true
+    },
     '$route.query.ref'(ref) {
       this.openSetupMfaFromRoute(ref);
     }
@@ -506,7 +513,10 @@ export default {
     onSetupMFA() {
       this.$root.$emit("bv::show::modal", "setup-mfa-popup");
     },
-    onPopupClose() {
+    onPopupClose(updatedUser) {
+      if (updatedUser) {
+        this.user = updatedUser;
+      }
       this.$root.$emit("bv::hide::modal", "setup-mfa-popup");
     },
    confirmRemoveAuth(auth) {
@@ -565,4 +575,3 @@ export default {
   mixins: [UtilsMixin],
 };
 </script>
-
