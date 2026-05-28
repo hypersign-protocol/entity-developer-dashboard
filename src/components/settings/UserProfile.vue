@@ -467,11 +467,25 @@ export default {
     }
   },
   methods: {
-    openSetupMfaFromRoute(ref) {
+    async openSetupMfaFromRoute(ref) {
       if (ref !== 'mfa') return;
+      const user = await this.resolveUserDetails();
+      if (this.hasVerifiedAuthenticator(user)) return;
+
       this.$nextTick(() => {
         this.$root.$emit('bv::show::modal', 'setup-mfa-popup');
       });
+    },
+    async resolveUserDetails() {
+      const user = this.getUserDetails || {};
+      try {
+        return await this.getMyUserDetails() || user;
+      } catch (e) {
+        return user;
+      }
+    },
+    hasVerifiedAuthenticator(user) {
+      return user?.authenticators?.some(auth => auth.isTwoFactorAuthenticated);
     },
     formatDate(date) {
       return new Date(date).toLocaleString();
@@ -537,7 +551,7 @@ export default {
       this.removeAuthError = '';
       this.$root.$emit('bv::hide::modal', 'confirm-remove-auth');
     },
-    ...mapActions('mainStore', ['removeMfaAuthenticator']),
+    ...mapActions('mainStore', ['removeMfaAuthenticator', 'getMyUserDetails']),
     onRemoveAuthTypeChange() {
       this.removeAuthCode = '';
       this.removeAuthError = '';
