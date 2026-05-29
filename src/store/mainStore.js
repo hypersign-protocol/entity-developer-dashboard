@@ -543,6 +543,24 @@ const mainStore = {
             }
             return resp;
         },
+        getTenantAccessUsers: async ({ getters }) => {
+            const url = `${apiServerBaseUrl}/tenants/access/users`;
+            const resp = await RequestHandler(
+                url,
+                'GET',
+                {},
+                UtilsMixin.methods.getHeader(getters.getAuthToken)
+            );
+
+            if (Array.isArray(resp)) {
+                return resp;
+            }
+
+            const message = Array.isArray(resp?.message)
+                ? resp.message.join(', ')
+                : resp?.message || 'Unknown error';
+            throw new Error(message);
+        },
 
         /// Super admin 
 

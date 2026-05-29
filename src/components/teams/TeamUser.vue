@@ -33,6 +33,17 @@
         </span></b-badge>
       <b-badge pill variant="warning" class="mx-1" v-else>
         <span class="mx-1" style="color: white">Pending </span></b-badge>
+
+      <b-button
+        v-if="mode == 'Admin' && invitationStatus"
+        size="sm"
+        variant="link"
+        class="p-0 ml-2 switch-icon-btn"
+        title="Switch Account"
+        @click="switchToAdminAccount()"
+      >
+        <b-icon icon="box-arrow-in-right" aria-hidden="true"></b-icon>
+      </b-button>
       
       <b-dropdown class="m-2" size="sm" variant="link" toggle-class="text-decoration-none" menu-class="dropDownPopup" no-caret dropleft>
         <template #button-content>
@@ -255,3 +266,13 @@ export default {
   mixins: [UtilsMixin],
 };
 </script>
+
+<style scoped>
+.switch-icon-btn {
+  color: #6c757d;
+}
+
+.switch-icon-btn:hover {
+  color: #0d6efd;
+}
+</style>
