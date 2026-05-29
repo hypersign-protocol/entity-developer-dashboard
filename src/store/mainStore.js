@@ -2933,7 +2933,7 @@ const mainStore = {
                         token: accessToken
                     }).then((token) => {
 
-                        const url = `${sanitizeUrl('tenantUrl')}/api/v1/did/resolve/${payload.did}`;
+                        const url = `${sanitizeUrl(tenantUrl)}/api/v1/did/resolve/${payload.did}`;
                         const options = {
                             method: "GET",
                             headers: {
