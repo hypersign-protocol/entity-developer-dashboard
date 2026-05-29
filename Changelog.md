@@ -2,6 +2,17 @@
 
 ## [Unreleased]
 
+## [3.8.0] - 2026-06-29
+
+### Fixed
+- Handled permission denied issue properly
+- Rempved Quest from role
+- Fixed issue of did update. It was giving sucess even if update failed
+
+### Added
+- Implemented remove authenticator
+- Implemented categorized role
+
 ## [3.7.32] - 2026-06-20
 
 
