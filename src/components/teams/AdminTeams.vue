@@ -86,31 +86,101 @@
                     <small style="color: grey; font-size: x-small;">Upto 200 chars</small>
                 </b-form-group>
                 <b-form-group label="Role Permissions:" style="font-weight: bold;" label-for="input-3">
-                    <div id="input-3" class="perm-scroll-box">
-                        <div v-for="eachService in localAllServices" :key="eachService.id" class="perm-service-block">
-                            <div class="perm-service-header">{{ eachService.name }}</div>
-                            <div v-for="group in getPermSubGroups(eachService.id, eachService.accessList)" :key="group.label" class="perm-group-block">
-                                <div class="perm-group-label">{{ group.label }}</div>
-                                <div
-                                    class="form-check perm-item"
-                                    v-for="perm in group.permissions"
-                                    :key="perm"
+                    <b-tabs content-class="pt-2">
+                        <b-tab v-if="hasIDService" title="ID Service">
+                            <div class="role-cards-grid">
+                                <button
+                                    v-for="role in PREDEFINED_ROLES"
+                                    :key="role.key"
+                                    type="button"
+                                    class="role-card"
+                                    :class="{ 'role-card-selected': selectedRoles.id === role.key }"
+                                    @click="selectPredefinedRole(role, 'id')"
                                 >
-                                    <input
-                                        class="form-check-input"
-                                        type="checkbox"
-                                        :value="{ serviceType: eachService.id, access: perm }"
-                                        v-on:change="onCheck($event, eachService)"
-                                        :checked="checkIfAccessIsThereInThatService(perm, eachService.id)"
-                                        :disabled="isReadForcedByWrite(perm, eachService.id) || isWriteForcedByHigherPerm(perm, eachService.id) || isUpdateForcedByDelete(perm, eachService.id)"
-                                    >
-                                    <label class="form-check-label" :class="{ 'perm-forced': isReadForcedByWrite(perm, eachService.id) || isWriteForcedByHigherPerm(perm, eachService.id) || isUpdateForcedByDelete(perm, eachService.id) }">
-                                        <code>{{ perm }}</code>
-                                    </label>
+                                    <div class="role-card-header">
+                                        <div class="role-card-title">
+                                            <v-icon small class="role-card-icon">{{ role.icon }}</v-icon>
+                                            {{ role.name }}
+                                        </div>
+                                        <b-badge variant="info">{{ role.badge }}</b-badge>
+                                    </div>
+                                    <div class="role-card-desc">{{ role.description }}</div>
+                                    <div class="role-card-footer">
+                                        <small>{{ role.recommendedFor }}</small>
+                                        <small>{{ role.permissions.length }} permissions</small>
+                                    </div>
+                                </button>
+                            </div>
+                            <div v-if="selectedRoles.id === 'custom'" class="perm-scroll-box">
+                                <div v-for="eachService in idServices" :key="eachService.id" class="perm-service-block">
+                                    <div class="perm-service-header">{{ eachService.name }}</div>
+                                    <div v-for="group in getPermSubGroups(eachService.id, eachService.accessList)" :key="group.label" class="perm-group-block">
+                                        <div class="perm-group-label">{{ group.label }}</div>
+                                        <div class="form-check perm-item" v-for="perm in group.permissions" :key="perm">
+                                            <input
+                                                class="form-check-input"
+                                                type="checkbox"
+                                                :value="{ serviceType: eachService.id, access: perm }"
+                                                v-on:change="onCheck($event, eachService)"
+                                                :checked="checkIfAccessIsThereInThatService(perm, eachService.id)"
+                                                :disabled="isReadForcedByWrite(perm, eachService.id) || isWriteForcedByHigherPerm(perm, eachService.id) || isUpdateForcedByDelete(perm, eachService.id)"
+                                            >
+                                            <label class="form-check-label" :class="{ 'perm-forced': isReadForcedByWrite(perm, eachService.id) || isWriteForcedByHigherPerm(perm, eachService.id) || isUpdateForcedByDelete(perm, eachService.id) }">
+                                                <code>{{ perm }}</code>
+                                            </label>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    </div>
+                        </b-tab>
+
+                        <b-tab v-if="hasSSIService" title="SSI Service">
+                            <div class="role-cards-grid">
+                                <button
+                                    v-for="role in SSI_PREDEFINED_ROLES"
+                                    :key="role.key"
+                                    type="button"
+                                    class="role-card"
+                                    :class="{ 'role-card-selected': selectedRoles.ssi === role.key }"
+                                    @click="selectPredefinedRole(role, 'ssi')"
+                                >
+                                    <div class="role-card-header">
+                                        <div class="role-card-title">
+                                            <v-icon small class="role-card-icon">{{ role.icon }}</v-icon>
+                                            {{ role.name }}
+                                        </div>
+                                        <b-badge variant="info">{{ role.badge }}</b-badge>
+                                    </div>
+                                    <div class="role-card-desc">{{ role.description }}</div>
+                                    <div class="role-card-footer">
+                                        <small>{{ role.recommendedFor }}</small>
+                                        <small>{{ role.permissions.length }} permissions</small>
+                                    </div>
+                                </button>
+                            </div>
+                            <div v-if="selectedRoles.ssi === 'custom'" class="perm-scroll-box">
+                                <div v-for="eachService in ssiServices" :key="eachService.id" class="perm-service-block">
+                                    <div class="perm-service-header">{{ eachService.name }}</div>
+                                    <div v-for="group in getPermSubGroups(eachService.id, eachService.accessList)" :key="group.label" class="perm-group-block">
+                                        <div class="perm-group-label">{{ group.label }}</div>
+                                        <div class="form-check perm-item" v-for="perm in group.permissions" :key="perm">
+                                            <input
+                                                class="form-check-input"
+                                                type="checkbox"
+                                                :value="{ serviceType: eachService.id, access: perm }"
+                                                v-on:change="onCheck($event, eachService)"
+                                                :checked="checkIfAccessIsThereInThatService(perm, eachService.id)"
+                                                :disabled="isReadForcedByWrite(perm, eachService.id) || isWriteForcedByHigherPerm(perm, eachService.id) || isUpdateForcedByDelete(perm, eachService.id)"
+                                            >
+                                            <label class="form-check-label" :class="{ 'perm-forced': isReadForcedByWrite(perm, eachService.id) || isWriteForcedByHigherPerm(perm, eachService.id) || isUpdateForcedByDelete(perm, eachService.id) }">
+                                                <code>{{ perm }}</code>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </b-tab>
+                    </b-tabs>
                 </b-form-group>
 
                 <hf-buttons name="Save" @executeAction="saveRole()">Save</hf-buttons>
@@ -127,6 +197,147 @@ import StudioSideBar from "../element/StudioSideBar.vue";
 import UtilsMixin from "../../mixins/utils";
 import config from "../../config";
 
+const PREDEFINED_ROLES = [
+    {
+        key: "viewer",
+        name: "Viewer",
+        icon: "mdi-eye-outline",
+        description: "Minimal read-only access for business stakeholders.",
+        badge: "Limited view",
+        recommendedFor: "Founders, management, or external auditors",
+        permissions: ["READ_ANALYTICS", "READ_USAGE", "READ_COMPANY", "READ_COMPLIANCE"]
+    },
+    {
+        key: "analyst",
+        name: "Analyst",
+        icon: "mdi-chart-line",
+        description: "Read-only access to verification, compliance, company, analytics, and usage data.",
+        badge: "Read-only",
+        recommendedFor: "Audit, support, or monitoring team",
+        permissions: ["READ_VERIFIED_USER", "READ_ANALYTICS", "READ_USAGE", "READ_COMPANY", "READ_COMPANY_EXECUTIVES", "READ_DOCUMENT", "READ_COMPLIANCE"]
+    },
+    {
+        key: "finance",
+        name: "Finance",
+        icon: "mdi-cash-multiple",
+        description: "Can view usage, analytics, credits, and company billing-related information.",
+        badge: "Billing access",
+        recommendedFor: "Finance or accounts team",
+        permissions: ["READ_ANALYTICS", "READ_USAGE", "READ_CREDIT", "READ_COMPANY"]
+    },
+    {
+        key: "developer",
+        name: "Developer",
+        icon: "mdi-code-tags",
+        description: "Can configure widgets and webhooks for technical integration.",
+        badge: "Integration access",
+        recommendedFor: "Engineering team",
+        permissions: ["READ_WIDGET_CONFIG", "WRITE_WIDGET_CONFIG", "UPDATE_WIDGET_CONFIG", "READ_WEBHOOK_CONFIG", "WRITE_WEBHOOK_CONFIG", "UPDATE_WEBHOOK_CONFIG", "DELETE_WEBHOOK_CONFIG", "READ_USAGE"]
+    },
+    {
+        key: "compliance_manager",
+        name: "Compliance Manager",
+        icon: "mdi-shield-check-outline",
+        description: "Can review KYC/KYB cases, verify documents, and access compliance data.",
+        badge: "KYC/KYB review",
+        recommendedFor: "Compliance or operations team",
+        permissions: ["READ_VERIFIED_USER", "READ_ANALYTICS", "READ_USAGE", "READ_COMPANY", "UPDATE_COMPANY_STATUS", "READ_COMPANY_EXECUTIVES", "READ_DOCUMENT", "VERIFY_DOCUMENT", "READ_COMPLIANCE"]
+    },
+    {
+        key: "admin",
+        name: "Admin",
+        icon: "mdi-shield-crown-outline",
+        description: "Full access to manage team, settings, verification, billing, and company account.",
+        badge: "Full access",
+        recommendedFor: "Organization owners / super admins",
+        permissions: ["READ_VERIFIED_USER", "READ_WIDGET_CONFIG", "WRITE_WIDGET_CONFIG", "UPDATE_WIDGET_CONFIG", "READ_WEBHOOK_CONFIG", "WRITE_WEBHOOK_CONFIG", "UPDATE_WEBHOOK_CONFIG", "DELETE_WEBHOOK_CONFIG", "READ_ANALYTICS", "READ_USAGE", "READ_CREDIT", "READ_COMPANY", "DELETE_COMPANY", "UPDATE_COMPANY_STATUS", "READ_COMPANY_EXECUTIVES", "READ_DOCUMENT", "VERIFY_DOCUMENT", "READ_COMPLIANCE"]
+    },
+    {
+        key: "custom",
+        name: "Custom Role",
+        icon: "mdi-tune-variant",
+        description: "Start with no permissions and configure manually.",
+        badge: "Advanced",
+        recommendedFor: "Custom enterprise setups",
+        permissions: []
+    }
+];
+
+const SSI_PREDEFINED_ROLES = [
+    {
+        key: "auditor",
+        name: "Auditor",
+        icon: "mdi-clipboard-text-search-outline",
+        description: "Read-only access to SSI operations and verification records.",
+        badge: "Read-only",
+        recommendedFor: "Audit and compliance teams",
+        permissions: ["READ_DID", "READ_SCHEMA", "READ_CREDENTIAL", "READ_USAGE", "READ_TX"]
+    },
+    {
+        key: "developer",
+        name: "Developer",
+        icon: "mdi-laptop",
+        description: "Technical integration and transaction monitoring access.",
+        badge: "Developer access",
+        recommendedFor: "Engineering teams",
+        permissions: ["READ_DID", "READ_SCHEMA", "READ_CREDENTIAL", "READ_USAGE", "READ_TX", "CHECK_LIVE_STATUS"]
+    },
+    {
+        key: "verifier",
+        name: "Verifier",
+        icon: "mdi-check-decagram-outline",
+        description: "Can verify credentials, presentations, and DID signatures.",
+        badge: "Verification access",
+        recommendedFor: "Verification services",
+        permissions: ["READ_DID", "VERIFY_DID_SIGNATURE", "READ_SCHEMA", "READ_CREDENTIAL", "VERIFY_CREDENTIAL", "VERIFY_PRESENTATION", "READ_USAGE", "CHECK_LIVE_STATUS"]
+    },
+    {
+        key: "credential_issuer",
+        name: "Credential Issuer",
+        icon: "mdi-card-account-details-outline",
+        description: "Can issue and manage credentials and presentations.",
+        badge: "Credential issuance",
+        recommendedFor: "Issuing authorities",
+        permissions: ["READ_DID", "VERIFY_DID_SIGNATURE", "READ_SCHEMA", "READ_CREDENTIAL", "WRITE_CREDENTIAL", "WRITE_PRESENTATION", "READ_USAGE", "CHECK_LIVE_STATUS"]
+    },
+    {
+        key: "billing_manager",
+        name: "Billing Manager",
+        icon: "mdi-credit-card-settings-outline",
+        description: "Manage SSI credits and monitor service usage.",
+        badge: "Billing access",
+        recommendedFor: "Finance teams",
+        permissions: ["READ_CREDIT", "WRITE_CREDIT", "READ_USAGE", "CHECK_LIVE_STATUS"]
+    },
+    {
+        key: "ssi_admin",
+        name: "SSI Admin",
+        icon: "mdi-shield-star-outline",
+        description: "Full access to DIDs, schemas, credentials, presentations, usage, and credits.",
+        badge: "Full access",
+        recommendedFor: "Organization owners / SSI admins",
+        permissions: ["ALL"]
+    },
+    {
+        key: "identity_manager",
+        name: "Identity Manager",
+        icon: "mdi-identifier",
+        description: "Manage decentralized identifiers, schemas, and credential lifecycle.",
+        badge: "Identity management",
+        recommendedFor: "SSI operations teams",
+        permissions: ["READ_DID", "WRITE_DID", "VERIFY_DID_SIGNATURE", "ISSUE_DID_JWT", "READ_SCHEMA", "WRITE_SCHEMA", "READ_CREDENTIAL", "WRITE_CREDENTIAL", "VERIFY_CREDENTIAL", "WRITE_PRESENTATION", "VERIFY_PRESENTATION", "READ_USAGE", "READ_TX", "CHECK_LIVE_STATUS"]
+    },
+    {
+        key: "custom",
+        name: "Custom Role",
+        icon: "mdi-tune-variant",
+        description: "Start with no permissions and configure manually.",
+        badge: "Advanced",
+        recommendedFor: "Custom enterprise setups",
+        permissions: []
+    }
+];
+
 export default {
     name: "AdminTeams",
     components: {
@@ -135,6 +346,12 @@ export default {
     },
     computed: {
         ...mapGetters("mainStore", ["getAllServices", "getAllRoles"]),
+        PREDEFINED_ROLES() {
+            return PREDEFINED_ROLES;
+        },
+        SSI_PREDEFINED_ROLES() {
+            return SSI_PREDEFINED_ROLES;
+        },
         categorizedServices() {
             const ssiServices = this.localAllServices.filter(s => s.id === config.SERVICE_TYPES.SSI_API);
             const idServices = this.localAllServices.filter(
@@ -150,6 +367,22 @@ export default {
             if (idServices.length) categories.push({ label: 'ID Service', icon: 'mdi-shield-account-outline', iconColor: '#10b981', services: idServices });
             if (otherServices.length) categories.push({ label: 'Other Services', icon: 'mdi-apps', iconColor: '#6b7280', services: otherServices });
             return categories;
+        },
+        hasSSIService() {
+            return this.localAllServices.some(s => s.id === config.SERVICE_TYPES.SSI_API);
+        },
+        hasIDService() {
+            return this.localAllServices.some(
+                s => s.id !== config.SERVICE_TYPES.SSI_API && s.id !== config.SERVICE_TYPES.QUEST
+            );
+        },
+        ssiServices() {
+            return this.localAllServices.filter(s => s.id === config.SERVICE_TYPES.SSI_API);
+        },
+        idServices() {
+            return this.localAllServices.filter(
+                s => s.id !== config.SERVICE_TYPES.SSI_API && s.id !== config.SERVICE_TYPES.QUEST
+            );
         }
     },
     watch: {
@@ -175,7 +408,11 @@ export default {
                 "servicePermissions": []
             },
             localAllServices: [],
-            checked: true
+            checked: true,
+            selectedRoles: {
+                id: 'viewer',
+                ssi: 'auditor'
+            }
         }
     },
     mounted() {
@@ -203,16 +440,15 @@ export default {
             ];
             const ID_GROUPS = [
                 { label: 'General',               icon: 'mdi-star-outline',             iconColor: '#6366f1', keys: ['ALL'] },
-                { label: 'Session & Users',        icon: 'mdi-account-multiple-outline', iconColor: '#3b82f6', keys: ['READ_USER_CONSENT', 'WRITE_USER_CONSENT', 'READ_SESSION', 'WRITE_SESSION', 'READ_VERIFIED_USER'] },
-                { label: 'Biometrics',             icon: 'mdi-face-recognition',         iconColor: '#8b5cf6', keys: ['WRITE_PASSIVE_LIVELINESS', 'WRITE_DOC_OCR', 'CHECK_LIVE_STATUS'] },
+                { label: 'Session & Users',        icon: 'mdi-account-multiple-outline', iconColor: '#3b82f6', keys: ['READ_VERIFIED_USER'] },
                 { label: 'Widget Config',          icon: 'mdi-widgets-outline',          iconColor: '#059669', keys: ['READ_WIDGET_CONFIG', 'WRITE_WIDGET_CONFIG', 'UPDATE_WIDGET_CONFIG'] },
                 { label: 'Webhook Config',         icon: 'mdi-webhook',                  iconColor: '#0891b2', keys: ['WRITE_WEBHOOK_CONFIG', 'READ_WEBHOOK_CONFIG', 'UPDATE_WEBHOOK_CONFIG', 'DELETE_WEBHOOK_CONFIG'] },
-                { label: 'Analytics & Usage',      icon: 'mdi-chart-bar',                iconColor: '#d97706', keys: ['READ_ANALYTICS', 'READ_USAGE', 'WRITE_AUTH'] },
-                { label: 'Credit',                 icon: 'mdi-credit-card-outline',      iconColor: '#dc2626', keys: ['WRITE_CREDIT', 'READ_CREDIT'] },
-                { label: 'Company',                icon: 'mdi-domain',                   iconColor: '#7c3aed', keys: ['READ_COMPANY', 'WRITE_COMPANY', 'UPDATE_COMPANY', 'DELETE_COMPANY', 'UPDATE_COMPANY_STATUS'] },
-                { label: 'Company Executives',     icon: 'mdi-account-tie-outline',      iconColor: '#065f46', keys: ['READ_COMPANY_EXECUTIVES', 'WRITE_COMPANY_EXECUTIVES', 'UPDATE_COMPANY_EXECUTIVES', 'DELETE_COMPANY_EXECUTIVES', 'RESEND_COMPANY_EXECUTIVES_MAIL'] },
-                { label: 'Document',               icon: 'mdi-file-document-outline',    iconColor: '#92400e', keys: ['WRITE_DOCUMENT', 'READ_DOCUMENT', 'DELETE_DOCUMENT', 'VERIFY_DOCUMENT'] },
-                { label: 'Compliance',             icon: 'mdi-shield-check-outline',     iconColor: '#1d4ed8', keys: ['WRITE_COMPLIANCE', 'READ_COMPLIANCE'] },
+                { label: 'Analytics & Usage',      icon: 'mdi-chart-bar',                iconColor: '#d97706', keys: ['READ_ANALYTICS', 'READ_USAGE'] },
+                { label: 'Credit',                 icon: 'mdi-credit-card-outline',      iconColor: '#dc2626', keys: ['READ_CREDIT'] },
+                { label: 'Company',                icon: 'mdi-domain',                   iconColor: '#7c3aed', keys: ['READ_COMPANY', 'DELETE_COMPANY', 'UPDATE_COMPANY_STATUS'] },
+                { label: 'Company Executives',     icon: 'mdi-account-tie-outline',      iconColor: '#065f46', keys: ['READ_COMPANY_EXECUTIVES'] },
+                { label: 'Document',               icon: 'mdi-file-document-outline',    iconColor: '#92400e', keys: ['READ_DOCUMENT', 'VERIFY_DOCUMENT'] },
+                { label: 'Compliance',             icon: 'mdi-shield-check-outline',     iconColor: '#1d4ed8', keys: ['READ_COMPLIANCE'] },
             ];
             const groupDefs = serviceId === config.SERVICE_TYPES.SSI_API ? SSI_GROUPS : ID_GROUPS;
             const assignedKeys = new Set();
@@ -224,10 +460,10 @@ export default {
                     perms.forEach(k => assignedKeys.add(k));
                 }
             }
-            const remaining = allKeys.filter(k => !assignedKeys.has(k));
-            if (remaining.length) {
-                result.push({ label: 'Other', icon: 'mdi-dots-horizontal', iconColor: '#6b7280', permissions: remaining });
-            }
+            // const remaining = allKeys.filter(k => !assignedKeys.has(k));
+            // if (remaining.length) {
+            //     result.push({ label: 'Other', icon: 'mdi-dots-horizontal', iconColor: '#6b7280', permissions: remaining });
+            // }
             return result;
         },
         createTeamPopup() {
@@ -241,8 +477,19 @@ export default {
         openSlider(action = 'add') {
             if (action == 'add') {
                 this.resetData()
+                this.applyDefaultPredefinedRoles();
                 this.edit = false;
                 this.$root.$emit("bv::toggle::collapse", "sidebar-right");
+            }
+        },
+        applyDefaultPredefinedRoles() {
+            if (this.hasIDService) {
+                const idDefault = PREDEFINED_ROLES.find(r => r.key === 'viewer');
+                if (idDefault) this.selectPredefinedRole(idDefault, 'id');
+            }
+            if (this.hasSSIService) {
+                const ssiDefault = SSI_PREDEFINED_ROLES.find(r => r.key === 'auditor');
+                if (ssiDefault) this.selectPredefinedRole(ssiDefault, 'ssi');
             }
         },
 
@@ -260,7 +507,58 @@ export default {
             this.resetData()
             this.edit = true;
             this.roleModel = { ...role };
+            this.selectedRoles.id = this.detectSelectedPredefinedRole('id');
+            this.selectedRoles.ssi = this.detectSelectedPredefinedRole('ssi');
             this.$root.$emit("bv::toggle::collapse", "sidebar-right");
+        },
+        getServiceIdsByType(serviceType) {
+            return (serviceType === 'ssi' ? this.ssiServices : this.idServices).map(s => s.id);
+        },
+        detectSelectedPredefinedRole(serviceType) {
+            const serviceIds = new Set(this.getServiceIdsByType(serviceType));
+            const currentPermissions = (this.roleModel.permissions || [])
+                .filter(p => serviceIds.has(p.serviceType))
+                .map(p => p.access);
+            const currentSet = new Set(currentPermissions);
+            const roles = (serviceType === 'ssi' ? SSI_PREDEFINED_ROLES : PREDEFINED_ROLES).filter(r => r.key !== 'custom');
+            if (!currentSet.size) return 'custom';
+            const matched = roles.find(role => {
+                if (role.permissions.includes('ALL')) {
+                    return currentSet.has('ALL');
+                }
+                if (role.permissions.length !== currentSet.size) return false;
+                return role.permissions.every(p => currentSet.has(p));
+            });
+            return matched ? matched.key : 'custom';
+        },
+        selectPredefinedRole(role, serviceType) {
+            this.selectedRoles[serviceType] = role.key;
+            const serviceIds = new Set(this.getServiceIdsByType(serviceType));
+            this.roleModel.permissions = (this.roleModel.permissions || []).filter(p => !serviceIds.has(p.serviceType));
+            if (role.key === 'custom') {
+                return;
+            }
+            this.roleModel.permissions = [
+                ...this.roleModel.permissions,
+                ...this.buildPermissionsForRole(role, serviceType)
+            ];
+        },
+        buildPermissionsForRole(role, serviceType) {
+            const permissions = [];
+            const targetServices = serviceType === 'ssi' ? this.ssiServices : this.idServices;
+
+            targetServices.forEach(service => {
+                if (role.permissions.includes('ALL') && service.accessList.ALL !== undefined) {
+                    permissions.push({ serviceType: service.id, access: 'ALL' });
+                    return;
+                }
+                role.permissions.forEach(access => {
+                    if (service.accessList[access] !== undefined) {
+                        permissions.push({ serviceType: service.id, access });
+                    }
+                });
+            });
+            return permissions;
         },
 
         closeSlider() {
@@ -427,6 +725,7 @@ export default {
                 ],
                 "servicePermissions": []
             }
+            this.selectedRoles = { id: 'viewer', ssi: 'auditor' };
             this.edit = false;
         },
     },
@@ -441,6 +740,82 @@ export default {
     padding: 8px 12px;
     max-height: 400px;
     overflow-y: auto;
+}
+
+.role-cards-grid {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-bottom: 6px;
+    gap: 10px;
+    margin-bottom: 12px;
+    scroll-snap-type: x proximity;
+}
+
+.role-card {
+    text-align: left;
+    background: #fff;
+    border: 1px solid #dbe2ea;
+    border-radius: 8px;
+    padding: 10px 12px;
+    min-width: 260px;
+    max-width: 260px;
+    flex: 0 0 auto;
+    scroll-snap-align: start;
+}
+
+.role-card:hover {
+    border-color: #7aa5d2;
+}
+
+.role-card-selected {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 1px #2563eb;
+    background: #f8fbff;
+}
+
+.role-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 6px;
+}
+
+.role-card-title {
+    font-weight: 700;
+    color: #1f2937;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.role-card-icon {
+    color: #2563eb;
+}
+
+.role-card-desc {
+    font-size: 12px;
+    color: #4b5563;
+    margin-bottom: 6px;
+}
+
+.role-card-footer {
+    font-size: 11px;
+    color: #6b7280;
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.role-cards-grid::-webkit-scrollbar {
+    height: 7px;
+}
+
+.role-cards-grid::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 999px;
 }
 
 .perm-service-block {
