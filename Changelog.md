@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [3.9.0] - 2026-06-29
+
+### Added
+- Implemetned new design for role permission
+- Implemented tenant access list
+
 ## [3.8.0] - 2026-06-29
 
 ### Fixed
