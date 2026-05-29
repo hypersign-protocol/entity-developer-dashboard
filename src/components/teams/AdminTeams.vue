@@ -199,6 +199,15 @@ import config from "../../config";
 
 const PREDEFINED_ROLES = [
     {
+        key: "no_access",
+        name: "No Access",
+        icon: "mdi-cancel",
+        description: "Remove all ID Service permissions from this role.",
+        badge: "Off",
+        recommendedFor: "Users who should not access KYC/KYB",
+        permissions: []
+    },
+    {
         key: "viewer",
         name: "Viewer",
         icon: "mdi-eye-outline",
@@ -264,6 +273,15 @@ const PREDEFINED_ROLES = [
 ];
 
 const SSI_PREDEFINED_ROLES = [
+    {
+        key: "no_access",
+        name: "No Access",
+        icon: "mdi-cancel",
+        description: "Remove all SSI Service permissions from this role.",
+        badge: "Off",
+        recommendedFor: "Users who should not access SSI",
+        permissions: []
+    },
     {
         key: "auditor",
         name: "Auditor",
@@ -410,8 +428,8 @@ export default {
             localAllServices: [],
             checked: true,
             selectedRoles: {
-                id: 'viewer',
-                ssi: 'auditor'
+                id: 'no_access',
+                ssi: 'no_access'
             }
         }
     },
@@ -477,22 +495,10 @@ export default {
         openSlider(action = 'add') {
             if (action == 'add') {
                 this.resetData()
-                this.applyDefaultPredefinedRoles();
                 this.edit = false;
                 this.$root.$emit("bv::toggle::collapse", "sidebar-right");
             }
         },
-        applyDefaultPredefinedRoles() {
-            if (this.hasIDService) {
-                const idDefault = PREDEFINED_ROLES.find(r => r.key === 'viewer');
-                if (idDefault) this.selectPredefinedRole(idDefault, 'id');
-            }
-            if (this.hasSSIService) {
-                const ssiDefault = SSI_PREDEFINED_ROLES.find(r => r.key === 'auditor');
-                if (ssiDefault) this.selectPredefinedRole(ssiDefault, 'ssi');
-            }
-        },
-
 
         checkIfAccessIsThereInThatService(access, serviceId) {
             if (this.roleModel.permissions && this.roleModel.permissions.length > 0) {
@@ -520,8 +526,9 @@ export default {
                 .filter(p => serviceIds.has(p.serviceType))
                 .map(p => p.access);
             const currentSet = new Set(currentPermissions);
-            const roles = (serviceType === 'ssi' ? SSI_PREDEFINED_ROLES : PREDEFINED_ROLES).filter(r => r.key !== 'custom');
-            if (!currentSet.size) return 'custom';
+            const roles = (serviceType === 'ssi' ? SSI_PREDEFINED_ROLES : PREDEFINED_ROLES)
+                .filter(r => r.key !== 'custom' && r.key !== 'no_access');
+            if (!currentSet.size) return 'no_access';
             const matched = roles.find(role => {
                 if (role.permissions.includes('ALL')) {
                     return currentSet.has('ALL');
@@ -535,7 +542,7 @@ export default {
             this.selectedRoles[serviceType] = role.key;
             const serviceIds = new Set(this.getServiceIdsByType(serviceType));
             this.roleModel.permissions = (this.roleModel.permissions || []).filter(p => !serviceIds.has(p.serviceType));
-            if (role.key === 'custom') {
+            if (role.key === 'custom' || role.key === 'no_access') {
                 return;
             }
             this.roleModel.permissions = [
@@ -725,7 +732,7 @@ export default {
                 ],
                 "servicePermissions": []
             }
-            this.selectedRoles = { id: 'viewer', ssi: 'auditor' };
+            this.selectedRoles = { id: 'no_access', ssi: 'no_access' };
             this.edit = false;
         },
     },
