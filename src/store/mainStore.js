@@ -2409,9 +2409,6 @@ const mainStore = {
             const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/usage?serviceId=${getters.getSelectedService.appId}&startDate=${startDate}&endDate=${endDate}&env=${envVal}`;
             // const url = `http://localhost:3001/api/v1/usage?serviceId=${getters.getSelectedService.appId}&startDate=${startDate}&endDate=${endDate}`;            
             const authToken = getters.getSelectedService.access_token
-            if (!authToken) {
-                throw (new Error('authToken is invalid, service is not selected'))
-            }
             const token = await dispatch('getValidToken', {
                 serviceId: getters.getSelectedService.appId,
                 grant_type: config.GRANT_TYPES_ENUM.CAVACH_API,
@@ -2503,9 +2500,6 @@ const mainStore = {
             const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/usage/detail?serviceId=${getters.getSelectedService.appId}&startDate=${startDate}&endDate=${endDate}&env=${envVal}`;
             // const url = `http://localhost:3001/api/v1/usage/detail?serviceId=${getters.getSelectedService.appId}&startDate=${startDate}&endDate=${endDate}&env=${envVal}`;
             const authToken = getters.getSelectedService.access_token
-            if (!authToken) {
-                throw new Error('authToken is invalid, service is not selected')
-            }
             const token = await dispatch('getValidToken', {
                 serviceId: getters.getSelectedService.appId,
                 grant_type: config.GRANT_TYPES_ENUM.CAVACH_API,
@@ -2518,7 +2512,7 @@ const mainStore = {
             })
             const json = await resp.json()
             if (json.error) {
-                throw new Error(json.error?.details.join(' ') || json.error.join(' '))
+                throw new Error(JWTExpiredErrorMessageHandling(json))
             }
             if (json?.data) {
                 commit('setUsageDetails', json?.data)
@@ -2683,9 +2677,7 @@ const mainStore = {
             const url = `http://localhost:3001/api/v1/credit`;
 
             const authToken = getters.getSelectedService.access_token
-            if (!authToken) {
-                throw (new Error('authToken is invalid, service is not selected'))
-            }
+
             const token = await dispatch('getValidToken', {
                 serviceId: getters.getSelectedService.appId,
                 grant_type: config.GRANT_TYPES_ENUM.CAVACH_API,
@@ -2698,8 +2690,7 @@ const mainStore = {
             })
             const json = await resp.json()
             if (!resp.ok || json.error) {
-                const msg = Array.isArray(json.message) ? json.message.join(', ') : (json.message || json.error || 'Failed to fetch KYC credits');
-                throw new Error(msg);
+                throw new Error(JWTExpiredErrorMessageHandling(json))
             }
 
             if (json.data) {

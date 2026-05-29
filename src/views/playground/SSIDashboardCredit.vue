@@ -434,6 +434,7 @@ import HfPopUp from "../../components/element/hfPopup.vue";
 import { mapActions, mapGetters } from "vuex";
 import UtilsMixin from '../../mixins/utils';
 import AccessDenied from '../AccessDenied.vue';
+import { isAccessDeniedError } from '../../utils/accessDenied';
 
 export default {
     name: "SSIDashboardCredit",
@@ -633,6 +634,17 @@ export default {
     },
     methods: {
         ...mapActions('mainStore', ['ssiDashboardTxStats', 'ssiDashboardAllowanceStats', 'fetchSSICredits', 'ssiDashboardGrantsStats','activateSSICredit']),
+
+        handleApiError(error, method = 'GET') {
+            const message = typeof error === 'string' ? error : error?.message || 'Something went wrong';
+            if (method.toUpperCase() === 'GET' && isAccessDeniedError(error)) {
+                this.accessDenied = true;
+                this.accessDeniedMsg = message;
+                return;
+            }
+
+            this.notifyErr(message);
+        },
 
        renderChart() {
             if (!Array.isArray(this.getSsiCredits)) return;
@@ -851,13 +863,7 @@ export default {
             this.isLoading = false
         } catch (e) {
             this.isLoading = false;
-            const msg = (e?.message || '').toLowerCase();
-            if (msg.includes('permission denied') || msg.includes('forbidden') || msg.includes('access denied') || msg.includes('not authorized')) {
-                this.accessDenied = true;
-                this.accessDeniedMsg = e.message;
-            } else {
-                this.notifyErr(e.message);
-            }
+            this.handleApiError(e, 'GET');
             console.error(e);
         } finally {
             if (!this.accessDenied && this.allowance.expiration) {

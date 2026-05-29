@@ -268,6 +268,7 @@ import { mapState, mapActions } from "vuex";
 import HfButtons from '../../../components/element/HfButtons.vue';
 import { mapGetters, mapMutations } from 'vuex/dist/vuex.common.js';
 import AccessDenied from '../../AccessDenied.vue';
+import { isAccessDeniedError } from '../../../utils/accessDenied';
 
 export default {
   name: "KybWidgetConfig",
@@ -317,18 +318,7 @@ export default {
 
     } catch (e) {
       this.isLoading = false
-      const msg = (e?.message || '').toLowerCase();
-      if (
-        msg.includes('permission denied') || msg.includes('forbidden') ||
-        msg.includes('access denied') || msg.includes('not authorized') ||
-        msg.includes('unauthorized') || msg.includes('an unknown error occurred') ||
-        e instanceof TypeError
-      ) {
-        this.accessDenied = true;
-        this.accessDeniedMsg = e.message;
-      } else if (e.message) {
-        this.notifyErr(e.message)
-      }
+      this.handleApiError(e, 'GET')
     }
   },
   data() {
@@ -436,6 +426,17 @@ export default {
   methods: {
     ...mapMutations('mainStore', ['setKybWidgetConfig']),
     ...mapActions('mainStore', ['createAppsKybWidgetConfig', 'fetchAppsKybWidgetConfig', 'updateAppsKybWidgetConfig']),
+
+    handleApiError(error, method = 'GET') {
+      const message = typeof error === 'string' ? error : error?.message || 'Something went wrong';
+      if (method.toUpperCase() === 'GET' && isAccessDeniedError(error)) {
+        this.accessDenied = true;
+        this.accessDeniedMsg = message;
+        return;
+      }
+
+      this.notifyErr(message)
+    },
 
     validateField() {
       if (!this.kybWidgetConfigTemp.issuerDID) {

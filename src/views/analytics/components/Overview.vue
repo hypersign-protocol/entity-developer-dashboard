@@ -58,6 +58,7 @@
 
 <script>
 import { mapActions } from 'vuex/dist/vuex.common.js';
+import { isAccessDeniedError } from '../../../utils/accessDenied';
 
 const getDefaultMetrics = () => ({
   totalVerifications: 0,
@@ -113,6 +114,10 @@ export default {
         }
       } catch (err) {
         this.metrics = getDefaultMetrics();
+        if (isAccessDeniedError(err)) {
+          this.$emit('access-denied', err);
+          return;
+        }
         this.error = "Unable to load dashboard data.";
       } finally {
         this.loading = false;
