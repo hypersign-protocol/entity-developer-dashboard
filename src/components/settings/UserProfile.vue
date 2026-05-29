@@ -126,7 +126,7 @@
     </v-row>
 
     <!-- Popups -->
-    <hf-pop-up id="setup-mfa-popup" Header="MFA">
+    <hf-pop-up id="setup-mfa-popup" Header="MFA" size="sm">
       <SetupMFA @closePopup="onPopupClose" />
     </hf-pop-up>
 
@@ -353,6 +353,44 @@
 
 .form-group {
   margin-bottom: 20px;
+}
+
+/* Ensure select and PIN inputs inside the confirm modal have equal left/right spacing */
+.confirm-body .form-group > select.custom-select,
+.confirm-body .form-group .pin-wrapper {
+  width: 100%;
+  box-sizing: border-box;
+  padding-left: 12px;
+  padding-right: 12px;
+}
+
+.confirm-body .form-group .pin-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-top: 6px; /* small top padding to match vertical rhythm */
+  padding-bottom: 6px;
+}
+
+/* Force modal dialog width limits for these popups so they stay compact */
+#setup-mfa-popup .modal-dialog,
+#confirm-remove-auth .modal-dialog {
+  max-width: 480px;
+  width: 100%;
+}
+
+/* Ensure serviceCard inside modal doesn't force wider layout */
+#setup-mfa-popup .serviceCard,
+#confirm-remove-auth .serviceCard {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* Make QR image responsive within modal */
+#setup-mfa-popup img,
+#confirm-remove-auth img {
+  max-width: 100%;
+  height: auto;
 }
 
 /* RESPONSIVE ADJUSTMENTS */
