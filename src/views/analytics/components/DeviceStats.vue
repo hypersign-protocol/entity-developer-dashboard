@@ -117,9 +117,18 @@ export default {
           this.deviceData = [];
         }
       } catch (err) {
-        console.error("API Error:", err);
-        this.deviceData = [];
-        this.error = "Unable to load device stats.";
+        const msg = err.message || '';
+        const isAccessDenied = [
+          'permission denied', 'forbidden', 'access denied',
+          'not authorized', 'unauthorized', 'an unknown error occurred'
+        ].some(k => msg.toLowerCase().includes(k)) || err instanceof TypeError;
+        if (isAccessDenied) {
+          this.$emit('access-denied');
+        } else {
+          console.error("API Error:", err);
+          this.deviceData = [];
+          this.error = "Unable to load device stats.";
+        }
       } finally {
         this.loading = false;
       }

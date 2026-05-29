@@ -6,6 +6,9 @@
       :is-full-page="fullPage"
     ></load-ing>
 
+    <AccessDenied v-if="accessDenied" />
+    <template v-if="!accessDenied">
+
     <v-row align="center" class="mb-6">
       <v-col cols="12">
         <h4 class="font-weight-bold mb-0">API Key Management</h4>
@@ -155,6 +158,7 @@
         ></HfFlashNotification>
       </div>
     </hf-pop-up>
+    </template>
   </b-container>
 </template>
 
@@ -374,6 +378,7 @@
 import UtilsMixin from "../../../mixins/utils.js";
 import { mapGetters, mapActions } from "vuex";
 import HfButtons from "../../../components/element/HfButtons.vue";
+import AccessDenied from "../../AccessDenied.vue";
 import messages from "../../../mixins/messages";
 
 export default {
@@ -381,6 +386,7 @@ export default {
   mixins: [UtilsMixin],
   components: {
     HfButtons,
+    AccessDenied,
     HfFlashNotification: () =>
       import("../../../components/element/HfFlashNotification.vue"),
     HfPopUp: () => import("../../../components/element/hfPopup.vue"),
@@ -389,6 +395,8 @@ export default {
     return {
       fullPage: true,
       isLoading: false,
+      accessDenied: false,
+      accessDeniedMsg: "",
       apiKeySecret: "",
       tenantUrl: "", // Replace dynamically if needed
       dashboardUrl: "https://api.entity.dashboard.hypersign.id",
@@ -418,8 +426,18 @@ export default {
           throw new Error("Something went wrong");
         }
       } catch (e) {
-        if (Array.isArray(e.message)) e.message.forEach((m) => this.notifyErr(m));
-        else this.notifyErr(e.message);
+        const msg = Array.isArray(e.message) ? e.message.join(' ') : (e.message || '');
+        const isAccessDenied = [
+          'permission denied', 'forbidden', 'access denied',
+          'not authorized', 'unauthorized', 'an unknown error occurred'
+        ].some(k => msg.toLowerCase().includes(k)) || e instanceof TypeError;
+        if (isAccessDenied) {
+          this.accessDenied = true;
+          this.accessDeniedMsg = msg;
+        } else {
+          if (Array.isArray(e.message)) e.message.forEach((m) => this.notifyErr(m));
+          else this.notifyErr(e.message);
+        }
       } finally {
         this.isLoading = false;
       }

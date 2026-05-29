@@ -112,8 +112,17 @@ export default {
           this.error = "Data format mismatch from server.";
         }
       } catch (err) {
-        this.metrics = getDefaultMetrics();
-        this.error = "Unable to load dashboard data.";
+        const msg = err.message || '';
+        const isAccessDenied = [
+          'permission denied', 'forbidden', 'access denied',
+          'not authorized', 'unauthorized', 'an unknown error occurred'
+        ].some(k => msg.toLowerCase().includes(k)) || err instanceof TypeError;
+        if (isAccessDenied) {
+          this.$emit('access-denied');
+        } else {
+          this.metrics = getDefaultMetrics();
+          this.error = "Unable to load dashboard data.";
+        }
       } finally {
         this.loading = false;
       }

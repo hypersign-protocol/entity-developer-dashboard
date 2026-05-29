@@ -123,9 +123,18 @@ export default {
           this.demographics = this.normalizeDemographics({});
         }
       } catch (err) {
-        this.demographics = this.normalizeDemographics({});
-        this.error = "Unable to load demographic stats.";
-        console.error("Error fetching demographics:", err);
+        const msg = err.message || '';
+        const isAccessDenied = [
+          'permission denied', 'forbidden', 'access denied',
+          'not authorized', 'unauthorized', 'an unknown error occurred'
+        ].some(k => msg.toLowerCase().includes(k)) || err instanceof TypeError;
+        if (isAccessDenied) {
+          this.$emit('access-denied');
+        } else {
+          this.demographics = this.normalizeDemographics({});
+          this.error = "Unable to load demographic stats.";
+          console.error("Error fetching demographics:", err);
+        }
       } finally {
         this.loading = false;
       }

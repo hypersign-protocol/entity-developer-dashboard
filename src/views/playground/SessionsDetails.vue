@@ -257,6 +257,9 @@
       :is-full-page="fullPage"
     ></loadIng>
 
+    <AccessDenied v-if="accessDenied" />
+    <template v-if="!accessDenied">
+
     <!-- Breadcrumb + Page Header -->
     <v-row class="">
       <v-col cols="12">
@@ -758,6 +761,7 @@
     <hf-pop-up id="zoom-doc" :Header="popupHeader" size="md">
       <img :src="popupImage" />
     </hf-pop-up>
+    </template>
   </b-container>
 </template>
 
@@ -769,6 +773,7 @@ import CountryFlag from "vue-country-flag";
 import { getCosmosChainConfig } from "@hypersign-protocol/hypersign-kyc-chains-metadata/cosmos/wallet/cosmos-wallet-utils";
 import { getStellarChainConfig } from "@hypersign-protocol/hypersign-kyc-chains-metadata/stellar/wallet/stellar-wallet-utils";
 import HfPopUp from "../../components/element/hfPopup.vue";
+import AccessDenied from "../AccessDenied.vue";
 import { HYPERSIGN_PROOF_TYPES } from "@hypersign-protocol/hypersign-kyc-chains-metadata/cosmos/wallet/cosmos-wallet-utils";
 import pdfMake from "pdfmake";
 import pdfFonts from "pdfmake/build/vfs_fonts"
@@ -829,6 +834,7 @@ export default {
   components: {
     CountryFlag,
     HfPopUp,
+    AccessDenied,
   },
   computed: {
     ...mapGetters("mainStore", ["getSessionDetailsBySessionId"]),
@@ -958,6 +964,8 @@ export default {
       ],
       fullPage: true,
       isLoading: false,
+      accessDenied: false,
+      accessDeniedMsg: "",
       appId: "",
       sessionId: "",
       env: "prod",
@@ -1056,9 +1064,19 @@ export default {
         });
       }
     } catch (e) {
-      this.notifyErr(e.message);
+      const msg = e.message || '';
+      const isAccessDenied = [
+        'permission denied', 'forbidden', 'access denied',
+        'not authorized', 'unauthorized', 'an unknown error occurred'
+      ].some(k => msg.toLowerCase().includes(k)) || e instanceof TypeError;
+      if (isAccessDenied) {
+        this.accessDenied = true;
+        this.accessDeniedMsg = msg;
+      } else {
+        this.notifyErr(msg);
+        this.$router.go(-1);
+      }
       this.isLoading = false;
-      this.$router.go(-1);
     }
   },
   beforeRouteEnter(to, from, next) {
