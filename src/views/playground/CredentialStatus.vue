@@ -498,6 +498,7 @@ import message from "../../mixins/messages";
 // import Datepicker from "vuejs-datetimepicker";
 import VueQr from "vue-qr";
 import { mapState, mapGetters, mapActions, mapMutations } from "vuex";
+import { isAccessDeniedError } from '../../utils/accessDenied';
 export default {
   name: "CredentialStatus",
   components: {
@@ -714,25 +715,18 @@ export default {
       this.isLoading = false
     } catch (e) {
       this.isLoading = false;
-      const msg = (e?.message || '').toLowerCase();
-      if (
-        msg.includes('permission denied') ||
-        msg.includes('forbidden') ||
-        msg.includes('access denied') ||
-        msg.includes('not authorized') ||
-        msg.includes('unauthorized') ||
-        // TypeError from fetchCredentialList: json.data is undefined on a 403 response
-        // (the store does json.data.length without checking json.data exists)
-        e instanceof TypeError
-      ) {
-        this.accessDenied = true;
-        this.accessDeniedMsg = (msg.includes('permission denied') || msg.includes('forbidden') || msg.includes('access denied'))
-          ? e.message
-          : 'You don\'t have permission to access credentials.';
-      } else {
-        this.notifyErr(e.message || 'Failed to load credentials');
-      }
+      this.handleApiError(e, 'GET')
     }
+    },
+    handleApiError(error, method = 'GET') {
+      const message = error?.message || 'Something went wrong';
+      if (method.toUpperCase() === 'GET' && isAccessDeniedError(error)) {
+        this.accessDenied = true;
+        this.accessDeniedMsg = message;
+        return;
+      }
+
+      this.notifyErr(message);
     },
     debounce(fn, delay) {
         let timeout;
@@ -748,32 +742,37 @@ export default {
         const interval = 5
         let i = 0
         const statusCheckInterval = setInterval(async () => {
-          //this.notifySuccess('Please wait, checking status of registration from blockchain...')
-          i = i + 1;
-          const response = await this.checkBlockchainStatusOfSSI(id_to_check_status)
-          if (response && response.data && response.data.length > 0 && response.data[0]) {
-            if (response.data.findIndex(x => x.status == 0) >= 0) {
-              this.notifySuccess('Credential successfully registerd on the blockchain, txHash: ' + response.data[0].txnHash)
-              this.updateACredential({
-                id: id_to_check_status,
-                status: 'Registered',
-              })
+          try {
+            //this.notifySuccess('Please wait, checking status of registration from blockchain...')
+            i = i + 1;
+            const response = await this.checkBlockchainStatusOfSSI(id_to_check_status)
+            if (response && response.data && response.data.length > 0 && response.data[0]) {
+              if (response.data.findIndex(x => x.status == 0) >= 0) {
+                this.notifySuccess('Credential successfully registerd on the blockchain, txHash: ' + response.data[0].txnHash)
+                this.updateACredential({
+                  id: id_to_check_status,
+                  status: 'Registered',
+                })
+                this.resolveCredential({ credentialId: id_to_check_status, retrieveCredential: false })
+                clearInterval(statusCheckInterval)
+              } else {
+                this.resolveCredential({ credentialId: id_to_check_status, retrieveCredential: false })
+                this.notifyErr('Sorry we could not register your Credential, txHash: ' + response.data[0].txnHash)
+              }
+            }
+            if (i == maxrtries) {
+              this.notifyErr('All atempts failed to check the status on blockchain. Please check it manually')
               this.resolveCredential({ credentialId: id_to_check_status, retrieveCredential: false })
               clearInterval(statusCheckInterval)
-            } else {
-              this.resolveCredential({ credentialId: id_to_check_status, retrieveCredential: false })
-              this.notifyErr('Sorry we could not register your Credential, txHash: ' + response.data[0].txnHash)
             }
-          }
-          if (i == maxrtries) {
-            this.notifyErr('All atempts failed to check the status on blockchain. Please check it manually')
-            this.resolveCredential({ credentialId: id_to_check_status, retrieveCredential: false })
+          } catch (e) {
             clearInterval(statusCheckInterval)
+            this.handleApiError(e, 'GET')
           }
         }, interval * 1000)
       } catch (e) {
         console.error(e.message)
-        this.notifyErr(e.message)
+        this.handleApiError(e, 'GET')
       }
     },
      async checkCredentialUpdateStatus(id_to_check_status, dateTime) {
@@ -782,31 +781,36 @@ export default {
         const interval = 5
         let i = 0
         const statusCheckInterval = setInterval(async () => {
-          i = i + 1;
-          const response = await this.checkBlockchainStatusOfSSI(id_to_check_status)
-          if (response && response.data && response.data.length > 0 ) {
-            const sortedData = response.data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-            const latestEntry = sortedData[0];
-          if(new Date(latestEntry.createdAt)>= new Date(dateTime)){
-             if (latestEntry.status === 0) {
-            this.notifySuccess('Credential successfully updated on the blockchain, txHash: ' + latestEntry.txnHash);
-          } else {
-            this.notifyErr('Sorry we could not register your Credential, txHash: ' + latestEntry.txnHash);
+          try {
+            i = i + 1;
+            const response = await this.checkBlockchainStatusOfSSI(id_to_check_status)
+            if (response && response.data && response.data.length > 0 ) {
+              const sortedData = response.data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+              const latestEntry = sortedData[0];
+            if(new Date(latestEntry.createdAt)>= new Date(dateTime)){
+               if (latestEntry.status === 0) {
+              this.notifySuccess('Credential successfully updated on the blockchain, txHash: ' + latestEntry.txnHash);
+            } else {
+              this.notifyErr('Sorry we could not register your Credential, txHash: ' + latestEntry.txnHash);
+            }
+            this.resolveCredential({ credentialId: id_to_check_status, retrieveCredential: false });
+               clearInterval(statusCheckInterval);
           }
-          this.resolveCredential({ credentialId: id_to_check_status, retrieveCredential: false });
-             clearInterval(statusCheckInterval);
-        }
-        }  
-     
-          if (i == maxrtries) {
-            this.notifyErr('All atempts failed to check the status on blockchain. Please check it manually')
-            this.resolveCredential({ credentialId: id_to_check_status, retrieveCredential: false })
+          }  
+       
+            if (i == maxrtries) {
+              this.notifyErr('All atempts failed to check the status on blockchain. Please check it manually')
+              this.resolveCredential({ credentialId: id_to_check_status, retrieveCredential: false })
+              clearInterval(statusCheckInterval)
+            }
+          } catch (e) {
             clearInterval(statusCheckInterval)
+            this.handleApiError(e, 'GET')
           }
         }, interval * 1000)
       } catch (e) {
         console.error(e.message)
-        this.notifyErr(e.message)
+        this.handleApiError(e, 'GET')
       }
     },
     async unlockCredential(credentialId) {

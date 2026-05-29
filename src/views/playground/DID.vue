@@ -310,6 +310,7 @@ import DomainLinkage from '@hypersign-protocol/domain-linkage-verifier'
 import { mapState, mapGetters, mapActions, mapMutations } from "vuex";
 import LogoUploader from '../../components/element/LogoUploader.vue';
 import AccessDenied from '../AccessDenied.vue';
+import { isAccessDeniedError } from '../../utils/accessDenied';
 export default {
   name: "DIDs",
   components: { HfPopUp, StudioSideBar, HfButtons, ToolTip, LogoUploader, AccessDenied },
@@ -413,18 +414,7 @@ export default {
       this.isLoading = false
     } catch (e) {
       this.isLoading = false
-      const msg = (e?.message || '').toLowerCase();
-      if (
-        msg.includes('permission denied') || msg.includes('forbidden') ||
-        msg.includes('access denied') || msg.includes('not authorized') ||
-        msg.includes('unauthorized') || msg.includes('an unknown error occurred') ||
-        e instanceof TypeError
-      ) {
-        this.accessDenied = true;
-        this.accessDeniedMsg = e.message;
-      } else {
-        this.notifyErr(e.message)
-      }
+      this.handleApiError(e, 'GET')
     }
   },
   beforeRouteEnter(to, from, next) {
@@ -436,6 +426,17 @@ export default {
     ...mapActions('mainStore', ['fetchDIDsForAService', 'createDIDsForAService','checkBlockchainStatusOfSSI', 'registerDIDsForAService', 'updateDIDsForAService']),
     ...mapMutations('playgroundStore', ['updateSideNavStatus', 'shiftContainer']),
     ...mapMutations('mainStore', ['updateADID']),
+
+    handleApiError(error, method = 'GET') {
+      const message = error?.message || 'Something went wrong';
+      if (method.toUpperCase() === 'GET' && isAccessDeniedError(error)) {
+        this.accessDenied = true;
+        this.accessDeniedMsg = message;
+        return;
+      }
+
+      this.notifyErr(message);
+    },
 
     linkDomain(row) {
       // remove this once this feature is complete
@@ -529,6 +530,7 @@ export default {
         console.error(e.message)
         this.isLoading = false;
         this.verifyButtonText = "Verify"
+        this.handleApiError(e, 'PATCH')
       }
 
 
@@ -555,6 +557,7 @@ export default {
       } catch (e) {
         console.error(e)
         this.isLoading = false;
+        this.handleApiError(e, 'POST')
       }
     },
 
@@ -668,6 +671,7 @@ export default {
             }
           }).catch((error) => {
             console.error(' Failed to register DID on the blockchain ' + error.message)
+            this.handleApiError(error, 'POST')
           })  
         }
         this.isLoading = false;
@@ -675,7 +679,7 @@ export default {
       } catch (e) {
         console.error(e.message)
         this.isLoading = false
-        this.notifyErr(e.message)
+        this.handleApiError(e, 'POST')
       }
     },
     async updateDID(){
@@ -711,6 +715,9 @@ export default {
               })
               this.checkRegistrationStatus(registerAsyncResponse.did)
             }
+          }).catch((error) => {
+            console.error(' Failed to register DID on the blockchain ' + error.message)
+            this.handleApiError(error, 'POST')
           })  
         }
         this.notifySuccess('DID updated successfully')
@@ -719,7 +726,7 @@ export default {
         this.$root.$emit("bv::toggle::collapse", "sidebar-right");
       }catch(e){
        this.isLoading = false
-        this.notifyErr(e.message)
+        this.handleApiError(e, 'PATCH')
       }
     },
     async checkRegistrationStatus(id_to_check_status){
@@ -728,29 +735,34 @@ export default {
         const interval = 5
         let i = 0
         const statusCheckInterval = setInterval(async () => {
-          //this.notifySuccess('Please wait, checking status of registration from blockchain...')
-          i = i + 1;
-          const response = await this.checkBlockchainStatusOfSSI(id_to_check_status)
-          if(response && response.data && response.data.length > 0 && response.data[0]){
-            if(response.data[0].status == 0){
-              this.notifySuccess('DID successfully registerd on the blockchain, txHash: '+ response.data[0].txnHash)
-              this.updateADID({
-                did: id_to_check_status,
-                status: 'Registered',
-              })
-              clearInterval(statusCheckInterval)
-            } else {
-              this.notifyErr('Sorry we could not register your DID, txHash: '+ response.data[0].txnHash)
+          try {
+            //this.notifySuccess('Please wait, checking status of registration from blockchain...')
+            i = i + 1;
+            const response = await this.checkBlockchainStatusOfSSI(id_to_check_status)
+            if(response && response.data && response.data.length > 0 && response.data[0]){
+              if(response.data[0].status == 0){
+                this.notifySuccess('DID successfully registerd on the blockchain, txHash: '+ response.data[0].txnHash)
+                this.updateADID({
+                  did: id_to_check_status,
+                  status: 'Registered',
+                })
+                clearInterval(statusCheckInterval)
+              } else {
+                this.notifyErr('Sorry we could not register your DID, txHash: '+ response.data[0].txnHash)
+              }
             }
-          }
-          if(i == maxrtries){
-            this.notifyErr('All atempts failed to check the status on blockchain. Please check it manually')
+            if(i == maxrtries){
+              this.notifyErr('All atempts failed to check the status on blockchain. Please check it manually')
+              clearInterval(statusCheckInterval)
+            }
+          } catch (e) {
             clearInterval(statusCheckInterval)
+            this.handleApiError(e, 'GET')
           }
         }, interval * 1000)
       }catch(e){
         console.error(e.message)
-        this.notifyErr(e.message)
+        this.handleApiError(e, 'GET')
       }
     },
 
