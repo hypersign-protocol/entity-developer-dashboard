@@ -33,6 +33,13 @@
               </template>
               <AdminTeams />
             </b-tab>
+            <b-tab>
+              <template #title>
+                <i class="fa fa-signal" aria-hidden="true"></i>
+                Live Access
+              </template>
+              <LiveAccessStatus />
+            </b-tab>
           </b-tabs>
         </b-tab>
 
@@ -69,7 +76,7 @@
             </b-tab>
             <b-tab>
               <template #title>
-                <b-icon icon="piggy-bank" aria-hidden="true" small></b-icon> Issue Credits
+                <b-icon icon="piggy-bank" aria-hidden="true" small></b-icon> Credit Recharge
               </template>
               <CreditRecharge />
             </b-tab>
@@ -97,6 +104,7 @@
 import TeamMembers from '../components/teams/TeamMembers.vue';
 import MyInvitions from '../components/teams/MyInvitions.vue';
 import AdminTeams from '../components/teams/AdminTeams.vue';
+import LiveAccessStatus from '../components/teams/LiveAccessStatus.vue';
 import { mapMutations, mapGetters } from "vuex";
 import OnlySSIApps from '../components/settings/OnlySSIApps.vue';
 import UserProfile from '../components/settings/UserProfile.vue';
@@ -112,6 +120,7 @@ export default {
   components: {
     TeamMembers,
     AdminTeams,
+    LiveAccessStatus,
     MyInvitions,
     UserProfile,
     OnlySSIApps,    
