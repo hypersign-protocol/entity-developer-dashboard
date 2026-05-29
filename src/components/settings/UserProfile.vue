@@ -130,7 +130,7 @@
       <SetupMFA @closePopup="onPopupClose" />
     </hf-pop-up>
 
-  <hf-pop-up id="confirm-remove-auth" Header="Remove Authenticator">
+  <hf-pop-up id="confirm-remove-auth" Header="Remove Authenticator" size="sm">
   <div class="confirm-body">
   <div class="card remove-auth-card">
       <div class="card-body">
@@ -375,10 +375,14 @@
 
 /* Limit only the Remove Auth popup card width and center it (scoped) */
 .confirm-body .remove-auth-card {
-  max-width: 480px;
+  max-width: 420px;
   width: 100%;
   margin: 0 auto;
   box-sizing: border-box;
+}
+
+.confirm-body .remove-auth-card .card-body {
+  padding: 14px;
 }
 
 /* Ensure images inside the confirm body are responsive */
