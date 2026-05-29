@@ -1,10 +1,9 @@
 <template>
-    <empty-container title="Access Denied" icon="fa fa-user-shield" class="mt-2"/>    
+    <empty-container title="Access Denied" icon="fa fa-user-shield" class="access-denied-state" />
 </template>
 
 <style scoped>
-/* top space */
-.mt-2 {
-    margin-top: 20px;
+.access-denied-state {
+    margin-top: 5vh !important;
 }
 </style>
