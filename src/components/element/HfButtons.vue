@@ -4,11 +4,9 @@
   depressed
   @click="emitExecuteAction()"
   >
-  <span v-if="iconClass">
-    <i :class="iconClass" v-if="bIcon==false"></i>
-    <b-icon :icon="iconClass" :animation="animate" v-else></b-icon>
-  </span>  
-  {{name}} 
+    <v-icon v-if="isMdi" small left>{{ mdiIconName }}</v-icon>
+    <i v-else-if="iconClass" :class="iconClass" class="hf-fa-icon" aria-hidden="true"></i>
+    <span v-if="name" class="hf-btn-text">{{ name }}</span>
   </v-btn>
 </template>
 
@@ -26,7 +24,8 @@ export default {
         default: ''},
       name:{
         type: String,
-        require:true
+        require:false,
+        default: ''
       },
       iconClass: {
         type: String,
@@ -42,13 +41,22 @@ export default {
         require:false
       }
     },
-    computed:{
-    //   buttonThemeCss() {
-    //   return {
-    //     '--button-bg-color': config.app.buttonBgColor,
-    //     '--button-text-color':config.app.buttonTextColor
-    //   }
-    //  },
+    
+    computed: {
+      isMdi() {
+        return this.iconClass && (this.iconClass.startsWith('mdi') || this.iconClass.startsWith('mdi-'));
+      },
+      mdiIconName() {
+        if (!this.iconClass) return '';
+        const parts = this.iconClass.split(' ');
+        // prefer token that starts with 'mdi-'
+        const mdiDash = parts.find(p => p.startsWith('mdi-'));
+        if (mdiDash) return mdiDash;
+        // otherwise if 'mdi' exists, try to return next token that starts with 'mdi-'
+        const mdiIndex = parts.findIndex(p => p === 'mdi');
+        if (mdiIndex >= 0 && parts[mdiIndex + 1]) return parts[mdiIndex + 1];
+        return parts[0] || '';
+      }
     },
     methods:{
       emitExecuteAction(){
@@ -58,7 +66,7 @@ export default {
 };
 </script>
 
-<style >
+<style>
 /* .button-theme {
   background-color:  var(--button-bg-color);
   border-collapse:  var(--button-bg-color);
@@ -73,4 +81,17 @@ export default {
   border: 1px solid #905ab0 !important;
   color: #905ab0 !important;
 } */
+
+.hf-fa-icon {
+  font-family: "Font Awesome 5 Free", "Font Awesome 5 Brands" !important;
+  font-weight: 900 !important;
+  font-style: normal !important;
+  display: inline-block !important;
+  margin-right: 6px !important;
+  line-height: 1 !important;
+}
+
+.hf-btn-text {
+  margin-left: 2px;
+}
 </style>

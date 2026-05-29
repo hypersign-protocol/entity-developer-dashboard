@@ -9,23 +9,6 @@
             <strong> Profile</strong>
           </template>
           <UserProfile></UserProfile>
-          <!-- <b-tabs card vertical justified small v-model="activeProfileSubTab">
-             
-              <SetupMFA v-if="!isTwoFactorEnabled.isTwoFactorEnabled" />
-              <div v-else>
-                <h3>
-                  MFA Enabled <b-icon icon="shield-shaded"></b-icon>
-                </h3>
-                <ul class="list-group">
-                  <li class="list-group-item">
-                    <span>Type: {{ isTwoFactorEnabled.authenticators[0].type }}</span>
-                    <span style="float: right"></span>
-                  </li>
-                </ul>
-              </div>
-            
-              
-          </b-tabs> -->
         </b-tab>
 
 
@@ -49,6 +32,13 @@
                 <i class="fa fa-gamepad" aria-hidden="true"></i> Roles & Permissions
               </template>
               <AdminTeams />
+            </b-tab>
+            <b-tab>
+              <template #title>
+                <i class="fa fa-signal" aria-hidden="true"></i>
+                Live Access
+              </template>
+              <LiveAccessStatus />
             </b-tab>
           </b-tabs>
         </b-tab>
@@ -86,7 +76,7 @@
             </b-tab>
             <b-tab>
               <template #title>
-                <b-icon icon="piggy-bank" aria-hidden="true" small></b-icon> Issue Credits
+                <b-icon icon="piggy-bank" aria-hidden="true" small></b-icon> Credit Recharge
               </template>
               <CreditRecharge />
             </b-tab>
@@ -114,6 +104,7 @@
 import TeamMembers from '../components/teams/TeamMembers.vue';
 import MyInvitions from '../components/teams/MyInvitions.vue';
 import AdminTeams from '../components/teams/AdminTeams.vue';
+import LiveAccessStatus from '../components/teams/LiveAccessStatus.vue';
 import { mapMutations, mapGetters } from "vuex";
 import OnlySSIApps from '../components/settings/OnlySSIApps.vue';
 import UserProfile from '../components/settings/UserProfile.vue';
@@ -129,6 +120,7 @@ export default {
   components: {
     TeamMembers,
     AdminTeams,
+    LiveAccessStatus,
     MyInvitions,
     UserProfile,
     OnlySSIApps,    
@@ -153,32 +145,39 @@ export default {
       sentInvitiationCode: ""
     };
   },
+  watch: {
+    '$route.query.ref'(ref) {
+      this.applyRouteRef(ref);
+    }
+  },
   methods: {
     ...mapMutations("mainStore", ["setMainSideNavBar"]),
-    ...mapActions('mainStore', ['getMyRolesAction', 'getPeopleMembers',])
+    ...mapActions('mainStore', ['getMyRolesAction', 'getPeopleMembers',]),
+    applyRouteRef(ref) {
+      if (ref === 'invitions') {
+        this.$nextTick(() => {
+          this.activeMainTab = 2;
+        })
+      } else if (ref === 'roles') {
+        this.activeMainTab = 1;
+        this.$nextTick(() => {
+          this.activeMembersSubTab = 1;
+        });
+      } else if (ref === 'mfa') {
+        this.activeMainTab = 0;
+        this.$nextTick(() => {
+          this.activeProfileSubTab = 0;
+        });
+      } else {
+        this.activeMainTab = 1;
+        this.activeMembersSubTab = 0;
+      }
+    }
   },
   async mounted() {
     
     this.setMainSideNavBar(false);
-    const ref = this.$route.query.ref;
-    if (ref === 'invitions') {
-      this.$nextTick(() => {
-        this.activeMainTab = 2;
-      })
-    } else if (ref === 'roles') {
-      this.activeMainTab = 1;
-      this.$nextTick(() => {
-        this.activeMembersSubTab = 1;
-      });
-    } else if (ref === 'mfa') {
-      this.activeMainTab = 0;
-      this.$nextTick(() => {
-        this.activeProfileSubTab = 0;
-      });
-    } else {
-      this.activeMainTab = 1;
-      this.activeMembersSubTab = 0;
-    }
+    this.applyRouteRef(this.$route.query.ref);
 
     try{
       await this.getMyRolesAction()

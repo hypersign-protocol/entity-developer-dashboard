@@ -46,6 +46,7 @@ import { mapActions } from 'vuex/dist/vuex.common.js';
 import * as echarts from 'echarts';
 import countries from 'i18n-iso-countries';
 import enLocale from 'i18n-iso-countries/langs/en.json';
+import { isAccessDeniedError } from '../../../utils/accessDenied';
 countries.registerLocale(enLocale);
 // You will need the world.json file for ECharts
 // Usually available via: import worldJson from './world.json' 
@@ -124,6 +125,10 @@ export default {
         }
       } catch (err) {
         this.demographics = this.normalizeDemographics({});
+        if (isAccessDeniedError(err)) {
+          this.$emit('access-denied', err);
+          return;
+        }
         this.error = "Unable to load demographic stats.";
         console.error("Error fetching demographics:", err);
       } finally {

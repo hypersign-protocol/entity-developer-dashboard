@@ -343,6 +343,7 @@ export default {
         COLLECT_WALLET: "Collect Wallet Address",
         AGE_VERIFICATION: "Age Verification",
         FRAUD_PREVENTION: "Fraud Prevention",
+        PROOF_OF_PERSONHOOD: "Proof of Personhood",
       },
       BUSINESS_EST_YEARLY_VOLUME: {
         ZERO_ONEK: "0 - 1,000",
@@ -539,7 +540,7 @@ export default {
       const c = this.localCompany;
 
       if (!c.name?.trim()) return this.showToast("Please enter a company/community name");
-      if (!c.logo?.trim()) return this.showToast("Please provide a logo URL");
+      if (!c.logo?.trim()) return this.showToast("Please upload logo.");
 
       if (c.type == this.BUSINESS_TYPE.BUSINESS && !c.country) return this.showToast("Please select a country");
       if (c.type == this.BUSINESS_TYPE.BUSINESS && !c.registration_number) return this.showToast("Please enter your company registration number");

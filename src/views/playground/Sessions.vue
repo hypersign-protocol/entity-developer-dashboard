@@ -164,8 +164,8 @@
 <template>
   <b-container fluid class="py-3" :class="isContainerShift ? 'homeShift' : 'home'">
     <loadIng :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loadIng>
-
-    <!-- Page Header -->
+    <AccessDenied v-if="accessDenied" />
+    <div v-if="!accessDenied">
     <div class="d-flex justify-content-between align-items-center mb-4">
       <div>
         <h4 class="page-title">Users Verifications</h4>
@@ -295,6 +295,7 @@
     <div v-else>
       <empty-container title="No User Found" icon="fa fa-users" />
     </div>
+    </div><!-- end v-if !accessDenied -->
   </b-container>
 </template>
 
@@ -303,9 +304,11 @@ import UtilsMixin from '../../mixins/utils';
 import { mapState, mapGetters, mapActions, mapMutations } from "vuex";
 import PagiNation from '../../components/Pagination.vue';
 import Config from "../../config"
+import AccessDenied from '../AccessDenied.vue';
+import { isAccessDeniedError } from '../../utils/accessDenied';
 export default {
   name: "SessionsPage",
-  components: { PagiNation },
+  components: { PagiNation, AccessDenied },
   computed: {
     ...mapGetters('mainStore', ['userList', 'getUserAccessList', 'getSelectedService']),
     ...mapGetters('mainStore', ['getUserDetails']),
@@ -353,6 +356,8 @@ export default {
       user: {},
       fullPage: true,
       isLoading: false,
+      accessDenied: false,
+      accessDeniedMsg: '',
       sessionIdTemp: null,
       hasPermission: false,
       selectedSessionStatus: 'All',
@@ -382,11 +387,7 @@ export default {
 
     } catch (e) {
       this.isLoading = false
-      this.notifyErr(e.message || 'An error occurred while fetching users.')
-      setTimeout(() => {
-        this.$router.push({ path: '/studio/dashboard' });
-      }, 1000)
-      
+      this.handleApiError(e, 'GET')
     }
   },
   beforeRouteEnter(to, from, next) {
@@ -397,6 +398,17 @@ export default {
   methods: {
     ...mapActions('mainStore', ['fetchAppsUsers']),
     ...mapMutations('playgroundStore', ['updateSideNavStatus', 'shiftContainer']),
+    handleApiError(error, method = 'GET') {
+      console.log(error)
+      const message = typeof error === 'string' ? error : error?.message || 'Something went wrong';
+      if (method.toUpperCase() === 'GET' && isAccessDeniedError(error)) {
+        this.accessDenied = true;
+        this.accessDeniedMsg = message;
+        return;
+      }
+
+      this.notifyErr(message || 'An error occurred while fetching users.')
+    },
     filteredSteps(row) {
       return this.allSteps.filter(step => row[step.field] !== null && row[step.field] !== undefined);
     },

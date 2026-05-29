@@ -69,24 +69,14 @@ import PIN from './PIN.vue'
 import { mapMutations, mapActions } from 'vuex/dist/vuex.common.js';
 import UtilsMixin from "../../../mixins/utils";
 import EventBus from "../../../eventbus";
+import { AUTHENTICATION_METHODS_LIST } from "../../../constants/authenticators";
 
 export default {
     name: 'VerifyMfa',
     data() {
         return {
             isLoading: false,
-            authenticationMethodsList: [
-                {
-                    name: 'Okta Authenticator',
-                    value: 'okta',
-                    selected: false
-                },
-                {
-                    name: 'Google Authenticator',
-                    value: 'google',
-                    selected: false,
-                },
-            ],
+            authenticationMethodsList: AUTHENTICATION_METHODS_LIST,
             authenticationMethod: '',
             error: "",
         }

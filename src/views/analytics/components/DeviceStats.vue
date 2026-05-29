@@ -55,6 +55,7 @@
 <script>
 import { mapActions } from 'vuex/dist/vuex.common.js';
 import * as echarts from 'echarts';
+import { isAccessDeniedError } from '../../../utils/accessDenied';
 
 export default {
   name: 'DeviceStats',
@@ -117,6 +118,10 @@ export default {
           this.deviceData = [];
         }
       } catch (err) {
+        if (isAccessDeniedError(err)) {
+          this.$emit('access-denied', err);
+          return;
+        }
         console.error("API Error:", err);
         this.deviceData = [];
         this.error = "Unable to load device stats.";

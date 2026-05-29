@@ -5,7 +5,7 @@
       <div class="col-md-4">
       </div>
       <div class="col-md-8">
-        <hf-buttons name="" title="Reload" class="mx-1" :bIcon="true"  style="float: inline-end"  iconClass="arrow-clockwise" @executeAction="getInvitions">
+        <hf-buttons name="" title="Reload" class="mx-1" :bIcon="true"  style="float: inline-end"  iconClass="fas fa-sync-alt" @executeAction="getInvitions">
                 </hf-buttons>
                 <hf-buttons name="Accept Invition" title="Reload" style="float: inline-end"  iconClass="fa fa-gamepad" @executeAction="acceptInvitePopup">
                 </hf-buttons>

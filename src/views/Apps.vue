@@ -1221,6 +1221,7 @@ export default {
 
           this.$router.push({
             name: "GettingStarted",
+            params: { appId },
           });
           break;
         }
@@ -1405,9 +1406,6 @@ export default {
     },
     async createAnApp() {
       try {
-        if (!this.appModel.whitelistCors) {
-          this.appModel.whitelistedCors = '*';
-        }
         const errorMessages = this.validateFields();
         if (errorMessages && errorMessages.message.length > 0) {
           throw errorMessages;

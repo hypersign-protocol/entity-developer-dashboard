@@ -1,6 +1,6 @@
 <template>
     <b-container fluid class="py-3">
-    <v-row align="center" class="mb-6">
+    <v-row v-if="!accessDenied" align="center" class="mb-6">
       <v-col cols="12" md="6">
         <h4 class="font-weight-bold mb-0">API Usage Analytics</h4>
         <p class="text-subtitle-2 text-muted">Monitor consumption and service costs</p>
@@ -29,6 +29,14 @@
         </div>
       </v-col>
     </v-row>
+
+    <AccessDenied v-if="accessDenied" />
+    <div v-else-if="errorMessage" style="display:flex;flex-direction:column;align-items:center;text-align:center;padding:48px 32px;background:#fef2f2;border:1px solid #fecaca;border-radius:8px;margin:16px 0">
+      <v-icon size="36" color="#dc2626">mdi-alert-circle-outline</v-icon>
+      <div style="font-size:18px;font-weight:700;color:#991b1b;margin:12px 0 6px">Failed to Load</div>
+      <div style="font-size:13px;color:#7f1d1d">{{ errorMessage }}</div>
+    </div>
+    <template v-else>
 
     <v-row>
       <v-col cols="12" lg="7">
@@ -128,6 +136,7 @@
         </div>
       </v-col>
     </v-row>
+    </template>
   </b-container>
 </template>
 
@@ -135,12 +144,19 @@
 import { mapActions } from "vuex";
 import * as echarts from "echarts";
 import moment from "moment";
+import AccessDenied from '../AccessDenied.vue';
 
 export default {
   name: "ApiUsageAnalytics",
+  components: {
+    AccessDenied
+  },
   data() {
     return {
       loading: false,
+      accessDenied: false,
+      accessDeniedMsg: '',
+      errorMessage: '',
       startDate: moment().subtract(30, "days").format("YYYY-MM-DD"),
       endDate: moment().format("YYYY-MM-DD"),
       menu1: false,
@@ -184,6 +200,8 @@ export default {
 
     async refreshData() {
       this.loading = true;
+      this.accessDenied = false;
+      this.errorMessage = '';
       try {
         const [dailyRes, summaryRes] = await Promise.all([
           this.fetchUsageDetailsForAService({
@@ -219,6 +237,21 @@ export default {
         }, 150);
       } catch (err) {
         console.error("Failed to load API usage", err);
+        const msg = (err?.message || '').toLowerCase();
+        if (
+          msg.includes('permission denied') ||
+          msg.includes('forbidden') ||
+          msg.includes('access denied') ||
+          msg.includes('not authorized') ||
+          msg.includes('unauthorized') ||
+          msg.includes('an unknown error occurred') ||
+          err instanceof TypeError
+        ) {
+          this.accessDenied = true;
+          this.accessDeniedMsg = 'You don\'t have permission to view API usage data.';
+        } else {
+          this.errorMessage = err.message || 'Failed to load API usage data.';
+        }
       } finally {
         this.loading = false;
       }

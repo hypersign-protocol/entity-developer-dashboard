@@ -13,7 +13,8 @@ const BUSINESS_INTERESTED_IN = {
     ID_VERIFICATION: "ID Verification",
     AML_SCREEN: "AML Screening",
     BIOMETRIC_VERIFCATION: "Biometric Verification",
-    PROOF_OF_ADDRESS: "Proof Of Address"
+    PROOF_OF_ADDRESS: "Proof Of Address",
+    PROOF_OF_PERSONHOOD: 'Proof of Personhood'
 }
 
 const BUSINESS_EST_YEARLY_VOLUME = {

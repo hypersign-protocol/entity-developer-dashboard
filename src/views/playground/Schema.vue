@@ -140,7 +140,8 @@
 <template>
   <div :class="isContainerShift ? 'homeShift' : 'home'">
     <loadIng :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loadIng>
-    <div class="">
+    <AccessDenied v-if="accessDenied" />
+    <div v-if="!accessDenied" class="">
       <div class="" style="text-align: left">
         <!-- <Info :message="description" /> -->
         <div class="form-group" style="display:flex">
@@ -270,7 +271,7 @@
         </StudioSideBar>
       </div>
     </div>
-    <div class="scrollit" v-if="schemaList.length > 0">
+    <div class="scrollit" v-if="!accessDenied && schemaList.length > 0">
       <div class="">
         <table class="table table-hover event-card">
           <thead class="thead-light">
@@ -410,9 +411,12 @@ import ToolTip from "../../components/element/ToolTip.vue"
 import { isValidURL, isEmpty, ifSpaceExists, isValidSchemaAttrName } from '../../mixins/fieldValidation'
 import message from '../../mixins/messages'
 import { mapGetters, mapState, mapActions, mapMutations } from "vuex";
+import AccessDenied from '../AccessDenied.vue';
+import { isAccessDeniedError } from '../../utils/accessDenied';
+
 export default {
   name: "SchemaS",
-  components: { HfPopUp, StudioSideBar, HfButtons, HfSelectDropDown, ToolTip },
+  components: { HfPopUp, StudioSideBar, HfButtons, HfSelectDropDown, ToolTip, AccessDenied },
   computed: {
     ...mapState({
       schemaList: state => state.mainStore.schemaList,
@@ -481,6 +485,8 @@ export default {
       credentialDescription: "",
       fullPage: true,
       isLoading: false,
+      accessDenied: false,
+      accessDeniedMsg: '',
       QrData: {
         "QRType": "ISSUE_SCHEMA",
         "serviceEndpoint": "",
@@ -504,8 +510,7 @@ export default {
       this.isLoading = false
     } catch (e) {
       this.isLoading = false
-      this.notifyErr(e.message)
-      this.$router.push({ path: '/studio/dashboard' });
+      this.handleApiError(e, 'GET')
     }
   },
   beforeRouteEnter(to, from, next) {
@@ -518,6 +523,16 @@ export default {
     ...mapActions('mainStore', ['fetchSchemaList', 'createSchemaForAService', 'resolveSchema', 'checkBlockchainStatusOfSSI']),
     ...mapMutations('playgroundStore', ['updateSideNavStatus', 'increaseOrgDataCount']),
     ...mapMutations('mainStore', ['updateASchema']),
+    handleApiError(error, method = 'GET') {
+      const message = error?.message || 'Something went wrong';
+      if (method.toUpperCase() === 'GET' && isAccessDeniedError(error)) {
+        this.accessDenied = true;
+        this.accessDeniedMsg = message;
+        return;
+      }
+
+      this.notifyErr(message);
+    },
     viewSchemaDocument(data) {
       // console.log(data)
       this.schemaDocumentToView = data; //JSON.stringify(data, null, 2)
@@ -529,32 +544,37 @@ export default {
         const interval = 5
         let i = 0
         const statusCheckInterval = setInterval(async () => {
-          //this.notifySuccess('Please wait, checking status of registration from blockchain...')
-          i = i + 1;
-          const response = await this.checkBlockchainStatusOfSSI(id_to_check_status)
-          if (response && response.data && response.data.length > 0 && response.data[0]) {
-            if (response.data[0].status == 0) {
-              this.notifySuccess('Schema successfully registerd on the blockchain, txHash: ' + response.data[0].txnHash)
-              this.updateASchema({
-                id: id_to_check_status,
-                status: 'Registered',
-              })
+          try {
+            //this.notifySuccess('Please wait, checking status of registration from blockchain...')
+            i = i + 1;
+            const response = await this.checkBlockchainStatusOfSSI(id_to_check_status)
+            if (response && response.data && response.data.length > 0 && response.data[0]) {
+              if (response.data[0].status == 0) {
+                this.notifySuccess('Schema successfully registerd on the blockchain, txHash: ' + response.data[0].txnHash)
+                this.updateASchema({
+                  id: id_to_check_status,
+                  status: 'Registered',
+                })
+                this.resolveSchema(id_to_check_status)
+                clearInterval(statusCheckInterval)
+              } else {
+                this.resolveSchema(id_to_check_status)
+                this.notifyErr('Sorry we could not register your Schema, txHash: ' + response.data[0].txnHash)
+              }
+            }
+            if (i == maxrtries) {
+              this.notifyErr('All atempts failed to check the status on blockchain. Please check it manually')
               this.resolveSchema(id_to_check_status)
               clearInterval(statusCheckInterval)
-            } else {
-              this.resolveSchema(id_to_check_status)
-              this.notifyErr('Sorry we could not register your Schema, txHash: ' + response.data[0].txnHash)
             }
-          }
-          if (i == maxrtries) {
-            this.notifyErr('All atempts failed to check the status on blockchain. Please check it manually')
-            this.resolveSchema(id_to_check_status)
+          } catch (e) {
             clearInterval(statusCheckInterval)
+            this.handleApiError(e, 'GET')
           }
         }, interval * 1000)
       } catch (e) {
         console.error(e.message)
-        this.notifyErr(e.message)
+        this.handleApiError(e, 'GET')
       }
     },
     handleClick(id) {
