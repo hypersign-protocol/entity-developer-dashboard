@@ -126,7 +126,7 @@
     </v-row>
 
     <!-- Popups -->
-    <hf-pop-up id="setup-mfa-popup" Header="MFA" size="sm">
+    <hf-pop-up id="setup-mfa-popup" Header="MFA">
       <SetupMFA @closePopup="onPopupClose" />
     </hf-pop-up>
 
@@ -364,6 +364,7 @@
   padding-right: 12px;
 }
 
+
 .confirm-body .form-group .pin-wrapper {
   display: flex;
   align-items: center;
@@ -372,23 +373,16 @@
   padding-bottom: 6px;
 }
 
-/* Force modal dialog width limits for these popups so they stay compact */
-#setup-mfa-popup .modal-dialog,
-#confirm-remove-auth .modal-dialog {
+/* Limit only the Remove Auth popup card width and center it (scoped) */
+.confirm-body .remove-auth-card {
   max-width: 480px;
   width: 100%;
-}
-
-/* Ensure serviceCard inside modal doesn't force wider layout */
-#setup-mfa-popup .serviceCard,
-#confirm-remove-auth .serviceCard {
-  max-width: 100%;
+  margin: 0 auto;
   box-sizing: border-box;
 }
 
-/* Make QR image responsive within modal */
-#setup-mfa-popup img,
-#confirm-remove-auth img {
+/* Ensure images inside the confirm body are responsive */
+.confirm-body img {
   max-width: 100%;
   height: auto;
 }
