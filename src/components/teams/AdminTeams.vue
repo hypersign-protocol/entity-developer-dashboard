@@ -86,24 +86,30 @@
                     <small style="color: grey; font-size: x-small;">Upto 200 chars</small>
                 </b-form-group>
                 <b-form-group label="Role Permissions:" style="font-weight: bold;" label-for="input-3">
-                    <div id="input-3" class="card" style="padding:10px; max-height: 350px; overflow-y: auto;">
-                        <ul class="list-unstyled">
-                            <li v-for="eachService in localAllServices" v-bind:key="eachService.id"
-                                style="border-bottom: 1px solid lightgray; padding: 10px;">
-                                <label><strong>{{ eachService.name }}</strong></label>
-
-                                <div class="form-check" v-for="eachAccess in Object.keys(eachService.accessList)"
-                                    v-bind:key="eachAccess">
-                                    <input class="form-check-input" type="checkbox"
-                                        :value="{ serviceType: eachService.id, access: eachAccess }"
+                    <div id="input-3" class="perm-scroll-box">
+                        <div v-for="eachService in localAllServices" :key="eachService.id" class="perm-service-block">
+                            <div class="perm-service-header">{{ eachService.name }}</div>
+                            <div v-for="group in getPermSubGroups(eachService.id, eachService.accessList)" :key="group.label" class="perm-group-block">
+                                <div class="perm-group-label">{{ group.label }}</div>
+                                <div
+                                    class="form-check perm-item"
+                                    v-for="perm in group.permissions"
+                                    :key="perm"
+                                >
+                                    <input
+                                        class="form-check-input"
+                                        type="checkbox"
+                                        :value="{ serviceType: eachService.id, access: perm }"
                                         v-on:change="onCheck($event, eachService)"
-                                        :checked="checkIfAccessIsThereInThatService(eachAccess, eachService.id)">
-                                    <label class="form-check-label" for="flexCheckDefault">
-                                        <code> {{ eachAccess }}</code>
+                                        :checked="checkIfAccessIsThereInThatService(perm, eachService.id)"
+                                        :disabled="isReadForcedByWrite(perm, eachService.id) || isWriteForcedByHigherPerm(perm, eachService.id) || isUpdateForcedByDelete(perm, eachService.id)"
+                                    >
+                                    <label class="form-check-label" :class="{ 'perm-forced': isReadForcedByWrite(perm, eachService.id) || isWriteForcedByHigherPerm(perm, eachService.id) || isUpdateForcedByDelete(perm, eachService.id) }">
+                                        <code>{{ perm }}</code>
                                     </label>
                                 </div>
-                            </li>
-                        </ul>
+                            </div>
+                        </div>
                     </div>
                 </b-form-group>
 
@@ -263,6 +269,27 @@ export default {
             this.$root.$emit("bv::toggle::collapse", "sidebar-right");
         },
 
+        isUpdateForcedByDelete(accessKey, serviceId) {
+            if (!accessKey.startsWith('UPDATE_')) return false;
+            const deleteKey = 'DELETE_' + accessKey.substring(7); // 'UPDATE_'.length = 7
+            return this.checkIfAccessIsThereInThatService(deleteKey, serviceId);
+        },
+
+        isReadForcedByWrite(accessKey, serviceId) {
+            if (!accessKey.startsWith('READ_')) return false;
+            const writeKey = 'WRITE_' + accessKey.substring(5);
+            return this.checkIfAccessIsThereInThatService(writeKey, serviceId);
+        },
+
+        isWriteForcedByHigherPerm(accessKey, serviceId) {
+            if (!accessKey.startsWith('WRITE_')) return false;
+            const suffix = accessKey.substring(6); // 'WRITE_'.length = 6
+            const deleteKey = 'DELETE_' + suffix;
+            const updateKey = 'UPDATE_' + suffix;
+            return this.checkIfAccessIsThereInThatService(deleteKey, serviceId) ||
+                   this.checkIfAccessIsThereInThatService(updateKey, serviceId);
+        },
+
         onCheck(event, service) {
             const ev = event.target._value;
             if (!ev) return;
@@ -283,6 +310,56 @@ export default {
                 this.roleModel.permissions.splice(index, 1);
             } else {
                 this.roleModel.permissions.push(ev);
+            }
+
+            // Auto-manage READ when WRITE is toggled
+            if (ev.access.startsWith('WRITE_')) {
+                const readKey = 'READ_' + ev.access.substring(6);
+                if (service.accessList[readKey] !== undefined && event.target.checked) {
+                    const readIdx = this.roleModel.permissions.findIndex(
+                        x => x.serviceType == ev.serviceType && x.access == readKey
+                    );
+                    if (readIdx === -1) {
+                        this.roleModel.permissions.push({ serviceType: ev.serviceType, access: readKey });
+                    }
+                }
+            }
+
+            // Auto-manage WRITE (and READ) when DELETE or UPDATE is toggled
+            if (ev.access.startsWith('DELETE_') || ev.access.startsWith('UPDATE_')) {
+                const suffix = ev.access.substring(7); // both 'DELETE_' and 'UPDATE_' are 7 chars
+                const writeKey = 'WRITE_' + suffix;
+                if (service.accessList[writeKey] !== undefined && event.target.checked) {
+                    // Auto-add WRITE
+                    const writeIdx = this.roleModel.permissions.findIndex(
+                        x => x.serviceType == ev.serviceType && x.access == writeKey
+                    );
+                    if (writeIdx === -1) {
+                        this.roleModel.permissions.push({ serviceType: ev.serviceType, access: writeKey });
+                    }
+                    // Auto-add READ (cascade)
+                    const readKey = 'READ_' + suffix;
+                    if (service.accessList[readKey] !== undefined) {
+                        const readIdx = this.roleModel.permissions.findIndex(
+                            x => x.serviceType == ev.serviceType && x.access == readKey
+                        );
+                        if (readIdx === -1) {
+                            this.roleModel.permissions.push({ serviceType: ev.serviceType, access: readKey });
+                        }
+                    }
+                }
+                // Auto-add UPDATE when DELETE is toggled
+                if (ev.access.startsWith('DELETE_') && event.target.checked) {
+                    const updateKey = 'UPDATE_' + suffix;
+                    if (service.accessList[updateKey] !== undefined) {
+                        const updateIdx = this.roleModel.permissions.findIndex(
+                            x => x.serviceType == ev.serviceType && x.access == updateKey
+                        );
+                        if (updateIdx === -1) {
+                            this.roleModel.permissions.push({ serviceType: ev.serviceType, access: updateKey });
+                        }
+                    }
+                }
             }
         },
 
@@ -356,3 +433,59 @@ export default {
     mixins: [UtilsMixin]
 }
 </script>
+
+<style scoped>
+.perm-scroll-box {
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    padding: 8px 12px;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.perm-service-block {
+    margin-bottom: 12px;
+}
+
+.perm-service-block:not(:last-child) {
+    border-bottom: 1px solid #e9ecef;
+    padding-bottom: 10px;
+}
+
+.perm-service-header {
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #343a40;
+    padding: 6px 0 4px;
+}
+
+.perm-group-block {
+    margin: 6px 0 6px 8px;
+}
+
+.perm-group-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #6c757d;
+    margin-bottom: 4px;
+    padding: 2px 0;
+    border-left: 3px solid #dee2e6;
+    padding-left: 6px;
+}
+
+.perm-item {
+    margin-left: 12px;
+    margin-bottom: 2px;
+}
+
+.perm-item code {
+    font-size: 12px;
+}
+
+.perm-forced {
+    color: #6c757d;
+    font-style: italic;
+}
+</style>
