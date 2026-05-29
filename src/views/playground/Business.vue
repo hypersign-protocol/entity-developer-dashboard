@@ -2,6 +2,8 @@
   <b-container class="py-3">
     <load-ing :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></load-ing>
 
+    <AccessDenied v-if="accessDenied" />
+    <template v-if="!accessDenied">
     <v-row align="center" class="mb-6">
   <v-col cols="12" md="6">
     <h4 class="font-weight-bold mb-0">Business Verifications</h4>
@@ -122,6 +124,7 @@
     <div v-else>
       <empty-container title="No Business Found" icon="fa fa-building" />
     </div>
+    </template>
   </b-container>
 </template>
 
@@ -448,14 +451,17 @@
 import { mapState, mapActions, mapMutations } from "vuex";
 import loadIng from '../../components/element/LoadIng.vue';
 import config from '@/config.js';
+import AccessDenied from '../AccessDenied.vue';
 export default {
   name: "BusinessVerification",
-  components: { loadIng },
+  components: { loadIng, AccessDenied },
   data() {
     return {
       searchQuery: '',
       statusFilter: 'all',
       isLoading: false,
+      accessDenied: false,
+      accessDeniedMsg: '',
       fullPage: true,
       error: null,
       currentAppId: null,
@@ -512,7 +518,18 @@ export default {
         this.isLoading = false;
       } catch (error) {
         this.isLoading = false;
-        console.error('Error fetching companies:', error);
+        const msg = (error?.message || '').toLowerCase();
+        if (
+          msg.includes('permission denied') || msg.includes('forbidden') ||
+          msg.includes('access denied') || msg.includes('not authorized') ||
+          msg.includes('unauthorized') || msg.includes('an unknown error occurred') ||
+          error instanceof TypeError
+        ) {
+          this.accessDenied = true;
+          this.accessDeniedMsg = error.message;
+        } else {
+          console.error('Error fetching companies:', error);
+        }
       }
     },
 

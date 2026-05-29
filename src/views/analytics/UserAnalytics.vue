@@ -1,5 +1,7 @@
 <template>
     <b-container class="py-3" fluid>
+        <AccessDenied v-if="accessDenied" />
+        <template v-if="!accessDenied">
         <v-row align="center" class="mb-6">
             <v-col cols="12" md="6">
                 <h4 class="font-weight-bold mb-0">User Analytics</h4>
@@ -8,21 +10,22 @@
         </v-row>
         <v-row>
             <v-col cols="12">
-                <Overview :env="env" />
+                <Overview :env="env" @access-denied="handleAccessDenied" />
             </v-col>
         </v-row>
         <v-row>
             <v-col cols="12">
-                <DemographicStats :env="env" />
+                <DemographicStats :env="env" @access-denied="handleAccessDenied" />
             </v-col>
 
         </v-row>
         <v-row>
             <v-col cols="12">
-                <DeviceStats :env="env" />
+                <DeviceStats :env="env" @access-denied="handleAccessDenied" />
             </v-col>
 
         </v-row>
+        </template>
     </b-container>
 </template>
 <style scoped>
@@ -35,11 +38,14 @@
 import Overview from './components/Overview.vue';
 import DemographicStats from './components/DemographicStats.vue';
 import DeviceStats from './components/DeviceStats.vue';
+import AccessDenied from '../AccessDenied.vue';
 export default {
     name: "UserAnalytics",
     data() {
         return {
             isProd: false,
+            accessDenied: false,
+            accessDeniedMsg: '',
         };
     },
     computed: {
@@ -48,11 +54,16 @@ export default {
         }
     },
     components: {
+        AccessDenied,
         Overview,
         DemographicStats,
         DeviceStats
     },
     methods: {
+        handleAccessDenied(error) {
+            this.accessDenied = true;
+            this.accessDeniedMsg = typeof error === 'string' ? error : error?.message || 'Access denied';
+        },
         handleEnvironmentChange() {
         }
     },
@@ -64,4 +75,3 @@ export default {
     },
 };
 </script>
-

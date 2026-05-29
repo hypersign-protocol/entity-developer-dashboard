@@ -6,7 +6,9 @@
         <h2 class="title">Service Credit Recharge</h2>
       </div>
 
-      <div class="pa-2">
+      <AccessDenied v-if="accessDenied" />
+
+      <div v-else class="pa-2">
         <p class="text-subtitle-2 text-muted mb-6">
           Allocate credits and set validity periods for your registered backend services.
         </p>
@@ -71,6 +73,33 @@
 </template>
 
 <style scoped>
+/* Access denied state */
+.access-denied-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2.5rem 1.5rem;
+  text-align: center;
+  background: #fff5f5;
+  border: 1px solid #fecaca;
+  border-radius: 10px;
+  margin: 0.5rem 0;
+}
+
+.access-denied-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #dc2626;
+  margin-bottom: 6px;
+}
+
+.access-denied-msg {
+  font-size: 0.85rem;
+  color: #6b7280;
+  max-width: 360px;
+  margin: 0;
+}
 .overview-container {
   padding: 1.5rem;
   background-color: #f9fafb;
@@ -134,15 +163,17 @@
 import { mapActions } from 'vuex/dist/vuex.common.js';
 import loadIng from '../../../components/element/LoadIng.vue';
 import UtilsMixin from '../../../mixins/utils.js';
+import AccessDenied from '../../AccessDenied.vue';
 
 export default {
   name: 'CreditRecharge',
-  components: { loadIng },
+  components: { loadIng, AccessDenied },
   mixins: [UtilsMixin],
   data() {
     return {
       loading: false,
       isLoading: false,
+      accessDenied: false,
       form: {
         serviceId: '',
         amount: '100',
@@ -176,7 +207,15 @@ export default {
         this.notifySuccess(`Credits recharged successfully for service ${this.form.serviceId}.`);
       } catch (err) {
         const errorMsg = err.response?.data?.message || err.message || "Recharge failed.";
-        this.notifyErr(errorMsg);
+        const isPermissionDenied = errorMsg.toLowerCase().includes('permission denied') ||
+          errorMsg.toLowerCase().includes('forbidden') ||
+          errorMsg.toLowerCase().includes('access denied') ||
+          errorMsg.toLowerCase().includes('not authorized');
+        if (isPermissionDenied) {
+          this.accessDenied = true;
+        } else {
+          this.notifyErr(errorMsg);
+        }
       } finally {
         this.loading = false;
         this.isLoading = false;

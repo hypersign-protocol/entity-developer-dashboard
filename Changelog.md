@@ -2,6 +2,23 @@
 
 ## [Unreleased]
 
+## [3.9.0] - 2026-06-29
+
+### Added
+- Implemetned new design for role permission
+- Implemented tenant access list
+
+## [3.8.0] - 2026-06-29
+
+### Fixed
+- Handled permission denied issue properly
+- Rempved Quest from role
+- Fixed issue of did update. It was giving sucess even if update failed
+
+### Added
+- Implemented remove authenticator
+- Implemented categorized role
+
 ## [3.7.32] - 2026-06-20
 
 

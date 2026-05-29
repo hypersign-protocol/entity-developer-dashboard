@@ -139,6 +139,8 @@ ul {
 <template>
   <b-container fluid class="py-3" :class="isContainerShift ? 'homeShift' : 'home'">
     <load-ing :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></load-ing>
+    <AccessDenied v-if="accessDenied" />
+    <template v-if="!accessDenied">
     <v-row>
       <v-col>
         <div class="form-group" style="display:flex">
@@ -345,7 +347,7 @@ ul {
     </div>
 
 
-
+    </template>
   </b-container>
 </template>
 
@@ -355,6 +357,8 @@ import UtilsMixin from '../../../mixins/utils';
 import { mapState, mapActions } from "vuex";
 import HfButtons from '../../../components/element/HfButtons.vue';
 import { mapGetters, mapMutations } from 'vuex/dist/vuex.common.js';
+import AccessDenied from '../../AccessDenied.vue';
+import { isAccessDeniedError } from '../../../utils/accessDenied';
 // import TrustedIssuer from './components/TrustedIssuer.vue';
 import MarketplaceList from '../../../components/MarketplaceList.vue';
 import HFBeta from '../../../components/element/HFBeta.vue';
@@ -372,7 +376,8 @@ export default {
   components: {
     HfButtons,
     MarketplaceList,
-    HFBeta
+    HFBeta,
+    AccessDenied
     // TrustedIssuer
   },
   // TODO : check why this is not working... we need to trigger warning that its an experimental feature once user enables zk
@@ -435,11 +440,7 @@ export default {
       this.isLoading = false
     } catch (e) {
       this.isLoading = false
-      console.error(e)
-      if (e.message) {
-        this.notifyErr(e.message)
-      }
-      // this.$router.push({ path: '/studio/dashboard' });
+      return this.handleApiError(e, 'GET')
     }
 
     if (Object.keys(this.widgetConfig).length > 0) {
@@ -541,6 +542,8 @@ export default {
       },
       fullPage: true,
       isLoading: false,
+      accessDenied: false,
+      accessDeniedMsg: '',
       appId: "",
       app: {},
       trustedIssuersList: [],
@@ -635,6 +638,16 @@ export default {
   methods: {
     ...mapMutations('mainStore', ['setWidgetConfig', 'setPreparedMarketPlaceApps', 'insertMarketplaceApps']),
     ...mapActions('mainStore', ['fetchAppsOnChainConfigs', 'fetchMarketPlaceAppsFromServer', 'createAppsWidgetConfig', 'fetchAppsWidgetConfig', 'updateAppsWidgetConfig']),
+    handleApiError(error, method = 'GET') {
+      const message = typeof error === 'string' ? error : error?.message || 'Something went wrong';
+      if (method.toUpperCase() === 'GET' && isAccessDeniedError(error)) {
+        this.accessDenied = true;
+        this.accessDeniedMsg = message;
+        return;
+      }
+
+      this.notifyErr(message)
+    },
 
     selectedServiceEventHandler(event) {
       // Guard: ignore entries with no issuerDid

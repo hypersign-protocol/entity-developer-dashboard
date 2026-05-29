@@ -129,6 +129,9 @@ h5 span {
 
         <loadIng :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loadIng>
 
+        <AccessDenied v-if="accessDenied" />
+
+        <div v-if="!accessDenied">
 
         <!-- -------- -->
 
@@ -186,14 +189,14 @@ h5 span {
         <div class="mt-3">
             <div class="">
                 <div class="form-group">
-                    <h3 v-if="usageDetails.serviceDetails.length > 0" style="text-align: left;">
+                    <h3 v-if="usageDetails.serviceDetails && usageDetails.serviceDetails.length > 0" style="text-align: left;">
                         API Consumptions </h3>
                     <h3 v-else style="text-align: left;">No usage found!</h3>
                 </div>
             </div>
         </div>
 
-        <div class="row scrollit mt-1" v-if="usageDetails.serviceDetails.length > 0">
+        <div class="row scrollit mt-1" v-if="usageDetails.serviceDetails && usageDetails.serviceDetails.length > 0">
             <div class="col-md-12">
                 <table class="table table-hover event-card" style="background:#FFFF">
                     <thead class="thead-light">
@@ -226,6 +229,7 @@ h5 span {
             </div>
         </div>
 
+        </div><!-- end v-if !accessDenied -->
     </div>
 </template>
 
@@ -238,9 +242,12 @@ import { mapState, mapActions, mapMutations } from "vuex";
 import { mapGetters } from 'vuex/dist/vuex.common.js';
 
 import UtilsMixin from '../../mixins/utils';
+import AccessDenied from '../AccessDenied.vue';
+import { isAccessDeniedError } from '../../utils/accessDenied';
 export default {
     name: "SSIDashboardCredit",
     components: {
+        AccessDenied
     },
     computed: {
 
@@ -394,6 +401,8 @@ export default {
             user: {},
             fullPage: true,
             isLoading: false,
+            accessDenied: false,
+            accessDeniedMsg: '',
 
             startDate: "",
             endDate: "",
@@ -432,6 +441,11 @@ export default {
             this.isLoading = true
             this.setDate()
             await this.fetchUsageForASSIService({ startDate: this.startDate, endDate: this.endDate }).then((data) => {
+                // fetchUsageForASSIService returns the error object instead of throwing on 403
+                if (data && (data.statusCode >= 400 || data.error)) {
+                    const msg = Array.isArray(data.message) ? data.message.join(', ') : (data.message || data.error || 'Access denied');
+                    throw new Error(msg);
+                }
                 this.usageDetails = data;
             })
             await this.fetchUsageDetailsForASSIService({ startDate: this.startDate, endDate: this.endDate });
@@ -440,8 +454,7 @@ export default {
             this.isLoading = false
         } catch (e) {
             this.isLoading = false
-            this.notifyErr(e.message)
-             this.$router.push({ path: '/studio/dashboard' });
+            this.handleApiError(e, 'GET')
         }
     },
 
@@ -470,6 +483,23 @@ export default {
 
         ...mapMutations('playgroundStore', ['updateSideNavStatus', 'shiftContainer']),
 
+        handleApiError(error, method = 'GET') {
+            const message = typeof error === 'string' ? error : error?.message || 'Something went wrong';
+            if (method.toUpperCase() === 'GET' && isAccessDeniedError(error)) {
+                this.accessDenied = true;
+                this.accessDeniedMsg = message;
+                return;
+            }
+
+            this.notifyErr(message);
+        },
+
+        throwIfAccessDeniedResponse(data) {
+            if (data && (data.statusCode >= 400 || data.error)) {
+                const msg = Array.isArray(data.message) ? data.message.join(', ') : (data.message || data.error || 'Access denied');
+                throw new Error(msg);
+            }
+        },
 
         changeGraph(chartType) {
             if (chartType == 'line') {
@@ -675,7 +705,9 @@ export default {
                 this.endDate = (new Date(this.endDate));
 
                 this.isLoading = true
-                this.usageDetails = await this.fetchUsageForASSIService({ startDate: this.startDate, endDate: this.endDate })
+                const usageDetails = await this.fetchUsageForASSIService({ startDate: this.startDate, endDate: this.endDate })
+                this.throwIfAccessDeniedResponse(usageDetails);
+                this.usageDetails = usageDetails;
                 await this.fetchUsageDetailsForASSIService({ startDate: this.startDate, endDate: this.endDate });
                 this.isLoading = false
 
@@ -684,7 +716,7 @@ export default {
                 this.renderUsageDetailsChart()
             } catch (e) {
                 this.isLoading = false
-                this.notifyErr(e.message)
+                this.handleApiError(e, 'GET')
             }
         },
 

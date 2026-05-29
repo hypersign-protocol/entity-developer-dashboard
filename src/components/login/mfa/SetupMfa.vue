@@ -71,6 +71,7 @@
 import PIN from './PIN.vue'
 import { mapActions } from 'vuex/dist/vuex.common.js';
 import UtilsMixin from "../../../mixins/utils";
+import { AUTHENTICATION_METHODS_LIST } from "../../../constants/authenticators";
 
 export default {
     name: 'SetupMfa',
@@ -79,18 +80,7 @@ export default {
             isLoading: false,
 
             qrCodeDataUrl: "",
-            authenticationMethodsList: [
-                {
-                    name: 'Google Authenticator',
-                    value: 'google',
-                    selected: true,
-                },
-                {
-                    name: 'Okta Authenticator',
-                    value: 'okta',
-                    selected: false
-                }
-            ],
+            authenticationMethodsList: AUTHENTICATION_METHODS_LIST,
             authenticationMethod: "",
             error: ""
         }
@@ -140,8 +130,8 @@ export default {
                     this.error = "Invalid code or expired, please try again"
                 } else {
                     this.notifySuccess(`Identity verified successfully`);
-                    this.getMyUserDetails()
-                    this.$emit("closePopup");
+                    const user = await this.getMyUserDetails()
+                    this.$emit("closePopup", user);
                 }
                 this.isLoading = false
             } catch (e) {

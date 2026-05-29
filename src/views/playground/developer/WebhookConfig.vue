@@ -2,6 +2,8 @@
   <b-container fluid class="py-3">
     <load-ing :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></load-ing>
 
+    <AccessDenied v-if="accessDenied" />
+    <template v-if="!accessDenied">
     <v-row align="center" class="mb-6">
       <v-col cols="12" md="6">
         <h4 class="font-weight-bold mb-0">Webhook Configuration</h4>
@@ -81,6 +83,7 @@
         </div>
       </v-col>
     </v-row>
+    </template>
   </b-container>
 </template>
 
@@ -149,11 +152,14 @@ import UtilsMixin from '../../../mixins/utils.js';
 import { mapGetters, mapActions } from "vuex";
 import HfButtons from '../../../components/element/HfButtons.vue';
 import { isValidURL } from '../../../mixins/fieldValidation.js'
+import AccessDenied from '../../AccessDenied.vue';
+import { isAccessDeniedError } from '../../../utils/accessDenied';
 export default {
   name: "WEbhookConfig",
   mixins: [UtilsMixin],
   components: {
     HfButtons,
+    AccessDenied,
   },
   computed: {
     ...mapGetters('mainStore', ['getWebhookConfig']),
@@ -169,11 +175,7 @@ export default {
       this.isLoading = false
     } catch (e) {
       this.isLoading = false
-      console.error(e)
-      if (e.message) {
-        this.notifyErr(e.message)
-      }
-      // this.$router.push({ path: '/studio/dashboard' });
+      return this.handleApiError(e, 'GET')
     }
 
     this.formatConfig()
@@ -184,6 +186,8 @@ export default {
     return {
       fullPage: true,
       isLoading: false,
+      accessDenied: false,
+      accessDeniedMsg: '',
       headers: [
         { key: "", value: "" }, // Initial header
       ],
@@ -194,6 +198,16 @@ export default {
   },
   methods: {
     ...mapActions('mainStore', ['fetchAppWebhookConfig', 'createAppWebhookConfig', 'deleteAppWebhookConfig', 'updateAppWebhookConfig']),
+    handleApiError(error, method = 'GET') {
+      const message = typeof error === 'string' ? error : error?.message || 'Something went wrong';
+      if (method.toUpperCase() === 'GET' && isAccessDeniedError(error)) {
+        this.accessDenied = true;
+        this.accessDeniedMsg = message;
+        return;
+      }
+
+      this.notifyErr(message)
+    },
     addHeader() {
       this.headers.push({ key: "", value: "" });
     },

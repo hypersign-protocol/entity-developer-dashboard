@@ -116,7 +116,8 @@ h5 span {
 <template>
   <div :class="isContainerShift ? 'homeShift' : 'home'">
     <loadIng :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loadIng>
-    <div class="">
+    <AccessDenied v-if="accessDenied" />
+    <div v-if="!accessDenied" class="">
       <div class="" style="text-align: left">
         <!-- <Info :message="description" /> -->
         <div class="form-group" style="display:flex">
@@ -202,7 +203,7 @@ h5 span {
         </StudioSideBar>
       </div>
     </div>
-    <div class="scrollit" v-if="didList.length > 0">
+    <div class="scrollit" v-if="!accessDenied && didList.length > 0">
       <div class="">
         <table class="table table-hover event-card">
           <thead class="thead-light">
@@ -308,9 +309,11 @@ import ToolTip from "../../components/element/ToolTip.vue"
 import DomainLinkage from '@hypersign-protocol/domain-linkage-verifier'
 import { mapState, mapGetters, mapActions, mapMutations } from "vuex";
 import LogoUploader from '../../components/element/LogoUploader.vue';
+import AccessDenied from '../AccessDenied.vue';
+import { isAccessDeniedError } from '../../utils/accessDenied';
 export default {
   name: "DIDs",
-  components: { HfPopUp, StudioSideBar, HfButtons, ToolTip, LogoUploader },
+  components: { HfPopUp, StudioSideBar, HfButtons, ToolTip, LogoUploader, AccessDenied },
   watch: {
   selectedDid: {
     handler(newValue) {
@@ -338,14 +341,10 @@ export default {
     },
     didName:{
       get(){
-        return this.selectedDid? this.selectedDid.name : this.did.options.name;
+        return this.did.options.name;
       },
       set(value){
-        if(this.selectedDid){
-          this.selectedDid.name= value;
-        }else{
-          this.did.options.name= value;
-        }
+        this.did.options.name= value;
       }
     }
   },
@@ -360,6 +359,8 @@ export default {
       user: {},
       fullPage: true,
       isLoading: false,
+      accessDenied: false,
+      accessDeniedMsg: '',
       viewDidDocument: "",
       namespaceOptions: [
         { text: "Select a DID method namespace", value: null },
@@ -413,8 +414,7 @@ export default {
       this.isLoading = false
     } catch (e) {
       this.isLoading = false
-      this.notifyErr(e.message)
-      this.$router.push({ path: '/studio/dashboard' });
+      this.handleApiError(e, 'GET')
     }
   },
   beforeRouteEnter(to, from, next) {
@@ -426,6 +426,17 @@ export default {
     ...mapActions('mainStore', ['fetchDIDsForAService', 'createDIDsForAService','checkBlockchainStatusOfSSI', 'registerDIDsForAService', 'updateDIDsForAService']),
     ...mapMutations('playgroundStore', ['updateSideNavStatus', 'shiftContainer']),
     ...mapMutations('mainStore', ['updateADID']),
+
+    handleApiError(error, method = 'GET') {
+      const message = error?.message || 'Something went wrong';
+      if (method.toUpperCase() === 'GET' && isAccessDeniedError(error)) {
+        this.accessDenied = true;
+        this.accessDeniedMsg = message;
+        return;
+      }
+
+      this.notifyErr(message);
+    },
 
     linkDomain(row) {
       // remove this once this feature is complete
@@ -519,6 +530,7 @@ export default {
         console.error(e.message)
         this.isLoading = false;
         this.verifyButtonText = "Verify"
+        this.handleApiError(e, 'PATCH')
       }
 
 
@@ -545,6 +557,7 @@ export default {
       } catch (e) {
         console.error(e)
         this.isLoading = false;
+        this.handleApiError(e, 'POST')
       }
     },
 
@@ -658,6 +671,7 @@ export default {
             }
           }).catch((error) => {
             console.error(' Failed to register DID on the blockchain ' + error.message)
+            this.handleApiError(error, 'POST')
           })  
         }
         this.isLoading = false;
@@ -665,21 +679,23 @@ export default {
       } catch (e) {
         console.error(e.message)
         this.isLoading = false
-        this.notifyErr(e.message)
+        this.handleApiError(e, 'POST')
       }
     },
     async updateDID(){
       try{
       this.isLoading= true
-      if(!this.selectedDid.name && !this.shouldRegister){
+      if(!this.did.options.name && !this.shouldRegister){
         this.notifyErr('Please pass name or tick the checkbox to register the did')
+        this.isLoading = false;
+        return;
       }
       const payload={
         did: this.selectedDid.did,
-        name:this.selectedDid.name
+        name:this.did.options.name
       }
-      if(this.selectedDid.name){
-        this.updateDIDsForAService(payload)
+      if(this.did.options.name){
+        await this.updateDIDsForAService(payload)
       }
         if(this.shouldRegister && this.selectedDid.status!=='Registered'){
           this.notifySuccess('Proceeding to register the DID...')
@@ -699,6 +715,9 @@ export default {
               })
               this.checkRegistrationStatus(registerAsyncResponse.did)
             }
+          }).catch((error) => {
+            console.error(' Failed to register DID on the blockchain ' + error.message)
+            this.handleApiError(error, 'POST')
           })  
         }
         this.notifySuccess('DID updated successfully')
@@ -707,7 +726,7 @@ export default {
         this.$root.$emit("bv::toggle::collapse", "sidebar-right");
       }catch(e){
        this.isLoading = false
-        this.notifyErr(e.message)
+        this.handleApiError(e, 'PATCH')
       }
     },
     async checkRegistrationStatus(id_to_check_status){
@@ -716,29 +735,34 @@ export default {
         const interval = 5
         let i = 0
         const statusCheckInterval = setInterval(async () => {
-          //this.notifySuccess('Please wait, checking status of registration from blockchain...')
-          i = i + 1;
-          const response = await this.checkBlockchainStatusOfSSI(id_to_check_status)
-          if(response && response.data && response.data.length > 0 && response.data[0]){
-            if(response.data[0].status == 0){
-              this.notifySuccess('DID successfully registerd on the blockchain, txHash: '+ response.data[0].txnHash)
-              this.updateADID({
-                did: id_to_check_status,
-                status: 'Registered',
-              })
-              clearInterval(statusCheckInterval)
-            } else {
-              this.notifyErr('Sorry we could not register your DID, txHash: '+ response.data[0].txnHash)
+          try {
+            //this.notifySuccess('Please wait, checking status of registration from blockchain...')
+            i = i + 1;
+            const response = await this.checkBlockchainStatusOfSSI(id_to_check_status)
+            if(response && response.data && response.data.length > 0 && response.data[0]){
+              if(response.data[0].status == 0){
+                this.notifySuccess('DID successfully registerd on the blockchain, txHash: '+ response.data[0].txnHash)
+                this.updateADID({
+                  did: id_to_check_status,
+                  status: 'Registered',
+                })
+                clearInterval(statusCheckInterval)
+              } else {
+                this.notifyErr('Sorry we could not register your DID, txHash: '+ response.data[0].txnHash)
+              }
             }
-          }
-          if(i == maxrtries){
-            this.notifyErr('All atempts failed to check the status on blockchain. Please check it manually')
+            if(i == maxrtries){
+              this.notifyErr('All atempts failed to check the status on blockchain. Please check it manually')
+              clearInterval(statusCheckInterval)
+            }
+          } catch (e) {
             clearInterval(statusCheckInterval)
+            this.handleApiError(e, 'GET')
           }
         }, interval * 1000)
       }catch(e){
         console.error(e.message)
-        this.notifyErr(e.message)
+        this.handleApiError(e, 'GET')
       }
     },
 

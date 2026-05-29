@@ -1221,6 +1221,7 @@ export default {
 
           this.$router.push({
             name: "GettingStarted",
+            params: { appId },
           });
           break;
         }

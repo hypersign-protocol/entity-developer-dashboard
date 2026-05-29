@@ -543,6 +543,24 @@ const mainStore = {
             }
             return resp;
         },
+        getTenantAccessUsers: async ({ getters }) => {
+            const url = `${apiServerBaseUrl}/tenants/access/users`;
+            const resp = await RequestHandler(
+                url,
+                'GET',
+                {},
+                UtilsMixin.methods.getHeader(getters.getAuthToken)
+            );
+
+            if (Array.isArray(resp)) {
+                return resp;
+            }
+
+            const message = Array.isArray(resp?.message)
+                ? resp.message.join(', ')
+                : resp?.message || 'Unknown error';
+            throw new Error(message);
+        },
 
         /// Super admin 
 
@@ -726,6 +744,34 @@ const mainStore = {
                 return resp;
             } catch (e) {
                 throw new Error(e)
+            }
+        },
+
+        removeMfaAuthenticator: async ({ getters, dispatch }, payload) => {
+            try {
+                const { authenticatorType, twoFactorAuthenticationCode } = payload
+                if (!authenticatorType) throw new Error('Authenticator type must be provided')
+                if (!twoFactorAuthenticationCode) throw new Error('MFA PIN must be provided')
+
+                const url = `${apiServerBaseUrl}/auth/mfa`;
+
+                const resp = await RequestHandler(url, 'DELETE', {
+                    authenticatorType,
+                    twoFactorAuthenticationCode
+                },
+                    UtilsMixin.methods.getHeader(getters.getAuthToken)
+                )
+
+                if (!resp || Array.isArray(resp.message)) {
+                    throw new Error(resp?.message?.join(',') || resp?.message);
+                } else if ('statusCode' in resp && resp?.statusCode !== 200 && resp?.statusCode !== 201) {
+                    throw new Error(resp.message)
+                }
+
+                await dispatch('getMyUserDetails')
+                return resp;
+            } catch (e) {
+                throw new Error(e.message || e)
             }
         },
 
@@ -1597,6 +1643,7 @@ const mainStore = {
                     return reject(new Error('Tenant url is null or empty, service is not selected'))
                 }
                 let url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/analytics/overview`;
+                // let url = `http://localhost:3001/api/v1/e-kyc/analytics/overview`;
                 // append env query param if provided
                 if (payload.env) {
                     url += `?env=${encodeURIComponent(payload.env)}`;
@@ -2352,7 +2399,7 @@ const mainStore = {
                 throw new Error('Tenant url is null or empty, service is not selected')
             }
             const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/usage?serviceId=${getters.getSelectedService.appId}&startDate=${startDate}&endDate=${endDate}`;
-            // const url = `http://localhost:3001/api/v1/usage?serviceId=${getters.getSelectedService.appId}&startDate=${startDate}&endDate=${endDate}`;            
+            // const url = `http://localhost:3008/api/v1/usage?serviceId=${getters.getSelectedService.appId}&startDate=${startDate}&endDate=${endDate}`;
             const authToken = getters.getSelectedService.access_token
             const headers = UtilsMixin.methods.getHeader(authToken);
             const resp = await fetch(url, {
@@ -2380,9 +2427,6 @@ const mainStore = {
             const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/usage?serviceId=${getters.getSelectedService.appId}&startDate=${startDate}&endDate=${endDate}&env=${envVal}`;
             // const url = `http://localhost:3001/api/v1/usage?serviceId=${getters.getSelectedService.appId}&startDate=${startDate}&endDate=${endDate}`;            
             const authToken = getters.getSelectedService.access_token
-            if (!authToken) {
-                throw (new Error('authToken is invalid, service is not selected'))
-            }
             const token = await dispatch('getValidToken', {
                 serviceId: getters.getSelectedService.appId,
                 grant_type: config.GRANT_TYPES_ENUM.CAVACH_API,
@@ -2409,6 +2453,7 @@ const mainStore = {
                 throw new Error('Tenant url is null or empty, service is not selected')
             }
             const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/usage/detail?serviceId=${getters.getSelectedService.appId}&startDate=${startDate}&endDate=${endDate}`;
+            // const url = `http://localhost:3008/api/v1/usage/detail?serviceId=${getters.getSelectedService.appId}&startDate=${startDate}&endDate=${endDate}`;
             const authToken = getters.getSelectedService.access_token
             const headers = UtilsMixin.methods.getHeader(authToken);
             const resp = await fetch(url, {
@@ -2471,11 +2516,8 @@ const mainStore = {
                 throw new Error('Tenant url is null or empty, service is not selected')
             }
             const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/usage/detail?serviceId=${getters.getSelectedService.appId}&startDate=${startDate}&endDate=${endDate}&env=${envVal}`;
-            // const url = `http://localhost:3009/api/v1/usage/detail?serviceId=${getters.getSelectedService.appId}&startDate=${startDate}&endDate=${endDate}&env=${envVal}`;
+            // const url = `http://localhost:3001/api/v1/usage/detail?serviceId=${getters.getSelectedService.appId}&startDate=${startDate}&endDate=${endDate}&env=${envVal}`;
             const authToken = getters.getSelectedService.access_token
-            if (!authToken) {
-                throw new Error('authToken is invalid, service is not selected')
-            }
             const token = await dispatch('getValidToken', {
                 serviceId: getters.getSelectedService.appId,
                 grant_type: config.GRANT_TYPES_ENUM.CAVACH_API,
@@ -2488,7 +2530,7 @@ const mainStore = {
             })
             const json = await resp.json()
             if (json.error) {
-                throw new Error(json.error?.details.join(' ') || json.error.join(' '))
+                throw new Error(JWTExpiredErrorMessageHandling(json))
             }
             if (json?.data) {
                 commit('setUsageDetails', json?.data)
@@ -2650,10 +2692,10 @@ const mainStore = {
                 throw new Error('Tenant url is null or empty, service is not selected')
             }
             const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/credit`;
+            // const url = `http://localhost:3001/api/v1/credit`;
+
             const authToken = getters.getSelectedService.access_token
-            if (!authToken) {
-                throw (new Error('authToken is invalid, service is not selected'))
-            }
+
             const token = await dispatch('getValidToken', {
                 serviceId: getters.getSelectedService.appId,
                 grant_type: config.GRANT_TYPES_ENUM.CAVACH_API,
@@ -2665,9 +2707,10 @@ const mainStore = {
                 headers
             })
             const json = await resp.json()
-            if (json.error) {
-                throw new Error(json.error?.details.join(' ') || json.error.join(' '))
+            if (!resp.ok || json.error) {
+                throw new Error(JWTExpiredErrorMessageHandling(json))
             }
+
             if (json.data) {
                 commit('setKYCCredits', json.data)
                 return json.data
@@ -2890,7 +2933,7 @@ const mainStore = {
                         token: accessToken
                     }).then((token) => {
 
-                        const url = `${sanitizeUrl(tenantUrl)}/api/v1/did/resolve/${payload.did}`;
+                        const url = `${sanitizeUrl('tenantUrl')}/api/v1/did/resolve/${payload.did}`;
                         const options = {
                             method: "GET",
                             headers: {
@@ -2948,7 +2991,7 @@ const mainStore = {
                         token: selectedService.access_token
                     }).then((token) => {
                         const url = `${sanitizeUrl(selectedService.tenantUrl)}/api/v1/did/resolve/${payload}`;
-                        // const url = `http://ent-8ee83cc.localhost:3003/api/v1/did/resolve/${payload}`;
+                        // const url = `http://localhost:3008/api/v1/did/resolve/${payload}`;
                         const options = {
                             method: "GET",
                             headers: {
@@ -3131,7 +3174,7 @@ const mainStore = {
 
         },
 
-        updateDIDsForAService({ getters, dispatch }, payload) {
+        updateDIDsForAService({ commit, getters, dispatch }, payload) {
             return new Promise(function (resolve, reject) {
                 let body;
                 if (payload.didDocument) {
@@ -3158,7 +3201,7 @@ const mainStore = {
                     }).then((token) => {
 
                         // const url = `http://ent-2af45c1.localhost:4001/api/v1/did/`;
-                        const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/did/`;
+                        const url = `${sanitizeUrl((getters.getSelectedService.tenantUrl))}/api/v1/did/`;
                         const options = {
                             method: "PATCH",
                             body: JSON.stringify(body),
@@ -3174,13 +3217,27 @@ const mainStore = {
                         })
 
                     })
-                        .then(response => response.json())
+                        .then(async response => {
+                            const json = await response.json().catch(() => null)
+                            if (!response.ok || json?.error || (json?.statusCode && json.statusCode >= 400)) {
+                                const message = Array.isArray(json?.message)
+                                    ? json.message.join(', ')
+                                    : json?.message || json?.error || 'Could not update DID for this service'
+                                throw new Error(message)
+                            }
+                            return json
+                        })
                         .then(json => {
                             if (json) {
-                                //dispatch('resolveDIDForAService', json.did)
-                                resolve()
+                                if (!payload.didDocument && payload.did) {
+                                    commit('updateADID', {
+                                        did: payload.did,
+                                        name: payload.name
+                                    })
+                                }
+                                resolve(json)
                             } else {
-                                reject(new Error('Could not register DID for this service'))
+                                reject(new Error('Could not update DID for this service'))
                             }
                         }).catch(e => {
                             reject(e)
@@ -3361,6 +3418,10 @@ const mainStore = {
                 ...options
             })
             const json = await resp.json()
+            if (!resp.ok || json.error) {
+                const msg = Array.isArray(json.message) ? json.message.join(', ') : (json.message || json.error || 'Failed to fetch SSI credits');
+                throw new Error(msg);
+            }
             if (json) {
                 commit('setSSICredits', json)
                 return json
@@ -3567,6 +3628,9 @@ const mainStore = {
                         .then(response => response.json())
                         .then(json => {
                             if (json) {
+                                if (json.error) {
+                                    reject(new Error(json.message[0]))
+                                }
                                 if (json.data.length > 0) {
                                     const payload = json.data.map(x => {
                                         return {
@@ -3754,6 +3818,7 @@ const mainStore = {
 
                     }).then((token) => {
                         const url = `${sanitizeUrl(tenantUrl)}/api/v1/credential?page=${page}&limit=${limit}`;
+                        // const url = `${sanitizeUrl('http://localhost:3008')}/api/v1/credential?page=${page}&limit=${limit}`;
                         const options = {
                             method: "GET",
                             headers: {
@@ -3770,6 +3835,9 @@ const mainStore = {
                         .then(response => response.json())
                         .then(json => {
                             if (json) {
+                                if (json.error) {
+                                    reject(new Error(json.message[0]))
+                                }
                                 if (json.data.length > 0) {
                                     const payload = json.data.map(x => {
                                         return {
@@ -3942,6 +4010,9 @@ const mainStore = {
                     })
                         .then(response => response.json())
                         .then(async json => {
+                            if (json.error) {
+                                reject(new Error(json.message[0]))
+                            }
                             if (json && json.metadata) {
                                 const data = {
                                     id: json.metadata.credentialId,
@@ -3990,7 +4061,10 @@ const mainStore = {
                     })
                         .then(response => response.json())
                         .then(async json => {
-                            if (json && !json.error) {
+                            if (json) {
+                                if (json.error) {
+                                    reject(new Error(json.message[0]))
+                                }
                                 const data = {
                                     id: json.id,
                                     status: ''//json.proof && Object.keys(json.proof).length > 0 ? 'Registered' : 'Created',

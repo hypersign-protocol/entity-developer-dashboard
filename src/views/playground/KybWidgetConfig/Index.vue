@@ -2,6 +2,8 @@
   <b-container fluid class="py-3" :class="isContainerShift ? 'homeShift' : 'home'">
     <load-ing :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></load-ing>
     
+    <AccessDenied v-if="accessDenied" />
+    <template v-if="!accessDenied">
     <v-row class="align-center mb-3">
       <v-col>
         <!-- <h3 class="mb-0 text-left">KYB Widget Configuration</h3> -->
@@ -157,6 +159,7 @@
 
       </ul>
     </v-card>
+    </template>
   </b-container>
 </template> 
 
@@ -264,12 +267,15 @@ import UtilsMixin from '../../../mixins/utils';
 import { mapState, mapActions } from "vuex";
 import HfButtons from '../../../components/element/HfButtons.vue';
 import { mapGetters, mapMutations } from 'vuex/dist/vuex.common.js';
+import AccessDenied from '../../AccessDenied.vue';
+import { isAccessDeniedError } from '../../../utils/accessDenied';
 
 export default {
   name: "KybWidgetConfig",
   mixins: [UtilsMixin],
   components: {
-    HfButtons
+    HfButtons,
+    AccessDenied
   },
   computed: {
     ...mapState({
@@ -312,10 +318,7 @@ export default {
 
     } catch (e) {
       this.isLoading = false
-      console.error(e)
-      if (e.message) {
-        this.notifyErr(e.message)
-      }
+      this.handleApiError(e, 'GET')
     }
   },
   data() {
@@ -382,6 +385,8 @@ export default {
       },
       fullPage: true,
       isLoading: false,
+      accessDenied: false,
+      accessDeniedMsg: '',
       appId: "",
       app: {},
       kybWidgetConfigTemp: {
@@ -421,6 +426,17 @@ export default {
   methods: {
     ...mapMutations('mainStore', ['setKybWidgetConfig']),
     ...mapActions('mainStore', ['createAppsKybWidgetConfig', 'fetchAppsKybWidgetConfig', 'updateAppsKybWidgetConfig']),
+
+    handleApiError(error, method = 'GET') {
+      const message = typeof error === 'string' ? error : error?.message || 'Something went wrong';
+      if (method.toUpperCase() === 'GET' && isAccessDeniedError(error)) {
+        this.accessDenied = true;
+        this.accessDeniedMsg = message;
+        return;
+      }
+
+      this.notifyErr(message)
+    },
 
     validateField() {
       if (!this.kybWidgetConfigTemp.issuerDID) {
