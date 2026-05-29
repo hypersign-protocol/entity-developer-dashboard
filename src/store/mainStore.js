@@ -1196,9 +1196,9 @@ const mainStore = {
 
                 // const url = 'http://localhost:3001/api/v1/e-kyc/verification/session'
                 const authToken = getters.getSelectedService.access_token
-                if (!authToken) {
-                    return reject(new Error('authToken is invalid, service is not selected'))
-                }
+                // if (!authToken) {
+                //     return reject(new Error('authToken is invalid, service is not selected'))
+                // }
                 dispatch('getValidToken', {
                     serviceId: getters.getSelectedService.appId,
                     grant_type: config.GRANT_TYPES_ENUM.CAVACH_API,
@@ -1268,9 +1268,6 @@ const mainStore = {
                 }
 
                 const authToken = getters.getSelectedService.access_token
-                if (!authToken) {
-                    return reject(new Error('authToken is invalid, service is not selected'))
-                }
                 dispatch('getValidToken', {
                     serviceId: getters.getSelectedService.appId,
                     grant_type: config.GRANT_TYPES_ENUM.CAVACH_API,
@@ -1308,9 +1305,6 @@ const mainStore = {
                 const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/onchainkyc-config`;
                 // const url = `http://localhost:3001/api/v1/e-kyc/verification/onchainkyc-config`
                 const authToken = getters.getSelectedService.access_token
-                if (!authToken) {
-                    return reject(new Error('authToken is invalid, service is not selected'))
-                }
                 dispatch('getValidToken', {
                     serviceId: getters.getSelectedService.appId,
                     grant_type: config.GRANT_TYPES_ENUM.CAVACH_API, // or correct KYC grant
@@ -1475,9 +1469,6 @@ const mainStore = {
                 }
                 const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/onchainkyc-config/${payload._id}`;
                 const authToken = getters.getSelectedService.access_token
-                if (!authToken) {
-                    return reject(new Error('authToken is invalid, service is not selected'))
-                }
                 dispatch('getValidToken', {
                     serviceId: getters.getSelectedService.appId,
                     grant_type: config.GRANT_TYPES_ENUM.CAVACH_API,
@@ -1522,7 +1513,7 @@ const mainStore = {
                 }).then((token) => {
                     const headers = UtilsMixin.methods.getKycServiceHeader(token);
                     const data = getters.getWidgetnConfig;
-                    fetch(url, {
+                    return fetch(url, {
                         method: 'POST',
                         headers,
                         body: JSON.stringify(data),
@@ -1588,9 +1579,6 @@ const mainStore = {
                 const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/widget-config`;
                 // const url = `http://localhost:3001/api/v1/e-kyc/verification/widget-config`
                 const authToken = getters.getSelectedService.access_token
-                if (!authToken) {
-                    return reject(new Error('authToken is invalid, service is not selected'))
-                }
                 dispatch('getValidToken', {
                     serviceId: getters.getSelectedService.appId,
                     grant_type: config.GRANT_TYPES_ENUM.CAVACH_API,
@@ -1631,9 +1619,6 @@ const mainStore = {
                     url += `?env=${encodeURIComponent(payload.env)}`;
                 }
                 const authToken = getters.getSelectedService.access_token
-                if (!authToken) {
-                    return reject(new Error('authToken is invalid, service is not selected'))
-                }
                 dispatch('getValidToken', {
                     serviceId: getters.getSelectedService.appId,
                     grant_type: config.GRANT_TYPES_ENUM.CAVACH_API,
@@ -1683,9 +1668,6 @@ const mainStore = {
                     url += `?env=${encodeURIComponent(payload.env)}`;
                 }
                 const authToken = getters.getSelectedService.access_token
-                if (!authToken) {
-                    return reject(new Error('authToken is invalid, service is not selected'))
-                }
                 dispatch('getValidToken', {
                     serviceId: getters.getSelectedService.appId,
                     grant_type: config.GRANT_TYPES_ENUM.CAVACH_API,
@@ -1750,9 +1732,6 @@ const mainStore = {
                     url += `?env=${encodeURIComponent(payload.env)}`;
                 }
                 const authToken = getters.getSelectedService.access_token
-                if (!authToken) {
-                    return reject(new Error('authToken is invalid, service is not selected'))
-                }
                 dispatch('getValidToken', {
                     serviceId: getters.getSelectedService.appId,
                     grant_type: config.GRANT_TYPES_ENUM.CAVACH_API,
@@ -1840,11 +1819,7 @@ const mainStore = {
                     return reject(new Error('Tenant url is null or empty, service is not selected'))
                 }
                 const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyb/verification/widget-config`;
-                // const url = `http://localhost:3001/api/v1/e-kyb/verification/widget-config`
-                const authToken = getters.getSelectedService.access_token
-                if (!authToken) {
-                    return reject(new Error('authToken is invalid, service is not selected'))
-                }
+                // const url = `http://localhost:3009/api/v1/e-kyb/verification/widget-config`
                 dispatch('getValidToken', {
                     serviceId: getters.getSelectedService.appId,
                     grant_type: config.GRANT_TYPES_ENUM.CAVACH_API,
@@ -1993,9 +1968,7 @@ const mainStore = {
                 const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/webhook-config`;
                 // const url = `http://localhost:3001/api/v1/e-kyc/verification/webhook-config/`
                 const authToken = getters.getSelectedService.access_token
-                if (!authToken) {
-                    return reject(new Error('authToken is invalid, service is not selected'))
-                }
+
                 dispatch('getValidToken', {
                     serviceId: getters.getSelectedService.appId,
                     grant_type: config.GRANT_TYPES_ENUM.CAVACH_API,
@@ -2409,9 +2382,6 @@ const mainStore = {
             const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/usage?serviceId=${getters.getSelectedService.appId}&startDate=${startDate}&endDate=${endDate}&env=${envVal}`;
             // const url = `http://localhost:3001/api/v1/usage?serviceId=${getters.getSelectedService.appId}&startDate=${startDate}&endDate=${endDate}`;            
             const authToken = getters.getSelectedService.access_token
-            if (!authToken) {
-                throw (new Error('authToken is invalid, service is not selected'))
-            }
             const token = await dispatch('getValidToken', {
                 serviceId: getters.getSelectedService.appId,
                 grant_type: config.GRANT_TYPES_ENUM.CAVACH_API,
@@ -2503,9 +2473,6 @@ const mainStore = {
             const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/usage/detail?serviceId=${getters.getSelectedService.appId}&startDate=${startDate}&endDate=${endDate}&env=${envVal}`;
             // const url = `http://localhost:3001/api/v1/usage/detail?serviceId=${getters.getSelectedService.appId}&startDate=${startDate}&endDate=${endDate}&env=${envVal}`;
             const authToken = getters.getSelectedService.access_token
-            if (!authToken) {
-                throw new Error('authToken is invalid, service is not selected')
-            }
             const token = await dispatch('getValidToken', {
                 serviceId: getters.getSelectedService.appId,
                 grant_type: config.GRANT_TYPES_ENUM.CAVACH_API,
@@ -2683,9 +2650,6 @@ const mainStore = {
             const url = `http://localhost:3001/api/v1/credit`;
 
             const authToken = getters.getSelectedService.access_token
-            if (!authToken) {
-                throw (new Error('authToken is invalid, service is not selected'))
-            }
             const token = await dispatch('getValidToken', {
                 serviceId: getters.getSelectedService.appId,
                 grant_type: config.GRANT_TYPES_ENUM.CAVACH_API,

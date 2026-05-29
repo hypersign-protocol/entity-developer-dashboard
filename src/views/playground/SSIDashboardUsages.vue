@@ -253,7 +253,7 @@ export default {
         ...mapState({
             containerShift: state => state.playgroundStore.containerShift,
         }),
-        ...mapGetters('mainStore', ['getUsageDetails']),
+        ...mapGetters('mainStore', ['getUsageDetails', 'getUserDetails']),
 
         isContainerShift() {
             return this.containerShift
@@ -438,6 +438,13 @@ export default {
 
             // appId
             this.isLoading = true
+            if (!this.hasSSIUsageAccess()) {
+                this.accessDenied = true;
+                this.accessDeniedMsg = 'You do not have permission to view SSI usage.';
+                this.isLoading = false;
+                return;
+            }
+
             this.setDate()
             await this.fetchUsageForASSIService({ startDate: this.startDate, endDate: this.endDate }).then((data) => {
                 // fetchUsageForASSIService returns the error object instead of throwing on 403
@@ -453,20 +460,10 @@ export default {
             this.isLoading = false
         } catch (e) {
             this.isLoading = false
-            const msg = (e?.message || '').toLowerCase();
-            if (
-                msg.includes('permission denied') ||
-                msg.includes('forbidden') ||
-                msg.includes('access denied') ||
-                msg.includes('not authorized') ||
-                msg.includes('unauthorized') ||
-                msg.includes('an unknown error occurred') ||
-                e instanceof TypeError
-            ) {
-                this.accessDenied = true;
-                this.accessDeniedMsg = e.message;
+            if (this.handleAccessDeniedError(e)) {
+                return;
             } else {
-                this.notifyErr(e.message);
+                this.notifyErr(this.getErrorMessage(e));
             }
         }
     },
@@ -496,6 +493,57 @@ export default {
 
         ...mapMutations('playgroundStore', ['updateSideNavStatus', 'shiftContainer']),
 
+        hasSSIUsageAccess() {
+            const user = Object.keys(this.getUserDetails || {}).length > 0 ? this.getUserDetails : this.user;
+
+            if (user?.role === 'SUPER_ADMIN') {
+                return true;
+            }
+
+            if (!Array.isArray(user?.accessList)) {
+                return true;
+            }
+
+            return user.accessList.some((access) => {
+                return access.serviceType === 'SSI_API' &&
+                    (access.access === 'ALL' || access.access === 'READ_USAGE');
+            });
+        },
+
+        getErrorMessage(error) {
+            if (typeof error === 'string') {
+                return error;
+            }
+
+            if (Array.isArray(error?.response?.data?.message)) {
+                return error.response.data.message.join(', ');
+            }
+
+            return error?.response?.data?.message ||
+                error?.response?.data?.error ||
+                error?.message ||
+                '';
+        },
+
+        handleAccessDeniedError(error) {
+            const errorMessage = this.getErrorMessage(error);
+            const msg = errorMessage.toLowerCase();
+            const status = error?.response?.status || error?.status;
+            if (
+                status === 401 || status === 403 ||
+                msg.includes('permission denied') || msg.includes('forbidden') ||
+                msg.includes('access denied') || msg.includes('accessdenied') ||
+                msg.includes('not authorized') || msg.includes('unauthorized') ||
+                msg.includes('an unknown error occurred') ||
+                error instanceof TypeError
+            ) {
+                this.accessDenied = true;
+                this.accessDeniedMsg = errorMessage;
+                return true;
+            }
+
+            return false;
+        },
 
         changeGraph(chartType) {
             if (chartType == 'line') {
@@ -689,6 +737,12 @@ export default {
 
         async search() {
             try {
+                if (!this.hasSSIUsageAccess()) {
+                    this.accessDenied = true;
+                    this.accessDeniedMsg = 'You do not have permission to view SSI usage.';
+                    return;
+                }
+
                 if (!this.startDate) {
                     throw new Error("Start date is not set")
                 }
@@ -710,7 +764,9 @@ export default {
                 this.renderUsageDetailsChart()
             } catch (e) {
                 this.isLoading = false
-                this.notifyErr(e.message)
+                if (!this.handleAccessDeniedError(e)) {
+                    this.notifyErr(this.getErrorMessage(e))
+                }
             }
         },
 

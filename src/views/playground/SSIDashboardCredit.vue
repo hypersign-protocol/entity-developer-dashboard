@@ -634,6 +634,41 @@ export default {
     methods: {
         ...mapActions('mainStore', ['ssiDashboardTxStats', 'ssiDashboardAllowanceStats', 'fetchSSICredits', 'ssiDashboardGrantsStats','activateSSICredit']),
 
+        getErrorMessage(error) {
+            if (typeof error === 'string') {
+                return error;
+            }
+
+            if (Array.isArray(error?.response?.data?.message)) {
+                return error.response.data.message.join(', ');
+            }
+
+            return error?.response?.data?.message ||
+                error?.response?.data?.error ||
+                error?.message ||
+                '';
+        },
+
+        handleAccessDeniedError(error) {
+            const errorMessage = this.getErrorMessage(error);
+            const msg = errorMessage.toLowerCase();
+            const status = error?.response?.status || error?.status;
+            if (
+                status === 401 || status === 403 ||
+                msg.includes('permission denied') || msg.includes('forbidden') ||
+                msg.includes('access denied') || msg.includes('accessdenied') ||
+                msg.includes('not authorized') || msg.includes('unauthorized') ||
+                msg.includes('an unknown error occurred') ||
+                error instanceof TypeError
+            ) {
+                this.accessDenied = true;
+                this.accessDeniedMsg = errorMessage;
+                return true;
+            }
+
+            return false;
+        },
+
        renderChart() {
             if (!Array.isArray(this.getSsiCredits)) return;
             const expired = this.getSsiCredits.every(element => Date.now() > new Date(element.expiresAt));
@@ -812,7 +847,9 @@ export default {
             } catch (e) {
                 console.error(e)
                 this.isLoading = false
-                this.notifyErr(e.message)
+                if (!this.handleAccessDeniedError(e)) {
+                    this.notifyErr(this.getErrorMessage(e))
+                }
             }
 
 
@@ -851,12 +888,8 @@ export default {
             this.isLoading = false
         } catch (e) {
             this.isLoading = false;
-            const msg = (e?.message || '').toLowerCase();
-            if (msg.includes('permission denied') || msg.includes('forbidden') || msg.includes('access denied') || msg.includes('not authorized')) {
-                this.accessDenied = true;
-                this.accessDeniedMsg = e.message;
-            } else {
-                this.notifyErr(e.message);
+            if (!this.handleAccessDeniedError(e)) {
+                this.notifyErr(this.getErrorMessage(e));
             }
             console.error(e);
         } finally {
