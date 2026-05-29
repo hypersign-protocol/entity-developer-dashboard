@@ -1,6 +1,6 @@
 <template>
     <b-container fluid class="py-3">
-    <v-row align="center" class="mb-6">
+    <v-row v-if="!accessDenied" align="center" class="mb-6">
       <v-col cols="12" md="6">
         <h4 class="font-weight-bold mb-0">API Usage Analytics</h4>
         <p class="text-subtitle-2 text-muted">Monitor consumption and service costs</p>

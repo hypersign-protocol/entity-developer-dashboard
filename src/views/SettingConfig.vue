@@ -76,7 +76,7 @@
             </b-tab>
             <b-tab>
               <template #title>
-                <b-icon icon="piggy-bank" aria-hidden="true" small></b-icon> Issue Credits
+                <b-icon icon="piggy-bank" aria-hidden="true" small></b-icon> Credit Recharge
               </template>
               <CreditRecharge />
             </b-tab>
