@@ -569,7 +569,6 @@ export default {
             // if (remaining.length) {
             //     result.push({ label: 'Other', icon: 'mdi-dots-horizontal', iconColor: '#6b7280', permissions: remaining });
             // }
-            // }
             return result;
         },
         createTeamPopup() {
