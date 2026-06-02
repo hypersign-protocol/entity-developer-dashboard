@@ -104,6 +104,16 @@ config['SERVICE_TYPES'] = Object.freeze({
     SSI_API: 'SSI_API',
     CAVACH_API: 'CAVACH_API',
     QUEST: 'QUEST',
+    DASHBOARD: 'DASHBOARD',
+})
+
+config['DASHBOARD_ACCESS'] = Object.freeze({
+    ALL: 'ALL',
+    READ_SERVICE: 'READ_SERVICE',
+    WRITE_SERVICE: 'WRITE_SERVICE',
+    UPDATE_SERVICE: 'UPDATE_SERVICE',
+    DELETE_SERVICE: 'DELETE_SERVICE',
+
 })
 
 config['GRANT_TYPES_ENUM'] = Object.freeze({

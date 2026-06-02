@@ -1,14 +1,18 @@
 # Changelog
 
 ## [Unreleased]
+## [3.9.2] - 2026-06-02
 
-## [3.9.0] - 2026-06-29
+### Added
+- Implemetned new role for dashboard access permission
+
+## [3.9.0] - 2026-05-29
 
 ### Added
 - Implemetned new design for role permission
 - Implemented tenant access list
 
-## [3.8.0] - 2026-06-29
+## [3.8.0] - 2026-05-29
 
 ### Fixed
 - Handled permission denied issue properly
@@ -19,7 +23,7 @@
 - Implemented remove authenticator
 - Implemented categorized role
 
-## [3.7.32] - 2026-06-20
+## [3.7.32] - 2026-05-20
 
 
 ### Fixed
