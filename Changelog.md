@@ -2,12 +2,14 @@
 
 ## [Unreleased]
 
+
 ## [3.10.2] - 2026-06-04
 
 ### Fixed
 - Fixed error occuring while registering did using update
 - Fixed issue of undefined getting passed as appId
 - Fixed issue of token is not getting re-generated in usage page
+
 ## [3.10.0] - 2026-06-02
 
 ### Added
