@@ -539,6 +539,10 @@ export default {
           text = "ID Service";
           break;
         }
+        case config.SERVICE_TYPES.DASHBOARD: {
+          text = "Dashboard Service";
+          break;
+        }
         case config.SERVICE_TYPES.QUEST: {
           text = "Quest Service";
           break;
