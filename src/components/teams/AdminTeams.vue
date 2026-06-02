@@ -565,10 +565,10 @@ export default {
                     perms.forEach(k => assignedKeys.add(k));
                 }
             }
-            const remaining = allKeys.filter(k => !assignedKeys.has(k));
-            if (remaining.length) {
-                result.push({ label: 'Other', icon: 'mdi-dots-horizontal', iconColor: '#6b7280', permissions: remaining });
-            }
+            // const remaining = allKeys.filter(k => !assignedKeys.has(k));
+            // if (remaining.length) {
+            //     result.push({ label: 'Other', icon: 'mdi-dots-horizontal', iconColor: '#6b7280', permissions: remaining });
+            // }
             // }
             return result;
         },
