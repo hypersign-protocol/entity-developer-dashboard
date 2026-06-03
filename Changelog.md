@@ -1,7 +1,7 @@
 # Changelog
 
 ## [Unreleased]
-## [3.9.2] - 2026-06-02
+## [3.10.0] - 2026-06-02
 
 ### Added
 - Implemetned new role for dashboard access permission
