@@ -1,6 +1,10 @@
 # Changelog
 
 ## [Unreleased]
+## [3.10.2] - 2026-06-03
+
+### Fixed
+- Fixed error occuring while registering did using update
 ## [3.10.0] - 2026-06-02
 
 ### Added
