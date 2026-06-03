@@ -180,52 +180,6 @@
                                 </div>
                             </div>
                         </b-tab>
-                        <b-tab v-if="hasDashboardService" title="Dashboard Service">
-                            <div class="role-cards-grid">
-                                <button
-                                    v-for="role in DASHBOARD_PREDEFINED_ROLES"
-                                    :key="role.key"
-                                    type="button"
-                                    class="role-card"
-                                    :class="{ 'role-card-selected': selectedRoles.dashboard === role.key }"
-                                    @click="selectPredefinedRole(role, 'dashboard')"
-                                >
-                                    <div class="role-card-header">
-                                        <div class="role-card-title">
-                                            <v-icon small class="role-card-icon">{{ role.icon }}</v-icon>
-                                            {{ role.name }}
-                                        </div>
-                                        <b-badge variant="info">{{ role.badge }}</b-badge>
-                                    </div>
-                                    <div class="role-card-desc">{{ role.description }}</div>
-                                    <div class="role-card-footer">
-                                        <small>{{ role.recommendedFor }}</small>
-                                        <small>{{ role.permissions.length }} permissions</small>
-                                    </div>
-                                </button>
-                            </div>
-                            <div v-if="selectedRoles.dashboard === 'custom'" class="perm-scroll-box">
-                                <div v-for="eachService in dashboardServices" :key="eachService.id" class="perm-service-block">
-                                    <div class="perm-service-header">{{ eachService.name }}</div>
-                                    <div v-for="group in getPermSubGroups(eachService.id, eachService.accessList)" :key="group.label" class="perm-group-block">
-                                        <div class="perm-group-label">{{ group.label }}</div>
-                                        <div class="form-check perm-item" v-for="perm in group.permissions" :key="perm">
-                                            <input
-                                                class="form-check-input"
-                                                type="checkbox"
-                                                :value="{ serviceType: eachService.id, access: perm }"
-                                                v-on:change="onCheck($event, eachService)"
-                                                :checked="checkIfAccessIsThereInThatService(perm, eachService.id)"
-                                                :disabled="isReadForcedByWrite(perm, eachService.id) || isWriteForcedByHigherPerm(perm, eachService.id) || isUpdateForcedByDelete(perm, eachService.id)"
-                                            >
-                                            <label class="form-check-label" :class="{ 'perm-forced': isReadForcedByWrite(perm, eachService.id) || isWriteForcedByHigherPerm(perm, eachService.id) || isUpdateForcedByDelete(perm, eachService.id) }">
-                                                <code>{{ perm }}</code>
-                                            </label>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </b-tab>
                     </b-tabs>
                 </b-form-group>
 
@@ -384,44 +338,7 @@ const SSI_PREDEFINED_ROLES = [
     }
 ];
 
-const DASHBOARD_PREDEFINED_ROLES = [
-    {
-        key: "dashboard_viewer",
-        name: "Viewer",
-        icon: "mdi-eye-outline",
-        description: "Read-only access to Dashboard service operations.",
-        badge: "Read-only",
-        recommendedFor: "Stakeholders who need Dashboard visibility",
-        permissions: ["READ_SERVICE"]
-    },
-    {
-        key: "dashboard_editor",
-        name: "Editor",
-        icon: "mdi-pencil-outline",
-        description: "Access to read and modify Dashboard service configuration.",
-        badge: "Edit access",
-        recommendedFor: "Operations or product teams",
-        permissions: ["READ_SERVICE", "WRITE_SERVICE", "UPDATE_SERVICE", "DELETE_SERVICE"]
-    },
-    {
-        key: "dashboard_admin",
-        name: "Admin",
-        icon: "mdi-shield-star-outline",
-        description: "Full Dashboard service access.",
-        badge: "Full access",
-        recommendedFor: "Dashboard administrators",
-        permissions: ["ALL"]
-    },
-    {
-        key: "custom",
-        name: "Custom Role",
-        icon: "mdi-tune-variant",
-        description: "Start with no permissions and configure manually.",
-        badge: "Advanced",
-        recommendedFor: "Custom enterprise setups",
-        permissions: []
-    }
-];
+
 
 export default {
     name: "AdminTeams",
@@ -436,9 +353,6 @@ export default {
         },
         SSI_PREDEFINED_ROLES() {
             return SSI_PREDEFINED_ROLES;
-        },
-        DASHBOARD_PREDEFINED_ROLES() {
-            return DASHBOARD_PREDEFINED_ROLES;
         },
         categorizedServices() {
             const ssiServices = this.localAllServices.filter(s => s.id === config.SERVICE_TYPES.SSI_API);
@@ -459,25 +373,22 @@ export default {
         hasSSIService() {
             return this.localAllServices.some(s => s.id === config.SERVICE_TYPES.SSI_API);
         },
-        hasDashboardService() {
-            return this.localAllServices.some(s => s.id === config.SERVICE_TYPES.DASHBOARD);
-        },
+      
         hasIDService() {
             return this.localAllServices.some(
-                s => s.id !== config.SERVICE_TYPES.SSI_API && s.id !== config.SERVICE_TYPES.QUEST && s.id !== config.SERVICE_TYPES.DASHBOARD
+               s => s.id !== 
+               config.SERVICE_TYPES.SSI_API && s.id !==
+               config.SERVICE_TYPES.QUEST
             );
         },
         ssiServices() {
             return this.localAllServices.filter(s => s.id === config.SERVICE_TYPES.SSI_API);
         },
-        dashboardServices() {
-            return this.localAllServices.filter(s => s.id === config.SERVICE_TYPES.DASHBOARD);
-        },
         idServices() {
             return this.localAllServices.filter(
-                s => s.id !== config.SERVICE_TYPES.SSI_API &&
-                     s.id !== config.SERVICE_TYPES.QUEST &&
-                     s.id !== config.SERVICE_TYPES.DASHBOARD
+                   s => s.id !==
+                config.SERVICE_TYPES.SSI_API && s.id !==
+                config.SERVICE_TYPES.QUEST
             );
         }
     },
@@ -508,7 +419,6 @@ export default {
             selectedRoles: {
                 id: 'viewer',
                 ssi: 'auditor',
-                dashboard: 'custom'
             }
         }
     },
@@ -547,15 +457,7 @@ export default {
                 { label: 'Document',               icon: 'mdi-file-document-outline',    iconColor: '#92400e', keys: ['READ_DOCUMENT', 'VERIFY_DOCUMENT'] },
                 { label: 'Compliance',             icon: 'mdi-shield-check-outline',     iconColor: '#1d4ed8', keys: ['READ_COMPLIANCE'] },
             ];
-            const DASHBOARD_GROUPS = [
-                { label: 'General', icon: 'mdi-star-outline', iconColor: '#6366f1', keys: ['ALL'] },
-                { label: 'Dashboard Controls', icon: 'mdi-view-dashboard-outline', iconColor: '#0f766e', keys: ['READ_SERVICE', 'WRITE_SERVICE', 'UPDATE_SERVICE', 'DELETE_SERVICE'] }
-            ];
-            const groupDefs = serviceId === config.SERVICE_TYPES.SSI_API
-            ? SSI_GROUPS
-            : serviceId === config.SERVICE_TYPES.DASHBOARD
-                ? DASHBOARD_GROUPS
-                : ID_GROUPS;
+            const groupDefs = serviceId === config.SERVICE_TYPES.SSI_API ? SSI_GROUPS : ID_GROUPS;
             const assignedKeys = new Set();
             const result = []; 
             for (const group of groupDefs) {
@@ -596,10 +498,6 @@ export default {
                 const ssiDefault = SSI_PREDEFINED_ROLES.find(r => r.key === 'auditor');
                 if (ssiDefault) this.selectPredefinedRole(ssiDefault, 'ssi');
             }
-            if (this.hasDashboardService) {
-                const dashboardDefault = DASHBOARD_PREDEFINED_ROLES.find(r => r.key === 'dashboard_viewer');
-                if (dashboardDefault) this.selectPredefinedRole(dashboardDefault, 'dashboard');
-            }
         },
 
 
@@ -618,45 +516,25 @@ export default {
             this.roleModel = { ...role };
             this.selectedRoles.id = this.detectSelectedPredefinedRole('id');
             this.selectedRoles.ssi = this.detectSelectedPredefinedRole('ssi');
-            this.selectedRoles.dashboard = this.detectSelectedPredefinedRole('dashboard');
             this.$root.$emit("bv::toggle::collapse", "sidebar-right");
         },
-        getServiceIdsByType(serviceType) {
-            if (serviceType === 'ssi') return this.ssiServices.map(s => s.id);
-            if (serviceType === 'dashboard') return this.dashboardServices.map(s => s.id);
-            return this.idServices.map(s => s.id);
+         getServiceIdsByType(serviceType) {
+            return (serviceType === 'ssi' ? this.ssiServices : this.idServices).map(s => s.id);
         },
-        getAllPermissionKeysForServiceType(serviceType) {
-            const targetServices = serviceType === 'ssi'
-                ? this.ssiServices
-                : serviceType === 'dashboard'
-                    ? this.dashboardServices
-                    : this.idServices;
-            const keys = new Set();
-            targetServices.forEach(service => {
-                if (!service?.accessList) return;
-                Object.keys(service.accessList).forEach(key => keys.add(key));
-            });
-            return Array.from(keys);
-        },
+
         detectSelectedPredefinedRole(serviceType) {
             const serviceIds = new Set(this.getServiceIdsByType(serviceType));
             const currentPermissions = (this.roleModel.permissions || [])
                 .filter(p => serviceIds.has(p.serviceType))
                 .map(p => p.access);
             const currentSet = new Set(currentPermissions);
-            const allServicePermissions = new Set(this.getAllPermissionKeysForServiceType(serviceType));
-            const roles = serviceType === 'ssi'
+            const roles = (serviceType === 'ssi'
                 ? SSI_PREDEFINED_ROLES
-                : serviceType === 'dashboard'
-                    ? DASHBOARD_PREDEFINED_ROLES
-                    : PREDEFINED_ROLES;
-            const filteredRoles = roles.filter(r => r.key !== 'custom');
+                    : PREDEFINED_ROLES).filter(r=>r.key !=='custom')
             if (!currentSet.size) return 'custom';
-            const matched = filteredRoles.find(role => {
+            const matched = roles.find(role => {
                 if (role.permissions.includes('ALL')) {
-                    if (currentSet.has('ALL')) return true;
-                    return Array.from(allServicePermissions).every(access => currentSet.has(access));
+                     return currentSet.has('ALL');
                 }
                 if (role.permissions.length !== currentSet.size) return false;
                 return role.permissions.every(p => currentSet.has(p));
@@ -677,20 +555,11 @@ export default {
         },
         buildPermissionsForRole(role, serviceType) {
             const permissions = [];
-            const targetServices = serviceType === 'ssi'
-                ? this.ssiServices
-                : serviceType === 'dashboard'
-                    ? this.dashboardServices
-                    : this.idServices;
+            const targetServices = serviceType === 'ssi' ? this.ssiServices : this.idServices;
 
             targetServices.forEach(service => {
-                if (!service?.accessList) return;
-                if (role.permissions.includes('ALL')) {
-                    Object.keys(service.accessList).forEach(access => {
-                        if (service.accessList[access] !== undefined) {
-                            permissions.push({ serviceType: service.id, access });
-                        }
-                    });
+                 if (role.permissions.includes('ALL') && service.accessList.ALL !== undefined) {
+                    permissions.push({ serviceType: service.id, access: 'ALL' });
                     return;
                 }
                 role.permissions.forEach(access => {
@@ -866,7 +735,7 @@ export default {
                 ],
                 "servicePermissions": []
             }
-            this.selectedRoles = { id: 'viewer', ssi: 'auditor', dashboard: 'custom' };
+            this.selectedRoles = { id: 'viewer', ssi: 'auditor' };
             this.edit = false;
         },
     },

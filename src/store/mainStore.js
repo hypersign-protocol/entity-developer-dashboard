@@ -1050,6 +1050,7 @@ const mainStore = {
             let resp = await RequestHandler(url, 'GET', {}, headers)
 
             if (resp) {
+                resp = resp.filter(x => !(x.id == 'DASHBOARD'))
                 commit('insertAllServices', resp);
             } else {
                 return null
