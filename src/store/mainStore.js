@@ -1877,7 +1877,7 @@ const mainStore = {
                     .then(response => response.json()).then(json => {
                         if (json) {
                             if (json.error) {
-                                return reject(new Error(json.error?.details.join(' ') || json.error.join(' ')))
+                                return reject(new Error(JWTExpiredErrorMessageHandling(json)))
                             } else {
                                 commit('setKybWidgetConfig', json.data);
                                 return resolve()
@@ -3105,7 +3105,7 @@ const mainStore = {
                                 "Origin": '*'
                             }
                         }
-                        fetch(url, {
+                        return fetch(url, {
                             ...options
                         })
                     })
