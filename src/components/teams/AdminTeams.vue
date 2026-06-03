@@ -114,8 +114,8 @@
                             <div v-if="selectedRoles.id === 'custom'" class="perm-scroll-box">
                                 <div v-for="eachService in idServices" :key="eachService.id" class="perm-service-block">
                                     <div class="perm-service-header">{{ eachService.name }}</div>
-                                    <div v-for="group in getPermSubGroups(eachService.id, eachService.accessList)" :key="group.label" class="perm-group-block">
-                                        <div class="perm-group-label">{{ group.label }}</div>
+                                    <div v-for="group in getPermSubGroups(eachService.id, eachService.accessList)" :key="group.label || 'dashboard-permissions'" class="perm-group-block">
+                                        <div v-if="group.label" class="perm-group-label">{{ group.label }}</div>
                                         <div class="form-check perm-item" v-for="perm in group.permissions" :key="perm">
                                             <input
                                                 class="form-check-input"
@@ -129,6 +129,22 @@
                                                 <code>{{ perm }}</code>
                                             </label>
                                         </div>
+                                    </div>
+                                </div>
+                                <div class="perm-group-block">
+                                    <div class="perm-group-label">Dashboard</div>
+                                    <div class="form-check perm-item" v-for="perm in dashboardPermissions" :key="perm">
+                                        <input
+                                            class="form-check-input"
+                                            type="checkbox"
+                                            :value="{ serviceType: dashboardRoleService.id, access: perm }"
+                                            v-on:change="onCheck($event, dashboardRoleService)"
+                                            :checked="checkIfAccessIsThereInThatService(perm, dashboardRoleService.id)"
+                                            :disabled="isReadForcedByWrite(perm, dashboardRoleService.id) || isWriteForcedByHigherPerm(perm, dashboardRoleService.id) || isUpdateForcedByDelete(perm, dashboardRoleService.id)"
+                                        >
+                                        <label class="form-check-label" :class="{ 'perm-forced': isReadForcedByWrite(perm, dashboardRoleService.id) || isWriteForcedByHigherPerm(perm, dashboardRoleService.id) || isUpdateForcedByDelete(perm, dashboardRoleService.id) }">
+                                            <code>{{ perm }}</code>
+                                        </label>
                                     </div>
                                 </div>
                             </div>
@@ -161,8 +177,8 @@
                             <div v-if="selectedRoles.ssi === 'custom'" class="perm-scroll-box">
                                 <div v-for="eachService in ssiServices" :key="eachService.id" class="perm-service-block">
                                     <div class="perm-service-header">{{ eachService.name }}</div>
-                                    <div v-for="group in getPermSubGroups(eachService.id, eachService.accessList)" :key="group.label" class="perm-group-block">
-                                        <div class="perm-group-label">{{ group.label }}</div>
+                                    <div v-for="group in getPermSubGroups(eachService.id, eachService.accessList)" :key="group.label || 'dashboard-permissions'" class="perm-group-block">
+                                        <div v-if="group.label" class="perm-group-label">{{ group.label }}</div>
                                         <div class="form-check perm-item" v-for="perm in group.permissions" :key="perm">
                                             <input
                                                 class="form-check-input"
@@ -176,6 +192,22 @@
                                                 <code>{{ perm }}</code>
                                             </label>
                                         </div>
+                                    </div>
+                                </div>
+                                <div class="perm-group-block">
+                                    <div class="perm-group-label">Dashboard</div>
+                                    <div class="form-check perm-item" v-for="perm in dashboardPermissions" :key="perm">
+                                        <input
+                                            class="form-check-input"
+                                            type="checkbox"
+                                            :value="{ serviceType: dashboardRoleService.id, access: perm }"
+                                            v-on:change="onCheck($event, dashboardRoleService)"
+                                            :checked="checkIfAccessIsThereInThatService(perm, dashboardRoleService.id)"
+                                            :disabled="isReadForcedByWrite(perm, dashboardRoleService.id) || isWriteForcedByHigherPerm(perm, dashboardRoleService.id) || isUpdateForcedByDelete(perm, dashboardRoleService.id)"
+                                        >
+                                        <label class="form-check-label" :class="{ 'perm-forced': isReadForcedByWrite(perm, dashboardRoleService.id) || isWriteForcedByHigherPerm(perm, dashboardRoleService.id) || isUpdateForcedByDelete(perm, dashboardRoleService.id) }">
+                                            <code>{{ perm }}</code>
+                                        </label>
                                     </div>
                                 </div>
                             </div>
@@ -197,6 +229,18 @@ import StudioSideBar from "../element/StudioSideBar.vue";
 import UtilsMixin from "../../mixins/utils";
 import config from "../../config";
 
+const DASHBOARD_ROLE_SERVICE = {
+    id: "DASHBOARD",
+    name: "Dashboard",
+    accessList: {
+        ALL: "ALL",
+        READ_SERVICE: "READ_SERVICE",
+        WRITE_SERVICE: "WRITE_SERVICE",
+        UPDATE_SERVICE: "UPDATE_SERVICE",
+        DELETE_SERVICE: "DELETE_SERVICE"
+    }
+};
+
 const PREDEFINED_ROLES = [
     {
         key: "viewer",
@@ -205,7 +249,7 @@ const PREDEFINED_ROLES = [
         description: "Minimal read-only access for business stakeholders.",
         badge: "Limited view",
         recommendedFor: "Founders, management, or external auditors",
-        permissions: ["READ_ANALYTICS", "READ_USAGE", "READ_COMPANY", "READ_COMPLIANCE"]
+        permissions: ["READ_ANALYTICS", "READ_USAGE", "READ_COMPANY", "READ_COMPLIANCE", "READ_SERVICE"]
     },
     {
         key: "analyst",
@@ -250,7 +294,7 @@ const PREDEFINED_ROLES = [
         description: "Full access to manage team, settings, verification, billing, and company account.",
         badge: "Full access",
         recommendedFor: "Organization owners / super admins",
-        permissions: ["READ_VERIFIED_USER", "READ_WIDGET_CONFIG", "WRITE_WIDGET_CONFIG", "UPDATE_WIDGET_CONFIG", "READ_WEBHOOK_CONFIG", "WRITE_WEBHOOK_CONFIG", "UPDATE_WEBHOOK_CONFIG", "DELETE_WEBHOOK_CONFIG", "READ_ANALYTICS", "READ_USAGE", "READ_CREDIT", "READ_COMPANY", "DELETE_COMPANY", "UPDATE_COMPANY_STATUS", "READ_COMPANY_EXECUTIVES", "READ_DOCUMENT", "VERIFY_DOCUMENT", "READ_COMPLIANCE"]
+        permissions: ["READ_VERIFIED_USER", "READ_WIDGET_CONFIG", "WRITE_WIDGET_CONFIG", "UPDATE_WIDGET_CONFIG", "READ_WEBHOOK_CONFIG", "WRITE_WEBHOOK_CONFIG", "UPDATE_WEBHOOK_CONFIG", "DELETE_WEBHOOK_CONFIG", "READ_ANALYTICS", "READ_USAGE", "READ_CREDIT", "READ_COMPANY", "DELETE_COMPANY", "UPDATE_COMPANY_STATUS", "READ_COMPANY_EXECUTIVES", "READ_DOCUMENT", "VERIFY_DOCUMENT", "READ_COMPLIANCE", "READ_SERVICE", "WRITE_SERVICE", "UPDATE_SERVICE", "DELETE_SERVICE"]
     },
     {
         key: "custom",
@@ -354,6 +398,12 @@ export default {
         SSI_PREDEFINED_ROLES() {
             return SSI_PREDEFINED_ROLES;
         },
+        dashboardRoleService() {
+            return DASHBOARD_ROLE_SERVICE;
+        },
+        dashboardPermissions() {
+            return ['ALL', 'READ_SERVICE', 'WRITE_SERVICE', 'UPDATE_SERVICE', 'DELETE_SERVICE'];
+        },
         categorizedServices() {
             const ssiServices = this.localAllServices.filter(s => s.id === config.SERVICE_TYPES.SSI_API);
             const idServices = this.localAllServices.filter(
@@ -378,7 +428,8 @@ export default {
             return this.localAllServices.some(
                s => s.id !== 
                config.SERVICE_TYPES.SSI_API && s.id !==
-               config.SERVICE_TYPES.QUEST
+               config.SERVICE_TYPES.QUEST && s.id !==
+               DASHBOARD_ROLE_SERVICE.id
             );
         },
         ssiServices() {
@@ -388,7 +439,8 @@ export default {
             return this.localAllServices.filter(
                    s => s.id !==
                 config.SERVICE_TYPES.SSI_API && s.id !==
-                config.SERVICE_TYPES.QUEST
+                config.SERVICE_TYPES.QUEST && s.id !==
+                DASHBOARD_ROLE_SERVICE.id
             );
         }
     },
@@ -519,7 +571,11 @@ export default {
             this.$root.$emit("bv::toggle::collapse", "sidebar-right");
         },
          getServiceIdsByType(serviceType) {
-            return (serviceType === 'ssi' ? this.ssiServices : this.idServices).map(s => s.id);
+            const services = serviceType === 'ssi'
+                ? this.ssiServices
+                : this.idServices;
+            const serviceIds = services.map(s => s.id);
+            return serviceType === 'id' ? [...serviceIds, DASHBOARD_ROLE_SERVICE.id] : serviceIds;
         },
 
         detectSelectedPredefinedRole(serviceType) {
@@ -555,7 +611,9 @@ export default {
         },
         buildPermissionsForRole(role, serviceType) {
             const permissions = [];
-            const targetServices = serviceType === 'ssi' ? this.ssiServices : this.idServices;
+            const targetServices = serviceType === 'ssi'
+                ? this.ssiServices
+                : [...this.idServices, DASHBOARD_ROLE_SERVICE];
 
             targetServices.forEach(service => {
                  if (role.permissions.includes('ALL') && service.accessList.ALL !== undefined) {
