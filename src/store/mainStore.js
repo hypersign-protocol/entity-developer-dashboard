@@ -2612,8 +2612,8 @@ const mainStore = {
                 // let url = `http://localhost:3001/api/v1/e-kyb/verification/company/${companyId}`;
                 dispatch('getValidToken', {
                     serviceId: getters.getSelectedService.appId,
-                    grant_type: config.GRANT_TYPES_ENUM.CAVACH_API,
-                    tokenStorageKey: "access_token"
+                    grant_type: config.GRANT_TYPES_ENUM.CAVACH_KYB_API,
+                    tokenStorageKey: "kyb_access_token"
                 }).then((token) => {
                     let headers = UtilsMixin.methods.getKycServiceHeader(token);
 
