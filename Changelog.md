@@ -2,14 +2,20 @@
 
 ## [Unreleased]
 
+## [3.10.3] - 2026-06-08
 
+### Fixed
+- Fixed error occuring while Approving kyb verification due to wrong token getting passed
 ## [3.10.2] - 2026-06-04
 
 ### Fixed
 - Fixed error occuring while registering did using update
 - Fixed issue of undefined getting passed as appId
 - Fixed issue of token is not getting re-generated in usage page
+<<<<<<< HEAD
 
+=======
+>>>>>>> 1392991 (updated chnage log and package)
 ## [3.10.0] - 2026-06-02
 
 ### Added
