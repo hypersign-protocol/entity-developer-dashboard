@@ -264,7 +264,13 @@
           <span class="back-link" @click="goBack">
             <i class="fa fa-arrow-left mr-1"></i>Users
           </span>
-          <span class="breadcrumb-sep"><i class="fa fa-angle-right"></i></span>
+          <template v-if="hasCurrentCompanyName">
+            <span class="breadcrumb-sep small" style="font-family: monospace; cursor: pointer"><i class="fa fa-angle-right"></i></span>
+            <span class="back-link" @click="goToCompanySource">
+              {{ currentCompanyName }}
+            </span>
+          </template>
+          <span class="breadcrumb-sep" style="font-family: monospace; cursor: pointer"><i class="fa fa-angle-right"></i></span>
           <span
             class="text-muted small"
             style="font-family: monospace; cursor: pointer"
@@ -277,7 +283,7 @@
         <div class="d-flex justify-content-between align-items-center">
           <div>
             <h4 class="mb-0 font-weight-bold">User Detail</h4>
-            <p class="text-muted small mb-0">KYC verification session details</p>
+            <p class="text-muted small mb-0">ID verification details</p>
           </div>
         </div>
       </v-col>
@@ -831,11 +837,19 @@ export default {
     HfPopUp,
   },
   computed: {
-    ...mapGetters("mainStore", ["getSessionDetailsBySessionId"]),
+    ...mapGetters("mainStore", ["getSessionDetailsBySessionId", "getSelectedService"]),
     ...mapState({
+      companies: (state) => state.mainStore.companies,
       sessionList: (state) => state.mainStore.sessionList,
       containerShift: (state) => state.playgroundStore.containerShift,
     }),
+    currentCompanyName() {
+      const company = this.companies.find((company) => company.companyId === this.companyId);
+      return company?.companyName?.trim().replace(/\b\w/g, char => char.toUpperCase()) || "";
+    },
+    hasCurrentCompanyName() {
+      return Boolean(this.currentCompanyName);
+    },
     isFacialAuthenticationSuccess() {
       const status =
         this.selfiDataFound &&
@@ -959,6 +973,8 @@ export default {
       fullPage: true,
       isLoading: false,
       appId: "",
+      companyId: "",
+      isValidBusinessID: false,
       sessionId: "",
       env: "prod",
       session: {},
@@ -986,8 +1002,13 @@ export default {
   },
 
   async created() {
-    this.appId = this.$route.params.appId;
+    
+    this.appId = this.getSelectedService?.appId
     this.sessionId = this.$route.params.sessionId;
+    this.isValidBusinessID= /^[a-f\d]{24}$/i.test(this.$route.params.appId); // Check for mongoDB_Id
+    if(this.isValidBusinessID) {
+      this.companyId=this.$route.params.appId;
+    }
     const service = this.$store.getters["mainStore/getSelectedService"];
 
     this.env = service?.env || "prod";
@@ -997,6 +1018,7 @@ export default {
       this.session = await this.fetchSessionsDetailsById({
         sessionId: this.sessionId,
         env: this.env,
+        businessId: this.isValidBusinessID ? this.companyId : undefined,
       });
 
       this.isLoading = false;
@@ -2183,8 +2205,22 @@ export default {
       }
     },
     goBack() {
+      if(this.isValidBusinessID){
+        this.$router.push({ name: "BusinessDetails", params: { companyId: this.companyId, appId: this.appId, tab: "ubo-details"} }
+      );
+      }else{
       this.$router.push({
         name: "playgroundCredential",
+      });
+      }
+    
+    },
+    goToCompanySource() {
+      if (!this.hasCurrentCompanyName || !this.companyId) return;
+
+      this.$router.push({
+        name: "BusinessDetails",
+        params: { companyId: this.companyId, appId: this.appId },
       });
     },
 
