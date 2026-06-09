@@ -208,23 +208,23 @@ export default {
           title: "Understand Hypersign Basics",
           icon: "mdi-book-open-page-variant-outline",
           description:
-            "Start by learning how Hypersign KYC works — from identity capture to verification and issuance. This guide explains each component and how it ensures secure, compliant onboarding.",
+            "Start by learning how Hypersign ID works — from identity capture to verification and issuance. This guide explains each component and how it ensures secure, compliant onboarding.",
           link: "https://docs.hypersign.id/hypersign-kyc/introduction",
           openInNewTab: true,
         },
         {
-          title: "Configure Your KYC Widget",
+          title: "Configure Your ID Widget",
           icon: "mdi-cog-outline",
           description:
-            "Set up your KYC widget according to your needs — choose between liveliness checks, ID document verification, and consent capture. You’ll also learn how to customize branding and themes.",
+            "Set up your ID widget according to your needs — choose between liveliness checks, ID document verification, and consent capture. You’ll also learn how to customize branding and themes.",
           link: "https://docs.hypersign.id/hypersign-kyc/integrations/widget-configuration",
           openInNewTab: true,
         },
         {
-          title: "Create Your Custom KYC Verifier URL",
+          title: "Create Your Custom ID Verifier Page",
           icon: "mdi-web-check",
           description:
-            "Quickly test your KYC flow by creating a Verifier page. Just add a title, description, and theme — and you’ll get a sharable KYC URL to test the end-to-end verification process with sample users.",
+            "Quickly test your ID verification flow by creating a  Custom Verifier page. Just add a title, description, and theme — and you’ll get a sharable KYC URL to test the end-to-end verification process with sample users.",
           link: `#/studio/kyc-webpage-generator/${this.appId()}`, 
           anchorText: "Go to KYC Verifier Setup",
           openInNewTab: false,
@@ -233,7 +233,7 @@ export default {
           title: "Integrate into Your App",
           icon: "mdi-code-tags",
           description:
-            "Developers can embed the KYC widget directly into their web or mobile apps. Learn how to authenticate via backend APIs, generate session IDs, prepare the widget URL, and handle verification events.",
+            "Developers can embed the ID widget directly into their web or mobile apps. Learn how to authenticate via backend APIs, generate session IDs, prepare the widget URL, and handle verification events.",
           link: "https://docs.hypersign.id/hypersign-kyc/kyc-widget/integrations",
           openInNewTab: true,
         },
