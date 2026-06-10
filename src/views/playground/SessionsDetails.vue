@@ -514,7 +514,7 @@
         md="6"
         lg="4"
         id="liveliness-info"
-        v-if="selfiImageFound"
+        v-if="selfiImageFound && livelinessResultFound"
       >
         <div class="detail-card p-4">
           <div class="card-section-title">
@@ -774,25 +774,42 @@ import { getStellarChainConfig } from "@hypersign-protocol/hypersign-kyc-chains-
 import HfPopUp from "../../components/element/hfPopup.vue";
 import { HYPERSIGN_PROOF_TYPES } from "@hypersign-protocol/hypersign-kyc-chains-metadata/cosmos/wallet/cosmos-wallet-utils";
 import pdfMake from "pdfmake";
-import pdfFonts from "pdfmake/build/vfs_fonts"
-import devNagariFont from "@/assets/fonts/vfs_fonts"
+import pdfFonts from "pdfmake/build/vfs_fonts";
+import embeddedPdfFonts from "@/assets/fonts/vfs_fonts";
+const pdfMakeVfs = pdfFonts.vfs || pdfFonts;
+const embeddedPdfFontVfs = embeddedPdfFonts.vfs || embeddedPdfFonts;
 pdfMake.vfs = {
-  ...pdfFonts.vfs,
-  ...devNagariFont.vfs,
-}
+  ...pdfMakeVfs,
+  ...embeddedPdfFontVfs,
+};
 
-
-const fonts={
-   Roboto: {
-    normal: 'Roboto-Regular.ttf',
-    bold: 'Roboto-Medium.ttf',
-    italics: 'Roboto-Italic.ttf',
-    bolditalics: 'Roboto-MediumItalic.ttf'
+const PDF_FONT_FAMILY = "Roboto";
+const fonts = {
+  Roboto: {
+    normal: "Roboto-Regular.ttf",
+    bold: "Roboto-Medium.ttf",
+    italics: "Roboto-Italic.ttf",
+    bolditalics: "Roboto-MediumItalic.ttf",
   },
   NotoSansDevanagari: {
-    normal: 'NotoSansDevanagari-Regular.ttf'
-  }
-}
+    normal: "NotoSansDevanagari-Regular.ttf",
+    bold: "NotoSansDevanagari-Regular.ttf",
+    italics: "NotoSansDevanagari-Regular.ttf",
+    bolditalics: "NotoSansDevanagari-Regular.ttf",
+  },
+  NotoSansBengali: {
+    normal: "NotoSansBengali-Regular.ttf",
+    bold: "NotoSansBengali-Bold.ttf",
+    italics: "NotoSansBengali-Regular.ttf",
+    bolditalics: "NotoSansBengali-Bold.ttf",
+  },
+  NotoNaskhArabic: {
+    normal: "NotoNaskhArabic-Regular.ttf",
+    bold: "NotoNaskhArabic-Bold.ttf",
+    italics: "NotoNaskhArabic-Regular.ttf",
+    bolditalics: "NotoNaskhArabic-Bold.ttf",
+  },
+};
 pdfMake.addFonts(fonts);
 import logoSrc from "../../assets/hypersign_white_rect.png";
 
@@ -874,8 +891,7 @@ export default {
       return {
         success: status,
         result:
-          ServiceLivenessResultEnum[this.effectiveSelfiDetails.serviceLivenessResult] ||
-          "Liveliness result not available",
+          ServiceLivenessResultEnum[this.effectiveSelfiDetails.serviceLivenessResult] ,
         borderColor: status ? "5px solid rgb(81 137 81 / 20%)" : "5px solid #cd5c5c5e",
       };
     },
@@ -894,6 +910,9 @@ export default {
     },
     selfiImageFound() {
       return Boolean(this.effectiveSelfiDetails?.tokenSelfiImage);
+    },
+    livelinessResultFound() {
+      return this.hasValue(this.effectiveSelfiDetails?.serviceLivenessResult);
     },
     idDocDataFound() {
       return this.hasObjectData(this.effectiveOcrIdDocsDetails);
@@ -1272,6 +1291,43 @@ export default {
         const statusColor = (s) =>
           s === "Completed" ? grn : s === "Failed" ? rd : amber;
 
+        const getPdfFont = (value) => {
+          const text = String(value ?? "");
+          if (/[\u0600-\u06FF]/.test(text)) return "NotoNaskhArabic";
+          if (/[\u0980-\u09FF]/.test(text)) return "NotoSansBengali";
+          if (/[\u0900-\u097F]/.test(text)) return "NotoSansDevanagari";
+          return PDF_FONT_FAMILY;
+        };
+
+        const getPdfText = (value) => {
+          const text = String(value ?? "—");
+          if (!text) return "—";
+
+          const chunks = [];
+          let currentText = "";
+          let currentFont = getPdfFont(text[0]);
+
+          for (const char of text) {
+            const charFont = getPdfFont(char);
+            if (charFont !== currentFont && currentText) {
+              chunks.push({ text: currentText, font: currentFont });
+              currentText = "";
+            }
+            currentText += char;
+            currentFont = charFont;
+          }
+
+          if (currentText) chunks.push({ text: currentText, font: currentFont });
+
+          return chunks.length === 1 ? text : chunks;
+        };
+
+        const pdfTextNode = (value, options = {}) => ({
+          text: getPdfText(value),
+          font: getPdfFont(value),
+          ...options,
+        });
+
         // section header with purple left-accent bar
         const sectionTitle = (text) => ({
           columns: [
@@ -1313,8 +1369,8 @@ export default {
           table: {
             widths: ["42%", "58%"],
             body: rows.map(([label, value]) => [
-              { text: String(label), color: mid, fontSize: 8 },
-              { text: String(value ?? "—"), color: dark, fontSize: 8, bold: true },
+              pdfTextNode(label, { color: mid, fontSize: 8 }),
+              pdfTextNode(value, { color: dark, fontSize: 8, bold: true }),
             ]),
           },
           layout: "kycTable",
@@ -1388,14 +1444,13 @@ export default {
         // small label above a bold value (for stat bar cells)
         const statCell = (label, value, valueColor) => ({
           stack: [
-            { text: label.toUpperCase(), fontSize: 6.5, color: mid, bold: true },
-            {
-              text: String(value ?? "—"),
+            pdfTextNode(label.toUpperCase(), { fontSize: 6.5, color: mid, bold: true }),
+            pdfTextNode(value, {
               fontSize: 10,
               bold: true,
               color: valueColor || dark,
               margin: [0, 3, 0, 0],
-            },
+            }),
           ],
         });
 
@@ -1457,14 +1512,13 @@ export default {
 
         const stepMetaCell = (label, value, color = dark) => ({
           stack: [
-            { text: label.toUpperCase(), fontSize: 6.5, color: mid, bold: true },
-            {
-              text: String(value ?? "—"),
+            pdfTextNode(label.toUpperCase(), { fontSize: 6.5, color: mid, bold: true }),
+            pdfTextNode(value, {
               fontSize: 10,
               bold: true,
               color,
               margin: [0, 3, 0, 0],
-            },
+            }),
           ],
         });
 
@@ -1957,7 +2011,7 @@ export default {
               : []),
 
             // ════════════════ LIVENESS CHECK ════════════════
-            ...(this.selfiImageFound
+            ...(this.selfiImageFound && this.livelinessResultFound
               ? [
                   {
                     stack: [
@@ -2248,7 +2302,7 @@ export default {
               : []),
           ],
 
-          defaultStyle: { font: 'Roboto', fontSize: 9, lineHeight: 1.35, color: dark },
+          defaultStyle: { font: PDF_FONT_FAMILY, fontSize: 9, lineHeight: 1.35, color: dark },
         };
 
         pdfMake
