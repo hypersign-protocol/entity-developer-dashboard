@@ -514,7 +514,7 @@
         md="6"
         lg="4"
         id="liveliness-info"
-        v-if="selfiImageFound"
+        v-if="selfiImageFound && livelinessResultFound"
       >
         <div class="detail-card p-4">
           <div class="card-section-title">
@@ -555,9 +555,9 @@
               <img :src="effectiveSelfiDetails.tokenSelfiImage" class="face-img" />
               <small class="text-muted">Selfie</small>
             </div>
-            <div>
+            <div v-if="faceAuthenticationDisplayFound">
               <i
-                v-if="isFacialAuthenticationSuccess.success"
+                v-if="faceAuthenticationPassedForDisplay"
                 class="fa fa-check-circle fa-2x"
                 style="color: #28a745"
               ></i>
@@ -569,8 +569,9 @@
             </div>
           </div>
           <div
+            v-if="faceAuthenticationDisplayFound"
             :class="
-              isFacialAuthenticationSuccess.success
+              faceAuthenticationPassedForDisplay
                 ? 'alert alert-success'
                 : 'alert alert-danger'
             "
@@ -583,7 +584,7 @@
             "
           >
             <i class="fa fa-info-circle mr-1"></i
-            >{{ isFacialAuthenticationSuccess.result }}
+            >{{ faceAuthenticationResultForDisplay }}
           </div>
         </div>
       </v-col>
@@ -774,25 +775,42 @@ import { getStellarChainConfig } from "@hypersign-protocol/hypersign-kyc-chains-
 import HfPopUp from "../../components/element/hfPopup.vue";
 import { HYPERSIGN_PROOF_TYPES } from "@hypersign-protocol/hypersign-kyc-chains-metadata/cosmos/wallet/cosmos-wallet-utils";
 import pdfMake from "pdfmake";
-import pdfFonts from "pdfmake/build/vfs_fonts"
-import devNagariFont from "@/assets/fonts/vfs_fonts"
+import pdfFonts from "pdfmake/build/vfs_fonts";
+import embeddedPdfFonts from "@/assets/fonts/vfs_fonts";
+const pdfMakeVfs = pdfFonts.vfs || pdfFonts;
+const embeddedPdfFontVfs = embeddedPdfFonts.vfs || embeddedPdfFonts;
 pdfMake.vfs = {
-  ...pdfFonts.vfs,
-  ...devNagariFont.vfs,
-}
+  ...pdfMakeVfs,
+  ...embeddedPdfFontVfs,
+};
 
-
-const fonts={
-   Roboto: {
-    normal: 'Roboto-Regular.ttf',
-    bold: 'Roboto-Medium.ttf',
-    italics: 'Roboto-Italic.ttf',
-    bolditalics: 'Roboto-MediumItalic.ttf'
+const PDF_FONT_FAMILY = "Roboto";
+const fonts = {
+  Roboto: {
+    normal: "Roboto-Regular.ttf",
+    bold: "Roboto-Medium.ttf",
+    italics: "Roboto-Italic.ttf",
+    bolditalics: "Roboto-MediumItalic.ttf",
   },
   NotoSansDevanagari: {
-    normal: 'NotoSansDevanagari-Regular.ttf'
-  }
-}
+    normal: "NotoSansDevanagari-Regular.ttf",
+    bold: "NotoSansDevanagari-Regular.ttf",
+    italics: "NotoSansDevanagari-Regular.ttf",
+    bolditalics: "NotoSansDevanagari-Regular.ttf",
+  },
+  NotoSansBengali: {
+    normal: "NotoSansBengali-Regular.ttf",
+    bold: "NotoSansBengali-Bold.ttf",
+    italics: "NotoSansBengali-Regular.ttf",
+    bolditalics: "NotoSansBengali-Bold.ttf",
+  },
+  NotoNaskhArabic: {
+    normal: "NotoNaskhArabic-Regular.ttf",
+    bold: "NotoNaskhArabic-Bold.ttf",
+    italics: "NotoNaskhArabic-Regular.ttf",
+    bolditalics: "NotoNaskhArabic-Bold.ttf",
+  },
+};
 pdfMake.addFonts(fonts);
 import logoSrc from "../../assets/hypersign_white_rect.png";
 
@@ -841,7 +859,8 @@ export default {
       containerShift: (state) => state.playgroundStore.containerShift,
     }),
     currentCompanyName() {
-      const company = this.companies.find((company) => company.companyId === this.companyId);
+      const companies = Array.isArray(this.companies) ? this.companies : [];
+      const company = companies.find((company) => company.companyId === this.companyId);
       return company?.companyName?.trim().replace(/\b\w/g, char => char.toUpperCase()) || "";
     },
     hasCurrentCompanyName() {
@@ -852,6 +871,14 @@ export default {
         this.effectiveOcrIdDocsDetails.serviceFacialAuthenticationResult;
       const facialSimilarityResult =
         this.effectiveOcrIdDocsDetails.serviceFacialSimilarityResult || 0;
+
+      if (!this.faceAuthenticationResultFound) {
+        return {
+          success: false,
+          result: "",
+        };
+      }
+
       const status =
         this.selfiDataFound &&
         this.idDocDataFound &&
@@ -863,8 +890,8 @@ export default {
       return {
         success: status,
         result: !status
-          ? (FaicalAuthenticationError[facialAuthenticationResult] ||
-              "Face check could not be performed") + matchPercentage
+          ? (FaicalAuthenticationError[facialAuthenticationResult] || "") +
+            matchPercentage
           : "Facial Authentication Passed" + matchPercentage,
       };
     },
@@ -874,8 +901,7 @@ export default {
       return {
         success: status,
         result:
-          ServiceLivenessResultEnum[this.effectiveSelfiDetails.serviceLivenessResult] ||
-          "Liveliness result not available",
+          ServiceLivenessResultEnum[this.effectiveSelfiDetails.serviceLivenessResult] ,
         borderColor: status ? "5px solid rgb(81 137 81 / 20%)" : "5px solid #cd5c5c5e",
       };
     },
@@ -895,23 +921,47 @@ export default {
     selfiImageFound() {
       return Boolean(this.effectiveSelfiDetails?.tokenSelfiImage);
     },
+    livelinessResultFound() {
+      return this.hasValue(this.effectiveSelfiDetails?.serviceLivenessResult);
+    },
     idDocDataFound() {
       return this.hasObjectData(this.effectiveOcrIdDocsDetails);
     },
     idDocFaceImageFound() {
       return Boolean(this.effectiveOcrIdDocsDetails?.tokenFaceImage);
     },
+    faceAuthenticationResultFound() {
+      return this.hasValue(
+        this.effectiveOcrIdDocsDetails?.serviceFacialAuthenticationResult
+      );
+    },
+    faceAuthenticationAssumedPassed() {
+      return !this.faceAuthenticationResultFound && this.userConsentDataFound;
+    },
+    faceAuthenticationDisplayFound() {
+      return this.faceAuthenticationResultFound || this.faceAuthenticationAssumedPassed;
+    },
+    faceAuthenticationPassedForDisplay() {
+      return this.faceAuthenticationResultFound
+        ? this.isFacialAuthenticationSuccess.success
+        : this.faceAuthenticationAssumedPassed;
+    },
+    faceAuthenticationResultForDisplay() {
+      return this.faceAuthenticationResultFound
+        ? this.isFacialAuthenticationSuccess.result
+        : "Facial Authentication Passed";
+    },
     idDocDocumentImageFound() {
       return Boolean(this.effectiveOcrIdDocsDetails?.tokenFrontDocumentImage);
     },
     userConsentDataFound() {
       return (
-        this.session.userConsentDetails &&
+        this.session?.userConsentDetails &&
         Object.keys(this.session.userConsentDetails).length > 0
       );
     },
     sbtDataFound() {
-      return this.session.mintsbtsDetails && this.session.mintsbtsDetails.length > 0;
+      return this.session?.mintsbtsDetails && this.session.mintsbtsDetails.length > 0;
     },
     startFinishDiffInSeconds() {
       if (this.userConsentDataFound) {
@@ -972,13 +1022,13 @@ export default {
     },
     effectiveSelfiDetails() {
       return this.mergeWithFallback(
-        this.session.selfiDetails || {},
+        this.session?.selfiDetails || {},
         this.userConsentSelfiDetails
       );
     },
     effectiveOcrIdDocsDetails() {
       return this.mergeWithFallback(
-        this.session.ocriddocsDetails || {},
+        this.session?.ocriddocsDetails || {},
         this.userConsentOcrIdDocsDetails
       );
     },
@@ -1019,8 +1069,7 @@ export default {
       return sbtMintData;
     },
     sortedTimelineDetails() {
-      // eslint-disable-next-line vue/no-side-effects-in-computed-properties
-      return this.timeLineDetails.sort(
+      return [...this.timeLineDetails].sort(
         (a, b) => new Date(a.createdAt) - new Date(b.createdAt)
       );
     },
@@ -1081,7 +1130,7 @@ export default {
         sessionId: this.sessionId,
         env: this.env,
         businessId: this.isValidBusinessID ? this.companyId : undefined,
-      });
+      }) || {};
 
       this.isLoading = false;
 
@@ -1162,9 +1211,6 @@ export default {
       if (dateKeys.test(key)) {
         // Unix seconds (10 digits) or milliseconds (13 digits)
         const num = Number(value);
-        console.log(!isNaN(num));
-        
-        
         if (
           !isNaN(num) &&
           String(value)
@@ -1173,7 +1219,6 @@ export default {
         ) {
           const ms = String(value).length === 10 ? num * 1000 : num;
           const d = new Date(ms);
-          console.log(d);
           
           if (!isNaN(d.getTime())) {
             return d.toLocaleDateString("en-IN", {
@@ -1272,6 +1317,43 @@ export default {
         const statusColor = (s) =>
           s === "Completed" ? grn : s === "Failed" ? rd : amber;
 
+        const getPdfFont = (value) => {
+          const text = String(value ?? "");
+          if (/[\u0600-\u06FF]/.test(text)) return "NotoNaskhArabic";
+          if (/[\u0980-\u09FF]/.test(text)) return "NotoSansBengali";
+          if (/[\u0900-\u097F]/.test(text)) return "NotoSansDevanagari";
+          return PDF_FONT_FAMILY;
+        };
+
+        const getPdfText = (value) => {
+          const text = String(value ?? "—");
+          if (!text) return "—";
+
+          const chunks = [];
+          let currentText = "";
+          let currentFont = getPdfFont(text[0]);
+
+          for (const char of text) {
+            const charFont = getPdfFont(char);
+            if (charFont !== currentFont && currentText) {
+              chunks.push({ text: currentText, font: currentFont });
+              currentText = "";
+            }
+            currentText += char;
+            currentFont = charFont;
+          }
+
+          if (currentText) chunks.push({ text: currentText, font: currentFont });
+
+          return chunks.length === 1 ? text : chunks;
+        };
+
+        const pdfTextNode = (value, options = {}) => ({
+          text: getPdfText(value),
+          font: getPdfFont(value),
+          ...options,
+        });
+
         // section header with purple left-accent bar
         const sectionTitle = (text) => ({
           columns: [
@@ -1313,8 +1395,8 @@ export default {
           table: {
             widths: ["42%", "58%"],
             body: rows.map(([label, value]) => [
-              { text: String(label), color: mid, fontSize: 8 },
-              { text: String(value ?? "—"), color: dark, fontSize: 8, bold: true },
+              pdfTextNode(label, { color: mid, fontSize: 8 }),
+              pdfTextNode(value, { color: dark, fontSize: 8, bold: true }),
             ]),
           },
           layout: "kycTable",
@@ -1388,14 +1470,13 @@ export default {
         // small label above a bold value (for stat bar cells)
         const statCell = (label, value, valueColor) => ({
           stack: [
-            { text: label.toUpperCase(), fontSize: 6.5, color: mid, bold: true },
-            {
-              text: String(value ?? "—"),
+            pdfTextNode(label.toUpperCase(), { fontSize: 6.5, color: mid, bold: true }),
+            pdfTextNode(value, {
               fontSize: 10,
               bold: true,
               color: valueColor || dark,
               margin: [0, 3, 0, 0],
-            },
+            }),
           ],
         });
 
@@ -1425,13 +1506,14 @@ export default {
         const isStepPendingValue = (value) => value === 0 || value === "0";
 
         const getPdfStepStatus = (stepProperty) => {
-          const currentSessionStatus = this.session.status || "Unknown";
+          const session = this.session || {};
+          const currentSessionStatus = session.status || "Unknown";
           const isPendingSession = ["Pending", "In Progress"].includes(
             currentSessionStatus
           );
-          if (!(stepProperty in this.session)) return "not-started";
-          if (isStepCompletedValue(this.session[stepProperty])) return "completed";
-          if (isStepPendingValue(this.session[stepProperty]) && isPendingSession) {
+          if (!(stepProperty in session)) return "not-started";
+          if (isStepCompletedValue(session[stepProperty])) return "completed";
+          if (isStepPendingValue(session[stepProperty]) && isPendingSession) {
             return "in-progress";
           }
           return "not-started";
@@ -1457,14 +1539,13 @@ export default {
 
         const stepMetaCell = (label, value, color = dark) => ({
           stack: [
-            { text: label.toUpperCase(), fontSize: 6.5, color: mid, bold: true },
-            {
-              text: String(value ?? "—"),
+            pdfTextNode(label.toUpperCase(), { fontSize: 6.5, color: mid, bold: true }),
+            pdfTextNode(value, {
               fontSize: 10,
               bold: true,
               color,
               margin: [0, 3, 0, 0],
-            },
+            }),
           ],
         });
 
@@ -1595,8 +1676,8 @@ export default {
         const liveLabel = this.passiveLivelinessData.result || "—";
         const liveScore = this.effectiveSelfiDetails?.serviceLivenessResult ?? "—";
 
-        const facePass = this.isFacialAuthenticationSuccess.success;
-        const faceDetail = this.isFacialAuthenticationSuccess.result;
+        const facePass = this.faceAuthenticationPassedForDisplay;
+        const faceDetail = this.faceAuthenticationResultForDisplay;
         const matchPct = Math.round(
           (this.effectiveOcrIdDocsDetails?.serviceFacialSimilarityResult || 0) * 100
         );
@@ -1701,7 +1782,17 @@ export default {
                 margin: [36, 8, 36, 0],
                 columns: [
                   {
-                    stack: [{ image: logoPng, width: 120, margin: [0, 0, 0, 4] }],
+                    stack: logoPng
+                      ? [{ image: logoPng, width: 120, margin: [0, 0, 0, 4] }]
+                      : [
+                          {
+                            text: "Hypersign",
+                            bold: true,
+                            fontSize: 14,
+                            color: white,
+                            margin: [0, 8, 0, 0],
+                          },
+                        ],
                     width: "*",
                   },
                   {
@@ -1957,7 +2048,7 @@ export default {
               : []),
 
             // ════════════════ LIVENESS CHECK ════════════════
-            ...(this.selfiImageFound
+            ...(this.selfiImageFound && this.livelinessResultFound
               ? [
                   {
                     stack: [
@@ -2077,46 +2168,50 @@ export default {
                         alignment: "center",
                         width: 100,
                       },
-                      {
-                        stack: [
-                          {
-                            text: `${matchPct}%`,
-                            bold: true,
-                            fontSize: 22,
-                            color: matchPct >= 80 ? grn : rd,
-                            alignment: "center",
-                          },
-                          {
-                            text: "Similarity",
-                            fontSize: 7.5,
-                            color: mid,
-                            alignment: "center",
-                          },
-                          {
-                            canvas: [
-                              {
-                                type: "line",
-                                x1: 10,
-                                y1: 0,
-                                x2: 70,
-                                y2: 0,
-                                lineWidth: 0.4,
-                                lineColor: bord,
-                              },
-                            ],
-                            margin: [0, 8, 0, 8],
-                          },
-                          {
-                            text: facePass ? "✓ MATCH" : "✗ NO MATCH",
-                            bold: true,
-                            fontSize: 9,
-                            color: facePass ? grn : rd,
-                            alignment: "center",
-                          },
-                        ],
-                        width: "*",
-                        margin: [0, 16, 0, 0],
-                      },
+                      ...(this.faceAuthenticationResultFound
+                        ? [
+                            {
+                              stack: [
+                                {
+                                  text: `${matchPct}%`,
+                                  bold: true,
+                                  fontSize: 22,
+                                  color: matchPct >= 80 ? grn : rd,
+                                  alignment: "center",
+                                },
+                                {
+                                  text: "Similarity",
+                                  fontSize: 7.5,
+                                  color: mid,
+                                  alignment: "center",
+                                },
+                                {
+                                  canvas: [
+                                    {
+                                      type: "line",
+                                      x1: 10,
+                                      y1: 0,
+                                      x2: 70,
+                                      y2: 0,
+                                      lineWidth: 0.4,
+                                      lineColor: bord,
+                                    },
+                                  ],
+                                  margin: [0, 8, 0, 8],
+                                },
+                                {
+                                  text: facePass ? "✓ MATCH" : "✗ NO MATCH",
+                                  bold: true,
+                                  fontSize: 9,
+                                  color: facePass ? grn : rd,
+                                  alignment: "center",
+                                },
+                              ],
+                              width: "*",
+                              margin: [0, 16, 0, 0],
+                            },
+                          ]
+                        : []),
                       {
                         stack: [
                           ...(faceB64
@@ -2150,11 +2245,13 @@ export default {
                     columnGap: 8,
                         margin: [0, 4, 0, 10],
                       },
-                      ...verifyRow(
-                        "Face Authentication Overall Result",
-                        facePass,
-                        faceDetail
-                      ),
+                      ...(this.faceAuthenticationDisplayFound
+                        ? verifyRow(
+                            "Face Authentication Overall Result",
+                            facePass,
+                            faceDetail
+                          )
+                        : []),
                     ],
                     unbreakable: true,
                   },
@@ -2248,7 +2345,7 @@ export default {
               : []),
           ],
 
-          defaultStyle: { font: 'Roboto', fontSize: 9, lineHeight: 1.35, color: dark },
+          defaultStyle: { font: PDF_FONT_FAMILY, fontSize: 9, lineHeight: 1.35, color: dark },
         };
 
         pdfMake
@@ -2289,18 +2386,19 @@ export default {
       // console.log('Inside get chain details.... ' + JSON.stringify(blockchainlabel))
       // const config = getCosmosChainConfig(blockchainlabel)
 
+      const chainLabel = blockchainlabel || "cosmos:comdex:test";
       let config;
-      if (blockchainlabel.indexOf("cosmos") >= 0) {
-        config = getCosmosChainConfig(blockchainlabel);
+      if (chainLabel.indexOf("cosmos") >= 0) {
+        config = getCosmosChainConfig(chainLabel);
       } else {
-        config = getStellarChainConfig(blockchainlabel);
+        config = getStellarChainConfig(chainLabel);
       }
 
       return {
-        chainName: config.chainName,
-        chainId: config.chainId,
-        logoUrl: config.stakeCurrency.coinImageUrl,
-        tx_explorer: config.txExplorer.txUrl,
+        chainName: config?.chainName || chainLabel,
+        chainId: config?.chainId || "",
+        logoUrl: config?.stakeCurrency?.coinImageUrl || "",
+        tx_explorer: config?.txExplorer?.txUrl || "",
       };
     },
     hasValue(value) {
