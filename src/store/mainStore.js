@@ -2352,7 +2352,7 @@ const mainStore = {
         },
         fetchSessionsDetailsById: ({ getters, dispatch }, payload) => {
             return new Promise((resolve, reject) => {
-                const { sessionId, env } = payload
+                const { sessionId, env, businessId } = payload
                 let envVal = env
                 if (env === '' || env === null || env === undefined) {
                     envVal = 'prod'
@@ -2360,8 +2360,11 @@ const mainStore = {
                 if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
                     return reject(new Error('Tenant url is null or empty, service is not selected'))
                 }
-                const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/user/${sessionId}?env=${encodeURIComponent(envVal)}`;
+                let url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/user/${sessionId}?env=${encodeURIComponent(envVal)}`;
                 // let url = `http://localhost:3001/api/v1/user/${sessionId}?env=${encodeURIComponent(envVal)}`;
+                if(businessId !== '' && businessId !== null && businessId !== undefined){
+                    url += `&businessId=${encodeURIComponent(businessId)}`
+                }
                 const authToken = getters.getSelectedService.access_token
                 if (!authToken) {
                     return reject(new Error('authToken is invalid, service is not selected'))
