@@ -70,6 +70,23 @@
           </v-btn>
         </div>
 
+        <div class="overview-container mb-4">
+          <h6 class="input-label mb-2"><v-icon x-small class="mr-1">mdi-domain</v-icon> Business Verification</h6>
+          <p class="x-small text-muted mb-4">
+            Set up your Business Verifier page to verify and onboard your stakeholders and businesses.
+          </p>
+          <v-btn
+            block
+            depressed
+            small
+            color="primary"
+            class="text-none font-weight-bold"
+            :href="`#/studio/kyb-webpage-generator/${appId()}`"
+          >
+            Set Up Business Verifier
+          </v-btn>
+        </div>
+
         <div class="overview-container">
           <h6 class="input-label mb-2"><v-icon x-small class="mr-1">mdi-file-chart-outline</v-icon> Case Studies</h6>
           <p class="x-small text-muted mb-4">Discover how companies streamline onboarding with Hypersign.</p>
