@@ -2,6 +2,13 @@
 
 ## [Unreleased]
 
+### [3.10.4] - 2026-06-10
+
+### Fixed
+- PDF unicode font 
+
+- UBO Kyc Separation
+
 ## [3.10.3] - 2026-06-08
 
 ### Fixed
