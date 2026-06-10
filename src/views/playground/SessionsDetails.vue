@@ -514,18 +514,14 @@
         md="6"
         lg="4"
         id="liveliness-info"
-        v-if="
-          session.selfiDetails &&
-          session.selfiDetails.createdAt &&
-          Object.keys(session.selfiDetails).length > 0
-        "
+        v-if="selfiImageFound"
       >
         <div class="detail-card p-4">
           <div class="card-section-title">
             <i class="fa fa-heartbeat mr-2"></i>Liveliness Check
           </div>
           <div class="centered-img mb-3">
-            <img :src="session.selfiDetails.tokenSelfiImage" class="face-img" />
+            <img :src="effectiveSelfiDetails.tokenSelfiImage" class="face-img" />
             <span
               v-if="passiveLivelinessData.success"
               style="color: #28a745; font-weight: 600; font-size: 13px"
@@ -545,11 +541,7 @@
         md="6"
         lg="4"
         id="face-auth-info"
-        v-if="
-          session.selfiDetails &&
-          Object.keys(session.selfiDetails).length > 0 &&
-          session.ocriddocsDetails.tokenFaceImage
-        "
+        v-if="selfiImageFound && idDocFaceImageFound"
       >
         <div class="detail-card p-4">
           <div class="card-section-title">
@@ -560,7 +552,7 @@
             style="gap: 16px"
           >
             <div class="centered-img">
-              <img :src="session.selfiDetails.tokenSelfiImage" class="face-img" />
+              <img :src="effectiveSelfiDetails.tokenSelfiImage" class="face-img" />
               <small class="text-muted">Selfie</small>
             </div>
             <div>
@@ -572,7 +564,7 @@
               <i v-else class="fa fa-times-circle fa-2x" style="color: #dc3545"></i>
             </div>
             <div class="centered-img">
-              <img :src="session.ocriddocsDetails.tokenFaceImage" class="face-img" />
+              <img :src="effectiveOcrIdDocsDetails.tokenFaceImage" class="face-img" />
               <small class="text-muted">ID Photo</small>
             </div>
           </div>
@@ -597,13 +589,18 @@
       </v-col>
 
       <!-- Documents -->
-      <v-col cols="12" md="6" lg="4" v-if="idDocDataFound">
+      <v-col
+        cols="12"
+        md="6"
+        lg="4"
+        v-if="idDocDocumentImageFound"
+      >
         <div class="detail-card p-4">
           <div class="card-section-title"><i class="fa fa-file mr-2"></i>Documents</div>
           <div class="d-flex flex-column" style="gap: 10px">
             <div class="doc-thumb" @click="zoomDocument('Document Front')">
               <img
-                :src="session.ocriddocsDetails.tokenFrontDocumentImage"
+                :src="effectiveOcrIdDocsDetails.tokenFrontDocumentImage"
                 style="
                   height: 40px;
                   width: 60px;
@@ -620,11 +617,11 @@
             </div>
             <div
               class="doc-thumb"
-              v-if="session.ocriddocsDetails.tokenBackDocumentImage"
+              v-if="effectiveOcrIdDocsDetails.tokenBackDocumentImage"
               @click="zoomDocument('Document Back')"
             >
               <img
-                :src="session.ocriddocsDetails.tokenBackDocumentImage"
+                :src="effectiveOcrIdDocsDetails.tokenBackDocumentImage"
                 style="
                   height: 40px;
                   width: 60px;
@@ -851,30 +848,34 @@ export default {
       return Boolean(this.currentCompanyName);
     },
     isFacialAuthenticationSuccess() {
+      const facialAuthenticationResult =
+        this.effectiveOcrIdDocsDetails.serviceFacialAuthenticationResult;
+      const facialSimilarityResult =
+        this.effectiveOcrIdDocsDetails.serviceFacialSimilarityResult || 0;
       const status =
         this.selfiDataFound &&
         this.idDocDataFound &&
-        this.session.ocriddocsDetails.serviceFacialAuthenticationResult == 3;
+        facialAuthenticationResult == 3;
       const matchPercentage =
         ", match " +
-        Math.round(this.session.ocriddocsDetails.serviceFacialSimilarityResult * 100) +
+        Math.round(facialSimilarityResult * 100) +
         "%";
       return {
         success: status,
         result: !status
-          ? FaicalAuthenticationError[
-              this.session.ocriddocsDetails.serviceFacialAuthenticationResult
-            ] + matchPercentage
+          ? (FaicalAuthenticationError[facialAuthenticationResult] ||
+              "Face check could not be performed") + matchPercentage
           : "Facial Authentication Passed" + matchPercentage,
       };
     },
     passiveLivelinessData() {
       const status =
-        this.selfiDataFound && this.session.selfiDetails.serviceLivenessResult == 3;
+        this.selfiDataFound && this.effectiveSelfiDetails.serviceLivenessResult == 3;
       return {
         success: status,
         result:
-          ServiceLivenessResultEnum[this.session.selfiDetails.serviceLivenessResult],
+          ServiceLivenessResultEnum[this.effectiveSelfiDetails.serviceLivenessResult] ||
+          "Liveliness result not available",
         borderColor: status ? "5px solid rgb(81 137 81 / 20%)" : "5px solid #cd5c5c5e",
       };
     },
@@ -889,15 +890,19 @@ export default {
       return this.containerShift;
     },
     selfiDataFound() {
-      return (
-        this.session.selfiDetails && Object.keys(this.session.selfiDetails).length > 0
-      );
+      return this.hasObjectData(this.effectiveSelfiDetails);
+    },
+    selfiImageFound() {
+      return Boolean(this.effectiveSelfiDetails?.tokenSelfiImage);
     },
     idDocDataFound() {
-      return (
-        this.session.ocriddocsDetails &&
-        Object.keys(this.session.ocriddocsDetails).length > 0
-      );
+      return this.hasObjectData(this.effectiveOcrIdDocsDetails);
+    },
+    idDocFaceImageFound() {
+      return Boolean(this.effectiveOcrIdDocsDetails?.tokenFaceImage);
+    },
+    idDocDocumentImageFound() {
+      return Boolean(this.effectiveOcrIdDocsDetails?.tokenFrontDocumentImage);
     },
     userConsentDataFound() {
       return (
@@ -921,15 +926,71 @@ export default {
         return 0;
       }
     },
+    userConsentCredentialSubjects() {
+      const presentation = this.parseUserConsentPresentation();
+      const credentials = presentation?.verifiableCredential;
+      const credentialList = Array.isArray(credentials)
+        ? credentials
+        : credentials
+        ? [credentials]
+        : [];
+
+      return credentialList.reduce((subjects, credential) => {
+        const types = Array.isArray(credential?.type)
+          ? credential.type
+          : credential?.type
+          ? [credential.type]
+          : [];
+
+        types.forEach((type) => {
+          subjects[type] = credential?.credentialSubject || {};
+        });
+
+        return subjects;
+      }, {});
+    },
+    passportCredentialSubject() {
+      return this.userConsentCredentialSubjects.PassportCredential || {};
+    },
+    governmentIdCredentialSubject() {
+      return this.userConsentCredentialSubjects.GovernmentIdCredential || {};
+    },
+    personhoodCredentialSubject() {
+      return this.userConsentCredentialSubjects.PersonhoodCredential || {};
+    },
+    userConsentSelfiDetails() {
+      return this.buildSelfiDetailsFromCredentialSubject(
+        this.personhoodCredentialSubject
+      );
+    },
+    userConsentOcrIdDocsDetails() {
+      const subject = this.hasObjectData(this.passportCredentialSubject)
+        ? this.passportCredentialSubject
+        : this.governmentIdCredentialSubject;
+
+      return this.buildOcrIdDocsDetailsFromCredentialSubject(subject);
+    },
+    effectiveSelfiDetails() {
+      return this.mergeWithFallback(
+        this.session.selfiDetails || {},
+        this.userConsentSelfiDetails
+      );
+    },
+    effectiveOcrIdDocsDetails() {
+      return this.mergeWithFallback(
+        this.session.ocriddocsDetails || {},
+        this.userConsentOcrIdDocsDetails
+      );
+    },
     userPersonalDataFromUserConsent() {
-      const d = { ...this.getCredentialSubjectByType("PassportCredential") };
+      const d = { ...this.passportCredentialSubject };
       delete d["face"];
       delete d["overallRating"];
       delete d["id"];
       return d;
     },
     userPersonalDataGovIdFromUserConsent() {
-      const d = { ...this.getCredentialSubjectByType("GovernmentIdCredential") };
+      const d = { ...this.governmentIdCredentialSubject };
       delete d["face"];
       delete d["overallRating"];
       delete d["id"];
@@ -1004,6 +1065,7 @@ export default {
   async created() {
     
     this.appId = this.getSelectedService?.appId
+    this.companyId=undefined;
     this.sessionId = this.$route.params.sessionId;
     this.isValidBusinessID= /^[a-f\d]{24}$/i.test(this.$route.params.appId); // Check for mongoDB_Id
     if(this.isValidBusinessID) {
@@ -1022,7 +1084,6 @@ export default {
       });
 
       this.isLoading = false;
-      this.getCredentialSubjectByType();
 
       if (this.session.deviceDetails) {
         const userAgentString = this.session.deviceDetails.userAgent;
@@ -1479,10 +1540,10 @@ export default {
         });
 
         // ── load images ───────────────────────────────────────────────
-        const selfieUrl = this.session.selfiDetails?.tokenSelfiImage;
-        const faceUrl = this.session.ocriddocsDetails?.tokenFaceImage;
-        const frontUrl = this.session.ocriddocsDetails?.tokenFrontDocumentImage;
-        const backUrl = this.session.ocriddocsDetails?.tokenBackDocumentImage;
+        const selfieUrl = this.effectiveSelfiDetails?.tokenSelfiImage;
+        const faceUrl = this.effectiveOcrIdDocsDetails?.tokenFaceImage;
+        const frontUrl = this.effectiveOcrIdDocsDetails?.tokenFrontDocumentImage;
+        const backUrl = this.effectiveOcrIdDocsDetails?.tokenBackDocumentImage;
 
         const [selfieB64, faceB64, frontB64, backB64] = await Promise.all([
           selfieUrl ? toBase64(selfieUrl) : Promise.resolve(null),
@@ -1532,12 +1593,12 @@ export default {
           
         const livePass = this.passiveLivelinessData.success;
         const liveLabel = this.passiveLivelinessData.result || "—";
-        const liveScore = this.session.selfiDetails?.serviceLivenessResult ?? "—";
+        const liveScore = this.effectiveSelfiDetails?.serviceLivenessResult ?? "—";
 
         const facePass = this.isFacialAuthenticationSuccess.success;
         const faceDetail = this.isFacialAuthenticationSuccess.result;
         const matchPct = Math.round(
-          (this.session.ocriddocsDetails?.serviceFacialSimilarityResult || 0) * 100
+          (this.effectiveOcrIdDocsDetails?.serviceFacialSimilarityResult || 0) * 100
         );
 
         const sessionStatus = this.session.status || "Unknown";
@@ -1896,7 +1957,7 @@ export default {
               : []),
 
             // ════════════════ LIVENESS CHECK ════════════════
-            ...(this.selfiDataFound
+            ...(this.selfiImageFound
               ? [
                   {
                     stack: [
@@ -1978,7 +2039,7 @@ export default {
               : []),
 
             // ════════════════ FACE AUTHENTICATION ════════════════
-            ...(this.selfiDataFound && this.idDocDataFound
+            ...(this.selfiImageFound && this.idDocFaceImageFound
               ? [
                   {
                     stack: [
@@ -2242,34 +2303,97 @@ export default {
         tx_explorer: config.txExplorer.txUrl,
       };
     },
-    getCredentialSubjectByType(type) {
-      if (this.userConsentDataFound) {
-        const presentationStr = this.session.userConsentDetails.presentation;
-        if (presentationStr) {
-          const presentation = JSON.parse(presentationStr);
-          if (presentation?.verifiableCredential?.length) {
-            const credential = presentation.verifiableCredential.find((x) =>
-              x.type?.includes(type)
-            );
-            return credential?.credentialSubject || {};
-          }
+    hasValue(value) {
+      return value !== undefined && value !== null && value !== "";
+    },
+    hasObjectData(value) {
+      return Boolean(value && Object.keys(value).length > 0);
+    },
+    mergeWithFallback(primary = {}, fallback = {}) {
+      const merged = { ...fallback };
+      Object.entries(primary).forEach(([key, value]) => {
+        if (this.hasValue(value)) {
+          merged[key] = value;
         }
+      });
+      return merged;
+    },
+    withImagePrefix(image) {
+      if (!image || typeof image !== "string") return image;
+      if (image.startsWith("data:image")) return image;
+      return `data:image/jpeg;base64,${image}`;
+    },
+    parseUserConsentPresentation() {
+      if (!this.userConsentDataFound) return {};
+
+      const presentation = this.session.userConsentDetails.presentation;
+      if (!presentation) return {};
+      if (typeof presentation === "object") return presentation;
+
+      try {
+        return JSON.parse(presentation);
+      } catch (e) {
+        return {};
       }
-      return {};
+    },
+    getCredentialSubjectByType(type) {
+      if (!type) return {};
+      return this.userConsentCredentialSubjects[type] || {};
+    },
+    buildSelfiDetailsFromCredentialSubject(subject = {}) {
+      if (!subject || Object.keys(subject).length === 0) return {};
+
+      const tokenSelfiImage =
+        subject.tokenSelfiImage ||
+        subject.base64Image ||
+        subject.bestImageTokenized ||
+        subject.selfie ||
+        subject.selfieImage;
+
+      return this.mergeWithFallback(
+        {
+          tokenSelfiImage: this.withImagePrefix(tokenSelfiImage),
+        },
+        subject
+      );
+    },
+    buildOcrIdDocsDetailsFromCredentialSubject(subject = {}) {
+      if (!subject || Object.keys(subject).length === 0) return {};
+
+      const tokenFaceImage =
+        subject.tokenFaceImage || subject.face || subject.faceImage || subject.photo;
+      const tokenFrontDocumentImage =
+        subject.tokenFrontDocumentImage ||
+        subject.frontDocumentImage ||
+        subject.documentFrontImage ||
+        subject.documentImage;
+      const tokenBackDocumentImage =
+        subject.tokenBackDocumentImage ||
+        subject.backDocumentImage ||
+        subject.documentBackImage;
+
+      return this.mergeWithFallback(
+        {
+          tokenFaceImage: this.withImagePrefix(tokenFaceImage),
+          tokenFrontDocumentImage: this.withImagePrefix(tokenFrontDocumentImage),
+          tokenBackDocumentImage: this.withImagePrefix(tokenBackDocumentImage),
+        },
+        subject
+      );
     },
     zoomDocument(place) {
       this.popupHeader = place;
       switch (place) {
         case "Document Front": {
-          this.popupImage = this.session.ocriddocsDetails.tokenFrontDocumentImage;
+          this.popupImage = this.effectiveOcrIdDocsDetails.tokenFrontDocumentImage;
           break;
         }
         case "Selfie": {
-          this.popupImage = this.session.selfiDetails.tokenSelfiImage;
+          this.popupImage = this.effectiveSelfiDetails.tokenSelfiImage;
           break;
         }
         case "Document Back": {
-          this.popupImage = this.session.ocriddocsDetails.tokenBackDocumentImage;
+          this.popupImage = this.effectiveOcrIdDocsDetails.tokenBackDocumentImage;
           break;
         }
       }
