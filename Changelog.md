@@ -2,13 +2,36 @@
 
 ## [Unreleased]
 
-## [3.9.0] - 2026-06-29
+### [3.10.4] - 2026-06-10
+
+### Fixed
+- PDF unicode font 
+
+- UBO Kyc Separation
+
+## [3.10.3] - 2026-06-08
+
+### Fixed
+- Fixed error occuring while Approving kyb verification due to wrong token getting passed
+## [3.10.2] - 2026-06-04
+
+### Fixed
+- Fixed error occuring while registering did using update
+- Fixed issue of undefined getting passed as appId
+- Fixed issue of token is not getting re-generated in usage page
+
+## [3.10.0] - 2026-06-02
+
+### Added
+- Implemetned new role for dashboard access permission
+
+## [3.9.0] - 2026-05-29
 
 ### Added
 - Implemetned new design for role permission
 - Implemented tenant access list
 
-## [3.8.0] - 2026-06-29
+## [3.8.0] - 2026-05-29
 
 ### Fixed
 - Handled permission denied issue properly
@@ -19,7 +42,7 @@
 - Implemented remove authenticator
 - Implemented categorized role
 
-## [3.7.32] - 2026-06-20
+## [3.7.32] - 2026-05-20
 
 
 ### Fixed

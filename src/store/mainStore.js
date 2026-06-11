@@ -1877,7 +1877,7 @@ const mainStore = {
                     .then(response => response.json()).then(json => {
                         if (json) {
                             if (json.error) {
-                                return reject(new Error(json.error?.details.join(' ') || json.error.join(' ')))
+                                return reject(new Error(JWTExpiredErrorMessageHandling(json)))
                             } else {
                                 commit('setKybWidgetConfig', json.data);
                                 return resolve()
@@ -2352,7 +2352,7 @@ const mainStore = {
         },
         fetchSessionsDetailsById: ({ getters, dispatch }, payload) => {
             return new Promise((resolve, reject) => {
-                const { sessionId, env } = payload
+                const { sessionId, env, businessId } = payload
                 let envVal = env
                 if (env === '' || env === null || env === undefined) {
                     envVal = 'prod'
@@ -2360,8 +2360,11 @@ const mainStore = {
                 if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
                     return reject(new Error('Tenant url is null or empty, service is not selected'))
                 }
-                const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/user/${sessionId}?env=${encodeURIComponent(envVal)}`;
+                let url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/user/${sessionId}?env=${encodeURIComponent(envVal)}`;
                 // let url = `http://localhost:3001/api/v1/user/${sessionId}?env=${encodeURIComponent(envVal)}`;
+                if(businessId !== '' && businessId !== null && businessId !== undefined){
+                    url += `&businessId=${encodeURIComponent(businessId)}`
+                }
                 const authToken = getters.getSelectedService.access_token
                 if (!authToken) {
                     return reject(new Error('authToken is invalid, service is not selected'))
@@ -2393,7 +2396,7 @@ const mainStore = {
                     })
             })
         },
-        async fetchUsageForASSIService({ getters }, payload) {
+        async fetchUsageForASSIService({ getters, dispatch }, payload) {
             const { startDate, endDate } = payload
             if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
                 throw new Error('Tenant url is null or empty, service is not selected')
@@ -2401,7 +2404,12 @@ const mainStore = {
             const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/usage?serviceId=${getters.getSelectedService.appId}&startDate=${startDate}&endDate=${endDate}`;
             // const url = `http://localhost:3008/api/v1/usage?serviceId=${getters.getSelectedService.appId}&startDate=${startDate}&endDate=${endDate}`;
             const authToken = getters.getSelectedService.access_token
-            const headers = UtilsMixin.methods.getHeader(authToken);
+            const token = await dispatch('getValidToken', {
+                serviceId: getters.getSelectedService.appId,
+                grant_type: config.GRANT_TYPES_ENUM.SSI_API,
+                tokenStorageKey: "access_token"
+            });
+            const headers = UtilsMixin.methods.getHeader(token);
             const resp = await fetch(url, {
                 method: 'GET',
                 headers
@@ -2447,7 +2455,7 @@ const mainStore = {
                 return json
             }
         },
-        async fetchUsageDetailsForASSIService({ getters, commit }, payload) {
+        async fetchUsageDetailsForASSIService({ getters, commit, dispatch }, payload) {
             const { startDate, endDate } = payload
             if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
                 throw new Error('Tenant url is null or empty, service is not selected')
@@ -2455,7 +2463,12 @@ const mainStore = {
             const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/usage/detail?serviceId=${getters.getSelectedService.appId}&startDate=${startDate}&endDate=${endDate}`;
             // const url = `http://localhost:3008/api/v1/usage/detail?serviceId=${getters.getSelectedService.appId}&startDate=${startDate}&endDate=${endDate}`;
             const authToken = getters.getSelectedService.access_token
-            const headers = UtilsMixin.methods.getHeader(authToken);
+            const token = await dispatch('getValidToken', {
+                serviceId: getters.getSelectedService.appId,
+                grant_type: config.GRANT_TYPES_ENUM.SSI_API,
+                tokenStorageKey: "access_token"
+            });
+            const headers = UtilsMixin.methods.getHeader(token);
             const resp = await fetch(url, {
                 method: 'GET',
                 headers
@@ -2602,8 +2615,8 @@ const mainStore = {
                 // let url = `http://localhost:3001/api/v1/e-kyb/verification/company/${companyId}`;
                 dispatch('getValidToken', {
                     serviceId: getters.getSelectedService.appId,
-                    grant_type: config.GRANT_TYPES_ENUM.CAVACH_API,
-                    tokenStorageKey: "access_token"
+                    grant_type: config.GRANT_TYPES_ENUM.CAVACH_KYB_API,
+                    tokenStorageKey: "kyb_access_token"
                 }).then((token) => {
                     let headers = UtilsMixin.methods.getKycServiceHeader(token);
 
@@ -3105,7 +3118,7 @@ const mainStore = {
                                 "Origin": '*'
                             }
                         }
-                        fetch(url, {
+                        return fetch(url, {
                             ...options
                         })
                     })
@@ -3600,7 +3613,7 @@ const mainStore = {
                     } else if (getters.getSelectedService && getters.getSelectedService.tenantUrl && getters.getSelectedService.access_token) {
                         tenantUrl = getters.getSelectedService.tenantUrl;
                         accessToken = getters.getSelectedService.access_token
-                        serviceId = getters.getSelectedService.serviceId
+                        serviceId = getters.getSelectedService.appId
                     } else {
                         return reject(new Error('Tenant url is null or empty, service is not selected'))
                     }

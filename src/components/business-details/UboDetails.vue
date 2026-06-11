@@ -15,6 +15,7 @@
         v-for="(ubo, index) in ubos"
         :key="index"
         class="detail-card clickable-card"
+        :class="{ disabled: isKycNotStarted(ubo.kycSteps) }"
         @click="navigateToVerificationDetails(ubo)"
       >
         <div class="card-body-inner">
@@ -190,10 +191,16 @@ export default {
       }
     },
     navigateToVerificationDetails(ubo) {
+      if (this.isKycNotStarted(ubo?.kycSteps)) return;
+
       const companyId = this.company?.id;
       if (companyId && ubo?.emailHash) {
         this.$router.push(`/studio/sessions/${companyId}/${ubo.emailHash}`);
       }
+    },
+
+    isKycNotStarted(kycSteps) {
+      return this.getKycStatusText(kycSteps) === 'Not Started';
     },
 
     getUboStatus(kycSteps) {
@@ -429,6 +436,16 @@ export default {
 .clickable-card:hover {
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08), 0 2px 6px rgba(0, 0, 0, 0.05);
   transform: translateY(-1px);
+}
+
+.clickable-card.disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+.clickable-card.disabled:hover {
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  transform: none;
 }
 
 /* ── inner body ─────────────────────────────────────────── */

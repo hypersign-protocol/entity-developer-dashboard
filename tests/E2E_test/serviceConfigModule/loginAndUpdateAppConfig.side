@@ -217,7 +217,7 @@
         ["xpath=//div[@id='app']/div[2]/div/div/div/div[2]/div[2]/div[2]/div[2]", "xpath:idRelative"],
         ["xpath=//div[2]/div[2]/div[2]/div[2]", "xpath:position"]
       ],
-      "value": "2. Configure Your KYC Widget\\nSet up your KYC widget according to your needs — choose between liveliness checks, ID document verification, and consent capture. You’ll also learn how to customize branding and themes.\\nRead Documentation"
+      "value": "2. Configure Your ID Widget\\nSet up your KYC widget according to your needs — choose between liveliness checks, ID document verification, and consent capture. You’ll also learn how to customize branding and themes.\\nRead Documentation"
     }, {
       "id": "2a4bc934-4fac-42b1-af87-210d1e5a0f56",
       "comment": "",
@@ -238,9 +238,9 @@
         ["css=.step-card:nth-child(3) .step-title", "css:finder"],
         ["xpath=//div[@id='app']/div[2]/div/div/div/div[2]/div[3]/div[2]/div[2]/h5", "xpath:idRelative"],
         ["xpath=//div[3]/div[2]/div[2]/h5", "xpath:position"],
-        ["xpath=//h5[contains(.,'3. Create Your Custom KYC Verifier URL')]", "xpath:innerText"]
+        ["xpath=//h5[contains(.,'3. Create Your Custom ID Verifier Page')]", "xpath:innerText"]
       ],
-      "value": "3. Create Your Custom KYC Verifier URL"
+      "value": "3. Create Your Custom ID Verifier Page"
     }, {
       "id": "ef34aa5f-e9bb-4e7b-a3fa-6f5d1abc5d6b",
       "comment": "",

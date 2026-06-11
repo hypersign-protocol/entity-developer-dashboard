@@ -106,6 +106,7 @@ config['SERVICE_TYPES'] = Object.freeze({
     QUEST: 'QUEST',
 })
 
+
 config['GRANT_TYPES_ENUM'] = Object.freeze({
     'SSI_API': 'access_service_ssi',
     'CAVACH_API': 'access_service_kyc',
