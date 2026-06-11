@@ -1,6 +1,13 @@
 # Changelog
 
 ## [Unreleased]
+### [3.10.5] - 2026-06-11
+
+### Fixed
+- Fixed busines icon
+
+- Fixed some text
+
 
 ### [3.10.4] - 2026-06-10
 
