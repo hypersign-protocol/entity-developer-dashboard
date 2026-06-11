@@ -70,6 +70,23 @@
           </v-btn>
         </div>
 
+        <div class="overview-container mb-4">
+          <h6 class="input-label mb-2"><v-icon x-small class="mr-1">mdi-domain</v-icon> Business Verification</h6>
+          <p class="x-small text-muted mb-4">
+            Set up your Business Verifier page to verify and onboard your stakeholders and businesses.
+          </p>
+          <v-btn
+            block
+            depressed
+            small
+            color="primary"
+            class="text-none font-weight-bold"
+            :href="`#/studio/kyb-webpage-generator/${appId()}`"
+          >
+            Set Up Business Verifier
+          </v-btn>
+        </div>
+
         <div class="overview-container">
           <h6 class="input-label mb-2"><v-icon x-small class="mr-1">mdi-file-chart-outline</v-icon> Case Studies</h6>
           <p class="x-small text-muted mb-4">Discover how companies streamline onboarding with Hypersign.</p>
@@ -208,23 +225,23 @@ export default {
           title: "Understand Hypersign Basics",
           icon: "mdi-book-open-page-variant-outline",
           description:
-            "Start by learning how Hypersign KYC works — from identity capture to verification and issuance. This guide explains each component and how it ensures secure, compliant onboarding.",
+            "Start by learning how Hypersign ID works — from identity capture to verification and issuance. This guide explains each component and how it ensures secure, compliant onboarding.",
           link: "https://docs.hypersign.id/hypersign-kyc/introduction",
           openInNewTab: true,
         },
         {
-          title: "Configure Your KYC Widget",
+          title: "Configure Your ID Widget",
           icon: "mdi-cog-outline",
           description:
-            "Set up your KYC widget according to your needs — choose between liveliness checks, ID document verification, and consent capture. You’ll also learn how to customize branding and themes.",
+            "Set up your ID widget according to your needs — choose between liveliness checks, ID document verification, and consent capture. You’ll also learn how to customize branding and themes.",
           link: "https://docs.hypersign.id/hypersign-kyc/integrations/widget-configuration",
           openInNewTab: true,
         },
         {
-          title: "Create Your Custom KYC Verifier URL",
+          title: "Create Your Custom ID Verifier Page",
           icon: "mdi-web-check",
           description:
-            "Quickly test your KYC flow by creating a Verifier page. Just add a title, description, and theme — and you’ll get a sharable KYC URL to test the end-to-end verification process with sample users.",
+            "Quickly test your ID verification flow by creating a  Custom Verifier page. Just add a title, description, and theme — and you’ll get a sharable KYC URL to test the end-to-end verification process with sample users.",
           link: `#/studio/kyc-webpage-generator/${this.appId()}`, 
           anchorText: "Go to KYC Verifier Setup",
           openInNewTab: false,
@@ -233,7 +250,7 @@ export default {
           title: "Integrate into Your App",
           icon: "mdi-code-tags",
           description:
-            "Developers can embed the KYC widget directly into their web or mobile apps. Learn how to authenticate via backend APIs, generate session IDs, prepare the widget URL, and handle verification events.",
+            "Developers can embed the ID widget directly into their web or mobile apps. Learn how to authenticate via backend APIs, generate session IDs, prepare the widget URL, and handle verification events.",
           link: "https://docs.hypersign.id/hypersign-kyc/kyc-widget/integrations",
           openInNewTab: true,
         },
