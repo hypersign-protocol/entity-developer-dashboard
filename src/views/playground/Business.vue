@@ -56,8 +56,8 @@
       >
         <div :class="['overview-container', 'company-card', 'h-100', statusClass(company.status, company.statusReasons)]" @click="viewBusinessDetails(company)">
           <div class="d-flex align-start mb-4" :title="company.statusReasons && company.statusReasons.length !== 0 ? getStatusTooltip(company) : ''"> 
-            <div class="country-badge mr-3">
-              {{ countryCodeToFlag(company.countryCode) }}
+            <div class="business-badge mr-3">
+              <v-icon color="#3b82f6">mdi-domain</v-icon>
             </div>
             <div style="flex: 1">
               <h3 class="company-name mb-0">{{ company.companyName }}</h3>
@@ -74,6 +74,13 @@
               <span class="detail-value mono">{{ company.registrationNumber  }}</span>
             </div>
             <div class="detail-row">
+              <label class="input-label mb-0">Country</label>
+              <span class="detail-value country-detail">
+                <span class="country-flag">{{ countryCodeToFlag(company.countryCode) }}</span>
+                <span>{{ company.countryCode || 'N/A' }}</span>
+              </span>
+            </div>
+            <div class="detail-row">
               <label class="input-label mb-0">Representative</label>
               <span class="detail-value">{{ company.representative }}</span>
             </div>
@@ -85,7 +92,7 @@
 
           <div class="card-footer-action pt-2">
             <div class="verification-steps">
-              <v-icon x-small :class="company.steps.flag ? 'active' : 'inactive'">mdi-flag</v-icon>
+              <v-icon x-small :class="company.steps.flag ? 'active' : 'inactive'">mdi-domain</v-icon>
               <v-icon x-small :class="company.steps.building ? 'active' : 'inactive'">mdi-office-building</v-icon>
               <v-icon x-small :class="company.steps.document ? 'active' : 'inactive'">mdi-file-document</v-icon>
               <v-icon x-small :class="company.steps.user ? 'active' : 'inactive'">mdi-account-check</v-icon>
@@ -216,8 +223,7 @@
   color: #111827;
 }
 
-.country-badge {
-  font-size: 1.5rem;
+.business-badge {
   background: white;
   width: 42px;
   height: 42px;
@@ -226,6 +232,18 @@
   justify-content: center;
   border-radius: 8px;
   border: 1px solid #e5e7eb;
+}
+
+.country-detail {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  text-transform: uppercase;
+}
+
+.country-flag {
+  font-size: 1rem;
+  line-height: 1;
 }
 
 .detail-row {

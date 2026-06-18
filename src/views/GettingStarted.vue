@@ -79,7 +79,7 @@
             block
             depressed
             small
-            color="primary"
+            color="white"
             class="text-none font-weight-bold"
             :href="`#/studio/kyb-webpage-generator/${appId()}`"
           >
@@ -243,7 +243,7 @@ export default {
           description:
             "Quickly test your ID verification flow by creating a  Custom Verifier page. Just add a title, description, and theme — and you’ll get a sharable KYC URL to test the end-to-end verification process with sample users.",
           link: `#/studio/kyc-webpage-generator/${this.appId()}`, 
-          anchorText: "Go to KYC Verifier Setup",
+          anchorText: "Go to ID Verifier Setup",
           openInNewTab: false,
         },
         {
