@@ -1,6 +1,13 @@
 # Changelog
 
 ## [Unreleased]
+
+### [3.11.0] - 2026-06-18
+
+### Added
+- Added toggel to disable widget login
+
+
 ### [3.10.5] - 2026-06-11
 
 
