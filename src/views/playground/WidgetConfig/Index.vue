@@ -558,8 +558,8 @@ export default {
            description: "Notify users via email regarding the status of their ID verification. When enabled, users will receive automated updates upon the successful completion or rejection of their verification attempt."
         },
         widgetLogin: {
-          label: "Use ID Widget Login",
-          description: "Let the ID widget handle user login. Turn this off when your application handles login itself."
+          label: "Enable Built-in Login & Identity Vault",
+          description: "Users sign in through the ID Widget and receive a personal identity vault for storing reusable credentials. Disable this if your application handles authentication."
         },
       },
       fullPage: true,
