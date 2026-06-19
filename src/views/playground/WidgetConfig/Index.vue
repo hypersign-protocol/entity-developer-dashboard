@@ -405,6 +405,12 @@ export default {
       },
       deep: true
     },
+    'widgetConfigTemp.isWidgetLogin': {
+    handler(newValue) {
+      this.widgetConfigTemp.isVaultEnabled = newValue !== false
+    },
+    immediate: true
+  }
   },
   computed: {
     ...mapState({
@@ -463,7 +469,6 @@ export default {
     if (typeof this.widgetConfigTemp.isWidgetLogin !== 'boolean') {
       this.$set(this.widgetConfigTemp, 'isWidgetLogin', true)
     }
-    this.$set(this.widgetConfigTemp, 'isVaultEnabled', this.widgetConfigTemp.isWidgetLogin !== false)
 
     this.trustedIssuersList = [...this.getMarketPlaceApps];
     this.appId = this.$route.params.appId;
@@ -689,7 +694,6 @@ export default {
     },
     validateField() {
       this.widgetConfigTemp.isWidgetLogin = this.widgetConfigTemp.isWidgetLogin !== false
-      this.widgetConfigTemp.isVaultEnabled = this.widgetConfigTemp.isWidgetLogin
 
       if (!this.widgetConfigTemp.issuerDID) {
         throw new Error('Issuer DID is required')
