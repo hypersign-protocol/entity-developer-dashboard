@@ -641,6 +641,47 @@
         </div>
       </v-col>
 
+      <!-- Age Verification -->
+      <v-col
+        cols="12"
+        md="6"
+        lg="4"
+        id="zkp-verification-info"
+        v-if="zkpVerificationDataFound"
+      >
+        <div class="detail-card p-4">
+          <div class="card-section-title">
+            <i class="fa fa-user-check mr-2"></i>Age Verification
+          </div>
+          <table class="data-table w-100">
+            <tbody>
+              <tr v-if="zkpVerificationResultFound">
+                <td>Status</td>
+                <td>
+                  <span
+                    v-if="zkpVerificationPassed"
+                    style="color: #28a745; font-weight: 600"
+                  >
+                    <i class="fa fa-check-circle mr-1"></i>Passed
+                  </span>
+                  <span v-else style="color: #dc3545; font-weight: 600">
+                    <i class="fa fa-times-circle mr-1"></i>Failed
+                  </span>
+                </td>
+              </tr>
+              <tr v-if="zkpVerificationResultFound">
+                <td>Result</td>
+                <td>{{ zkpVerificationResultForDisplay }}</td>
+              </tr>
+              <tr v-if="session.zkpVerificationDetails.createdAt">
+                <td>Verified At</td>
+                <td>{{ formatDate(session.zkpVerificationDetails.createdAt) }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </v-col>
+
       <!-- Soul Bound Token -->
       <v-col
         cols="12"
@@ -845,6 +886,13 @@ const FaicalAuthenticationError = {
   6: "Duplicate document was used",
 };
 
+const ZkpVerificationResultEnum = {
+  0: "Age verification could not be performed",
+  1: "Age verification failed",
+  2: "Age verification uncertain",
+  3: "Age verification passed",
+};
+
 export default {
   name: "sessionDetails",
   components: {
@@ -962,6 +1010,21 @@ export default {
     },
     sbtDataFound() {
       return this.session?.mintsbtsDetails && this.session.mintsbtsDetails.length > 0;
+    },
+    zkpVerificationDataFound() {
+      return this.hasObjectData(this.session?.zkpVerificationDetails);
+    },
+    zkpVerificationResultFound() {
+      return this.hasValue(
+        this.session?.zkpVerificationDetails?.serviceZkpVerificationResult
+      );
+    },
+    zkpVerificationPassed() {
+      return this.session?.zkpVerificationDetails?.serviceZkpVerificationResult == 3;
+    },
+    zkpVerificationResultForDisplay() {
+      const result = this.session?.zkpVerificationDetails?.serviceZkpVerificationResult;
+      return ZkpVerificationResultEnum[result] || `Result ${result}`;
     },
     startFinishDiffInSeconds() {
       if (this.userConsentDataFound) {
@@ -1184,9 +1247,24 @@ export default {
             }
           }
 
+          if (this.isZkpVerificationTimelineDetail(newItem)) {
+            newItem.stepName = "Age verification";
+            if (this.hasValue(newItem.result) && newItem.result != 3) {
+              newItem.error =
+                ZkpVerificationResultEnum[newItem.result] || "Age verification failed";
+            }
+          }
+
           return newItem;
         });
       }
+
+      const zkpTimelineDetail = this.buildZkpVerificationTimelineDetail();
+      if (zkpTimelineDetail && !this.timeLineDetails.some(this.isZkpVerificationTimelineDetail)) {
+        this.timeLineDetails.push(zkpTimelineDetail);
+      }
+
+      this.applySessionFailureToTimeline();
     } catch (e) {
       this.notifyErr(e.message);
       this.isLoading = false;
@@ -1204,6 +1282,104 @@ export default {
       if (!date) return "-";
       const d = new Date(date);
       return d.toLocaleString(); // Customize formatting if needed
+    },
+    applySessionFailureToTimeline() {
+      if (this.session?.status !== "Failed") return;
+
+      const failureInfo = this.session?.failureInfo;
+      if (!failureInfo) {
+        return;
+      }
+
+      const failureReason = this.getFailureReason(
+        failureInfo.failureReason,
+        failureInfo.failureStep
+      );
+
+      this.timeLineDetails = this.timeLineDetails.map((item) => {
+        if (!this.isTimelineDetailForFailureStep(item, failureInfo.failureStep)) {
+          return item;
+        }
+
+        return {
+          ...item,
+          error: failureReason,
+        };
+      });
+    },
+    isTimelineDetailForFailureStep(item, failureStep) {
+      const stepName = item?.step_name || item?.stepName;
+      const failureStepMap = {
+        step_liveliness: ["liveliness", "Selfie uploaded"],
+        step_ocrIdVerification: ["ocrIdDoc", "Document uploaded"],
+        step_zkProofVerification: [
+          "zkpVerification",
+          "zkProofVerification",
+          "Age verification",
+        ],
+        step_zkpVerification: [
+          "zkpVerification",
+          "zkProofVerification",
+          "Age verification",
+        ],
+        step_mintSbt: ["mintSbt", "Mint SBT", "Soul Bound Token"],
+      };
+
+      return (failureStepMap[failureStep] || []).includes(stepName);
+    },
+    getFailureReason(errorCode, errorType) {
+      if (typeof errorCode === "string" && isNaN(Number(errorCode))) {
+        return errorCode;
+      }
+
+      if (errorType === "step_liveliness") {
+        return ServiceLivenessResultEnum[errorCode] || "Liveliness check failed";
+      }
+
+      if (errorType === "step_ocrIdVerification") {
+        return FaicalAuthenticationError[errorCode] || "Document verification failed";
+      }
+
+      if (
+        errorType === "step_zkProofVerification" ||
+        errorType === "step_zkpVerification"
+      ) {
+        return ZkpVerificationResultEnum[errorCode] || "Age verification failed";
+      }
+
+      if (errorType === "step_mintSbt") {
+        return "SBT minting failed";
+      }
+
+      return "Verification failed";
+    },
+    isZkpVerificationTimelineDetail(item) {
+      return (
+        item?.step_name === "zkpVerification" ||
+        item?.step_name === "zkProofVerification" ||
+        item?.stepName === "zkpVerification" ||
+        item?.stepName === "zkProofVerification" ||
+        item?.stepName === "Age verification"
+      );
+    },
+    buildZkpVerificationTimelineDetail() {
+      const details = this.session?.zkpVerificationDetails;
+      if (!details?.createdAt) return null;
+
+      const result = details.serviceZkpVerificationResult;
+      const timelineDetail = {
+        step_name: "zkpVerification",
+        stepName: "Age verification",
+        createdAt: details.createdAt,
+        result,
+      };
+
+      if (this.hasValue(result) && result != 3) {
+        timelineDetail.error =
+          ZkpVerificationResultEnum[result] || "Age verification failed";
+      }
+
+      return timelineDetail;
     },
     formatFieldValue(key, value) {
       if (!value && value !== 0) return value;
