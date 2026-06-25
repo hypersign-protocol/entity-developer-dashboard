@@ -875,6 +875,7 @@ const ServiceLivenessResultEnum = {
   16: "Face is obstructed",
   17: "No life detected",
   18: "Eyes closed",
+  66: "Eye is obstructed"
 };
 
 const FaicalAuthenticationError = {
@@ -1250,8 +1251,7 @@ export default {
           if (this.isZkpVerificationTimelineDetail(newItem)) {
             newItem.stepName = "Age verification";
             if (this.hasValue(newItem.result) && newItem.result != 3) {
-              newItem.error =
-                ZkpVerificationResultEnum[newItem.result] || "Age verification failed";
+              newItem.error = newItem?.failureReason||"Age verification failed"
             }
           }
 
