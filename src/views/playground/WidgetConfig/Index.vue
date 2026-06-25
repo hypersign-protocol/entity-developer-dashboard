@@ -362,6 +362,9 @@ export default {
         if (!newValue) {
           this.widgetConfigTemp.onChainId.enabled = false
         }
+        if (newValue && !this.ageProofCriteria) {
+        this.ageProofCriteria = 18;
+      }
       },
       deep: true
     },
