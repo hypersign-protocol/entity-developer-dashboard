@@ -503,7 +503,7 @@ export default {
         zkProof: {
           ageProof:{
             label: "Configure Age Verification",
-            description: 'Enable users to share only proof of their data for enhanced data privacy and compliance. Read more <b><a href="https://docs.hypersign.id/hypersign-kyc/integrations/widget-configuration#id-document-verification" target="_blank">here</a></b>.'
+            description: "Enable users to prove they meet a minimum age requirement without sharing their exact date of birth. Read more <b><a href=\"https://docs.hypersign.id/hypersign-kyc/integrations/widget-configuration#id-document-verification\" target=\"_blank\">here</a></b>."
           }
         },
         emailNotification: {
