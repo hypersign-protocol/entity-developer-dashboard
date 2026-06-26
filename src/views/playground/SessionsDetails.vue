@@ -669,10 +669,10 @@
                   </span>
                 </td>
               </tr>
-              <tr v-if="zkpVerificationResultFound">
+              <!-- <tr v-if="zkpVerificationResultFound">
                 <td>Result</td>
                 <td>{{ zkpVerificationResultForDisplay }}</td>
-              </tr>
+              </tr> -->
               <tr v-if="session.zkpVerificationDetails.createdAt">
                 <td>Verified At</td>
                 <td>{{ formatDate(session.zkpVerificationDetails.createdAt) }}</td>

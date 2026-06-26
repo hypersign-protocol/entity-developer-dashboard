@@ -330,7 +330,7 @@ export default {
         { field: 'step_start', icon: 'fa-flag', title: 'Started' },
         { field: 'step_liveliness', icon: 'fa-user', title: 'Liveliness Check' },
         { field: 'step_ocrIdVerification', icon: 'fa-address-card', title: 'Document Verification' },
-        { field: 'step_zkProofVerification', icon: 'fa-user-check', title: 'Age Verification' },
+        // { field: 'step_zkProofVerification', icon: 'fa-user-check', title: 'Age Verification' },
         { field: 'step_mintSbt', icon: 'fa-address-book', title: 'Mint SBT' },
         { field: 'step_userConsent', icon: 'fa-thumbs-up', title: 'User Consent' },
         { field: 'step_finish', icon: 'fa-check', title: 'Finished' },
