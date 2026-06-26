@@ -257,7 +257,8 @@ ul {
             <div class="col-md-6">
               <div class="row">
                 <div class="col-md-12">
-                  <b-form-checkbox switch size="lg" v-model="widgetConfigTemp.zkProof.enabled">{{
+                  <b-form-checkbox switch size="lg" v-model="widgetConfigTemp.zkProof.enabled"
+                  :disabled="!widgetConfigTemp.idOcr.enabled">{{
                     this.widgetConfigUI.zkProof.ageProof.label }}<HFBeta></HFBeta>
                   </b-form-checkbox>
                   <small v-html="this.widgetConfigUI.zkProof.ageProof.description"></small>
@@ -355,20 +356,42 @@ export default {
     // TrustedIssuer
   },
   // TODO : check why this is not working... we need to trigger warning that its an experimental feature once user enables zk
-  watch: {
-    'widgetConfigTemp.zkProof.enabled':
-    {
-      handler(newValue) {
-        if (!newValue) {
-          this.widgetConfigTemp.onChainId.enabled = false
-        }
-        if (newValue && !this.ageProofCriteria) {
+ watch: {
+  'widgetConfigTemp.zkProof.enabled': {
+    handler(enabled) {
+      // Don't allow enabling ZK Proof unless ID OCR is enabled
+      if (enabled && !this.widgetConfigTemp.idOcr.enabled) {
+        this.widgetConfigTemp.zkProof.enabled = false;
+        return;
+      }
+      // Default age
+      if (enabled && !this.ageProofCriteria) {
         this.ageProofCriteria = 18;
       }
-      },
-      deep: true
-    },
+      // Disable dependent feature
+      if (!enabled) {
+        this.widgetConfigTemp.onChainId.enabled = false;
+        this.widgetConfigTemp.onChainId.selectedOnChainKYCconfiguration = null;
+        this.widgetConfigTemp.zkProof.proofs = [];
+      }
+    }
   },
+
+  'widgetConfigTemp.idOcr.enabled': {
+    handler(enabled) {
+      // If ID Document is disabled,
+      // automatically disable all dependent features.
+      if (!enabled) {
+        this.widgetConfigTemp.zkProof.enabled = false;
+        this.widgetConfigTemp.zkProof.proofs = [];
+
+        this.widgetConfigTemp.onChainId.enabled = false;
+        this.widgetConfigTemp.onChainId.selectedOnChainKYCconfiguration = null;
+       
+    }
+    }
+  }
+},
   computed: {
     ...mapState({
       containerShift: state => state.playgroundStore.containerShift,
