@@ -117,6 +117,20 @@ ul {
   list-style-type: none;
 }
 
+.selective-field-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 8px 12px;
+}
+
+.selective-field-badge {
+  border: 1px solid #d8dee8;
+  color: #334155;
+  margin-right: 6px;
+  margin-bottom: 6px;
+  padding: 6px 8px;
+}
+
 /* .zkbadge {
   background-color: lightblue;
   margin-left: 3px;
@@ -182,7 +196,6 @@ ul {
           </div>
         </li> 
        
-
         <li class="list-group-item">
           <div class="row">
             <div class="col">
@@ -244,13 +257,48 @@ ul {
             <div class="col">
               <label for=""><strong>Choose Trusted Issuer(s): </strong></label>
               <div style="max-height: 300px; overflow-y: scroll;" class="p-1">
-                <MarketplaceList @selectedServiceEvent="selectedServiceEventHandler" isSelection="true" />
+                <MarketplaceList @selectedServiceEvent="selectedServiceEventHandler" :isSelection="true" />
               </div>
             </div>
           </div>
           <!-- <TrustedIssuer @selectedServiceEventFromTrustedIssuer="selectedServiceEventHandler" /> -->
         </li>
 
+
+        <li class="list-group-item">
+          <div class="row">
+            <div class="col-md-6">
+              <b-form-checkbox
+                switch
+                size="lg"
+                v-model="widgetConfigTemp.selectiveDisclosure.enabled"
+                :disabled="!widgetConfigTemp.idOcr.enabled"
+              >
+                {{ widgetConfigUI.selectiveDisclosure.label }} <HFBeta></HFBeta>
+              </b-form-checkbox>
+              <small v-html="widgetConfigUI.selectiveDisclosure.description"></small>
+            </div>
+            <div class="col" v-if="widgetConfigTemp.selectiveDisclosure.enabled">
+              <label for="selective-disclosure-fields"><strong>Select Information: </strong></label>
+              <b-form-checkbox-group
+                id="selective-disclosure-fields"
+                v-model="widgetConfigTemp.selectiveDisclosure.fields"
+                :options="selectiveDisclosureFieldOptions"
+                class="selective-field-grid"
+              ></b-form-checkbox-group>
+              <div class="mt-2">
+                <b-badge
+                  v-for="field in widgetConfigTemp.selectiveDisclosure.fields"
+                  :key="field"
+                  variant="light"
+                  class="selective-field-badge"
+                >
+                  {{ getSelectiveDisclosureFieldLabel(field) }}
+                </b-badge>
+              </div>
+            </div>
+          </div>
+        </li>
 
          <li class="list-group-item">
           <div class="row">
@@ -387,8 +435,30 @@ export default {
 
         this.widgetConfigTemp.onChainId.enabled = false;
         this.widgetConfigTemp.onChainId.selectedOnChainKYCconfiguration = null;
+
+        this.widgetConfigTemp.selectiveDisclosure.enabled = false;
+        this.widgetConfigTemp.selectiveDisclosure.fields = [];
+        this.widgetConfigTemp.selectiveDisclosure.frame = null;
        
     }
+    }
+  },
+
+  'widgetConfigTemp.selectiveDisclosure.enabled': {
+    handler(enabled) {
+      if (enabled && !this.widgetConfigTemp.idOcr.enabled) {
+        this.widgetConfigTemp.selectiveDisclosure.enabled = false;
+        return;
+      }
+
+      if (enabled && this.widgetConfigTemp.selectiveDisclosure.fields.length === 0) {
+        this.widgetConfigTemp.selectiveDisclosure.fields = [...this.defaultSelectiveDisclosureFields]
+      }
+
+      if (!enabled) {
+        this.widgetConfigTemp.selectiveDisclosure.fields = [];
+        this.widgetConfigTemp.selectiveDisclosure.frame = null;
+      }
     }
   }
 },
@@ -482,6 +552,7 @@ export default {
 
     this.widgetConfigTemp.trustedIssuer = this.widgetConfigTemp.issuerDID ? true : false;
 
+    this.ensureSelectiveDisclosure()
 
 
     if (!this.widgetConfigTemp.zkProof.proofs) {
@@ -529,6 +600,10 @@ export default {
             description: "Enable users to prove they meet a minimum age requirement without sharing their exact date of birth. Read more <b><a href=\"https://docs.hypersign.id/hypersign-kyc/integrations/widget-configuration#id-document-verification\" target=\"_blank\">here</a></b>."
           }
         },
+        selectiveDisclosure: {
+          label: "Ask Specific Information (Selective Disclosure)",
+          description: "Select ID credential fields to request through selective disclosure."
+        },
         emailNotification: {
            label: "Enable Email Notifications",
            description: "Notify users via email regarding the status of their ID verification. When enabled, users will receive automated updates upon the successful completion or rejection of their verification attempt."
@@ -561,6 +636,11 @@ export default {
           enabled: false,
           proofs: []
         },
+        selectiveDisclosure: {
+          enabled: false,
+          fields: [],
+          frame: null,
+        },
         trustedIssuer: true,
         isEmailNotificationEnabled: true,
         issuerDID: "",
@@ -568,6 +648,15 @@ export default {
       },
       selectedIssuerDids: new Set(),
       ageProofCriteria: '',
+      defaultSelectiveDisclosureFields: ['docModel', 'givenNames', 'surname', 'sex', 'nationality', 'dateOfBirth'],
+      selectiveDisclosureFieldOptions: [
+        { value: 'docModel', text: 'Document Model' },
+        { value: 'givenNames', text: 'Given Names' },
+        { value: 'surname', text: 'Surname' },
+        { value: 'sex', text: 'Sex' },
+        { value: 'nationality', text: 'Nationality' },
+        { value: 'dateOfBirth', text: 'Date of Birth' },
+      ],
       documentTypeOptions: [
         {
           value: null,
@@ -613,6 +702,74 @@ export default {
         .filter(did => !!did && !!did.trim())
         .join(',')
     },
+    ensureSelectiveDisclosure() {
+      if (!this.widgetConfigTemp.selectiveDisclosure) {
+        this.$set(this.widgetConfigTemp, 'selectiveDisclosure', {
+          enabled: false,
+          fields: [],
+          frame: null,
+        })
+      }
+
+      if (!Array.isArray(this.widgetConfigTemp.selectiveDisclosure.fields)) {
+        this.$set(this.widgetConfigTemp.selectiveDisclosure, 'fields', [])
+      }
+
+      if (!Object.prototype.hasOwnProperty.call(this.widgetConfigTemp.selectiveDisclosure, 'frame')) {
+        this.$set(this.widgetConfigTemp.selectiveDisclosure, 'frame', null)
+      }
+
+      if (
+        this.widgetConfigTemp.selectiveDisclosure.enabled &&
+        this.widgetConfigTemp.selectiveDisclosure.fields.length === 0
+      ) {
+        const framedFields = Object.keys(this.widgetConfigTemp.selectiveDisclosure.frame?.credentialSubject || {})
+          .filter(field => field !== '@explicit' && this.defaultSelectiveDisclosureFields.includes(field))
+
+        this.widgetConfigTemp.selectiveDisclosure.fields = framedFields.length > 0
+          ? framedFields
+          : [...this.defaultSelectiveDisclosureFields]
+      }
+    },
+    getSelectiveDisclosureFieldLabel(field) {
+      const option = this.selectiveDisclosureFieldOptions.find(item => item.value === field)
+      return option ? option.text : field
+    },
+    generateSelectiveDisclosureFrame(fields) {
+      const credentialSubject = fields.reduce((frame, field) => {
+        frame[field] = {}
+        return frame
+      }, {
+        '@explicit': true,
+      })
+
+      return {
+        '@context': [
+          'https://www.w3.org/2018/credentials/v1',
+          'https://raw.githubusercontent.com/hypersign-protocol/hypersign-contexts/main/BJJSignature2021.jsonld',
+          'https://schema.org'
+        ],
+        type: [
+          'VerifiableCredential'
+        ],
+        credentialSubject,
+      }
+    },
+    syncSelectiveDisclosure() {
+      this.ensureSelectiveDisclosure()
+
+      if (!this.widgetConfigTemp.selectiveDisclosure.enabled) {
+        this.widgetConfigTemp.selectiveDisclosure.fields = []
+        this.widgetConfigTemp.selectiveDisclosure.frame = null
+        return
+      }
+
+      const selectedFields = this.widgetConfigTemp.selectiveDisclosure.fields
+        .filter(field => this.defaultSelectiveDisclosureFields.includes(field))
+
+      this.widgetConfigTemp.selectiveDisclosure.fields = selectedFields
+      this.widgetConfigTemp.selectiveDisclosure.frame = this.generateSelectiveDisclosureFrame(selectedFields)
+    },
     syncAgeProof() {
       if (!this.widgetConfigTemp.zkProof.proofs) {
         this.widgetConfigTemp.zkProof.proofs = []
@@ -638,6 +795,16 @@ export default {
       } else {
         if (!this.widgetConfigTemp.idOcr.documentType) {
           this.widgetConfigTemp.idOcr.documentType = 'passport'
+        }
+      }
+
+      if (this.widgetConfigTemp.selectiveDisclosure.enabled) {
+        if (!this.widgetConfigTemp.idOcr.enabled) {
+          throw new Error('Selective disclosure requires ID document verification. Please enable ID document verification to proceed.')
+        }
+
+        if (this.widgetConfigTemp.selectiveDisclosure.fields.length === 0) {
+          throw new Error('Kindly select information to request through selective disclosure')
         }
       }
 
@@ -672,6 +839,7 @@ export default {
         //TODO validate all fields
         this.isLoading = true;
         this.syncAgeProof()
+        this.syncSelectiveDisclosure()
         this.validateField()
         this.setWidgetConfig(this.widgetConfigTemp)
         await this.createAppsWidgetConfig()
@@ -692,6 +860,7 @@ export default {
         //TODO validate all field
         this.isLoading = true;
         this.syncAgeProof()
+        this.syncSelectiveDisclosure()
         this.validateField()
 
         this.setWidgetConfig(this.widgetConfigTemp)
