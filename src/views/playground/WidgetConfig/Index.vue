@@ -411,6 +411,7 @@ export default {
     },
     immediate: true
   }
+
   },
   computed: {
     ...mapState({
@@ -535,20 +536,20 @@ export default {
       widgetConfigUI: {
         faceRecog: {
           label: "Enable Facial Recoginition",
-          description: 'Enable users verify if they are human and generate Personhood Credential. Read more <b><a href="https://docs.hypersign.id/hypersign-kyc/integrations/widget-configuration#facial-recognition" target="_blank">here</a></b>.'
+          description: 'Enable users verify if they are human and generate Personhood Credential. Read more <b><a href="https://docs.hypersign.id/hypersign-kyc/integrations/widget-configuration#f[...]
         },
         idOcr: {
           label: "Enable ID Document Verification",
-          description: 'Enable users verify their ID Document and generate their ID Credential. Read more <b><a href="https://docs.hypersign.id/hypersign-kyc/integrations/widget-configuration#id-document-verification" target="_blank">here</a></b>.'
+          description: 'Enable users verify their ID Document and generate their ID Credential. Read more <b><a href="https://docs.hypersign.id/hypersign-kyc/integrations/widget-configuration#id-[...]
         },
         userConsent: {
           label: "Enable User Consent",
-          description: 'Specify a reason for requesting user KYC data. This information will be displayed on the user consent screen in the KYC widget, helping users understand who is requesting their data and why. Read more <b><a href="https://docs.hypersign.id/hypersign-kyc/integrations/widget-configuration#user-consent" target="_blank">here</a></b>.'
+          description: 'Specify a reason for requesting user KYC data. This information will be displayed on the user consent screen in the KYC widget, helping users understand who is requesting [...]
         },
         
         trustedIssuer: {
           label: "Configure Trusted Issuer(s)",
-          description: 'Select one or more trusted issuers, with the default being "self". This pertains to Reusable ID. If configured, users who already possess KYC credentials issued by these trusted issuers in their data vault will not need to repeat the KYC steps in the widget. They can simply authorize the sharing of their existing credentials with your app, streamlining user onboarding for your company and providing a smoother experience for your users. Read more <b><a href="https://docs.hypersign.id/hypersign-kyc/integrations/widget-configuration#trusted-issuer" target="_blank">here</a></b>.'
+          description: 'Select one or more trusted issuers, with the default being "self". This pertains to Reusable ID. If configured, users who already possess KYC credentials issued by these t[...]
         },
         onChainId: {
           label: "Enable Onchain KYC",
@@ -556,7 +557,7 @@ export default {
         },
         zkProof: {
           label: "Enable Zero Knowledge Proof",
-          description: 'Enable users to share only proof of their data for enhanced data privacy and compliance. Read more <b><a href="https://docs.hypersign.id/hypersign-kyc/integrations/widget-configuration#id-document-verification" target="_blank">here</a></b>.'
+          description: 'Enable users to share only proof of their data for enhanced data privacy and compliance. Read more <b><a href="https://docs.hypersign.id/hypersign-kyc/integrations/widget-[...]
         },
         emailNotification: {
            label: "Enable Email Notifications",
@@ -612,10 +613,10 @@ export default {
           text: "Passport"
         },
          {
-          value: 'govId',
-          text: "Government ID"
-        },
-      ],
+           value: 'govId',
+           text: "Government ID"
+         },
+       ],
 
       slectProof: null,
       proofTypeOptions: [
@@ -694,6 +695,7 @@ export default {
     },
     validateField() {
       this.widgetConfigTemp.isWidgetLogin = this.widgetConfigTemp.isWidgetLogin !== false
+
 
       if (!this.widgetConfigTemp.issuerDID) {
         throw new Error('Issuer DID is required')
