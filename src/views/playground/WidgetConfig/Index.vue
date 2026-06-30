@@ -325,6 +325,20 @@ ul {
             </div>
           </div>
         </li>
+         <li class="list-group-item">
+          <div class="row">
+            <div class="col-md-6">
+              <b-form-checkbox
+                switch
+                size="lg"
+                v-model="widgetConfigTemp.isWidgetLogin"
+              >
+                {{ widgetConfigUI.widgetLogin.label }}
+              </b-form-checkbox>
+              <small v-html="widgetConfigUI.widgetLogin.description"></small>
+            </div>
+          </div>
+        </li>
       </ul>
     </div>
 
@@ -438,6 +452,9 @@ export default {
     if (Object.keys(this.widgetConfig).length > 0) {
       this.widgetConfigTemp = JSON.parse(JSON.stringify(this.widgetConfig))
     }
+    if (typeof this.widgetConfigTemp.isWidgetLogin !== 'boolean') {
+      this.$set(this.widgetConfigTemp, 'isWidgetLogin', true)
+    }
 
     this.trustedIssuersList = [...this.getMarketPlaceApps];
     this.appId = this.$route.params.appId;
@@ -504,20 +521,20 @@ export default {
       widgetConfigUI: {
         faceRecog: {
           label: "Enable Facial Recoginition",
-          description: 'Enable users verify if they are human and generate Personhood Credential. Read more <b><a href="https://docs.hypersign.id/hypersign-kyc/integrations/widget-configuration#facial-recognition" target="_blank">here</a></b>.'
+          description: 'Enable users verify if they are human and generate Personhood Credential. Read more <b><a href="https://docs.hypersign.id/hypersign-kyc/integrations/widget-configuration#f[...]
         },
         idOcr: {
           label: "Enable ID Document Verification",
-          description: 'Enable users verify their ID Document and generate their ID Credential. Read more <b><a href="https://docs.hypersign.id/hypersign-kyc/integrations/widget-configuration#id-document-verification" target="_blank">here</a></b>.'
+          description: 'Enable users verify their ID Document and generate their ID Credential. Read more <b><a href="https://docs.hypersign.id/hypersign-kyc/integrations/widget-configuration#id-[...]
         },
         userConsent: {
           label: "Enable User Consent",
-          description: 'Specify a reason for requesting user KYC data. This information will be displayed on the user consent screen in the KYC widget, helping users understand who is requesting their data and why. Read more <b><a href="https://docs.hypersign.id/hypersign-kyc/integrations/widget-configuration#user-consent" target="_blank">here</a></b>.'
+          description: 'Specify a reason for requesting user KYC data. This information will be displayed on the user consent screen in the KYC widget, helping users understand who is requesting [...]
         },
         
         trustedIssuer: {
           label: "Configure Trusted Issuer(s)",
-          description: 'Select one or more trusted issuers, with the default being "self". This pertains to Reusable ID. If configured, users who already possess KYC credentials issued by these trusted issuers in their data vault will not need to repeat the KYC steps in the widget. They can simply authorize the sharing of their existing credentials with your app, streamlining user onboarding for your company and providing a smoother experience for your users. Read more <b><a href="https://docs.hypersign.id/hypersign-kyc/integrations/widget-configuration#trusted-issuer" target="_blank">here</a></b>.'
+          description: 'Select one or more trusted issuers, with the default being "self". This pertains to Reusable ID. If configured, users who already possess KYC credentials issued by these t[...]
         },
         onChainId: {
           label: "Enable Onchain KYC",
@@ -532,6 +549,10 @@ export default {
         emailNotification: {
            label: "Enable Email Notifications",
            description: "Notify users via email regarding the status of their ID verification. When enabled, users will receive automated updates upon the successful completion or rejection of their verification attempt."
+        },
+        widgetLogin: {
+          label: "Enable Built-in Login & Identity Vault",
+          description: "Users sign in through the ID Widget and receive a personal identity vault for storing reusable credentials. Disable this if your application handles authentication."
         },
       },
       fullPage: true,
@@ -562,6 +583,8 @@ export default {
           proofs: []
         },
         trustedIssuer: true,
+        isWidgetLogin: true,
+        isVaultEnabled: true,
         isEmailNotificationEnabled: true,
         issuerDID: "",
         issuerVerificationMethodId: "",
@@ -578,10 +601,10 @@ export default {
           text: "Passport"
         },
          {
-          value: 'govId',
-          text: "Government ID"
-        },
-      ],
+           value: 'govId',
+           text: "Government ID"
+         },
+       ],
 
     }
   },
@@ -629,6 +652,9 @@ export default {
       }]
     },
     validateField() {
+      this.widgetConfigTemp.isWidgetLogin = this.widgetConfigTemp.isWidgetLogin !== false
+
+
       if (!this.widgetConfigTemp.issuerDID) {
         throw new Error('Issuer DID is required')
       }

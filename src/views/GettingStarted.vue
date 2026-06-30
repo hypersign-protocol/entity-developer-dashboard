@@ -80,6 +80,7 @@
             depressed
             small
             color="white"
+
             class="text-none font-weight-bold"
             :href="`#/studio/kyb-webpage-generator/${appId()}`"
           >
