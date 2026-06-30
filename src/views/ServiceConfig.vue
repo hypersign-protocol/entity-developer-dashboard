@@ -1,5 +1,6 @@
 <template>
     <b-container fluid class="py-3">
+        <load-ing :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></load-ing>
         
         <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
             <div>
@@ -332,11 +333,14 @@ import messages from "../mixins/messages";
 import { mapGetters, mapActions, mapMutations, mapState } from 'vuex/dist/vuex.common.js';
 import LogoUploader from "../components/element/LogoUploader.vue";
 import CorsChipsInput from "../components/element/CorsChips.vue";
+import LoadIng from "../components/element/LoadIng.vue";
 import { normalizeCorsOrigin } from '../utils/utils.js';
 export default {
     name: "ServiceConfig",
     data() {
         return {
+            isLoading: false,
+            fullPage: true,
             isEditing: false,
             // allow editing domain independently of full-form edit
             isEditingDomain: false,
@@ -385,6 +389,7 @@ export default {
         HfPopUp,
         LogoUploader,
         CorsChipsInput,
+        LoadIng,
     },
     async created() {
         this.formData = { ...this.getSelectedService };
