@@ -273,7 +273,7 @@
                       <template v-slot:activator="{ on, attrs }">
                         <v-icon v-bind="attrs" v-on="on" small color="red darken-1">mdi-alert-circle-outline</v-icon>
                       </template>
-                      <span>{{ getFailureReason(row.failureInfo && row.failureInfo.failureReason, row.failureInfo && row.failureInfo.failureStep) }}</span>
+                      <span>{{ getRowFailureReason(row) }}</span>
                     </v-tooltip>
                   </div>
                 </td>
@@ -330,6 +330,7 @@ export default {
         { field: 'step_start', icon: 'fa-flag', title: 'Started' },
         { field: 'step_liveliness', icon: 'fa-user', title: 'Liveliness Check' },
         { field: 'step_ocrIdVerification', icon: 'fa-address-card', title: 'Document Verification' },
+        // { field: 'step_zkProofVerification', icon: 'fa-user-check', title: 'Age Verification' },
         { field: 'step_mintSbt', icon: 'fa-address-book', title: 'Mint SBT' },
         { field: 'step_userConsent', icon: 'fa-thumbs-up', title: 'User Consent' },
         { field: 'step_finish', icon: 'fa-check', title: 'Finished' },
@@ -412,7 +413,18 @@ export default {
     filteredSteps(row) {
       return this.allSteps.filter(step => row[step.field] !== null && row[step.field] !== undefined);
     },
+    getRowFailureReason(row) {
+      if (row.status !== 'Failed' || !row.failureInfo) {
+        return 'Unknown error';
+      }
+
+      return this.getFailureReason(row.failureInfo.failureReason, row.failureInfo.failureStep);
+    },
     getFailureReason(errorCode, errorType = 'step_liveliness') {
+      if (typeof errorCode === 'string' && isNaN(Number(errorCode))) {
+        return errorCode;
+      }
+
       if (errorType == 'step_liveliness') {
         return Config['LivelinessError'][errorCode] || 'Unknown error';
       }
@@ -420,6 +432,17 @@ export default {
       if (errorType == 'step_ocrIdVerification') {
         return Config['FaicalAuthenticationError'][errorCode] || 'Unknown error';
       }
+
+      if (errorType == 'step_zkProofVerification') {
+        const zkpVerificationErrors = {
+          0: 'Age verification could not be performed',
+          1: 'Age verification failed',
+          2: 'Age verification uncertain',
+        };
+        return zkpVerificationErrors[errorCode] || 'Age verification failed';
+      }
+
+      return 'Unknown error';
     },
     getAvatarStyle() {
       // const colors = ['#607d8b', '#3f51b5', '#009688', '#ff5722', '#795548', '#673ab7', '#e91e63'];

@@ -117,14 +117,13 @@ ul {
   list-style-type: none;
 }
 
-.zkbadge {
+/* .zkbadge {
   background-color: lightblue;
   margin-left: 3px;
   margin-top: 3px;
   color: black;
   min-height: 20px;
   align-content: center;
-  /* display: flex; */
   padding: 5px;
   font-size: x-small;
   font-weight: bold;
@@ -134,7 +133,7 @@ ul {
 
 .zkbadge:hover {
   background-color: lightcoral;
-}
+} */
 </style>
 <template>
   <b-container fluid class="py-3" :class="isContainerShift ? 'homeShift' : 'home'">
@@ -217,7 +216,7 @@ ul {
 
               </div>
             </div>
-            <div class="col">
+            <!-- <div class="col">
               <div class="row">
                 <div class="col">
                   <div class="row">
@@ -231,7 +230,7 @@ ul {
 
                 </div>
               </div>
-            </div>
+            </div> -->
           </div>
         </li>
         <li class="list-group-item">
@@ -258,13 +257,14 @@ ul {
             <div class="col-md-6">
               <div class="row">
                 <div class="col-md-12">
-                  <b-form-checkbox switch size="lg" v-model="widgetConfigTemp.zkProof.enabled">{{
-                    this.widgetConfigUI.zkProof.label }}<HFBeta></HFBeta>
+                  <b-form-checkbox switch size="lg" v-model="widgetConfigTemp.zkProof.enabled"
+                  :disabled="!widgetConfigTemp.idOcr.enabled">{{
+                    this.widgetConfigUI.zkProof.ageProof.label }}<HFBeta></HFBeta>
                   </b-form-checkbox>
-                  <small v-html="this.widgetConfigUI.zkProof.description"></small>
+                  <small v-html="this.widgetConfigUI.zkProof.ageProof.description"></small>
                 </div>
               </div>
-              <div class="mt-2 mx-0 p-1"
+              <!-- <div class="mt-2 mx-0 p-1"
                 style="border: 2px solid #8080802e; border-radius: 10px; min-height: 80px; padding:10px"
                 v-if="widgetConfigTemp.zkProof.proofs.length > 0">
                 <div class="">
@@ -280,33 +280,15 @@ ul {
 
                     <b-icon class="trash" style="color:red" icon="trash" aria-hidden="true"></b-icon></span>
                 </div>
-              </div>
+              </div> -->
             </div>
 
             <div class="col" v-if="widgetConfigTemp.zkProof.enabled">
               <div class="row">
                 <div class="col">
-                  <label for=""><strong>Select Proof Type: </strong></label>
-
-
-                  <b-input-group>
-                    <!-- Dropdown -->
-                    <b-form-select v-model="slectProof" :options="proofTypeOptions" class="form-select"></b-form-select>
-
-                    <b-input-group-append v-if="selectedProofData.criteria">
-                      <b-form-input v-model="selectedProofData.criteriaValue" placeholder="Enter age"
-                        :type="selectedProofData.criteriaType"></b-form-input>
-                    </b-input-group-append>
-
-                    <!-- Add Button -->
-                    <b-input-group-append v-if="selectedProofData.value != null">
-                      <HfButtons name="" customClass="btn btn-outline-secondary" iconClass="fa fa-plus"
-                        @executeAction="addZkProof(selectedProofData.value, selectedProofData.criteriaValue)">
-                      </HfButtons>
-                    </b-input-group-append>
-                  </b-input-group>
-                  <small>{{ selectedProofData.description }}</small>
-
+                  <label for="age-proof-criteria"><strong>Minimum Age: </strong></label>
+                  <b-form-input id="age-proof-criteria" v-model="ageProofCriteria" placeholder="Enter age"
+                    type="number" min="1"></b-form-input>
                 </div>
               </div>
             </div>
@@ -376,13 +358,6 @@ import { isAccessDeniedError } from '../../../utils/accessDenied';
 // import TrustedIssuer from './components/TrustedIssuer.vue';
 import MarketplaceList from '../../../components/MarketplaceList.vue';
 import HFBeta from '../../../components/element/HFBeta.vue';
-// const SupportedZkProofTypes = Object.freeze({
-//   PROOF_OF_KYC: 'zkProofOfKYC',
-//   PROOF_OF_PERSONHOOD: 'zkProofOfPersonHood',
-//   PROOF_OF_AGE: 'zkProofOfAge',
-//   PROOF_OF_MEMBERSHIP: 'zkProofOfMembership',
-//   PROOF_OF_DOB: 'zkProofOfDOB',
-// })
 
 export default {
   name: "WidgetConfig",
@@ -395,24 +370,42 @@ export default {
     // TrustedIssuer
   },
   // TODO : check why this is not working... we need to trigger warning that its an experimental feature once user enables zk
-  watch: {
-    'widgetConfigTemp.zkProof.enabled':
-    {
-      handler(newValue) {
-        if (!newValue) {
-          this.widgetConfigTemp.onChainId.enabled = false
-        }
-      },
-      deep: true
-    },
-    'widgetConfigTemp.isWidgetLogin': {
-    handler(newValue) {
-      this.widgetConfigTemp.isVaultEnabled = newValue !== false
-    },
-    immediate: true
-  }
-
+ watch: {
+  'widgetConfigTemp.zkProof.enabled': {
+    handler(enabled) {
+      // Don't allow enabling ZK Proof unless ID OCR is enabled
+      if (enabled && !this.widgetConfigTemp.idOcr.enabled) {
+        this.widgetConfigTemp.zkProof.enabled = false;
+        return;
+      }
+      // Default age
+      if (enabled && !this.ageProofCriteria) {
+        this.ageProofCriteria = 18;
+      }
+      // Disable dependent feature
+      if (!enabled) {
+        this.widgetConfigTemp.onChainId.enabled = false;
+        this.widgetConfigTemp.onChainId.selectedOnChainKYCconfiguration = null;
+        this.widgetConfigTemp.zkProof.proofs = [];
+      }
+    }
   },
+
+  'widgetConfigTemp.idOcr.enabled': {
+    handler(enabled) {
+      // If ID Document is disabled,
+      // automatically disable all dependent features.
+      if (!enabled) {
+        this.widgetConfigTemp.zkProof.enabled = false;
+        this.widgetConfigTemp.zkProof.proofs = [];
+
+        this.widgetConfigTemp.onChainId.enabled = false;
+        this.widgetConfigTemp.onChainId.selectedOnChainKYCconfiguration = null;
+       
+    }
+    }
+  }
+},
   computed: {
     ...mapState({
       containerShift: state => state.playgroundStore.containerShift,
@@ -422,14 +415,6 @@ export default {
     ...mapGetters('mainStore', ['getAppByAppId', 'getMarketPlaceApps']),
     isContainerShift() {
       return this.containerShift
-    },
-
-    selectedProofData() {
-
-      if (!this.slectProof) {
-        return {}
-      }
-      return this.proofTypeOptions.find(x => x.value == this.slectProof)
     },
 
     onchainconfigsOptions() {
@@ -519,6 +504,10 @@ export default {
     if (!this.widgetConfigTemp.zkProof.proofs) {
       this.widgetConfigTemp.zkProof.proofs = []
     }
+    const ageProof = this.widgetConfigTemp.zkProof.proofs.find(
+      proof => proof.proofType === this.SupportedZkProofTypes.PROOF_OF_AGE
+    )
+    this.ageProofCriteria = ageProof?.criteria || ''
     // this.widgetConfigTemp.zkProof = {
     //   enabled: false,
     //   proofType: null,
@@ -527,37 +516,35 @@ export default {
   data() {
     return {
       SupportedZkProofTypes: Object.freeze({
-        PROOF_OF_KYC: 'zkProofOfKYC',
-        PROOF_OF_PERSONHOOD: 'zkProofOfPersonHood',
         PROOF_OF_AGE: 'zkProofOfAge',
-        PROOF_OF_MEMBERSHIP: 'zkProofOfMembership',
-        PROOF_OF_DOB: 'zkProofOfDOB',
       }),
       widgetConfigUI: {
         faceRecog: {
           label: "Enable Facial Recoginition",
-          description: 'Enable users verify if they are human and generate Personhood Credential. Read more <b><a href="https://docs.hypersign.id/hypersign-kyc/integrations/widget-configuration#f[...]
+          description: 'Enable users verify if they are human and generate Personhood Credential. Read more <b><a href="https://docs.hypersign.id/hypersign-kyc/integrations/widget-configuration#facial-recognition" target="_blank">here</a></b>.'
         },
         idOcr: {
           label: "Enable ID Document Verification",
-          description: 'Enable users verify their ID Document and generate their ID Credential. Read more <b><a href="https://docs.hypersign.id/hypersign-kyc/integrations/widget-configuration#id-[...]
+          description: 'Enable users verify their ID Document and generate their ID Credential. Read more <b><a href="https://docs.hypersign.id/hypersign-kyc/integrations/widget-configuration#id-document-verification" target="_blank">here</a></b>.'
         },
         userConsent: {
           label: "Enable User Consent",
-          description: 'Specify a reason for requesting user KYC data. This information will be displayed on the user consent screen in the KYC widget, helping users understand who is requesting [...]
+          description: 'Specify a reason for requesting user KYC data. This information will be displayed on the user consent screen in the KYC widget, helping users understand who is requesting their data and why. Read more <b><a href="https://docs.hypersign.id/hypersign-kyc/integrations/widget-configuration#user-consent" target="_blank">here</a></b>.'
         },
         
         trustedIssuer: {
           label: "Configure Trusted Issuer(s)",
-          description: 'Select one or more trusted issuers, with the default being "self". This pertains to Reusable ID. If configured, users who already possess KYC credentials issued by these t[...]
+          description: 'Select one or more trusted issuers, with the default being "self". This pertains to Reusable ID. If configured, users who already possess KYC credentials issued by these trusted issuers in their data vault will not need to repeat the KYC steps in the widget. They can simply authorize the sharing of their existing credentials with your app, streamlining user onboarding for your company and providing a smoother experience for your users. Read more <b><a href="https://docs.hypersign.id/hypersign-kyc/integrations/widget-configuration#trusted-issuer" target="_blank">here</a></b>.'
         },
         onChainId: {
           label: "Enable Onchain KYC",
           description: "Enable users to mint SBT of their credentials in a privacy preserving manner and verify on configured blockchain"
         },
         zkProof: {
-          label: "Enable Zero Knowledge Proof",
-          description: 'Enable users to share only proof of their data for enhanced data privacy and compliance. Read more <b><a href="https://docs.hypersign.id/hypersign-kyc/integrations/widget-[...]
+          ageProof:{
+            label: "Configure Age Verification",
+            description: "Enable users to prove they meet a minimum age requirement without sharing their exact date of birth. Read more <b><a href=\"https://docs.hypersign.id/hypersign-kyc/integrations/widget-configuration#id-document-verification\" target=\"_blank\">here</a></b>."
+          }
         },
         emailNotification: {
            label: "Enable Email Notifications",
@@ -603,6 +590,7 @@ export default {
         issuerVerificationMethodId: "",
       },
       selectedIssuerDids: new Set(),
+      ageProofCriteria: '',
       documentTypeOptions: [
         {
           value: null,
@@ -613,54 +601,9 @@ export default {
           text: "Passport"
         },
          {
-           value: 'govId',
-           text: "Government ID"
-         },
-       ],
-
-      slectProof: null,
-      proofTypeOptions: [
-        {
-          value: null,
-          text: "Choose zk proof type"
+          value: 'govId',
+          text: "Government ID"
         },
-        {
-          value: 'zkProofOfKYC',
-          text: "Proof Of KYC",
-          description: "Proves that user has finished his/her KYC",
-          enabled: true,
-          criteria: false,
-        },
-        {
-          value: 'zkProofOfPersonHood',
-          text: "Proof Of Personhood",
-          description: "Proves that user is not a bot",
-          enabled: true,
-          criteria: false,
-        },
-        {
-          value: 'zkProofOfAge',
-          text: "Proof Of Age",
-          description: "Proves user is above the specified age",
-          enabled: true,
-          criteria: true,
-          criteriaValue: "",
-          criteriaLabel: "Specify Age (> than)",
-          criteriaType: 'number'
-        },
-
-        // {
-        //   value: 'zkProofOfDOB',
-        //   text: "Proof Of DOB",
-        //   description: "Proves user's date of birth (discloses DOB, nothing else)",
-        //   enabled: true,
-        // },
-        // {
-        //   value: 'zkProofOfMembership',
-        //   text: "Proof Of Membership Country",
-        //   description: "Proves user is not citizen of specified countries",
-        //   enabled: true,
-        // },
       ],
 
     }
@@ -693,9 +636,23 @@ export default {
         .filter(did => !!did && !!did.trim())
         .join(',')
     },
+    syncAgeProof() {
+      if (!this.widgetConfigTemp.zkProof.proofs) {
+        this.widgetConfigTemp.zkProof.proofs = []
+      }
+
+      if (!this.widgetConfigTemp.zkProof.enabled || !this.ageProofCriteria) {
+        this.widgetConfigTemp.zkProof.proofs = []
+        return
+      }
+
+      this.widgetConfigTemp.zkProof.proofs = [{
+        proofType: this.SupportedZkProofTypes.PROOF_OF_AGE,
+        criteria: this.ageProofCriteria,
+      }]
+    },
     validateField() {
       this.widgetConfigTemp.isWidgetLogin = this.widgetConfigTemp.isWidgetLogin !== false
-
 
       if (!this.widgetConfigTemp.issuerDID) {
         throw new Error('Issuer DID is required')
@@ -727,11 +684,11 @@ export default {
       }
 
       if (this.widgetConfigTemp.zkProof.enabled) {
+        if (!this.ageProofCriteria) {
+          throw new Error('Kindly specify age criteria to generate proof')
+        }
         if (!this.widgetConfigTemp.idOcr.enabled) {
-          const t = this.widgetConfigTemp.zkProof.proofs.filter(x => (x.proofType != this.SupportedZkProofTypes.PROOF_OF_PERSONHOOD))
-          if (t.length > 0) {
-            throw new Error('You are trying to configure zk proof types which required ID Documentation verification. Please enabled ID document to proceed.')
-          }
+          throw new Error('Age verification requires ID document verification. Please enable ID document verification to proceed.')
         }
       }
     },
@@ -739,6 +696,7 @@ export default {
       try {
         //TODO validate all fields
         this.isLoading = true;
+        this.syncAgeProof()
         this.validateField()
         this.setWidgetConfig(this.widgetConfigTemp)
         await this.createAppsWidgetConfig()
@@ -754,48 +712,11 @@ export default {
       }
     },
 
-    deleteZkProof(proof) {
-      this.widgetConfigTemp.zkProof.proofs = this.widgetConfigTemp.zkProof.proofs.filter(x => x.proofType != proof)
-      // User must click Save/Update to persist — consistent with addZkProof
-    },
-    addZkProof(proofType, criteria) {
-
-      if (!proofType) {
-        return this.notifyErr(`Proof Type must be slected`)
-      }
-
-      if (this.widgetConfigTemp.zkProof.enabled) {
-        if (!this.widgetConfigTemp.zkProof.proofs) {
-          this.widgetConfigTemp.zkProof.proofs = []
-        }
-
-        if (proofType == this.SupportedZkProofTypes.PROOF_OF_AGE) {
-          if (!criteria) {
-            return this.notifyErr('Kindly specify age criteria to generate proof')
-          }
-        } else {
-          criteria = null
-        }
-
-        if (this.widgetConfigTemp.zkProof.proofs.find(x => x.proofType === proofType)) {
-          this.slectProof = null
-          return this.notifyErr(`Proof Type ${proofType} is already added`)
-        }
-
-        this.widgetConfigTemp.zkProof.proofs.push({
-          proofType,
-          criteria,
-        })
-      }
-      this.slectProof = null
-
-      // this.updateConfiguration()
-    },
-
     async updateConfiguration() {
       try {
         //TODO validate all field
         this.isLoading = true;
+        this.syncAgeProof()
         this.validateField()
 
         this.setWidgetConfig(this.widgetConfigTemp)
