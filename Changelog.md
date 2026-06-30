@@ -1,12 +1,14 @@
 # Changelog
 
 ## [Unreleased]
+
 ### [3.11.1] - 2026-06-18
 ### Added
 - Show tile for zkp
 - show zkp error message
 - change the zkp label to normal user readable text
 - added toggle button for widget zkp configure
+- Added toggel to disable widget login
 
 ### Added
 - Added toggel to disable widget login
