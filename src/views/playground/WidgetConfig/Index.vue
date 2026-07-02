@@ -279,23 +279,13 @@ ul {
               <small v-html="widgetConfigUI.selectiveDisclosure.description"></small>
             </div>
             <div class="col" v-if="widgetConfigTemp.selectiveDisclosure.enabled">
-              <label for="selective-disclosure-fields"><strong>Select Information: </strong></label>
+              <label for="selective-disclosure-fields"><strong>Selected Identity Attributes: </strong></label>
               <b-form-checkbox-group
                 id="selective-disclosure-fields"
                 v-model="widgetConfigTemp.selectiveDisclosure.fields"
                 :options="selectiveDisclosureFieldOptions"
                 class="selective-field-grid"
               ></b-form-checkbox-group>
-              <div class="mt-2">
-                <b-badge
-                  v-for="field in widgetConfigTemp.selectiveDisclosure.fields"
-                  :key="field"
-                  variant="light"
-                  class="selective-field-badge"
-                >
-                  {{ getSelectiveDisclosureFieldLabel(field) }}
-                </b-badge>
-              </div>
             </div>
           </div>
         </li>
@@ -601,8 +591,8 @@ export default {
           }
         },
         selectiveDisclosure: {
-          label: "Ask Specific Information (Selective Disclosure)",
-          description: "Select ID credential fields to request through selective disclosure."
+          label: "Request only the information you need",
+          description: "Choose which verified identity attributes users will share with your application after completing identity verification. Attributes that are not selected remain private and are not included in the verification response."
         },
         emailNotification: {
            label: "Enable Email Notifications",
@@ -650,10 +640,10 @@ export default {
       ageProofCriteria: '',
       defaultSelectiveDisclosureFields: ['docModel', 'givenNames', 'surname', 'sex', 'nationality', 'dateOfBirth'],
       selectiveDisclosureFieldOptions: [
-        { value: 'docModel', text: 'Document Model' },
-        { value: 'givenNames', text: 'Given Names' },
+        { value: 'docModel', text: 'Document Type' },
+        { value: 'givenNames', text: 'Given Name(s)' },
         { value: 'surname', text: 'Surname' },
-        { value: 'sex', text: 'Sex' },
+        { value: 'sex', text: 'Gender' },
         { value: 'nationality', text: 'Nationality' },
         { value: 'dateOfBirth', text: 'Date of Birth' },
       ],
