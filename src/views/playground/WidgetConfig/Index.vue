@@ -229,7 +229,7 @@ ul {
 
               </div>
             </div>
-            <!-- <div class="col">
+            <div class="col">
               <div class="row">
                 <div class="col">
                   <div class="row">
@@ -243,7 +243,7 @@ ul {
 
                 </div>
               </div>
-            </div> -->
+            </div>
           </div>
         </li>
         <li class="list-group-item">
