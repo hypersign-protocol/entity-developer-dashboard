@@ -229,7 +229,7 @@ ul {
 
               </div>
             </div>
-            <div class="col">
+            <!-- <div class="col">
               <div class="row">
                 <div class="col">
                   <div class="row">
@@ -243,7 +243,7 @@ ul {
 
                 </div>
               </div>
-            </div>
+            </div> -->
           </div>
         </li>
         <li class="list-group-item">
@@ -360,6 +360,20 @@ ul {
                 {{ widgetConfigUI.emailNotification.label }}
               </b-form-checkbox>
               <small v-html="widgetConfigUI.emailNotification.description"></small>
+            </div>
+          </div>
+        </li>
+         <li class="list-group-item">
+          <div class="row">
+            <div class="col-md-6">
+              <b-form-checkbox
+                switch
+                size="lg"
+                v-model="widgetConfigTemp.isWidgetLogin"
+              >
+                {{ widgetConfigUI.widgetLogin.label }}
+              </b-form-checkbox>
+              <small v-html="widgetConfigUI.widgetLogin.description"></small>
             </div>
           </div>
         </li>
@@ -498,6 +512,9 @@ export default {
     if (Object.keys(this.widgetConfig).length > 0) {
       this.widgetConfigTemp = JSON.parse(JSON.stringify(this.widgetConfig))
     }
+    if (typeof this.widgetConfigTemp.isWidgetLogin !== 'boolean') {
+      this.$set(this.widgetConfigTemp, 'isWidgetLogin', true)
+    }
 
     this.trustedIssuersList = [...this.getMarketPlaceApps];
     this.appId = this.$route.params.appId;
@@ -598,6 +615,10 @@ export default {
            label: "Enable Email Notifications",
            description: "Notify users via email regarding the status of their ID verification. When enabled, users will receive automated updates upon the successful completion or rejection of their verification attempt."
         },
+        widgetLogin: {
+          label: "Enable Built-in Login & Identity Vault",
+          description: "Users sign in through the ID Widget and receive a personal identity vault for storing reusable credentials. Disable this if your application handles authentication."
+        },
       },
       fullPage: true,
       isLoading: false,
@@ -632,6 +653,8 @@ export default {
           frame: null,
         },
         trustedIssuer: true,
+        isWidgetLogin: true,
+        isVaultEnabled: true,
         isEmailNotificationEnabled: true,
         issuerDID: "",
         issuerVerificationMethodId: "",
@@ -776,6 +799,8 @@ export default {
       }]
     },
     validateField() {
+      this.widgetConfigTemp.isWidgetLogin = this.widgetConfigTemp.isWidgetLogin !== false
+
       if (!this.widgetConfigTemp.issuerDID) {
         throw new Error('Issuer DID is required')
       }
