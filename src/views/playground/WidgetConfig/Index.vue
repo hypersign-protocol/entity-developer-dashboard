@@ -400,8 +400,7 @@ export default {
         this.widgetConfigTemp.zkProof.proofs = [];
 
         this.widgetConfigTemp.onChainId.enabled = false;
-        this.widgetConfigTemp.onChainId.selectedOnChainKYCconfiguration = null;
-       
+        this.widgetConfigTemp.onChainId.selectedOnChainKYCconfiguration = null;  
     }
     }
   },
@@ -660,7 +659,6 @@ export default {
     },
     validateField() {
       this.widgetConfigTemp.isWidgetLogin = this.widgetConfigTemp.isWidgetLogin !== false
-
       if (!this.widgetConfigTemp.issuerDID) {
         throw new Error('Issuer DID is required')
       }
