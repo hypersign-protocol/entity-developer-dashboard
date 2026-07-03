@@ -410,6 +410,7 @@ export default {
       this.widgetConfigTemp.isVaultEnabled = newValue !== false
     },
     immediate: true
+
   }
 },
   computed: {
