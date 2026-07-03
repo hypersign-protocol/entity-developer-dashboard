@@ -10,12 +10,6 @@
 - added toggle button for widget zkp configure
 - Added toggel to disable widget login
 
-### Added
-- Added toggel to disable widget login
-### [3.11.0] - 2026-06-18
-
-### Added
-- Added toggel to disable widget login
 ### [3.11.0] - 2026-06-18
 
 ### Added

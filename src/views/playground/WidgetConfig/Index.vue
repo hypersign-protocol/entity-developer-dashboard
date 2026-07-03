@@ -404,6 +404,13 @@ export default {
        
     }
     }
+  },
+  'widgetConfigTemp.isWidgetLogin': {
+    handler(newValue) {
+      this.widgetConfigTemp.isVaultEnabled = newValue !== false
+    },
+    immediate: true
+
   }
 },
   computed: {
