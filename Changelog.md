@@ -1,6 +1,10 @@
 # Changelog
 
 ## [Unreleased]
+### [3.12.2] - 2026-07-06
+### Fixed
+- Fixed a bug where a section was removed from the consent screen.
+
 ### [3.12.1] - 2026-07-06
 
 ### Changed
