@@ -464,9 +464,6 @@ export default {
         this.widgetConfigTemp.selectiveDisclosure.frame = null;
       }
     }
-        this.widgetConfigTemp.onChainId.selectedOnChainKYCconfiguration = null;  
-    }
-    }
   },
   'widgetConfigTemp.isWidgetLogin': {
     handler(newValue) {
