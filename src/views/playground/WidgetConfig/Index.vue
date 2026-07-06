@@ -443,7 +443,6 @@ export default {
         this.widgetConfigTemp.selectiveDisclosure.enabled = false;
         this.widgetConfigTemp.selectiveDisclosure.fields = [];
         this.widgetConfigTemp.selectiveDisclosure.frame = null;
-       
     }
     }
   },
@@ -668,7 +667,7 @@ export default {
       },
       selectedIssuerDids: new Set(),
       ageProofCriteria: '',
-      defaultSelectiveDisclosureFields: ['docModel', 'givenNames', 'surname', 'sex', 'nationality', 'dateOfBirth'],
+      defaultSelectiveDisclosureFields: ['givenNames', 'surname'],
       selectiveDisclosureFieldOptions: [
         { value: 'docModel', text: 'Document Type' },
         { value: 'givenNames', text: 'Given Name(s)' },
