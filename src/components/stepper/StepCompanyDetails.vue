@@ -336,14 +336,14 @@ export default {
         COMMUNITY: "Community",
       },
       BUSINESS_INTERESTED_IN: {
+        KYC: "Know Your Customer (KYC)",
+        KYB: "Know Your Business (KYB)",
+        AGE_VERIFICATION: "Age Verification",
+        PROOF_OF_PERSONHOOD: "Proof of Personhood",
         AML_SCREEN: "AML Screening",
         PROOF_OF_ADDRESS: "Proof Of Address",
-        KYB: "Know Your Business (KYB)",
-        KYC: "Know Your Customer (KYC)",
         COLLECT_WALLET: "Collect Wallet Address",
-        AGE_VERIFICATION: "Age Verification",
         FRAUD_PREVENTION: "Fraud Prevention",
-        PROOF_OF_PERSONHOOD: "Proof of Personhood",
       },
       BUSINESS_EST_YEARLY_VOLUME: {
         ZERO_ONEK: "0 - 1,000",

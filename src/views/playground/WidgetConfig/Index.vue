@@ -784,7 +784,7 @@ export default {
       }
 
       const selectedFields = this.widgetConfigTemp.selectiveDisclosure.fields
-        .filter(field => this.defaultSelectiveDisclosureFields.includes(field))
+        .filter(field => this.selectiveDisclosureFieldOptions.some(option => option.value === field))
 
       this.widgetConfigTemp.selectiveDisclosure.fields = selectedFields
       this.widgetConfigTemp.selectiveDisclosure.frame = this.generateSelectiveDisclosureFrame(selectedFields)

@@ -1,6 +1,15 @@
 # Changelog
 
 ## [Unreleased]
+### [3.12.1] - 2026-07-06
+
+### Changed
+- Rearranged the order of the service list.
+### [3.12.0]- 2026-07-03
+### Added
+- Added toggle for requesting fields for selective disclosure
+### Fixed
+- Fixed a bug where a section was removed from the consent screen.
 
 ### [3.12.0]- 2026-07-03
 ### Added
