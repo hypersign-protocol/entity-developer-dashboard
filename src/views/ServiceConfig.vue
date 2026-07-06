@@ -633,10 +633,11 @@ export default {
                 const isEditing = this.isEditing;
                 const isLogoChanged = isEditing && this.formData.logoUrl !== this.backupData?.logoUrl;
                 const isIssuerChanged = isEditing && this.formData.issuerDid !== this.backupData?.issuerDid;
+                const isVerificationMethodChanged = isEditing && this.formData.issuerVerificationMethodId !== this.backupData?.issuerVerificationMethodId;
                 const isAppNameChanged = isEditing && this.formData.appName !== this.backupData?.appName;
                 const isDomainChanged = isEditing && this.formData.domain !== this.backupData?.domain;
                 await this.updateAnAppOnServer({ ...this.formData })
-                 if (!isLogoChanged && !isIssuerChanged && !isAppNameChanged && !isDomainChanged) {
+                 if (!isLogoChanged && !isIssuerChanged && !isVerificationMethodChanged && !isAppNameChanged && !isDomainChanged) {
                     this.isEditing = false;
                     return this.notifySuccess("Service configuration updated successfully!");
                 }
@@ -644,7 +645,7 @@ export default {
                 if (Object.keys(this.widgetConfig).length > 0) {
                       let shouldUpdateWidgetConfig = false;
                       let updatedWidgetConfig = { ...this.widgetConfig };
-                      if (isIssuerChanged && this.formData.issuerDid) {
+                      if ((isIssuerChanged || isVerificationMethodChanged) && this.formData.issuerDid) {
                         updatedWidgetConfig.issuerDID = this.formData.issuerDid;
                         updatedWidgetConfig.issuerVerificationMethodId =
                         this.formData.issuerVerificationMethodId ||
@@ -675,7 +676,7 @@ export default {
                 if(Object.keys(this.kybWidgetConfig).length > 0 ){
                   let updatedKybWidgetConfig = { ...this.kybWidgetConfig };
                   let shouldUpdateKybWidgetConfig = false;
-                  if (isIssuerChanged && this.formData.issuerDid) {
+                  if ((isIssuerChanged || isVerificationMethodChanged) && this.formData.issuerDid) {
                         updatedKybWidgetConfig.issuerDID = this.formData.issuerDid;
                         updatedKybWidgetConfig.issuerVerificationMethodId =
                         this.formData.issuerVerificationMethodId ||
