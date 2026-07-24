@@ -201,7 +201,9 @@ ul {
             <b-form-checkbox
               switch
               size="lg"
-              v-model="widgetConfigTemp.enableDocumentUpload"
+              v-model="widgetConfigTemp.idOcr.documentUploadMode"
+              :value="DocumentUploadMode.MANUAL"
+              :unchecked-value="DocumentUploadMode.SCAN"
               :disabled="!widgetConfigTemp.idOcr.enabled"
             >
               Enable Manual Document Upload
@@ -413,6 +415,7 @@ import { isAccessDeniedError } from '../../../utils/accessDenied';
 // import TrustedIssuer from './components/TrustedIssuer.vue';
 import MarketplaceList from '../../../components/MarketplaceList.vue';
 import HFBeta from '../../../components/element/HFBeta.vue';
+import config from '../../../config';
 
 export default {
   name: "WidgetConfig",
@@ -460,7 +463,6 @@ export default {
         this.widgetConfigTemp.selectiveDisclosure.enabled = false;
         this.widgetConfigTemp.selectiveDisclosure.fields = [];
         this.widgetConfigTemp.selectiveDisclosure.frame = null;
-        this.widgetConfigTemp.enableDocumentUpload = false;
     }
     }
   },
@@ -536,9 +538,7 @@ export default {
     if (Object.keys(this.widgetConfig).length > 0) {
       this.widgetConfigTemp = JSON.parse(JSON.stringify(this.widgetConfig))
     }
-    if (typeof this.widgetConfigTemp.enableDocumentUpload !== 'boolean') {
-      this.$set(this.widgetConfigTemp, 'enableDocumentUpload', false)
-    }
+    this.migratedocumentUploadMode()
     if (typeof this.widgetConfigTemp.isWidgetLogin !== 'boolean') {
       this.$set(this.widgetConfigTemp, 'isWidgetLogin', true)
     }
@@ -606,6 +606,7 @@ export default {
       SupportedZkProofTypes: Object.freeze({
         PROOF_OF_AGE: 'zkProofOfAge',
       }),
+      DocumentUploadMode: config.DocumentUploadMode,
       widgetConfigUI: {
         faceRecog: {
           label: "Enable Facial Recoginition",
@@ -658,9 +659,9 @@ export default {
         faceRecog: true,
         idOcr: {
           enabled: false,
-          documentType: 'passport'
+          documentType: 'passport',
+          documentUploadMode: config.DocumentUploadMode.SCAN,
         },
-        enableDocumentUpload: false,
         userConsent: {
           enabled: true,
           reason: "The app is requesting your KYC data to provide you service",
@@ -826,15 +827,36 @@ export default {
         criteria: this.ageProofCriteria,
       }]
     },
+    migratedocumentUploadMode() {
+      const legacyEnableDocumentUpload = this.widgetConfigTemp.enableDocumentUpload
+
+      if (!this.widgetConfigTemp.idOcr) {
+        this.$set(this.widgetConfigTemp, 'idOcr', {})
+      }
+
+      if (!Object.values(config.DocumentUploadMode).includes(this.widgetConfigTemp.idOcr.documentUploadMode)) {
+        this.$set(
+          this.widgetConfigTemp.idOcr,
+          'documentUploadMode',
+          legacyEnableDocumentUpload === true
+            ? config.DocumentUploadMode.MANUAL
+            : config.DocumentUploadMode.SCAN,
+        )
+      }
+
+      if (Object.prototype.hasOwnProperty.call(this.widgetConfigTemp, 'enableDocumentUpload')) {
+        this.$delete(this.widgetConfigTemp, 'enableDocumentUpload')
+      }
+    },
     validateField() {
       this.widgetConfigTemp.isWidgetLogin = this.widgetConfigTemp.isWidgetLogin !== false
+      this.migratedocumentUploadMode()
       if (!this.widgetConfigTemp.issuerDID) {
         throw new Error('Issuer DID is required')
       }
 
       if (!this.widgetConfigTemp.idOcr?.enabled) {
         this.widgetConfigTemp.idOcr.documentType = null
-        this.widgetConfigTemp.enableDocumentUpload = false
       } else {
         if (!this.widgetConfigTemp.idOcr.documentType) {
           this.widgetConfigTemp.idOcr.documentType = 'passport'

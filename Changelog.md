@@ -3,7 +3,7 @@
 ## [Unreleased]
 ### [3.13.0] - 2026-07-24
 ### Added
-- Added support for configuring the ID document capture mode through widget configuration. When `enableDocumentUpload` is enabled, users can manually upload their ID document; otherwise, they will use the document scanning flow.
+- Added support for configuring the ID document capture mode through widget configuration.
 
 ### [3.12.2] - 2026-07-06
 ### Fixed
