@@ -195,7 +195,24 @@ ul {
                 </div> -->
           </div>
         </li> 
-       
+       <li class="list-group-item">
+        <div class="row">
+          <div class="col-md-6">
+            <b-form-checkbox
+              switch
+              size="lg"
+              v-model="widgetConfigTemp.enableDocumentUpload"
+              :disabled="!widgetConfigTemp.idOcr.enabled"
+            >
+              Enable Manual Document Upload
+            </b-form-checkbox>
+
+            <small>
+              Allow users to manually upload their ID document instead of scanning it.
+            </small>
+          </div>
+        </div>
+      </li>
         <li class="list-group-item">
           <div class="row">
             <div class="col">
@@ -443,6 +460,7 @@ export default {
         this.widgetConfigTemp.selectiveDisclosure.enabled = false;
         this.widgetConfigTemp.selectiveDisclosure.fields = [];
         this.widgetConfigTemp.selectiveDisclosure.frame = null;
+        this.widgetConfigTemp.enableDocumentUpload = false;
     }
     }
   },
@@ -517,6 +535,9 @@ export default {
 
     if (Object.keys(this.widgetConfig).length > 0) {
       this.widgetConfigTemp = JSON.parse(JSON.stringify(this.widgetConfig))
+    }
+    if (typeof this.widgetConfigTemp.enableDocumentUpload !== 'boolean') {
+      this.$set(this.widgetConfigTemp, 'enableDocumentUpload', false)
     }
     if (typeof this.widgetConfigTemp.isWidgetLogin !== 'boolean') {
       this.$set(this.widgetConfigTemp, 'isWidgetLogin', true)
@@ -639,6 +660,7 @@ export default {
           enabled: false,
           documentType: 'passport'
         },
+        enableDocumentUpload: false,
         userConsent: {
           enabled: true,
           reason: "The app is requesting your KYC data to provide you service",
@@ -812,6 +834,7 @@ export default {
 
       if (!this.widgetConfigTemp.idOcr?.enabled) {
         this.widgetConfigTemp.idOcr.documentType = null
+        this.widgetConfigTemp.enableDocumentUpload = false
       } else {
         if (!this.widgetConfigTemp.idOcr.documentType) {
           this.widgetConfigTemp.idOcr.documentType = 'passport'
