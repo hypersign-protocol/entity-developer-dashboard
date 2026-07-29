@@ -181,10 +181,21 @@ ul {
         </li>
         <li class="list-group-item">
           <div class="row">
-            <div class="col">
+            <div class="col-md-6">
               <b-form-checkbox switch size="lg" v-model="widgetConfigTemp.idOcr.enabled">
                 {{ this.widgetConfigUI.idOcr.label }}</b-form-checkbox>
               <small v-html="this.widgetConfigUI.idOcr.description"></small>
+            </div>
+            <div v-if="widgetConfigTemp.idOcr.enabled" class="col-md-6">
+              <label class="d-block mb-1"><strong>Capture Method</strong></label>
+              <b-form-radio-group
+                v-model="widgetConfigTemp.idOcr.documentUploadMode"
+                :options="[
+                  { text: 'File Upload', value: DocumentUploadMode.MANUAL },
+                  { text: 'Live Capture', value: DocumentUploadMode.SCAN }
+                ]"
+                name="document-upload-mode"
+              ></b-form-radio-group>
             </div>
             <!-- <div class="col" v-if="widgetConfigTemp.idOcr.enabled && documentTypeOptions.length > 0">
                   <div class="">
@@ -195,7 +206,6 @@ ul {
                 </div> -->
           </div>
         </li> 
-       
         <li class="list-group-item">
           <div class="row">
             <div class="col">
@@ -396,6 +406,7 @@ import { isAccessDeniedError } from '../../../utils/accessDenied';
 // import TrustedIssuer from './components/TrustedIssuer.vue';
 import MarketplaceList from '../../../components/MarketplaceList.vue';
 import HFBeta from '../../../components/element/HFBeta.vue';
+import config from '../../../config';
 
 export default {
   name: "WidgetConfig",
@@ -518,6 +529,7 @@ export default {
     if (Object.keys(this.widgetConfig).length > 0) {
       this.widgetConfigTemp = JSON.parse(JSON.stringify(this.widgetConfig))
     }
+    this.migratedocumentUploadMode()
     if (typeof this.widgetConfigTemp.isWidgetLogin !== 'boolean') {
       this.$set(this.widgetConfigTemp, 'isWidgetLogin', true)
     }
@@ -585,6 +597,7 @@ export default {
       SupportedZkProofTypes: Object.freeze({
         PROOF_OF_AGE: 'zkProofOfAge',
       }),
+      DocumentUploadMode: config.DocumentUploadMode,
       widgetConfigUI: {
         faceRecog: {
           label: "Enable Facial Recoginition",
@@ -637,7 +650,8 @@ export default {
         faceRecog: true,
         idOcr: {
           enabled: false,
-          documentType: 'passport'
+          documentType: 'passport',
+          documentUploadMode: config.DocumentUploadMode.SCAN,
         },
         userConsent: {
           enabled: true,
@@ -804,8 +818,30 @@ export default {
         criteria: this.ageProofCriteria,
       }]
     },
+    migratedocumentUploadMode() {
+      const legacyEnableDocumentUpload = this.widgetConfigTemp.enableDocumentUpload
+
+      if (!this.widgetConfigTemp.idOcr) {
+        this.$set(this.widgetConfigTemp, 'idOcr', {})
+      }
+
+      if (!Object.values(config.DocumentUploadMode).includes(this.widgetConfigTemp.idOcr.documentUploadMode)) {
+        this.$set(
+          this.widgetConfigTemp.idOcr,
+          'documentUploadMode',
+          legacyEnableDocumentUpload === true
+            ? config.DocumentUploadMode.MANUAL
+            : config.DocumentUploadMode.SCAN,
+        )
+      }
+
+      if (Object.prototype.hasOwnProperty.call(this.widgetConfigTemp, 'enableDocumentUpload')) {
+        this.$delete(this.widgetConfigTemp, 'enableDocumentUpload')
+      }
+    },
     validateField() {
       this.widgetConfigTemp.isWidgetLogin = this.widgetConfigTemp.isWidgetLogin !== false
+      this.migratedocumentUploadMode()
       if (!this.widgetConfigTemp.issuerDID) {
         throw new Error('Issuer DID is required')
       }
