@@ -1324,7 +1324,7 @@ const mainStore = {
                     return reject(new Error('Tenant url is null or empty, service is not selected'))
                 }
                 const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/onchainkyc-config`;
-                //const url = `http://localhost:3001/api/v1/e-kyc/verification/onchainkyc-config`
+                // const url = `http://localhost:3001/api/v1/e-kyc/verification/onchainkyc-config`
                 const authToken = getters.getSelectedService.access_token
                 if (!authToken) {
                     return reject(new Error('authToken is invalid, service is not selected'))
@@ -1358,7 +1358,7 @@ const mainStore = {
                     return reject(new Error('Tenant url is null or empty, service is not selected'))
                 }
                 const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/onchainkyc-config`;
-                // const url = `http://localhost:3001/api/v1/e-kyc/verification/onchainkyc-config`
+                //const url = `http://localhost:3001/api/v1/e-kyc/verification/onchainkyc-config`
                 const authToken = getters.getSelectedService.access_token
                 if (!authToken) {
                     return reject(new Error('authToken is invalid, service is not selected'))
@@ -1456,7 +1456,7 @@ const mainStore = {
                     return reject(new Error('Tenant url is null or empty, service is not selected'))
                 }
                 const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/onchainkyc-config`;
-                //const url = `http://localhost:3001/api/v1/e-kyc/verification/onchainkyc-config`
+                // const url = `http://localhost:3001/api/v1/e-kyc/verification/onchainkyc-config`
                 const authToken = getters.getSelectedService.access_token
                 if (!authToken) {
                     return reject(new Error('authToken is invalid, service is not selected'))
