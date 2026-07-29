@@ -181,10 +181,21 @@ ul {
         </li>
         <li class="list-group-item">
           <div class="row">
-            <div class="col">
+            <div class="col-md-6">
               <b-form-checkbox switch size="lg" v-model="widgetConfigTemp.idOcr.enabled">
                 {{ this.widgetConfigUI.idOcr.label }}</b-form-checkbox>
               <small v-html="this.widgetConfigUI.idOcr.description"></small>
+            </div>
+            <div v-if="widgetConfigTemp.idOcr.enabled" class="col-md-6">
+              <label class="d-block mb-1"><strong>Capture Method</strong></label>
+              <b-form-radio-group
+                v-model="widgetConfigTemp.idOcr.documentUploadMode"
+                :options="[
+                  { text: 'File Upload', value: DocumentUploadMode.MANUAL },
+                  { text: 'Live Capture', value: DocumentUploadMode.SCAN }
+                ]"
+                name="document-upload-mode"
+              ></b-form-radio-group>
             </div>
             <!-- <div class="col" v-if="widgetConfigTemp.idOcr.enabled && documentTypeOptions.length > 0">
                   <div class="">
@@ -195,26 +206,6 @@ ul {
                 </div> -->
           </div>
         </li> 
-       <li class="list-group-item">
-        <div class="row">
-          <div class="col-md-6">
-            <b-form-checkbox
-              switch
-              size="lg"
-              v-model="widgetConfigTemp.idOcr.documentUploadMode"
-              :value="DocumentUploadMode.MANUAL"
-              :unchecked-value="DocumentUploadMode.SCAN"
-              :disabled="!widgetConfigTemp.idOcr.enabled"
-            >
-              Enable Manual Document Upload
-            </b-form-checkbox>
-
-            <small>
-              Allow users to manually upload their ID document instead of scanning it.
-            </small>
-          </div>
-        </div>
-      </li>
         <li class="list-group-item">
           <div class="row">
             <div class="col">
