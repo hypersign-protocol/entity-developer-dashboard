@@ -106,6 +106,11 @@ config['SERVICE_TYPES'] = Object.freeze({
     QUEST: 'QUEST',
 })
 
+config['DocumentUploadMode'] = Object.freeze({
+    MANUAL: 'MANUAL',
+    SCAN: 'SCAN',
+})
+
 
 config['GRANT_TYPES_ENUM'] = Object.freeze({
     'SSI_API': 'access_service_ssi',

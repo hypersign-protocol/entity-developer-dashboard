@@ -1,6 +1,10 @@
 # Changelog
 
 ## [Unreleased]
+### [3.13.0] - 2026-07-24
+### Added
+- Added support for configuring the ID document capture mode through widget configuration.
+
 ### [3.12.2] - 2026-07-06
 ### Fixed
 - Fixed a bug where a section was removed from the consent screen.
