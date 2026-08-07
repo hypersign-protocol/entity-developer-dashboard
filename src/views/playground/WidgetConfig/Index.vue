@@ -387,6 +387,20 @@ ul {
             </div>
           </div>
         </li>
+        <li class="list-group-item">
+          <div class="row">
+            <div class="col-md-6">
+              <b-form-checkbox
+                switch
+                size="lg"
+                v-model="widgetConfigTemp.isMobileAssistedVerification"
+              >
+                {{ widgetConfigUI.mobileAssistedVerification.label }}
+              </b-form-checkbox>
+              <small v-html="widgetConfigUI.mobileAssistedVerification.description"></small>
+            </div>
+          </div>
+        </li>
       </ul>
     </div>
 
@@ -533,6 +547,9 @@ export default {
     if (typeof this.widgetConfigTemp.isWidgetLogin !== 'boolean') {
       this.$set(this.widgetConfigTemp, 'isWidgetLogin', true)
     }
+    if (typeof this.widgetConfigTemp.isMobileAssistedVerification !== 'boolean') {
+      this.$set(this.widgetConfigTemp, 'isMobileAssistedVerification', true)
+    }
 
     this.trustedIssuersList = [...this.getMarketPlaceApps];
     this.appId = this.$route.params.appId;
@@ -638,6 +655,10 @@ export default {
           label: "Enable Built-in Login & Identity Vault",
           description: "Users sign in through the ID Widget and receive a personal identity vault for storing reusable credentials. Disable this if your application handles authentication."
         },
+        mobileAssistedVerification: {
+          label: "Mobile-Assisted Verification",
+          description: "When enabled, users who start verification on a desktop will continue ID verification on their mobile device by scanning a QR code. This improves verification success rates, provides a better user experience, and strengthens proof of possession. Disable to allow the entire verification process to be completed on the desktop."
+        },
       },
       fullPage: true,
       isLoading: false,
@@ -676,6 +697,7 @@ export default {
         isWidgetLogin: true,
         isVaultEnabled: true,
         isEmailNotificationEnabled: true,
+        isMobileAssistedVerification: true,
         issuerDID: "",
         issuerVerificationMethodId: "",
       },
@@ -841,6 +863,7 @@ export default {
     },
     validateField() {
       this.widgetConfigTemp.isWidgetLogin = this.widgetConfigTemp.isWidgetLogin !== false
+      this.widgetConfigTemp.isMobileAssistedVerification = this.widgetConfigTemp.isMobileAssistedVerification !== false
       this.migratedocumentUploadMode()
       if (!this.widgetConfigTemp.issuerDID) {
         throw new Error('Issuer DID is required')
