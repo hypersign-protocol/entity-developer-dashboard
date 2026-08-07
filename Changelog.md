@@ -1,6 +1,10 @@
 # Changelog
 
 ## [Unreleased]
+### [3.14.0] - 2026-08-07
+### Added
+- Added a toggle for mobile-assisted verification.
+
 ### [3.13.0] - 2026-07-24
 ### Added
 - Added support for configuring the ID document capture mode through widget configuration.
