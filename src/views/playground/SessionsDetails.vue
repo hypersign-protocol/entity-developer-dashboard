@@ -885,6 +885,7 @@ const FaicalAuthenticationError = {
   4: "Failed to perform face check due to the pose of the face",
   5: "Failed due to problems in the extraction of the facial pattern",
   6: "Duplicate document was used",
+  7: 'Failed, because the date of birth could not be read correctly from the document'
 };
 
 const ZkpVerificationResultEnum = {
