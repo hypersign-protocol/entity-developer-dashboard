@@ -853,7 +853,7 @@ const fonts = {
   },
 };
 pdfMake.addFonts(fonts);
-import logoSrc from "../../assets/hypersign_white_rect.png";
+import logoSrc from "../../assets/Entity_full.png";
 
 const ServiceLivenessResultEnum = {
   0: "None",
@@ -1476,7 +1476,7 @@ export default {
             img.onerror = () => resolve(null);
             img.src = url;
           });
-        const toBase64Png = (url) =>
+        const toBase64Png = (url, invertColors = false) =>
           new Promise((resolve) => {
             const img = new Image();
             img.crossOrigin = "anonymous";
@@ -1484,7 +1484,23 @@ export default {
               const c = document.createElement("canvas");
               c.width = img.naturalWidth;
               c.height = img.naturalHeight;
-              c.getContext("2d").drawImage(img, 0, 0);
+              const ctx = c.getContext("2d");
+
+              ctx.drawImage(img, 0, 0);
+
+              if (invertColors) {
+                const imageData = ctx.getImageData(0, 0, c.width, c.height);
+                const data = imageData.data;
+
+                for (let i = 0; i < data.length; i += 4) {
+                  data[i] = 255 - data[i];
+                  data[i + 1] = 255 - data[i + 1];
+                  data[i + 2] = 255 - data[i + 2];
+                }
+
+                ctx.putImageData(imageData, 0, 0);
+              }
+
               resolve(c.toDataURL("image/png"));
             };
             img.onerror = () => resolve(null);
@@ -1811,7 +1827,7 @@ export default {
         ]);
 
         // embed project logo in PDF header
-        const logoPng = await toBase64Png(logoSrc);
+        const logoPng = await toBase64Png(logoSrc, true);
 
         // ── data extraction ───────────────────────────────────────────
         const personalData =
