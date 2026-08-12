@@ -169,18 +169,22 @@ export default {
       loading: false,
       isLoading: false,
       recordId: '', // This should be captured from the UI or route params
-      units: ['DAYS', 'MONTH', 'YEAR'],
+      units: [
+        { text: 'DAYS', value: 'Days' },
+        { text: 'MONTH', value: 'Month' },
+        { text: 'YEAR', value: 'Year' }
+      ],
       form: {
         ssiCreditDetail: {
           amount: 500,
           validityPeriod: 60,
-          validityPeriodUnit: 'DAYS',
+          validityPeriodUnit: 'Days',
           amountDenom: 'uHID'
         },
         kycCreditDetail: {
           amount: 500,
           validityPeriod: 60,
-          validityPeriodUnit: 'DAYS',
+          validityPeriodUnit: 'Days',
           amountDenom: 'uHID'
         }
       }
