@@ -852,13 +852,16 @@ export default {
             this.startTimer();
             const creditsArr = Array.isArray(credits) ? credits : [];
             this.ssiCredits = creditsArr;
-            const credit = creditsArr.filter(each => {
-                if (each.status == 'Active') {
-                    return each
-                }
-            })
-            if (credit[0]?.credit) {
-                this.allowance.scope=credit[0].creditScope
+            const activeCredit = creditsArr.find(each => each.status === 'Active');
+            if (activeCredit?.onChainAllowance) {
+                const { amount = 0, denom = 'uhid', usedAmount = 0 } = activeCredit.onChainAllowance;
+                this.allowance.spend_limit = [{ denom, amount: String(Math.max(amount - usedAmount, 0)) }];
+                this.allowance.scope = activeCredit.onChainAllowanceScopes || [];
+                this.allowance.expiration = activeCredit.expiresAt || null;
+            } else {
+                this.allowance.spend_limit = [{ denom: 'uhid', amount: '0' }];
+                this.allowance.scope = [];
+                this.allowance.expiration = null;
             }
             this.isLoading = false
         } catch (e) {

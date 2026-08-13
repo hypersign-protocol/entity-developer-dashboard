@@ -1,6 +1,10 @@
 # Changelog
 
 ## [Unreleased]
+### [3.14.2] - 2026-08-13
+### Modified
+- Updated the credit API to fetch and activate credits from the dashboard instead of for a specific tenant.
+
 ### [3.14.0] - 2026-08-07
 ### Added
 - Added a toggle for mobile-assisted verification.

@@ -8,6 +8,12 @@ import { RequestHandler, JWTExpiredErrorMessageHandling } from '../utils/utils.j
 
 const { apiServer, studioServer } = config;
 const apiServerBaseUrl = sanitizeUrl(apiServer.host) + apiServer.basePath;
+const normalizeCredit = (credit) => ({
+    ...credit,
+    totalCredits: credit?.apiCredit?.total ?? credit?.totalCredits ?? 0,
+    used: credit?.apiCredit?.used ?? credit?.used ?? 0,
+    creditScope: credit?.onChainAllowanceScopes ?? credit?.creditScope ?? []
+});
 Vue.use(Vuex)
 
 
@@ -377,10 +383,10 @@ const mainStore = {
         },
 
         setKYCCredits: (state, payload) => {
-            state.kycCredits = payload
+            state.kycCredits = Array.isArray(payload) ? payload.map(normalizeCredit) : []
         },
         setSSICredits: (state, payload) => {
-            state.ssiCredits = payload
+            state.ssiCredits = Array.isArray(payload) ? payload.map(normalizeCredit) : []
         },
         setCompanies: (state, payload) => {
             state.companies = payload
@@ -579,7 +585,7 @@ const mainStore = {
             return resp;
         },
         creditRecharge: async ({ getters }, payload) => {
-            const url = `${apiServerBaseUrl}/credits/${payload.serviceId}`;
+            const url = `${apiServerBaseUrl}/app/${payload.serviceId}/credits;
             const resp = await RequestHandler(url, 'POST', payload,
                 UtilsMixin.methods.getHeader(getters.getAuthToken),
             )
@@ -2699,36 +2705,23 @@ const mainStore = {
 
         },
         // - KYC Credit
-        async fetchKYCCredits({ getters, commit, dispatch }) {
-
-            if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
-                throw new Error('Tenant url is null or empty, service is not selected')
-            }
-            const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/credit`;
-            // const url = `http://localhost:3001/api/v1/credit`;
-
-            const authToken = getters.getSelectedService.access_token
-
-            const token = await dispatch('getValidToken', {
-                serviceId: getters.getSelectedService.appId,
-                grant_type: config.GRANT_TYPES_ENUM.CAVACH_API,
-                tokenStorageKey: "access_token"
-            });
-            const headers = UtilsMixin.methods.getKycServiceHeader(token);
-            const resp = await fetch(url, {
-                method: 'GET',
-                headers
-            })
-            const json = await resp.json()
-            if (!resp.ok || json.error) {
-                throw new Error(JWTExpiredErrorMessageHandling(json))
+        async fetchKYCCredits({ getters, commit }) {
+            const appId = getters.getSelectedService?.appId;
+            if (!appId) {
+                throw new Error('App Id is null or empty, service is not selected');
             }
 
-            if (json.data) {
-                commit('setKYCCredits', json.data)
-                return json.data
-            }
-            return []
+            const url = `${apiServerBaseUrl}/app/${appId}/credits`;
+            const resp = await RequestHandler(
+                url,
+                'GET',
+                {},
+                UtilsMixin.methods.getHeader(getters.getAuthToken)
+            );
+            const credits = Array.isArray(resp) ? resp : (Array.isArray(resp?.data) ? resp.data : []);
+
+            commit('setKYCCredits', credits);
+            return credits;
         },
         async submitComplianceDetail({ getters, dispatch }, payload) {
             const { companyId, type, status, reasonDetail, reason, accessToken, serviceId } = payload;
@@ -2797,43 +2790,25 @@ const mainStore = {
         },
         // - KYC Credit
 
-        activateCredit({ getters, dispatch }, payload) {
-            return new Promise(function (resolve, reject) {
-                const { creditId } = payload
-                {
-                    if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
-                        return reject(new Error('Tenant url is null or empty, service is not selected'))
-                    }
+        async activateCredit({ getters, dispatch }, payload) {
+            const appId = getters.getSelectedService?.appId;
+            const { creditId } = payload;
+            if (!appId) {
+                throw new Error('App Id is null or empty, service is not selected');
+            }
+            if (!creditId) {
+                throw new Error('Credit Id is null or empty');
+            }
 
-                    if (!creditId) {
-                        return reject(new Error('Credit Id is null or empty'))
-                    }
-                    const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/credit/${creditId}/activate`;
-                    const options = {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                            "x-kyc-access-token": `${getters.getSelectedService.access_token}`,
-                            "Origin": '*'
-                        }
-                    }
-                    fetch(url, {
-                        ...options
-                    })
-                        .then(response => response.json())
-                        .then(json => {
-                            if (json) {
-                                dispatch('fetchKYCCredits')
-                                resolve()
-                            } else {
-                                reject(new Error('Could not register DID for this service'))
-                            }
-                        }).catch(e => {
-                            reject(e)
-                        })
-                }
-            })
-
+            const url = `${apiServerBaseUrl}/app/${appId}/credits/${creditId}/activate`;
+            const resp = await RequestHandler(
+                url,
+                'POST',
+                {},
+                UtilsMixin.methods.getHeader(getters.getAuthToken)
+            );
+            await dispatch('fetchKYCCredits');
+            return resp;
         },
 
 
@@ -3407,85 +3382,44 @@ const mainStore = {
         },
 
         // eslint-disable-next-line 
-        async fetchSSICredits({ getters, commit, dispatch }) {
-            if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
-                throw new Error('Tenant url is null or empty, service is not selected')
-            }
-            const token = await dispatch('getValidToken', {
-                serviceId: getters.getSelectedService.appId,
-                grant_type: config.GRANT_TYPES_ENUM.SSI_API,
-                tokenStorageKey: "access_token"
-            })
-            const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/credit`;
-            const options = {
-                method: "GET",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${token}`,
-                    "Origin": '*'
-
-                }
+        async fetchSSICredits({ getters, commit }) {
+            const appId = getters.getSelectedService?.appId;
+            if (!appId) {
+                throw new Error('App Id is null or empty, service is not selected');
             }
 
-            const resp = await fetch(url, {
-                ...options
-            })
-            const json = await resp.json()
-            if (!resp.ok || json.error) {
-                const msg = Array.isArray(json.message) ? json.message.join(', ') : (json.message || json.error || 'Failed to fetch SSI credits');
-                throw new Error(msg);
-            }
-            if (json) {
-                commit('setSSICredits', json)
-                return json
-            }
-            return []
+            const url = `${apiServerBaseUrl}/app/${appId}/credits`;
+            const resp = await RequestHandler(
+                url,
+                'GET',
+                {},
+                UtilsMixin.methods.getHeader(getters.getAuthToken)
+            );
+            const credits = Array.isArray(resp) ? resp : (Array.isArray(resp?.data) ? resp.data : []);
+
+            commit('setSSICredits', credits);
+            return credits;
         },
 
-        activateSSICredit({ getters, dispatch }, payload) {
-            return new Promise(function (resolve, reject) {
-                const { creditId } = payload
-                {
-                    if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
-                        return reject(new Error('Tenant url is null or empty, service is not selected'))
-                    }
+        async activateSSICredit({ getters, dispatch }, payload) {
+            const appId = getters.getSelectedService?.appId;
+            const { creditId } = payload;
+            if (!appId) {
+                throw new Error('App Id is null or empty, service is not selected');
+            }
+            if (!creditId) {
+                throw new Error('Credit Id is null or empty');
+            }
 
-                    if (!creditId) {
-                        return reject(new Error('Credit Id is null or empty'))
-                    }
-                    dispatch('getValidToken', {
-                        serviceId: getters.getSelectedService.appId,
-                        grant_type: config.GRANT_TYPES_ENUM.SSI_API,
-                        tokenStorageKey: "access_token"
-                    }).then((token) => {
-                        const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/credit/${creditId}/activate`;
-                        const options = {
-                            method: "POST",
-                            headers: {
-                                "Content-Type": "application/json",
-                                "Authorization": `Bearer ${token}`,
-                                "Origin": '*'
-                            }
-                        }
-
-                        return fetch(url, {
-                            ...options
-                        })
-                    })
-                        .then(response => response.json())
-                        .then(json => {
-                            if (json) {
-                                dispatch('fetchSSICredits')
-                                resolve()
-                            } else {
-                                reject(new Error('Could not Activate credit for this service'))
-                            }
-                        }).catch(e => {
-                            reject(e)
-                        })
-                }
-            })
-
+            const url = `${apiServerBaseUrl}/app/${appId}/credits/${creditId}/activate`;
+            const resp = await RequestHandler(
+                url,
+                'POST',
+                {},
+                UtilsMixin.methods.getHeader(getters.getAuthToken)
+            );
+            await dispatch('fetchSSICredits');
+            return resp;
         },
         // eslint-disable-next-line 
         async ssiDashboardAllowanceStats({ getters }, payload) {
