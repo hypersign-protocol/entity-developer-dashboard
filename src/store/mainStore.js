@@ -585,7 +585,7 @@ const mainStore = {
             return resp;
         },
         creditRecharge: async ({ getters }, payload) => {
-            const url = `${apiServerBaseUrl}/app/${payload.serviceId}/credits;
+            const url = `${apiServerBaseUrl}/app/${payload.serviceId}/credits`;
             const resp = await RequestHandler(url, 'POST', payload,
                 UtilsMixin.methods.getHeader(getters.getAuthToken),
             )
