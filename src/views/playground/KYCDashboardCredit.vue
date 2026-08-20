@@ -307,14 +307,16 @@ export default {
 
         renderChart() {
             if (!Array.isArray(this.getKYCCredits)) return;
-            const expired = this.getKYCCredits.every(el => Date.now() > new Date(el.expiresAt));
             const used = this.myKYCCredits.allUsedCredits || 0;
             const remaining = this.myKYCCredits.allRemainingCredits || 0;
+            const hasNoRemainingCredits = remaining <= 0;
 
             const dataToRender = (this.getKYCCredits.length === 0 || (used + remaining === 0))
                 ? [0, 1] : [used, remaining];
 
-            const colors = expired ? ['#cbd5e1', '#f1f5f9'] : ['#94a3b8', '#3b82f6'];
+            const colors = hasNoRemainingCredits
+                ? ['#cbd5e1', '#94a3b8']
+                : ['#94a3b8', '#3b82f6'];
 
             this.doughNutChart?.destroy();
             const ctx = document.getElementById('doughNutChat');
