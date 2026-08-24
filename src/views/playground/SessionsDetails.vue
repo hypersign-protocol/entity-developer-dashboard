@@ -30,16 +30,48 @@
   font-size: 13px;
 }
 
+.info-summary-row {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  width: 100%;
+  min-width: 0;
+}
+
+.info-summary-item {
+  min-width: 0;
+}
+
+.info-summary-date {
+  flex: 0 0 150px;
+}
+
+.info-summary-email {
+  flex: 1 1 220px;
+}
+
+.info-summary-attempts {
+  flex: 0 0 90px;
+}
+
+.info-summary-status {
+  flex: 0 0 150px;
+  display: flex;
+  align-items: center;
+}
+
 .info-actions-wrap {
   display: flex;
   justify-content: flex-end;
   align-items: center;
   gap: 12px;
-  flex-wrap: wrap;
+  flex: 0 0 auto;
+  margin-left: auto;
+  white-space: nowrap;
 }
 
 .manual-review-btn {
-  min-width: 230px;
+  min-width: 250px;
   border: 1px solid #f59e0b;
   background: #fffaf0;
   color: #b45309;
@@ -559,6 +591,19 @@
 }
 
 @media (max-width: 960px) {
+  .info-summary-row {
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  .info-summary-date,
+  .info-summary-email,
+  .info-summary-attempts,
+  .info-summary-status,
+  .info-actions-wrap {
+    flex: 1 1 100%;
+  }
+
   .manual-review-btn {
     width: 100%;
     min-width: 0;
@@ -813,12 +858,12 @@
     >
       <v-col cols="12">
         <div class="info-bar px-4 py-3">
-          <div class="row align-items-center">
-            <div class="col-12 col-md-2 mb-2 mb-md-0">
+          <div class="info-summary-row">
+            <div class="info-summary-item info-summary-date">
               <div class="info-label">Date</div>
               <div class="info-value">{{ formatDate(session.createdAt) }}</div>
             </div>
-            <div class="col-12 col-md-3 mb-2 mb-md-0">
+            <div class="info-summary-item info-summary-email">
               <div class="info-label">Email</div>
               <div
                 class="info-value"
@@ -829,19 +874,19 @@
                 {{ session ? stringShortner(session.email, 32) : "-" }}
               </div>
             </div>
-            <div class="col-12 col-md-2 mb-2 mb-md-0">
+            <div class="info-summary-item info-summary-attempts">
               <div class="info-label">Attempts</div>
               <div class="info-value">{{ session ? session.retryAttempts : "-" }}</div>
             </div>
             <div
               v-if="session && session.status"
-              class="col-12 col-md-2 mb-2 mb-md-0 d-flex align-items-center"
+              class="info-summary-item info-summary-status"
             >
-              <span v-html="getUserStatus(session.status)" class="ml-2"></span>
+              <span v-html="getUserStatus(session.status)"></span>
             </div>
             <div
               v-if="session && session.status"
-              class="col-12 col-md-4 mb-2 mb-md-0 info-actions-wrap"
+              class="info-summary-item info-actions-wrap"
             >
               <button
                 v-if="hasRiskFlags"
