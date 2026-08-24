@@ -755,20 +755,6 @@ export default {
     immediate: true
 
   },
-  'widgetConfigTemp.jurisdictionRules.enabled': {
-    handler(enabled) {
-      if (!enabled && this.widgetConfigTemp.jurisdictionRules) {
-        this.widgetConfigTemp.jurisdictionRules.countries = []
-      }
-    }
-  },
-  'widgetConfigTemp.jurisdictionRules.strategy': {
-    handler(newStrategy, oldStrategy) {
-      if (oldStrategy && newStrategy !== oldStrategy && this.widgetConfigTemp.jurisdictionRules) {
-        this.widgetConfigTemp.jurisdictionRules.countries = []
-      }
-    }
-  }
 },
   computed: {
     ...mapState({
