@@ -33,7 +33,7 @@
 .info-summary-row {
   display: flex;
   align-items: center;
-  gap: 28px;
+  gap: 24px;
   width: 100%;
   min-width: 0;
 }
@@ -43,19 +43,19 @@
 }
 
 .info-summary-date {
-  flex: 0 0 150px;
+  flex: 0 0 155px;
 }
 
 .info-summary-email {
-  flex: 1 1 220px;
+  flex: 0 1 280px;
 }
 
 .info-summary-attempts {
-  flex: 0 0 90px;
+  flex: 0 0 70px;
 }
 
 .info-summary-status {
-  flex: 0 0 150px;
+  flex: 0 0 130px;
   display: flex;
   align-items: center;
 }
@@ -64,19 +64,19 @@
   display: flex;
   justify-content: flex-end;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   flex: 0 0 auto;
   margin-left: auto;
   white-space: nowrap;
 }
 
 .manual-review-btn {
-  min-width: 250px;
+  min-width: 210px;
   border: 1px solid #f59e0b;
   background: #fffaf0;
   color: #b45309;
   border-radius: 10px;
-  padding: 8px 16px;
+  padding: 6px 12px;
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0;
@@ -93,21 +93,21 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 12px;
-  font-size: 13px;
+  gap: 8px;
+  font-size: 12px;
 }
 
 .manual-review-btn .review-subtitle {
   display: block;
-  margin-top: 5px;
+  margin-top: 3px;
   color: #374151;
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 600;
   text-transform: none;
 }
 
 .manual-review-btn i {
-  font-size: 14px;
+  font-size: 12px;
 }
 
 .card-section-title {
@@ -258,341 +258,77 @@
   background: #fff;
 }
 
-::v-deep(.manual-review-dialog) {
-  max-width: 1120px;
-}
-
-::v-deep(.manual-review-modal-body) {
-  padding: 0;
-  background: transparent;
-}
-
-.review-modal-shell {
-  position: relative;
-  background: #fff;
-  border: 1px solid #dbe1ea;
-  border-radius: 10px;
-  padding: 28px;
-  color: #1f2a44;
-}
-
-.review-modal-close {
-  position: absolute;
-  top: 28px;
-  right: 28px;
-  border: none;
-  background: transparent;
-  color: #64748b;
-  font-size: 18px;
-  line-height: 1;
-  padding: 4px;
-}
-
-.review-modal-close:hover {
-  color: #1f2937;
-}
-
-.review-modal-header h3 {
-  margin: 0;
-  color: #111827;
-  font-size: 22px;
-  font-weight: 800;
-  letter-spacing: 0;
-}
-
-.review-modal-header p {
-  margin: 8px 0 24px;
-  color: #64748b;
-  font-size: 15px;
-}
-
-.review-modal-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(360px, 1fr);
-  gap: 16px;
-}
-
-.review-flags-panel,
-.review-decision-panel {
-  border: 1px solid #e2e8f0;
-  border-radius: 6px;
-  padding: 18px;
-  background: #fff;
-}
-
-.review-panel-summary {
-  display: flex;
-  justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 18px;
-}
-
-.review-required-title {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  color: #dc2626;
+::v-deep(#manual-review-decision-modal .modal-content) {
+  border: 1px solid #e5e7eb;
+  border-radius: 0.75rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  overflow: hidden;
   font-size: 13px;
-  font-weight: 800;
-  text-transform: uppercase;
 }
 
-.review-panel-summary p {
-  margin: 12px 0 0;
-  color: #475569;
+::v-deep(#manual-review-decision-modal .modal-header) {
+  padding: 16px 20px;
+}
+
+::v-deep(#manual-review-decision-modal .modal-title) {
   font-size: 14px;
-  line-height: 1.55;
+  font-weight: 600;
 }
 
-.review-flags-count {
-  white-space: nowrap;
-  color: #334155;
+::v-deep(#manual-review-decision-modal .custom-control-label),
+::v-deep(#manual-review-decision-modal .alert),
+::v-deep(#manual-review-decision-modal .form-control),
+::v-deep(#manual-review-decision-modal .btn) {
   font-size: 13px;
-  font-weight: 700;
+}
+
+::v-deep(#manual-review-decision-modal .modal-body) {
+  background: #f9fafb;
+  padding: 24px;
+}
+
+::v-deep(#manual-review-decision-modal .modal-footer) {
+  background: #fff;
+  border-top: 1px solid #e5e7eb;
+  padding: 12px 20px;
+}
+
+.manual-review-cancel-btn {
+  background: #fff !important;
+  border-color: #6c757d !important;
+  color: #6c757d !important;
+}
+
+.manual-review-cancel-btn:hover,
+.manual-review-cancel-btn:focus {
+  background: #6c757d !important;
+  color: #fff !important;
+}
+
+.manual-review-submit-btn {
+  background: #3b82f6 !important;
+  border-color: #3b82f6 !important;
+  color: #fff !important;
+}
+
+.manual-review-submit-btn:hover,
+.manual-review-submit-btn:focus {
+  background: #2563eb !important;
+  border-color: #2563eb !important;
+  color: #fff !important;
+}
+
+.manual-review-submit-btn:disabled {
+  background: #3b82f6 !important;
+  border-color: #3b82f6 !important;
+  color: #fff !important;
+  opacity: 0.65;
 }
 
 .risk-flag-list {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
   max-height: 460px;
   overflow-y: auto;
-  padding-right: 6px;
-}
-
-.risk-flag-card {
-  border: 1px solid #f1e2bf;
-  border-radius: 6px;
-  padding: 20px;
-  background: #fffdfa;
-}
-
-.risk-card-high {
-  border-color: #f3d0d0;
-}
-
-.risk-card-medium {
-  border-color: #f1e2bf;
-}
-
-.risk-card-low {
-  border-color: #dbeafe;
-}
-
-.risk-flag-row,
-.risk-flag-heading {
-  display: flex;
-  align-items: center;
-}
-
-.risk-flag-row {
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.risk-flag-heading {
-  gap: 12px;
-  color: #1e293b;
-  font-size: 14px;
-}
-
-.risk-flag-heading i {
-  color: #f59e0b;
-  font-size: 21px;
-}
-
-.risk-card-high .risk-flag-heading i {
-  color: #ef4444;
-}
-
-.risk-flag-card p {
-  margin: 18px 0 0;
-  color: #475569;
-  font-size: 14px;
-  line-height: 1.55;
-}
-
-.risk-meta-line {
-  margin-top: 8px;
-  color: #1e293b;
-  font-size: 13px;
-  font-weight: 800;
-}
-
-.risk-severity-pill {
-  border-radius: 6px;
-  padding: 7px 11px;
-  font-size: 13px;
-  font-weight: 800;
-}
-
-.risk-severity-high {
-  background: #fee2e2;
-  color: #dc2626;
-}
-
-.risk-severity-medium {
-  background: #fff7ed;
-  color: #f97316;
-}
-
-.risk-severity-low {
-  background: #eff6ff;
-  color: #2563eb;
-}
-
-.risk-evidence-btn {
-  margin-top: 18px;
-  border: none;
-  background: transparent;
-  color: #0b63ce;
-  font-weight: 800;
-  padding: 0;
-}
-
-.review-decision-panel h4 {
-  margin: 8px 0 18px;
-  color: #111827;
-  font-size: 16px;
-  font-weight: 800;
-}
-
-.decision-radio,
-.reason-radio {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  color: #1f2a44;
-  font-size: 14px;
-  font-weight: 700;
-  margin-bottom: 10px;
-}
-
-.reason-radio {
-  color: #475569;
-  font-weight: 500;
-}
-
-.decision-radio input,
-.reason-radio input {
-  width: 17px;
-  height: 17px;
-  accent-color: #2563eb;
-}
-
-.decision-callout {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  border-radius: 6px;
-  padding: 15px 18px;
-  font-size: 14px;
-  line-height: 1.45;
-}
-
-.approve-callout {
-  border: 1px solid #bbf7d0;
-  background: #f0fdf4;
-  color: #47675a;
-}
-
-.approve-callout i {
-  color: #22c55e;
-}
-
-.reject-callout {
-  border: 1px solid #fecaca;
-  background: #fff7f7;
-  color: #475569;
-}
-
-.reject-callout i {
-  color: #ef4444;
-}
-
-.review-field-group {
-  margin-top: 20px;
-}
-
-.review-field-group > label {
-  color: #1f2a44;
-  font-size: 13px;
-  font-weight: 800;
-}
-
-.review-field-group > label span {
-  color: #ef4444;
-}
-
-.review-field-group small,
-.review-field-hint {
-  color: #64748b;
-  font-weight: 500;
-}
-
-.review-field-hint {
-  margin: 12px 0;
-  font-size: 13px;
-}
-
-.review-field-group textarea {
-  width: 100%;
-  resize: none;
-  border: 1px solid #dbe1ea;
-  border-radius: 6px;
-  padding: 12px;
-  color: #1f2937;
-  font-size: 14px;
-}
-
-.review-field-group textarea:focus {
-  border-color: #2563eb;
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
-}
-
-.comment-counter {
-  margin-top: 8px;
-  color: #64748b;
-  font-size: 13px;
-  text-align: right;
-}
-
-.review-modal-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 20px;
-  margin-top: 18px;
-}
-
-.review-cancel-btn,
-.review-submit-btn {
-  min-width: 132px;
-  border-radius: 6px;
-  padding: 10px 24px;
-  font-weight: 800;
-}
-
-.review-cancel-btn {
-  border: 1px solid #cbd5e1;
-  background: #fff;
-  color: #334155;
-}
-
-.review-submit-btn {
-  background: #075eea;
-  border: 1px solid #075eea;
-  color: #fff;
-}
-
-.review-submit-btn:hover {
-  background: #064fc4;
-  color: #fff;
-}
-
-.review-submit-btn:disabled {
-  cursor: not-allowed;
-  opacity: 0.65;
+  padding-right: 4px;
 }
 
 @media (max-width: 960px) {
@@ -618,23 +354,6 @@
     justify-content: stretch;
   }
 
-  .review-modal-shell {
-    padding: 22px;
-  }
-
-  .review-modal-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .review-modal-actions {
-    gap: 12px;
-  }
-
-  .review-cancel-btn,
-  .review-submit-btn {
-    flex: 1;
-    min-width: 0;
-  }
 }
 
 .timeline-item {
@@ -703,116 +422,95 @@
 .info-actions {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
-  gap: 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  justify-content: center;
+  gap: 6px;
+  min-height: 36px;
+  min-width: 80px;
+  padding: 6px 12px;
 }
 
 .decision-history-wrap {
+  margin-left: 4px;
+  padding-left: 20px;
   position: relative;
-  margin: 4px 0 0 14px;
-  padding-left: 28px;
 }
 
 .decision-history-wrap::before {
-  content: "";
-  position: absolute;
-  left: 13px;
-  top: 18px;
-  bottom: 18px;
-  width: 1px;
   background: #e5e7eb;
+  bottom: 14px;
+  content: "";
+  left: 5px;
+  position: absolute;
+  top: 12px;
+  width: 1px;
 }
 
 .decision-history-item {
+  padding: 0 0 10px;
   position: relative;
-  padding: 0 0 22px 18px;
+}
+
+.decision-history-item::before {
+  background: #fff;
+  border: 2px solid #9ca3af;
+  border-radius: 50%;
+  content: "";
+  height: 10px;
+  left: -20px;
+  position: absolute;
+  top: 12px;
+  width: 10px;
+  z-index: 1;
+}
+
+.decision-history-item:first-child::before {
+  background: #6b7280;
+  border-color: #6b7280;
 }
 
 .decision-history-item:last-child {
   padding-bottom: 0;
 }
 
-.decision-history-index {
-  position: absolute;
-  left: -29px;
-  top: 0;
-  width: 30px;
-  height: 30px;
-  border: 1px solid #e5e7eb;
-  border-radius: 50%;
-  background: #fff;
-  color: #374151;
-  display: flex;
+.decision-history-event {
+  background: #f9fafb;
+  border: 1px solid #eef0f3;
+  border-radius: 6px;
+  padding: 9px 11px;
+}
+
+.decision-history-event-header {
   align-items: center;
-  justify-content: center;
-  font-size: 13px;
-  font-weight: 800;
-  z-index: 1;
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  justify-content: space-between;
+  padding-bottom: 7px;
+}
+
+.decision-history-grid {
+  display: grid;
+  gap: 5px 10px;
+  grid-template-columns: 96px minmax(0, 1fr);
+  margin-top: 7px;
 }
 
 .decision-history-label {
-  color: #64748b;
-  font-size: 12px;
-  font-weight: 600;
-  margin-bottom: 4px;
+  color: #6b7280;
+  font-size: 11px;
+  font-weight: 500;
 }
 
 .decision-history-value {
-  color: #1f2937;
-  font-size: 14px;
-  font-weight: 700;
-  margin-bottom: 14px;
-  word-break: break-word;
-}
-
-.decision-status-pill {
-  display: inline-flex;
-  align-items: center;
-  border-radius: 7px;
-  padding: 7px 12px;
-  font-size: 14px;
-  font-weight: 800;
-}
-
-.decision-status-review {
-  background: #fde68a;
-  color: #92400e;
-}
-
-.decision-status-approved {
-  background: #dcfce7;
-  color: #166534;
-}
-
-.decision-status-rejected {
-  background: #fecaca;
-  color: #991b1b;
-}
-
-.decision-reason-box {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  border: 1px solid #fecaca;
-  background: #fff1f2;
   color: #374151;
-  border-radius: 7px;
-  padding: 10px 12px;
-  font-size: 13px;
-  font-weight: 600;
-  line-height: 1.4;
-  margin-bottom: 14px;
-}
-
-.decision-reason-box i {
-  color: #dc2626;
-  margin-top: 2px;
-}
-
-.decision-history-divider {
-  height: 1px;
-  background: #e5e7eb;
-  margin: 4px 0 22px;
+  font-size: 12px;
+  font-weight: 500;
+  min-width: 0;
+  overflow: hidden;
+  text-align: right;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 </style>
 
@@ -889,11 +587,7 @@
             >
               <span v-html="getUserStatus(session.status)"></span>
             </div>
-            <div
-              v-if="session && session.status"
-              class="info-summary-item info-actions-wrap"
-            >
-              <button
+             <button
                 v-if="hasRiskFlags"
                 @click="openManualReviewModal"
                 title="Review risk flags and take action"
@@ -908,11 +602,14 @@
                   {{ riskFlagCount }} risk {{ riskFlagCount === 1 ? "flag" : "flags" }} require attention
                 </span>
               </button>
+            <div
+              v-if="session && session.status"
+              class="info-summary-item info-actions-wrap"
+            >
               <button
                 @click="downloadKYCReport()"
                 title="Download KYC Report"
                 class="btn btn-sm btn-outline-secondary info-actions"
-                style="border-radius: 0.375rem; font-size: 12px; padding: 4px 8px"
               >
                 <i class="fa fa-download mr-1"></i>Report
               </button>
@@ -1105,45 +802,60 @@
           <div class="card-table-scroll">
             <div class="decision-history-wrap">
               <div
-                v-for="(decision, index) in normalizedManualDecisions"
+                v-for="decision in normalizedManualDecisions"
                 :key="decision.key"
                 class="decision-history-item"
               >
-                <div class="decision-history-index">{{ index + 1 }}</div>
-
-                <div class="decision-history-label">Status</div>
-                <div class="decision-history-value">
-                  <span
-                    class="decision-status-pill"
-                    :class="decisionStatusClass(decision.action)"
-                  >
-                    {{ decisionStatusLabel(decision.action) }}
-                  </span>
-                </div>
-
-                <div class="decision-history-label">Decided By</div>
-                <div class="decision-history-value">{{ decision.decidedBy || "-" }}</div>
-
-                <div class="decision-history-label">Time</div>
-                <div class="decision-history-value">{{ formatDate(decision.decidedAt) }}</div>
-
-                <template v-if="decision.reasonCode">
-                  <div class="decision-history-label">Reason for Rejection</div>
-                  <div class="decision-reason-box">
-                    <i class="fa fa-exclamation-circle"></i>
-                    <span>{{ formatDecisionReason(decision.reasonCode) }}</span>
+                <div class="decision-history-event">
+                  <div class="decision-history-event-header">
+                    <span class="decision-history-label">Status</span>
+                    <span
+                      class="badge badge-pill px-2 py-1"
+                      :class="decisionStatusClass(decision.action)"
+                    >
+                      {{ decisionStatusLabel(decision.action) }}
+                    </span>
                   </div>
-                </template>
+                  <div class="decision-history-grid">
+                    <span class="decision-history-label">Decided By</span>
+                    <span
+                      class="decision-history-value"
+                      :title="decision.decidedBy || '-'"
+                    >
+                      {{ decision.decidedBy || "-" }}
+                    </span>
 
-                <template v-if="decision.comments">
-                  <div class="decision-history-label">Comment</div>
-                  <div class="decision-history-value">{{ decision.comments }}</div>
-                </template>
+                    <span class="decision-history-label">Time</span>
+                    <span class="decision-history-value">
+                      {{ formatDate(decision.decidedAt) }}
+                    </span>
 
-                <div
-                  v-if="index < normalizedManualDecisions.length - 1"
-                  class="decision-history-divider"
-                ></div>
+                    <template v-if="decision.reasonCode">
+                      <span class="decision-history-label">
+                        {{ isManualReviewCleared(decision) ? "Review Result" : "Reason" }}
+                      </span>
+                      <span
+                        class="decision-history-value"
+                        :title="formatDecisionReason(decision.reasonCode)"
+                      >
+                        <i
+                          class="fa mr-1"
+                          :class="isManualReviewCleared(decision)
+                            ? 'fa-check-circle text-success'
+                            : 'fa-exclamation-circle text-danger'"
+                        ></i>
+                        {{ formatDecisionReason(decision.reasonCode) }}
+                      </span>
+                    </template>
+
+                    <template v-if="decision.comments">
+                      <span class="decision-history-label">Comment</span>
+                      <span class="decision-history-value" :title="decision.comments">
+                        {{ decision.comments }}
+                      </span>
+                    </template>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -1451,124 +1163,142 @@
       v-model="showManualReviewModal"
       size="xl"
       centered
-      hide-header
-      hide-footer
-      dialog-class="manual-review-dialog"
-      body-class="manual-review-modal-body"
+      scrollable
+      title="Review verification and take action"
+      header-bg-variant="dark"
+      header-text-variant="light"
     >
-      <div class="review-modal-shell">
-        <button class="review-modal-close" type="button" @click="closeManualReviewModal">
-          <i class="fa fa-times"></i>
-        </button>
+      <p class="text-muted mb-3">
+        Review the risk flags below and decide to approve or reject this verification.
+      </p>
 
-        <div class="review-modal-header">
-          <h3>Review verification and take action</h3>
-          <p>Review the risk flags below and decide to approve or reject this verification.</p>
-        </div>
-
-        <div class="review-modal-grid">
-          <section class="review-flags-panel">
-            <div class="review-panel-summary">
-              <div>
-                <div class="review-required-title">
-                  <i class="fa fa-exclamation-triangle"></i>
-                  Review Required
-                </div>
-                <p>This verification passed automated checks but requires manual review before it can be approved.</p>
-              </div>
-              <div class="review-flags-count">
+      <b-row>
+        <b-col cols="12" lg="6" class="mb-3 mb-lg-0">
+          <b-card class="h-100 shadow-none" body-class="p-3">
+            <div class="card-section-title d-flex align-items-center justify-content-between">
+              <span>
+                <i class="fa fa-exclamation-triangle mr-2 text-warning"></i>
+                Review Required
+              </span>
+              <span class="text-muted text-lowercase">
                 {{ riskFlagCount }} risk {{ riskFlagCount === 1 ? "flag" : "flags" }}
-                <i class="fa fa-chevron-up ml-2"></i>
-              </div>
+              </span>
             </div>
 
+            <p class="text-muted mb-3">
+              This verification passed automated checks but requires manual review before it can be approved.
+            </p>
+
             <div class="risk-flag-list">
-              <article
+              <b-card
                 v-for="flag in normalizedRiskFlags"
                 :key="flag.key"
-                class="risk-flag-card"
+                class="mb-3 shadow-none"
                 :class="riskFlagCardClass(flag.severity)"
+                body-class="p-3"
               >
-                <div class="risk-flag-row">
-                  <div class="risk-flag-heading">
-                    <!-- <i :class="riskFlagIconClass(flag.severity)"></i> -->
-                    <strong>{{ flag.title }}</strong>
-                  </div>
-                  <span class="risk-severity-pill" :class="riskSeverityClass(flag.severity)">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                  <strong>{{ flag.title }}</strong>
+                  <span
+                    class="badge badge-pill p-2"
+                    :class="riskSeverityClass(flag.severity)"
+                  >
                     {{ formatSeverity(flag.severity) }}
                   </span>
                 </div>
-                <p>{{ flag.description }}</p>
-                <div v-if="flag.metaLine" class="risk-meta-line">{{ flag.metaLine }}</div>
-                <button type="button" class="risk-evidence-btn" @click="viewRiskEvidence(flag)">
-                  View evidence
-                  <i class="fa fa-arrow-right ml-2"></i>
-                </button>
-              </article>
+                <p class="text-muted mb-2">{{ flag.description }}</p>
+                <div v-if="flag.metaLine" class="font-weight-bold mb-2">
+                  {{ flag.metaLine }}
+                </div>
+              </b-card>
             </div>
-          </section>
+          </b-card>
+        </b-col>
 
-          <section class="review-decision-panel">
-            <h4>Take decision</h4>
+        <b-col cols="12" lg="6">
+          <b-card class="h-100 shadow-none" body-class="p-3">
+            <div class="card-section-title">Take decision</div>
 
-            <label class="decision-radio">
-              <input type="radio" value="APPROVED" v-model="reviewDecision" />
-              <span>Approve</span>
-            </label>
-            <div class="decision-callout approve-callout">
-              <i class="fa fa-check-circle-o"></i>
-              <span>This verification will be approved and the user can proceed.</span>
-            </div>
+            <b-form-radio
+              v-model="reviewDecision"
+              value="APPROVED"
+              class="font-weight-bold mb-2"
+            >
+              Approve
+            </b-form-radio>
 
-            <label class="decision-radio mt-4">
-              <input type="radio" value="REJECTED" v-model="reviewDecision" />
-              <span>Reject</span>
-            </label>
-            <div class="decision-callout reject-callout">
-              <i class="fa fa-times-circle-o"></i>
-              <span>This verification will be rejected and the user will not be able to proceed.</span>
-            </div>
+            <b-form-radio
+              v-model="reviewDecision"
+              value="REJECTED"
+              class="font-weight-bold mb-3"
+            >
+              Reject
+            </b-form-radio>
 
-            <div v-if="reviewDecision === 'REJECTED'" class="review-field-group">
-              <label>Reason for rejection <span>*</span></label>
-              <div class="review-field-hint">Common reasons</div>
-              <label
+            <b-alert
+              v-if="reviewDecision === 'APPROVED'"
+              show
+              variant="success"
+              class="py-2"
+            >
+              This verification will be approved and the user can proceed.
+            </b-alert>
+            <b-alert v-else show variant="danger" class="py-2">
+              This verification will be rejected and the user will not be able to proceed.
+            </b-alert>
+
+            <div v-if="reviewDecision === 'REJECTED'" class="form-group mt-4">
+              <label class="font-weight-bold">
+                Reason <span class="mandatory">*</span>
+              </label>
+              <div class="text-muted small mb-2">Common reasons</div>
+              <b-form-radio
                 v-for="reason in reviewReasonOptions"
                 :key="reason.value"
-                class="reason-radio"
+                v-model="reviewReasonCode"
+                :value="reason.value"
+                class="mb-2"
               >
-                <input type="radio" :value="reason.value" v-model="reviewReasonCode" />
-                <span>{{ reason.label }}</span>
+                {{ reason.label }}
+              </b-form-radio>
+            </div>
+
+            <div class="form-group mt-4 mb-0">
+              <label class="font-weight-bold">
+                Comments <small class="text-muted">(optional)</small>
               </label>
-            </div>
-
-            <div class="review-field-group">
-              <label>Comments <small>(optional)</small></label>
-              <textarea
+              <b-form-textarea
                 v-model="reviewComments"
-                maxlength="500"
+                maxlength="300"
                 rows="5"
+                no-resize
                 placeholder="Add additional notes for the audit trail..."
-              ></textarea>
-              <div class="comment-counter">{{ reviewComments.length }} / 500</div>
+              ></b-form-textarea>
+              <div class="text-muted small text-right mt-1">
+                {{ reviewComments.length }} / 300
+              </div>
             </div>
-          </section>
-        </div>
+          </b-card>
+        </b-col>
+      </b-row>
 
-        <div class="review-modal-actions">
-          <button type="button" class="btn review-cancel-btn" @click="closeManualReviewModal">
-            Cancel
-          </button>
-          <button
-            type="button"
-            class="btn review-submit-btn"
-            :disabled="isSubmittingReviewDecision"
-            @click="submitReviewDecision"
-          >
-            {{ isSubmittingReviewDecision ? "Submitting..." : "Submit" }}
-          </button>
-        </div>
-      </div>
+      <template #modal-footer>
+        <b-button
+          variant="outline-secondary"
+          class="manual-review-cancel-btn"
+          @click="closeManualReviewModal"
+        >
+          Cancel
+        </b-button>
+        <b-button
+          variant="primary"
+          class="manual-review-submit-btn"
+          :disabled="isSubmittingReviewDecision"
+          @click="submitReviewDecision"
+        >
+          {{ isSubmittingReviewDecision ? "Submitting..." : "Submit" }}
+        </b-button>
+      </template>
     </b-modal>
   </b-container>
 </template>
@@ -1652,7 +1382,12 @@ const FaicalAuthenticationError = {
   4: "Failed to perform face check due to the pose of the face",
   5: "Failed due to problems in the extraction of the facial pattern",
   6: "Duplicate document was used",
-  7: 'Failed, because the date of birth could not be read correctly from the document'
+  7: 'Failed, because the date of birth could not be read correctly from the document',
+  8: "Failed, because document issuing country is restricted",
+  9: "Failed, because nationality is restricted",
+  10: "Failed, because document issuing country is not allowed",
+  11: "Failed, because nationality is not allowed",
+  12: "Failed, because jurisdiction restriction requires manual review",
 };
 
 const ZkpVerificationResultEnum = {
@@ -1921,15 +1656,21 @@ export default {
       const decisions = this.session?.manualDecisions || [];
       if (!Array.isArray(decisions)) return [];
 
-      return decisions.map((decision, index) => ({
-        ...decision,
-        key: `${decision.action || "DECISION"}-${decision.decidedAt || index}`,
-        action: decision.action || "",
-        reasonCode: decision.reasonCode || "",
-        comments: decision.comments || "",
-        decidedBy: decision.decidedBy || "",
-        decidedAt: decision.decidedAt || "",
-      }));
+      return decisions
+        .map((decision, index) => ({
+          ...decision,
+          key: `${decision.action || "DECISION"}-${decision.decidedAt || index}`,
+          action: decision.action || "",
+          reasonCode: decision.reasonCode || "",
+          comments: decision.comments || "",
+          decidedBy: decision.decidedBy || "",
+          decidedAt: decision.decidedAt || "",
+        }))
+        .sort((a, b) => {
+          const aTime = Date.parse(a.decidedAt) || 0;
+          const bTime = Date.parse(b.decidedAt) || 0;
+          return bTime - aTime;
+        });
     },
     hasManualDecisions() {
       return this.normalizedManualDecisions.length > 0;
@@ -2226,17 +1967,17 @@ export default {
     riskSeverityClass(severity) {
       const value = String(severity || "MEDIUM").toLowerCase();
       return {
-        "risk-severity-high": value === "high",
-        "risk-severity-medium": value === "medium",
-        "risk-severity-low": value === "low",
+        "badge-outline-danger": value === "high",
+        "badge-outline-warning": value === "medium",
+        "badge-outline-secondary": value === "low",
       };
     },
     riskFlagCardClass(severity) {
       const value = String(severity || "MEDIUM").toLowerCase();
       return {
-        "risk-card-high": value === "high",
-        "risk-card-medium": value === "medium",
-        "risk-card-low": value === "low",
+        "border-danger": value === "high",
+        "border-warning": value === "medium",
+        "border-secondary": value === "low",
       };
     },
     riskFlagIconClass(severity) {
@@ -2255,9 +1996,9 @@ export default {
       return this.formatRiskCode(action || "Decision");
     },
     decisionStatusClass(action) {
-      if (action === "REJECTED") return "decision-status-rejected";
-      if (action === "APPROVED" || action === "Success") return "decision-status-approved";
-      return "decision-status-review";
+      if (action === "REJECTED") return "badge-outline-danger";
+      if (action === "APPROVED" || action === "Success") return "badge-outline-success";
+      return "badge-outline-warning";
     },
     formatDecisionReason(reasonCode) {
       const reason = this.reviewReasonOptions.find((item) => item.value === reasonCode);
@@ -2265,30 +2006,8 @@ export default {
 
       return this.formatRiskCode(reasonCode);
     },
-    viewRiskEvidence(flag) {
-      const code = flag?.code || "";
-      const step = flag?.associatedStep || flag?.source || "";
-      let targetId = "personal-info";
-
-      if (/LIVENESS|SELFIE|SPOOF|FACE/.test(`${code} ${step}`)) {
-        targetId = "liveliness-info";
-      }
-
-      if (/OCR|DOCUMENT|JURISDICTION|NATIONALITY|BIOMETRIC/.test(`${code} ${step}`)) {
-        targetId = "face-auth-info";
-      }
-
-      if (/ZKP|PROOF|AGE/.test(`${code} ${step}`)) {
-        targetId = "zkp-verification-info";
-      }
-
-      this.closeManualReviewModal();
-      this.$nextTick(() => {
-        const target = document.getElementById(targetId);
-        if (target) {
-          target.scrollIntoView({ behavior: "smooth", block: "start" });
-        }
-      });
+    isManualReviewCleared(decision) {
+      return decision?.reasonCode === "MANUAL_REVIEW_CLEARED";
     },
     applySessionFailureToTimeline() {
       if (this.session?.status !== "Failed") return;

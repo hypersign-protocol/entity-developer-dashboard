@@ -133,6 +133,7 @@ ul {
 
 .jurisdiction-panel {
   background: #fff;
+  min-width: 0;
 }
 
 .jurisdiction-description {
@@ -148,15 +149,33 @@ ul {
   margin-bottom: 10px;
 }
 
+.jurisdiction-config-grid {
+  display: grid;
+  gap: 24px;
+  grid-template-columns: minmax(300px, 5fr) minmax(0, 7fr);
+}
+
+.jurisdiction-column {
+  min-width: 0;
+}
+
+.strategy-options {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
 .strategy-card {
   align-items: flex-start;
   border: 1px solid #e5e7eb;
   border-radius: 8px;
   cursor: pointer;
   display: flex;
-  height: 120px;
+  margin: 0;
+  min-height: 120px;
   padding: 16px;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  width: 100%;
 }
 
 .strategy-card.active {
@@ -165,6 +184,7 @@ ul {
 }
 
 .strategy-radio {
+  flex: 0 0 auto;
   margin-right: 14px;
   margin-top: 2px;
 }
@@ -188,7 +208,8 @@ ul {
   margin-bottom: 12px;
   min-height: 58px;
   overflow-x: auto;
-  padding-bottom: 6px;
+  padding: 1px 0 8px;
+  scrollbar-width: thin;
   width: 100%;
 }
 
@@ -218,11 +239,43 @@ ul {
   margin-left: 18px;
 }
 
+.country-dropdown-item {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.jurisdiction-action-column {
+  grid-column: 1 / -1;
+  max-width: 440px;
+}
+
 .jurisdiction-action-help {
   color: #6b7280;
   font-size: 0.86rem;
   line-height: 1.4;
   margin-top: 8px;
+}
+
+@media (max-width: 991.98px) {
+  .jurisdiction-config-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .jurisdiction-action-column {
+    grid-column: auto;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .strategy-options {
+    grid-template-columns: 1fr;
+  }
+
+  .strategy-card {
+    min-height: auto;
+  }
 }
 
 /* .zkbadge {
@@ -482,36 +535,32 @@ ul {
               {{ widgetConfigUI.jurisdictionRules.secondaryDescription }}
             </p>
 
-            <div v-if="widgetConfigTemp.jurisdictionRules.enabled" class="row">
-              <div class="col-lg-4 mb-3 mb-lg-0">
+            <div v-if="widgetConfigTemp.jurisdictionRules.enabled" class="jurisdiction-config-grid">
+              <div class="jurisdiction-column">
                 <div class="jurisdiction-label">Enforcement Strategy</div>
-                <div class="row">
-                  <div
+                <div class="strategy-options">
+                  <label
                     v-for="option in jurisdictionStrategyOptions"
                     :key="option.value"
-                    class="col-md-6 mb-3 mb-md-0"
+                    class="strategy-card"
+                    :class="{ active: widgetConfigTemp.jurisdictionRules.strategy === option.value }"
                   >
-                    <div
-                      class="strategy-card"
-                      :class="{ active: widgetConfigTemp.jurisdictionRules.strategy === option.value }"
-                      @click="widgetConfigTemp.jurisdictionRules.strategy = option.value"
+                    <b-form-radio
+                      class="strategy-radio"
+                      v-model="widgetConfigTemp.jurisdictionRules.strategy"
+                      :value="option.value"
+                      name="jurisdiction-strategy"
                     >
-                      <b-form-radio
-                        class="strategy-radio"
-                        v-model="widgetConfigTemp.jurisdictionRules.strategy"
-                        :value="option.value"
-                        name="jurisdiction-strategy"
-                      ></b-form-radio>
-                      <div>
-                        <div class="strategy-title">{{ option.text }}</div>
-                        <div class="strategy-help">{{ option.description }}</div>
-                      </div>
+                    </b-form-radio>
+                    <div>
+                      <div class="strategy-title">{{ option.text }}</div>
+                      <div class="strategy-help">{{ option.description }}</div>
                     </div>
-                  </div>
+                  </label>
                 </div>
               </div>
 
-              <div class="col-lg-6 mb-3 mb-lg-0">
+              <div class="jurisdiction-column">
                 <div class="jurisdiction-label">
                   Target Countries<span v-if="selectedJurisdictionCountries.length > 0"> ({{ selectedJurisdictionCountries.length }})</span>
                 </div>
@@ -541,22 +590,32 @@ ul {
                   outlined
                   dense
                   hide-details
-                  clearable
-                  :menu-props="{ maxHeight: 320 }"
-                  placeholder="Select or search country..."
+                  label="Select or search country..."
+                  :menu-props="{ maxHeight: 320, offsetY: true, closeOnContentClick: false }"
                 >
                   <template v-slot:prepend-inner>
                     <v-icon small color="grey">mdi-magnify</v-icon>
                   </template>
                   <template v-slot:selection></template>
                   <template v-slot:item="{ item }">
-                    <span class="mr-2">{{ item.flag }}</span>
-                    <span>{{ item.text }} ({{ item.value }})</span>
+                    <div class="country-dropdown-item">
+                      <span>
+                        <span class="mr-2">{{ item.flag }}</span>
+                        <span>{{ item.text }} ({{ item.value }})</span>
+                      </span>
+                      <v-icon
+                        v-if="isJurisdictionCountrySelected(item.value)"
+                        color="primary"
+                        small
+                      >
+                        mdi-check
+                      </v-icon>
+                    </div>
                   </template>
                 </v-autocomplete>
               </div>
 
-              <div class="col-lg-2">
+              <div class="jurisdiction-column jurisdiction-action-column">
                 <div class="jurisdiction-label">Action on Match</div>
                 <b-form-select
                   v-model="widgetConfigTemp.jurisdictionRules.actionOnRestriction"
@@ -1072,6 +1131,9 @@ export default {
     removeJurisdictionCountry(countryCode) {
       const selectedCountries = this.widgetConfigTemp.jurisdictionRules.countries || []
       this.widgetConfigTemp.jurisdictionRules.countries = selectedCountries.filter(country => country !== countryCode)
+    },
+    isJurisdictionCountrySelected(countryCode) {
+      return (this.widgetConfigTemp.jurisdictionRules.countries || []).includes(countryCode)
     },
     validateJurisdictionRules() {
       this.ensureJurisdictionRules()
