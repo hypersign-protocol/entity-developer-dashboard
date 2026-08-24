@@ -590,6 +590,11 @@
   color: #fff;
 }
 
+.review-submit-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
 @media (max-width: 960px) {
   .info-summary-row {
     flex-wrap: wrap;
@@ -1554,8 +1559,13 @@
           <button type="button" class="btn review-cancel-btn" @click="closeManualReviewModal">
             Cancel
           </button>
-          <button type="button" class="btn review-submit-btn" @click="submitReviewDecision">
-            Submit
+          <button
+            type="button"
+            class="btn review-submit-btn"
+            :disabled="isSubmittingReviewDecision"
+            @click="submitReviewDecision"
+          >
+            {{ isSubmittingReviewDecision ? "Submitting..." : "Submit" }}
           </button>
         </div>
       </div>
@@ -1940,6 +1950,7 @@ export default {
       env: "prod",
       session: {},
       showManualReviewModal: false,
+      isSubmittingReviewDecision: false,
       reviewDecision: "REJECTED",
       reviewReasonCode: "",
       reviewComments: "",
@@ -2076,7 +2087,7 @@ export default {
     });
   },
   methods: {
-    ...mapActions("mainStore", ["fetchSessionsDetailsById"]),
+    ...mapActions("mainStore", ["fetchSessionsDetailsById", "submitManualReviewDecision"]),
     formatDate(date) {
       if (!date) return "-";
       const d = new Date(date);
@@ -2088,14 +2099,39 @@ export default {
     closeManualReviewModal() {
       this.showManualReviewModal = false;
     },
-    submitReviewDecision() {
+    async submitReviewDecision() {
       if (this.reviewDecision === "REJECTED" && !this.reviewReasonCode) {
         this.notifyErr("Please select a reason for rejection.");
         return;
       }
 
-      this.notifySuccess("Manual review decision is ready to submit.");
-      this.closeManualReviewModal();
+      const decisionSessionId = this.session?.latestSessionId || this.session?.sessionId || this.sessionId;
+      const reasonCode = this.reviewDecision === "REJECTED"
+        ? this.reviewReasonCode
+        : "MANUAL_REVIEW_CLEARED";
+
+      try {
+        this.isSubmittingReviewDecision = true;
+        await this.submitManualReviewDecision({
+          sessionId: decisionSessionId,
+          action: this.reviewDecision,
+          reasonCode,
+          comments: this.reviewComments,
+        });
+
+        this.session = await this.fetchSessionsDetailsById({
+          sessionId: this.sessionId,
+          env: this.env,
+          businessId: this.isValidBusinessID ? this.companyId : undefined,
+        }) || {};
+
+        this.notifySuccess("Manual review decision submitted successfully.");
+        this.closeManualReviewModal();
+      } catch (e) {
+        this.notifyErr(e.message || "Unable to submit manual review decision.");
+      } finally {
+        this.isSubmittingReviewDecision = false;
+      }
     },
     normalizeRiskFlag(flag, index) {
       const code = flag?.code || flag?.reason || "RISK_FLAG";
