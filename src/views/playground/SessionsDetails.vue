@@ -30,6 +30,54 @@
   font-size: 13px;
 }
 
+.info-actions-wrap {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.manual-review-btn {
+  min-width: 230px;
+  border: 1px solid #f59e0b;
+  background: #fffaf0;
+  color: #b45309;
+  border-radius: 10px;
+  padding: 8px 16px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0;
+  line-height: 1.1;
+  box-shadow: 0 1px 2px rgba(245, 158, 11, 0.08);
+}
+
+.manual-review-btn:hover {
+  background: #fffbeb;
+  color: #92400e;
+}
+
+.manual-review-btn .review-title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  font-size: 13px;
+}
+
+.manual-review-btn .review-subtitle {
+  display: block;
+  margin-top: 5px;
+  color: #374151;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: none;
+}
+
+.manual-review-btn i {
+  font-size: 14px;
+}
+
 .card-section-title {
   font-size: 13px;
   font-weight: 700;
@@ -178,6 +226,367 @@
   background: #fff;
 }
 
+::v-deep(.manual-review-dialog) {
+  max-width: 1120px;
+}
+
+::v-deep(.manual-review-modal-body) {
+  padding: 0;
+  background: transparent;
+}
+
+.review-modal-shell {
+  position: relative;
+  background: #fff;
+  border: 1px solid #dbe1ea;
+  border-radius: 10px;
+  padding: 28px;
+  color: #1f2a44;
+}
+
+.review-modal-close {
+  position: absolute;
+  top: 28px;
+  right: 28px;
+  border: none;
+  background: transparent;
+  color: #64748b;
+  font-size: 18px;
+  line-height: 1;
+  padding: 4px;
+}
+
+.review-modal-close:hover {
+  color: #1f2937;
+}
+
+.review-modal-header h3 {
+  margin: 0;
+  color: #111827;
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: 0;
+}
+
+.review-modal-header p {
+  margin: 8px 0 24px;
+  color: #64748b;
+  font-size: 15px;
+}
+
+.review-modal-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(360px, 1fr);
+  gap: 16px;
+}
+
+.review-flags-panel,
+.review-decision-panel {
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 18px;
+  background: #fff;
+}
+
+.review-panel-summary {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.review-required-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #dc2626;
+  font-size: 13px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.review-panel-summary p {
+  margin: 12px 0 0;
+  color: #475569;
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.review-flags-count {
+  white-space: nowrap;
+  color: #334155;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.risk-flag-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 460px;
+  overflow-y: auto;
+  padding-right: 6px;
+}
+
+.risk-flag-card {
+  border: 1px solid #f1e2bf;
+  border-radius: 6px;
+  padding: 20px;
+  background: #fffdfa;
+}
+
+.risk-card-high {
+  border-color: #f3d0d0;
+}
+
+.risk-card-medium {
+  border-color: #f1e2bf;
+}
+
+.risk-card-low {
+  border-color: #dbeafe;
+}
+
+.risk-flag-row,
+.risk-flag-heading {
+  display: flex;
+  align-items: center;
+}
+
+.risk-flag-row {
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.risk-flag-heading {
+  gap: 12px;
+  color: #1e293b;
+  font-size: 14px;
+}
+
+.risk-flag-heading i {
+  color: #f59e0b;
+  font-size: 21px;
+}
+
+.risk-card-high .risk-flag-heading i {
+  color: #ef4444;
+}
+
+.risk-flag-card p {
+  margin: 18px 0 0;
+  color: #475569;
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.risk-meta-line {
+  margin-top: 8px;
+  color: #1e293b;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.risk-severity-pill {
+  border-radius: 6px;
+  padding: 7px 11px;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.risk-severity-high {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.risk-severity-medium {
+  background: #fff7ed;
+  color: #f97316;
+}
+
+.risk-severity-low {
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+.risk-evidence-btn {
+  margin-top: 18px;
+  border: none;
+  background: transparent;
+  color: #0b63ce;
+  font-weight: 800;
+  padding: 0;
+}
+
+.review-decision-panel h4 {
+  margin: 8px 0 18px;
+  color: #111827;
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.decision-radio,
+.reason-radio {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #1f2a44;
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.reason-radio {
+  color: #475569;
+  font-weight: 500;
+}
+
+.decision-radio input,
+.reason-radio input {
+  width: 17px;
+  height: 17px;
+  accent-color: #2563eb;
+}
+
+.decision-callout {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-radius: 6px;
+  padding: 15px 18px;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.approve-callout {
+  border: 1px solid #bbf7d0;
+  background: #f0fdf4;
+  color: #47675a;
+}
+
+.approve-callout i {
+  color: #22c55e;
+}
+
+.reject-callout {
+  border: 1px solid #fecaca;
+  background: #fff7f7;
+  color: #475569;
+}
+
+.reject-callout i {
+  color: #ef4444;
+}
+
+.review-field-group {
+  margin-top: 20px;
+}
+
+.review-field-group > label {
+  color: #1f2a44;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.review-field-group > label span {
+  color: #ef4444;
+}
+
+.review-field-group small,
+.review-field-hint {
+  color: #64748b;
+  font-weight: 500;
+}
+
+.review-field-hint {
+  margin: 12px 0;
+  font-size: 13px;
+}
+
+.review-field-group textarea {
+  width: 100%;
+  resize: none;
+  border: 1px solid #dbe1ea;
+  border-radius: 6px;
+  padding: 12px;
+  color: #1f2937;
+  font-size: 14px;
+}
+
+.review-field-group textarea:focus {
+  border-color: #2563eb;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+.comment-counter {
+  margin-top: 8px;
+  color: #64748b;
+  font-size: 13px;
+  text-align: right;
+}
+
+.review-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 20px;
+  margin-top: 18px;
+}
+
+.review-cancel-btn,
+.review-submit-btn {
+  min-width: 132px;
+  border-radius: 6px;
+  padding: 10px 24px;
+  font-weight: 800;
+}
+
+.review-cancel-btn {
+  border: 1px solid #cbd5e1;
+  background: #fff;
+  color: #334155;
+}
+
+.review-submit-btn {
+  background: #075eea;
+  border: 1px solid #075eea;
+  color: #fff;
+}
+
+.review-submit-btn:hover {
+  background: #064fc4;
+  color: #fff;
+}
+
+@media (max-width: 960px) {
+  .manual-review-btn {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .info-actions-wrap {
+    justify-content: stretch;
+  }
+
+  .review-modal-shell {
+    padding: 22px;
+  }
+
+  .review-modal-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .review-modal-actions {
+    gap: 12px;
+  }
+
+  .review-cancel-btn,
+  .review-submit-btn {
+    flex: 1;
+    min-width: 0;
+  }
+}
+
 .timeline-item {
   position: relative;
   padding: 8px 12px 8px 28px;
@@ -247,6 +656,114 @@
   justify-content: flex-end;
   gap: 8px;
 }
+
+.decision-history-wrap {
+  position: relative;
+  margin: 4px 0 0 14px;
+  padding-left: 28px;
+}
+
+.decision-history-wrap::before {
+  content: "";
+  position: absolute;
+  left: 13px;
+  top: 18px;
+  bottom: 18px;
+  width: 1px;
+  background: #e5e7eb;
+}
+
+.decision-history-item {
+  position: relative;
+  padding: 0 0 22px 18px;
+}
+
+.decision-history-item:last-child {
+  padding-bottom: 0;
+}
+
+.decision-history-index {
+  position: absolute;
+  left: -29px;
+  top: 0;
+  width: 30px;
+  height: 30px;
+  border: 1px solid #e5e7eb;
+  border-radius: 50%;
+  background: #fff;
+  color: #374151;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 800;
+  z-index: 1;
+}
+
+.decision-history-label {
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.decision-history-value {
+  color: #1f2937;
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 14px;
+  word-break: break-word;
+}
+
+.decision-status-pill {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 7px;
+  padding: 7px 12px;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.decision-status-review {
+  background: #fde68a;
+  color: #92400e;
+}
+
+.decision-status-approved {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.decision-status-rejected {
+  background: #fecaca;
+  color: #991b1b;
+}
+
+.decision-reason-box {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  border: 1px solid #fecaca;
+  background: #fff1f2;
+  color: #374151;
+  border-radius: 7px;
+  padding: 10px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.4;
+  margin-bottom: 14px;
+}
+
+.decision-reason-box i {
+  color: #dc2626;
+  margin-top: 2px;
+}
+
+.decision-history-divider {
+  height: 1px;
+  background: #e5e7eb;
+  margin: 4px 0 22px;
+}
 </style>
 
 <template>
@@ -296,8 +813,8 @@
     >
       <v-col cols="12">
         <div class="info-bar px-4 py-3">
-          <div class="row">
-            <div class="col-12 col-md-3 mb-2 mb-md-0">
+          <div class="row align-items-center">
+            <div class="col-12 col-md-2 mb-2 mb-md-0">
               <div class="info-label">Date</div>
               <div class="info-value">{{ formatDate(session.createdAt) }}</div>
             </div>
@@ -312,7 +829,7 @@
                 {{ session ? stringShortner(session.email, 32) : "-" }}
               </div>
             </div>
-            <div class="col-12 col-md-3 mb-2 mb-md-0">
+            <div class="col-12 col-md-2 mb-2 mb-md-0">
               <div class="info-label">Attempts</div>
               <div class="info-value">{{ session ? session.retryAttempts : "-" }}</div>
             </div>
@@ -324,8 +841,23 @@
             </div>
             <div
               v-if="session && session.status"
-              class="col-12 col-md-1 mb-2 mb-md-0 d-flex justify-content-end"
+              class="col-12 col-md-4 mb-2 mb-md-0 info-actions-wrap"
             >
+              <button
+                v-if="hasRiskFlags"
+                @click="openManualReviewModal"
+                title="Review risk flags and take action"
+                class="btn btn-sm manual-review-btn"
+              >
+                <span class="review-title">
+                  <i class="fa fa-exclamation-triangle"></i>
+                  Manual Review
+                  <i class="fa fa-chevron-right"></i>
+                </span>
+                <span class="review-subtitle">
+                  {{ riskFlagCount }} risk {{ riskFlagCount === 1 ? "flag" : "flags" }} require attention
+                </span>
+              </button>
               <button
                 @click="downloadKYCReport()"
                 title="Download KYC Report"
@@ -505,6 +1037,66 @@
               </tr>
             </tbody>
           </table>
+        </div>
+      </v-col>
+
+      <!-- Decision History -->
+      <v-col
+        cols="12"
+        md="6"
+        lg="4"
+        id="decision-history-info"
+        v-if="hasManualDecisions"
+      >
+        <div class="detail-card p-4">
+          <div class="card-section-title">
+            <i class="fa fa-history mr-2"></i>Decision History
+          </div>
+          <div class="card-table-scroll">
+            <div class="decision-history-wrap">
+              <div
+                v-for="(decision, index) in normalizedManualDecisions"
+                :key="decision.key"
+                class="decision-history-item"
+              >
+                <div class="decision-history-index">{{ index + 1 }}</div>
+
+                <div class="decision-history-label">Status</div>
+                <div class="decision-history-value">
+                  <span
+                    class="decision-status-pill"
+                    :class="decisionStatusClass(decision.action)"
+                  >
+                    {{ decisionStatusLabel(decision.action) }}
+                  </span>
+                </div>
+
+                <div class="decision-history-label">Decided By</div>
+                <div class="decision-history-value">{{ decision.decidedBy || "-" }}</div>
+
+                <div class="decision-history-label">Time</div>
+                <div class="decision-history-value">{{ formatDate(decision.decidedAt) }}</div>
+
+                <template v-if="decision.reasonCode">
+                  <div class="decision-history-label">Reason for Rejection</div>
+                  <div class="decision-reason-box">
+                    <i class="fa fa-exclamation-circle"></i>
+                    <span>{{ formatDecisionReason(decision.reasonCode) }}</span>
+                  </div>
+                </template>
+
+                <template v-if="decision.comments">
+                  <div class="decision-history-label">Comment</div>
+                  <div class="decision-history-value">{{ decision.comments }}</div>
+                </template>
+
+                <div
+                  v-if="index < normalizedManualDecisions.length - 1"
+                  class="decision-history-divider"
+                ></div>
+              </div>
+            </div>
+          </div>
         </div>
       </v-col>
 
@@ -803,6 +1395,126 @@
     <hf-pop-up id="zoom-doc" :Header="popupHeader" size="md">
       <img :src="popupImage" />
     </hf-pop-up>
+
+    <b-modal
+      id="manual-review-decision-modal"
+      v-model="showManualReviewModal"
+      size="xl"
+      centered
+      hide-header
+      hide-footer
+      dialog-class="manual-review-dialog"
+      body-class="manual-review-modal-body"
+    >
+      <div class="review-modal-shell">
+        <button class="review-modal-close" type="button" @click="closeManualReviewModal">
+          <i class="fa fa-times"></i>
+        </button>
+
+        <div class="review-modal-header">
+          <h3>Review verification and take action</h3>
+          <p>Review the risk flags below and decide to approve or reject this verification.</p>
+        </div>
+
+        <div class="review-modal-grid">
+          <section class="review-flags-panel">
+            <div class="review-panel-summary">
+              <div>
+                <div class="review-required-title">
+                  <i class="fa fa-exclamation-triangle"></i>
+                  Review Required
+                </div>
+                <p>This verification passed automated checks but requires manual review before it can be approved.</p>
+              </div>
+              <div class="review-flags-count">
+                {{ riskFlagCount }} risk {{ riskFlagCount === 1 ? "flag" : "flags" }}
+                <i class="fa fa-chevron-up ml-2"></i>
+              </div>
+            </div>
+
+            <div class="risk-flag-list">
+              <article
+                v-for="flag in normalizedRiskFlags"
+                :key="flag.key"
+                class="risk-flag-card"
+                :class="riskFlagCardClass(flag.severity)"
+              >
+                <div class="risk-flag-row">
+                  <div class="risk-flag-heading">
+                    <!-- <i :class="riskFlagIconClass(flag.severity)"></i> -->
+                    <strong>{{ flag.title }}</strong>
+                  </div>
+                  <span class="risk-severity-pill" :class="riskSeverityClass(flag.severity)">
+                    {{ formatSeverity(flag.severity) }}
+                  </span>
+                </div>
+                <p>{{ flag.description }}</p>
+                <div v-if="flag.metaLine" class="risk-meta-line">{{ flag.metaLine }}</div>
+                <button type="button" class="risk-evidence-btn" @click="viewRiskEvidence(flag)">
+                  View evidence
+                  <i class="fa fa-arrow-right ml-2"></i>
+                </button>
+              </article>
+            </div>
+          </section>
+
+          <section class="review-decision-panel">
+            <h4>Take decision</h4>
+
+            <label class="decision-radio">
+              <input type="radio" value="APPROVED" v-model="reviewDecision" />
+              <span>Approve</span>
+            </label>
+            <div class="decision-callout approve-callout">
+              <i class="fa fa-check-circle-o"></i>
+              <span>This verification will be approved and the user can proceed.</span>
+            </div>
+
+            <label class="decision-radio mt-4">
+              <input type="radio" value="REJECTED" v-model="reviewDecision" />
+              <span>Reject</span>
+            </label>
+            <div class="decision-callout reject-callout">
+              <i class="fa fa-times-circle-o"></i>
+              <span>This verification will be rejected and the user will not be able to proceed.</span>
+            </div>
+
+            <div v-if="reviewDecision === 'REJECTED'" class="review-field-group">
+              <label>Reason for rejection <span>*</span></label>
+              <div class="review-field-hint">Common reasons</div>
+              <label
+                v-for="reason in reviewReasonOptions"
+                :key="reason.value"
+                class="reason-radio"
+              >
+                <input type="radio" :value="reason.value" v-model="reviewReasonCode" />
+                <span>{{ reason.label }}</span>
+              </label>
+            </div>
+
+            <div class="review-field-group">
+              <label>Comments <small>(optional)</small></label>
+              <textarea
+                v-model="reviewComments"
+                maxlength="500"
+                rows="5"
+                placeholder="Add additional notes for the audit trail..."
+              ></textarea>
+              <div class="comment-counter">{{ reviewComments.length }} / 500</div>
+            </div>
+          </section>
+        </div>
+
+        <div class="review-modal-actions">
+          <button type="button" class="btn review-cancel-btn" @click="closeManualReviewModal">
+            Cancel
+          </button>
+          <button type="button" class="btn review-submit-btn" @click="submitReviewDecision">
+            Submit
+          </button>
+        </div>
+      </div>
+    </b-modal>
   </b-container>
 </template>
 
@@ -1138,6 +1850,35 @@ export default {
         (a, b) => new Date(a.createdAt) - new Date(b.createdAt)
       );
     },
+    normalizedRiskFlags() {
+      const flags = this.session?.riskFlags || [];
+      if (!Array.isArray(flags)) return [];
+
+      return flags.map((flag, index) => this.normalizeRiskFlag(flag, index));
+    },
+    hasRiskFlags() {
+      return this.normalizedRiskFlags.length > 0;
+    },
+    riskFlagCount() {
+      return this.normalizedRiskFlags.length;
+    },
+    normalizedManualDecisions() {
+      const decisions = this.session?.manualDecisions || [];
+      if (!Array.isArray(decisions)) return [];
+
+      return decisions.map((decision, index) => ({
+        ...decision,
+        key: `${decision.action || "DECISION"}-${decision.decidedAt || index}`,
+        action: decision.action || "",
+        reasonCode: decision.reasonCode || "",
+        comments: decision.comments || "",
+        decidedBy: decision.decidedBy || "",
+        decidedAt: decision.decidedAt || "",
+      }));
+    },
+    hasManualDecisions() {
+      return this.normalizedManualDecisions.length > 0;
+    },
   },
   data() {
     return {
@@ -1153,6 +1894,18 @@ export default {
       sessionId: "",
       env: "prod",
       session: {},
+      showManualReviewModal: false,
+      reviewDecision: "REJECTED",
+      reviewReasonCode: "",
+      reviewComments: "",
+      reviewReasonOptions: [
+        { label: "Suspicious document", value: "SUSPICIOUS_DOCUMENT" },
+        { label: "Identity could not be verified", value: "IDENTITY_NOT_VERIFIED" },
+        { label: "Biometric mismatch", value: "BIOMETRIC_MISMATCH" },
+        { label: "Restricted jurisdiction", value: "RESTRICTED_JURISDICTION" },
+        { label: "Fraud / duplicate identity", value: "FRAUD_DUPLICATE_IDENTITY" },
+        { label: "Other", value: "OTHER" },
+      ],
       popupHeader: "",
       popupImage: "",
       deviceDetails: {
@@ -1283,6 +2036,178 @@ export default {
       if (!date) return "-";
       const d = new Date(date);
       return d.toLocaleString(); // Customize formatting if needed
+    },
+    openManualReviewModal() {
+      this.showManualReviewModal = true;
+    },
+    closeManualReviewModal() {
+      this.showManualReviewModal = false;
+    },
+    submitReviewDecision() {
+      if (this.reviewDecision === "REJECTED" && !this.reviewReasonCode) {
+        this.notifyErr("Please select a reason for rejection.");
+        return;
+      }
+
+      this.notifySuccess("Manual review decision is ready to submit.");
+      this.closeManualReviewModal();
+    },
+    normalizeRiskFlag(flag, index) {
+      const code = flag?.code || flag?.reason || "RISK_FLAG";
+      const severity = flag?.severity || "MEDIUM";
+      const metadata = flag?.metadata || {};
+      const metaLine = this.getRiskMetaLine(code, metadata);
+
+      return {
+        ...flag,
+        key: `${code}-${index}`,
+        code,
+        severity,
+        source: flag?.source || flag?.associatedStep || flag?.step || "",
+        associatedStep: flag?.associatedStep || flag?.step || "",
+        title: this.formatRiskCode(code),
+        description: flag?.message || this.getRiskFlagDescription(code),
+        metadata,
+        metaLine,
+      };
+    },
+    formatRiskCode(code) {
+      const labels = {
+        JURISDICTION_RESTRICTION_MATCH: "Jurisdiction restriction",
+        RESTRICTED_NATIONALITY: "Jurisdiction restriction",
+        RESTRICTED_ISSUING_COUNTRY: "Jurisdiction restriction",
+        LOW_OCR_CONFIDENCE: "Low OCR confidence",
+        BIOMETRIC_MATCH_BELOW_THRESHOLD: "Biometric match below threshold",
+        BORDERLINE_LIVENESS: "Borderline liveness",
+        FACIAL_SPOOF_SUSPECTED: "Facial spoof suspected",
+        DUPLICATE_FACE_DETECTED: "Duplicate face detected",
+        DOCUMENT_EXPIRING_SOON: "Document expiring soon",
+        NATIONALITY_MISMATCH: "Nationality mismatch",
+        ZKP_PROOF_WARNING: "Age verification warning",
+      };
+
+      if (labels[code]) return labels[code];
+      return String(code)
+        .toLowerCase()
+        .split("_")
+        .filter(Boolean)
+        .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+        .join(" ");
+    },
+    getRiskFlagDescription(code) {
+      const descriptions = {
+        JURISDICTION_RESTRICTION_MATCH:
+          "Document issuing country or nationality matches a configured manual review policy.",
+        RESTRICTED_NATIONALITY:
+          "Document nationality matches a configured manual review policy.",
+        RESTRICTED_ISSUING_COUNTRY:
+          "Document issuing country matches a configured manual review policy.",
+        LOW_OCR_CONFIDENCE:
+          "Document field confidence is below the configured threshold.",
+        BIOMETRIC_MATCH_BELOW_THRESHOLD:
+          "Face similarity score is below the auto-approval threshold.",
+        BORDERLINE_LIVENESS:
+          "Liveness confidence is inconclusive and requires manual inspection.",
+        FACIAL_SPOOF_SUSPECTED:
+          "Potential presentation attack was detected with soft certainty.",
+        DUPLICATE_FACE_DETECTED:
+          "A matching face or document may already exist for another user.",
+        DOCUMENT_EXPIRING_SOON:
+          "The identity document is valid but close to expiry.",
+        NATIONALITY_MISMATCH:
+          "Document issuing country differs from declared nationality.",
+        ZKP_PROOF_WARNING:
+          "Age verification produced a non-fatal warning.",
+      };
+
+      return descriptions[code] || "This verification triggered a risk flag that requires review.";
+    },
+    getRiskMetaLine(code, metadata) {
+      const country = metadata.matchedCountry || metadata.evaluatedNationality || metadata.evaluatedIssuingCountry;
+      const field = metadata.matchedField;
+      const score = metadata.score || metadata.faceSimilarity || metadata.faceSimilarityScore;
+
+      if (score) {
+        const numericScore = Number(String(score).replace("%", ""));
+        if (!Number.isNaN(numericScore)) {
+          return `Face similarity: ${numericScore > 1 ? numericScore : Math.round(numericScore * 1000) / 10}%`;
+        }
+        return `Face similarity: ${score}`;
+      }
+      if (country && field) return `${this.formatRiskCode(field)}: ${country}`;
+      if (country) return `Matched country: ${country}`;
+      if (metadata.threshold) return `Threshold: ${metadata.threshold}`;
+      return "";
+    },
+    formatSeverity(severity) {
+      return String(severity || "MEDIUM").toLowerCase().replace(/^./, (char) => char.toUpperCase());
+    },
+    riskSeverityClass(severity) {
+      const value = String(severity || "MEDIUM").toLowerCase();
+      return {
+        "risk-severity-high": value === "high",
+        "risk-severity-medium": value === "medium",
+        "risk-severity-low": value === "low",
+      };
+    },
+    riskFlagCardClass(severity) {
+      const value = String(severity || "MEDIUM").toLowerCase();
+      return {
+        "risk-card-high": value === "high",
+        "risk-card-medium": value === "medium",
+        "risk-card-low": value === "low",
+      };
+    },
+    riskFlagIconClass(severity) {
+      const value = String(severity || "MEDIUM").toLowerCase();
+      return value === "high" ? "fa fa-exclamation-circle" : "fa fa-exclamation-triangle";
+    },
+    decisionStatusLabel(action) {
+      const labels = {
+        MANUAL_REVIEW: "Manual Review",
+        APPROVED: "Approved",
+        Success: "Approved",
+        REJECTED: "Rejected",
+      };
+
+      if (labels[action]) return labels[action];
+      return this.formatRiskCode(action || "Decision");
+    },
+    decisionStatusClass(action) {
+      if (action === "REJECTED") return "decision-status-rejected";
+      if (action === "APPROVED" || action === "Success") return "decision-status-approved";
+      return "decision-status-review";
+    },
+    formatDecisionReason(reasonCode) {
+      const reason = this.reviewReasonOptions.find((item) => item.value === reasonCode);
+      if (reason) return reason.label;
+
+      return this.formatRiskCode(reasonCode);
+    },
+    viewRiskEvidence(flag) {
+      const code = flag?.code || "";
+      const step = flag?.associatedStep || flag?.source || "";
+      let targetId = "personal-info";
+
+      if (/LIVENESS|SELFIE|SPOOF|FACE/.test(`${code} ${step}`)) {
+        targetId = "liveliness-info";
+      }
+
+      if (/OCR|DOCUMENT|JURISDICTION|NATIONALITY|BIOMETRIC/.test(`${code} ${step}`)) {
+        targetId = "face-auth-info";
+      }
+
+      if (/ZKP|PROOF|AGE/.test(`${code} ${step}`)) {
+        targetId = "zkp-verification-info";
+      }
+
+      this.closeManualReviewModal();
+      this.$nextTick(() => {
+        const target = document.getElementById(targetId);
+        if (target) {
+          target.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      });
     },
     applySessionFailureToTimeline() {
       if (this.session?.status !== "Failed") return;
