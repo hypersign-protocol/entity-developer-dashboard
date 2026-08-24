@@ -218,6 +218,13 @@ ul {
   margin-left: 18px;
 }
 
+.jurisdiction-action-help {
+  color: #6b7280;
+  font-size: 0.86rem;
+  line-height: 1.4;
+  margin-top: 8px;
+}
+
 /* .zkbadge {
   background-color: lightblue;
   margin-left: 3px;
@@ -504,7 +511,7 @@ ul {
                 </div>
               </div>
 
-              <div class="col-lg-8">
+              <div class="col-lg-6 mb-3 mb-lg-0">
                 <div class="jurisdiction-label">
                   Target Countries<span v-if="selectedJurisdictionCountries.length > 0"> ({{ selectedJurisdictionCountries.length }})</span>
                 </div>
@@ -547,6 +554,17 @@ ul {
                     <span>{{ item.text }} ({{ item.value }})</span>
                   </template>
                 </v-autocomplete>
+              </div>
+
+              <div class="col-lg-2">
+                <div class="jurisdiction-label">Action on Match</div>
+                <b-form-select
+                  v-model="widgetConfigTemp.jurisdictionRules.actionOnRestriction"
+                  :options="jurisdictionActionOptions"
+                ></b-form-select>
+                <div class="jurisdiction-action-help">
+                  {{ selectedJurisdictionActionDescription }}
+                </div>
               </div>
             </div>
           </div>
@@ -682,7 +700,6 @@ export default {
     handler(enabled) {
       if (!enabled && this.widgetConfigTemp.jurisdictionRules) {
         this.widgetConfigTemp.jurisdictionRules.countries = []
-        this.widgetConfigTemp.jurisdictionRules.actionOnRestriction = 'HARD_REJECT'
       }
     }
   },
@@ -747,6 +764,11 @@ export default {
           flag: this.countryFlagFromAlpha3(code),
         }
       })
+    },
+    selectedJurisdictionActionDescription() {
+      const action = this.widgetConfigTemp.jurisdictionRules?.actionOnRestriction
+      const option = this.jurisdictionActionOptions.find(option => option.value === action)
+      return option?.description || ''
     },
   },
 
@@ -975,6 +997,18 @@ export default {
           description: 'Only permit selected countries',
         },
       ],
+      jurisdictionActionOptions: [
+        {
+          value: 'HARD_REJECT',
+          text: 'Hard Reject (Stop Onboarding)',
+          description: 'Rejects the session immediately if the user matches the configured jurisdiction rule.',
+        },
+        {
+          value: 'MANUAL_REVIEW',
+          text: 'Manual Review',
+          description: 'Allows the user to complete verification, then sends the session to the manual review queue.',
+        },
+      ],
 
     }
   },
@@ -1021,7 +1055,9 @@ export default {
       existingRules.countries = Array.isArray(existingRules.countries)
         ? existingRules.countries.map(country => String(country).toUpperCase()).filter(country => !!country)
         : []
-      existingRules.actionOnRestriction = 'HARD_REJECT'
+      existingRules.actionOnRestriction = ['HARD_REJECT', 'MANUAL_REVIEW'].includes(existingRules.actionOnRestriction)
+        ? existingRules.actionOnRestriction
+        : defaults.actionOnRestriction
     },
     countryFlagFromAlpha2(alpha2) {
       if (!alpha2 || alpha2.length !== 2) return ''
@@ -1043,7 +1079,7 @@ export default {
 
       if (!rules.enabled) {
         rules.countries = []
-        rules.actionOnRestriction = 'HARD_REJECT'
+        rules.actionOnRestriction = rules.actionOnRestriction || 'HARD_REJECT'
         return
       }
 
@@ -1060,7 +1096,9 @@ export default {
         throw new Error(`Invalid country code(s): ${invalidCountries.join(', ')}`)
       }
 
-      rules.actionOnRestriction = 'HARD_REJECT'
+      if (!['HARD_REJECT', 'MANUAL_REVIEW'].includes(rules.actionOnRestriction)) {
+        throw new Error('Kindly select a jurisdiction action on match')
+      }
     },
 
     selectedServiceEventHandler(event) {
