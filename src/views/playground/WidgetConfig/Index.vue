@@ -246,6 +246,69 @@ ul {
   width: 100%;
 }
 
+.jurisdiction-country-search-wrap {
+  position: relative;
+}
+
+.jurisdiction-country-search-hint {
+  color: #7c8798;
+  font-size: 10px;
+  left: 44px;
+  line-height: 1;
+  pointer-events: none;
+  position: absolute;
+  top: 7px;
+  z-index: 2;
+}
+
+::v-deep(.jurisdiction-country-select.v-text-field--outlined > .v-input__control > .v-input__slot) {
+  background: #f8fafc;
+  border-radius: 8px;
+  min-height: 44px;
+  transition: background-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+::v-deep(.jurisdiction-country-select.v-text-field--outlined:not(.v-input--is-focused) fieldset) {
+  border-color: #e2e8f0;
+}
+
+::v-deep(.jurisdiction-country-select.v-text-field--outlined.v-input--is-focused fieldset) {
+  border-color: #94a3b8;
+  border-width: 1px;
+}
+
+::v-deep(.jurisdiction-country-select.v-input--is-focused > .v-input__control > .v-input__slot) {
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(148, 163, 184, 0.14);
+}
+
+::v-deep(.jurisdiction-country-select:not(.v-input--is-focused):hover fieldset) {
+  border-color: #cbd5e1;
+}
+
+::v-deep(.jurisdiction-country-select .v-input__prepend-inner),
+::v-deep(.jurisdiction-country-select .v-input__append-inner) {
+  align-self: center;
+  margin-top: 0;
+}
+
+::v-deep(.jurisdiction-country-select .v-input__prepend-inner) {
+  padding-left: 2px;
+  padding-right: 10px;
+}
+
+::v-deep(.jurisdiction-country-select input) {
+  color: #374151;
+  font-size: 13px;
+  line-height: 20px;
+  margin-top: 11px;
+  max-height: 32px;
+}
+
+::v-deep(.jurisdiction-country-select .v-icon) {
+  color: #7c8798 !important;
+}
+
 .jurisdiction-action-column {
   grid-column: 1 / -1;
   max-width: 440px;
@@ -581,38 +644,43 @@ ul {
                     </span>
                   </span>
                 </div>
-                <v-autocomplete
-                  v-model="widgetConfigTemp.jurisdictionRules.countries"
-                  :items="countryOptions"
-                  item-text="displayText"
-                  item-value="value"
-                  multiple
-                  outlined
-                  dense
-                  hide-details
-                  label="Select or search country..."
-                  :menu-props="{ maxHeight: 320, offsetY: true, closeOnContentClick: false }"
-                >
-                  <template v-slot:prepend-inner>
-                    <v-icon small color="grey">mdi-magnify</v-icon>
-                  </template>
-                  <template v-slot:selection></template>
-                  <template v-slot:item="{ item }">
-                    <div class="country-dropdown-item">
-                      <span>
-                        <span class="mr-2">{{ item.flag }}</span>
-                        <span>{{ item.text }} ({{ item.value }})</span>
-                      </span>
-                      <v-icon
-                        v-if="isJurisdictionCountrySelected(item.value)"
-                        color="primary"
-                        small
-                      >
-                        mdi-check
-                      </v-icon>
-                    </div>
-                  </template>
-                </v-autocomplete>
+                <div class="jurisdiction-country-search-wrap">
+                  <span class="jurisdiction-country-search-hint">
+                    Select or search country...
+                  </span>
+                  <v-autocomplete
+                    class="jurisdiction-country-select"
+                    v-model="widgetConfigTemp.jurisdictionRules.countries"
+                    :items="countryOptions"
+                    item-text="displayText"
+                    item-value="value"
+                    multiple
+                    outlined
+                    dense
+                    hide-details
+                    :menu-props="{ maxHeight: 320, offsetY: true, closeOnContentClick: false }"
+                  >
+                    <template v-slot:prepend-inner>
+                      <v-icon small color="grey">mdi-magnify</v-icon>
+                    </template>
+                    <template v-slot:selection></template>
+                    <template v-slot:item="{ item }">
+                      <div class="country-dropdown-item">
+                        <span>
+                          <span class="mr-2">{{ item.flag }}</span>
+                          <span>{{ item.text }} ({{ item.value }})</span>
+                        </span>
+                        <v-icon
+                          v-if="isJurisdictionCountrySelected(item.value)"
+                          color="primary"
+                          small
+                        >
+                          mdi-check
+                        </v-icon>
+                      </div>
+                    </template>
+                  </v-autocomplete>
+                </div>
               </div>
 
               <div class="jurisdiction-column jurisdiction-action-column">
