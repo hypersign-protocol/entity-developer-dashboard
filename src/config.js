@@ -177,7 +177,12 @@ config['FaicalAuthenticationError'] = {
     4: 'Rejected, to perform face check due to the pose of the face',
     5: 'Rejected, due to problems in the extraction of the facial pattern',
     6: 'Rejected, because document has already been verified in some other account with this service',
-    7: 'Failed, because the date of birth could not be read correctly from the document'
+    7: 'Failed, because the date of birth could not be read correctly from the document',
+    8: 'Failed, because document issuing country is restricted',
+    9: 'Failed, because nationality is restricted',
+    10: 'Failed, because document issuing country is not allowed',
+    11: 'Failed, because nationality is not allowed',
+    12: 'Failed, because jurisdiction restriction requires manual review'
 }
 const kycServerBaseUrl = process.env.VUE_APP_KYC_SERVER_BASE_URL || 'https://api.cavach.hypersign.id'
 config['KYC_SERVER_BASE_URL'] = kycServerBaseUrl;

@@ -2396,6 +2396,48 @@ const mainStore = {
                     })
             })
         },
+        submitManualReviewDecision: async ({ getters, dispatch }, payload) => {
+            const { sessionId, action, reasonCode, comments } = payload
+            if (!sessionId) {
+                throw new Error('Session Id is required')
+            }
+            if (!action) {
+                throw new Error('Decision action is required')
+            }
+            if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
+                throw new Error('Tenant url is null or empty, service is not selected')
+            }
+            if (!getters.getSelectedService.access_token) {
+                throw new Error('authToken is invalid, service is not selected')
+            }
+
+            const token = await dispatch('getValidToken', {
+                serviceId: getters.getSelectedService.appId,
+                grant_type: config.GRANT_TYPES_ENUM.CAVACH_API,
+                tokenStorageKey: "access_token"
+            });
+            const headers = UtilsMixin.methods.getKycServiceHeader(token);
+            const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/sessions/${encodeURIComponent(sessionId)}/decision`;
+            const resp = await fetch(url, {
+                method: 'POST',
+                headers,
+                body: JSON.stringify({
+                    action,
+                    reasonCode,
+                    comments
+                })
+            })
+            const json = await resp.json()
+            if (!resp.ok || json.error) {
+                const errorDetails = json.error?.details;
+                const message = Array.isArray(errorDetails)
+                    ? errorDetails.join(' ')
+                    : json.error?.message || json.error || json.message || 'Error while submitting manual review decision'
+                throw new Error(message)
+            }
+
+            return json.data || json
+        },
         async fetchUsageForASSIService({ getters, dispatch }, payload) {
             const { startDate, endDate } = payload
             if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
