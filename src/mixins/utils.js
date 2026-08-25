@@ -203,6 +203,20 @@ export default {
 </span>`
             }
 
+            if (status == 'REJECTED') {
+                return `<span class="badge badge-pill badge-outline-danger p-2">
+  <i class="mdi mdi-close-circle-outline mr-1"></i>
+  Rejected
+</span>`
+            }
+
+            if (status == 'MANUAL_REVIEW') {
+                return `<span class="badge badge-pill badge-outline-warning p-2">
+  <i class="mdi mdi-alert-circle-outline mr-1"></i>
+  Manual Review
+</span>`
+            }
+
             if (status == 'Expired') {
                 return `<span class="badge badge-pill badge-outline-secondary p-2">
   <i class="mdi mdi-clock-remove-outline mr-1"></i>
