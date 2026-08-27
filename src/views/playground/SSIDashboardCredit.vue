@@ -144,89 +144,84 @@ h5 span {
 }
 </style>
 <template>
-    <div>
+    <b-container fluid class="py-3 ssi-credit-page">
         <loadIng :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loadIng>
         <AccessDenied v-if="accessDenied" />
-        <!-- Credits -->
         <template v-if="!accessDenied">
-          <div class="row">
-            <div class="col-md-6" style="text-align: left">
-                <div class="form-group" style="display:flex">
-                    <h3 style="text-align: left;">Credits</h3>
+        <v-row align="center" class="mb-6">
+            <v-col cols="12" md="6">
+                <h4 class="font-weight-bold mb-0">Credits</h4>
+            </v-col>
+            <v-col cols="12" md="6" class="d-flex align-center justify-end">
+                <div class="ml-auto refresh-button-wrapper">
+                    <hf-buttons name="Refresh" iconClass="arrow-clockwise" :bIcon="true" outlined
+                        @executeAction="reloadData()"></hf-buttons>
                 </div>
-            </div>
-            <div class="col-6">
-                <hf-buttons name=" Refresh" iconClass="arrow-clockwise" :bIcon="true" class="ml-auto "
-                    style="float: right;" @executeAction="reloadData()"></hf-buttons>
-            </div>
-        </div>
-        <!-- <div>
-            <div style="text-align: left">
-                <div class="form-group" style="display:flex">
-                    <h3 style="text-align: left;">Credits</h3>
+            </v-col>
+        </v-row>
+
+        <v-row>
+            <v-col cols="12" md="6">
+                <div class="overview-container h-100">
+                    <div class="chart-wrapper">
+                        <canvas id="doughNutChat"></canvas>
+                    </div>
                 </div>
-            </div>
-        </div> -->
-        <div class="row">
-            <div class="col-4">
-                <div class="p-1">
-                    <canvas id="doughNutChat"></canvas>
+            </v-col>
+            <v-col cols="12" md="6">
+                <div class="overview-container h-100">
+                    <div class="chart-wrapper">
+                        <canvas id="allowanceDoughNutChart"></canvas>
+                    </div>
                 </div>
-            </div>
-            <div class="col-2"></div>
-            <div class="col-6">
-                   <v-card class="serviceCard p-4 mt-1">
-                    <div class="">
-                        <div class="">
-                            <p><b>Total Credits</b></p>
+            </v-col>
+        </v-row>
+
+        <v-row>
+            <v-col cols="12" md="6">
+                <div class="overview-container h-100">
+                    <p class="summary-label"><b>Total Credits</b></p>
                           <p v-if="mySSICredits.allRemainingCredits === 0 && mySSICredits.allAvailableCredits === 0">
-                            <span style="font-size: xx-large;">
+                            <span class="summary-value color-blue">
                                 {{ numberFormat(mySSICredits.allRemainingCredits) }}
                             </span>
                          </p>
                          <p v-else>
-                            <span style="font-size: xx-large;">
+                            <span class="summary-value color-blue">
                                 {{ numberFormat(mySSICredits.allRemainingCredits) }}
                             </span> 
-                            <span style="font-size: larger;">/</span>
-                            <span style="font-size: larger; color: grey">
-                                {{ numberFormat(mySSICredits.allAvailableCredits) }}
+                            <span class="summary-total">
+                                / {{ numberFormat(mySSICredits.allAvailableCredits) }}
                             </span>
                          </p>
-                            <p v-if="this.timeRemaining==='Expired'">
-                                <span style="font-size:small; color: grey">
-                                    Expired
-                                </span>
-                            </p>
-                             <p v-else-if="this.timeRemaining==='InActive'">
-                                <span style="font-size:small; color: grey">
-                                    InActive
-                                </span>
-                            </p>
-                             <p v-else>
-                                <span style="font-size:small; color: grey">
-                                    Expires In: {{ this.timeRemaining }}
-                                </span>
-                            </p>
-                        </div>
-                    </div>
-                </v-card>
-                <v-card class="serviceCard p-4 mt-2">
-                    <div>
-                        <p><b>Scope(s)</b></p>
+                    <p v-if="timeRemaining === 'Expired'" class="summary-label mb-0">Expired</p>
+                    <p v-else-if="timeRemaining === 'InActive'" class="summary-label mb-0">InActive</p>
+                    <p v-else class="summary-label mb-0">Expires In: {{ timeRemaining }}</p>
+                </div>
+            </v-col>
+            <v-col cols="12" md="6">
+                <div class="overview-container h-100">
+                        <p class="summary-label"><b>Total Allowance</b></p>
+                        <p v-if="mySSIAllowance.allRemainingAllowance === 0 && mySSIAllowance.allAvailableAllowance === 0">
+                            <span class="summary-value color-green">{{ numberFormat(mySSIAllowance.allRemainingAllowance) }}</span>
+                        </p>
+                        <p v-else>
+                            <span class="summary-value color-green">{{ numberFormat(mySSIAllowance.allRemainingAllowance) }}</span>
+                            <span class="summary-total">/ {{ numberFormat(mySSIAllowance.allAvailableAllowance) }}</span>
+                        </p>
+                    <v-divider class="my-4"></v-divider>
+                        <p class="summary-label"><b>Scope(s)</b></p>
                         <p v-if="allowance.scope.length > 0">
-                            <span class="badge badge-info mx-1" v-for="eachRow in allowance.scope"
+                            <span class="scope-badge" v-for="eachRow in allowance.scope"
                                 v-bind:key="eachRow">{{
                                     eachRow }}</span>
                         </p>
-                        <p v-else>
+                        <p v-else class="text-muted mb-0">
                             No scope granted!
                         </p>
-
-                    </div>
-                </v-card>
-            </div>
-        </div>
+                </div>
+            </v-col>
+        </v-row>
 
         <!-- Credit History -->
         <!-- 
@@ -285,78 +280,83 @@ h5 span {
         </div>
         </div> 
          -->
-  <div class="row" v-if="this.getSsiCredits.length > 0">
-            <div class="col-md-12" style="text-align: left">
-                <div class="form-group" style="display:flex">
-                    <h3 style="text-align: left;">Credit History</h3>
-                </div>
-            </div>
-        </div>
-        <div class="row" v-if="this.getSsiCredits.length > 0">
-            <div class="col p-1">
-                <table class="table table-hover event-card">
-                    <thead class="thead-light">
+        <v-row v-if="getSsiCredits.length > 0">
+            <v-col cols="12">
+                <div class="overview-container">
+                    <div class="header-row">
+                        <h2 class="title">Credit History</h2>
+                    </div>
+                    <div class="usage-table-wrapper">
+                <table class="usage-table">
+                    <colgroup>
+                        <col class="plan-column">
+                        <col class="date-column">
+                        <col class="credits-column">
+                        <col class="expiry-column">
+                        <col class="progress-column">
+                        <col class="progress-column">
+                        <col class="action-column">
+                    </colgroup>
+                    <thead>
                         <tr>
-
-                            <th scope="col">Date</th>
-                            <th scope="col">Credit(s)</th>
-                            <!-- <th scope="col">Used Credit(s)</th> -->
-                            <th scope="col">Expires In</th>
-
-                            <th scope="col">Available Credits</th>
-                            <th scope="col"></th>
+                            <th>Plan Id</th>
+                            <th>Date</th>
+                            <th class="text-right">Credit(s)</th>
+                            <th>Expires In</th>
+                            <th>Available Credits</th>
+                            <th>Available Allowance</th>
+                            <th></th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-for="eachRow in getSortedSSICredits" v-bind:key="eachRow._id">
+                        <tr v-for="eachRow in getSortedSSICredits" :key="eachRow._id">
                             <td>
-
-                                {{ formatDate(eachRow.createdAt) }} 
+                                <div class="plan-id-cell">
+                                    <code class="small text-muted">{{ shorten(eachRow._id) }}</code>
+                                    <i class="far fa-copy" title="Copy Plan Id"
+                                        @click="copyToClip(eachRow._id, 'Plan Id')"></i>
+                                </div>
                             </td>
-
-                            <td>
-                                {{ numberFormat(eachRow.totalCredits) }}
+                            <td class="font-weight-bold date-cell">{{ formatDate(eachRow.createdAt) }}</td>
+                            <td class="text-right font-weight-bold">{{ numberFormat(eachRow.totalCredits) }}</td>
+                            <td class="expiry-cell">
+                                <span v-if="eachRow.used >= eachRow.totalCredits" class="text-muted small">Credit Limit Reached</span>
+                                <span v-else-if="Date.now() > new Date(eachRow.expiresAt)" class="text-danger small">Expired</span>
+                                <span v-else class="small font-weight-medium">
+                                    {{ isValidDate(eachRow.expiresAt) ? formatCompactTimeRemaining(eachRow.expiresAt) : 'Not Activated' }}
+                                </span>
                             </td>
-
-                            <!-- <td>
-                                {{ numberFormat(eachRow.used) }}
-                            </td> -->
-                            <td v-if="eachRow.used >= eachRow.totalCredits" class="greyFont">
-                                Credit Limit Reached
-                                
-                            </td>
-                            <td v-else-if="Date.now() > new Date(eachRow.expiresAt)" class="greyFont">
-                                Expired
-                            </td>
-                            <td v-else>
-                                  {{ isValidDate(eachRow.expiresAt) ? formatTimeRemaining(eachRow.expiresAt) : 'Not Activated' }}
-                            </td>
-
-
-                            <td :title="`Credit left: ${eachRow.totalCredits - eachRow.used}`" >
-                                <b-progress :max="eachRow.totalCredits" class="mt-1" v-if="Date.now() > new Date(eachRow.expiresAt)" >
-                                    <b-progress-bar :value="eachRow.used" variant="danger" ></b-progress-bar>
-                                </b-progress>
-                                <b-progress :max="eachRow.totalCredits" class="mt-1" v-else >
-                                    <b-progress-bar :value="eachRow.used" variant="danger" ></b-progress-bar>
+                            <td :title="`Credit left: ${eachRow.totalCredits - eachRow.used}`">
+                                <b-progress :max="eachRow.totalCredits" height="12px">
+                                    <b-progress-bar :value="eachRow.used"
+                                        :variant="Date.now() > new Date(eachRow.expiresAt) ? 'secondary' : 'primary'"></b-progress-bar>
                                 </b-progress>
                             </td>
-
-                            <td v-if="(eachRow.status == 'Active'   && !(Date.now() > new Date(eachRow.expiresAt)) ) ">
-                                <hf-buttons iconClass="circle-fill" :bIcon="true" class="ml-auto " style="color:gray; "
-                                    disabled animate="throb" :name="eachRow.status">
-                                </hf-buttons>
+                            <td v-if="eachRow.onChainAllowance && Number(eachRow.onChainAllowance.amount) > 0"
+                                :title="`Allowance left: ${Math.max(Number(eachRow.onChainAllowance.amount) - Number(eachRow.onChainAllowance.usedAmount || 0), 0)}`">
+                                <b-progress :max="Number(eachRow.onChainAllowance.amount)" height="12px">
+                                    <b-progress-bar :value="Number(eachRow.onChainAllowance.usedAmount || 0)"
+                                        :variant="Date.now() > new Date(eachRow.expiresAt) ? 'secondary' : 'success'"></b-progress-bar>
+                                </b-progress>
                             </td>
-                            <td v-else>
-                                <hf-buttons v-if="eachRow.used < eachRow.totalCredits && !(Date.now() > new Date(eachRow.expiresAt)) " name=" Activate"
-                                    iconClass="play-circle" :bIcon="true" class="ml-auto "
+                            <td v-else class="text-muted text-center">—</td>
+                            <td>
+                                <hf-buttons v-if="eachRow.status === 'Active' && !(Date.now() > new Date(eachRow.expiresAt))"
+                                    iconClass="circle-fill" :bIcon="true" disabled animate="throb"
+                                    customClass="btn btn-outline-secondary compact-active-button"
+                                    :name="eachRow.status"></hf-buttons>
+                                <hf-buttons v-else-if="eachRow.used < eachRow.totalCredits && !(Date.now() > new Date(eachRow.expiresAt))"
+                                    name=" Activate" iconClass="play-circle" :bIcon="true"
+                                    customClass="btn btn-outline-secondary compact-activate-button"
                                     @executeAction="activateParticularSSICredit(eachRow)"></hf-buttons>
                             </td>
                         </tr>
                     </tbody>
                 </table>
-            </div>
-        </div>
+                    </div>
+                </div>
+            </v-col>
+        </v-row>
 
         <hf-pop-up id="credit-estimation" Header="Credit/Usage Estimation Calculator">
 
@@ -421,7 +421,7 @@ h5 span {
 
         </hf-pop-up>
         </template><!-- end v-if !accessDenied -->
-    </div>
+    </b-container>
 </template>
 
 
@@ -531,6 +531,26 @@ export default {
                 allRemainingCredits: total.allAvailableCredits - total.allUsedCredits,
                 expiresAt: expiryAt.expiresAt
             }
+        },
+        mySSIAllowance() {
+            const empty = { allAvailableAllowance: 0, allUsedAllowance: 0, allRemainingAllowance: 0 };
+            if (!Array.isArray(this.getSsiCredits) || this.getSsiCredits.length === 0) return empty;
+
+            const now = new Date();
+            const activeAllowances = this.getSsiCredits.filter(credit => {
+                const allowance = credit.onChainAllowance;
+                return allowance && credit.expiresAt && new Date(credit.expiresAt) >= now &&
+                    Number(allowance.usedAmount || 0) < Number(allowance.amount || 0);
+            });
+            const total = activeAllowances.reduce((accumulator, credit) => ({
+                allAvailableAllowance: accumulator.allAvailableAllowance + Number(credit.onChainAllowance.amount || 0),
+                allUsedAllowance: accumulator.allUsedAllowance + Number(credit.onChainAllowance.usedAmount || 0)
+            }), { allAvailableAllowance: 0, allUsedAllowance: 0 });
+
+            return {
+                ...total,
+                allRemainingAllowance: total.allAvailableAllowance - total.allUsedAllowance
+            };
         }
 
     },
@@ -558,6 +578,7 @@ export default {
             accessDeniedMsg: '',
             timer: null,
             doughNutChart: null,
+            allowanceDoughNutChart: null,
             didChart: null,
             schemaChart: null,
             credChart: null,
@@ -674,6 +695,35 @@ export default {
                         }
                     ]
                 },
+                options: {
+                    maintainAspectRatio: false
+                }
+            });
+
+            const allowanceUsed = this.mySSIAllowance.allUsedAllowance || 0;
+            const allowanceRemaining = this.mySSIAllowance.allRemainingAllowance || 0;
+            const allowanceTotal = allowanceUsed + allowanceRemaining;
+            const allowanceData = allowanceTotal === 0 ? [1, 0] : [allowanceUsed, allowanceRemaining];
+            const allowanceCtx = document.getElementById('allowanceDoughNutChart');
+            this.allowanceDoughNutChart?.destroy();
+            this.allowanceDoughNutChart = new Chart(allowanceCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Allowance Used', 'Allowance Left'],
+                    datasets: [{
+                        label: 'Allowance',
+                        data: allowanceData,
+                        backgroundColor: ['grey', 'green'],
+                        hoverOffset: 4,
+                        cutout: '50%',
+                        circumference: 180,
+                        rotation: 270,
+                        hoverBorderJoinStyle: 'round',
+                    }]
+                },
+                options: {
+                    maintainAspectRatio: false
+                }
             });
         },
         renderUsageChart() {
@@ -833,6 +883,20 @@ export default {
              const parsedDate = new Date(date);
              return !isNaN(parsedDate.getTime());
          },
+        formatCompactTimeRemaining(date) {
+            const remainingMs = new Date(date).getTime() - Date.now();
+            if (remainingMs <= 0) return 'Expired';
+
+            const totalSeconds = Math.floor(remainingMs / 1000);
+            const days = Math.floor(totalSeconds / 86400);
+            const hours = Math.floor((totalSeconds % 86400) / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            const seconds = totalSeconds % 60;
+
+            if (days > 0) return `${days}d ${hours}h ${minutes}m`;
+            if (hours > 0) return `${hours}h ${minutes}m`;
+            return `${minutes}m ${seconds}s`;
+        },
            updateTimer() {
             this.timeRemaining = this.formatTimeRemaining(this.mySSICredits.expiresAt);
         },
@@ -886,3 +950,184 @@ export default {
 }
 
 </script>
+
+<style scoped>
+.py-3 {
+    width: 80vw !important;
+}
+
+.overview-container {
+    height: 100%;
+    padding: 1.5rem;
+    background-color: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.75rem;
+}
+
+.header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+}
+
+.title {
+    margin: 0;
+    color: #111827;
+    font-size: 1.125rem;
+    font-weight: 700;
+}
+
+.chart-wrapper {
+    position: relative;
+    height: 180px;
+}
+
+.summary-label {
+    margin-bottom: 0.25rem;
+    color: #6b7280;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.summary-value {
+    font-size: 2.125rem;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.summary-total {
+    margin-left: 0.5rem;
+    color: #6b7280;
+    font-size: 1rem;
+}
+
+.scope-badge,
+.package-count {
+    display: inline-block;
+    margin: 0.125rem 0.25rem 0.125rem 0;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    background-color: #e0f2fe;
+    color: #0369a1;
+    font-size: 0.7rem;
+    font-weight: 600;
+}
+
+.usage-table-wrapper {
+    width: 100%;
+    margin-top: 1rem;
+    overflow-x: auto;
+    border: 1px solid #f3f4f6;
+    border-radius: 0.5rem;
+    background-color: #fff;
+}
+
+.usage-table {
+    width: 100%;
+    min-width: 1100px;
+    table-layout: fixed;
+    border-collapse: collapse;
+}
+
+.plan-column {
+    width: 16%;
+}
+
+.date-column {
+    width: 14%;
+}
+
+.credits-column {
+    width: 9%;
+}
+
+.expiry-column {
+    width: 12%;
+}
+
+.progress-column {
+    width: 20%;
+}
+
+.action-column {
+    width: 9%;
+}
+
+.usage-table th {
+    padding: 0.75rem;
+    border-bottom: 1px solid #e2e8f0;
+    background-color: #f8fafc;
+    color: #64748b;
+    font-size: 0.75rem;
+    text-align: left;
+    text-transform: uppercase;
+}
+
+.usage-table td {
+    padding: 0.75rem;
+    border-bottom: 1px solid #f1f5f9;
+    font-size: 0.875rem;
+    vertical-align: middle;
+}
+
+.plan-id-cell {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    white-space: nowrap;
+}
+
+.plan-id-cell .far {
+    flex: 0 0 auto;
+    padding-left: 0;
+    font-size: 1rem;
+}
+
+.date-cell,
+.expiry-cell {
+    white-space: nowrap;
+}
+
+::v-deep .compact-active-button {
+    min-width: 72px !important;
+    height: 28px !important;
+    padding: 0 8px !important;
+    font-size: 0.72rem !important;
+}
+
+::v-deep .compact-activate-button {
+    min-width: 82px !important;
+    height: 28px !important;
+    padding: 0 8px !important;
+    font-size: 0.72rem !important;
+}
+
+.color-blue {
+    color: #3b82f6;
+}
+
+.color-green {
+    color: #10b981;
+}
+
+.text-danger {
+    color: #ef4444 !important;
+}
+
+.progress {
+    overflow: hidden;
+    border-radius: 10px;
+    background-color: #e9ecef !important;
+}
+
+@media (max-width: 767.98px) {
+    .py-3 {
+        width: 100% !important;
+    }
+
+    .summary-value {
+        font-size: 1.75rem;
+    }
+}
+</style>
