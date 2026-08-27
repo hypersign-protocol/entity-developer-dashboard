@@ -160,7 +160,7 @@ h5 span {
             </v-col>
         </v-row>
 
-        <v-row>
+        <v-row class="credit-overview-row">
             <v-col cols="12" md="6">
                 <div class="overview-container h-100">
                     <div class="chart-wrapper">
@@ -170,55 +170,57 @@ h5 span {
             </v-col>
             <v-col cols="12" md="6">
                 <div class="overview-container h-100">
-                    <div class="chart-wrapper">
-                        <canvas id="allowanceDoughNutChart"></canvas>
-                    </div>
-                </div>
-            </v-col>
-        </v-row>
-
-        <v-row>
-            <v-col cols="12" md="6">
-                <div class="overview-container h-100">
                     <p class="summary-label"><b>Total Credits</b></p>
-                          <p v-if="mySSICredits.allRemainingCredits === 0 && mySSICredits.allAvailableCredits === 0">
+                    <p v-if="mySSICredits.allRemainingCredits === 0 && mySSICredits.allAvailableCredits === 0">
                             <span class="summary-value color-blue">
                                 {{ numberFormat(mySSICredits.allRemainingCredits) }}
                             </span>
-                         </p>
-                         <p v-else>
-                            <span class="summary-value color-blue">
-                                {{ numberFormat(mySSICredits.allRemainingCredits) }}
-                            </span> 
-                            <span class="summary-total">
-                                / {{ numberFormat(mySSICredits.allAvailableCredits) }}
-                            </span>
-                         </p>
+                    </p>
+                    <p v-else>
+                        <span class="summary-value color-blue">
+                            {{ numberFormat(mySSICredits.allRemainingCredits) }}
+                        </span>
+                        <span class="summary-total">
+                            / {{ numberFormat(mySSICredits.allAvailableCredits) }}
+                        </span>
+                    </p>
                     <p v-if="timeRemaining === 'Expired'" class="summary-label mb-0">Expired</p>
                     <p v-else-if="timeRemaining === 'InActive'" class="summary-label mb-0">InActive</p>
                     <p v-else class="summary-label mb-0">Expires In: {{ timeRemaining }}</p>
                 </div>
             </v-col>
+        </v-row>
+
+        <v-row class="credit-overview-row">
             <v-col cols="12" md="6">
                 <div class="overview-container h-100">
-                        <p class="summary-label"><b>Total Allowance</b></p>
-                        <p v-if="mySSIAllowance.allRemainingAllowance === 0 && mySSIAllowance.allAvailableAllowance === 0">
-                            <span class="summary-value color-green">{{ numberFormat(mySSIAllowance.allRemainingAllowance) }}</span>
-                        </p>
-                        <p v-else>
-                            <span class="summary-value color-green">{{ numberFormat(mySSIAllowance.allRemainingAllowance) }}</span>
-                            <span class="summary-total">/ {{ numberFormat(mySSIAllowance.allAvailableAllowance) }}</span>
-                        </p>
-                    <v-divider class="my-4"></v-divider>
-                        <p class="summary-label"><b>Scope(s)</b></p>
-                        <p v-if="allowance.scope.length > 0">
-                            <span class="scope-badge" v-for="eachRow in allowance.scope"
-                                v-bind:key="eachRow">{{
-                                    eachRow }}</span>
-                        </p>
-                        <p v-else class="text-muted mb-0">
-                            No scope granted!
-                        </p>
+                    <div class="chart-wrapper">
+                        <canvas id="allowanceDoughNutChart"></canvas>
+                    </div>
+                </div>
+            </v-col>
+            <v-col cols="12" md="6">
+                <div class="overview-container h-100">
+                    <p class="summary-label"><b>Total Allowance</b></p>
+                    <p v-if="mySSIAllowance.allRemainingAllowance === 0 && mySSIAllowance.allAvailableAllowance === 0">
+                        <span class="summary-value color-green">{{ numberFormat(mySSIAllowance.allRemainingAllowance) }}</span>
+                    </p>
+                    <p v-else>
+                        <span class="summary-value color-green">{{ numberFormat(mySSIAllowance.allRemainingAllowance) }}</span>
+                        <span class="summary-total">/ {{ numberFormat(mySSIAllowance.allAvailableAllowance) }}</span>
+                    </p>
+                    <v-divider class="my-3"></v-divider>
+                    <p class="summary-label"><b>Scope(s)</b></p>
+                    <p v-if="allowance.scope.length > 0" class="scope-list">
+                        <span class="scope-badge" v-for="eachRow in allowance.scope"
+                            v-bind:key="eachRow">{{ eachRow }}</span>
+                    </p>
+                    <p v-else class="text-muted scope-list">
+                        No scope granted!
+                    </p>
+                    <p v-if="expiration === 'Expired'" class="summary-label mb-0">Expired</p>
+                    <p v-else-if="expiration === 'InActive'" class="summary-label mb-0">InActive</p>
+                    <p v-else class="summary-label mb-0">Expires In: {{ expiration }}</p>
                 </div>
             </v-col>
         </v-row>
@@ -291,7 +293,6 @@ h5 span {
                     <colgroup>
                         <col class="plan-column">
                         <col class="date-column">
-                        <col class="credits-column">
                         <col class="expiry-column">
                         <col class="progress-column">
                         <col class="progress-column">
@@ -301,7 +302,6 @@ h5 span {
                         <tr>
                             <th>Plan Id</th>
                             <th>Date</th>
-                            <th class="text-right">Credit(s)</th>
                             <th>Expires In</th>
                             <th>Available Credits</th>
                             <th>Available Allowance</th>
@@ -318,7 +318,6 @@ h5 span {
                                 </div>
                             </td>
                             <td class="font-weight-bold date-cell">{{ formatDate(eachRow.createdAt) }}</td>
-                            <td class="text-right font-weight-bold">{{ numberFormat(eachRow.totalCredits) }}</td>
                             <td class="expiry-cell">
                                 <span v-if="eachRow.used >= eachRow.totalCredits" class="text-muted small">Credit Limit Reached</span>
                                 <span v-else-if="Date.now() > new Date(eachRow.expiresAt)" class="text-danger small">Expired</span>
@@ -897,10 +896,28 @@ export default {
             if (hours > 0) return `${hours}h ${minutes}m`;
             return `${minutes}m ${seconds}s`;
         },
-           updateTimer() {
-            this.timeRemaining = this.formatTimeRemaining(this.mySSICredits.expiresAt);
+        formatSummaryTimeRemaining(date) {
+            const expiry = new Date(date).getTime();
+            if (!date || Number.isNaN(expiry)) return 'InActive';
+
+            const remainingSeconds = Math.floor((expiry - Date.now()) / 1000);
+            if (remainingSeconds <= 0) return 'Expired';
+
+            const days = Math.floor(remainingSeconds / 86400);
+            const hours = Math.floor((remainingSeconds % 86400) / 3600);
+            const minutes = Math.floor((remainingSeconds % 3600) / 60);
+            const seconds = remainingSeconds % 60;
+
+            if (days > 0) return `${days}d ${hours}h ${minutes}m ${seconds}s`;
+            if (hours > 0) return `${hours}h ${minutes}m ${seconds}s`;
+            return `${minutes}m ${seconds}s`;
+        },
+        updateTimer() {
+            this.timeRemaining = this.formatSummaryTimeRemaining(this.mySSICredits.expiresAt);
+            this.expiration = this.formatSummaryTimeRemaining(this.allowance.expiration);
         },
         startTimer() {
+            this.stopTimer();
             this.updateTimer();
             this.timer = setInterval(() => {
                 this.updateTimer();
@@ -913,7 +930,6 @@ export default {
         try {
             this.isLoading = true
             const credits = await this.fetchSSICredits()
-            this.startTimer();
             const creditsArr = Array.isArray(credits) ? credits : [];
             this.ssiCredits = creditsArr;
             const activeCredit = creditsArr.find(each => each.status === 'Active');
@@ -927,18 +943,13 @@ export default {
                 this.allowance.scope = [];
                 this.allowance.expiration = null;
             }
+            this.startTimer();
             this.isLoading = false
         } catch (e) {
             this.isLoading = false;
             this.handleApiError(e, 'GET');
             console.error(e);
         } finally {
-            if (!this.accessDenied && this.allowance.expiration) {
-                this.expiration = this.getTimeUntilEvent(this.allowance.expiration)
-                this.interval = setInterval(() => {
-                    this.expiration = this.getTimeUntilEvent(this.allowance.expiration)
-                }, 1000)
-            }
             if (!this.accessDenied) this.renderChart();
         }
 
@@ -962,6 +973,14 @@ export default {
     background-color: #f9fafb;
     border: 1px solid #e5e7eb;
     border-radius: 0.75rem;
+}
+
+.credit-overview-row > [class*="col-"] {
+    display: flex;
+}
+
+.credit-overview-row .overview-container {
+    width: 100%;
 }
 
 .header-row {
@@ -1014,6 +1033,11 @@ export default {
     font-weight: 600;
 }
 
+.scope-list {
+    min-height: 1.75rem;
+    margin-bottom: 0.75rem;
+}
+
 .usage-table-wrapper {
     width: 100%;
     margin-top: 1rem;
@@ -1025,33 +1049,29 @@ export default {
 
 .usage-table {
     width: 100%;
-    min-width: 1100px;
+    min-width: 1000px;
     table-layout: fixed;
     border-collapse: collapse;
 }
 
 .plan-column {
-    width: 16%;
+    width: 17%;
 }
 
 .date-column {
-    width: 14%;
-}
-
-.credits-column {
-    width: 9%;
+    width: 16%;
 }
 
 .expiry-column {
-    width: 12%;
+    width: 13%;
 }
 
 .progress-column {
-    width: 20%;
+    width: 22%;
 }
 
 .action-column {
-    width: 9%;
+    width: 10%;
 }
 
 .usage-table th {
