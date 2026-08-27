@@ -131,6 +131,216 @@ ul {
   padding: 6px 8px;
 }
 
+.jurisdiction-panel {
+  background: #fff;
+  min-width: 0;
+}
+
+.jurisdiction-description {
+  color: #6c757d;
+  font-size: 80%;
+  line-height: 1.45;
+  margin: 4px 0 22px;
+}
+
+.jurisdiction-label {
+  color: #374151;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.jurisdiction-config-grid {
+  display: grid;
+  gap: 24px;
+  grid-template-columns: minmax(300px, 5fr) minmax(0, 7fr);
+}
+
+.jurisdiction-column {
+  min-width: 0;
+}
+
+.strategy-options {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.strategy-card {
+  align-items: flex-start;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  margin: 0;
+  min-height: 120px;
+  padding: 16px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  width: 100%;
+}
+
+.strategy-card.active {
+  border-color: #8ab9ff;
+  box-shadow: 0 0 0 1px #8ab9ff;
+}
+
+.strategy-radio {
+  flex: 0 0 auto;
+  margin-right: 14px;
+  margin-top: 2px;
+}
+
+.strategy-title {
+  color: #374151;
+  font-weight: 700;
+  margin-bottom: 18px;
+}
+
+.strategy-help {
+  color: #6b7280;
+  font-size: 0.92rem;
+  line-height: 1.35;
+}
+
+.country-chip-row {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 12px;
+  margin-bottom: 12px;
+  min-height: 58px;
+  overflow-x: auto;
+  padding: 1px 0 8px;
+  scrollbar-width: thin;
+  width: 100%;
+}
+
+.country-chip {
+  align-items: center;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  color: #374151;
+  display: inline-flex;
+  flex: 0 0 auto;
+  font-weight: 600;
+  min-height: 44px;
+  padding: 10px 12px;
+}
+
+.country-chip-flag {
+  font-size: 1.45rem;
+  line-height: 1;
+  margin-right: 10px;
+}
+
+.country-chip-remove {
+  color: #374151;
+  cursor: pointer;
+  font-size: 1.2rem;
+  line-height: 1;
+  margin-left: 18px;
+}
+
+.country-dropdown-item {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.jurisdiction-country-search-wrap {
+  position: relative;
+}
+
+.jurisdiction-country-search-hint {
+  color: #7c8798;
+  font-size: 10px;
+  left: 44px;
+  line-height: 1;
+  pointer-events: none;
+  position: absolute;
+  top: 7px;
+  z-index: 2;
+}
+
+::v-deep(.jurisdiction-country-select.v-text-field--outlined > .v-input__control > .v-input__slot) {
+  background: #f8fafc;
+  border-radius: 8px;
+  min-height: 44px;
+  transition: background-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+::v-deep(.jurisdiction-country-select.v-text-field--outlined:not(.v-input--is-focused) fieldset) {
+  border-color: #e2e8f0;
+}
+
+::v-deep(.jurisdiction-country-select.v-text-field--outlined.v-input--is-focused fieldset) {
+  border-color: #94a3b8;
+  border-width: 1px;
+}
+
+::v-deep(.jurisdiction-country-select.v-input--is-focused > .v-input__control > .v-input__slot) {
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(148, 163, 184, 0.14);
+}
+
+::v-deep(.jurisdiction-country-select:not(.v-input--is-focused):hover fieldset) {
+  border-color: #cbd5e1;
+}
+
+::v-deep(.jurisdiction-country-select .v-input__prepend-inner),
+::v-deep(.jurisdiction-country-select .v-input__append-inner) {
+  align-self: center;
+  margin-top: 0;
+}
+
+::v-deep(.jurisdiction-country-select .v-input__prepend-inner) {
+  padding-left: 2px;
+  padding-right: 10px;
+}
+
+::v-deep(.jurisdiction-country-select input) {
+  color: #374151;
+  font-size: 13px;
+  line-height: 20px;
+  margin-top: 11px;
+  max-height: 32px;
+}
+
+::v-deep(.jurisdiction-country-select .v-icon) {
+  color: #7c8798 !important;
+}
+
+.jurisdiction-action-column {
+  grid-column: 1 / -1;
+  max-width: 440px;
+}
+
+.jurisdiction-action-help {
+  color: #6b7280;
+  font-size: 0.86rem;
+  line-height: 1.4;
+  margin-top: 8px;
+}
+
+@media (max-width: 991.98px) {
+  .jurisdiction-config-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .jurisdiction-action-column {
+    grid-column: auto;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .strategy-options {
+    grid-template-columns: 1fr;
+  }
+
+  .strategy-card {
+    min-height: auto;
+  }
+}
+
 /* .zkbadge {
   background-color: lightblue;
   margin-left: 3px;
@@ -373,6 +583,119 @@ ul {
             </div>
           </div>
         </li>
+        <li class="list-group-item">
+          <div class="jurisdiction-panel">
+            <b-form-checkbox
+              switch
+              size="lg"
+              v-model="widgetConfigTemp.jurisdictionRules.enabled"
+            >
+              {{ widgetConfigUI.jurisdictionRules.label }}
+            </b-form-checkbox>
+            <p class="jurisdiction-description">
+              {{ widgetConfigUI.jurisdictionRules.description }}
+              <br>
+              {{ widgetConfigUI.jurisdictionRules.secondaryDescription }}
+            </p>
+
+            <div v-if="widgetConfigTemp.jurisdictionRules.enabled" class="jurisdiction-config-grid">
+              <div class="jurisdiction-column">
+                <div class="jurisdiction-label">Enforcement Strategy</div>
+                <div class="strategy-options">
+                  <label
+                    v-for="option in jurisdictionStrategyOptions"
+                    :key="option.value"
+                    class="strategy-card"
+                    :class="{ active: widgetConfigTemp.jurisdictionRules.strategy === option.value }"
+                  >
+                    <b-form-radio
+                      class="strategy-radio"
+                      v-model="widgetConfigTemp.jurisdictionRules.strategy"
+                      :value="option.value"
+                      name="jurisdiction-strategy"
+                    >
+                    </b-form-radio>
+                    <div>
+                      <div class="strategy-title">{{ option.text }}</div>
+                      <div class="strategy-help">{{ option.description }}</div>
+                    </div>
+                  </label>
+                </div>
+              </div>
+
+              <div class="jurisdiction-column">
+                <div class="jurisdiction-label">
+                  Target Countries<span v-if="selectedJurisdictionCountries.length > 0"> ({{ selectedJurisdictionCountries.length }})</span>
+                </div>
+                <div class="country-chip-row" v-if="selectedJurisdictionCountries.length > 0">
+                  <span
+                    v-for="country in selectedJurisdictionCountries"
+                    :key="country.value"
+                    class="country-chip"
+                  >
+                    <span class="country-chip-flag">{{ country.flag }}</span>
+                    <span>{{ country.text }} ({{ country.value }})</span>
+                    <span
+                      class="country-chip-remove"
+                      title="Remove country"
+                      @click="removeJurisdictionCountry(country.value)"
+                    >
+                      ×
+                    </span>
+                  </span>
+                </div>
+                <div class="jurisdiction-country-search-wrap">
+                  <span class="jurisdiction-country-search-hint">
+                    Select or search country...
+                  </span>
+                  <v-autocomplete
+                    class="jurisdiction-country-select"
+                    v-model="widgetConfigTemp.jurisdictionRules.countries"
+                    :items="countryOptions"
+                    item-text="displayText"
+                    item-value="value"
+                    multiple
+                    outlined
+                    dense
+                    hide-details
+                    :menu-props="{ maxHeight: 320, offsetY: true, closeOnContentClick: false }"
+                  >
+                    <template v-slot:prepend-inner>
+                      <v-icon small color="grey">mdi-magnify</v-icon>
+                    </template>
+                    <template v-slot:selection></template>
+                    <template v-slot:item="{ item }">
+                      <div class="country-dropdown-item">
+                        <span>
+                          <span class="mr-2">{{ item.flag }}</span>
+                          <span>{{ item.text }} ({{ item.value }})</span>
+                        </span>
+                        <v-icon
+                          v-if="isJurisdictionCountrySelected(item.value)"
+                          color="primary"
+                          small
+                        >
+                          mdi-check
+                        </v-icon>
+                      </div>
+                    </template>
+                  </v-autocomplete>
+                </div>
+              </div>
+
+              <div class="jurisdiction-column jurisdiction-action-column">
+                <div class="jurisdiction-label">Action on Match</div>
+                <b-form-select
+                  v-model="widgetConfigTemp.jurisdictionRules.actionOnRestriction"
+                  :options="jurisdictionActionOptions"
+                ></b-form-select>
+                <div class="jurisdiction-action-help">
+                  {{ selectedJurisdictionActionDescription }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </li>
          <li class="list-group-item">
           <div class="row">
             <div class="col-md-6">
@@ -421,6 +744,10 @@ import { isAccessDeniedError } from '../../../utils/accessDenied';
 import MarketplaceList from '../../../components/MarketplaceList.vue';
 import HFBeta from '../../../components/element/HFBeta.vue';
 import config from '../../../config';
+import countries from 'i18n-iso-countries';
+import enLocale from 'i18n-iso-countries/langs/en.json';
+
+countries.registerLocale(enLocale);
 
 export default {
   name: "WidgetConfig",
@@ -495,7 +822,7 @@ export default {
     },
     immediate: true
 
-  }
+  },
 },
   computed: {
     ...mapState({
@@ -522,6 +849,39 @@ export default {
         })
       });
       return options
+    },
+    countryOptions() {
+      return Object.entries(countries.getNames('en', { select: 'alias' }))
+        .map(([alpha2, name]) => {
+          const alpha3 = countries.alpha2ToAlpha3(alpha2)
+          const displayName = alpha2 === 'AE' ? 'United Arab Emirates' : name
+
+          return {
+            value: alpha3,
+            text: displayName,
+            displayText: `${displayName} (${alpha3})`,
+            flag: this.countryFlagFromAlpha2(alpha2),
+          }
+        })
+        .filter(country => !!country.value)
+        .sort((a, b) => a.text.localeCompare(b.text))
+    },
+    selectedJurisdictionCountries() {
+      const selected = this.widgetConfigTemp.jurisdictionRules?.countries || []
+      return selected.map(code => {
+        const option = this.countryOptions.find(country => country.value === code)
+        return option || {
+          value: code,
+          text: code,
+          displayText: code,
+          flag: this.countryFlagFromAlpha3(code),
+        }
+      })
+    },
+    selectedJurisdictionActionDescription() {
+      const action = this.widgetConfigTemp.jurisdictionRules?.actionOnRestriction
+      const option = this.jurisdictionActionOptions.find(option => option.value === action)
+      return option?.description || ''
     },
   },
 
@@ -550,6 +910,7 @@ export default {
     if (typeof this.widgetConfigTemp.isMobileAssistedVerification !== 'boolean') {
       this.$set(this.widgetConfigTemp, 'isMobileAssistedVerification', true)
     }
+    this.ensureJurisdictionRules()
 
     this.trustedIssuersList = [...this.getMarketPlaceApps];
     this.appId = this.$route.params.appId;
@@ -659,6 +1020,11 @@ export default {
           label: "Mobile-Assisted Verification",
           description: "When enabled, users who start verification on a desktop will continue ID verification on their mobile device by scanning a QR code. This improves verification success rates, provides a better user experience, and strengthens proof of possession. Disable to allow the entire verification process to be completed on the desktop."
         },
+        jurisdictionRules: {
+          label: "Enable Jurisdictional Restrictions",
+          description: "Enforce compliance policies by restricting access based on document issuing country and nationality.",
+          secondaryDescription: "Choose to either block high-risk regions (Blocklist) or restrict onboarding to specific permitted territories (Allowlist)."
+        },
       },
       fullPage: true,
       isLoading: false,
@@ -698,6 +1064,12 @@ export default {
         isVaultEnabled: true,
         isEmailNotificationEnabled: true,
         isMobileAssistedVerification: true,
+        jurisdictionRules: {
+          enabled: false,
+          strategy: 'BLOCKLIST',
+          countries: [],
+          actionOnRestriction: 'HARD_REJECT',
+        },
         issuerDID: "",
         issuerVerificationMethodId: "",
       },
@@ -726,6 +1098,30 @@ export default {
           text: "Government ID"
         },
       ],
+      jurisdictionStrategyOptions: [
+        {
+          value: 'BLOCKLIST',
+          text: 'Blocklist',
+          description: 'Block selected countries',
+        },
+        {
+          value: 'ALLOWLIST',
+          text: 'Allowlist',
+          description: 'Only permit selected countries',
+        },
+      ],
+      jurisdictionActionOptions: [
+        {
+          value: 'HARD_REJECT',
+          text: 'Hard Reject (Stop Onboarding)',
+          description: 'Rejects the session immediately if the user matches the configured jurisdiction rule.',
+        },
+        {
+          value: 'MANUAL_REVIEW',
+          text: 'Manual Review',
+          description: 'Allows the user to complete verification, then sends the session to the manual review queue.',
+        },
+      ],
 
     }
   },
@@ -741,6 +1137,84 @@ export default {
       }
 
       this.notifyErr(message)
+    },
+    defaultJurisdictionRules() {
+      return {
+        enabled: false,
+        strategy: 'BLOCKLIST',
+        countries: [],
+        actionOnRestriction: 'HARD_REJECT',
+      }
+    },
+    ensureJurisdictionRules() {
+      const defaults = this.defaultJurisdictionRules()
+
+      if (!this.widgetConfigTemp.jurisdictionRules) {
+        this.$set(this.widgetConfigTemp, 'jurisdictionRules', defaults)
+        return
+      }
+
+      const existingRules = this.widgetConfigTemp.jurisdictionRules
+      Object.keys(defaults).forEach(key => {
+        if (!Object.prototype.hasOwnProperty.call(existingRules, key)) {
+          this.$set(existingRules, key, defaults[key])
+        }
+      })
+
+      existingRules.enabled = existingRules.enabled === true
+      existingRules.strategy = ['BLOCKLIST', 'ALLOWLIST'].includes(existingRules.strategy)
+        ? existingRules.strategy
+        : defaults.strategy
+      existingRules.countries = Array.isArray(existingRules.countries)
+        ? existingRules.countries.map(country => String(country).toUpperCase()).filter(country => !!country)
+        : []
+      existingRules.actionOnRestriction = ['HARD_REJECT', 'MANUAL_REVIEW'].includes(existingRules.actionOnRestriction)
+        ? existingRules.actionOnRestriction
+        : defaults.actionOnRestriction
+    },
+    countryFlagFromAlpha2(alpha2) {
+      if (!alpha2 || alpha2.length !== 2) return ''
+      return alpha2
+        .toUpperCase()
+        .replace(/./g, char => String.fromCodePoint(127397 + char.charCodeAt()))
+    },
+    countryFlagFromAlpha3(alpha3) {
+      const alpha2 = countries.alpha3ToAlpha2(alpha3)
+      return this.countryFlagFromAlpha2(alpha2)
+    },
+    removeJurisdictionCountry(countryCode) {
+      const selectedCountries = this.widgetConfigTemp.jurisdictionRules.countries || []
+      this.widgetConfigTemp.jurisdictionRules.countries = selectedCountries.filter(country => country !== countryCode)
+    },
+    isJurisdictionCountrySelected(countryCode) {
+      return (this.widgetConfigTemp.jurisdictionRules.countries || []).includes(countryCode)
+    },
+    validateJurisdictionRules() {
+      this.ensureJurisdictionRules()
+      const rules = this.widgetConfigTemp.jurisdictionRules
+
+      if (!rules.enabled) {
+        rules.countries = []
+        rules.actionOnRestriction = rules.actionOnRestriction || 'HARD_REJECT'
+        return
+      }
+
+      if (!['BLOCKLIST', 'ALLOWLIST'].includes(rules.strategy)) {
+        throw new Error('Kindly select a jurisdiction enforcement strategy')
+      }
+
+      if (!Array.isArray(rules.countries) || rules.countries.length === 0) {
+        throw new Error('Kindly select at least one target country for jurisdiction restrictions')
+      }
+
+      const invalidCountries = rules.countries.filter(country => !/^[A-Z]{3}$/.test(country) || !countries.alpha3ToAlpha2(country))
+      if (invalidCountries.length > 0) {
+        throw new Error(`Invalid country code(s): ${invalidCountries.join(', ')}`)
+      }
+
+      if (!['HARD_REJECT', 'MANUAL_REVIEW'].includes(rules.actionOnRestriction)) {
+        throw new Error('Kindly select a jurisdiction action on match')
+      }
     },
 
     selectedServiceEventHandler(event) {
@@ -865,6 +1339,7 @@ export default {
       this.widgetConfigTemp.isWidgetLogin = this.widgetConfigTemp.isWidgetLogin !== false
       this.widgetConfigTemp.isMobileAssistedVerification = this.widgetConfigTemp.isMobileAssistedVerification !== false
       this.migratedocumentUploadMode()
+      this.validateJurisdictionRules()
       if (!this.widgetConfigTemp.issuerDID) {
         throw new Error('Issuer DID is required')
       }
@@ -924,6 +1399,7 @@ export default {
         await this.createAppsWidgetConfig()
         if (this.widgetConfig) {
           this.widgetConfigTemp = JSON.parse(JSON.stringify(this.widgetConfig))
+          this.ensureJurisdictionRules()
         }
 
         this.isLoading = false
@@ -947,6 +1423,7 @@ export default {
         if (this.widgetConfig) {
           // this.widgetConfigTemp = { ...this.widgetConfig }
           this.widgetConfigTemp.trustedIssuer = this.widgetConfigTemp.issuerDID ? true : false;
+          this.ensureJurisdictionRules()
         }
         this.isLoading = false
       } catch (e) {
