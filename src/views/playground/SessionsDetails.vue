@@ -512,6 +512,28 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+
+.score-value {
+  font-size: 3rem;
+  font-weight: 800;
+}
+.score-total {
+  font-size: 1.25rem;
+  font-weight: 500;
+}
+.badge-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-left: 2px;
+  display: inline-block;
+}
+.bg-success { background-color: #4CAF50; }
+.bg-warning { background-color: #FFC107; }
+.bg-orange { background-color: #FF9800; }
+.bg-danger { background-color: #F44336; }
+.cursor-pointer { cursor: pointer; }
 </style>
 
 <template>
@@ -742,6 +764,81 @@
               </tr>
             </tbody>
           </table>
+        </div>
+      </v-col>
+
+
+      <!-- Risk Score Card -->
+      <v-col
+        cols="12"
+        md="6"
+        lg="4"
+        id="risk-score-info"
+        v-if="session && session.risk"
+      >
+        <div class="detail-card p-4">
+          <div class="card-section-title d-flex align-center justify-space-between">
+            <span><i class="fa fa-shield-alt mr-2"></i>RISK SCORE</span>
+            
+            <!-- Tooltip showing score interpretation -->
+            <v-tooltip bottom max-width="280" class="margin-left-2">
+              <template v-slot:activator="{ on, attrs }">
+                <i 
+                  class="fa fa-info-circle text-muted cursor-pointer" 
+                  v-bind="attrs" 
+                  v-on="on"
+                ></i>
+              </template>
+              <div class="pa-2">
+                <div class="font-weight-bold mb-2">Score Interpretation</div>
+                <div class="d-flex align-center mb-1">
+                  <span class="badge-dot bg-success mr-2"></span>
+                  <span class="mr-3">0 - 24</span>
+                  <span>Low Risk</span>
+                </div>
+                <div class="d-flex align-center mb-1">
+                  <span class="badge-dot bg-warning mr-2"></span>
+                  <span class="mr-3">25 - 59</span>
+                  <span>Medium Risk</span>
+                </div>
+                <div class="d-flex align-center mb-1">
+                  <span class="badge-dot bg-orange mr-2"></span>
+                  <span class="mr-3">60 - 79</span>
+                  <span>High Risk</span>
+                </div>
+                <div class="d-flex align-center mb-2">
+                  <span class="badge-dot bg-danger mr-2"></span>
+                  <span class="mr-3">80 - 100</span>
+                  <span>Critical Risk</span>
+                </div>
+                <div class="text-caption text-grey-lighten-1">
+                  Score calculated based on session results and risk strategy.
+                </div>
+              </div>
+            </v-tooltip>
+          </div>
+
+          <!-- Card Content -->
+          <div class="risk-card-body mt-3">
+            <div class="text-subtitle-2 text-muted mb-1">Total Score</div>
+            <div class="score-display mb-4">
+              <span class="score-value" :style="{ color: riskColor }">
+                {{ session.risk.riskScore ?? 0 }}
+              </span>
+              <span class="score-total text-muted"> / 100</span>
+            </div>
+
+            <div class="text-subtitle-2 text-muted mb-2">Risk Band</div>
+            <v-chip
+              dark
+              label
+              small
+              class="font-weight-bold"
+              :style="{ backgroundColor: riskColor }"
+            >
+              {{ session.risk.riskBand || 'N/A' }}
+            </v-chip>
+          </div>
         </div>
       </v-col>
 
@@ -1116,7 +1213,7 @@
     </v-row>
 
     <!-- Verification Timeline -->
-    <v-row class="mt-2 mb-4">
+    <v-row class="mt-2 mb-4" v-if="sortedTimelineDetails && sortedTimelineDetails.length > 0">
       <v-col cols="12">
         <div class="detail-card p-4" id="timelines-info">
           <div class="card-section-title">
@@ -1675,6 +1772,21 @@ export default {
     hasManualDecisions() {
       return this.normalizedManualDecisions.length > 0;
     },
+    riskColor() {
+      const band = this.session?.risk?.riskBand;
+      switch (band) {
+        case 'CRITICAL':
+          return '#D32F2F'; // Red darken-2
+        case 'HIGH':
+          return '#FF5722'; // Deep-orange
+        case 'MEDIUM':
+          return '#FFC107'; // Amber / Warning
+        case 'LOW':
+          return '#4CAF50'; // Green
+        default:
+          return '#9E9E9E'; // Grey
+      }
+    }
   },
   data() {
     return {
@@ -1705,14 +1817,7 @@ export default {
       ],
       popupHeader: "",
       popupImage: "",
-      deviceDetails: {
-        ip: "",
-        os: "",
-        osVer: "",
-        brower: "",
-        device: "",
-        cpu: "",
-      },
+      deviceDetails: {},
       locationDetails: {},
       timeLineDetails: [],
       locationMap: {
