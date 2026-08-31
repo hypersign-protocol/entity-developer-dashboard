@@ -7,7 +7,6 @@
 ### Fixed
 - Fixed the exhausted credit color issue in the ID Service dashboard.
 ### [3.14.3] - 2026-08-25
-
 ### Added
 - Added jurisdictional restrictions configuration to the ID widget config, including Blocklist/Allowlist strategy selection, searchable ISO alpha-3 country selection, backend payload persistence through `jurisdictionRules`, and hard-reject defaults.
 
