@@ -178,7 +178,7 @@ export default {
         serviceId: '',
         amount: '100',
         validityPeriod: '12',
-        validityPeriodUnit: 'MONTH',
+        validityPeriodUnit: 'Month',
         amountDenom: 'uHID',
       }
     };

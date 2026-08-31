@@ -779,13 +779,13 @@
         <div class="detail-card p-4">
           <div class="card-section-title d-flex align-center justify-space-between">
             <span><i class="fa fa-shield-alt mr-2"></i>RISK SCORE</span>
-            
+
             <!-- Tooltip showing score interpretation -->
             <v-tooltip bottom max-width="280" class="margin-left-2">
               <template v-slot:activator="{ on, attrs }">
-                <i 
-                  class="fa fa-info-circle text-muted cursor-pointer" 
-                  v-bind="attrs" 
+                <i
+                  class="fa fa-info-circle text-muted cursor-pointer"
+                  v-bind="attrs"
                   v-on="on"
                 ></i>
               </template>
