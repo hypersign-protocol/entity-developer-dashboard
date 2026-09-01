@@ -18,6 +18,7 @@ const SSIDashboardUsage = () => import('./views/playground/SSIDashboardUsages.vu
 const KYCCreditDashboard = () => import('./views/playground/KYCDashboardCredit.vue')
 const UsageS = () => import('./views/api-usage-analytics/ApiUsage.vue')
 const OnChainKycSystems = () => import('./views/playground/OnChainKycSystems.vue')
+const WidgetConfigurations = () => import('./views/playground/WidgetConfig/Configurations.vue')
 const WidgetConfig = () => import('./views/playground/WidgetConfig/Index.vue')
 const WebhookConfig = () => import('./views/playground/developer/WebhookConfig.vue')
 const APIKey = () => import('./views/playground/developer/APIKey.vue')
@@ -225,11 +226,29 @@ const router = new Router({
     },
     {
       path: '/studio/widget-config/:appId',
-      name: 'WidgetConfig',
+      name: 'WidgetConfigurations',
+      component: WidgetConfigurations,
+      meta: {
+        requiresAuth: true,
+        title: `${config.app.name} - Widget Configurations`
+      }
+    },
+    {
+      path: '/studio/widget-config/:appId/new',
+      name: 'WidgetConfigNew',
       component: WidgetConfig,
       meta: {
         requiresAuth: true,
-        title: `${config.app.name} - WidgetConfig`
+        title: `${config.app.name} - New Widget Configuration`
+      }
+    },
+    {
+      path: '/studio/widget-config/:appId/:widgetConfigId',
+      name: 'WidgetConfigDetails',
+      component: WidgetConfig,
+      meta: {
+        requiresAuth: true,
+        title: `${config.app.name} - Widget Configuration`
       }
     },
     {

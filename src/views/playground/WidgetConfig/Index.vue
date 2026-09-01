@@ -9,6 +9,55 @@
   width: 80vw;
 }
 
+.editor-header {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+
+.back-link {
+  color: #64748b;
+  cursor: pointer;
+  display: inline-block;
+  font-size: 12px;
+  margin-bottom: 10px;
+}
+
+.configuration-meta {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  padding: 16px;
+}
+
+.configuration-tabs {
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  gap: 28px;
+  margin: 0;
+  overflow-x: auto;
+  padding: 0 18px;
+}
+
+.configuration-tab {
+  background: transparent;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  color: #64748b;
+  cursor: pointer;
+  font-size: 13px;
+  padding: 14px 2px 12px;
+  white-space: nowrap;
+}
+
+.configuration-tab.active {
+  border-bottom-color: #2563eb;
+  color: #2563eb;
+  font-weight: 600;
+}
+
 .UI--c-kbgiPT-iehgGlf-css {
   background-color: #9cb5f9;
 }
@@ -364,32 +413,48 @@ ul {
     <load-ing :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></load-ing>
     <AccessDenied v-if="accessDenied" />
     <template v-if="!accessDenied">
-    <v-row>
-      <v-col>
-        <div class="form-group" style="display:flex">
-          <div class="mb-3">
-              <h4 class="mb-1 font-weight-bold mb-0">ID Widget Configuration</h4>
-              <p class="text-muted small mb-0">Configure the ID widget for your application</p>
-          </div>
-        </div>
-      </v-col>
-      <v-col >
-        <HfButtons name="Save Configuration" @executeAction="saveConfiguration()" v-if="!widgetConfigTemp._id"
-          style="float:right"></HfButtons>
-        <HfButtons name="Update Configuration" @executeAction="updateConfiguration()" style="float:right" v-else>
-        </HfButtons>
-      </v-col>
-    </v-row>
+    <span class="back-link" @click="goBack"><v-icon x-small>mdi-arrow-left</v-icon> Back to configurations</span>
+    <div class="editor-header">
+      <div>
+        <h4 class="mb-1 font-weight-bold">{{ widgetConfigTemp.name || 'New Widget Configuration' }}</h4>
+        <p class="text-muted small mb-0">Configure the ID widget for your application.</p>
+      </div>
+      <div>
+        <b-button variant="outline-secondary" class="mr-2" @click="goBack">Cancel</b-button>
+        <HfButtons :name="widgetConfigTemp._id ? 'Update Configuration' : 'Save Configuration'"
+          @executeAction="widgetConfigTemp._id ? updateConfiguration() : saveConfiguration()" />
+      </div>
+    </div>
+
+    <div class="configuration-meta">
+      <b-row>
+        <b-col md="6">
+          <label><strong>Configuration Name</strong></label>
+          <b-form-input v-model.trim="widgetConfigTemp.name" placeholder="e.g. Customer Onboarding" />
+        </b-col>
+        <b-col md="6">
+          <label><strong>Description</strong></label>
+          <b-form-input v-model.trim="widgetConfigTemp.description" placeholder="Describe this verification flow" />
+        </b-col>
+      </b-row>
+      <b-form-checkbox v-if="widgetConfigTemp._id" v-model="widgetConfigTemp.default" switch class="mt-3">
+        Use as default configuration
+      </b-form-checkbox>
+    </div>
 
     <div class="serviceCard">
+      <nav class="configuration-tabs" aria-label="Configuration sections">
+        <button v-for="tab in tabs" :key="tab" type="button" class="configuration-tab"
+          :class="{ active: activeTab === tab }" @click="activeTab = tab">{{ tab }}</button>
+      </nav>
       <ul class="list-group list-group-flush">
-        <li class="list-group-item">
+        <li v-show="activeTab === 'Verification'" class="list-group-item">
           <b-form-checkbox switch size="lg" v-model="widgetConfigTemp.faceRecog" disabled title="Facial recognition is always enabled and cannot be disabled">{{
             this.widgetConfigUI.faceRecog.label }}</b-form-checkbox>
           <small v-html="widgetConfigUI.faceRecog.description"></small>
           <small class="text-muted d-block"><i class="mdi mdi-lock-outline mr-1"></i>This feature is always enabled and cannot be turned off.</small>
         </li>
-        <li class="list-group-item">
+        <li v-show="activeTab === 'Verification'" class="list-group-item">
           <div class="row">
             <div class="col-md-6">
               <b-form-checkbox switch size="lg" v-model="widgetConfigTemp.idOcr.enabled">
@@ -416,7 +481,7 @@ ul {
                 </div> -->
           </div>
         </li> 
-        <li class="list-group-item">
+        <li v-show="activeTab === 'Data & Consent'" class="list-group-item">
           <div class="row">
             <div class="col">
               <div class="row">
@@ -466,7 +531,7 @@ ul {
             </div>
           </div>
         </li>
-        <li class="list-group-item">
+        <li v-show="activeTab === 'Verification'" class="list-group-item">
           <div class="row">
 
             <div class="col">
@@ -485,7 +550,7 @@ ul {
         </li>
 
 
-        <li class="list-group-item">
+        <li v-show="activeTab === 'Data & Consent'" class="list-group-item">
           <div class="row">
             <div class="col-md-6">
               <b-form-checkbox
@@ -510,7 +575,7 @@ ul {
           </div>
         </li>
 
-         <li class="list-group-item">
+         <li v-show="activeTab === 'Verification'" class="list-group-item">
           <div class="row">
             <div class="col-md-6">
               <div class="row">
@@ -569,7 +634,7 @@ ul {
             </div>
           </div>
         </li> -->
-        <li class="list-group-item">
+        <li v-show="activeTab === 'Notifications'" class="list-group-item">
           <div class="row">
             <div class="col-md-6">
               <b-form-checkbox
@@ -583,7 +648,7 @@ ul {
             </div>
           </div>
         </li>
-        <li class="list-group-item">
+        <li v-show="activeTab === 'Restrictions'" class="list-group-item">
           <div class="jurisdiction-panel">
             <b-form-checkbox
               switch
@@ -696,7 +761,7 @@ ul {
             </div>
           </div>
         </li>
-         <li class="list-group-item">
+         <li v-show="activeTab === 'Experience'" class="list-group-item">
           <div class="row">
             <div class="col-md-6">
               <b-form-checkbox
@@ -710,7 +775,7 @@ ul {
             </div>
           </div>
         </li>
-        <li class="list-group-item">
+        <li v-show="activeTab === 'Experience'" class="list-group-item">
           <div class="row">
             <div class="col-md-6">
               <b-form-checkbox
@@ -887,12 +952,13 @@ export default {
 
   async mounted() {
     try {
-
-      // appId
       this.isLoading = true
-      // TODO: this we can stop until onchain feature is ready for production
       await this.fetchAppsOnChainConfigs()
-      await this.fetchAppsWidgetConfig()
+      if (this.$route.params.widgetConfigId) {
+        await this.fetchAppsWidgetConfig(this.$route.params.widgetConfigId)
+      } else {
+        this.setWidgetConfig({})
+      }
       await this.fetchMarketPlaceAppsFromServer()
       this.isLoading = false
     } catch (e) {
@@ -972,6 +1038,8 @@ export default {
   },
   data() {
     return {
+      activeTab: 'Verification',
+      tabs: ['Verification', 'Data & Consent', 'Experience', 'Notifications', 'Restrictions'],
       SupportedZkProofTypes: Object.freeze({
         PROOF_OF_AGE: 'zkProofOfAge',
       }),
@@ -1034,6 +1102,10 @@ export default {
       app: {},
       trustedIssuersList: [],
       widgetConfigTemp: {
+        name: '',
+        description: '',
+        tags: [],
+        default: false,
         faceRecog: true,
         idOcr: {
           enabled: false,
@@ -1128,6 +1200,21 @@ export default {
   methods: {
     ...mapMutations('mainStore', ['setWidgetConfig', 'setPreparedMarketPlaceApps', 'insertMarketplaceApps']),
     ...mapActions('mainStore', ['fetchAppsOnChainConfigs', 'fetchMarketPlaceAppsFromServer', 'createAppsWidgetConfig', 'fetchAppsWidgetConfig', 'updateAppsWidgetConfig']),
+    goBack() {
+      this.$router.push({ name: 'WidgetConfigurations', params: { appId: this.$route.params.appId } })
+    },
+    configurationPayload(isUpdate = false) {
+      const payload = JSON.parse(JSON.stringify(this.widgetConfigTemp))
+      delete payload.trustedIssuer
+      delete payload.serviceId
+      delete payload.createdAt
+      delete payload.updatedAt
+      if (!isUpdate) {
+        delete payload._id
+        delete payload.default
+      }
+      return payload
+    },
     handleApiError(error, method = 'GET') {
       const message = typeof error === 'string' ? error : error?.message || 'Something went wrong';
       if (method.toUpperCase() === 'GET' && isAccessDeniedError(error)) {
@@ -1336,6 +1423,12 @@ export default {
       }
     },
     validateField() {
+      if (!this.widgetConfigTemp.name) {
+        throw new Error('Configuration name is required')
+      }
+      if (!this.widgetConfigTemp.description) {
+        throw new Error('Configuration description is required')
+      }
       this.widgetConfigTemp.isWidgetLogin = this.widgetConfigTemp.isWidgetLogin !== false
       this.widgetConfigTemp.isMobileAssistedVerification = this.widgetConfigTemp.isMobileAssistedVerification !== false
       this.migratedocumentUploadMode()
@@ -1390,19 +1483,21 @@ export default {
     },
     async saveConfiguration() {
       try {
-        //TODO validate all fields
         this.isLoading = true;
         this.syncAgeProof()
         this.syncSelectiveDisclosure()
         this.validateField()
-        this.setWidgetConfig(this.widgetConfigTemp)
+        this.setWidgetConfig(this.configurationPayload())
         await this.createAppsWidgetConfig()
         if (this.widgetConfig) {
           this.widgetConfigTemp = JSON.parse(JSON.stringify(this.widgetConfig))
           this.ensureJurisdictionRules()
         }
-
-        this.isLoading = false
+        this.notifySuccess('Widget configuration created successfully')
+        this.$router.replace({
+          name: 'WidgetConfigDetails',
+          params: { appId: this.$route.params.appId, widgetConfigId: this.widgetConfigTemp._id }
+        })
 
       } catch (e) {
         this.isLoading = false
@@ -1412,19 +1507,19 @@ export default {
 
     async updateConfiguration() {
       try {
-        //TODO validate all field
         this.isLoading = true;
         this.syncAgeProof()
         this.syncSelectiveDisclosure()
         this.validateField()
 
-        this.setWidgetConfig(this.widgetConfigTemp)
+        this.setWidgetConfig(this.configurationPayload(true))
         await this.updateAppsWidgetConfig()
         if (this.widgetConfig) {
           // this.widgetConfigTemp = { ...this.widgetConfig }
           this.widgetConfigTemp.trustedIssuer = this.widgetConfigTemp.issuerDID ? true : false;
           this.ensureJurisdictionRules()
         }
+        this.notifySuccess('Widget configuration updated successfully')
         this.isLoading = false
       } catch (e) {
         this.isLoading = false
