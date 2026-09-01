@@ -121,6 +121,16 @@
         <b-pagination v-model="currentPage" :total-rows="filteredConfigurations.length" :per-page="perPage" size="sm" />
       </div>
     </template>
+    <CustomConfirmModal
+      :is-visible="showDeleteConfirm"
+      title="Delete Widget Configuration"
+      :message="deleteMessage"
+      type="danger"
+      confirm-text="Delete"
+      confirm-icon-class="fas fa-trash"
+      @confirm="confirmDelete"
+      @cancel="cancelDelete"
+    />
   </b-container>
 </template>
 
@@ -128,19 +138,22 @@
 import { mapActions, mapState } from 'vuex'
 import UtilsMixin from '../../../mixins/utils'
 import AccessDenied from '../../AccessDenied.vue'
+import CustomConfirmModal from '../../../components/element/CustomConfirmModal.vue'
 import { isAccessDeniedError } from '../../../utils/accessDenied'
 
 export default {
   name: 'WidgetConfigurations',
-  components: { AccessDenied },
+  components: { AccessDenied, CustomConfirmModal },
   mixins: [UtilsMixin],
   data() {
     return {
       accessDenied: false,
+      configurationToDelete: null,
       currentPage: 1,
       isLoading: false,
       perPage: 6,
       search: '',
+      showDeleteConfirm: false,
       sortBy: 'updated-desc',
       statusFilter: 'all',
       viewMode: 'table',
@@ -185,7 +198,12 @@ export default {
       return this.filteredConfigurations.slice((this.currentPage - 1) * this.perPage, this.currentPage * this.perPage)
     },
     pageStart() { return this.filteredConfigurations.length ? (this.currentPage - 1) * this.perPage + 1 : 0 },
-    pageEnd() { return Math.min(this.currentPage * this.perPage, this.filteredConfigurations.length) }
+    pageEnd() { return Math.min(this.currentPage * this.perPage, this.filteredConfigurations.length) },
+    deleteMessage() {
+      return this.configurationToDelete
+        ? `Delete “${this.configurationToDelete.name}”? This action cannot be undone.`
+        : ''
+    }
   },
   watch: {
     search() { this.currentPage = 1 },
@@ -210,16 +228,25 @@ export default {
     viewConfiguration(configuration) {
       this.$router.push({ name: 'WidgetConfigDetails', params: { appId: this.$route.params.appId, widgetConfigId: configuration._id } })
     },
-    async removeConfiguration(configuration) {
-      if (!window.confirm(`Delete “${configuration.name}”? This action cannot be undone.`)) return
+    removeConfiguration(configuration) {
+      this.configurationToDelete = configuration
+      this.showDeleteConfirm = true
+    },
+    cancelDelete() {
+      this.showDeleteConfirm = false
+      this.configurationToDelete = null
+    },
+    async confirmDelete() {
+      if (!this.configurationToDelete) return
       try {
         this.isLoading = true
-        await this.deleteAppsWidgetConfig(configuration._id)
+        await this.deleteAppsWidgetConfig(this.configurationToDelete._id)
         this.notifySuccess('Widget configuration deleted successfully')
       } catch (error) {
         this.notifyErr(typeof error === 'string' ? error : error.message)
       } finally {
         this.isLoading = false
+        this.cancelDelete()
       }
     },
     configurationSlug(configuration) {
