@@ -40,6 +40,7 @@ const mainStore = {
         widgetConfig: {
 
         },
+        widgetConfigs: [],
         kybWidgetConfig: {
 
         },
@@ -129,6 +130,9 @@ const mainStore = {
         getWidgetnConfig: (state) => {
             return state.widgetConfig
         },
+        getWidgetConfigs: (state) => {
+            return state.widgetConfigs
+        },
         getKybWidgetConfig: (state) => {
             return state.kybWidgetConfig
         },
@@ -205,6 +209,9 @@ const mainStore = {
         setWidgetConfig: (state, payload) => {
             state.widgetConfig = { ...payload }
         },
+        setWidgetConfigs: (state, payload) => {
+            state.widgetConfigs = Array.isArray(payload) ? [...payload] : []
+        },
         setKybWidgetConfig: (state, payload) => {
             state.kybWidgetConfig = { ...payload }
         },
@@ -224,6 +231,7 @@ const mainStore = {
             state.appList = []
             state.totalAppCount = 0
             state.widgetConfig = {}
+            state.widgetConfigs = []
             state.kybWidgetConfig = {}
             state.webhookConfig = {}
             state.kycWebpageConfig = {}
@@ -259,6 +267,7 @@ const mainStore = {
             state.isLoggedOut = false
             state.totalSessionCount = 0
             state.widgetConfig = {}
+            state.widgetConfigs = []
             state.kybWidgetConfig = {}
             state.webhookConfig = {}
             state.kycWebpageConfig = {}
@@ -1528,6 +1537,32 @@ const mainStore = {
 
 
         // Widget Config --------------------------------
+        fetchAppsWidgetConfigs: ({ commit, getters, dispatch }) => {
+            return new Promise((resolve, reject) => {
+                if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
+                    return reject(new Error('Tenant url is null or empty, service is not selected'))
+                }
+                const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/widget-config/all`;
+                // const url = `http://localhost:3001/api/v1/e-kyc/verification/widget-config/all`
+                dispatch('getValidToken', {
+                    serviceId: getters.getSelectedService.appId,
+                    grant_type: config.GRANT_TYPES_ENUM.CAVACH_API,
+                    tokenStorageKey: "access_token"
+                }).then((token) => {
+                    return fetch(url, {
+                        method: 'GET',
+                        headers: UtilsMixin.methods.getKycServiceHeader(token)
+                    })
+                }).then(response => response.json()).then(json => {
+                    if (json.error) {
+                        return reject(new Error(JWTExpiredErrorMessageHandling(json)))
+                    }
+                    commit('setWidgetConfigs', json.data)
+                    resolve(json.data)
+                }).catch(e => reject(`Error while fetching widget configurations ${e.message}`))
+            })
+        },
+
         createAppsWidgetConfig: ({ commit, getters, dispatch }) => {
             return new Promise((resolve, reject) => {
                 if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
@@ -1609,8 +1644,12 @@ const mainStore = {
                 if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
                     return reject(new Error('Tenant url is null or empty, service is not selected'))
                 }
-                const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/widget-config`;
-                // const url = `http://localhost:3001/api/v1/e-kyc/verification/widget-config`
+                const data = getters.getWidgetnConfig;
+                if (!data._id) {
+                    return reject(new Error('Widget configuration id is required'))
+                }
+                const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/widget-config/${encodeURIComponent(data._id)}`;
+                // const url = `http://localhost:3001/api/v1/e-kyc/verification/widget-config/${encodeURIComponent(data._id)}`
                 const authToken = getters.getSelectedService.access_token
                 if (!authToken) {
                     return reject(new Error('authToken is invalid, service is not selected'))
@@ -1638,6 +1677,33 @@ const mainStore = {
                     }).catch((e) => {
                         return reject(`Error while fetching apps ` + e.message);
                     })
+            })
+        },
+
+        deleteAppsWidgetConfig: ({ commit, getters, dispatch }, widgetConfigId) => {
+            return new Promise((resolve, reject) => {
+                if (!widgetConfigId) {
+                    return reject(new Error('Widget configuration id is required'))
+                }
+                if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
+                    return reject(new Error('Tenant url is null or empty, service is not selected'))
+                }
+                const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/widget-config/${encodeURIComponent(widgetConfigId)}`;
+                // const url = `http://localhost:3001/api/v1/e-kyc/verification/widget-config/${encodeURIComponent(widgetConfigId)}`
+                dispatch('getValidToken', {
+                    serviceId: getters.getSelectedService.appId,
+                    grant_type: config.GRANT_TYPES_ENUM.CAVACH_API,
+                    tokenStorageKey: "access_token"
+                }).then(token => fetch(url, {
+                    method: 'DELETE',
+                    headers: UtilsMixin.methods.getKycServiceHeader(token)
+                })).then(response => response.json()).then(json => {
+                    if (json.error) {
+                        return reject(new Error(JWTExpiredErrorMessageHandling(json)))
+                    }
+                    commit('setWidgetConfigs', getters.getWidgetConfigs.filter(config => config._id !== widgetConfigId))
+                    resolve(json.data)
+                }).catch(e => reject(`Error while deleting widget configuration ${e.message}`))
             })
         },
 
