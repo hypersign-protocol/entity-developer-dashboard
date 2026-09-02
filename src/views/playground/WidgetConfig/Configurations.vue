@@ -48,7 +48,7 @@
             <div class="configuration-identity">
               <div class="title-row">
                 <strong>{{ configuration.name }}</strong>
-                <span v-if="configuration.default" class="badge badge-default">Default</span>
+                <span v-if="configuration.isDefault" class="badge badge-default">Default</span>
               </div>
               <small>{{ configurationSlug(configuration) }}</small>
             </div>
@@ -88,7 +88,7 @@
               <div>
                 <div class="title-row">
                   <strong>{{ item.name }}</strong>
-                  <span v-if="item.default" class="badge badge-default">Default</span>
+                  <span v-if="item.isDefault" class="badge badge-default">Default</span>
                 </div>
                 <small>{{ configurationSlug(item) }}</small>
               </div>
@@ -177,13 +177,19 @@ export default {
     }
   },
   computed: {
-    ...mapState({ widgetConfigs: state => state.mainStore.widgetConfigs }),
+    ...mapState({
+      containerShift: state => state.playgroundStore.containerShift,
+      widgetConfigs: state => state.mainStore.widgetConfigs
+    }),
+    isContainerShift() {
+      return this.containerShift
+    },
     filteredConfigurations() {
       const search = this.search.toLowerCase()
       const list = this.widgetConfigs.filter(configuration => {
         const matchesSearch = !search || [configuration.name, configuration.description, ...(configuration.tags || [])]
           .filter(Boolean).some(value => String(value).toLowerCase().includes(search))
-        const matchesStatus = this.statusFilter === 'all' || (this.statusFilter === 'default' ? configuration.default : !configuration.default)
+        const matchesStatus = this.statusFilter === 'all' || (this.statusFilter === 'default' ? configuration.isDefault : !configuration.isDefault)
         return matchesSearch && matchesStatus
       })
       return list.sort((a, b) => {
@@ -291,37 +297,41 @@ export default {
 .page-header p { color: #64748b; font-size: 13px; margin: 0; }
 .header-actions { gap: 18px; }
 .view-toggle { border: 1px solid #dbe3ef; border-radius: 7px; overflow: hidden; }
-.view-toggle .btn { border: 0; min-width: 92px; }
-.view-toggle .btn-primary {
-  background: #0d6efd;
+.view-toggle .btn {
+  border: 0;
+  box-shadow: none !important;
+  min-width: 92px;
+}
+.view-toggle .btn-primary,
+.view-toggle .btn-primary:hover,
+.view-toggle .btn-primary:focus,
+.view-toggle .btn-primary:active,
+.new-button,
+.new-button:hover,
+.new-button:focus,
+.new-button:active {
+  background-color: #0d6efd !important;
+  border-color: #0d6efd !important;
   color: #fff !important;
 }
-.view-toggle .btn-primary .v-icon {
+.view-toggle .btn-primary .v-icon,
+.new-button .v-icon {
   color: #fff !important;
 }
-.view-toggle .btn-light {
-  background: #fff;
+.view-toggle .btn-light,
+.view-toggle .btn-light:hover,
+.view-toggle .btn-light:focus,
+.view-toggle .btn-light:active {
+  background-color: #fff !important;
   color: #334155 !important;
 }
 .view-toggle .btn-light .v-icon {
   color: #64748b !important;
 }
 .new-button {
-  background: #0d6efd;
-  border-color: #0d6efd;
-  color: #fff !important;
+  box-shadow: none !important;
   min-height: 42px;
   padding: 0 20px;
-}
-.new-button:hover, .new-button:focus {
-  background: #0b5ed7;
-  border-color: #0a58ca;
-  color: #fff !important;
-}
-.new-button .v-icon,
-.new-button:hover .v-icon,
-.new-button:focus .v-icon {
-  color: #fff !important;
 }
 .filters { gap: 20px; margin-bottom: 24px; }
 .filters .custom-select { border-color: #dbe3ef; height: 44px; max-width: 240px; }

@@ -41,6 +41,7 @@ const mainStore = {
 
         },
         widgetConfigs: [],
+        totalWidgetConfigCount: 0,
         kybWidgetConfig: {
 
         },
@@ -212,6 +213,9 @@ const mainStore = {
         setWidgetConfigs: (state, payload) => {
             state.widgetConfigs = Array.isArray(payload) ? [...payload] : []
         },
+        setTotalWidgetConfigCount: (state, payload) => {
+            state.totalWidgetConfigCount = payload || 0
+        },
         setKybWidgetConfig: (state, payload) => {
             state.kybWidgetConfig = { ...payload }
         },
@@ -232,6 +236,7 @@ const mainStore = {
             state.totalAppCount = 0
             state.widgetConfig = {}
             state.widgetConfigs = []
+            state.totalWidgetConfigCount = 0
             state.kybWidgetConfig = {}
             state.webhookConfig = {}
             state.kycWebpageConfig = {}
@@ -268,6 +273,7 @@ const mainStore = {
             state.totalSessionCount = 0
             state.widgetConfig = {}
             state.widgetConfigs = []
+            state.totalWidgetConfigCount = 0
             state.kybWidgetConfig = {}
             state.webhookConfig = {}
             state.kycWebpageConfig = {}
@@ -1557,8 +1563,9 @@ const mainStore = {
                     if (json.error) {
                         return reject(new Error(JWTExpiredErrorMessageHandling(json)))
                     }
-                    commit('setWidgetConfigs', json.data)
-                    resolve(json.data)
+                    commit('setWidgetConfigs', json.data.widgetConfigs)
+                    commit('setTotalWidgetConfigCount', json.data.totalCount)
+                    resolve(json.data.widgetConfigs)
                 }).catch(e => reject(`Error while fetching widget configurations ${e.message}`))
             })
         },
@@ -1599,13 +1606,17 @@ const mainStore = {
             })
         },
 
-        fetchAppsWidgetConfig: ({ commit, getters, dispatch }) => {
+        fetchAppsWidgetConfig: ({ commit, getters, dispatch }, widgetConfigId = null) => {
             return new Promise((resolve, reject) => {
                 if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
                     return reject(new Error('Tenant url is null or empty, service is not selected'))
                 }
-                const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/widget-config`;
-                // const url = `http://localhost:3001/api/v1/e-kyc/verification/widget-config/`
+                const url = widgetConfigId
+                    ? `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/widget-config/${encodeURIComponent(widgetConfigId)}`
+                    : `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyc/verification/widget-config/`;
+                // const url = widgetConfigId
+                //     ? `http://localhost:3001/api/v1/e-kyc/verification/widget-config/${encodeURIComponent(widgetConfigId)}`
+                //     : `http://localhost:3001/api/v1/e-kyc/verification/widget-config/`
                 const authToken = getters.getSelectedService.access_token
                 if (!authToken) {
                     return reject(new Error('authToken is invalid, service is not selected'))

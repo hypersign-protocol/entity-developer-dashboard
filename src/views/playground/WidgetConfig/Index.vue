@@ -430,14 +430,14 @@ ul {
       <b-row>
         <b-col md="6">
           <label><strong>Configuration Name</strong></label>
-          <b-form-input v-model.trim="widgetConfigTemp.name" placeholder="e.g. Customer Onboarding" />
+          <b-form-input v-model.trim="widgetConfigTemp.name" placeholder="e.g. Configuration name" />
         </b-col>
         <b-col md="6">
           <label><strong>Description</strong></label>
           <b-form-input v-model.trim="widgetConfigTemp.description" placeholder="Describe this verification flow" />
         </b-col>
       </b-row>
-      <b-form-checkbox v-if="widgetConfigTemp._id" v-model="widgetConfigTemp.default" switch class="mt-3">
+      <b-form-checkbox v-if="widgetConfigTemp._id" v-model="widgetConfigTemp.isDefault" switch class="mt-3">
         Use as default configuration
       </b-form-checkbox>
     </div>
@@ -895,7 +895,7 @@ export default {
       onchainconfigs: state => state.mainStore.onchainconfigs,
       widgetConfig: state => state.mainStore.widgetConfig
     }),
-    ...mapGetters('mainStore', ['getAppByAppId', 'getMarketPlaceApps']),
+    ...mapGetters('mainStore', ['getAppByAppId', 'getMarketPlaceApps', 'getSelectedService']),
     isContainerShift() {
       return this.containerShift
     },
@@ -953,10 +953,17 @@ export default {
   async mounted() {
     try {
       this.isLoading = true
-      await this.fetchAppsOnChainConfigs()
+      // await this.fetchAppsOnChainConfigs()
       if (this.$route.params.widgetConfigId) {
         await this.fetchAppsWidgetConfig(this.$route.params.widgetConfigId)
       } else {
+        try {
+          await this.fetchAppsWidgetConfig()
+          this.widgetConfigTemp.issuerDID = this.widgetConfig.issuerDID || ''
+          this.widgetConfigTemp.issuerVerificationMethodId = this.widgetConfig.issuerVerificationMethodId || ''
+        } catch (e) {
+          if (isAccessDeniedError(e)) throw e
+        }
         this.setWidgetConfig({})
       }
       await this.fetchMarketPlaceAppsFromServer()
@@ -982,12 +989,15 @@ export default {
     this.appId = this.$route.params.appId;
     //eslint-disable-next-line
     if (this.appId) {
-      this.app = { ...this.getAppByAppId(this.appId) }
-      if (this.app) {
+      this.app = this.getAppByAppId(this.appId) || this.getSelectedService || {}
+      if (this.app.appId) {
         this.widgetConfigTemp.userConsent.domain = this.app.domain ? this.app.domain : this.widgetConfigTemp.userConsent.domain;
         this.widgetConfigTemp.userConsent.logoUrl = this.app.logoUrl ? this.app.logoUrl : this.widgetConfigTemp.userConsent.logoUrl;
         if (!this.widgetConfigTemp.issuerDID) {
           this.widgetConfigTemp.issuerDID = this.app.issuerDid;
+        }
+        if (!this.widgetConfigTemp.issuerVerificationMethodId && this.widgetConfigTemp.issuerDID) {
+          this.widgetConfigTemp.issuerVerificationMethodId = this.app.issuerVerificationMethodId || `${this.widgetConfigTemp.issuerDID}#key-1`;
         }
 
         if (!this.getMarketPlaceApps.find(x => x.appId == this.app.appId)) {
@@ -1105,7 +1115,7 @@ export default {
         name: '',
         description: '',
         tags: [],
-        default: false,
+        isDefault: false,
         faceRecog: true,
         idOcr: {
           enabled: false,
@@ -1199,7 +1209,8 @@ export default {
   },
   methods: {
     ...mapMutations('mainStore', ['setWidgetConfig', 'setPreparedMarketPlaceApps', 'insertMarketplaceApps']),
-    ...mapActions('mainStore', ['fetchAppsOnChainConfigs', 'fetchMarketPlaceAppsFromServer', 'createAppsWidgetConfig', 'fetchAppsWidgetConfig', 'updateAppsWidgetConfig']),
+    // ...mapActions('mainStore', ['fetchAppsOnChainConfigs']),
+    ...mapActions('mainStore', ['fetchMarketPlaceAppsFromServer', 'createAppsWidgetConfig', 'fetchAppsWidgetConfig', 'updateAppsWidgetConfig']),
     goBack() {
       this.$router.push({ name: 'WidgetConfigurations', params: { appId: this.$route.params.appId } })
     },
@@ -1211,9 +1222,21 @@ export default {
       delete payload.updatedAt
       if (!isUpdate) {
         delete payload._id
-        delete payload.default
+        delete payload.isDefault
       }
       return payload
+    },
+    setIssuerDetails(forceUpdate = false) {
+      const app = this.getAppByAppId(this.$route.params.appId) || this.getSelectedService
+      if (!app) return
+      const hasServiceIssuer = !!app.issuerDid
+
+      if ((forceUpdate && hasServiceIssuer) || !this.widgetConfigTemp.issuerDID) {
+        this.widgetConfigTemp.issuerDID = app.issuerDid
+      }
+      if (((forceUpdate && hasServiceIssuer) || !this.widgetConfigTemp.issuerVerificationMethodId) && this.widgetConfigTemp.issuerDID) {
+        this.widgetConfigTemp.issuerVerificationMethodId = app.issuerVerificationMethodId || `${this.widgetConfigTemp.issuerDID}#key-1`
+      }
     },
     handleApiError(error, method = 'GET') {
       const message = typeof error === 'string' ? error : error?.message || 'Something went wrong';
@@ -1431,10 +1454,11 @@ export default {
       }
       this.widgetConfigTemp.isWidgetLogin = this.widgetConfigTemp.isWidgetLogin !== false
       this.widgetConfigTemp.isMobileAssistedVerification = this.widgetConfigTemp.isMobileAssistedVerification !== false
+      this.setIssuerDetails()
       this.migratedocumentUploadMode()
       this.validateJurisdictionRules()
       if (!this.widgetConfigTemp.issuerDID) {
-        throw new Error('Issuer DID is required')
+        throw new Error('Configure an Issuer DID in Service Configuration before creating a widget configuration')
       }
 
       if (!this.widgetConfigTemp.idOcr?.enabled) {
@@ -1500,14 +1524,16 @@ export default {
         })
 
       } catch (e) {
-        this.isLoading = false
         this.notifyErr(e.message)
+      } finally {
+        this.isLoading = false
       }
     },
 
     async updateConfiguration() {
       try {
         this.isLoading = true;
+        this.setIssuerDetails(true)
         this.syncAgeProof()
         this.syncSelectiveDisclosure()
         this.validateField()
