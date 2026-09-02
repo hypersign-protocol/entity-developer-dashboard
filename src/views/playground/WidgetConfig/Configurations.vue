@@ -116,11 +116,11 @@
         </b-table>
       </div>
 
-      <div v-if="filteredConfigurations.length" class="list-footer">
-        <span>Showing {{ pageStart }} to {{ pageEnd }} of {{ filteredConfigurations.length }} configurations</span>
-        <b-pagination v-model="currentPage" :total-rows="filteredConfigurations.length" :per-page="perPage" size="sm" />
+      <div v-if="totalWidgetConfigCount" class="list-footer">
+        <span>Showing {{ pageStart }} to {{ pageEnd }} of {{ totalWidgetConfigCount }} configurations</span>
+        <b-pagination v-model="currentPage" :total-rows="totalWidgetConfigCount" :per-page="perPage" size="sm" />
       </div>
-    </template>
+    </template>updateAllAppsWidgetConfigs
     <CustomConfirmModal
       :is-visible="showDeleteConfirm"
       title="Delete Widget Configuration"
@@ -179,7 +179,8 @@ export default {
   computed: {
     ...mapState({
       containerShift: state => state.playgroundStore.containerShift,
-      widgetConfigs: state => state.mainStore.widgetConfigs
+      widgetConfigs: state => state.mainStore.widgetConfigs,
+      totalWidgetConfigCount: state => state.mainStore.totalWidgetConfigCount
     }),
     isContainerShift() {
       return this.containerShift
@@ -201,10 +202,10 @@ export default {
       })
     },
     paginatedConfigurations() {
-      return this.filteredConfigurations.slice((this.currentPage - 1) * this.perPage, this.currentPage * this.perPage)
+      return this.filteredConfigurations
     },
     pageStart() { return this.filteredConfigurations.length ? (this.currentPage - 1) * this.perPage + 1 : 0 },
-    pageEnd() { return Math.min(this.currentPage * this.perPage, this.filteredConfigurations.length) },
+    pageEnd() { return Math.min((this.currentPage - 1) * this.perPage + this.filteredConfigurations.length, this.totalWidgetConfigCount) },
     deleteMessage() {
       return this.configurationToDelete
         ? `Delete “${this.configurationToDelete.name}”? This action cannot be undone.`
@@ -214,20 +215,24 @@ export default {
   watch: {
     search() { this.currentPage = 1 },
     statusFilter() { this.currentPage = 1 },
+    currentPage() { this.loadConfigurations() },
   },
   async mounted() {
-    this.isLoading = true
-    try {
-      await this.fetchAppsWidgetConfigs()
-    } catch (error) {
-      if (isAccessDeniedError(error)) this.accessDenied = true
-      else this.notifyErr(typeof error === 'string' ? error : error.message)
-    } finally {
-      this.isLoading = false
-    }
+    await this.loadConfigurations()
   },
   methods: {
     ...mapActions('mainStore', ['fetchAppsWidgetConfigs', 'deleteAppsWidgetConfig']),
+    async loadConfigurations() {
+      this.isLoading = true
+      try {
+        await this.fetchAppsWidgetConfigs({ page: this.currentPage, limit: this.perPage })
+      } catch (error) {
+        if (isAccessDeniedError(error)) this.accessDenied = true
+        else this.notifyErr(typeof error === 'string' ? error : error.message)
+      } finally {
+        this.isLoading = false
+      }
+    },
     createConfiguration() {
       this.$router.push({ name: 'WidgetConfigNew', params: { appId: this.$route.params.appId } })
     },
@@ -247,6 +252,8 @@ export default {
       try {
         this.isLoading = true
         await this.deleteAppsWidgetConfig(this.configurationToDelete._id)
+        if (!this.widgetConfigs.length && this.currentPage > 1) this.currentPage -= 1
+        else await this.fetchAppsWidgetConfigs({ page: this.currentPage, limit: this.perPage })
         this.notifySuccess('Widget configuration deleted successfully')
       } catch (error) {
         this.notifyErr(typeof error === 'string' ? error : error.message)
@@ -290,12 +297,12 @@ export default {
 </script>
 
 <style scoped>
-.widget-configurations { max-width: 1440px; }
+.widget-configurations { max-width: 1440px; min-width: 0; width: 100%; }
 .page-header, .header-actions, .filters, .card-heading, .title-row, .feature-list, .card-footer-row, .updated-at, .table-identity, .list-footer { display: flex; align-items: center; }
 .page-header { justify-content: space-between; gap: 24px; margin-bottom: 28px; }
 .page-header h3 { color: #0f172a; font-size: 24px; font-weight: 700; margin: 0 0 4px; }
 .page-header p { color: #64748b; font-size: 13px; margin: 0; }
-.header-actions { gap: 18px; }
+.header-actions { flex-wrap: wrap; gap: 18px; justify-content: flex-end; }
 .view-toggle { border: 1px solid #dbe3ef; border-radius: 7px; overflow: hidden; }
 .view-toggle .btn {
   border: 0;
@@ -333,7 +340,7 @@ export default {
   min-height: 42px;
   padding: 0 20px;
 }
-.filters { gap: 20px; margin-bottom: 24px; }
+.filters { flex-wrap: wrap; gap: 20px; margin-bottom: 24px; }
 .filters .custom-select { border-color: #dbe3ef; height: 44px; max-width: 240px; }
 .search-wrap { align-items: center; border: 1px solid #dbe3ef; border-radius: 6px; display: flex; flex: 1; height: 44px; max-width: 470px; padding: 0 14px; }
 .search-wrap input { border: 0; flex: 1; height: 100%; margin-left: 10px; outline: 0; }
@@ -373,11 +380,26 @@ export default {
 ::v-deep(.configuration-table thead th) { background: #f8fafc; border-bottom: 1px solid #dfe6ef; color: #64748b; font-size: 11px; padding: 16px; text-transform: uppercase; }
 ::v-deep(.configuration-table td) { color: #475569; padding: 16px; vertical-align: middle; }
 ::v-deep(.action-menu) { color: #64748b !important; padding: 4px !important; }
-@media (max-width: 1100px) { .configuration-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 1100px) {
+  .configuration-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .page-header { align-items: flex-start; }
+}
+@media (max-width: 991.98px) {
+  .page-header { align-items: stretch; flex-direction: column; }
+  .header-actions { justify-content: flex-start; }
+  .filters { display: grid; grid-template-columns: minmax(0, 1fr) repeat(2, minmax(180px, 220px)); }
+  .filters .custom-select, .search-wrap { max-width: none; width: 100%; }
+}
 @media (max-width: 767px) {
-  .page-header, .filters { align-items: stretch; flex-direction: column; }
-  .header-actions { justify-content: space-between; }
-  .filters .custom-select, .search-wrap { max-width: none; }
+  .filters { display: flex; flex-direction: column; }
   .configuration-grid { grid-template-columns: 1fr; }
+  .list-footer { align-items: flex-start; flex-direction: column; gap: 12px; }
+}
+@media (max-width: 575.98px) {
+  .widget-configurations { padding-left: 12px !important; padding-right: 12px !important; }
+  .header-actions { align-items: stretch; flex-direction: column; }
+  .view-toggle, .new-button { width: 100%; }
+  .view-toggle .btn { flex: 1; }
+  .new-button { justify-content: center; }
 }
 </style>

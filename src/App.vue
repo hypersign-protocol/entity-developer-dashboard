@@ -72,7 +72,17 @@
 }
 
 .container-collapsed {
-  margin-left: 15em;
+  margin-left: 200px;
+}
+
+.container-collapsed-not {
+  margin-left: 70px;
+}
+
+.container-collapsed,
+.container-collapsed-not {
+  min-width: 0;
+  transition: margin-left 0.2s ease;
 }
 
 .container {
