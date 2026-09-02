@@ -120,7 +120,7 @@
         <span>Showing {{ pageStart }} to {{ pageEnd }} of {{ totalWidgetConfigCount }} configurations</span>
         <b-pagination v-model="currentPage" :total-rows="totalWidgetConfigCount" :per-page="perPage" size="sm" />
       </div>
-    </template>updateAllAppsWidgetConfigs
+    </template>
     <CustomConfirmModal
       :is-visible="showDeleteConfirm"
       title="Delete Widget Configuration"
