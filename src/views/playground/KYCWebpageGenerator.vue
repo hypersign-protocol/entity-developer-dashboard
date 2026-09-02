@@ -1135,6 +1135,18 @@ textarea.form-control {
               </div>
             </li>
 
+            <!-- Verification Flow -->
+            <li class="list-group-item">
+              <div class="form-group">
+                <label for="widgetConfiguration">Verification Configuration<span class="mandatory">*</span></label>
+                <b-form-select
+                  id="widgetConfiguration"
+                  v-model="selectedWidgetConfigId"
+                  :options="widgetConfigurationOptions"
+                />
+                <small class="form-text text-muted">Choose the widget configuration users will complete from this page.</small>
+              </div>
+            </li>
 
             <!-- Contact Email -->
             <li class="list-group-item">
@@ -1295,7 +1307,7 @@ textarea.form-control {
 
 <script>
 import UtilsMixin from '../../mixins/utils';
-import { mapGetters, mapActions, mapMutations } from "vuex";
+import { mapGetters, mapActions, mapMutations, mapState } from "vuex";
 import HfButtons from '../../components/element/HfButtons.vue';
 import AccessDenied from '../AccessDenied.vue';
 
@@ -1308,6 +1320,16 @@ export default {
   },
   computed: {
     ...mapGetters('mainStore', ['getKYCWebpageConfig', 'getSelectedService']),
+    ...mapState({ widgetConfigs: state => state.mainStore.widgetConfigs }),
+    widgetConfigurationOptions() {
+      return [
+        { value: null, text: 'Select a widget configuration', disabled: true },
+        ...this.widgetConfigs.map(configuration => ({
+          value: configuration._id,
+          text: `${configuration.name}${configuration.isDefault ? ' (Default)' : ''}`
+        }))
+      ]
+    },
     isContainerShift() {
       return this.containerShift
     },
@@ -1322,6 +1344,9 @@ export default {
   async mounted() {
     try {
       this.isLoading = true
+      await this.fetchAppsWidgetConfigs()
+      const defaultConfiguration = this.widgetConfigs.find(configuration => configuration.isDefault)
+      this.selectedWidgetConfigId = defaultConfiguration?._id || null
       await this.fetchKYCWebpageConfig()
       this.isLoading = false
     } catch (e) {
@@ -1352,6 +1377,7 @@ export default {
       accessDenied: false,
       accessDeniedMsg: '',
       previewMode: "desktop",
+      selectedWidgetConfigId: null,
       showDeleteModal: false,
       kycWebpageConfigTemp: {
         pageTitle: "Identity Verification Platform",
@@ -1369,7 +1395,7 @@ export default {
   },
 
   methods: {
-    ...mapActions('mainStore', ['fetchKYCWebpageConfig', 'createKYCWebpageConfig', 'deleteKYCWebpageConfig', 'updateKYCWebpageConfig']),
+    ...mapActions('mainStore', ['fetchAppsWidgetConfigs', 'fetchKYCWebpageConfig', 'createKYCWebpageConfig', 'deleteKYCWebpageConfig', 'updateKYCWebpageConfig']),
     ...mapMutations('mainStore', ['setKYCWebpageConfig']),
     
     setPreviewMode(mode) {
@@ -1452,6 +1478,9 @@ export default {
     },
 
     validateField() {
+      if (!this.selectedWidgetConfigId) {
+        throw new Error('Please select a widget configuration')
+      }
       if (!this.kycWebpageConfigTemp.pageTitle) {
         throw new Error('Page title is required')
       }
@@ -1475,6 +1504,7 @@ export default {
           customExpiryDate: this.kycWebpageConfigTemp.customExpiryDate,
           themeColor: this.kycWebpageConfigTemp.selectedTheme,
           contactEmail: this.kycWebpageConfigTemp.contactEmail,
+          linkedWidgetConfigIds: [this.selectedWidgetConfigId],
           generatedUrl: this.generateUrl(),
           uniqueId: this.kycWebpageConfigTemp.uniqueId,
           status: 'active',
@@ -1497,6 +1527,7 @@ export default {
         
         const config = {
           ...this.kycWebpageConfigTemp,
+          linkedWidgetConfigIds: [this.selectedWidgetConfigId],
           themeColor: this.kycWebpageConfigTemp.selectedTheme, // Map selectedTheme to themeColor
           updatedAt: new Date().toISOString()
         };
@@ -1538,6 +1569,7 @@ export default {
             ...newValue,
             selectedTheme: newValue.themeColor || "vibrant" // Map themeColor to selectedTheme
           };
+          this.selectedWidgetConfigId = newValue.linkedWidgetConfigIds?.[0] || null;
         } else {
           // Reset to default values if no config exists
           this.kycWebpageConfigTemp = {
@@ -1552,6 +1584,7 @@ export default {
             status: "active",
             pageType: "kyc"
           };
+          this.selectedWidgetConfigId = null;
         }
       },
       immediate: true
