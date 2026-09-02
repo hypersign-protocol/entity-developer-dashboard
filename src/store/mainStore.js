@@ -1543,7 +1543,7 @@ const mainStore = {
 
 
         // Widget Config --------------------------------
-        fetchAppsWidgetConfigs: ({ commit, getters, dispatch }) => {
+        fetchAppsWidgetConfigs: ({ commit, getters, dispatch }, payload = {}) => {
             return new Promise((resolve, reject) => {
                 if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
                     return reject(new Error('Tenant url is null or empty, service is not selected'))
