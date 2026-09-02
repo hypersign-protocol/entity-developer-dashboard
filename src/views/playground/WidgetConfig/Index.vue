@@ -275,9 +275,12 @@ ul {
 }
 
 .country-chip-flag {
-  font-size: 1.45rem;
-  line-height: 1;
   margin-right: 10px;
+}
+
+.country-dropdown-flag {
+  margin-right: 8px;
+  vertical-align: middle;
 }
 
 .country-chip-remove {
@@ -542,7 +545,13 @@ ul {
             <div class="col">
               <label for=""><strong>Choose Trusted Issuer(s): </strong></label>
               <div style="max-height: 300px; overflow-y: scroll;" class="p-1">
-                <MarketplaceList @selectedServiceEvent="selectedServiceEventHandler" :isSelection="true" />
+                <MarketplaceList
+                  :fetch-on-mount="false"
+                  :is-selection="true"
+                  :items="trustedIssuersList"
+                  :selected-issuer-dids="Array.from(selectedIssuerDids)"
+                  @selectedServiceEvent="selectedServiceEventHandler"
+                />
               </div>
             </div>
           </div>
@@ -698,7 +707,7 @@ ul {
                     :key="country.value"
                     class="country-chip"
                   >
-                    <span class="country-chip-flag">{{ country.flag }}</span>
+                    <country-flag :country="country.alpha2" size="small" class="country-chip-flag" />
                     <span>{{ country.text }} ({{ country.value }})</span>
                     <span
                       class="country-chip-remove"
@@ -732,7 +741,7 @@ ul {
                     <template v-slot:item="{ item }">
                       <div class="country-dropdown-item">
                         <span>
-                          <span class="mr-2">{{ item.flag }}</span>
+                          <country-flag :country="item.alpha2" size="small" class="country-dropdown-flag" />
                           <span>{{ item.text }} ({{ item.value }})</span>
                         </span>
                         <v-icon
@@ -811,6 +820,7 @@ import HFBeta from '../../../components/element/HFBeta.vue';
 import config from '../../../config';
 import countries from 'i18n-iso-countries';
 import enLocale from 'i18n-iso-countries/langs/en.json';
+import CountryFlag from 'vue-country-flag';
 
 countries.registerLocale(enLocale);
 
@@ -820,6 +830,7 @@ export default {
   components: {
     HfButtons,
     MarketplaceList,
+    CountryFlag,
     HFBeta,
     AccessDenied
     // TrustedIssuer
@@ -926,7 +937,7 @@ export default {
             value: alpha3,
             text: displayName,
             displayText: `${displayName} (${alpha3})`,
-            flag: this.countryFlagFromAlpha2(alpha2),
+            alpha2,
           }
         })
         .filter(country => !!country.value)
@@ -940,7 +951,7 @@ export default {
           value: code,
           text: code,
           displayText: code,
-          flag: this.countryFlagFromAlpha3(code),
+          alpha2: countries.alpha3ToAlpha2(code),
         }
       })
     },
@@ -1019,15 +1030,6 @@ export default {
     if (this.widgetConfigTemp.issuerDID) {
       const trustedIssuers = this.widgetConfigTemp.issuerDID.split(',');
       this.selectedIssuerDids = new Set(trustedIssuers);
-      trustedIssuers.forEach(eachtiss => {
-        const tt = this.trustedIssuersList.map(x => {
-          if (x.issuerDid == eachtiss) {
-            x['selected'] = true
-          }
-          return x
-        })
-        this.insertMarketplaceApps(tt)
-      })
     }
 
     this.widgetConfigTemp.trustedIssuer = this.widgetConfigTemp.issuerDID ? true : false;
@@ -1209,7 +1211,7 @@ export default {
     }
   },
   methods: {
-    ...mapMutations('mainStore', ['setWidgetConfig', 'setPreparedMarketPlaceApps', 'insertMarketplaceApps']),
+    ...mapMutations('mainStore', ['setWidgetConfig']),
     // ...mapActions('mainStore', ['fetchAppsOnChainConfigs']),
     ...mapActions('mainStore', ['fetchMarketPlaceAppsFromServer', 'createAppsWidgetConfig', 'fetchAppsWidgetConfig', 'updateAppsWidgetConfig', 'fetchKYCWebpageConfig', 'updateKYCWebpageConfig']),
     goBack() {
@@ -1298,16 +1300,6 @@ export default {
         ? existingRules.actionOnRestriction
         : defaults.actionOnRestriction
     },
-    countryFlagFromAlpha2(alpha2) {
-      if (!alpha2 || alpha2.length !== 2) return ''
-      return alpha2
-        .toUpperCase()
-        .replace(/./g, char => String.fromCodePoint(127397 + char.charCodeAt()))
-    },
-    countryFlagFromAlpha3(alpha3) {
-      const alpha2 = countries.alpha3ToAlpha2(alpha3)
-      return this.countryFlagFromAlpha2(alpha2)
-    },
     removeJurisdictionCountry(countryCode) {
       const selectedCountries = this.widgetConfigTemp.jurisdictionRules.countries || []
       this.widgetConfigTemp.jurisdictionRules.countries = selectedCountries.filter(country => country !== countryCode)
@@ -1344,15 +1336,15 @@ export default {
     },
 
     selectedServiceEventHandler(event) {
-      // Guard: ignore entries with no issuerDid
       if (!event.issuerDid || !event.issuerDid.trim()) return
 
-      // Use explicit selected flag instead of toggle to stay in sync
+      const selectedIssuerDids = new Set(this.selectedIssuerDids)
       if (event.selected) {
-        this.selectedIssuerDids.add(event.issuerDid)
+        selectedIssuerDids.add(event.issuerDid)
       } else {
-        this.selectedIssuerDids.delete(event.issuerDid)
+        selectedIssuerDids.delete(event.issuerDid)
       }
+      this.selectedIssuerDids = selectedIssuerDids
       this.widgetConfigTemp.issuerDID = Array.from(this.selectedIssuerDids.values())
         .filter(did => !!did && !!did.trim())
         .join(',')

@@ -134,7 +134,7 @@
 
 <script>
 import UtilsMixin from "../mixins/utils";
-import { mapGetters, mapMutations, mapActions } from "vuex/dist/vuex.common.js";
+import { mapGetters, mapActions } from "vuex/dist/vuex.common.js";
 
 export default {
   name: "MarketplaceList",
@@ -143,6 +143,18 @@ export default {
       type: Boolean,
       default: true,
     },
+    selectedIssuerDids: {
+      type: Array,
+      default: () => [],
+    },
+    fetchOnMount: {
+      type: Boolean,
+      default: true,
+    },
+    items: {
+      type: Array,
+      default: null,
+    },
   },
   data() {
     return {
@@ -150,6 +162,8 @@ export default {
     };
   },
   async mounted() {
+    if (!this.fetchOnMount) return;
+
     try {
       this.isLoading = true;
       await this.fetchMarketPlaceAppsFromServer();
@@ -162,23 +176,21 @@ export default {
   computed: {
     ...mapGetters("mainStore", ["getMarketPlaceApps"]),
     services() {
-      return this.getMarketPlaceApps.filter((app) => !!app.issuerDid);
+      return (this.items || this.getMarketPlaceApps)
+        .filter((app) => !!app.issuerDid)
+        .map((app) => ({
+          ...app,
+          selected: this.selectedIssuerDids.includes(app.issuerDid),
+        }));
     },
   },
   methods: {
     ...mapActions("mainStore", ["fetchMarketPlaceAppsFromServer"]),
-    ...mapMutations("mainStore", ["insertMarketplaceApps"]),
     onIssuerToggle(eachOrg) {
-      // Toggle selected state and commit to the store
-      const updated = this.getMarketPlaceApps.map((x) =>
-        x.appId === eachOrg.appId ? { ...x, selected: !x.selected } : x
-      );
-      this.insertMarketplaceApps(updated);
-      const updatedOrg = updated.find((x) => x.appId === eachOrg.appId);
       this.$emit("selectedServiceEvent", {
-        issuerDid: updatedOrg.issuerDid,
-        selected: updatedOrg.selected,
-        appId: updatedOrg.appId,
+        issuerDid: eachOrg.issuerDid,
+        selected: !eachOrg.selected,
+        appId: eachOrg.appId,
       });
     },
     formattedAppName(appName) {
