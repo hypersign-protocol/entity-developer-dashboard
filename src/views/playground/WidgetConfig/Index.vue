@@ -893,7 +893,8 @@ export default {
     ...mapState({
       containerShift: state => state.playgroundStore.containerShift,
       onchainconfigs: state => state.mainStore.onchainconfigs,
-      widgetConfig: state => state.mainStore.widgetConfig
+      widgetConfig: state => state.mainStore.widgetConfig,
+      kycWebpageConfig: state => state.mainStore.kycWebpageConfig
     }),
     ...mapGetters('mainStore', ['getAppByAppId', 'getMarketPlaceApps', 'getSelectedService']),
     isContainerShift() {
@@ -1210,7 +1211,7 @@ export default {
   methods: {
     ...mapMutations('mainStore', ['setWidgetConfig', 'setPreparedMarketPlaceApps', 'insertMarketplaceApps']),
     // ...mapActions('mainStore', ['fetchAppsOnChainConfigs']),
-    ...mapActions('mainStore', ['fetchMarketPlaceAppsFromServer', 'createAppsWidgetConfig', 'fetchAppsWidgetConfig', 'updateAppsWidgetConfig']),
+    ...mapActions('mainStore', ['fetchMarketPlaceAppsFromServer', 'createAppsWidgetConfig', 'fetchAppsWidgetConfig', 'updateAppsWidgetConfig', 'fetchKYCWebpageConfig', 'updateKYCWebpageConfig']),
     goBack() {
       this.$router.push({ name: 'WidgetConfigurations', params: { appId: this.$route.params.appId } })
     },
@@ -1237,6 +1238,21 @@ export default {
       if (((forceUpdate && hasServiceIssuer) || !this.widgetConfigTemp.issuerVerificationMethodId) && this.widgetConfigTemp.issuerDID) {
         this.widgetConfigTemp.issuerVerificationMethodId = app.issuerVerificationMethodId || `${this.widgetConfigTemp.issuerDID}#key-1`
       }
+    },
+    async updateVerifierPageWidgetConfig() {
+      try {
+        await this.fetchKYCWebpageConfig()
+      } catch (e) {
+        const message = e?.message || String(e)
+        if (message.includes('No webpage configuration found')) return
+        throw e
+      }
+
+      if (!this.kycWebpageConfig?._id) return
+      await this.updateKYCWebpageConfig({
+        ...this.kycWebpageConfig,
+        linkedWidgetConfigIds: [this.widgetConfigTemp._id]
+      })
     },
     handleApiError(error, method = 'GET') {
       const message = typeof error === 'string' ? error : error?.message || 'Something went wrong';
@@ -1517,6 +1533,9 @@ export default {
           this.widgetConfigTemp = JSON.parse(JSON.stringify(this.widgetConfig))
           this.ensureJurisdictionRules()
         }
+        if (this.widgetConfigTemp.isDefault) {
+          await this.updateVerifierPageWidgetConfig()
+        }
         this.notifySuccess('Widget configuration created successfully')
         this.$router.replace({
           name: 'WidgetConfigDetails',
@@ -1540,6 +1559,9 @@ export default {
 
         this.setWidgetConfig(this.configurationPayload(true))
         await this.updateAppsWidgetConfig()
+        if (this.widgetConfigTemp.isDefault) {
+          await this.updateVerifierPageWidgetConfig()
+        }
         if (this.widgetConfig) {
           // this.widgetConfigTemp = { ...this.widgetConfig }
           this.widgetConfigTemp.trustedIssuer = this.widgetConfigTemp.issuerDID ? true : false;
