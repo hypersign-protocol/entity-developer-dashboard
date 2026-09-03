@@ -1144,7 +1144,6 @@ textarea.form-control {
                   v-model="selectedWidgetConfigId"
                   :options="widgetConfigurationOptions"
                 />
-                <small class="form-text text-muted">Choose the widget configuration users will complete from this page.</small>
               </div>
             </li>
 
