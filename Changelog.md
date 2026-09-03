@@ -3,7 +3,6 @@
 ## [Unreleased]
 
 ## [3.14.6] - 2026-08-29
-
 ### Fixed
 - Fixed CI Check for Tag.
 
