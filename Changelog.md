@@ -1,6 +1,12 @@
 # Changelog
 
 ## [Unreleased]
+
+## [3.14.6] - 2026-08-29
+
+### Fixed
+- Fixed CI Check for Tag.
+
 ### [3.14.4] - 2026-08-27
 ### Modified
 - Updated the credit API to fetch and activate credits from the dashboard instead of for a specific tenant.
