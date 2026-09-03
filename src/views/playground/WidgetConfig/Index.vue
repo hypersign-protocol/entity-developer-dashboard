@@ -24,14 +24,6 @@
   margin-bottom: 10px;
 }
 
-.configuration-meta {
-  background: #fff;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  margin-bottom: 16px;
-  padding: 16px;
-}
-
 .configuration-tabs {
   border-bottom: 1px solid #e5e7eb;
   display: flex;
@@ -429,28 +421,27 @@ ul {
       </div>
     </div>
 
-    <div class="configuration-meta">
-      <b-row>
-        <b-col md="6">
-          <label><strong>Configuration Name</strong></label>
-          <b-form-input v-model.trim="widgetConfigTemp.name" placeholder="e.g. Configuration name" />
-        </b-col>
-        <b-col md="6">
-          <label><strong>Description</strong></label>
-          <b-form-input v-model.trim="widgetConfigTemp.description" placeholder="Describe this verification flow" />
-        </b-col>
-      </b-row>
-      <b-form-checkbox v-if="widgetConfigTemp._id" v-model="widgetConfigTemp.isDefault" switch class="mt-3">
-        Use as default configuration
-      </b-form-checkbox>
-    </div>
-
     <div class="serviceCard">
       <nav class="configuration-tabs" aria-label="Configuration sections">
         <button v-for="tab in tabs" :key="tab" type="button" class="configuration-tab"
           :class="{ active: activeTab === tab }" @click="activeTab = tab">{{ tab }}</button>
       </nav>
       <ul class="list-group list-group-flush">
+        <li v-show="activeTab === 'Basic'" class="list-group-item">
+          <b-row>
+            <b-col md="6">
+              <label><strong>Configuration Name</strong></label>
+              <b-form-input v-model.trim="widgetConfigTemp.name" placeholder="e.g. Configuration name" />
+            </b-col>
+            <b-col md="6">
+              <label><strong>Description</strong></label>
+              <b-form-input v-model.trim="widgetConfigTemp.description" placeholder="Describe this verification flow" />
+            </b-col>
+          </b-row>
+          <b-form-checkbox v-if="widgetConfigTemp._id" v-model="widgetConfigTemp.isDefault" switch class="mt-3">
+            Use as default configuration
+          </b-form-checkbox>
+        </li>
         <li v-show="activeTab === 'Verification'" class="list-group-item">
           <b-form-checkbox switch size="lg" v-model="widgetConfigTemp.faceRecog" disabled title="Facial recognition is always enabled and cannot be disabled">{{
             this.widgetConfigUI.faceRecog.label }}</b-form-checkbox>
@@ -534,7 +525,7 @@ ul {
             </div>
           </div>
         </li>
-        <li v-show="activeTab === 'Verification'" class="list-group-item">
+        <li v-show="activeTab === 'Trusted Issuer'" class="list-group-item">
           <div class="row">
 
             <div class="col">
@@ -584,7 +575,7 @@ ul {
           </div>
         </li>
 
-         <li v-show="activeTab === 'Verification'" class="list-group-item">
+         <li v-show="activeTab === 'Data & Consent'" class="list-group-item">
           <div class="row">
             <div class="col-md-6">
               <div class="row">
@@ -1051,8 +1042,8 @@ export default {
   },
   data() {
     return {
-      activeTab: 'Verification',
-      tabs: ['Verification', 'Data & Consent', 'Experience', 'Notifications', 'Restrictions'],
+      activeTab: 'Basic',
+      tabs: ['Basic', 'Verification', 'Data & Consent', 'Trusted Issuer', 'Experience', 'Notifications', 'Restrictions'],
       SupportedZkProofTypes: Object.freeze({
         PROOF_OF_AGE: 'zkProofOfAge',
       }),
