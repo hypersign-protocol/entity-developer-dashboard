@@ -3,18 +3,124 @@ on:
   push:
     tags:
     - "v[0-9]+.[0-9]+.[0-9]+"
-    - "v[0-9]+.[0-9]+.[0-9]-rc.[0-9]+"
+    - "v[0-9]+.[0-9]+.[0-9]+-rc.[0-9]+"
 
 jobs:
+  Check-Release-Tag:
+    runs-on: ubuntu-latest
+    steps:
+    - name: code checkout
+      uses: actions/checkout@v3
+
+    - name: Check release tag
+      env:
+        RELEASE_TAG: ${{ github.ref_name }}
+      run: |
+        node <<'NODE'
+        const fs = require("fs");
+
+        const tag = process.env.RELEASE_TAG;
+        const match = /^v(\d+\.\d+\.\d+)(-rc\.(\d+))?$/.exec(tag);
+
+        if (!match) {
+          console.error(
+            `Invalid release tag "${tag}". ` +
+            "Expected v<major>.<minor>.<patch> or v<major>.<minor>.<patch>-rc.<number>."
+          );
+          process.exit(1);
+        }
+
+        const releaseVersion = match[1];
+        const packageVersion = JSON.parse(fs.readFileSync("package.json", "utf8")).version;
+
+        if (packageVersion !== releaseVersion) {
+          console.error(
+            `Tag "${tag}" requires package.json version "${releaseVersion}", ` +
+            `but found "${packageVersion}".`
+          );
+          process.exit(1);
+        }
+
+        if (match[2]) {
+          console.log(`RC tag is valid: ${tag} has package version prefix ${packageVersion}.`);
+          process.exit(0);
+        }
+
+        const changelog = fs.readFileSync("Changelog.md", "utf8");
+        const escapedVersion = releaseVersion.replace(/\./g, "\\.");
+        const changelogHeading = new RegExp(
+          `^#{1,6}\\s+\\[?${escapedVersion}\\]?(?:\\s|$)`,
+          "m"
+        );
+
+        if (!changelogHeading.test(changelog)) {
+          console.error(
+            `Stable tag "${tag}" requires a ${releaseVersion} heading in Changelog.md.`
+          );
+          process.exit(1);
+        }
+
+        console.log(`Stable tag is valid: ${tag} matches package.json and Changelog.md.`);
+        NODE
+
   Build-Pipeline:
+    needs: [ Check-Release-Tag ]
     runs-on: ubuntu-latest
     environment: production
     steps:
     - name: code checkout
       uses: actions/checkout@v3
 
+    - name: Check release tag
+      env:
+        RELEASE_TAG: ${{ github.ref_name }}
+      run: |
+        node <<'NODE'
+        const fs = require("fs");
+
+        const tag = process.env.RELEASE_TAG;
+        const match = /^v(\d+\.\d+\.\d+)(-rc\.(\d+))?$/.exec(tag);
+
+        if (!match) {
+          console.error(`Invalid release tag "${tag}". Expected v3.1.2 or v3.1.2-rc.0.`);
+          process.exit(1);
+        }
+
+        const releaseVersion = match[1];
+        const packageVersion = JSON.parse(fs.readFileSync("package.json", "utf8")).version;
+
+        if (packageVersion !== releaseVersion) {
+          console.error(
+            `Tag "${tag}" requires package.json version "${releaseVersion}", ` +
+            `but found "${packageVersion}".`
+          );
+          process.exit(1);
+        }
+
+        if (match[2]) {
+          console.log(`RC tag is valid: ${tag} has package version prefix ${packageVersion}.`);
+          process.exit(0);
+        }
+
+        const changelog = fs.readFileSync("Changelog.md", "utf8");
+        const escapedVersion = releaseVersion.replace(/\./g, "\\.");
+        const changelogHeading = new RegExp(
+          `^#{1,6}\\s+\\[?${escapedVersion}\\]?(?:\\s|$)`,
+          "m"
+        );
+
+        if (!changelogHeading.test(changelog)) {
+          console.error(
+            `Stable tag "${tag}" requires a ${releaseVersion} heading in Changelog.md.`
+          );
+          process.exit(1);
+        }
+
+        console.log(`Stable tag is valid: ${tag} matches package.json and Changelog.md.`);
+        NODE
+
     - name: Set Latest Tag
-      run: echo "LATEST_RELEASE_TAG=$(git describe --tags --abbrev=0)" >> $GITHUB_ENV
+      run: echo "LATEST_RELEASE_TAG=${{ github.ref_name }}" >> "$GITHUB_ENV"
     - id: "auth"
       uses: "google-github-actions/auth@v1"
       with:
