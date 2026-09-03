@@ -50,6 +50,27 @@
   font-weight: 600;
 }
 
+.basic-section {
+  padding: 20px;
+}
+
+.basic-form {
+  max-width: 760px;
+}
+
+.basic-field + .basic-field {
+  margin-top: 16px;
+}
+
+.basic-field label {
+  display: block;
+  margin-bottom: 6px;
+}
+
+.basic-field textarea {
+  resize: vertical;
+}
+
 .UI--c-kbgiPT-iehgGlf-css {
   background-color: #9cb5f9;
 }
@@ -427,20 +448,20 @@ ul {
           :class="{ active: activeTab === tab }" @click="activeTab = tab">{{ tab }}</button>
       </nav>
       <ul class="list-group list-group-flush">
-        <li v-show="activeTab === 'Basic'" class="list-group-item">
-          <b-row>
-            <b-col md="6">
+        <li v-show="activeTab === 'Basic'" class="list-group-item basic-section">
+          <div class="basic-form">
+            <div class="basic-field">
               <label><strong>Configuration Name</strong></label>
               <b-form-input v-model.trim="widgetConfigTemp.name" placeholder="e.g. Configuration name" />
-            </b-col>
-            <b-col md="6">
+            </div>
+            <div class="basic-field">
               <label><strong>Description</strong></label>
-              <b-form-input v-model.trim="widgetConfigTemp.description" placeholder="Describe this verification flow" />
-            </b-col>
-          </b-row>
-          <b-form-checkbox v-if="widgetConfigTemp._id" v-model="widgetConfigTemp.isDefault" switch class="mt-3">
-            Use as default configuration
-          </b-form-checkbox>
+              <b-form-textarea v-model.trim="widgetConfigTemp.description" placeholder="Describe this verification flow" rows="3" />
+            </div>
+            <b-form-checkbox v-if="widgetConfigTemp._id" v-model="widgetConfigTemp.isDefault" switch class="mt-3">
+              Use as default configuration
+            </b-form-checkbox>
+          </div>
         </li>
         <li v-show="activeTab === 'Verification'" class="list-group-item">
           <b-form-checkbox switch size="lg" v-model="widgetConfigTemp.faceRecog" disabled title="Facial recognition is always enabled and cannot be disabled">{{

@@ -102,10 +102,10 @@ export default {
       perPage: 6,
       showDeleteConfirm: false,
       tableFields: [
-        { key: 'configuration', label: 'Configuration' },
-        { key: 'widgetConfigId', label: 'Widget Config ID' },
-        { key: 'features', label: 'Features' },
-        { key: 'actions', label: 'Actions', thClass: 'text-right', tdClass: 'text-right' }
+        { key: 'configuration', label: 'Configuration', thClass: 'configuration-column', tdClass: 'configuration-column' },
+        { key: 'widgetConfigId', label: 'Configuration ID', thClass: 'configuration-id-column', tdClass: 'configuration-id-column' },
+        { key: 'features', label: 'Features', thClass: 'features-column', tdClass: 'features-column' },
+        { key: 'actions', label: 'Actions', thClass: 'actions-column text-right', tdClass: 'actions-column text-right' }
       ]
     }
   },
@@ -255,7 +255,7 @@ export default {
 .feature-icon, .feature-more { align-items: center; background: #f8fafc; border: 1px solid #e5eaf1; border-radius: 7px; display: inline-flex; height: 34px; justify-content: center; width: 34px; }
 .feature-more { color: #475569; font-size: 11px; }
 .table-shell { border: 1px solid #dfe6ef; border-radius: 8px; overflow: hidden; }
-.configuration-table { margin: 0; }
+.configuration-table { margin: 0; min-width: 840px; table-layout: fixed; }
 .table-identity { gap: 12px; min-width: 260px; }
 .widget-config-id {
   align-items: center;
@@ -274,7 +274,7 @@ export default {
 .widget-config-id:hover { color: #111827; }
 .widget-config-id:focus { outline: 1px solid #94a3b8; outline-offset: 3px; }
 .widget-config-id .v-icon { color: #64748b; flex-shrink: 0; }
-.compact { min-width: 230px; }
+.compact { min-width: 0; }
 .list-footer { color: #64748b; font-size: 12px; justify-content: space-between; padding: 18px 2px 0; }
 .list-footer .pagination { margin: 0; }
 .empty-state { border: 1px dashed #cbd5e1; border-radius: 8px; padding: 70px 20px; text-align: center; }
@@ -282,6 +282,10 @@ export default {
 .empty-state p { color: #64748b; }
 ::v-deep(.configuration-table thead th) { background: #f8fafc; border-bottom: 1px solid #dfe6ef; color: #64748b; font-size: 11px; padding: 16px; text-transform: uppercase; }
 ::v-deep(.configuration-table td) { color: #475569; padding: 16px; vertical-align: middle; }
+::v-deep(.configuration-column) { width: 32%; }
+::v-deep(.configuration-id-column) { width: 28%; }
+::v-deep(.features-column) { width: 25%; }
+::v-deep(.actions-column) { width: 15%; }
 ::v-deep(.action-menu) {
   align-items: center;
   border: 1px solid transparent !important;
