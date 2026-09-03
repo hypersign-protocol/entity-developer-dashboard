@@ -6,9 +6,8 @@ on:
     - "v[0-9]+.[0-9]+.[0-9]+-rc.[0-9]+"
 
 jobs:
-  Build-Pipeline:
+  Check-Release-Tag:
     runs-on: ubuntu-latest
-    environment: production
     steps:
     - name: code checkout
       uses: actions/checkout@v3
@@ -24,7 +23,10 @@ jobs:
         const match = /^v(\d+\.\d+\.\d+)(-rc\.(\d+))?$/.exec(tag);
 
         if (!match) {
-          console.error(`Invalid release tag "${tag}". Expected v3.1.2 or v3.1.2-rc.0.`);
+          console.error(
+            `Invalid release tag "${tag}". ` +
+            "Expected v<major>.<minor>.<patch> or v<major>.<minor>.<patch>-rc.<number>."
+          );
           process.exit(1);
         }
 
@@ -60,6 +62,14 @@ jobs:
 
         console.log(`Stable tag is valid: ${tag} matches package.json and Changelog.md.`);
         NODE
+
+  Build-Pipeline:
+    needs: [ Check-Release-Tag ]
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+    - name: code checkout
+      uses: actions/checkout@v3
 
     - name: Set Latest Tag
       run: echo "LATEST_RELEASE_TAG=${{ github.ref_name }}" >> "$GITHUB_ENV"
