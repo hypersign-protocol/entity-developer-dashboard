@@ -1612,7 +1612,7 @@ const mainStore = {
                         commit('setWidgetConfig', json.data);
                         resolve(json.data)
                     }).catch((e) => {
-                        return reject(`Error while fetching apps ` + e.message);
+                        return reject(new Error(`Error while creating widget configuration: ${e.message}`));
                     })
             })
         },
