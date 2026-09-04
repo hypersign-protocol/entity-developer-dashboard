@@ -27,11 +27,14 @@
               <div class="configuration-avatar small" :class="avatarClass(item)"><v-icon small>mdi-cog-outline</v-icon></div>
               <div>
                 <div class="title-row">
-                  <strong>{{ item.name }}</strong>
+                  <strong>{{ widgetConfigurationName(item) }}</strong>
                   <span v-if="item.isDefault" class="badge badge-default">Default</span>
                 </div>
-                <small v-if="item.description" class="configuration-description" :title="item.description">
-                  {{ item.description }}
+                <small
+                  class="configuration-description"
+                  :title="widgetConfigurationDescription(item)"
+                >
+                  {{ widgetConfigurationDescription(item) }}
                 </small>
               </div>
             </div>
@@ -125,7 +128,7 @@ export default {
     pageEnd() { return Math.min((this.currentPage - 1) * this.perPage + this.widgetConfigs.length, this.totalWidgetConfigCount) },
     deleteMessage() {
       return this.configurationToDelete
-        ? `Delete “${this.configurationToDelete.name}”? This action cannot be undone.`
+        ? `Delete “${this.widgetConfigurationName(this.configurationToDelete)}”? This action cannot be undone.`
         : ''
     }
   },
@@ -138,6 +141,12 @@ export default {
   methods: {
     ...mapActions('mainStore', ['fetchAppsWidgetConfigs', 'deleteAppsWidgetConfig', 'updateAppsWidgetConfig', 'fetchKYCWebpageConfig', 'updateKYCWebpageConfig']),
     ...mapMutations('mainStore', ['setWidgetConfig']),
+    widgetConfigurationName(configuration) {
+      return configuration?.name?.trim() || 'Identity Verification Flow'
+    },
+    widgetConfigurationDescription(configuration) {
+      return configuration?.description?.trim() || 'Identity verification configuration for this application.'
+    },
     async loadConfigurations() {
       this.isLoading = true
       try {
@@ -225,7 +234,7 @@ export default {
     },
     avatarClass(configuration) {
       const palette = ['green', 'purple', 'blue', 'orange', 'pink']
-      const total = (configuration.name || 'Widget-Configuration').split('').reduce((sum, char) => sum + char.charCodeAt(0), 0)
+      const total = this.widgetConfigurationName(configuration).split('').reduce((sum, char) => sum + char.charCodeAt(0), 0)
       return `avatar-${palette[total % palette.length]}`
     }
   }

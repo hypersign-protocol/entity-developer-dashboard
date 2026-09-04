@@ -1187,7 +1187,7 @@ textarea.form-control {
                   :loading="isLoadingWidgetConfigurations"
                   item-text="text"
                   item-value="value"
-                  placeholder="Select a widget configuration"
+                  placeholder="Identity Verification Flow"
                   outlined
                   dense
                   hide-details
@@ -1379,10 +1379,10 @@ export default {
     widgetConfigurationOptions() {
       const options = this.widgetConfigurations.map(configuration => ({
         value: configuration._id,
-        text: `${configuration.name || 'Widget-Configuration'}${configuration.isDefault ? ' (Default)' : ''}`
+        text: `${this.widgetConfigurationName(configuration)}${configuration.isDefault ? ' (Default)' : ''}`
       }))
       if (this.selectedWidgetConfigId && !this.widgetConfigurations.some(configuration => configuration._id === this.selectedWidgetConfigId)) {
-        options.push({ value: this.selectedWidgetConfigId, text: 'Current widget configuration' })
+        options.push({ value: this.selectedWidgetConfigId, text: 'Identity Verification Flow' })
       }
       return options
     },
@@ -1460,6 +1460,10 @@ export default {
   methods: {
     ...mapActions('mainStore', ['fetchAppsWidgetConfigs', 'fetchKYCWebpageConfig', 'createKYCWebpageConfig', 'deleteKYCWebpageConfig', 'updateKYCWebpageConfig']),
     ...mapMutations('mainStore', ['setKYCWebpageConfig']),
+
+    widgetConfigurationName(configuration) {
+      return configuration?.name?.trim() || 'Identity Verification Flow'
+    },
 
     async loadWidgetConfigurations(page) {
       if (this.isLoadingWidgetConfigurations) return
