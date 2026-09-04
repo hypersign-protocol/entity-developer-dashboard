@@ -504,7 +504,10 @@ color: #1a1a2e !important;
     <div
       :class="[isSidebarCollapsed ? 'container-collapsed-not' : 'container-collapsed']"
     >
-      <router-view class="container containerData" />
+      <router-view
+        :key="$route.params.appId || $route.name"
+        class="container containerData"
+      />
     </div>
     <notifications group="foo" />
 

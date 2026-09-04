@@ -56,8 +56,8 @@
               <template #button-content><v-icon small>mdi-dots-vertical</v-icon></template>
               <b-dropdown-item @click="viewConfiguration(item)"><v-icon small>mdi-pencil-outline</v-icon> Edit</b-dropdown-item>
               <b-dropdown-item v-if="!item.isDefault" @click="setDefaultConfiguration(item)"><v-icon small>mdi-star-outline</v-icon> Set as default</b-dropdown-item>
-              <b-dropdown-divider />
-              <b-dropdown-item class="delete-action" @click="removeConfiguration(item)"><v-icon small>mdi-trash-can-outline</v-icon> Delete</b-dropdown-item>
+              <b-dropdown-divider v-if="!item.isDefault" />
+              <b-dropdown-item v-if="!item.isDefault" class="delete-action" @click="removeConfiguration(item)"><v-icon small>mdi-trash-can-outline</v-icon> Delete</b-dropdown-item>
             </b-dropdown>
           </template>
         </b-table>
@@ -187,6 +187,7 @@ export default {
       })
     },
     removeConfiguration(configuration) {
+      if (configuration.isDefault) return
       this.configurationToDelete = configuration
       this.showDeleteConfirm = true
     },
@@ -195,7 +196,7 @@ export default {
       this.configurationToDelete = null
     },
     async confirmDelete() {
-      if (!this.configurationToDelete) return
+      if (!this.configurationToDelete || this.configurationToDelete.isDefault) return
       try {
         this.isLoading = true
         await this.deleteAppsWidgetConfig(this.configurationToDelete._id)

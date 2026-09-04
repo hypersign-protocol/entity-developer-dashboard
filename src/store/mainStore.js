@@ -336,6 +336,15 @@ const mainStore = {
             }
         },
         setSelectedAppId: (state, payload) => {
+            if (state.selectedServiceId !== payload) {
+                state.widgetConfig = {}
+                state.widgetConfigs = []
+                state.totalWidgetConfigCount = 0
+                state.kybWidgetConfig = {}
+                state.webhookConfig = {}
+                state.kycWebpageConfig = {}
+                state.kybWebpageConfig = {}
+            }
             state.selectedServiceId = payload;
         },
 

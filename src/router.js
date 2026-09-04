@@ -365,6 +365,14 @@ router.beforeEach(async (to, from, next) => {
       return next()
     }
   }
+
+  if (
+    to.params.appId &&
+    store.state.mainStore.selectedServiceId !== to.params.appId
+  ) {
+    store.commit('mainStore/setSelectedAppId', to.params.appId)
+  }
+
   next();
 });
 
