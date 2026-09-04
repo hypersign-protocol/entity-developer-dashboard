@@ -1,48 +1,5 @@
 <style scoped>
 
-.session-details-panel {
-  background: #fff;
-  border: 1px solid rgba(0, 0, 0, .125);
-  border-radius: 8px;
-  box-shadow: 0 0 2rem 0 rgba(136, 152, 170, .15);
-  margin-bottom: 24px;
-  overflow: hidden;
-}
-
-.configuration-tabs {
-  border-bottom: 1px solid #e5e7eb;
-  display: flex;
-  gap: 28px;
-  margin: 0;
-  overflow-x: auto;
-  padding: 0 18px;
-}
-
-.configuration-tab {
-  background: transparent;
-  border: 0;
-  border-bottom: 2px solid transparent;
-  color: #64748b;
-  cursor: pointer;
-  font-size: 13px;
-  padding: 14px 2px 12px;
-  white-space: nowrap;
-}
-
-.configuration-tab.active {
-  border-bottom-color: #2563eb;
-  color: #2563eb;
-  font-weight: 600;
-}
-
-.configuration-tab:focus {
-  outline: none;
-}
-
-.session-tab-content {
-  padding: 12px;
-}
-
 .detail-card {
   background-color: #fff;
   border: 1px solid #e5e7eb;
@@ -580,7 +537,7 @@
 </style>
 
 <template>
-  <b-container fluid class="py-3" :class="isContainerShift ? 'homeShift' : 'home'">
+  <b-container fluid class="py-3" :class="isContainerShift ? 'homeShift' : 'home'" style="width : 80vw!important">
     <loadIng
       :active.sync="isLoading"
       :can-cancel="true"
@@ -684,26 +641,10 @@
       </v-col>
     </v-row>
 
-    <div class="session-details-panel">
-      <nav class="configuration-tabs" aria-label="Session detail sections">
-        <button
-          v-for="tab in sessionTabs"
-          :key="tab"
-          type="button"
-          class="configuration-tab"
-          :class="{ active: activeTab === tab }"
-          @click="activeTab = tab"
-        >
-          {{ tab }}
-        </button>
-      </nav>
-      <div class="session-tab-content">
-
     <!-- Detail Cards Grid -->
-    <v-row v-show="activeTab !== 'Timeline'">
+    <v-row>
       <!-- Personal Information (Passport) -->
       <v-col
-        v-show="activeTab === 'Overview'"
         cols="12"
         md="6"
         lg="4"
@@ -748,7 +689,6 @@
 
       <!-- Personal Information (Gov ID) -->
       <v-col
-        v-show="activeTab === 'Overview'"
         cols="12"
         md="6"
         lg="4"
@@ -794,7 +734,6 @@
 
       <!-- Device Information -->
       <v-col
-        v-show="activeTab === 'Overview'"
         cols="12"
         md="6"
         lg="4"
@@ -831,7 +770,6 @@
 
       <!-- Risk Score Card -->
       <v-col
-        v-show="activeTab === 'Risk & Review'"
         cols="12"
         md="6"
         lg="4"
@@ -906,7 +844,6 @@
 
       <!-- Location Information -->
       <v-col
-        v-show="activeTab === 'Overview'"
         cols="12"
         md="6"
         lg="4"
@@ -949,7 +886,6 @@
 
       <!-- Decision History -->
       <v-col
-        v-show="activeTab === 'Risk & Review'"
         cols="12"
         md="6"
         lg="4"
@@ -1025,7 +961,6 @@
 
       <!-- Liveliness Check -->
       <v-col
-        v-show="activeTab === 'Verification'"
         cols="12"
         md="6"
         lg="4"
@@ -1053,7 +988,6 @@
 
       <!-- Face Authentication -->
       <v-col
-        v-show="activeTab === 'Verification'"
         cols="12"
         md="6"
         lg="4"
@@ -1108,7 +1042,6 @@
 
       <!-- Documents -->
       <v-col
-        v-show="activeTab === 'Documents'"
         cols="12"
         md="6"
         lg="4"
@@ -1161,7 +1094,6 @@
 
       <!-- Age Verification -->
       <v-col
-        v-show="activeTab === 'Verification'"
         cols="12"
         md="6"
         lg="4"
@@ -1203,7 +1135,6 @@
 
       <!-- Soul Bound Token -->
       <v-col
-        v-show="activeTab === 'Verification'"
         cols="12"
         md="6"
         lg="4"
@@ -1282,7 +1213,7 @@
     </v-row>
 
     <!-- Verification Timeline -->
-    <v-row v-show="activeTab === 'Timeline'" class="mb-4" v-if="sortedTimelineDetails && sortedTimelineDetails.length > 0">
+    <v-row class="mt-2 mb-4" v-if="sortedTimelineDetails && sortedTimelineDetails.length > 0">
       <v-col cols="12">
         <div class="detail-card p-4" id="timelines-info">
           <div class="card-section-title">
@@ -1319,8 +1250,6 @@
         </div>
       </v-col>
     </v-row>
-      </div>
-    </div>
 
     <hf-pop-up id="zoom-doc" :Header="popupHeader" size="md">
       <img :src="popupImage" />
@@ -1867,8 +1796,6 @@ export default {
       ],
       fullPage: true,
       isLoading: false,
-      activeTab: "Overview",
-      sessionTabs: ["Overview", "Verification", "Documents", "Risk & Review", "Timeline"],
       appId: "",
       companyId: "",
       isValidBusinessID: false,
