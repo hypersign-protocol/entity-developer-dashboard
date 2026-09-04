@@ -7,6 +7,8 @@
 
 - User now can create multiple widget configurations for a single kyc app. Each configuration can have its own set of settings, allowing for greater flexibility and customization.
 
+- UI and UX improvements for the widget configuration page, including a more intuitive layout and clearer instructions for creating and managing configurations.
+
 ## [3.14.6] - 2026-08-29
 ### Fixed
 - Fixed CI Check for Tag.
