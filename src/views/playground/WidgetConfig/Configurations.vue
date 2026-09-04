@@ -79,16 +79,20 @@
       @hide="showDeleteConfirm = false"
       @hidden="resetDeleteConfirmation"
     >
-      <div class="delete-confirmation-message">
+      <div class="destructive-action-alert">
         <i class="fas fa-exclamation-circle"></i>
-        <span>{{ deleteMessage }}</span>
+        <div>
+          <strong>Destructive Action</strong>
+          <p>Deleting “{{ widgetConfigurationName(configurationToDelete) }}” permanently removes this widget configuration. This action cannot be undone.</p>
+        </div>
       </div>
-      <div class="delete-confirmation-actions">
-        <button type="button" class="btn btn-outline-secondary" @click="cancelDelete">
-          Cancel
-        </button>
-        <button type="button" class="btn btn-outline-danger" @click="confirmDelete">
-          Delete
+      <div class="text-center mt-4">
+        <button
+          type="button"
+          class="btn btn-outline-danger delete-configuration-button"
+          @click="confirmDelete"
+        >
+          <i class="far fa-trash-alt mr-2"></i> DELETE CONFIGURATION
         </button>
       </div>
     </hf-pop-up>
@@ -135,11 +139,6 @@ export default {
     },
     pageStart() { return this.widgetConfigs.length ? (this.currentPage - 1) * this.perPage + 1 : 0 },
     pageEnd() { return Math.min((this.currentPage - 1) * this.perPage + this.widgetConfigs.length, this.totalWidgetConfigCount) },
-    deleteMessage() {
-      return this.configurationToDelete
-        ? `Delete “${this.widgetConfigurationName(this.configurationToDelete)}”? This action cannot be undone.`
-        : ''
-    }
   },
   watch: {
     currentPage() { this.loadConfigurations() },
@@ -270,9 +269,11 @@ export default {
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
 }
-.delete-confirmation-message { align-items: flex-start; color: #374151; display: flex; gap: 16px; line-height: 1.5; }
-.delete-confirmation-message .fa-exclamation-circle { color: #ef4444; flex-shrink: 0; font-size: 24px; margin-top: 2px; }
-.delete-confirmation-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 24px; }
+.destructive-action-alert { align-items: center; background: #fff7ed; border: 1px solid #fed7aa; border-left: 4px solid #f97316; border-radius: 8px; color: #64748b; display: flex; gap: 16px; padding: 14px 16px; }
+.destructive-action-alert > i { color: #f97316; flex-shrink: 0; font-size: 20px; }
+.destructive-action-alert strong { color: #c2410c; display: block; margin-bottom: 3px; }
+.destructive-action-alert p { line-height: 1.5; margin: 0; }
+.delete-configuration-button { font-size: 13px; letter-spacing: .08em; padding: 8px 18px; }
 .badge { border-radius: 5px; font-size: 10px; font-weight: 500; padding: 4px 7px; }
 .badge-default { background: #e8f1ff; color: #2563eb; }
 .feature-list { gap: 9px; }
