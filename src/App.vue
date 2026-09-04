@@ -1,10 +1,112 @@
 <style scoped>
 /* Fix Navbar Appearance */
+/* Navigation Bar Container */
 .navStyle {
-  background: rgba(255, 255, 255, 0.95) !important;
-  border-bottom: 1px solid #eef0f2;
+  background: #ffffff !important;
+  border-bottom: 1px solid #e5e7eb !important;
   height: 60px;
-  padding: 0 20px !important;
+  padding: 0 24px !important;
+  z-index: 1000;
+}
+
+/* Tenant Selector Chip */
+.tenant-wrapper {
+  cursor: pointer;
+}
+
+.tenant-badge {
+  display: inline-flex;
+  align-items: center;
+  background-color: #f3f4f6;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  padding: 3px 8px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #374151;
+}
+
+.tenant-email {
+  max-width: 160px;
+}
+
+/* Soft Warning Badge for MFA */
+.mfa-warning-badge {
+  display: inline-flex;
+  align-items: center;
+  background-color: #fffbe2;  /* Soft light-yellow tint */
+  border: 1px solid #fef08a;    /* Subtle yellow border */
+  color: #a16207;               /* Dark amber/gold text for high contrast */
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.mfa-warning-badge:hover {
+  background-color: #fef9c3;
+  border-color: #fde047;
+}
+
+/* Avatar Container Fixes */
+.avatar-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid #e5e7eb;
+  overflow: hidden;
+  background-color: #f9fafb;
+}
+
+.profile-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Dropdown Menu Cleanups */
+.profile-dropdown-menu {
+  border: 1px solid #e5e7eb !important;
+  border-radius: 8px !important;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.03) !important;
+  padding: 4px 0 !important;
+  min-width: 220px !important;
+}
+
+/* Force the user header block and text to align left */
+/* Ensure the dropdown container and all items align strictly left */
+::v-deep .profile-dropdown-menu.dropdown-menu {
+  text-align: left !important;
+}
+
+/* Align text and icons inside dropdown links to the left */
+::v-deep .profile-dropdown-menu .dropdown-item {
+  text-align: left !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+}
+
+/* User header section alignment */
+.dropdown-user-header {
+  text-align: left !important;
+}
+
+/* Ensure dropdown menu items and icons align left */
+.profile-dropdown-menu .b-dropdown-text,
+.profile-dropdown-menu .dropdown-item {
+  text-align: left !important;
+  justify-content: flex-start !important;
+}
+
+.x-small {
+  font-size: 0.68rem;
+  letter-spacing: 0.05em;
 }
 
 .nav-logo-img {
@@ -380,12 +482,83 @@ color: #1a1a2e !important;
 @media (max-width: 767px) {
   .env-banner--topright { display: none !important; }
 }
+
+
+/* Sidebar Wrapper Cleanups */
+.sidebar-wrapper {
+  border-right: 1px solid #E5E7EB !important;
+  box-shadow: none !important;
+}
+
+/* App Header Card Styling */
+.sidebar-app-header {
+  padding: 12px;
+}
+
+.sidebar-app-card {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border: 1px solid #E5E7EB;
+  border-radius: 8px;
+  background-color: #F9FAFB;
+  cursor: pointer;
+}
+
+.sidebar-app-logo {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.sidebar-app-name {
+  font-weight: 600;
+  font-size: 13px;
+  color: #111827;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+}
+
+.app-selector-arrow {
+  font-size: 16px;
+  color: #6B7280;
+}
+
+/* Vue Sidebar Menu Overrides */
+.v-sidebar-menu .vsm--icon {
+  font-size: 18px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 30px !important;
+}
+
+.v-sidebar-menu .vsm--link {
+  font-size: 13px !important;
+  font-weight: 500;
+  color: #374151 !important;
+}
+
+.v-sidebar-menu .vsm--link_active {
+  color: #2563EB !important;
+  background-color: #EFF6FF !important;
+  font-weight: 600;
+}
+
+.v-sidebar-menu .vsm--arrow {
+  opacity: 0.5;
+}
+
 </style>
 <template>
   <div id="app" data-app>
     <load-ing :active.sync="isLoading" :can-cancel="true" :is-full-page="true"></load-ing>
 
-    <b-navbar toggleable="lg" class="navStyle " v-if="getIfAuthenticated" sticky>
+    <b-navbar toggleable="lg" class="navStyle" v-if="getIfAuthenticated" sticky>
       <b-navbar-brand
         href="javascript:void(0)"
         @click="route('dashboard')"
@@ -398,41 +571,43 @@ color: #1a1a2e !important;
 
       <b-collapse id="nav-collapse" is-nav v-if="userDetails">
         <b-navbar-nav class="ml-auto align-items-center">
-          <b-nav-item v-if="getSelectedService && getSelectedService.env !== 'prod'" class="px-2">
+          
+          <!-- Dev Environment Badge -->
+          <b-nav-item v-if="getSelectedService && getSelectedService.env !== 'prod'" class="px-1">
             <div class="env-banner env-banner--dev" title="Development Mode">
               <span class="env-banner__dot"></span>
               <span class="env-banner__label">DEV</span>
             </div>
           </b-nav-item>
-          <b-nav-item v-if="getSwitchedTenantAccount" class="px-2">
+
+          <!-- Tenant Acting-As Badge -->
+          <b-nav-item v-if="getSwitchedTenantAccount" class="px-1">
             <div
               class="d-flex align-items-center tenant-wrapper"
               @click="switchBackToAdminAccount"
               title="Click to access your own account"
             >
-              <span class="mr-2 d-none d-md-inline text-muted small font-weight-bold"
-                >Acting as:</span
-              >
-              <v-chip small color="primary" outlined class="tenant-chip">
-                <span class="text-truncate" style="max-width: 150px">{{
-                  getSwitchedTenantAccount
-                }}</span>
-                <b-icon icon="box-arrow-in-right" class="ml-2"></b-icon>
-              </v-chip>
+              <span class="mr-2 d-none d-md-inline text-muted small font-weight-medium">Acting as:</span>
+              <div class="tenant-badge">
+                <span class="text-truncate tenant-email">{{ getSwitchedTenantAccount }}</span>
+                <b-icon icon="box-arrow-in-right" class="ml-1 text-muted"></b-icon>
+              </div>
             </div>
           </b-nav-item>
 
-          <b-nav-item v-if="!isMFAEnabled" to="/studio/settings?ref=mfa" class="px-2">
-            <v-chip small color="orange" dark class="mfa-chip">
+          <!-- Setup MFA Warning Chip -->
+          <b-nav-item v-if="!isMFAEnabled" to="/studio/settings?ref=mfa" class="px-1">
+            <div class="mfa-warning-badge">
               <b-icon icon="exclamation-triangle-fill" class="mr-1"></b-icon>
               <span>Setup MFA</span>
-            </v-chip>
+            </div>
           </b-nav-item>
 
+          <!-- User Profile Dropdown -->
           <b-nav-item-dropdown
             right
             no-caret
-            menu-class="profile-dropdown-menu dropDownPopup"
+            menu-class="profile-dropdown-menu shadow-sm"
           >
             <template #button-content>
               <div class="avatar-container">
@@ -444,50 +619,52 @@ color: #1a1a2e !important;
                 <b-icon
                   v-else
                   icon="person-circle"
-                  font-scale="1.5"
+                  font-scale="1.3"
                   class="text-secondary"
                 ></b-icon>
               </div>
             </template>
 
-            <div class="px-3 py-2 bg-light border-bottom dropdown-user-header">
-              <p class="mb-0 small text-muted">Signed in as</p>
-              <p class="mb-0 font-weight-bold text-dark">
+            <!-- Left-aligned Header -->
+            <div class="px-3 py-2 bg-light border-bottom dropdown-user-header text-left">
+              <p class="mb-0 x-small text-muted text-uppercase font-weight-bold">Signed in as</p>
+              <p class="mb-0 font-weight-bold text-dark text-truncate" style="max-width: 200px">
                 {{ userDetails.name || "User" }}
               </p>
             </div>
 
+            <!-- Left-aligned Email -->
             <b-dropdown-item
               @click="copyToClip(userDetails.email, 'Email')"
-              class="small-dropdown-item"
+              class="py-2"
             >
-              <b-icon icon="envelope" class="mr-2"></b-icon>
+              <b-icon icon="envelope" class="mr-2 text-muted"></b-icon>
               {{ shorten(userDetails.email) }}
             </b-dropdown-item>
 
-            <b-dropdown-divider></b-dropdown-divider>
+            <b-dropdown-divider class="my-1"></b-dropdown-divider>
 
-            <b-dropdown-item @click="goTo('/studio/dashboard')" style="text-align: left">
-              <b-icon icon="house" class="mr-2"></b-icon> Home
+            <!-- Left-aligned Nav Links -->
+            <b-dropdown-item @click="goTo('/studio/dashboard')">
+              <b-icon icon="house" class="mr-2 text-muted"></b-icon> Home
             </b-dropdown-item>
 
-            <b-dropdown-item @click="goTo('/studio/settings')" style="text-align: left">
-              <b-icon icon="gear" class="mr-2"></b-icon> Settings
+            <b-dropdown-item @click="goTo('/studio/settings')">
+              <b-icon icon="gear" class="mr-2 text-muted"></b-icon> Settings
             </b-dropdown-item>
 
-            <b-dropdown-divider></b-dropdown-divider>
+            <b-dropdown-divider class="my-1"></b-dropdown-divider>
 
-            <b-dropdown-item
-              @click="logoutAll()"
-              variant="danger"
-              style="text-align: left"
-            >
+            <!-- Left-aligned Logout -->
+            <b-dropdown-item @click="logoutAll()" variant="danger">
               <b-icon icon="power" class="mr-2"></b-icon> Logout
             </b-dropdown-item>
           </b-nav-item-dropdown>
         </b-navbar-nav>
       </b-collapse>
     </b-navbar>
+
+
 
     <!-- Environment badge rendered inside navbar (Option B) -->
 
@@ -742,10 +919,8 @@ export default {
         this.notifyErr(`Error:  ${e.message}`);
       }
     },
-
     getSideMenu() {
       const menu = [];
-
 
       if (this.getSelectedService && this.getSelectedService.services.length > 0) {
         const id = this.getSelectedService.services[0].id;
@@ -756,77 +931,52 @@ export default {
           menu.push({
             href: "/studio/getting-started/" + appId,
             title: EN.NAV.GETTING_STARTED,
-            icon: "fa fa-flag-checkered",
+            icon: "mdi mdi-flag-checkered",
           });
 
           // Identity Verification
           const ivChildren = [
-            { href: "/studio/sessions/" + appId, title: EN.NAV.IDENTITY_VERIFICATION.USERS, icon: "fa fa-users", alias: "/studio/sessions/:appId/:sessionId" },
-            { href: "/studio/user-analytics/" + appId, title: EN.NAV.IDENTITY_VERIFICATION.USER_ANALYTICS, icon: "fa fa-chart-line" },
-            { href: "/studio/widget-config/" + appId, title: EN.NAV.IDENTITY_VERIFICATION.KYC_WIDGET, icon: "fa fa-puzzle-piece" },
+            { href: "/studio/sessions/" + appId, title: EN.NAV.IDENTITY_VERIFICATION.USERS, icon: "mdi mdi-account-group-outline", alias: "/studio/sessions/:appId/:sessionId" },
+            { href: "/studio/user-analytics/" + appId, title: EN.NAV.IDENTITY_VERIFICATION.USER_ANALYTICS, icon: "mdi mdi-chart-line" },
+            { href: "/studio/widget-config/" + appId, title: EN.NAV.IDENTITY_VERIFICATION.KYC_WIDGET, icon: "mdi mdi-widgets-outline" },
           ];
-          menu.push({ href: "", title: EN.NAV.IDENTITY_VERIFICATION.TITLE, icon: "fa fa-user-check", child: ivChildren });
+          menu.push({ href: "", title: EN.NAV.IDENTITY_VERIFICATION.TITLE, icon: "mdi mdi-account-check-outline", child: ivChildren });
 
           // Business Verification
           const bvChildren = [
-            { href: "/studio/business/" + appId, title: EN.NAV.BUSINESS_VERIFICATION.BUSINESSES, icon: "fa fa-briefcase", alias: ["/studio/business/:appId/details/:companyId", "/studio/business/:appId/details/:companyId/:tab"] },
-            { href: "/studio/kyb-widget-config/" + appId, title: EN.NAV.BUSINESS_VERIFICATION.KYB_WIDGET, icon: "fa fa-puzzle-piece" },
+            { href: "/studio/business/" + appId, title: EN.NAV.BUSINESS_VERIFICATION.BUSINESSES, icon: "mdi mdi-briefcase-outline", alias: ["/studio/business/:appId/details/:companyId", "/studio/business/:appId/details/:companyId/:tab"] },
+            { href: "/studio/kyb-widget-config/" + appId, title: EN.NAV.BUSINESS_VERIFICATION.KYB_WIDGET, icon: "mdi mdi-widgets-outline" },
           ];
-          menu.push({ href: "", title: EN.NAV.BUSINESS_VERIFICATION.TITLE, icon: "fa fa-building", child: bvChildren });
+          menu.push({ href: "", title: EN.NAV.BUSINESS_VERIFICATION.TITLE, icon: "mdi mdi-domain", child: bvChildren });
 
           // Solutions
           const solChildren = [
-            { href: "/studio/kyc-webpage-generator/" + appId, title: EN.NAV.SOLUTIONS.KYC_VERIFIER_CONFIGURATION, icon: "fa fa-globe" },
-            { href: "/studio/kyb-webpage-generator/" + appId, title: EN.NAV.SOLUTIONS.KYB_VERIFIER_CONFIGURATION, icon: "fa fa-globe" },
-            { href: "/studio/solutions/reusable-id/" + appId, title: EN.NAV.SOLUTIONS.RESUABLE_ID, icon: "fa fa-circle-notch" },
+            { href: "/studio/kyc-webpage-generator/" + appId, title: EN.NAV.SOLUTIONS.KYC_VERIFIER_CONFIGURATION, icon: "mdi mdi-web" },
+            { href: "/studio/kyb-webpage-generator/" + appId, title: EN.NAV.SOLUTIONS.KYB_VERIFIER_CONFIGURATION, icon: "mdi mdi-web" },
+            { href: "/studio/solutions/reusable-id/" + appId, title: EN.NAV.SOLUTIONS.RESUABLE_ID, icon: "mdi mdi-card-account-details-outline" },
           ];
-          menu.push({ href: "", title: EN.NAV.SOLUTIONS.TITLE, icon: "fa fa-lightbulb", child: solChildren });
+          menu.push({ href: "", title: EN.NAV.SOLUTIONS.TITLE, icon: "mdi mdi-lightbulb-outline", child: solChildren });
 
           // Developer Hub
           const devChildren = [
-            { href: "/studio/developer/api-key/" + appId, title: EN.NAV.DEVELOPERS_HUB.API_KEY, icon: "fa fa-key" },
-            { href: "/studio/developer/webhook/" + appId, title: EN.NAV.DEVELOPERS_HUB.WEBHOOK, icon: "fa fa-anchor" },
-            { href: "/studio/service-config/" + appId, title: EN.NAV.DEVELOPERS_HUB.SERVICE_CONFIGURATION, icon: "fa fa-cog" },
+            { href: "/studio/developer/api-key/" + appId, title: EN.NAV.DEVELOPERS_HUB.API_KEY, icon: "mdi mdi-key-outline" },
+            { href: "/studio/developer/webhook/" + appId, title: EN.NAV.DEVELOPERS_HUB.WEBHOOK, icon: "mdi mdi-webhook" },
+            { href: "/studio/service-config/" + appId, title: EN.NAV.DEVELOPERS_HUB.SERVICE_CONFIGURATION, icon: "mdi mdi-cog-outline" },
           ];
-          menu.push({ href: "", title: EN.NAV.DEVELOPERS_HUB.TITLE, icon: "fa fa-code", child: devChildren });
+          menu.push({ href: "", title: EN.NAV.DEVELOPERS_HUB.TITLE, icon: "mdi mdi-code-tags", child: devChildren });
 
           // Billing & Usage
           const billingChildren = [
-            { href: "/studio/onchainkyc/credit/" + appId, title: EN.NAV.BILLING_AND_USAGE.CREDIT, icon: "fas fa-hand-holding-usd" },
-            { href: "/studio/usage/" + appId, title: EN.NAV.BILLING_AND_USAGE.USAGES, icon: "fa fa-chart-bar" },
+            { href: "/studio/onchainkyc/credit/" + appId, title: EN.NAV.BILLING_AND_USAGE.CREDIT, icon: "mdi mdi-cash-multiple" },
+            { href: "/studio/usage/" + appId, title: EN.NAV.BILLING_AND_USAGE.USAGES, icon: "mdi mdi-chart-bar" },
           ];
-          menu.push({ href: "", title: EN.NAV.BILLING_AND_USAGE.TITLE, icon: "fa fa-credit-card", child: billingChildren });
+          menu.push({ href: "", title: EN.NAV.BILLING_AND_USAGE.TITLE, icon: "mdi mdi-credit-card-outline", child: billingChildren });
         } else if (id === "SSI_API") {
-          menu.push({
-            href: "/studio/ssi/did/" + appId,
-            title: "DIDs",
-            icon: "fa fa-id-badge",
-          });
-
-          menu.push({
-            href: "/studio/ssi/schema/" + appId,
-            title: "Schemas",
-            icon: "fa fa-puzzle-piece",
-          });
-
-          menu.push({
-            href: "/studio/ssi/credential/" + appId,
-            title: "Credential",
-            icon: "fa fa-certificate",
-          });
-
-
-          menu.push({
-            href: "/studio/ssi/usage/" + appId,
-            title: EN.NAV.BILLING_AND_USAGE.USAGES,
-            icon: "fa fa-chart-bar",
-          });
-
-          menu.push({
-            href: "/studio/ssi/credit/" + appId,
-            title: EN.NAV.BILLING_AND_USAGE.CREDIT,
-            icon: "fas fa-hand-holding-usd",
-          });
+          menu.push({ href: "/studio/ssi/did/" + appId, title: "DIDs", icon: "mdi mdi-badge-account-horizontal-outline" });
+          menu.push({ href: "/studio/ssi/schema/" + appId, title: "Schemas", icon: "mdi mdi-file-tree" });
+          menu.push({ href: "/studio/ssi/credential/" + appId, title: "Credential", icon: "mdi mdi-certificate-outline" });
+          menu.push({ href: "/studio/ssi/usage/" + appId, title: EN.NAV.BILLING_AND_USAGE.USAGES, icon: "mdi mdi-chart-bar" });
+          menu.push({ href: "/studio/ssi/credit/" + appId, title: EN.NAV.BILLING_AND_USAGE.CREDIT, icon: "mdi mdi-cash-multiple" });
         }
       }
 
