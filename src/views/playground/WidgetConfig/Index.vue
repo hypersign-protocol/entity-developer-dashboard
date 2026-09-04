@@ -9,6 +9,68 @@
   width: 80vw;
 }
 
+.editor-header {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+
+.back-link {
+  color: #64748b;
+  cursor: pointer;
+  display: inline-block;
+  font-size: 12px;
+  margin-bottom: 10px;
+}
+
+.configuration-tabs {
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  gap: 28px;
+  margin: 0;
+  overflow-x: auto;
+  padding: 0 18px;
+}
+
+.configuration-tab {
+  background: transparent;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  color: #64748b;
+  cursor: pointer;
+  font-size: 13px;
+  padding: 14px 2px 12px;
+  white-space: nowrap;
+}
+
+.configuration-tab.active {
+  border-bottom-color: #2563eb;
+  color: #2563eb;
+  font-weight: 600;
+}
+
+.basic-section {
+  padding: 20px;
+}
+
+.basic-form {
+  max-width: 760px;
+}
+
+.basic-field + .basic-field {
+  margin-top: 16px;
+}
+
+.basic-field label {
+  display: block;
+  margin-bottom: 6px;
+}
+
+.basic-field textarea {
+  resize: vertical;
+}
+
 .UI--c-kbgiPT-iehgGlf-css {
   background-color: #9cb5f9;
 }
@@ -111,6 +173,17 @@ h5 span {
 
 .scrollit:hover {
   overflow-y: auto;
+}
+
+.trusted-issuer-list {
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  width: 100%;
+}
+
+.trusted-issuer-column {
+  min-width: 0;
 }
 
 ul {
@@ -226,9 +299,12 @@ ul {
 }
 
 .country-chip-flag {
-  font-size: 1.45rem;
-  line-height: 1;
   margin-right: 10px;
+}
+
+.country-dropdown-flag {
+  margin-right: 8px;
+  vertical-align: middle;
 }
 
 .country-chip-remove {
@@ -364,32 +440,47 @@ ul {
     <load-ing :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></load-ing>
     <AccessDenied v-if="accessDenied" />
     <template v-if="!accessDenied">
-    <v-row>
-      <v-col>
-        <div class="form-group" style="display:flex">
-          <div class="mb-3">
-              <h4 class="mb-1 font-weight-bold mb-0">ID Widget Configuration</h4>
-              <p class="text-muted small mb-0">Configure the ID widget for your application</p>
-          </div>
-        </div>
-      </v-col>
-      <v-col >
-        <HfButtons name="Save Configuration" @executeAction="saveConfiguration()" v-if="!widgetConfigTemp._id"
-          style="float:right"></HfButtons>
-        <HfButtons name="Update Configuration" @executeAction="updateConfiguration()" style="float:right" v-else>
-        </HfButtons>
-      </v-col>
-    </v-row>
+    <span class="back-link" @click="goBack"><v-icon x-small>mdi-arrow-left</v-icon> Back to configurations</span>
+    <div class="editor-header">
+      <div>
+        <h4 class="mb-1 font-weight-bold">{{ widgetConfigTemp.name || 'New Widget Configuration' }}</h4>
+        <p class="text-muted small mb-0">Configure the ID widget for your application.</p>
+      </div>
+      <div>
+        <b-button variant="outline-secondary" class="mr-2" @click="goBack">Cancel</b-button>
+        <HfButtons :name="widgetConfigTemp._id ? 'Update Configuration' : 'Save Configuration'"
+          @executeAction="widgetConfigTemp._id ? updateConfiguration() : saveConfiguration()" />
+      </div>
+    </div>
 
     <div class="serviceCard">
+      <nav class="configuration-tabs" aria-label="Configuration sections">
+        <button v-for="tab in tabs" :key="tab" type="button" class="configuration-tab"
+          :class="{ active: activeTab === tab }" @click="activeTab = tab">{{ tab }}</button>
+      </nav>
       <ul class="list-group list-group-flush">
-        <li class="list-group-item">
+        <li v-show="activeTab === 'Basic'" class="list-group-item basic-section">
+          <div class="basic-form">
+            <div class="basic-field">
+              <label><strong>Configuration Name</strong></label>
+              <b-form-input v-model.trim="widgetConfigTemp.name" placeholder="e.g. Configuration name" />
+            </div>
+            <div class="basic-field">
+              <label><strong>Description</strong></label>
+              <b-form-textarea v-model.trim="widgetConfigTemp.description" placeholder="Describe this verification flow" rows="3" />
+            </div>
+            <b-form-checkbox v-if="widgetConfigTemp._id" v-model="widgetConfigTemp.isDefault" switch class="mt-3">
+              Use as default configuration
+            </b-form-checkbox>
+          </div>
+        </li>
+        <li v-show="activeTab === 'Verification'" class="list-group-item">
           <b-form-checkbox switch size="lg" v-model="widgetConfigTemp.faceRecog" disabled title="Facial recognition is always enabled and cannot be disabled">{{
             this.widgetConfigUI.faceRecog.label }}</b-form-checkbox>
           <small v-html="widgetConfigUI.faceRecog.description"></small>
           <small class="text-muted d-block"><i class="mdi mdi-lock-outline mr-1"></i>This feature is always enabled and cannot be turned off.</small>
         </li>
-        <li class="list-group-item">
+        <li v-show="activeTab === 'Verification'" class="list-group-item">
           <div class="row">
             <div class="col-md-6">
               <b-form-checkbox switch size="lg" v-model="widgetConfigTemp.idOcr.enabled">
@@ -416,7 +507,7 @@ ul {
                 </div> -->
           </div>
         </li> 
-        <li class="list-group-item">
+        <li v-show="activeTab === 'Data & Consent'" class="list-group-item">
           <div class="row">
             <div class="col">
               <div class="row">
@@ -466,7 +557,7 @@ ul {
             </div>
           </div>
         </li>
-        <li class="list-group-item">
+        <li v-show="activeTab === 'Trusted Issuer'" class="list-group-item">
           <div class="row">
 
             <div class="col">
@@ -474,10 +565,17 @@ ul {
                 widgetConfigUI.trustedIssuer.label }}</b-form-checkbox>
               <small v-html="widgetConfigUI.trustedIssuer.description"></small>
             </div>
-            <div class="col">
-              <label for=""><strong>Choose Trusted Issuer(s): </strong></label>
-              <div style="max-height: 300px; overflow-y: scroll;" class="p-1">
-                <MarketplaceList @selectedServiceEvent="selectedServiceEventHandler" :isSelection="true" />
+            <div class="col trusted-issuer-column">
+              <label for=""><strong>Choose Trusted Issuer ({{ trustedIssuerCount }}): </strong></label>
+              <div class="trusted-issuer-list p-1">
+                <MarketplaceList
+                  :fetch-on-mount="false"
+                  horizontal
+                  :is-selection="true"
+                  :items="trustedIssuersList"
+                  :selected-issuer-dids="Array.from(selectedIssuerDids)"
+                  @selectedServiceEvent="selectedServiceEventHandler"
+                />
               </div>
             </div>
           </div>
@@ -485,7 +583,7 @@ ul {
         </li>
 
 
-        <li class="list-group-item">
+        <li v-show="activeTab === 'Data & Consent'" class="list-group-item">
           <div class="row">
             <div class="col-md-6">
               <b-form-checkbox
@@ -510,7 +608,7 @@ ul {
           </div>
         </li>
 
-         <li class="list-group-item">
+         <li v-show="activeTab === 'Data & Consent'" class="list-group-item">
           <div class="row">
             <div class="col-md-6">
               <div class="row">
@@ -569,7 +667,7 @@ ul {
             </div>
           </div>
         </li> -->
-        <li class="list-group-item">
+        <li v-show="activeTab === 'Notifications'" class="list-group-item">
           <div class="row">
             <div class="col-md-6">
               <b-form-checkbox
@@ -583,7 +681,7 @@ ul {
             </div>
           </div>
         </li>
-        <li class="list-group-item">
+        <li v-show="activeTab === 'Restrictions'" class="list-group-item">
           <div class="jurisdiction-panel">
             <b-form-checkbox
               switch
@@ -633,7 +731,7 @@ ul {
                     :key="country.value"
                     class="country-chip"
                   >
-                    <span class="country-chip-flag">{{ country.flag }}</span>
+                    <country-flag :country="country.alpha2" size="small" class="country-chip-flag" />
                     <span>{{ country.text }} ({{ country.value }})</span>
                     <span
                       class="country-chip-remove"
@@ -667,7 +765,7 @@ ul {
                     <template v-slot:item="{ item }">
                       <div class="country-dropdown-item">
                         <span>
-                          <span class="mr-2">{{ item.flag }}</span>
+                          <country-flag :country="item.alpha2" size="small" class="country-dropdown-flag" />
                           <span>{{ item.text }} ({{ item.value }})</span>
                         </span>
                         <v-icon
@@ -696,7 +794,7 @@ ul {
             </div>
           </div>
         </li>
-         <li class="list-group-item">
+         <li v-show="activeTab === 'Experience'" class="list-group-item">
           <div class="row">
             <div class="col-md-6">
               <b-form-checkbox
@@ -710,7 +808,7 @@ ul {
             </div>
           </div>
         </li>
-        <li class="list-group-item">
+        <li v-show="activeTab === 'Experience'" class="list-group-item">
           <div class="row">
             <div class="col-md-6">
               <b-form-checkbox
@@ -746,6 +844,7 @@ import HFBeta from '../../../components/element/HFBeta.vue';
 import config from '../../../config';
 import countries from 'i18n-iso-countries';
 import enLocale from 'i18n-iso-countries/langs/en.json';
+import CountryFlag from 'vue-country-flag';
 
 countries.registerLocale(enLocale);
 
@@ -755,6 +854,7 @@ export default {
   components: {
     HfButtons,
     MarketplaceList,
+    CountryFlag,
     HFBeta,
     AccessDenied
     // TrustedIssuer
@@ -828,11 +928,16 @@ export default {
     ...mapState({
       containerShift: state => state.playgroundStore.containerShift,
       onchainconfigs: state => state.mainStore.onchainconfigs,
-      widgetConfig: state => state.mainStore.widgetConfig
+      widgetConfig: state => state.mainStore.widgetConfig,
+      kycWebpageConfig: state => state.mainStore.kycWebpageConfig
     }),
-    ...mapGetters('mainStore', ['getAppByAppId', 'getMarketPlaceApps']),
+    ...mapGetters('mainStore', ['getAppByAppId', 'getMarketPlaceApps', 'getSelectedService']),
     isContainerShift() {
       return this.containerShift
+    },
+
+    trustedIssuerCount() {
+      return new Set(this.trustedIssuersList.filter(issuer => issuer.issuerDid).map(issuer => issuer.issuerDid)).size
     },
 
     onchainconfigsOptions() {
@@ -860,7 +965,7 @@ export default {
             value: alpha3,
             text: displayName,
             displayText: `${displayName} (${alpha3})`,
-            flag: this.countryFlagFromAlpha2(alpha2),
+            alpha2,
           }
         })
         .filter(country => !!country.value)
@@ -874,7 +979,7 @@ export default {
           value: code,
           text: code,
           displayText: code,
-          flag: this.countryFlagFromAlpha3(code),
+          alpha2: countries.alpha3ToAlpha2(code),
         }
       })
     },
@@ -887,12 +992,20 @@ export default {
 
   async mounted() {
     try {
-
-      // appId
       this.isLoading = true
-      // TODO: this we can stop until onchain feature is ready for production
-      await this.fetchAppsOnChainConfigs()
-      await this.fetchAppsWidgetConfig()
+      // await this.fetchAppsOnChainConfigs()
+      if (this.$route.params.widgetConfigId) {
+        await this.fetchAppsWidgetConfig(this.$route.params.widgetConfigId)
+      } else {
+        try {
+          await this.fetchAppsWidgetConfig()
+          this.widgetConfigTemp.issuerDID = this.widgetConfig.issuerDID || ''
+          this.widgetConfigTemp.issuerVerificationMethodId = this.widgetConfig.issuerVerificationMethodId || ''
+        } catch (e) {
+          if (isAccessDeniedError(e)) throw e
+        }
+        this.setWidgetConfig({})
+      }
       await this.fetchMarketPlaceAppsFromServer()
       this.isLoading = false
     } catch (e) {
@@ -916,12 +1029,15 @@ export default {
     this.appId = this.$route.params.appId;
     //eslint-disable-next-line
     if (this.appId) {
-      this.app = { ...this.getAppByAppId(this.appId) }
-      if (this.app) {
+      this.app = this.getAppByAppId(this.appId) || this.getSelectedService || {}
+      if (this.app.appId) {
         this.widgetConfigTemp.userConsent.domain = this.app.domain ? this.app.domain : this.widgetConfigTemp.userConsent.domain;
         this.widgetConfigTemp.userConsent.logoUrl = this.app.logoUrl ? this.app.logoUrl : this.widgetConfigTemp.userConsent.logoUrl;
         if (!this.widgetConfigTemp.issuerDID) {
           this.widgetConfigTemp.issuerDID = this.app.issuerDid;
+        }
+        if (!this.widgetConfigTemp.issuerVerificationMethodId && this.widgetConfigTemp.issuerDID) {
+          this.widgetConfigTemp.issuerVerificationMethodId = this.app.issuerVerificationMethodId || `${this.widgetConfigTemp.issuerDID}#key-1`;
         }
 
         if (!this.getMarketPlaceApps.find(x => x.appId == this.app.appId)) {
@@ -942,15 +1058,6 @@ export default {
     if (this.widgetConfigTemp.issuerDID) {
       const trustedIssuers = this.widgetConfigTemp.issuerDID.split(',');
       this.selectedIssuerDids = new Set(trustedIssuers);
-      trustedIssuers.forEach(eachtiss => {
-        const tt = this.trustedIssuersList.map(x => {
-          if (x.issuerDid == eachtiss) {
-            x['selected'] = true
-          }
-          return x
-        })
-        this.insertMarketplaceApps(tt)
-      })
     }
 
     this.widgetConfigTemp.trustedIssuer = this.widgetConfigTemp.issuerDID ? true : false;
@@ -972,6 +1079,8 @@ export default {
   },
   data() {
     return {
+      activeTab: 'Basic',
+      tabs: ['Basic', 'Verification', 'Data & Consent', 'Trusted Issuer', 'Experience', 'Notifications', 'Restrictions'],
       SupportedZkProofTypes: Object.freeze({
         PROOF_OF_AGE: 'zkProofOfAge',
       }),
@@ -1034,6 +1143,10 @@ export default {
       app: {},
       trustedIssuersList: [],
       widgetConfigTemp: {
+        name: '',
+        description: '',
+        tags: [],
+        isDefault: false,
         faceRecog: true,
         idOcr: {
           enabled: false,
@@ -1126,8 +1239,51 @@ export default {
     }
   },
   methods: {
-    ...mapMutations('mainStore', ['setWidgetConfig', 'setPreparedMarketPlaceApps', 'insertMarketplaceApps']),
-    ...mapActions('mainStore', ['fetchAppsOnChainConfigs', 'fetchMarketPlaceAppsFromServer', 'createAppsWidgetConfig', 'fetchAppsWidgetConfig', 'updateAppsWidgetConfig']),
+    ...mapMutations('mainStore', ['setWidgetConfig']),
+    // ...mapActions('mainStore', ['fetchAppsOnChainConfigs']),
+    ...mapActions('mainStore', ['fetchMarketPlaceAppsFromServer', 'createAppsWidgetConfig', 'fetchAppsWidgetConfig', 'updateAppsWidgetConfig', 'fetchKYCWebpageConfig', 'updateKYCWebpageConfig']),
+    goBack() {
+      this.$router.push({ name: 'WidgetConfigurations', params: { appId: this.$route.params.appId } })
+    },
+    configurationPayload(isUpdate = false) {
+      const payload = JSON.parse(JSON.stringify(this.widgetConfigTemp))
+      delete payload.trustedIssuer
+      delete payload.serviceId
+      delete payload.createdAt
+      delete payload.updatedAt
+      if (!isUpdate) {
+        delete payload._id
+        delete payload.isDefault
+      }
+      return payload
+    },
+    setIssuerDetails(forceUpdate = false) {
+      const app = this.getAppByAppId(this.$route.params.appId) || this.getSelectedService
+      if (!app) return
+      const hasServiceIssuer = !!app.issuerDid
+
+      if ((forceUpdate && hasServiceIssuer) || !this.widgetConfigTemp.issuerDID) {
+        this.widgetConfigTemp.issuerDID = app.issuerDid
+      }
+      if (((forceUpdate && hasServiceIssuer) || !this.widgetConfigTemp.issuerVerificationMethodId) && this.widgetConfigTemp.issuerDID) {
+        this.widgetConfigTemp.issuerVerificationMethodId = app.issuerVerificationMethodId || `${this.widgetConfigTemp.issuerDID}#key-1`
+      }
+    },
+    async updateVerifierPageWidgetConfig() {
+      try {
+        await this.fetchKYCWebpageConfig()
+      } catch (e) {
+        const message = e?.message || String(e)
+        if (message.includes('No webpage configuration found')) return
+        throw e
+      }
+
+      if (!this.kycWebpageConfig?._id) return
+      await this.updateKYCWebpageConfig({
+        ...this.kycWebpageConfig,
+        linkedWidgetConfigIds: [this.widgetConfigTemp._id]
+      })
+    },
     handleApiError(error, method = 'GET') {
       const message = typeof error === 'string' ? error : error?.message || 'Something went wrong';
       if (method.toUpperCase() === 'GET' && isAccessDeniedError(error)) {
@@ -1172,16 +1328,6 @@ export default {
         ? existingRules.actionOnRestriction
         : defaults.actionOnRestriction
     },
-    countryFlagFromAlpha2(alpha2) {
-      if (!alpha2 || alpha2.length !== 2) return ''
-      return alpha2
-        .toUpperCase()
-        .replace(/./g, char => String.fromCodePoint(127397 + char.charCodeAt()))
-    },
-    countryFlagFromAlpha3(alpha3) {
-      const alpha2 = countries.alpha3ToAlpha2(alpha3)
-      return this.countryFlagFromAlpha2(alpha2)
-    },
     removeJurisdictionCountry(countryCode) {
       const selectedCountries = this.widgetConfigTemp.jurisdictionRules.countries || []
       this.widgetConfigTemp.jurisdictionRules.countries = selectedCountries.filter(country => country !== countryCode)
@@ -1218,15 +1364,15 @@ export default {
     },
 
     selectedServiceEventHandler(event) {
-      // Guard: ignore entries with no issuerDid
       if (!event.issuerDid || !event.issuerDid.trim()) return
 
-      // Use explicit selected flag instead of toggle to stay in sync
+      const selectedIssuerDids = new Set(this.selectedIssuerDids)
       if (event.selected) {
-        this.selectedIssuerDids.add(event.issuerDid)
+        selectedIssuerDids.add(event.issuerDid)
       } else {
-        this.selectedIssuerDids.delete(event.issuerDid)
+        selectedIssuerDids.delete(event.issuerDid)
       }
+      this.selectedIssuerDids = selectedIssuerDids
       this.widgetConfigTemp.issuerDID = Array.from(this.selectedIssuerDids.values())
         .filter(did => !!did && !!did.trim())
         .join(',')
@@ -1336,12 +1482,19 @@ export default {
       }
     },
     validateField() {
+      if (!this.widgetConfigTemp.name) {
+        throw new Error('Configuration name is required')
+      }
+      if (!this.widgetConfigTemp.description) {
+        throw new Error('Configuration description is required')
+      }
       this.widgetConfigTemp.isWidgetLogin = this.widgetConfigTemp.isWidgetLogin !== false
       this.widgetConfigTemp.isMobileAssistedVerification = this.widgetConfigTemp.isMobileAssistedVerification !== false
+      this.setIssuerDetails()
       this.migratedocumentUploadMode()
       this.validateJurisdictionRules()
       if (!this.widgetConfigTemp.issuerDID) {
-        throw new Error('Issuer DID is required')
+        throw new Error('Configure an Issuer DID in Service Configuration before creating a widget configuration')
       }
 
       if (!this.widgetConfigTemp.idOcr?.enabled) {
@@ -1390,41 +1543,51 @@ export default {
     },
     async saveConfiguration() {
       try {
-        //TODO validate all fields
         this.isLoading = true;
         this.syncAgeProof()
         this.syncSelectiveDisclosure()
         this.validateField()
-        this.setWidgetConfig(this.widgetConfigTemp)
+        this.setWidgetConfig(this.configurationPayload())
         await this.createAppsWidgetConfig()
         if (this.widgetConfig) {
           this.widgetConfigTemp = JSON.parse(JSON.stringify(this.widgetConfig))
           this.ensureJurisdictionRules()
         }
-
-        this.isLoading = false
+        if (this.widgetConfigTemp.isDefault) {
+          await this.updateVerifierPageWidgetConfig()
+        }
+        this.notifySuccess('Widget configuration created successfully')
+        this.$router.replace({
+          name: 'WidgetConfigDetails',
+          params: { appId: this.$route.params.appId, widgetConfigId: this.widgetConfigTemp._id }
+        })
 
       } catch (e) {
-        this.isLoading = false
         this.notifyErr(e.message)
+      } finally {
+        this.isLoading = false
       }
     },
 
     async updateConfiguration() {
       try {
-        //TODO validate all field
         this.isLoading = true;
+        this.setIssuerDetails(true)
         this.syncAgeProof()
         this.syncSelectiveDisclosure()
         this.validateField()
 
-        this.setWidgetConfig(this.widgetConfigTemp)
+        this.setWidgetConfig(this.configurationPayload(true))
         await this.updateAppsWidgetConfig()
+        if (this.widgetConfigTemp.isDefault) {
+          await this.updateVerifierPageWidgetConfig()
+        }
         if (this.widgetConfig) {
           // this.widgetConfigTemp = { ...this.widgetConfig }
           this.widgetConfigTemp.trustedIssuer = this.widgetConfigTemp.issuerDID ? true : false;
           this.ensureJurisdictionRules()
         }
+        this.notifySuccess('Widget configuration updated successfully')
         this.isLoading = false
       } catch (e) {
         this.isLoading = false

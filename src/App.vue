@@ -72,7 +72,17 @@
 }
 
 .container-collapsed {
-  margin-left: 15em;
+  margin-left: 200px;
+}
+
+.container-collapsed-not {
+  margin-left: 70px;
+}
+
+.container-collapsed,
+.container-collapsed-not {
+  min-width: 0;
+  transition: margin-left 0.2s ease;
 }
 
 .container {
@@ -494,7 +504,10 @@ color: #1a1a2e !important;
     <div
       :class="[isSidebarCollapsed ? 'container-collapsed-not' : 'container-collapsed']"
     >
-      <router-view class="container containerData" />
+      <router-view
+        :key="$route.params.appId || $route.name"
+        class="container containerData"
+      />
     </div>
     <notifications group="foo" />
 
@@ -726,14 +739,16 @@ export default {
       try {
         const userDetails = this.getUserDetails; //localStorage.getItem("user");
         if (userDetails) {
-          this.parseAuthToken = this.getUserDetails;
+          this.userDetails = userDetails;
+          this.loggedInUserEmailId = userDetails?.accessAccount?.email;
+          this.parseAuthToken = userDetails;
           this.setIsLoggedOut(true);
           const redirectPath =
             localStorage.getItem("postLoginRedirect") || "/studio/dashboard";
           localStorage.removeItem("postLoginRedirect");
-          this.$router.push(redirectPath).then(() => {
-            this.$router.go(0);
-          });
+          if (this.$route.path !== redirectPath) {
+            await this.$router.replace(redirectPath);
+          }
         } else {
           throw new Error("No user details found in localStorage");
         }
@@ -763,7 +778,7 @@ export default {
           const ivChildren = [
             { href: "/studio/sessions/" + appId, title: EN.NAV.IDENTITY_VERIFICATION.USERS, icon: "fa fa-users", alias: "/studio/sessions/:appId/:sessionId" },
             { href: "/studio/user-analytics/" + appId, title: EN.NAV.IDENTITY_VERIFICATION.USER_ANALYTICS, icon: "fa fa-chart-line" },
-            { href: "/studio/widget-config/" + appId, title: EN.NAV.IDENTITY_VERIFICATION.KYC_WIDGET, icon: "fa fa-puzzle-piece" },
+            { href: "/studio/widget-config/" + appId, title: EN.NAV.IDENTITY_VERIFICATION.KYC_WIDGET, icon: "fa fa-puzzle-piece", alias: ["/studio/widget-config/:appId/new", "/studio/widget-config/:appId/:widgetConfigId"] },
           ];
           menu.push({ href: "", title: EN.NAV.IDENTITY_VERIFICATION.TITLE, icon: "fa fa-user-check", child: ivChildren });
 
@@ -928,15 +943,13 @@ export default {
     },
     async switchBackToAdminAccount() {
       try {
-        this.isLoding = true;
+        this.isLoading = true;
         await this.switchToAdmin({
           adminId: this.userDetails.userId,
         });
         this.resetStoreForTeantSwitch();
+        await this.$router.replace("/studio/home");
         this.isLoading = false;
-        this.$router.push("/studio/dashboard").then(() => {
-          this.$router.go(0);
-        });
       } catch (e) {
         this.notifyErr(e.message);
         this.isLoading = false;

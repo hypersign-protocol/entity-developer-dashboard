@@ -1,5 +1,5 @@
 <template>
-    <div></div>
+    <load-ing :active="true" :can-cancel="false" :is-full-page="true" />
 </template>
 
 
