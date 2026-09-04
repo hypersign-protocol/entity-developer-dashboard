@@ -739,14 +739,16 @@ export default {
       try {
         const userDetails = this.getUserDetails; //localStorage.getItem("user");
         if (userDetails) {
-          this.parseAuthToken = this.getUserDetails;
+          this.userDetails = userDetails;
+          this.loggedInUserEmailId = userDetails?.accessAccount?.email;
+          this.parseAuthToken = userDetails;
           this.setIsLoggedOut(true);
           const redirectPath =
             localStorage.getItem("postLoginRedirect") || "/studio/dashboard";
           localStorage.removeItem("postLoginRedirect");
-          this.$router.push(redirectPath).then(() => {
-            this.$router.go(0);
-          });
+          if (this.$route.path !== redirectPath) {
+            await this.$router.replace(redirectPath);
+          }
         } else {
           throw new Error("No user details found in localStorage");
         }
@@ -941,15 +943,13 @@ export default {
     },
     async switchBackToAdminAccount() {
       try {
-        this.isLoding = true;
+        this.isLoading = true;
         await this.switchToAdmin({
           adminId: this.userDetails.userId,
         });
         this.resetStoreForTeantSwitch();
+        await this.$router.replace("/studio/home");
         this.isLoading = false;
-        this.$router.push("/studio/dashboard").then(() => {
-          this.$router.go(0);
-        });
       } catch (e) {
         this.notifyErr(e.message);
         this.isLoading = false;

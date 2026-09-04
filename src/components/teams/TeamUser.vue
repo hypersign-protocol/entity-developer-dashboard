@@ -252,9 +252,9 @@ export default {
         })
         this.setSwitchedTenantAccount(this.email)
         this.insertAllApps({ data: [], totalCount: 0 })
-        this.isLoading = false
         this.notifySuccess('Succefully switch to tenant account')
-        this.$router.push("dashboard").then(() => { this.$router.go(0) });
+        await this.$router.replace({ name: "Home" })
+        this.isLoading = false
       } catch (e) {
         this.notifyErr(e.message)
         this.isLoading = false
