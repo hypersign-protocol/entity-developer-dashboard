@@ -84,11 +84,11 @@
         <span>{{ deleteMessage }}</span>
       </div>
       <div class="delete-confirmation-actions">
-        <button type="button" class="btn delete-modal-cancel" @click="cancelDelete">
-          <i class="fas fa-times mr-1"></i> Cancel
+        <button type="button" class="btn btn-outline-secondary" @click="cancelDelete">
+          Cancel
         </button>
-        <button type="button" class="btn delete-modal-confirm" @click="confirmDelete">
-          <i class="fas fa-trash mr-1"></i> Delete
+        <button type="button" class="btn btn-outline-danger" @click="confirmDelete">
+          Delete
         </button>
       </div>
     </hf-pop-up>
@@ -273,12 +273,6 @@ export default {
 .delete-confirmation-message { align-items: flex-start; color: #374151; display: flex; gap: 16px; line-height: 1.5; }
 .delete-confirmation-message .fa-exclamation-circle { color: #ef4444; flex-shrink: 0; font-size: 24px; margin-top: 2px; }
 .delete-confirmation-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 24px; }
-.delete-confirmation-actions .btn { border-radius: 4px; color: #fff !important; font-size: 14px; min-width: 95px; opacity: 1; padding: 9px 16px; }
-.delete-confirmation-actions .btn i { color: #fff !important; }
-.delete-modal-cancel { background-color: #6c757d; border-color: #6c757d; }
-.delete-modal-cancel:hover, .delete-modal-cancel:focus { background-color: #5a6268; border-color: #545b62; color: #fff !important; }
-.delete-modal-confirm { background-color: #dc3545; border-color: #dc3545; }
-.delete-modal-confirm:hover, .delete-modal-confirm:focus { background-color: #c82333; border-color: #bd2130; color: #fff !important; }
 .badge { border-radius: 5px; font-size: 10px; font-weight: 500; padding: 4px 7px; }
 .badge-default { background: #e8f1ff; color: #2563eb; }
 .feature-list { gap: 9px; }
