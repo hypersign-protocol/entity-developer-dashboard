@@ -226,7 +226,7 @@ export default {
     },
     avatarClass(configuration) {
       const palette = ['green', 'purple', 'blue', 'orange', 'pink']
-      const total = (configuration.name || '').split('').reduce((sum, char) => sum + char.charCodeAt(0), 0)
+      const total = (configuration.name || 'Widget-Configuration').split('').reduce((sum, char) => sum + char.charCodeAt(0), 0)
       return `avatar-${palette[total % palette.length]}`
     }
   }

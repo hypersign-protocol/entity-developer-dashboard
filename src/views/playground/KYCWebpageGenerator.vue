@@ -1379,7 +1379,7 @@ export default {
     widgetConfigurationOptions() {
       const options = this.widgetConfigurations.map(configuration => ({
         value: configuration._id,
-        text: `${configuration.name || 'widget-configuration'}${configuration.isDefault ? ' (Default)' : ''}`
+        text: `${configuration.name || 'Widget-Configuration'}${configuration.isDefault ? ' (Default)' : ''}`
       }))
       if (this.selectedWidgetConfigId && !this.widgetConfigurations.some(configuration => configuration._id === this.selectedWidgetConfigId)) {
         options.push({ value: this.selectedWidgetConfigId, text: 'Current widget configuration' })
