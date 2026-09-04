@@ -1544,6 +1544,7 @@ export default {
     async saveConfiguration() {
       try {
         this.isLoading = true;
+        await this.$nextTick()
         this.syncAgeProof()
         this.syncSelectiveDisclosure()
         this.validateField()
@@ -1563,7 +1564,7 @@ export default {
         })
 
       } catch (e) {
-        this.notifyErr(e.message)
+        this.notifyErr(e?.message || String(e))
       } finally {
         this.isLoading = false
       }
