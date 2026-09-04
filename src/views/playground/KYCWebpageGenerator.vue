@@ -1378,9 +1378,9 @@ export default {
     ...mapState({ totalWidgetConfigCount: state => state.mainStore.totalWidgetConfigCount }),
     widgetConfigurationOptions() {
       const options = this.widgetConfigurations.map(configuration => ({
-          value: configuration._id,
-          text: `${configuration.name}${configuration.isDefault ? ' (Default)' : ''}`
-        }))
+        value: configuration._id,
+        text: `${configuration.name || 'widget-configuration'}${configuration.isDefault ? ' (Default)' : ''}`
+      }))
       if (this.selectedWidgetConfigId && !this.widgetConfigurations.some(configuration => configuration._id === this.selectedWidgetConfigId)) {
         options.push({ value: this.selectedWidgetConfigId, text: 'Current widget configuration' })
       }
