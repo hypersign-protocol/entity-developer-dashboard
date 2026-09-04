@@ -30,7 +30,9 @@
                   <strong>{{ item.name }}</strong>
                   <span v-if="item.isDefault" class="badge badge-default">Default</span>
                 </div>
-                <small>{{ configurationSlug(item) }}</small>
+                <small v-if="item.description" class="configuration-description" :title="item.description">
+                  {{ item.description }}
+                </small>
               </div>
             </div>
           </template>
@@ -210,9 +212,6 @@ export default {
         this.cancelDelete()
       }
     },
-    configurationSlug(configuration) {
-      return (configuration.name || 'widget-configuration').toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
-    },
     features(configuration) {
       const values = []
       if (configuration.faceRecog) values.push({ key: 'face', label: 'Facial Recognition', icon: 'mdi-face-recognition', color: '#16a34a' })
@@ -250,6 +249,13 @@ export default {
 .title-row { flex-wrap: wrap; gap: 7px; }
 .title-row strong { color: #172033; font-size: 14px; }
 .table-identity small { color: #64748b; }
+.configuration-description {
+  display: -webkit-box;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
 .badge { border-radius: 5px; font-size: 10px; font-weight: 500; padding: 4px 7px; }
 .badge-default { background: #e8f1ff; color: #2563eb; }
 .feature-list { gap: 9px; }
