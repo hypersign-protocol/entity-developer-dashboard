@@ -24,7 +24,7 @@
         <b-table :items="widgetConfigs" :fields="tableFields" responsive show-empty class="configuration-table">
           <template #cell(configuration)="{ item }">
             <div class="table-identity">
-              <div class="configuration-avatar small" :class="avatarClass(item)"><v-icon small>mdi-cog-outline</v-icon></div>
+              <div class="configuration-avatar small secondary-bg"><v-icon small>mdi-cog-outline</v-icon></div>
               <div>
                 <div class="title-row">
                   <strong>{{ widgetConfigurationName(item) }}</strong>
@@ -73,16 +73,25 @@
         <b-pagination v-model="currentPage" :total-rows="totalWidgetConfigCount" :per-page="perPage" size="sm" />
       </div>
     </template>
-    <CustomConfirmModal
-      :is-visible="showDeleteConfirm"
-      title="Delete Widget Configuration"
-      :message="deleteMessage"
-      type="danger"
-      confirm-text="Delete"
-      confirm-icon-class="fas fa-trash"
-      @confirm="confirmDelete"
-      @cancel="cancelDelete"
-    />
+    <hf-pop-up
+      id="delete-widget-configuration"
+      Header="Delete Widget Configuration"
+      @hide="showDeleteConfirm = false"
+      @hidden="resetDeleteConfirmation"
+    >
+      <div class="delete-confirmation-message">
+        <i class="fas fa-exclamation-circle"></i>
+        <span>{{ deleteMessage }}</span>
+      </div>
+      <div class="delete-confirmation-actions">
+        <button type="button" class="btn delete-modal-cancel" @click="cancelDelete">
+          <i class="fas fa-times mr-1"></i> Cancel
+        </button>
+        <button type="button" class="btn delete-modal-confirm" @click="confirmDelete">
+          <i class="fas fa-trash mr-1"></i> Delete
+        </button>
+      </div>
+    </hf-pop-up>
   </b-container>
 </template>
 
@@ -90,13 +99,13 @@
 import { mapActions, mapMutations, mapState } from 'vuex'
 import UtilsMixin from '../../../mixins/utils'
 import AccessDenied from '../../AccessDenied.vue'
-import CustomConfirmModal from '../../../components/element/CustomConfirmModal.vue'
+import HfPopUp from '../../../components/element/hfPopup.vue'
 import HfButtons from '../../../components/element/HfButtons.vue'
 import { isAccessDeniedError } from '../../../utils/accessDenied'
 
 export default {
   name: 'WidgetConfigurations',
-  components: { AccessDenied, CustomConfirmModal, HfButtons },
+  components: { AccessDenied, HfPopUp, HfButtons },
   mixins: [UtilsMixin],
   data() {
     return {
@@ -201,9 +210,13 @@ export default {
       if (configuration.isDefault) return
       this.configurationToDelete = configuration
       this.showDeleteConfirm = true
+      this.$root.$emit('bv::show::modal', 'delete-widget-configuration')
     },
     cancelDelete() {
       this.showDeleteConfirm = false
+      this.$root.$emit('bv::hide::modal', 'delete-widget-configuration')
+    },
+    resetDeleteConfirmation() {
       this.configurationToDelete = null
     },
     async confirmDelete() {
@@ -231,18 +244,13 @@ export default {
       if (configuration.zkProof && configuration.zkProof.enabled) values.push({ key: 'age', label: 'Age Verification', icon: 'mdi-eye-outline', color: '#9333ea' })
       if (configuration.jurisdictionRules && configuration.jurisdictionRules.enabled) values.push({ key: 'jurisdiction', label: 'Jurisdiction Restrictions', icon: 'mdi-earth', color: '#e11d48' })
       return values
-    },
-    avatarClass(configuration) {
-      const palette = ['green', 'purple', 'blue', 'orange', 'pink']
-      const total = this.widgetConfigurationName(configuration).split('').reduce((sum, char) => sum + char.charCodeAt(0), 0)
-      return `avatar-${palette[total % palette.length]}`
     }
   }
 }
 </script>
 
 <style scoped>
-.widget-configurations { max-width: 1440px; min-width: 0; width: 100%; }
+.widget-configurations { min-width: 0; width: 100%; }
 .page-header, .header-actions, .title-row, .feature-list, .table-identity, .list-footer { display: flex; align-items: center; }
 .page-header { justify-content: space-between; gap: 24px; margin-bottom: 28px; }
 .page-header h3 { color: #0f172a; font-size: 24px; font-weight: 700; margin: 0 0 4px; }
@@ -250,11 +258,8 @@ export default {
 .header-actions { flex-wrap: wrap; gap: 18px; justify-content: flex-end; }
 .configuration-avatar { align-items: center; border-radius: 50%; display: flex; flex: 0 0 48px; height: 48px; justify-content: center; width: 48px; }
 .configuration-avatar.small { flex-basis: 38px; height: 38px; width: 38px; }
-.avatar-green { background: #dcfce7; } .avatar-green .v-icon { color: #16a34a; }
-.avatar-purple { background: #f3e8ff; } .avatar-purple .v-icon { color: #9333ea; }
-.avatar-blue { background: #e0f2fe; } .avatar-blue .v-icon { color: #2563eb; }
-.avatar-orange { background: #ffedd5; } .avatar-orange .v-icon { color: #f97316; }
-.avatar-pink { background: #fce7f3; } .avatar-pink .v-icon { color: #db2777; }
+.secondary-bg { background-color: #f0f7ff; border: 1px solid #bfdbfe; }
+.secondary-bg .v-icon { color: #2563eb; }
 .title-row { flex-wrap: wrap; gap: 7px; }
 .title-row strong { color: #172033; font-size: 14px; }
 .table-identity small { color: #64748b; }
@@ -265,6 +270,15 @@ export default {
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
 }
+.delete-confirmation-message { align-items: flex-start; color: #374151; display: flex; gap: 16px; line-height: 1.5; }
+.delete-confirmation-message .fa-exclamation-circle { color: #ef4444; flex-shrink: 0; font-size: 24px; margin-top: 2px; }
+.delete-confirmation-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 24px; }
+.delete-confirmation-actions .btn { border-radius: 4px; color: #fff !important; font-size: 14px; min-width: 95px; opacity: 1; padding: 9px 16px; }
+.delete-confirmation-actions .btn i { color: #fff !important; }
+.delete-modal-cancel { background-color: #6c757d; border-color: #6c757d; }
+.delete-modal-cancel:hover, .delete-modal-cancel:focus { background-color: #5a6268; border-color: #545b62; color: #fff !important; }
+.delete-modal-confirm { background-color: #dc3545; border-color: #dc3545; }
+.delete-modal-confirm:hover, .delete-modal-confirm:focus { background-color: #c82333; border-color: #bd2130; color: #fff !important; }
 .badge { border-radius: 5px; font-size: 10px; font-weight: 500; padding: 4px 7px; }
 .badge-default { background: #e8f1ff; color: #2563eb; }
 .feature-list { gap: 9px; }

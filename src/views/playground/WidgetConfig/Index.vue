@@ -175,6 +175,17 @@ h5 span {
   overflow-y: auto;
 }
 
+.trusted-issuer-list {
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  width: 100%;
+}
+
+.trusted-issuer-column {
+  min-width: 0;
+}
+
 ul {
   list-style-type: none;
 }
@@ -554,11 +565,12 @@ ul {
                 widgetConfigUI.trustedIssuer.label }}</b-form-checkbox>
               <small v-html="widgetConfigUI.trustedIssuer.description"></small>
             </div>
-            <div class="col">
-              <label for=""><strong>Choose Trusted Issuer(s): </strong></label>
-              <div style="max-height: 300px; overflow-y: scroll;" class="p-1">
+            <div class="col trusted-issuer-column">
+              <label for=""><strong>Choose Trusted Issuer ({{ trustedIssuerCount }}): </strong></label>
+              <div class="trusted-issuer-list p-1">
                 <MarketplaceList
                   :fetch-on-mount="false"
+                  horizontal
                   :is-selection="true"
                   :items="trustedIssuersList"
                   :selected-issuer-dids="Array.from(selectedIssuerDids)"
@@ -922,6 +934,10 @@ export default {
     ...mapGetters('mainStore', ['getAppByAppId', 'getMarketPlaceApps', 'getSelectedService']),
     isContainerShift() {
       return this.containerShift
+    },
+
+    trustedIssuerCount() {
+      return new Set(this.trustedIssuersList.filter(issuer => issuer.issuerDid).map(issuer => issuer.issuerDid)).size
     },
 
     onchainconfigsOptions() {

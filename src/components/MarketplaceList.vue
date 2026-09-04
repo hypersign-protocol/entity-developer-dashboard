@@ -1,12 +1,12 @@
 <template>
-  <div class="row">
+  <div class="row marketplace-list" :class="{ horizontal: horizontal }">
     <div v-if="isLoading" class="col-12 d-flex justify-center py-8">
       <v-progress-circular indeterminate color="primary"></v-progress-circular>
     </div>
     <div v-else class="col-12">
-      <div class="row">
+      <div class="row issuer-grid">
         <div
-          class="col-12 col-md-6 col-lg-4 mb-2"
+          class="issuer-item col-12 col-md-6 col-lg-4 mb-2"
           v-for="eachOrg in services"
           :key="eachOrg.appId"
         >
@@ -69,6 +69,28 @@
   transition: all 0.25s ease-in-out;
   border: 1px solid #e5e7eb !important;
   background-color: #ffffff !important;
+}
+
+.marketplace-list.horizontal {
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.marketplace-list.horizontal > .col-12 {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.marketplace-list.horizontal .issuer-grid {
+  flex-wrap: nowrap;
+  margin-left: 0;
+  margin-right: 0;
+  width: max-content;
+}
+
+.marketplace-list.horizontal .issuer-item {
+  flex: 0 0 280px;
+  max-width: 280px;
 }
 
 .issuer-card:hover {
@@ -154,6 +176,10 @@ export default {
     items: {
       type: Array,
       default: null,
+    },
+    horizontal: {
+      type: Boolean,
+      default: false,
     },
   },
   data() {
