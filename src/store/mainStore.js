@@ -1599,7 +1599,7 @@ const mainStore = {
                 }).then((token) => {
                     const headers = UtilsMixin.methods.getKycServiceHeader(token);
                     const data = getters.getWidgetnConfig;
-                    fetch(url, {
+                    return fetch(url, {
                         method: 'POST',
                         headers,
                         body: JSON.stringify(data),
