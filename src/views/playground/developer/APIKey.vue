@@ -6,70 +6,67 @@
       :is-full-page="fullPage"
     ></load-ing>
 
+    <!-- Page Header -->
     <v-row align="center" class="mb-6">
       <v-col cols="12">
-        <h4 class="font-weight-bold mb-0">API Key Management</h4>
-        <p class="text-subtitle-2 text-muted">
+        <h4 class="font-weight-bold mb-1">API Key Management</h4>
+        <p class="text-subtitle-2 text-muted mb-0">
           Configure authentication for your backend integration
         </p>
       </v-col>
     </v-row>
 
     <v-row>
+      <!-- Left Column: Secret Key Generator -->
       <v-col cols="12" lg="6">
         <div class="overview-container h-100">
           <div class="header-row">
             <h2 class="title">Generate Secret Key</h2>
           </div>
 
-          <div class="p-2">
-            <div class="important-note mb-3 d-flex align-center justify-space-between">
-              <div class="d-flex align-center">
-                <v-icon color="orange darken-2" class="mr-2">mdi-alert</v-icon>
-                <div>
-                  <span class="font-weight-bold d-block text-orange">Important Note</span>
-                  <span class="small text-muted">
-                    Generating a new Secret Key will
-                    <strong>immediately deactivate</strong> your current key. Ensure you
-                    update your server configuration promptly.
-                  </span>
-                </div>
+          <div class="important-note mb-4 d-flex align-start">
+            <v-icon color="#f97316" class="mr-3">mdi-alert-circle-outline</v-icon>
+            <div>
+              <span class="font-weight-bold d-block text-orange">Important Note</span>
+              <span class="small text-muted">
+                Generating a new Secret Key will <strong>immediately deactivate</strong> your current key. Ensure you update your server configuration promptly.
+              </span>
+            </div>
+          </div>
+
+          <div class="service-block">
+            <div class="w-100 mb-3" v-if="getSelectedService">
+              <label class="input-label">Application ID</label>
+              <div class="copy-input-group">
+                <input type="text" :value="getSelectedService.appId" readonly />
+                <button @click="copyToClipboard(getSelectedService.appId)" title="Copy App ID">
+                  <v-icon small color="grey darken-1">mdi-content-copy</v-icon>
+                </button>
               </div>
             </div>
 
-            <div class="p-3 service-block">
-              <div class="service-info mb-3">
-                <div v-if="getSelectedService">
-                  <label class="input-label">Application ID</label>
-                  <div class="copy-input-group">
-                    <input type="text" :value="getSelectedService.appId" readonly />
-                    <button class="copy-id-btn" @click="copyToClipboard(getSelectedService.appId)" title="Copy App ID">
-                      <v-icon small color="grey">mdi-content-copy</v-icon>
-                    </button>
-                  </div>
-                </div>
-                <div v-else class="no-service small text-muted">
-                  No application selected. Select an application from the sidebar to enable generating a Secret Key.
-                </div>
-              </div>
+            <div v-else class="no-service small text-muted mb-3">
+              No application selected. Select an application from the sidebar to enable generating a Secret Key.
+            </div>
 
-              <div class="generate-section">
-                <hf-buttons
-                  v-if="getSelectedService"
-                  name="Generate New Secret"
-                  @executeAction="reGenerateSecretKey"
-                ></hf-buttons>
+            <div class="generate-section w-100">
+              <hf-buttons
+                v-if="getSelectedService"
+                name="Generate New Secret"
+                @executeAction="reGenerateSecretKey"
+              ></hf-buttons>
 
-                <v-btn v-else depressed disabled class="btn btn-outline-secondary px-8">
-                  Generate New Secret
-                </v-btn>
-              </div>
+              <v-btn v-else disabled block depressed height="44">
+                Generate New Secret
+              </v-btn>
             </div>
           </div>
         </div>
       </v-col>
 
+      <!-- Right Column: Instructions & Endpoints -->
       <v-col cols="12" lg="6">
+        <!-- Integration Steps -->
         <div class="overview-container mb-4">
           <div class="header-row">
             <h2 class="title">Integration Steps</h2>
@@ -110,6 +107,7 @@
           </div>
         </div>
 
+        <!-- Connection Endpoints -->
         <div class="overview-container">
           <div class="header-row">
             <h2 class="title">Connection Endpoints</h2>
@@ -119,8 +117,8 @@
             <label class="input-label">Dashboard API URL</label>
             <div class="copy-input-group">
               <input type="text" :value="dashboardUrl" readonly />
-              <button @click="copyToClipboard(dashboardUrl)">
-                <v-icon small>mdi-content-copy</v-icon>
+              <button @click="copyToClipboard(dashboardUrl)" title="Copy Dashboard URL">
+                <v-icon small color="grey darken-1">mdi-content-copy</v-icon>
               </button>
             </div>
           </div>
@@ -129,8 +127,8 @@
             <label class="input-label">Tenant URL</label>
             <div class="copy-input-group">
               <input type="text" :value="tenantUrl" readonly />
-              <button @click="copyToClipboard(tenantUrl)">
-                <v-icon small>mdi-content-copy</v-icon>
+              <button @click="copyToClipboard(tenantUrl)" title="Copy Tenant URL">
+                <v-icon small color="grey darken-1">mdi-content-copy</v-icon>
               </button>
             </div>
           </div>
@@ -138,6 +136,7 @@
       </v-col>
     </v-row>
 
+    <!-- Modal Popup -->
     <hf-pop-up id="entity-secretKey-popup" Header="API Secret Key Generated">
       <div class="pa-4 text-center" v-if="apiKeySecret">
         <v-icon color="green" size="48" class="mb-2">mdi-key</v-icon>
@@ -157,218 +156,6 @@
     </hf-pop-up>
   </b-container>
 </template>
-
-<style scoped>
-.py-3 {
-  width: 80vw !important;
-}
-/* Dashboard Container Style */
-.overview-container {
-  padding: 1.5rem;
-  background-color: #f9fafb;
-  border-radius: 0.75rem;
-  border: 1px solid #e5e7eb;
-  margin-top: -0.85rem;
-}
-
-.header-row {
-  margin-bottom: 1.25rem;
-}
-
-.title {
-  font-size: 1rem;
-  font-weight: 700;
-  color: #111827;
-  text-transform: uppercase;
-  letter-spacing: 0.025em;
-}
-
-/* Warning Box */
-.warning-box {
-  background-color: #fff7ed;
-  border: 1px solid #ffedd5;
-  border-radius: 8px;
-  padding: 1rem;
-}
-
-.text-orange {
-  color: #c2410c;
-}
-
-/* Step Styles */
-.step-number {
-  background: #3b82f6;
-  color: white;
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.75rem;
-  font-weight: bold;
-  margin-right: 12px;
-  margin-top: 2px;
-}
-
-.doc-link {
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: #3b82f6;
-  text-decoration: none;
-}
-
-.doc-link:hover {
-  text-decoration: underline;
-}
-
-/* Custom Copy Inputs */
-.input-label {
-  display: block;
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: #64748b;
-  text-transform: uppercase;
-  margin-bottom: 4px;
-}
-
-.copy-input-group {
-  display: flex;
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 6px;
-  overflow: hidden;
-}
-
-.copy-input-group input {
-  flex: 1;
-  padding: 10px 14px;
-  font-size: 0.95rem;
-  color: #475569;
-  font-family: monospace;
-  border: none;
-  background: transparent;
-  height: 44px;
-  width: 25vw;
-}
-
-.copy-input-group button {
-  padding: 0 14px;
-  background: #f8fafc;
-  border-left: 1px solid #e2e8f0;
-  transition: background 0.2s;
-  height: 44px;
-  display: inline-flex;
-  align-items: center;
-}
-
-.copy-input-group button:hover {
-  background: #f1f5f9;
-}
-
-.service-block .copy-input-group {
-  margin-top: 6px;
-}
-
-.service-info .input-label {
-  text-transform: none;
-  font-weight: 600;
-  color: #374151;
-  font-size: 0.85rem;
-  margin-bottom: 6px;
-}
-
-.service-block .service-name {
-  font-weight: 700;
-  color: #0f172a;
-  margin-bottom: 4px;
-}
-
-.service-block .service-id.mono {
-  font-family: monospace;
-  color: #475569;
-  font-size: 0.85rem;
-}
-
-.service-block .no-service {
-  color: #6b7280;
-}
-
-.important-note {
-  background-color: #fff7ed;
-  border: 1px solid #ffedd5;
-  border-left: 4px solid #f97316;
-  border-radius: 8px;
-  padding: 12px 14px;
-  width: 100%;
-}
-
-.important-note .text-muted {
-  color: #7c2d12;
-}
-
-/* note-compact removed: Important Note is always visible */
-
-/* Layout adjustments to improve placement and responsiveness */
-.service-block {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 12px;
-  padding-top: 8px;
-  padding-bottom: 8px;
-}
-
-.service-block .service-info {
-  text-align: left;
-}
-
-.info-value {
-  font-size: 0.95rem;
-  font-weight: 700;
-  color: #111827;
-  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
-  word-break: break-all;
-}
-
-.copy-id-btn {
-  background: transparent;
-  border: none;
-  padding: 4px;
-  border-radius: 6px;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  color: #905ab0;
-}
-
-.copy-id-btn:hover {
-  background: rgba(144,90,176,0.06);
-}
-
-.generate-btn .hf-button {
-  background: #905ab0 !important;
-  color: #fff !important;
-  border-radius: 8px !important;
-  padding: 10px 18px !important;
-  box-shadow: 0 6px 18px rgba(144,90,176,0.12) !important;
-  text-transform: none !important;
-  letter-spacing: 0.01em !important;
-}
-
-.generate-full .hf-button {
-  width: 100% !important;
-  display: block !important;
-  padding: 12px 20px !important;
-  height: 44px !important;
-  font-size: 1rem !important;
-}
-
-.generate-section {
-  margin-top: 6px;
-}
-</style>
 
 <script>
 import UtilsMixin from "../../../mixins/utils.js";
@@ -390,20 +177,19 @@ export default {
       fullPage: true,
       isLoading: false,
       apiKeySecret: "",
-      tenantUrl: "", // Replace dynamically if needed
       dashboardUrl: "https://api.entity.dashboard.hypersign.id",
     };
   },
   computed: {
     ...mapGetters("mainStore", ["getSelectedService"]),
-    isContainerShift() {
-      return this.containerShift;
+    tenantUrl() {
+      return this.getSelectedService?.tenantUrl || "N/A";
     },
   },
   methods: {
     ...mapActions("mainStore", ["generateAPISecretKey"]),
     async reGenerateSecretKey() {
-      const appId = this.getSelectedService && this.getSelectedService.appId;
+      const appId = this.getSelectedService?.appId;
       if (!appId) return this.notifyErr(messages.APPLICATION.ENTER_APP_ID);
 
       try {
@@ -425,6 +211,7 @@ export default {
       }
     },
     copyToClipboard(value) {
+      if (!value) return;
       navigator.clipboard.writeText(value);
       this.notifySuccess("Copied to clipboard!");
     },
@@ -432,21 +219,118 @@ export default {
       this.apiKeySecret = "";
     },
   },
-  created() {
-    if (this.getSelectedService) {
-      this.tenantUrl = this.getSelectedService.tenantUrl;
-    }
-  },
 };
 </script>
 
-<!-- <style scoped>
-.sticky-header {
-  position: sticky;
-  top: 0;
+<style scoped>
+.api-key-container {
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
-.container {
-  width: 80vw;
+/* Container Cards */
+.overview-container {
+  padding: 1.5rem;
+  background-color: #f9fafb;
+  border-radius: 0.75rem;
+  border: 1px solid #e5e7eb;
 }
-</style> -->
+
+.header-row {
+  margin-bottom: 1rem;
+}
+
+.title {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #111827;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Warning Box */
+.important-note {
+  background-color: #fff7ed;
+  border: 1px solid #ffedd5;
+  border-left: 4px solid #f97316;
+  border-radius: 8px;
+  padding: 12px 14px;
+}
+
+.text-orange {
+  color: #c2410c;
+}
+
+/* Step Styles */
+.step-number {
+  background: #2563eb;
+  color: white;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: bold;
+  margin-right: 12px;
+  flex-shrink: 0;
+}
+
+.doc-link {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #2563eb;
+  text-decoration: none;
+}
+
+.doc-link:hover {
+  text-decoration: underline;
+}
+
+/* Custom Copy Inputs */
+.input-label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #4b5563;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.copy-input-group {
+  display: flex;
+  background: white;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  overflow: hidden;
+  width: 100%;
+}
+
+.copy-input-group input {
+  flex: 1;
+  padding: 10px 14px;
+  font-size: 0.875rem;
+  color: #374151;
+  font-family: monospace;
+  border: none;
+  background: transparent;
+  height: 42px;
+  width: 100%;
+  outline: none;
+}
+
+.copy-input-group button {
+  padding: 0 14px;
+  background: #f9fafb;
+  border-left: 1px solid #d1d5db;
+  transition: background 0.2s;
+  height: 42px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.copy-input-group button:hover {
+  background: #f3f4f6;
+}
+</style>

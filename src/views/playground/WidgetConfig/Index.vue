@@ -687,9 +687,14 @@ ul {
               switch
               size="lg"
               v-model="widgetConfigTemp.jurisdictionRules.enabled"
+              :disabled="!widgetConfigTemp.idOcr.enabled"
+              title="ID Document Verification must be enabled first"
             >
               {{ widgetConfigUI.jurisdictionRules.label }}
             </b-form-checkbox>
+            <small v-if="!widgetConfigTemp.idOcr.enabled" class="text-muted d-block mb-1">
+              Enable ID Document Verification to configure jurisdiction restrictions.
+            </small>
             <p class="jurisdiction-description">
               {{ widgetConfigUI.jurisdictionRules.description }}
               <br>
@@ -895,7 +900,20 @@ export default {
         this.widgetConfigTemp.selectiveDisclosure.enabled = false;
         this.widgetConfigTemp.selectiveDisclosure.fields = [];
         this.widgetConfigTemp.selectiveDisclosure.frame = null;
+
+        if (this.widgetConfigTemp.jurisdictionRules) {
+          this.widgetConfigTemp.jurisdictionRules.enabled = false;
+          this.widgetConfigTemp.jurisdictionRules.countries = [];
+        }
     }
+    }
+  },
+
+  'widgetConfigTemp.jurisdictionRules.enabled': {
+    handler(enabled) {
+      if (enabled && !this.widgetConfigTemp.idOcr.enabled) {
+        this.widgetConfigTemp.jurisdictionRules.enabled = false;
+      }
     }
   },
 
@@ -1345,6 +1363,10 @@ export default {
         return
       }
 
+      if (!this.widgetConfigTemp.idOcr.enabled) {
+        throw new Error('Jurisdiction restrictions require ID Document Verification to be enabled')
+      }
+
       if (!['BLOCKLIST', 'ALLOWLIST'].includes(rules.strategy)) {
         throw new Error('Kindly select a jurisdiction enforcement strategy')
       }
@@ -1544,6 +1566,7 @@ export default {
     async saveConfiguration() {
       try {
         this.isLoading = true;
+        await this.$nextTick()
         this.syncAgeProof()
         this.syncSelectiveDisclosure()
         this.validateField()

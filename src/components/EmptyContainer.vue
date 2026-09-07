@@ -41,8 +41,10 @@
 }
 
 .new-service-popup {
-  background: #8080801c;
-  border-radius: 10px;
+  background-color: #fafafa !important;
+  border: 1px solid #e5e7eb !important;
+  border-radius: 8px;
+  width: 100%;
 }
 
 

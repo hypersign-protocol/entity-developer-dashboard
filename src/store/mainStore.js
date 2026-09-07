@@ -1599,7 +1599,7 @@ const mainStore = {
                 }).then((token) => {
                     const headers = UtilsMixin.methods.getKycServiceHeader(token);
                     const data = getters.getWidgetnConfig;
-                    fetch(url, {
+                    return fetch(url, {
                         method: 'POST',
                         headers,
                         body: JSON.stringify(data),
@@ -1612,7 +1612,7 @@ const mainStore = {
                         commit('setWidgetConfig', json.data);
                         resolve(json.data)
                     }).catch((e) => {
-                        return reject(`Error while fetching apps ` + e.message);
+                        return reject(new Error(`Error while creating widget configuration: ${e.message}`));
                     })
             })
         },
