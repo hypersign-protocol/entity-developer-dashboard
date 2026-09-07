@@ -1586,7 +1586,7 @@ export default {
         })
 
       } catch (e) {
-        this.notifyErr(e?.message || String(e))
+        this.notifyErr(e.message)
       } finally {
         this.isLoading = false
       }
