@@ -9,7 +9,7 @@
       <div v-for="i in 4" :key="i" class="stat-card skeleton-pulse"></div>
     </div>
 
-    <div v-else-if="error" class="error-box">
+    <div v-else-if="error" class="state-box error-box">
       <p>{{ error }}</p>
       <button @click="fetchOverviewData" class="retry-btn">Try again</button>
     </div>
@@ -253,4 +253,33 @@ export default {
   border-radius: 0.5rem;
   color: #b91c1c;
 }
+
+.empty-box {
+  color: #6b7280;
+}
+
+.retry-btn {
+  margin-top: 0.75rem;
+  border: 1px solid #fca5a5;
+  background: #fff;
+  color: #b91c1c;
+  border-radius: 0.375rem;
+  padding: 0.35rem 0.7rem;
+}
+
+.state-box {
+  width: 100%;
+  min-height: 220px;
+  border-radius: 0.5rem;
+  border: 1px solid #f3f4f6;
+  background: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 1rem;
+}
+
+
 </style>

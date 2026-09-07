@@ -161,6 +161,46 @@ textarea.form-control {
   color: #dc3545;
 }
 
+.widget-config-load-more {
+  align-items: center;
+  color: #64748b;
+  display: flex;
+  font-size: 13px;
+  gap: 8px;
+  justify-content: center;
+  min-height: 42px;
+  padding: 8px 16px;
+}
+
+::v-deep(.widget-configuration-select.v-text-field--outlined > .v-input__control > .v-input__slot) {
+  border-radius: 4px;
+  height: 32px;
+  min-height: 32px;
+}
+
+::v-deep(.widget-configuration-select.v-text-field--outlined:not(.v-input--is-focused) fieldset) {
+  border-color: #ced4da;
+}
+
+::v-deep(.widget-configuration-select.v-text-field--outlined.v-input--is-focused > .v-input__control > .v-input__slot) {
+  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.25);
+}
+
+::v-deep(.widget-configuration-select.v-text-field--outlined.v-input--is-focused fieldset) {
+  border-color: #667eea;
+  border-width: 1px;
+}
+
+::v-deep(.widget-configuration-select .v-input__append-inner) {
+  align-self: center;
+  margin-top: 0;
+}
+
+::v-deep(.widget-configuration-select .v-select__selection),
+::v-deep(.widget-configuration-select input) {
+  font-size: 13px;
+}
+
 /* Simple Expiry Selection */
 .expiry-select {
   margin-top: 8px;
@@ -1135,6 +1175,33 @@ textarea.form-control {
               </div>
             </li>
 
+            <!-- Verification Flow -->
+            <li class="list-group-item">
+              <div class="form-group">
+                <label for="widgetConfiguration">Verification Configuration<span class="mandatory">*</span></label>
+                <v-select
+                  id="widgetConfiguration"
+                  class="widget-configuration-select"
+                  v-model="selectedWidgetConfigId"
+                  :items="widgetConfigurationOptions"
+                  :loading="isLoadingWidgetConfigurations"
+                  item-text="text"
+                  item-value="value"
+                  placeholder="Identity Verification Flow"
+                  outlined
+                  dense
+                  hide-details
+                  :menu-props="{ maxHeight: 300 }"
+                >
+                  <template v-if="hasMoreWidgetConfigurations" #append-item>
+                    <div v-intersect="onWidgetConfigurationScrollEnd" class="widget-config-load-more">
+                      <v-progress-circular v-if="isLoadingWidgetConfigurations" indeterminate size="18" width="2" color="primary" />
+                      <span>{{ isLoadingWidgetConfigurations ? 'Loading configurations...' : 'Scroll to load more' }}</span>
+                    </div>
+                  </template>
+                </v-select>
+              </div>
+            </li>
 
             <!-- Contact Email -->
             <li class="list-group-item">
@@ -1295,7 +1362,7 @@ textarea.form-control {
 
 <script>
 import UtilsMixin from '../../mixins/utils';
-import { mapGetters, mapActions, mapMutations } from "vuex";
+import { mapGetters, mapActions, mapMutations, mapState } from "vuex";
 import HfButtons from '../../components/element/HfButtons.vue';
 import AccessDenied from '../AccessDenied.vue';
 
@@ -1308,6 +1375,20 @@ export default {
   },
   computed: {
     ...mapGetters('mainStore', ['getKYCWebpageConfig', 'getSelectedService']),
+    ...mapState({ totalWidgetConfigCount: state => state.mainStore.totalWidgetConfigCount }),
+    widgetConfigurationOptions() {
+      const options = this.widgetConfigurations.map(configuration => ({
+        value: configuration._id,
+        text: `${this.widgetConfigurationName(configuration)}${configuration.isDefault ? ' (Default)' : ''}`
+      }))
+      if (this.selectedWidgetConfigId && !this.widgetConfigurations.some(configuration => configuration._id === this.selectedWidgetConfigId)) {
+        options.push({ value: this.selectedWidgetConfigId, text: 'Identity Verification Flow' })
+      }
+      return options
+    },
+    hasMoreWidgetConfigurations() {
+      return this.widgetConfigurations.length < this.totalWidgetConfigCount
+    },
     isContainerShift() {
       return this.containerShift
     },
@@ -1322,6 +1403,9 @@ export default {
   async mounted() {
     try {
       this.isLoading = true
+      await this.loadWidgetConfigurations(1)
+      const defaultConfiguration = this.widgetConfigurations.find(configuration => configuration.isDefault)
+      this.selectedWidgetConfigId = defaultConfiguration?._id || null
       await this.fetchKYCWebpageConfig()
       this.isLoading = false
     } catch (e) {
@@ -1352,6 +1436,11 @@ export default {
       accessDenied: false,
       accessDeniedMsg: '',
       previewMode: "desktop",
+      selectedWidgetConfigId: null,
+      widgetConfigurations: [],
+      widgetConfigPage: 1,
+      widgetConfigLimit: 6,
+      isLoadingWidgetConfigurations: false,
       showDeleteModal: false,
       kycWebpageConfigTemp: {
         pageTitle: "Identity Verification Platform",
@@ -1369,8 +1458,36 @@ export default {
   },
 
   methods: {
-    ...mapActions('mainStore', ['fetchKYCWebpageConfig', 'createKYCWebpageConfig', 'deleteKYCWebpageConfig', 'updateKYCWebpageConfig']),
+    ...mapActions('mainStore', ['fetchAppsWidgetConfigs', 'fetchKYCWebpageConfig', 'createKYCWebpageConfig', 'deleteKYCWebpageConfig', 'updateKYCWebpageConfig']),
     ...mapMutations('mainStore', ['setKYCWebpageConfig']),
+
+    widgetConfigurationName(configuration) {
+      return configuration?.name?.trim() || 'Identity Verification Flow'
+    },
+
+    async loadWidgetConfigurations(page) {
+      if (this.isLoadingWidgetConfigurations) return
+      this.isLoadingWidgetConfigurations = true
+      try {
+        const configurations = await this.fetchAppsWidgetConfigs({ page, limit: this.widgetConfigLimit })
+        const items = page === 1 ? configurations : [...this.widgetConfigurations, ...configurations]
+        this.widgetConfigurations = items.filter((configuration, index, list) =>
+          list.findIndex(item => item._id === configuration._id) === index
+        )
+        this.widgetConfigPage = page
+      } finally {
+        this.isLoadingWidgetConfigurations = false
+      }
+    },
+
+    async onWidgetConfigurationScrollEnd(entries) {
+      if (!entries[0]?.isIntersecting || !this.hasMoreWidgetConfigurations || this.isLoadingWidgetConfigurations) return
+      try {
+        await this.loadWidgetConfigurations(this.widgetConfigPage + 1)
+      } catch (error) {
+        this.notifyErr(typeof error === 'string' ? error : error.message)
+      }
+    },
     
     setPreviewMode(mode) {
       this.previewMode = mode;
@@ -1452,6 +1569,9 @@ export default {
     },
 
     validateField() {
+      if (!this.selectedWidgetConfigId) {
+        throw new Error('Please select a widget configuration')
+      }
       if (!this.kycWebpageConfigTemp.pageTitle) {
         throw new Error('Page title is required')
       }
@@ -1475,6 +1595,7 @@ export default {
           customExpiryDate: this.kycWebpageConfigTemp.customExpiryDate,
           themeColor: this.kycWebpageConfigTemp.selectedTheme,
           contactEmail: this.kycWebpageConfigTemp.contactEmail,
+          linkedWidgetConfigIds: [this.selectedWidgetConfigId],
           generatedUrl: this.generateUrl(),
           uniqueId: this.kycWebpageConfigTemp.uniqueId,
           status: 'active',
@@ -1497,6 +1618,7 @@ export default {
         
         const config = {
           ...this.kycWebpageConfigTemp,
+          linkedWidgetConfigIds: [this.selectedWidgetConfigId],
           themeColor: this.kycWebpageConfigTemp.selectedTheme, // Map selectedTheme to themeColor
           updatedAt: new Date().toISOString()
         };
@@ -1538,6 +1660,7 @@ export default {
             ...newValue,
             selectedTheme: newValue.themeColor || "vibrant" // Map themeColor to selectedTheme
           };
+          this.selectedWidgetConfigId = newValue.linkedWidgetConfigIds?.[0] || null;
         } else {
           // Reset to default values if no config exists
           this.kycWebpageConfigTemp = {
@@ -1552,6 +1675,7 @@ export default {
             status: "active",
             pageType: "kyc"
           };
+          this.selectedWidgetConfigId = null;
         }
       },
       immediate: true

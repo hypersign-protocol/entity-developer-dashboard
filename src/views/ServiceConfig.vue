@@ -417,7 +417,7 @@ export default {
         }
     },
     methods: {
-        ...mapActions("mainStore", ["updateAnAppOnServer", "deleteAnAppOnServer", "fetchDIDsForAService", "resolveDIDForAKycService", "updateAppsWidgetConfig","updateAppsKybWidgetConfig","fetchAppsWidgetConfig","fetchAppsKybWidgetConfig"]),
+        ...mapActions("mainStore", ["updateAnAppOnServer", "deleteAnAppOnServer", "fetchDIDsForAService", "resolveDIDForAKycService", "updateAppsWidgetConfig", "updateAllAppsWidgetConfigs", "updateAppsKybWidgetConfig", "fetchAppsWidgetConfig", "fetchAppsKybWidgetConfig"]),
         ...mapMutations("mainStore", ["setWidgetConfig","setKybWidgetConfig"]),
         async fetchDIDsForDisplay() {
             try {
@@ -641,36 +641,29 @@ export default {
                     this.isEditing = false;
                     return this.notifySuccess("Service configuration updated successfully!");
                 }
-                // Sync logo, issuerDid and issuerVerificationMethodId into widget config
-                if (Object.keys(this.widgetConfig).length > 0) {
-                      let shouldUpdateWidgetConfig = false;
-                      let updatedWidgetConfig = { ...this.widgetConfig };
-                      if ((isIssuerChanged || isVerificationMethodChanged) && this.formData.issuerDid) {
-                        updatedWidgetConfig.issuerDID = this.formData.issuerDid;
-                        updatedWidgetConfig.issuerVerificationMethodId =
-                        this.formData.issuerVerificationMethodId ||
-                        this.widgetConfig.issuerVerificationMethodId;
-                        shouldUpdateWidgetConfig = true;
-                     }
-                    if (isLogoChanged) {
-                          updatedWidgetConfig.userConsent = {
-                          ...(updatedWidgetConfig.userConsent || {}),
-                          logoUrl: this.formData.logoUrl,
-                        };
-                      shouldUpdateWidgetConfig = true;
-                    }
-                      if(isDomainChanged){
-                        updatedWidgetConfig.userConsent = {
-                          ...(updatedWidgetConfig.userConsent || {}),
-                          domain: this.formData.domain,
-                        };
-                      shouldUpdateWidgetConfig = true;
-
-                    }
-                    if (shouldUpdateWidgetConfig) {
+                // Logo is not supported by the bulk widget configuration endpoint.
+                if (isLogoChanged && Object.keys(this.widgetConfig).length > 0) {
+                    const updatedWidgetConfig = {
+                        ...this.widgetConfig,
+                        userConsent: {
+                            ...(this.widgetConfig.userConsent || {}),
+                            logoUrl: this.formData.logoUrl,
+                        },
+                    };
                     this.setWidgetConfig(updatedWidgetConfig);
                     await this.updateAppsWidgetConfig();
-                    }
+                }
+
+                const widgetConfigUpdates = {};
+                if ((isIssuerChanged || isVerificationMethodChanged) && this.formData.issuerDid) {
+                    widgetConfigUpdates.issuerDID = this.formData.issuerDid;
+                    widgetConfigUpdates.issuerVerificationMethodId = this.formData.issuerVerificationMethodId;
+                }
+                if (isDomainChanged) {
+                    widgetConfigUpdates.domain = this.formData.domain;
+                }
+                if (Object.keys(widgetConfigUpdates).length > 0) {
+                    await this.updateAllAppsWidgetConfigs(widgetConfigUpdates);
                 }
             // update kyb widget
                 if(Object.keys(this.kybWidgetConfig).length > 0 ){

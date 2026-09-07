@@ -1,6 +1,6 @@
 <template>
   <div v-if="!hasService" class="container onboarding-stepper">
-    <load-ing :active.sync="isLoading" :can-cancel="true" :is-full-page="true"></load-ing>
+    <load-ing :active.sync="isLoading" :can-cancel="false" :is-full-page="true"></load-ing>
     <div class="text-center mb-4">
   <h4>
     <i class="mdi mdi-shield-account-outline mr-1"></i>
@@ -55,7 +55,7 @@ export default {
   },
   data() {
     return {
-      isLoading:false,
+      isLoading: true,
       hasService: false,
       currentStep: 1,
       company: {

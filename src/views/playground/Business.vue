@@ -23,14 +23,14 @@
         </button>
       </div>
 
-      <select v-model="statusFilter" v-if="filteredCompanies.length > 0" class="theme-select">
+      <!-- <select v-model="statusFilter" v-if="filteredCompanies.length > 0" class="theme-select">
         <option value="all">All Status</option>
         <option value="Approved">Approved</option>
         <option value="Rejected">Rejected</option>
         <option value="Completed">Completed</option>
         <option value="InProgress">In Progress</option>
         <option value="Submitted">Submitted</option>
-      </select>
+      </select> -->
     </div>
   </v-col>
 </v-row>

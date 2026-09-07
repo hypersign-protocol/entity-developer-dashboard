@@ -1,6 +1,6 @@
 <template>
   <div>
-    <loadIng :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loadIng>
+    <loadIng :active.sync="isLoading" :can-cancel="false" :is-full-page="fullPage"></loadIng>
     <div>
       <v-row dense v-if="appList.length > 0 && aSuperAdminUser">
         <v-col>
@@ -1032,6 +1032,7 @@ export default {
       this.setMainSideNavBar(false);
 
       await this.initializeStore();
+      this.isLoading = true;
       
       
       const firstKycService = this.getAppsWithKYCServices && this.getAppsWithKYCServices.length > 0 ? this.getAppsWithKYCServices[0] : {}
@@ -1069,6 +1070,7 @@ export default {
         } 
       } else {
         this.setSelectedAppId("");
+        this.isLoading = false;
       }
       // if (firstKycService && Object.keys(firstKycService).length > 0) {
       //   this.setSelectedAppId(firstKycService.appId);
@@ -1082,6 +1084,7 @@ export default {
       // }
 
     } catch (e) {
+      this.isLoading = false;
       this.notifyErr(e.message)
     }
   },
@@ -1113,7 +1116,7 @@ export default {
       controllerValue: "",
       appIdToGenerateSecret: "",
       fullPage: true,
-      isLoading: false,
+      isLoading: true,
       isProcessFinished: true,
       apiKeySecret: "",
       selectedAppId: "",

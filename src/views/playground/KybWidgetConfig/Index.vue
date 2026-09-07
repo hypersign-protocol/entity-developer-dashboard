@@ -4,42 +4,33 @@
     
     <AccessDenied v-if="accessDenied" />
     <template v-if="!accessDenied">
-    <v-row class="align-center mb-3">
-      <v-col>
-        <!-- <h3 class="mb-0 text-left">KYB Widget Configuration</h3> -->
-        <div>
-          <h4 class="mb-1 font-weight-bold mb-0">Business Widget Configuration</h4>
-          <p class="text-muted small mb-0">Configure the business widget for your application</p>
-        </div>
-      </v-col>
-      <v-col class="text-right">
-        <HfButtons 
-          v-if="!this.kybWidgetConfigTemp._id" 
-          name="Save Configuration" 
-          @executeAction="saveConfiguration()"
-        />
-        <HfButtons 
-          v-else 
-          name="Update Configuration" 
-          @executeAction="updateConfiguration()"
-        />
-      </v-col>
-    </v-row>
+    <div class="editor-header">
+      <div>
+        <h4 class="mb-1 font-weight-bold">Business Widget Configuration</h4>
+        <p class="text-muted small mb-0">Configure the business widget for your application</p>
+      </div>
+      <HfButtons
+        :name="kybWidgetConfigTemp._id ? 'Update Configuration' : 'Save Configuration'"
+        @executeAction="kybWidgetConfigTemp._id ? updateConfiguration() : saveConfiguration()"
+      />
+    </div>
 
-    <v-card class="serviceCard" style="overflow-y: auto;">
+    <div class="serviceCard">
+      <nav class="configuration-tabs" aria-label="Business widget configuration sections">
+        <button
+          v-for="tab in tabs"
+          :key="tab"
+          type="button"
+          class="configuration-tab"
+          :class="{ active: activeTab === tab }"
+          @click="activeTab = tab"
+        >
+          {{ tab }}
+        </button>
+      </nav>
       <ul class="list-group list-group-flush">
-        
-        <li class="list-group-item section-header bg-light">
-          <div class="d-flex align-items-center">
-            <i class="fas fa-palette text-primary mr-3"></i>
-            <div>
-              <h5 class="mb-0">Branding Configuration</h5>
-              <small class="text-muted">Customize how your business appears to users</small>
-            </div>
-          </div>
-        </li>
 
-        <li class="list-group-item p-4">
+        <li v-show="activeTab === 'Branding'" class="list-group-item p-4">
           <div class="row mx-0">
             <div class="col-md-4 d-flex flex-column align-items-center justify-content-center border-right">
               <label class="text-muted small font-weight-bold mb-3">LOGO PREVIEW</label>
@@ -66,17 +57,7 @@
           </div>
         </li>
 
-        <li class="list-group-item section-header bg-light">
-          <div class="d-flex align-items-center">
-            <i class="fas fa-file-alt text-primary mr-3"></i>
-            <div>
-              <h5 class="mb-0">Document Collection</h5>
-              <small class="text-muted">Configure required business verification documents</small>
-            </div>
-          </div>
-        </li>
-
-        <li class="list-group-item p-3">
+        <li v-show="activeTab === 'Document Collection'" class="list-group-item p-3">
           <div class="row mx-0">
             <div class="col-md-6 p-2">
               <div class="config-card">
@@ -108,17 +89,7 @@
           </div>
         </li>
 
-        <li class="list-group-item section-header bg-light">
-          <div class="d-flex align-items-center">
-            <i class="fas fa-shield-alt text-primary mr-3"></i>
-            <div>
-              <h5 class="mb-0">Compliance Checks</h5>
-              <small class="text-muted">AML, PEP and regulatory screening</small>
-            </div>
-          </div>
-        </li>
-
-        <li class="list-group-item p-3">
+        <li v-show="activeTab === 'Compliance Checks'" class="list-group-item p-3">
           <div class="row mx-0">
             <div class="col-md-6 p-2">
               <div class="config-card h-100">
@@ -158,7 +129,7 @@
         </li>
 
       </ul>
-    </v-card>
+    </div>
     </template>
   </b-container>
 </template> 
@@ -166,30 +137,50 @@
 
 
 <style scoped>
-.py-3 {
-  width: 80vw !important;
-}
-/* Visual Consistency */
-.serviceCard {
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-  overflow: hidden; /* Keeps the list items from breaking the rounded corners */
+.editor-header {
+  align-items: center;
+  display: flex;
+  gap: 24px;
+  justify-content: space-between;
+  margin-bottom: 18px;
 }
 
-.section-header {
-  background-color: #f8f9fa !important;
-  border-left: 4px solid #007bff !important;
-  position: sticky; /* Keeps headers visible while scrolling through a section */
-  top: 0;
-  z-index: 10;
+.configuration-tabs {
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  gap: 28px;
+  margin: 0;
+  overflow-x: auto;
+  padding: 0 18px;
+}
+
+.configuration-tab {
+  background: transparent;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  color: #64748b;
+  cursor: pointer;
+  font-size: 13px;
+  padding: 14px 2px 12px;
+  white-space: nowrap;
+}
+
+.configuration-tab.active {
+  border-bottom-color: #2563eb;
+  color: #2563eb;
+  font-weight: 600;
+}
+
+.configuration-tab:focus {
+  outline: none;
 }
 
 .config-card {
-  padding: 15px;
   background-color: #ffffff;
-  border: 1px solid #e2e8f0;
+  border: 1px solid #e5e7eb;
   border-radius: 8px;
   height: 100%;
+  padding: 15px;
 }
 
 .sanction-badge-row {
@@ -207,15 +198,6 @@
   border-radius: 4px;
   text-transform: uppercase;
   border: 1px solid #cce3ff;
-}
-
-
-.serviceCard { border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-
-.section-header {
-  background-color: #f8f9fa !important;
-  border-left: 4px solid #007bff !important;
-  padding: 1rem 1.25rem;
 }
 
 .logo-display-container {
@@ -231,29 +213,11 @@
   padding: 12px;
 }
 
-.config-card {
-  padding: 15px;
-  background-color: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  height: 100%;
-}
-
-.sanction-badge-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-}
-
-.sanction-badge {
-  background-color: #ebf5ff;
-  color: #007bff;
-  font-size: 9px;
-  font-weight: 700;
-  padding: 2px 6px;
-  border-radius: 4px;
-  text-transform: uppercase;
-  border: 1px solid #cce3ff;
+@media (max-width: 575.98px) {
+  .editor-header {
+    align-items: stretch;
+    flex-direction: column;
+  }
 }
 
 /* Fix for disabled switch opacity */
@@ -387,6 +351,8 @@ export default {
       isLoading: false,
       accessDenied: false,
       accessDeniedMsg: '',
+      activeTab: 'Branding',
+      tabs: ['Branding', 'Document Collection', 'Compliance Checks'],
       appId: "",
       app: {},
       kybWidgetConfigTemp: {
