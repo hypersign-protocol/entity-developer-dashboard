@@ -170,6 +170,21 @@ config['LivelinessError'] = {
     13: 'The face is too close to border',
 };
 
+config['JurisdictionRestrictionReason'] = Object.freeze({
+    RESTRICTED_ISSUING_COUNTRY: 'RESTRICTED_ISSUING_COUNTRY',
+    RESTRICTED_NATIONALITY: 'RESTRICTED_NATIONALITY',
+    ISSUING_COUNTRY_NOT_ALLOWED: 'ISSUING_COUNTRY_NOT_ALLOWED',
+    NATIONALITY_NOT_ALLOWED: 'NATIONALITY_NOT_ALLOWED',
+})
+
+config['IdDocumentVerificationFailureCode'] = Object.freeze({
+    RESTRICTED_ISSUING_COUNTRY: 8,
+    RESTRICTED_NATIONALITY: 9,
+    ISSUING_COUNTRY_NOT_ALLOWED: 10,
+    NATIONALITY_NOT_ALLOWED: 11,
+    JURISDICTION_MANUAL_REVIEW_REQUIRED: 12,
+})
+
 config['FaicalAuthenticationError'] = {
     0: 'Face check could not be performed',
     1: 'Faces does not match',
