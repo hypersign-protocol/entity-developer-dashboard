@@ -606,6 +606,7 @@
 .passed { color: #16a34a !important; }.failed { color: #dc2626 !important; }.document-types em.passed,.document-info-card h3 span.passed { background: #dcfce7; }.document-types em.failed,.document-info-card h3 span.failed { background: #fee2e2; }
 .document-viewer { border-right: 1px solid #e8edf4; min-width: 0; padding: 14px; }.document-viewer-title { align-items: center; display: flex; justify-content: space-between; margin-bottom: 10px; }.document-viewer-title strong { color: #172554; font-size: 13px; }.document-viewer-title strong i,.document-info-card h3 > i { color: #52658a; margin-right: 6px; }
 .document-stage { align-items: center; background: #f6f7f9; border-radius: 7px; display: flex; height: 350px; justify-content: center; overflow: auto; padding: 14px; }.document-stage > img { cursor: zoom-in; max-height: 100%; max-width: 100%; object-fit: contain; }.document-ocr { display: grid; font-size: 11px; gap: 7px 18px; grid-template-columns: 1fr 1.4fr; margin: auto; width: 90%; }.document-ocr dt { color: #7180a5; }.document-ocr dd { color: #172554; margin: 0; overflow-wrap: anywhere; }
+.document-empty-state { align-items: center; color: #7180a5; display: flex; flex-direction: column; justify-content: center; padding: 24px; text-align: center; }.document-empty-state > i { color: #94a3b8; font-size: 42px; line-height: 1; margin-bottom: 10px; }.document-empty-state strong { color: #475569; font-size: 13px; }.document-empty-state span { font-size: 10px; margin-top: 4px; }
 .document-thumbs { display: flex; gap: 12px; justify-content: center; margin-top: 12px; }.document-thumbs button { background: transparent; border: 0; color: #52658a; font-size: 10px; padding: 0; }.document-thumbs button img,.ocr-thumb { align-items: center; background: #f8fafc; border: 1px solid #dbe3ef; border-radius: 5px; display: flex; height: 58px; justify-content: center; margin-bottom: 5px; object-fit: cover; padding: 3px; width: 92px; }.document-thumbs button.active img,.document-thumbs button.active .ocr-thumb { border: 2px solid #2563eb; }.ocr-thumb { color: #607095; font-size: 20px; }
 .document-insights { background: #fbfcfe; padding: 0 12px 12px; }.document-info-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 6px; margin-top: 12px; max-height: 218px; overflow-y: auto; padding: 10px 12px; scrollbar-color: #dbe3ef transparent; scrollbar-width: thin; }.document-info-card h3 { align-items: center; border-bottom: 1px solid #edf1f6; color: #172554; display: flex; font-size: 11px; justify-content: space-between; margin: 0 0 9px; padding-bottom: 8px; }.verification-result-row { align-items: center; display: grid; font-size: 10px; gap: 7px; grid-template-columns: 13px 1fr auto; margin: 7px 0; }.verification-result-row strong { font-size: 10px; }.document-info-card dl { display: grid; font-size: 10px; gap: 5px 12px; grid-template-columns: minmax(100px,.8fr) 1fr; margin: 0; }.document-info-card dt { color: #7180a5; font-weight: 500; }.document-info-card dd { color: #26375f; margin: 0; overflow-wrap: anywhere; }
 .document-info-card h3 > span:first-child { align-items: center; border-radius: 0; display: inline-flex; font-size: inherit; padding: 0; }.document-info-card h3 > span:first-child i { color: #52658a; margin-right: 6px; }
@@ -735,6 +736,11 @@
             <div class="document-stage">
               <img v-if="activeDocumentImage" :src="activeDocumentImage" :alt="activeDocumentTitle">
               <dl v-else-if="selectedDocumentView === 'ocr' && identityEntries.length" class="document-ocr"><template v-for="item in identityEntries"><dt :key="item.key + '-ocr-label'">{{ item.label }}</dt><dd :key="item.key + '-ocr'">{{ formatFieldValue(item.key, item.value) }}</dd></template></dl>
+              <div v-else class="document-empty-state">
+                <i :class="selectedDocumentCategory === 'selfie' ? 'mdi mdi-account-off-outline' : 'mdi mdi-file-image-remove-outline'"></i>
+                <strong>{{ selectedDocumentCategory === "selfie" ? "No selfie image available" : "No document image available" }}</strong>
+                <span>No image was returned for this attempt.</span>
+              </div>
             </div>
             <div v-if="selectedDocumentCategory === 'document'" class="document-thumbs">
               <button v-if="effectiveOcrIdDocsDetails.tokenFrontDocumentImage" :class="{ active: selectedDocumentView === 'front' }" @click="selectedDocumentView = 'front'"><img :src="effectiveOcrIdDocsDetails.tokenFrontDocumentImage"><span>Front Side</span></button>
@@ -1250,6 +1256,7 @@ export default {
     },
     activeDocumentTitle() {
       if (this.selectedDocumentCategory === "selfie") return "Selfie Image";
+      if (!this.hasIdentityDocument) return this.identityDocumentLabel;
       if (this.selectedDocumentView === "ocr") return `${this.identityDocumentLabel} - OCR View`;
       return `${this.identityDocumentLabel} - ${this.selectedDocumentView === "back" ? "Back Side" : "Front Side"}`;
     },
