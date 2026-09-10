@@ -550,7 +550,7 @@
 .sd-profile-main { align-self: center; border-right: 1px solid #e2e8f0; display: flex; flex: 1 1 260px; flex-direction: column; margin-left: 16px; min-width: 180px; padding-right: 20px; }
 .sd-profile-main strong { color: #14214a; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .sd-profile-main span { color: #7180a5; font-size: 12px; margin-top: 5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.sd-stat { border-right: 1px solid #e2e8f0; display: flex; flex: 1 1 135px; flex-direction: column; justify-content: center; padding: 0 22px; }
+.sd-stat { border-right: 1px solid #e2e8f0; display: flex; flex: 1 1 135px; flex-direction: column; justify-content: flex-start; padding: 4px 22px 0; }
 .sd-stat:last-child { border-right: 0; }
 .sd-stat label { color: #7180a5; font-size: 11px; margin-bottom: 8px; }
 .sd-stat strong { color: #172554; font-size: 14px; }
@@ -561,10 +561,7 @@
 .sd-status.review, .sd-verification-result.review { background: rgba(255, 193, 7, .14); border-color: rgba(255, 193, 7, .35); color: #856404; }
 .sd-verification-result.review strong { color: #856404; }
 .sd-status.expired { background: rgba(108, 117, 125, .12); color: var(--sd-secondary); }
-.sd-current-status { flex-basis: 190px; }
-.sd-current-status-row { align-items: center; display: flex; flex-wrap: wrap; gap: 7px; }
-.sd-status-review-btn { align-items: center; background: #fff7ed; border: 1px solid #fdba74; border-radius: 5px; color: #c2410c; display: inline-flex; font-size: 10px; font-weight: 700; gap: 5px; padding: 6px 8px; white-space: nowrap; }
-.sd-status-review-btn:hover { background: #ffedd5; border-color: #fb923c; color: #9a3412; }
+.sd-current-status-row { align-items: center; display: flex; }
 .sd-risk-value { display: inline-block; font-size: 19px !important; }
 .sd-risk-value small, .sd-risk-large small { color: #52658a; font-size: .55em; }
 .sd-risk-band { background: #edfdf3; border-radius: 4px; font-size: 10px; font-weight: 800; margin-top: 4px; padding: 3px 7px; text-transform: uppercase; width: fit-content; }
@@ -602,7 +599,7 @@
 .documents-header h2 { color: #172554; font-size: 17px; margin: 0; }.documents-header h2 i { color: #435b86; margin-right: 10px; }.documents-header p { color: #7180a5; font-size: 11px; margin: 2px 0 0 28px; }
 .attempt-selector { align-items: center; display: flex; gap: 8px; margin-left: auto; }.attempt-selector label { color: #52658a; font-size: 11px; font-weight: 600; margin: 0; }.attempt-selector select { background: #fff; border: 1px solid #cbd5e1; border-radius: 6px; color: #172554; font-size: 11px; min-width: 220px; padding: 8px 28px 8px 10px; }
 .documents-layout { display: grid; grid-template-columns: 245px minmax(360px, 1.25fr) minmax(300px, 1fr); min-height: 545px; }
-.document-types { border-right: 1px solid #e8edf4; padding: 15px 12px; }.document-types h3 { color: #172554; font-size: 12px; margin: 0 0 12px; }.document-types button { align-items: center; background: #fff; border: 1px solid #e5eaf2; border-radius: 6px; color: #172554; display: grid; gap: 10px; grid-template-columns: 34px minmax(0,1fr) auto; margin-bottom: 10px; padding: 10px; text-align: left; width: 100%; }.document-types button.active { background: #f3f7ff; border-color: #bfdbfe; box-shadow: inset 3px 0 #2563eb; }.document-type-icon { align-items: center; background: #eaf2ff; border-radius: 7px; color: #2563eb; display: flex; height: 34px; justify-content: center; width: 34px; }.document-types strong,.document-types small { display: block; }.document-types strong { font-size: 12px; }.document-types small { color: #7180a5; font-size: 10px; margin-top: 3px; }.document-types em,.document-info-card h3 span { border-radius: 5px; font-size: 9px; font-style: normal; font-weight: 700; padding: 3px 6px; }.document-types em i,.document-info-card h3 span i { margin-right: 4px; }
+.document-types { border-right: 1px solid #e8edf4; max-height: 545px; overflow-x: hidden; overflow-y: auto; padding: 15px 12px; scrollbar-color: #dbe3ef transparent; scrollbar-width: thin; }.document-types h3 { color: #172554; font-size: 12px; margin: 0 0 12px; }.document-types button { align-items: center; background: #fff; border: 1px solid #e5eaf2; border-radius: 6px; color: #172554; display: grid; gap: 10px; grid-template-columns: 34px minmax(0,1fr) auto; margin-bottom: 10px; padding: 10px; text-align: left; width: 100%; }.document-types button.active { background: #f3f7ff; border-color: #bfdbfe; box-shadow: inset 3px 0 #2563eb; }.document-type-icon { align-items: center; background: #eaf2ff; border-radius: 7px; color: #2563eb; display: flex; height: 34px; justify-content: center; width: 34px; }.document-types strong,.document-types small { display: block; }.document-types strong { font-size: 12px; }.document-types small { color: #7180a5; font-size: 10px; margin-top: 3px; }.document-types em,.document-info-card h3 span { border-radius: 5px; font-size: 9px; font-style: normal; font-weight: 700; padding: 3px 6px; }.document-types em i,.document-info-card h3 span i { margin-right: 4px; }
 .passed { color: #16a34a !important; }.failed { color: #dc2626 !important; }.document-types em.passed,.document-info-card h3 span.passed { background: #dcfce7; }.document-types em.failed,.document-info-card h3 span.failed { background: #fee2e2; }
 .document-viewer { border-right: 1px solid #e8edf4; min-width: 0; padding: 14px; }.document-viewer-title { align-items: center; display: flex; justify-content: space-between; margin-bottom: 10px; }.document-viewer-title strong { color: #172554; font-size: 13px; }.document-viewer-title strong i,.document-info-card h3 > i { color: #52658a; margin-right: 6px; }
 .document-stage { align-items: center; background: #f6f7f9; border-radius: 7px; display: flex; height: 350px; justify-content: center; overflow: auto; padding: 14px; }.document-stage > img { cursor: zoom-in; max-height: 100%; max-width: 100%; object-fit: contain; }.document-ocr { display: grid; font-size: 11px; gap: 7px 18px; grid-template-columns: 1fr 1.4fr; margin: auto; width: 90%; }.document-ocr dt { color: #7180a5; }.document-ocr dd { color: #172554; margin: 0; overflow-wrap: anywhere; }
@@ -617,17 +614,31 @@
 .audit-session-filters { display: flex; gap: 7px; overflow-x: auto; padding: 10px 14px 1px; scrollbar-color: #dbe3ef transparent; scrollbar-width: thin; }
 .audit-session-filter { align-items: center; background: #f8fafc; border: 1px solid #e5eaf2; border-radius: 16px; color: #607095; display: inline-flex; font-size: 10px; gap: 5px; padding: 5px 10px; white-space: nowrap; }.audit-session-filter.active { background: #dbeafe; border-color: #93c5fd; color: #1d4ed8; font-weight: 700; }.audit-session-filter.passed i { color: #15803d; }.audit-session-filter.failed i { color: #dc2626; }.audit-session-filter.expired i { color: #475569; }.audit-session-filter.review i,.audit-session-filter.risk i { color: #b45309; }.audit-session-filter.passed.active { background: #dcfce7; border-color: #86efac; color: #15803d; }.audit-session-filter.failed.active { background: #fee2e2; border-color: #fca5a5; color: #dc2626; }.audit-session-filter.expired.active { background: #e5e7eb; border-color: #cbd5e1; color: #475569; }.audit-session-filter.review.active,.audit-session-filter.risk.active { background: #fef3c7; border-color: #fcd34d; color: #92400e; }
 .audit-groups { flex: 1 1 auto; max-height: 515px; min-height: 0; overflow-x: hidden; overflow-y: auto; padding: 0 14px 12px; scrollbar-color: #cbd5e1 transparent; scrollbar-width: thin; }.audit-groups::-webkit-scrollbar { width: 3px; }.audit-groups::-webkit-scrollbar-thumb { background: #dbe3ef; border-radius: 4px; }
-.audit-group { margin-top: 9px; }.audit-group-toggle { align-items: center; background: #dbeafe; border: 0; border-left: 4px solid var(--sd-primary); border-radius: 6px; color: #172554; display: flex; gap: 9px; padding: 9px 10px; text-align: left; width: 100%; }.audit-group-toggle.passed { background: #dcfce7; border-left-color: #16a34a; }.audit-group-toggle.failed { background: #fee2e2; border-left-color: #dc2626; }.audit-group-toggle.review { background: #fef3c7; border-left-color: #d97706; }.audit-group-toggle.expired { background: #e5e7eb; border-left-color: #64748b; }.audit-group-toggle.passed > strong { color: #15803d; }.audit-group-toggle.failed > strong { color: #dc2626; }.audit-group-toggle.review > strong { color: #92400e; }.audit-group-toggle.expired > strong { color: #334155; }.audit-group-toggle.expired .sd-status { background: #cbd5e1; color: #334155; }.audit-group-toggle > strong { font-size: 12px; }.audit-group-toggle > span { color: #64748b; font-size: 10px; }.audit-group-toggle .audit-group-count { margin-left: auto; }.audit-group-toggle > i { color: #52658a; }
+.audit-group { margin-top: 9px; }.audit-group-toggle { align-items: center; background: #dbeafe; border: 0; border-left: 4px solid var(--sd-primary); border-radius: 6px; color: #172554; cursor: pointer; display: flex; gap: 9px; padding: 9px 10px; text-align: left; touch-action: manipulation; transition: filter .15s ease, box-shadow .15s ease; user-select: none; width: 100%; }.audit-group-toggle:hover { filter: brightness(.98); }.audit-group-toggle:focus-visible { box-shadow: 0 0 0 2px rgba(37,99,235,.22); outline: none; }.audit-group-toggle.passed { background: #dcfce7; border-left-color: #16a34a; }.audit-group-toggle.failed { background: #fee2e2; border-left-color: #dc2626; }.audit-group-toggle.review { background: #fef3c7; border-left-color: #d97706; }.audit-group-toggle.expired { background: #e5e7eb; border-left-color: #64748b; }.audit-group-toggle.passed > strong { color: #15803d; }.audit-group-toggle.failed > strong { color: #dc2626; }.audit-group-toggle.review > strong { color: #92400e; }.audit-group-toggle.expired > strong { color: #334155; }.audit-group-toggle.expired .sd-status { background: #cbd5e1; color: #334155; }.audit-group-toggle > strong { font-size: 12px; }.audit-group-toggle > span { color: #64748b; font-size: 10px; }.audit-group-toggle .audit-group-count { margin-left: auto; }.audit-group-toggle > i { color: #52658a; }
 .audit-table-head,.audit-event { align-items: center; display: grid; gap: 10px; grid-template-columns: 86px 24px minmax(130px,.9fr) minmax(180px,1.4fr) 80px; }.audit-table-head { border-bottom: 1px solid #edf1f6; color: #7180a5; font-size: 9px; padding: 8px 9px; }.audit-table-head span:nth-child(2) { grid-column: 2 / 4; }
 .audit-table-head.without-actor,.audit-event.without-actor { grid-template-columns: 86px 24px minmax(130px,.9fr) minmax(180px,1.4fr); }
-.audit-event { background: #fff; border: 0; border-bottom: 1px solid #edf1f6; color: #26375f; font-size: 10px; padding: 7px 9px; text-align: left; width: 100%; }.audit-event:hover,.audit-event.selected { background: #f7faff; }.audit-event time,.audit-event-detail,.audit-event-actor { color: #7180a5; }.audit-event-icon { align-items: center; background: #eff6ff; border-radius: 50%; color: var(--sd-primary); display: flex; font-size: 15px; height: 22px; justify-content: center; width: 22px; }.audit-event-icon.passed { background: rgba(78, 201, 107, .12); color: var(--sd-success); }.audit-event-icon.failed { background: rgba(243, 6, 6, .10); color: var(--sd-danger); }.audit-event-icon.expired { background: rgba(108, 117, 125, .12); color: var(--sd-secondary); }.audit-event-icon.review { background: rgba(255, 193, 7, .14); color: #856404; }.audit-event-title { font-weight: 600; }.audit-event-detail { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.audit-side { display: flex; flex-direction: column; min-width: 0; }.audit-side > .audit-event-card:first-child { flex: 1 1 auto; min-height: 0; }.audit-event-card { padding: 14px; }.audit-event-card + .audit-event-card { margin-top: 12px; }.audit-event-card h2 { border-bottom: 1px solid #edf1f6; font-size: 13px; margin-bottom: 12px; padding-bottom: 10px; }.audit-selected-heading { align-items: flex-start; display: flex; gap: 9px; margin-bottom: 13px; }.audit-selected-heading > i { color: var(--sd-primary); font-size: 22px; }.audit-selected-heading > i.passed { color: var(--sd-success); }.audit-selected-heading > i.failed { color: var(--sd-danger); }.audit-selected-heading > i.expired { color: var(--sd-secondary); }.audit-selected-heading > i.review { color: #856404; }.audit-selected-heading strong { color: #172554; display: block; font-size: 12px; }.audit-selected-heading span { color: #7180a5; display: block; font-size: 10px; margin-top: 2px; }.audit-event-card dl { display: grid; font-size: 10px; gap: 7px 10px; grid-template-columns: 90px minmax(0,1fr); margin: 0; }.audit-event-card dt { color: #7180a5; font-weight: 500; }.audit-event-card dd { color: #26375f; margin: 0; overflow-wrap: anywhere; }.audit-related button { align-items: center; background: #fff; border: 0; border-bottom: 1px solid #edf1f6; color: #26375f; display: flex; font-size: 10px; padding: 8px 0; text-align: left; width: 100%; }.audit-related button i { color: #52658a; font-size: 14px; margin-right: 7px; }.audit-related button span { color: var(--sd-primary); margin-left: auto; }
-.audit-risk-count { align-items: center; background: #fff3cd; border-radius: 10px; color: #856404 !important; display: inline-flex; font-weight: 700; gap: 4px; padding: 3px 7px; }.audit-event-flags { border-top: 1px solid #edf1f6; margin-top: 13px; padding-top: 12px; }.audit-event-flags-list { max-height: clamp(160px, 24vh, 240px); overflow-x: hidden; overflow-y: auto; padding-right: 4px; scrollbar-color: #cbd5e1 transparent; scrollbar-width: thin; }.audit-event-flags-list::-webkit-scrollbar { width: 3px; }.audit-event-flags-list::-webkit-scrollbar-track { background: transparent; }.audit-event-flags-list::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }.audit-event-flags h3 { color: #172554; font-size: 11px; margin: 0 0 8px; }.audit-event-flag { background: #fffbeb; border-left: 3px solid var(--sd-warning); border-radius: 5px; padding: 8px; }.audit-event-flag + .audit-event-flag { margin-top: 7px; }.audit-event-flag header { align-items: center; display: flex; gap: 6px; }.audit-event-flag header strong { font-size: 10px; }.audit-event-flag header span { color: #856404; font-size: 9px; font-weight: 700; margin-left: auto; }.audit-event-flag p { color: #64748b; font-size: 9px; margin: 5px 0 0; }.audit-event-flag dl { margin-top: 7px; }
+.audit-event { background: #fff; border: 0; border-bottom: 1px solid #edf1f6; border-radius: 3px; color: #26375f; cursor: pointer; font-size: 10px; padding: 8px 9px; position: relative; text-align: left; touch-action: manipulation; transition: background-color .14s ease, box-shadow .14s ease; user-select: none; width: 100%; }.audit-event:hover { background: #f8faff; }.audit-event.selected { background: #f8faff; box-shadow: inset 0 0 0 1px #dbeafe; }.audit-event.selected .audit-event-title { color: #1d4ed8; }.audit-event.selected .audit-event-icon { box-shadow: 0 0 0 2px #bfdbfe; }.audit-event:focus-visible { box-shadow: inset 0 0 0 1px #93c5fd, 0 0 0 2px rgba(37,99,235,.14); outline: none; }.audit-event time,.audit-event-detail,.audit-event-actor { color: #7180a5; }.audit-event-icon { align-items: center; background: #eff6ff; border-radius: 50%; color: var(--sd-primary); display: flex; flex: 0 0 22px; font-size: 15px; height: 22px; justify-content: center; transition: box-shadow .14s ease; width: 22px; }.audit-event-icon.passed { background: rgba(78, 201, 107, .12); color: var(--sd-success); }.audit-event-icon.failed { background: rgba(243, 6, 6, .10); color: var(--sd-danger); }.audit-event-icon.expired { background: rgba(108, 117,125,.12); color: var(--sd-secondary); }.audit-event-icon.review { background: rgba(255,193,7,.14); color: #856404; }.audit-event-title { font-weight: 600; transition: color .14s ease; }.audit-event-detail { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.audit-side { display: flex; flex-direction: column; min-height: 0; min-width: 0; }
+.audit-side > .audit-event-card:first-child { display: flex; flex: 1 1 auto; flex-direction: column; min-height: 0; }
+.audit-event-card { padding: 14px; }.audit-event-card + .audit-event-card { margin-top: 12px; }.audit-event-card h2 { border-bottom: 1px solid #edf1f6; font-size: 13px; margin-bottom: 12px; padding-bottom: 10px; }.audit-selected-heading { align-items: flex-start; display: flex; gap: 9px; margin-bottom: 13px; }.audit-selected-heading > i { color: var(--sd-primary); font-size: 22px; }.audit-selected-heading > i.passed { color: var(--sd-success); }.audit-selected-heading > i.failed { color: var(--sd-danger); }.audit-selected-heading > i.expired { color: var(--sd-secondary); }.audit-selected-heading > i.review { color: #856404; }.audit-selected-heading strong { color: #172554; display: block; font-size: 12px; }.audit-selected-heading span { color: #7180a5; display: block; font-size: 10px; margin-top: 2px; }.audit-event-card dl { display: grid; font-size: 10px; gap: 7px 10px; grid-template-columns: 90px minmax(0,1fr); margin: 0; }.audit-event-card dt { color: #7180a5; font-weight: 500; }.audit-event-card dd { color: #26375f; margin: 0; overflow-wrap: anywhere; }
+.audit-risk-count { align-items: center; background: #fff3cd; border-radius: 10px; color: #856404 !important; display: inline-flex; font-weight: 700; gap: 4px; padding: 3px 7px; }
+.audit-event-flags { border-top: 1px solid #edf1f6; display: flex; flex: 1 1 0; flex-direction: column; margin-top: 13px; min-height: 0; overflow: hidden; padding-top: 12px; }
+.audit-event-flags h3 { align-items: center; color: #172554; display: flex; font-size: 11px; gap: 4px; margin: 0 0 8px; }
+.audit-event-flags-list { align-content: start; display: grid; flex: 1 1 0; gap: 7px; min-height: 0; overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain; padding-right: 6px; scrollbar-color: #cbd5e1 transparent; scrollbar-gutter: stable; scrollbar-width: thin; }
+.audit-event-flags-list::-webkit-scrollbar { width: 4px; }
+.audit-event-flags-list::-webkit-scrollbar-track { background: transparent; }
+.audit-event-flags-list::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+.audit-event-flag { background: #fffbeb; border-left: 3px solid var(--sd-warning); border-radius: 5px; min-width: 0; overflow: hidden; padding: 8px; }
+.audit-event-flag header { align-items: flex-start; display: flex; gap: 6px; min-width: 0; }
+.audit-event-flag header strong { font-size: 10px; min-width: 0; overflow-wrap: anywhere; }
+.audit-event-flag header span { color: #856404; flex: 0 0 auto; font-size: 9px; font-weight: 700; margin-left: auto; }
+.audit-event-flag p { color: #64748b; font-size: 9px; margin: 5px 0 0; overflow-wrap: anywhere; }
+.audit-event-flag dl { grid-template-columns: minmax(82px,.8fr) minmax(0,1.2fr); margin-top: 7px; }
 .risk-page-header { align-items: center; display: flex; margin-bottom: 13px; padding: 2px 4px; }.risk-page-header h2 { color: #172554; font-size: 17px; margin: 0; }.risk-page-header h2 i { color: #52658a; margin-right: 9px; }.risk-page-header p { color: #7180a5; font-size: 11px; margin: 3px 0 0 29px; }
 .risk-layout { align-items: start; display: grid; gap: 14px; grid-template-columns: repeat(auto-fit,minmax(280px,1fr)); }.risk-column { display: flex; flex-direction: column; gap: 14px; min-width: 0; }.risk-detail-card { background: #fff; border: 1px solid #dbe3ef; border-radius: 8px; min-width: 0; padding: 15px; }.risk-detail-card h3 { align-items: center; border-bottom: 1px solid #edf1f6; color: #172554; display: flex; font-size: 12px; margin: 0 0 13px; padding-bottom: 10px; }.risk-detail-card h3 > i { color: #52658a; font-size: 16px; margin-right: 7px; }.risk-detail-card h3 > span { margin-left: auto; }.risk-score-line { align-items: center; display: flex; gap: 10px; margin-bottom: 17px; }.risk-score-line .sd-risk-large { margin: 0; }.risk-score-line .sd-risk-band { margin: 0; }.risk-verification-row { align-items: center; display: grid; font-size: 11px; gap: 8px; grid-template-columns: 18px minmax(0,1fr) auto; padding: 5px 0; }.risk-verification-row > i { font-size: 16px; }.risk-verification-row strong { font-size: 10px; }.risk-flags-list { display: grid; gap: 9px; max-height: 360px; overflow-y: auto; padding-right: 4px; scrollbar-color: #cbd5e1 transparent; scrollbar-width: thin; }.risk-flags-list::-webkit-scrollbar { width: 3px; }.risk-flags-list::-webkit-scrollbar-track { background: transparent; }.risk-flags-list::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }.risk-flag-item { border: 1px solid #e5eaf2; border-left: 3px solid #f59e0b; border-radius: 6px; padding: 10px; }.risk-flag-item.high,.risk-flag-item.critical { border-left-color: #dc2626; }.risk-flag-head { align-items: center; display: flex; gap: 7px; }.risk-flag-head > i { color: #d97706; font-size: 16px; }.risk-flag-item.high .risk-flag-head > i,.risk-flag-item.critical .risk-flag-head > i { color: #dc2626; }.risk-flag-head strong { color: #172554; font-size: 11px; }.risk-flag-head span { margin-left: auto; }.risk-flag-item p { color: #7180a5; font-size: 10px; margin: 6px 0 0; }.risk-flag-meta { color: #52658a !important; font-weight: 600; }.risk-decision-details { display: grid; font-size: 10px; gap: 7px 10px; grid-template-columns: minmax(90px,.7fr) 1fr; margin: 0; }.risk-decision-details dt { color: #7180a5; font-weight: 500; }.risk-decision-details dd { color: #26375f; margin: 0; overflow-wrap: anywhere; }
 @media (max-width: 1050px) { .documents-layout { grid-template-columns: 210px 1fr; }.document-insights { border-top: 1px solid #e8edf4; grid-column: 1 / -1; display: grid; gap: 12px; grid-template-columns: repeat(3,1fr); padding-top: 12px; }.document-info-card { margin-top: 0; } }
 @media (max-width: 1050px) { .risk-layout { grid-template-columns: repeat(auto-fit,minmax(260px,1fr)); } }
-@media (max-width: 950px) { .audit-panel { grid-template-columns: 1fr; }.audit-groups { max-height: none; }.audit-side { display: grid; gap: 12px; grid-template-columns: repeat(2,minmax(0,1fr)); }.audit-event-card + .audit-event-card { margin-top: 0; } }
+@media (max-width: 950px) { .audit-panel { grid-template-columns: 1fr; }.audit-groups { max-height: none; }.audit-side { display: grid; gap: 12px; grid-template-columns: repeat(2,minmax(0,1fr)); }.audit-side > .audit-event-card:first-child { display: block; }.audit-event-flags { display: block; }.audit-event-flags-list { max-height: 220px; }.audit-event-card + .audit-event-card { margin-top: 0; } }
 @media (max-width: 720px) { .documents-layout { display: block; }.document-types,.document-viewer { border-right: 0; border-bottom: 1px solid #e8edf4; }.document-insights { display: block; }.document-info-card { margin-top: 12px; }.document-stage { height: 280px; } }
 @media (max-width: 720px) { .audit-side { display: block; }.audit-event-card + .audit-event-card { margin-top: 12px; }.audit-table-head { display: none; }.audit-event { grid-template-columns: 70px 22px minmax(110px,1fr); }.audit-event-detail,.audit-event-actor { display: none; } }
 @media (max-width: 720px) { .risk-layout { grid-template-columns: 1fr; } }
@@ -657,11 +668,10 @@
       <section class="sd-profile-card">
         <div class="sd-avatar">{{ userInitials }}</div>
         <div class="sd-profile-main"><strong v-if="session.email">{{ session.email }}</strong><span v-if="isSessionDetailView">Session ID: {{ session.sessionId || sessionId }}</span><span v-else-if="session.userId">User ID: {{ session.userId }}</span><span v-else-if="sessionId">User ID: {{ sessionId }}</span></div>
-        <div v-if="session.status" class="sd-stat sd-current-status">
+        <div v-if="session.status" class="sd-stat">
           <label>{{ isSessionDetailView ? "Session Status" : "Current Status" }}</label>
           <div class="sd-current-status-row">
             <span class="sd-status" :class="statusTone">{{ statusDisplayLabel }}</span>
-            <button type="button" class="sd-status-review-btn" @click="openManualReviewModal"><i class="mdi mdi-gavel"></i>Review and take action</button>
           </div>
         </div>
         <div v-if="hasRiskScore" class="sd-stat"><label>{{ isSessionDetailView ? "Session Risk Score" : "Current Risk Score" }}</label><strong class="sd-risk-value" :style="{ color: riskColor }">{{ session.risk.riskScore }} <small>/ 100</small></strong><span v-if="session.risk.riskBand" class="sd-risk-band" :style="{ color: riskColor }">{{ session.risk.riskBand }}</span></div>
@@ -669,14 +679,14 @@
         <div v-if="latestVerificationSummary" class="sd-stat"><label>{{ latestVerificationSummary.label }}</label><strong :title="latestVerificationSummary.title">{{ latestVerificationSummary.primary }}</strong><span v-if="latestVerificationSummary.secondary">{{ latestVerificationSummary.secondary }}</span></div>
       </section>
       <nav class="sd-tabs">
-        <button v-for="tab in visibleTabs" :key="tab.id" :class="{ active: activeTab === tab.id }" @click="activeTab = tab.id"><i :class="tab.icon"></i>{{ tab.label }}<span v-if="tab.count" class="sd-tab-count">{{ tab.count }}</span></button>
+        <button v-for="tab in visibleTabs" :key="tab.id" :class="{ active: activeTab === tab.id }" @click="selectTab(tab.id)"><i :class="tab.icon"></i>{{ tab.label }}<span v-if="tab.count" class="sd-tab-count">{{ tab.count }}</span></button>
       </nav>
       <div v-if="activeTab === 'overview'" class="sd-grid">
         <section v-if="identityEntries.length" class="sd-card"><h2><i class="mdi mdi-account-outline"></i> Identity Information</h2><dl><template v-for="item in identityEntries"><dt :key="item.key + '-label'">{{ item.label }}</dt><dd :key="item.key">{{ formatFieldValue(item.key, item.value) }}</dd></template></dl></section>
         <section v-if="verificationChecks.length || session.status" class="sd-card"><h2><i class="mdi mdi-shield-check-outline"></i> Verification Status</h2><div v-if="verificationChecks.length" class="sd-checks"><div v-for="check in verificationChecks" :key="check.label" :class="check.passed ? 'passed' : 'failed'"><span><i :class="check.passed ? 'mdi mdi-check' : 'mdi mdi-close'"></i></span><small>{{ check.label }}</small></div></div><div v-if="session.status" class="sd-verification-result" :class="statusTone"><i :class="statusIcon"></i><div><strong>{{ statusDisplayLabel }}<small v-if="allAvailableChecksPassed">All available verification checks passed.</small></strong><span v-if="session.completedAt">{{ formatDate(session.completedAt) }}</span></div></div></section>
         <section v-if="hasRiskScore" class="sd-card sd-risk-card"><h2><i class="mdi mdi-alert-outline"></i> Risk Score</h2><div class="sd-risk-large" :style="{ color: riskColor }">{{ session.risk.riskScore }} <small>/ 100</small></div><span v-if="session.risk.riskBand" class="sd-risk-band" :style="{ color: riskColor }">{{ session.risk.riskBand }}</span><div class="sd-risk-track"><span :style="{ left: riskPercent + '%', backgroundColor: riskColor }"></span></div><div class="sd-risk-labels"><span>0</span><span>25</span><span>50</span><span>75</span><span>100</span></div></section>
         <section v-if="deviceLocationEntries.length" class="sd-card"><h2><i class="mdi mdi-laptop"></i> Device &amp; Location</h2><dl><template v-for="item in deviceLocationEntries"><dt :key="item.label + '-label'">{{ item.label }}</dt><dd :key="item.label">{{ item.value }}</dd></template></dl></section>
-        <section v-if="latestVerificationEntries.length" class="sd-card"><h2><i class="mdi mdi-file-document-outline"></i> {{ isSessionDetailView ? "Verification Details" : "Latest Verification Details" }}</h2><dl><template v-for="item in latestVerificationEntries"><dt :key="item.label + '-label'">{{ item.label }}</dt><dd :key="item.label">{{ item.value }}</dd></template></dl></section>
+        <section v-if="overviewVerificationResults.length" class="sd-card"><h2><i class="mdi mdi-clipboard-check-outline"></i> Verification Results</h2><div v-for="result in overviewVerificationResults" :key="result.label" class="risk-verification-row"><i :class="result.passed ? 'mdi mdi-check-circle passed' : 'mdi mdi-close-circle failed'"></i><span>{{ result.label }}</span><strong :class="result.passed ? 'passed' : 'failed'">{{ result.value }}</strong></div></section>
         <section v-if="overviewVerificationAttempts.length" class="sd-card sd-attempts-card">
           <h2><i class="mdi mdi-history"></i> Verification Attempts <button v-if="overviewAttemptLimit" type="button" @click="overviewAttemptLimit = null">View All <i class="mdi mdi-arrow-right"></i></button></h2>
           <div class="sd-attempt-list">
@@ -686,35 +696,6 @@
               <small v-if="attempt.dateRange">{{ attempt.dateRange }}</small>
               <i class="mdi mdi-chevron-right"></i>
             </button>
-          </div>
-        </section>
-        <section v-if="hasManualDecisions" class="sd-card decision-history-card">
-          <div class="card-section-title"><i class="mdi mdi-history mr-2"></i>Decision History</div>
-          <div class="card-table-scroll">
-            <div class="decision-history-wrap">
-              <div v-for="decision in normalizedManualDecisions" :key="decision.key" class="decision-history-item">
-                <div class="decision-history-event">
-                  <div class="decision-history-event-header">
-                    <span class="decision-history-label">Status</span>
-                    <span class="badge badge-pill px-2 py-1" :class="decisionStatusClass(decision.action)">{{ decisionStatusLabel(decision.action) }}</span>
-                  </div>
-                  <div class="decision-history-grid">
-                    <span class="decision-history-label">Decided By</span>
-                    <span class="decision-history-value" :title="decision.decidedBy || '-'">{{ decision.decidedBy || "-" }}</span>
-                    <span class="decision-history-label">Time</span>
-                    <span class="decision-history-value">{{ formatDate(decision.decidedAt) }}</span>
-                    <template v-if="decision.reasonCode">
-                      <span class="decision-history-label">{{ isManualReviewCleared(decision) ? "Review Result" : "Reason" }}</span>
-                      <span class="decision-history-value" :title="formatDecisionReason(decision.reasonCode)"><i class="mdi mr-1" :class="isManualReviewCleared(decision) ? 'mdi-check-circle-outline text-success' : 'mdi-alert-circle-outline text-danger'"></i>{{ formatDecisionReason(decision.reasonCode) }}</span>
-                    </template>
-                    <template v-if="decision.comments">
-                      <span class="decision-history-label">Comment</span>
-                      <span class="decision-history-value" :title="decision.comments">{{ decision.comments }}</span>
-                    </template>
-                  </div>
-                </div>
-              </div>
-            </div>
           </div>
         </section>
         <section v-if="notes.length" class="sd-card sd-notes-card"><h2><i class="mdi mdi-information-outline"></i> Notes</h2><p v-for="(note, index) in notes" :key="index">{{ note }}</p></section>
@@ -727,8 +708,7 @@
         <div class="documents-layout">
           <aside class="document-types">
             <h3>Document Types</h3>
-            <button v-if="hasIdentityDocument" :class="{ active: selectedDocumentCategory === 'document' }" @click="selectDocumentCategory('document')"><span class="document-type-icon"><i class="mdi mdi-card-account-details-outline"></i></span><span><strong>{{ identityDocumentLabel }}</strong><small>{{ availableDocumentSides }}</small></span><em v-if="documentVerificationResult" :class="documentVerificationResult.tone"><i :class="documentVerificationResult.passed ? 'mdi mdi-check-circle-outline' : 'mdi mdi-close-circle-outline'"></i>{{ documentVerificationResult.label }}</em></button>
-            <button v-if="selfiImageFound" :class="{ active: selectedDocumentCategory === 'selfie' }" @click="selectDocumentCategory('selfie')"><span class="document-type-icon"><i class="mdi mdi-account-outline"></i></span><span><strong>Selfie Image</strong><small v-if="effectiveSelfiDetails.createdAt">{{ formatDate(effectiveSelfiDetails.createdAt) }}</small></span><em v-if="livelinessResultFound" :class="passiveLivelinessData.success ? 'passed' : 'failed'"><i :class="passiveLivelinessData.success ? 'mdi mdi-check-circle-outline' : 'mdi mdi-close-circle-outline'"></i>{{ passiveLivelinessData.result }}</em></button>
+            <button v-for="item in documentTypeItems" :key="item.key" :class="{ active: selectedDocumentItem && selectedDocumentItem.key === item.key }" @click="selectDocumentCategory(item.category, item.key)"><span class="document-type-icon"><i :class="item.icon"></i></span><span><strong>{{ item.label }}</strong><small v-if="item.subtitle">{{ item.subtitle }}</small></span><em v-if="item.result" :class="item.result.tone"><i :class="item.result.passed ? 'mdi mdi-check-circle-outline' : 'mdi mdi-close-circle-outline'"></i>{{ item.result.label }}</em></button>
           </aside>
 
           <main class="document-viewer">
@@ -757,20 +737,38 @@
         </div>
       </section>
       <section v-else-if="activeTab === 'risk'">
-        <header class="risk-page-header"><div><h2><i class="mdi mdi-shield-check-outline"></i>Risk &amp; Compliance</h2><p>Risk assessment, verification results, flags and review decision for the selected attempt.</p></div><div v-if="attemptOptions.length" class="attempt-selector"><label for="risk-attempt">Attempt:</label><select id="risk-attempt" v-model="selectedAttemptSessionId" @change="selectAttemptSession"><option v-for="attempt in attemptOptions" :key="attempt.id" :value="attempt.id">{{ attempt.label }}</option></select></div></header>
+        <header class="risk-page-header"><div><h2><i class="mdi mdi-shield-check-outline"></i>Risk &amp; Compliance</h2><p>{{ isSessionDetailView ? "Risk assessment, verification results, flags and review decision for the selected attempt." : "Current risk assessment, flags and review decisions." }}</p></div><div v-if="isSessionDetailView && attemptOptions.length" class="attempt-selector"><label for="risk-attempt">Attempt:</label><select id="risk-attempt" v-model="selectedAttemptSessionId" @change="selectAttemptSession"><option v-for="attempt in attemptOptions" :key="attempt.id" :value="attempt.id">{{ attempt.label }}</option></select></div></header>
         <div class="risk-layout">
-          <div v-if="hasDetailRiskScore || latestRiskDecision" class="risk-column">
+          <div v-if="hasDetailRiskScore || (isSessionDetailView ? latestRiskDecision : hasManualDecisions)" class="risk-column">
             <article v-if="hasDetailRiskScore" class="risk-detail-card">
               <h3><i class="mdi mdi-shield-alert-outline"></i>Risk Assessment</h3>
-              <div class="risk-score-line"><div class="sd-risk-large" :style="{ color: detailRiskColor }">{{ detailsSession.risk.riskScore }} <small>/ 100</small></div><span v-if="detailsSession.risk.riskBand" class="sd-risk-band" :style="{ color: detailRiskColor }">{{ detailsSession.risk.riskBand }}</span></div>
+              <div class="risk-score-line"><div class="sd-risk-large" :style="{ color: detailRiskColor }">{{ riskDataSession.risk.riskScore }} <small>/ 100</small></div><span v-if="riskDataSession.risk.riskBand" class="sd-risk-band" :style="{ color: detailRiskColor }">{{ riskDataSession.risk.riskBand }}</span></div>
               <div class="sd-risk-track"><span :style="{ left: detailRiskPercent + '%', backgroundColor: detailRiskColor }"></span></div><div class="sd-risk-labels"><span>0</span><span>25</span><span>50</span><span>75</span><span>100</span></div>
             </article>
-            <article v-if="latestRiskDecision" class="risk-detail-card">
+            <article v-if="isSessionDetailView && latestRiskDecision" class="risk-detail-card">
               <h3><i class="mdi mdi-gavel"></i>Latest Decision <span class="badge badge-pill" :class="decisionStatusClass(latestRiskDecision.action)">{{ decisionStatusLabel(latestRiskDecision.action) }}</span></h3>
               <dl class="risk-decision-details"><template v-for="item in latestRiskDecisionEntries"><dt :key="item.key + '-risk-decision-label'">{{ item.label }}</dt><dd :key="item.key + '-risk-decision-value'">{{ item.value }}</dd></template></dl>
             </article>
+            <article v-if="!isSessionDetailView && hasManualDecisions" class="risk-detail-card decision-history-card">
+              <h3><i class="mdi mdi-history"></i>Decision History</h3>
+              <div class="card-table-scroll">
+                <div class="decision-history-wrap">
+                  <div v-for="decision in normalizedManualDecisions" :key="decision.key" class="decision-history-item">
+                    <div class="decision-history-event">
+                      <div v-if="decision.action" class="decision-history-event-header"><span class="decision-history-label">Status</span><span class="badge badge-pill px-2 py-1" :class="decisionStatusClass(decision.action)">{{ decisionStatusLabel(decision.action) }}</span></div>
+                      <div class="decision-history-grid">
+                        <template v-if="decision.decidedBy"><span class="decision-history-label">Decided By</span><span class="decision-history-value" :title="decision.decidedBy">{{ decision.decidedBy }}</span></template>
+                        <template v-if="decision.decidedAt"><span class="decision-history-label">Time</span><span class="decision-history-value">{{ formatDate(decision.decidedAt) }}</span></template>
+                        <template v-if="decision.reasonCode"><span class="decision-history-label">{{ isManualReviewCleared(decision) ? "Review Result" : "Reason" }}</span><span class="decision-history-value" :title="formatDecisionReason(decision.reasonCode)"><i class="mdi mr-1" :class="isManualReviewCleared(decision) ? 'mdi-check-circle-outline text-success' : 'mdi-alert-circle-outline text-danger'"></i>{{ formatDecisionReason(decision.reasonCode) }}</span></template>
+                        <template v-if="decision.comments"><span class="decision-history-label">Comment</span><span class="decision-history-value" :title="decision.comments">{{ decision.comments }}</span></template>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </article>
           </div>
-          <div v-if="riskVerificationResults.length" class="risk-column">
+          <div v-if="isSessionDetailView && riskVerificationResults.length" class="risk-column">
             <article class="risk-detail-card">
               <h3><i class="mdi mdi-clipboard-check-outline"></i>Verification Results</h3>
               <div v-for="result in riskVerificationResults" :key="result.label" class="risk-verification-row"><i :class="result.passed ? 'mdi mdi-check-circle passed' : 'mdi mdi-close-circle failed'"></i><span>{{ result.label }}</span><strong :class="result.passed ? 'passed' : 'failed'">{{ result.value }}</strong></div>
@@ -797,7 +795,7 @@
           </div>
           <div class="audit-groups">
             <article v-for="group in auditGroups" :key="group.key" class="audit-group">
-              <button type="button" class="audit-group-toggle" :class="group.tone" @click="toggleAuditGroup(group.key)">
+              <button type="button" class="audit-group-toggle" :class="group.tone" :aria-expanded="String(!isAuditGroupCollapsed(group.key))" @click="toggleAuditGroup(group.key)">
                 <strong>{{ group.label }}</strong>
                 <span v-if="group.statusLabel" class="sd-status" :class="group.tone">{{ group.statusLabel }}</span>
                 <span v-if="group.riskFlagCount" class="audit-risk-count"><i class="mdi mdi-alert-outline"></i>{{ group.riskFlagCount }} {{ group.riskFlagCount === 1 ? "risk flag" : "risk flags" }}</span>
@@ -807,7 +805,7 @@
               </button>
               <div v-show="!isAuditGroupCollapsed(group.key)">
                 <div class="audit-table-head" :class="{ 'without-actor': !hasAuditActors }"><span>Time</span><span>Event</span><span>Details</span><span v-if="hasAuditActors">Actor</span></div>
-                <button v-for="event in group.events" :key="event.key" type="button" class="audit-event" :class="{ selected: selectedAuditEvent && selectedAuditEvent.key === event.key, 'without-actor': !hasAuditActors }" @click="selectAuditEvent(event.key)">
+                <button v-for="event in group.events" :key="event.key" type="button" class="audit-event" :class="{ selected: selectedAuditEvent && selectedAuditEvent.key === event.key, 'without-actor': !hasAuditActors }" :aria-pressed="String(Boolean(selectedAuditEvent && selectedAuditEvent.key === event.key))" @click="selectAuditEvent(event.key)">
                   <time v-if="event.createdAt">{{ formatAuditTime(event.createdAt) }}</time><span v-else></span>
                   <span class="audit-event-icon" :class="event.tone"><i :class="event.icon"></i></span>
                   <span class="audit-event-title">{{ event.title }}</span>
@@ -829,7 +827,7 @@
             <dl><template v-for="item in selectedAuditEventEntries"><dt :key="item.key + '-audit-label'">{{ item.label }}</dt><dd :key="item.key + '-audit-value'">{{ item.value }}</dd></template></dl>
             <div v-if="selectedAuditRiskFlags.length" class="audit-event-flags">
               <h3><i class="mdi mdi-alert-outline"></i> Risk Flags ({{ selectedAuditRiskFlags.length }})</h3>
-              <div ref="auditRiskFlagsList" class="audit-event-flags-list">
+              <div :key="selectedAuditEvent.key" ref="auditRiskFlagsList" class="audit-event-flags-list">
                 <article v-for="flag in selectedAuditRiskFlags" :key="flag.key" class="audit-event-flag">
                   <header><strong>{{ flag.title }}</strong><span v-if="flag.severity">{{ formatSeverity(flag.severity) }}</span></header>
                   <p v-if="flag.description">{{ flag.description }}</p>
@@ -837,10 +835,6 @@
                 </article>
               </div>
             </div>
-          </section>
-          <section v-if="auditRelatedData.length" class="audit-event-card audit-related">
-            <h2><i class="mdi mdi-clipboard-text-outline"></i>Related Data</h2>
-            <button v-for="item in auditRelatedData" :key="item.tab" type="button" @click="openAuditRelatedData(item)"><i :class="item.icon"></i>{{ item.label }}<span>View <i class="mdi mdi-arrow-right"></i></span></button>
           </section>
         </aside>
       </div>
@@ -1144,11 +1138,11 @@ export default {
         : this.sessionId;
     },
     pageTitle() {
-      return this.isSessionDetailView ? "Session Detail" : "User Detail";
+      return this.isSessionDetailView ? "Attempt Detail" : "User Detail";
     },
     pageDescription() {
       return this.isSessionDetailView
-        ? "Verification data for this specific session"
+        ? "Verification data for this specific attempt"
         : "View verification history, identity information and compliance record";
     },
     userInitials() {
@@ -1178,6 +1172,9 @@ export default {
     },
     detailsSession() {
       return this.selectedAttemptDetails || this.session || {};
+    },
+    riskDataSession() {
+      return this.isSessionDetailView ? this.detailsSession : this.session || {};
     },
     detailDeviceDetails() {
       const userAgent = this.detailsSession?.deviceDetails?.userAgent;
@@ -1210,13 +1207,13 @@ export default {
       });
     },
     hasDetailRiskScore() {
-      return this.hasValue(this.detailsSession?.risk?.riskScore);
+      return this.hasValue(this.riskDataSession?.risk?.riskScore);
     },
     detailRiskPercent() {
-      return Math.max(0, Math.min(100, Number(this.detailsSession?.risk?.riskScore) || 0));
+      return Math.max(0, Math.min(100, Number(this.riskDataSession?.risk?.riskScore) || 0));
     },
     detailRiskColor() {
-      return this.riskBandColor(this.detailsSession?.risk?.riskBand);
+      return this.riskBandColor(this.riskDataSession?.risk?.riskBand);
     },
     riskPercent() {
       return Math.max(0, Math.min(100, Number(this.session?.risk?.riskScore) || 0));
@@ -1233,6 +1230,60 @@ export default {
     },
     deviceLocationEntries() {
       return [{ label: "Operating System", value: this.deviceDetails.os }, { label: "OS Version", value: this.deviceDetails.osVer }, { label: "Browser", value: this.deviceDetails.browser }, { label: "Device", value: this.deviceDetails.device }, { label: "CPU", value: this.deviceDetails.cpu }, { label: "IP Address", value: this.session?.deviceDetails?.ip || this.locationDetails.ip }, { label: "Continent", value: this.locationDetails.continentName }, { label: "Country", value: this.locationDetails.countryName }, { label: "Region", value: this.locationDetails.region }, { label: "City", value: this.locationDetails.city }].filter(item => this.hasValue(item.value));
+    },
+    ocrDocumentRecords() {
+      const records = this.stepDetailRecords(this.detailsSession?.ocriddocsDetails);
+      if (records.length) return records;
+      return this.hasObjectData(this.userConsentOcrIdDocsDetails)
+        ? [this.userConsentOcrIdDocsDetails]
+        : [];
+    },
+    selfieDocumentRecords() {
+      const records = this.stepDetailRecords(this.detailsSession?.selfiDetails);
+      if (records.length) return records;
+      return this.hasObjectData(this.userConsentSelfiDetails)
+        ? [this.userConsentSelfiDetails]
+        : [];
+    },
+    documentTypeItems() {
+      const documentCount = this.ocrDocumentRecords.length;
+      const selfieCount = this.selfieDocumentRecords.length;
+      const documents = this.ocrDocumentRecords.map((record, index) => ({
+        key: this.documentRecordKey("document", record, index),
+        category: "document",
+        record,
+        icon: "mdi mdi-card-account-details-outline",
+        label: documentCount > 1 ? `${this.identityDocumentLabel} #${index + 1}` : this.identityDocumentLabel,
+        subtitle: [this.documentSidesForRecord(record), record.createdAt ? this.formatDate(record.createdAt) : ""].filter(Boolean).join(" · "),
+        result: this.documentRecordResult(record),
+      }));
+      const selfies = this.selfieDocumentRecords.map((record, index) => ({
+        key: this.documentRecordKey("selfie", record, index),
+        category: "selfie",
+        record,
+        icon: "mdi mdi-account-outline",
+        label: selfieCount > 1 ? `Selfie Image #${index + 1}` : "Selfie Image",
+        subtitle: record.createdAt ? this.formatDate(record.createdAt) : "",
+        result: this.selfieRecordResult(record),
+      }));
+      return [...documents, ...selfies];
+    },
+    selectedDocumentItem() {
+      const selected = this.documentTypeItems.find(item => item.key === this.selectedDocumentRecordKey);
+      if (selected) return selected;
+
+      const categoryItems = this.documentTypeItems.filter(item => item.category === this.selectedDocumentCategory);
+      const candidates = categoryItems.length ? categoryItems : this.documentTypeItems;
+      const latestRecord = this.latestStepDetail(candidates.map(item => item.record));
+      return candidates.find(item => item.record === latestRecord) || candidates[0] || null;
+    },
+    selectedOcrDocumentRecord() {
+      if (this.selectedDocumentItem?.category === "document") return this.selectedDocumentItem.record;
+      return this.latestStepDetail(this.ocrDocumentRecords);
+    },
+    selectedSelfieDocumentRecord() {
+      if (this.selectedDocumentItem?.category === "selfie") return this.selectedDocumentItem.record;
+      return this.latestStepDetail(this.selfieDocumentRecords);
     },
     hasIdentityDocument() {
       return this.idDocDocumentImageFound || this.hasValue(this.effectiveOcrIdDocsDetails?.tokenBackDocumentImage) || this.identityEntries.length > 0;
@@ -1255,16 +1306,17 @@ export default {
       return this.effectiveOcrIdDocsDetails?.tokenFrontDocumentImage || this.effectiveOcrIdDocsDetails?.tokenBackDocumentImage || "";
     },
     activeDocumentTitle() {
-      if (this.selectedDocumentCategory === "selfie") return "Selfie Image";
+      const selectedLabel = this.selectedDocumentItem?.label;
+      if (this.selectedDocumentCategory === "selfie") return selectedLabel || "Selfie Image";
       if (!this.hasIdentityDocument) return this.identityDocumentLabel;
-      if (this.selectedDocumentView === "ocr") return `${this.identityDocumentLabel} - OCR View`;
-      return `${this.identityDocumentLabel} - ${this.selectedDocumentView === "back" ? "Back Side" : "Front Side"}`;
+      if (this.selectedDocumentView === "ocr") return `${selectedLabel || this.identityDocumentLabel} - OCR View`;
+      return `${selectedLabel || this.identityDocumentLabel} - ${this.selectedDocumentView === "back" ? "Back Side" : "Front Side"}`;
     },
     documentVerificationResults() {
       const results = [];
-      if (this.hasValue(this.detailsSession?.step_ocrIdVerification)) {
-        const passed = this.detailsSession.step_ocrIdVerification == 1;
-        results.push({ label: "Document verification", passed, value: passed ? "Passed" : "Failed" });
+      const documentResult = this.documentRecordResult(this.selectedOcrDocumentRecord);
+      if (documentResult) {
+        results.push({ label: "Document verification", passed: documentResult.passed, value: documentResult.label });
       }
       if (this.faceAuthenticationResultFound) {
         results.push({ label: "Face authentication", passed: this.isFacialAuthenticationSuccess.success, value: this.isFacialAuthenticationSuccess.success ? "Passed" : "Failed" });
@@ -1293,9 +1345,6 @@ export default {
       const submittedFrom = [this.detailDeviceDetails.device, this.detailDeviceDetails.os, this.detailDeviceDetails.osVer].filter(Boolean).join(" · ");
       return [{ label: "Created At", value: createdAt ? this.formatDate(createdAt) : "" }, { label: "Session Device", value: submittedFrom }, { label: "Session Browser", value: this.detailDeviceDetails.browser }, { label: "Session IP Address", value: this.detailsSession?.deviceDetails?.ip || this.detailLocationDetails.ip }, { label: "Session Location", value: location }].filter(item => this.hasValue(item.value));
     },
-    latestVerificationEntries() {
-      return [{ label: "Status", value: this.statusDisplayLabel }, { label: "Completed At", value: this.session?.completedAt ? this.formatDate(this.session.completedAt) : "" }, { label: "Duration", value: this.session?.duration }].filter(item => this.hasValue(item.value));
-    },
     verificationChecks() {
       return [
         { label: "Document", value: this.session?.step_ocrIdVerification },
@@ -1306,6 +1355,45 @@ export default {
         label: item.label,
         passed: item.value == 1,
       }));
+    },
+    overviewVerificationResults() {
+      const results = [];
+      const ocrDetails = this.latestStepDetail(this.session?.ocriddocsDetails);
+      const selfiDetails = this.latestStepDetail(this.session?.selfiDetails);
+      const zkpDetails = this.latestStepDetail(
+        this.session?.zkProofVerificationDetails || this.session?.zkpVerificationDetails
+      );
+
+      if (this.hasValue(this.session?.step_ocrIdVerification)) {
+        const passed = this.session.step_ocrIdVerification == 1;
+        results.push({ label: "Document verification", passed, value: passed ? "Passed" : "Failed" });
+      }
+      if (this.hasValue(ocrDetails.serviceFacialAuthenticationResult)) {
+        const result = ocrDetails.serviceFacialAuthenticationResult;
+        const passed = result == 3;
+        results.push({ label: "Face authentication", passed, value: passed ? "Passed" : Config['FaicalAuthenticationError'][result] || "Failed" });
+      }
+      if (this.hasValue(ocrDetails.serviceFacialSimilarityResult)) {
+        const similarity = Number(ocrDetails.serviceFacialSimilarityResult);
+        const percentage = similarity > 1 ? similarity : similarity * 100;
+        results.push({ label: "Face similarity", passed: ocrDetails.serviceFacialAuthenticationResult == 3, value: Number.isNaN(percentage) ? String(ocrDetails.serviceFacialSimilarityResult) : `${Math.round(percentage)}%` });
+      }
+      if (this.hasValue(selfiDetails.serviceLivenessResult)) {
+        const result = selfiDetails.serviceLivenessResult;
+        const passed = result == 3;
+        results.push({ label: "Liveness", passed, value: passed ? "Passed" : ServiceLivenessResultEnum[result] || "Failed" });
+      }
+      if (this.hasValue(zkpDetails.serviceZkpVerificationResult)) {
+        const result = zkpDetails.serviceZkpVerificationResult;
+        const passed = result == 3;
+        results.push({ label: "Age Verification", passed, value: passed ? "Passed" : ZkpVerificationResultEnum[result] || "Failed" });
+      }
+      if (this.hasValue(this.session?.step_userConsent)) {
+        const passed = this.session.step_userConsent == 1;
+        results.push({ label: "User Consent", passed, value: passed ? "Captured" : "Failed" });
+      }
+
+      return results;
     },
     riskVerificationResults() {
       const results = [...this.documentVerificationResults];
@@ -1463,33 +1551,30 @@ export default {
       return Boolean(this.effectiveOcrIdDocsDetails?.tokenFrontDocumentImage);
     },
     userConsentDataFound() {
-      return (
-        this.detailsSession?.userConsentDetails &&
-        Object.keys(this.detailsSession.userConsentDetails).length > 0
-      );
+      return this.hasObjectData(this.effectiveUserConsentDetails);
     },
     sbtDataFound() {
       return this.session?.mintsbtsDetails && this.session.mintsbtsDetails.length > 0;
     },
     zkpVerificationDataFound() {
-      return this.hasObjectData(this.detailsSession?.zkpVerificationDetails);
+      return this.hasObjectData(this.effectiveZkpVerificationDetails);
     },
     zkpVerificationResultFound() {
       return this.hasValue(
-        this.detailsSession?.zkpVerificationDetails?.serviceZkpVerificationResult
+        this.effectiveZkpVerificationDetails?.serviceZkpVerificationResult
       );
     },
     zkpVerificationPassed() {
-      return this.detailsSession?.zkpVerificationDetails?.serviceZkpVerificationResult == 3;
+      return this.effectiveZkpVerificationDetails?.serviceZkpVerificationResult == 3;
     },
     zkpVerificationResultForDisplay() {
-      const result = this.detailsSession?.zkpVerificationDetails?.serviceZkpVerificationResult;
+      const result = this.effectiveZkpVerificationDetails?.serviceZkpVerificationResult;
       return ZkpVerificationResultEnum[result] || `Result ${result}`;
     },
     startFinishDiffInSeconds() {
       if (this.userConsentDataFound) {
         const startDate = new Date(this.detailsSession.createdAt);
-        const endDate = new Date(this.detailsSession.userConsentDetails.createdAt);
+        const endDate = new Date(this.effectiveUserConsentDetails.createdAt);
 
         const startEpoch = startDate.getTime();
         const endEpoch = endDate.getTime();
@@ -1545,15 +1630,24 @@ export default {
     },
     effectiveSelfiDetails() {
       return this.mergeWithFallback(
-        this.detailsSession?.selfiDetails || {},
+        this.selectedSelfieDocumentRecord,
         this.userConsentSelfiDetails
       );
     },
     effectiveOcrIdDocsDetails() {
       return this.mergeWithFallback(
-        this.detailsSession?.ocriddocsDetails || {},
+        this.selectedOcrDocumentRecord,
         this.userConsentOcrIdDocsDetails
       );
+    },
+    effectiveZkpVerificationDetails() {
+      return this.latestStepDetail(
+        this.detailsSession?.zkProofVerificationDetails ||
+          this.detailsSession?.zkpVerificationDetails
+      );
+    },
+    effectiveUserConsentDetails() {
+      return this.latestStepDetail(this.detailsSession?.userConsentDetails);
     },
     userPersonalDataFromUserConsent() {
       const d = { ...this.passportCredentialSubject };
@@ -1626,16 +1720,14 @@ export default {
         const orderedEvents = [...events].sort((a, b) =>
           (Date.parse(a.createdAt) || 0) - (Date.parse(b.createdAt) || 0)
         );
-        const allGroupEvents = this.auditEvents.filter(event => event.attemptKey === key);
-        const statusSource = [...allGroupEvents].reverse().find(event => event.statusLabel);
-        const hasFailure = allGroupEvents.some(event => event.tone === "failed");
-        const hasReview = allGroupEvents.some(event => event.tone === "review");
+        const statusSource = [...orderedEvents].reverse().find(event => event.statusLabel);
+        const hasFailure = orderedEvents.some(event => event.tone === "failed");
+        const hasReview = orderedEvents.some(event => event.tone === "review");
         const firstDate = orderedEvents[0]?.createdAt;
         const lastDate = orderedEvents[orderedEvents.length - 1]?.createdAt;
-        const statusKeys = [...new Set(allGroupEvents
-          .map(event => event.statusLabel.toLowerCase())
-          .filter(Boolean))];
-        const riskFlagCount = allGroupEvents.reduce((count, event) => {
+        const statusLabel = statusSource?.statusLabel || "";
+        const statusKey = statusLabel.toLowerCase();
+        const riskFlagCount = orderedEvents.reduce((count, event) => {
           const flags = event.raw?.riskFlags;
           return count + (Array.isArray(flags) ? flags.length : this.hasObjectData(flags) ? 1 : 0);
         }, 0);
@@ -1643,15 +1735,15 @@ export default {
           key,
           label: this.auditAttemptLabels[key],
           events: orderedEvents,
-          tone: statusSource?.statusLabel
-            ? this.auditSessionStatusTone(statusSource.statusLabel)
+          tone: statusLabel
+            ? this.auditSessionStatusTone(statusLabel)
             : hasFailure
               ? "failed"
               : hasReview
                 ? "review"
                 : "",
-          statusLabel: statusSource?.statusLabel || "",
-          statusKeys,
+          statusLabel,
+          statusKey,
           hasRiskFlags: riskFlagCount > 0,
           riskFlagCount,
           dateRange: this.formatAuditDateRange(firstDate, lastDate),
@@ -1692,7 +1784,9 @@ export default {
     auditSessionFilters() {
       const statusCounts = new Map();
       this.allAuditGroups.forEach(group => {
-        group.statusKeys.forEach(status => statusCounts.set(status, (statusCounts.get(status) || 0) + 1));
+        if (group.statusKey) {
+          statusCounts.set(group.statusKey, (statusCounts.get(group.statusKey) || 0) + 1);
+        }
       });
       const preferredOrder = ["success", "failed", "expired"];
       const statuses = [...statusCounts.entries()].sort(([a], [b]) => {
@@ -1724,7 +1818,7 @@ export default {
       }
       if (this.auditSessionFilter.startsWith("status:")) {
         const status = this.auditSessionFilter.slice(7);
-        return this.allAuditGroups.filter(group => group.statusKeys.includes(status));
+        return this.allAuditGroups.filter(group => group.statusKey === status);
       }
       return this.allAuditGroups;
     },
@@ -1736,23 +1830,13 @@ export default {
       return visibleEvents.find(event => event.key === this.selectedAuditEventKey) || this.auditGroups[0]?.events[0] || null;
     },
     selectedAuditRiskFlags() {
-      const event = this.selectedAuditEvent;
-      if (!event) return [];
-
-      const sessionGroup = this.allAuditGroups.find(group => group.key === event.attemptKey);
-      if (!sessionGroup) return [];
-
-      return sessionGroup.events.flatMap((sessionEvent, eventIndex) => {
-        const eventFlags = sessionEvent.raw?.riskFlags;
-        const flags = Array.isArray(eventFlags)
-          ? eventFlags
-          : this.hasObjectData(eventFlags)
-            ? [eventFlags]
-            : [];
-        return flags.map((flag, flagIndex) =>
-          this.normalizeRiskFlag(flag, `${eventIndex}-${flagIndex}`)
-        );
-      });
+      const eventFlags = this.selectedAuditEvent?.raw?.riskFlags;
+      const flags = Array.isArray(eventFlags)
+        ? eventFlags
+        : this.hasObjectData(eventFlags)
+          ? [eventFlags]
+          : [];
+      return flags.map((flag, index) => this.normalizeRiskFlag(flag, index));
     },
     selectedAuditEventEntries() {
       if (!this.selectedAuditEvent) return [];
@@ -1768,7 +1852,7 @@ export default {
           value: event.attemptLabel || (event.attemptKey !== "session" ? event.attemptKey : ""),
         },
         { key: "status", label: "Status", value: event.statusLabel },
-        { key: "result", label: "Result", value: event.result },
+        { key: "result", label: event.resultLabel || "Result", value: event.result },
         { key: "error", label: "Error", value: event.error },
         { key: "reason", label: "Reason", value: raw.reasonCode ? this.formatDecisionReason(raw.reasonCode) : raw.failureReason },
         { key: "comment", label: "Comment", value: raw.comments || raw.comment },
@@ -1777,30 +1861,8 @@ export default {
       const additionalEntries = this.scalarEntries(raw).filter(item => !representedKeys.has(item.key));
       return [...entries.filter(item => this.hasValue(item.value)), ...additionalEntries];
     },
-    auditRelatedData() {
-      if (!this.selectedAuditEvent) return [];
-      const sessionId = this.selectedAuditEvent.attemptKey;
-      if (!this.isVerificationSessionId(sessionId)) return [];
-      const group = this.allAuditGroups.find(item => item.key === sessionId);
-      const categories = new Set((group?.events || [this.selectedAuditEvent]).map(event => event.category));
-      const related = [];
-      if (categories.has("document") || categories.has("selfie")) {
-        related.push({
-          tab: "documents",
-          category: this.selectedAuditEvent.category === "selfie" || !categories.has("document")
-            ? "selfie"
-            : "document",
-          label: "Verification Documents",
-          icon: "mdi mdi-file-document-outline",
-        });
-      }
-      if (categories.has("risk") || group?.hasRiskFlags) {
-        related.push({ tab: "risk", label: "Risk Assessment", icon: "mdi mdi-shield-alert-outline" });
-      }
-      return related;
-    },
     normalizedRiskFlags() {
-      const flags = this.detailsSession?.riskFlags || [];
+      const flags = this.riskDataSession?.riskFlags || [];
       if (!Array.isArray(flags)) return [];
 
       return flags.map((flag, index) => this.normalizeRiskFlag(flag, index));
@@ -1825,6 +1887,7 @@ export default {
           decidedBy: decision.decidedBy || "",
           decidedAt: decision.decidedAt || "",
         }))
+        .filter(decision => [decision.action, decision.reasonCode, decision.comments, decision.decidedBy, decision.decidedAt].some(value => this.hasValue(value)))
         .sort((a, b) => {
           const aTime = Date.parse(a.decidedAt) || 0;
           const bTime = Date.parse(b.decidedAt) || 0;
@@ -1895,6 +1958,7 @@ export default {
       timeLineDetails: [],
       activeTab: "overview",
       selectedDocumentCategory: "document",
+      selectedDocumentRecordKey: "",
       selectedDocumentView: "front",
       auditSessionFilter: "all",
       collapsedAuditGroups: {},
@@ -1966,6 +2030,13 @@ export default {
       try {
         this.isLoading = true;
         this.activeTab = "overview";
+        this.auditSessionFilter = "all";
+        this.collapsedAuditGroups = {};
+        this.selectedAuditEventKey = "";
+        this.overviewAttemptLimit = 3;
+        this.selectedAttemptSessionId = "";
+        this.selectedAttemptDetails = null;
+        this.selectedDocumentRecordKey = "";
         this.deviceDetails = {};
         this.locationDetails = {};
         this.timeLineDetails = [];
@@ -2002,7 +2073,6 @@ export default {
         } else {
           this.selectedAttemptSessionId = this.session?.latestSessionId || this.allAuditGroups[0]?.key || "";
           this.selectedAttemptDetails = null;
-          if (this.selectedAttemptSessionId) await this.selectAttemptSession();
         }
         this.selectDocumentCategory("document");
       } catch (e) {
@@ -2018,10 +2088,11 @@ export default {
       const error = item.error || item.failureReason || "";
       const statusValue = item.status || item.outcome || item.action;
       const resultValue = item.result;
-      const result = this.hasValue(resultValue) ? String(resultValue) : "";
+      const resultType = this.auditResultType(item);
+      const result = this.formatAuditResult(resultType, resultValue);
       const toneValue = this.hasValue(statusValue) ? statusValue : resultValue;
       const normalizedResult = String(toneValue || "").toLowerCase();
-      const documentFailure = category === "document"
+      const documentFailure = resultType === "document"
         ? Config['FaicalAuthenticationError'][resultValue]
         : "";
       const tone = error || documentFailure || /fail|reject|denied|invalid|error/.test(normalizedResult)
@@ -2044,7 +2115,7 @@ export default {
         .map(flag => flag?.message || flag?.code)
         .filter(value => this.hasValue(value))
         .join(" · ");
-      const detailValue = error || item.message || item.description || item.details || item.reason || item.comments || documentFailure || riskFlagDetail || "";
+      const detailValue = error || item.message || item.description || item.details || item.reason || item.comments || documentFailure || riskFlagDetail || result || "";
 
       return {
         key: `${sourceKey}-${item.id || item._id || item.createdAt || item.decidedAt || title}`,
@@ -2058,11 +2129,46 @@ export default {
         detail: this.hasValue(detailValue) ? String(detailValue) : "",
         error: this.hasValue(error) ? String(error) : "",
         result,
+        resultLabel: this.auditResultLabel(resultType),
         statusLabel: this.hasValue(statusValue) ? this.formatAuditStatusLabel(statusValue) : "",
         riskFlagCount: eventRiskFlags.length,
         attemptKey: this.hasValue(attemptValue) ? String(attemptValue) : "session",
         attemptLabel: this.hasValue(explicitAttemptNumber) ? `Attempt #${explicitAttemptNumber}` : "",
       };
+    },
+    auditResultType(item) {
+      const rawStep = item?.step_name || item?.stepName || item?.eventName || item?.event || item?.type || "";
+      const step = String(rawStep).toLowerCase().replace(/[\s_-]+/g, "");
+      if (step === "liveliness" || step === "liveness") return "liveness";
+      if (step === "ocriddoc" || step === "ocridverification") return "document";
+      if (["zkpverification", "zkproofverification", "ageverification"].includes(step)) return "age-verification";
+      return "";
+    },
+    auditResultLabel(resultType) {
+      const labels = {
+        liveness: "Liveness Result",
+        document: "Document Result",
+        "age-verification": "Age Verification Result",
+      };
+      return labels[resultType] || "Result";
+    },
+    formatAuditResult(resultType, resultValue) {
+      if (!this.hasValue(resultValue)) return "";
+
+      if (resultType === "liveness") {
+        return ServiceLivenessResultEnum[resultValue] || "Unknown liveliness result";
+      }
+      if (resultType === "document") {
+        if (resultValue == 3) return "Document verification passed";
+        return Config['FaicalAuthenticationError'][resultValue] || "Unknown document verification result";
+      }
+      if (resultType === "age-verification") {
+        return ZkpVerificationResultEnum[resultValue] || "Unknown age verification result";
+      }
+
+      return typeof resultValue === "string"
+        ? this.formatAuditStatusLabel(resultValue)
+        : "";
     },
     auditEventCategory(title, item) {
       if (item.action || item.eventCategory === "decision") return "decision";
@@ -2125,17 +2231,43 @@ export default {
       return `${first.toLocaleDateString("en-IN")} · ${this.formatAuditTime(firstDate)} – ${this.formatAuditTime(lastDate)}`;
     },
     toggleAuditGroup(key) {
-      this.$set(this.collapsedAuditGroups, key, !this.collapsedAuditGroups[key]);
+      const shouldCollapse = !this.isAuditGroupCollapsed(key);
+
+      this.collapsedAuditGroups = this.auditGroups.reduce((state, group) => {
+        state[group.key] = shouldCollapse || group.key !== key;
+        return state;
+      }, {});
+
+      if (!shouldCollapse) {
+        const openedGroup = this.auditGroups.find(group => group.key === key);
+        this.selectedAuditEventKey = openedGroup?.events[0]?.key || "";
+      }
+      this.resetAuditRiskFlagsScroll();
     },
     selectAuditSessionFilter(filter) {
       this.auditSessionFilter = filter;
-      this.selectedAuditEventKey = "";
-      this.collapsedAuditGroups = {};
+      const firstGroup = this.auditGroups[0];
+      this.collapsedAuditGroups = this.auditGroups.reduce((state, group) => {
+        state[group.key] = group.key !== firstGroup?.key;
+        return state;
+      }, {});
+      this.selectedAuditEventKey = firstGroup?.events[0]?.key || "";
       this.resetAuditRiskFlagsScroll();
     },
     selectAuditEvent(eventKey) {
       this.selectedAuditEventKey = eventKey;
       this.resetAuditRiskFlagsScroll();
+    },
+    async selectTab(tabId) {
+      if (tabId === "documents" && !this.isSessionDetailView && this.selectedAttemptSessionId && !this.selectedAttemptDetails) {
+        const loaded = await this.selectAttemptSession();
+        if (!loaded) return;
+      }
+      if (tabId !== "documents" && !this.isSessionDetailView) {
+        this.selectedAttemptDetails = null;
+      }
+      this.activeTab = tabId;
+      if (tabId === "documents") this.selectDocumentCategory(this.selectedDocumentCategory);
     },
     resetAuditRiskFlagsScroll() {
       this.$nextTick(() => {
@@ -2164,6 +2296,7 @@ export default {
       if (!this.hasValue(sessionId)) return false;
       if (this.attemptDetailsCache[sessionId]) {
         this.selectedAttemptDetails = this.attemptDetailsCache[sessionId];
+        this.selectedDocumentRecordKey = "";
         this.selectDocumentCategory("document");
         return true;
       }
@@ -2173,6 +2306,7 @@ export default {
         const details = await this.fetchSessionsDetailsById2({ sessionId });
         this.$set(this.attemptDetailsCache, sessionId, details);
         this.selectedAttemptDetails = details;
+        this.selectedDocumentRecordKey = "";
         this.selectDocumentCategory("document");
         return true;
       } catch (e) {
@@ -2181,22 +2315,6 @@ export default {
       } finally {
         this.isLoading = false;
       }
-    },
-    async openAuditRelatedData(item) {
-      const sessionId = this.selectedAuditEvent?.attemptKey;
-      if (!this.isVerificationSessionId(sessionId)) return;
-
-      this.selectedAttemptSessionId = sessionId;
-      const loaded = await this.selectAttemptSession();
-      if (!loaded) return;
-
-      if (item.tab === "documents") {
-        const requestedCategory = item.category === "selfie" && this.selfiImageFound
-          ? "selfie"
-          : "document";
-        this.selectDocumentCategory(requestedCategory);
-      }
-      this.activeTab = item.tab;
     },
     riskBandColor(band) {
       const colors = {
@@ -2274,9 +2392,20 @@ export default {
       if (!this.hasValue(status)) return "";
       return String(status).trim().replace(/_/g, " ").toLowerCase().replace(/\b\w/g, char => char.toUpperCase());
     },
-    selectDocumentCategory(category) {
-      this.selectedDocumentCategory = category;
-      if (category === "selfie") return;
+    selectDocumentCategory(category, recordKey = "") {
+      if (recordKey) {
+        this.selectedDocumentRecordKey = recordKey;
+        this.selectedDocumentCategory = category;
+      } else {
+        const categoryItems = this.documentTypeItems.filter(item => item.category === category);
+        const candidateItems = categoryItems.length ? categoryItems : this.documentTypeItems;
+        const currentItem = candidateItems.find(item => item.key === this.selectedDocumentRecordKey);
+        const latestRecord = this.latestStepDetail(candidateItems.map(item => item.record));
+        const itemToSelect = currentItem || candidateItems.find(item => item.record === latestRecord) || candidateItems[0];
+        this.selectedDocumentRecordKey = itemToSelect?.key || "";
+        this.selectedDocumentCategory = itemToSelect?.category || category;
+      }
+      if (this.selectedDocumentCategory === "selfie") return;
       if (this.effectiveOcrIdDocsDetails?.tokenFrontDocumentImage) {
         this.selectedDocumentView = "front";
       } else if (this.effectiveOcrIdDocsDetails?.tokenBackDocumentImage) {
@@ -2329,12 +2458,14 @@ export default {
       const code = flag?.code || flag?.reason || "";
       const severity = flag?.severity || "";
       const metadata = flag?.metadata || {};
-      const metadataEntries = this.scalarEntries(metadata).map(entry => ({
-        ...entry,
-        value: entry.key === "reason"
-          ? this.formatJurisdictionRestrictionReason(metadata.reason)
-          : entry.value,
-      }));
+      const metadataEntries = this.scalarEntries(metadata)
+        .filter(entry => String(entry.key).toLowerCase() !== "strategy")
+        .map(entry => ({
+          ...entry,
+          value: entry.key === "reason"
+            ? this.formatJurisdictionRestrictionReason(metadata.reason)
+            : entry.value,
+        }));
 
       return {
         ...flag,
@@ -3641,6 +3772,65 @@ export default {
     hasObjectData(value) {
       return Boolean(value && Object.keys(value).length > 0);
     },
+    stepDetailRecords(value) {
+      if (Array.isArray(value)) {
+        return value
+          .map((item, index) => ({ item, index }))
+          .filter(({ item }) => this.hasObjectData(item))
+          .sort((a, b) => {
+            const aTime = Date.parse(a.item.updatedAt || a.item.createdAt) || 0;
+            const bTime = Date.parse(b.item.updatedAt || b.item.createdAt) || 0;
+            return bTime - aTime || a.index - b.index;
+          })
+          .map(({ item }) => item);
+      }
+      return this.hasObjectData(value) ? [value] : [];
+    },
+    documentRecordKey(category, record, index) {
+      return `${category}-${record?._id || record?.id || record?.createdAt || index}`;
+    },
+    documentSidesForRecord(record) {
+      const sides = [];
+      if (record?.tokenFrontDocumentImage) sides.push("Front side");
+      if (record?.tokenBackDocumentImage) sides.push("Back side");
+      return sides.join(" · ") || "Extracted information";
+    },
+    documentRecordResult(record) {
+      const result = record?.serviceFacialAuthenticationResult;
+      if (this.hasValue(result)) {
+        const passed = result == 3;
+        return { passed, label: passed ? "Passed" : "Failed", tone: passed ? "passed" : "failed" };
+      }
+      if (this.ocrDocumentRecords.length === 1 && this.hasValue(this.detailsSession?.step_ocrIdVerification)) {
+        const passed = this.detailsSession.step_ocrIdVerification == 1;
+        return { passed, label: passed ? "Passed" : "Failed", tone: passed ? "passed" : "failed" };
+      }
+      return null;
+    },
+    selfieRecordResult(record) {
+      const result = record?.serviceLivenessResult;
+      if (!this.hasValue(result)) return null;
+      const passed = result == 3;
+      return {
+        passed,
+        label: ServiceLivenessResultEnum[result] || (passed ? "Live" : "Failed"),
+        tone: passed ? "passed" : "failed",
+      };
+    },
+    latestStepDetail(value) {
+      if (!Array.isArray(value)) {
+        return this.hasObjectData(value) ? value : {};
+      }
+
+      return value.reduce((latest, current) => {
+        if (!this.hasObjectData(current)) return latest;
+        if (!this.hasObjectData(latest)) return current;
+
+        const latestTime = Date.parse(latest.updatedAt || latest.createdAt) || 0;
+        const currentTime = Date.parse(current.updatedAt || current.createdAt) || 0;
+        return currentTime >= latestTime ? current : latest;
+      }, {});
+    },
     mergeWithFallback(primary = {}, fallback = {}) {
       const merged = { ...fallback };
       Object.entries(primary).forEach(([key, value]) => {
@@ -3658,7 +3848,7 @@ export default {
     parseUserConsentPresentation() {
       if (!this.userConsentDataFound) return {};
 
-      const presentation = this.detailsSession.userConsentDetails.presentation;
+      const presentation = this.effectiveUserConsentDetails.presentation;
       if (!presentation) return {};
       if (typeof presentation === "object") return presentation;
 
