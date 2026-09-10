@@ -667,16 +667,16 @@
       </header>
       <section class="sd-profile-card">
         <div class="sd-avatar">{{ userInitials }}</div>
-        <div class="sd-profile-main"><strong v-if="session.email">{{ session.email }}</strong><span v-if="isSessionDetailView">Session ID: {{ session.sessionId || sessionId }}</span><span v-else-if="session.userId">User ID: {{ session.userId }}</span><span v-else-if="sessionId">User ID: {{ sessionId }}</span></div>
+        <div class="sd-profile-main"><strong v-if="session.email">{{ session.email }}</strong><span v-if="isSessionDetailView">{{ currentAttemptNumber ? `Attempt #${currentAttemptNumber}` : "Attempt Detail" }}</span><span v-else-if="session.userId">User ID: {{ session.userId }}</span><span v-else-if="sessionId">User ID: {{ sessionId }}</span></div>
         <div v-if="session.status" class="sd-stat">
-          <label>{{ isSessionDetailView ? "Session Status" : "Current Status" }}</label>
+          <label>{{ isSessionDetailView ? "Attempt Status" : "Current Status" }}</label>
           <div class="sd-current-status-row">
             <span class="sd-status" :class="statusTone">{{ statusDisplayLabel }}</span>
           </div>
         </div>
-        <div v-if="hasRiskScore" class="sd-stat"><label>{{ isSessionDetailView ? "Session Risk Score" : "Current Risk Score" }}</label><strong class="sd-risk-value" :style="{ color: riskColor }">{{ session.risk.riskScore }} <small>/ 100</small></strong><span v-if="session.risk.riskBand" class="sd-risk-band" :style="{ color: riskColor }">{{ session.risk.riskBand }}</span></div>
-        <div v-if="verificationAttemptCount" class="sd-stat"><label>Total Attempts</label><strong>{{ verificationAttemptCount }}</strong></div>
-        <div v-if="latestVerificationSummary" class="sd-stat"><label>{{ latestVerificationSummary.label }}</label><strong :title="latestVerificationSummary.title">{{ latestVerificationSummary.primary }}</strong><span v-if="latestVerificationSummary.secondary">{{ latestVerificationSummary.secondary }}</span></div>
+        <div v-if="hasRiskScore" class="sd-stat"><label>{{ isSessionDetailView ? "Attempt Risk Score" : "Current Risk Score" }}</label><strong class="sd-risk-value" :style="{ color: riskColor }">{{ session.risk.riskScore }} <small>/ 100</small></strong><span v-if="session.risk.riskBand" class="sd-risk-band" :style="{ color: riskColor }">{{ session.risk.riskBand }}</span></div>
+        <div v-if="!isSessionDetailView && verificationAttemptCount" class="sd-stat"><label>Total Attempts</label><strong>{{ verificationAttemptCount }}</strong></div>
+        <div v-if="!isSessionDetailView && latestVerificationSummary" class="sd-stat"><label>{{ latestVerificationSummary.label }}</label><strong :title="latestVerificationSummary.title">{{ latestVerificationSummary.primary }}</strong><span v-if="latestVerificationSummary.secondary">{{ latestVerificationSummary.secondary }}</span></div>
       </section>
       <nav class="sd-tabs">
         <button v-for="tab in visibleTabs" :key="tab.id" :class="{ active: activeTab === tab.id }" @click="selectTab(tab.id)"><i :class="tab.icon"></i>{{ tab.label }}<span v-if="tab.count" class="sd-tab-count">{{ tab.count }}</span></button>
@@ -703,7 +703,7 @@
       <section v-else-if="activeTab === 'documents'" class="documents-panel">
         <header class="documents-header">
           <div><h2><i class="mdi mdi-file-document-outline"></i> Documents</h2><p>Identity documents and evidence submitted during verification.</p></div>
-          <div v-if="attemptOptions.length" class="attempt-selector"><label for="document-attempt">Attempt:</label><select id="document-attempt" v-model="selectedAttemptSessionId" @change="selectAttemptSession"><option v-for="attempt in attemptOptions" :key="attempt.id" :value="attempt.id">{{ attempt.label }}</option></select></div>
+          <div v-if="!isSessionDetailView && attemptOptions.length" class="attempt-selector"><label for="document-attempt">Attempt:</label><select id="document-attempt" v-model="selectedAttemptSessionId" @change="selectAttemptSession"><option v-for="attempt in attemptOptions" :key="attempt.id" :value="attempt.id">{{ attempt.label }}</option></select></div>
         </header>
         <div class="documents-layout">
           <aside class="document-types">
@@ -737,7 +737,7 @@
         </div>
       </section>
       <section v-else-if="activeTab === 'risk'">
-        <header class="risk-page-header"><div><h2><i class="mdi mdi-shield-check-outline"></i>Risk &amp; Compliance</h2><p>{{ isSessionDetailView ? "Risk assessment, verification results, flags and review decision for the selected attempt." : "Current risk assessment, flags and review decisions." }}</p></div><div v-if="isSessionDetailView && attemptOptions.length" class="attempt-selector"><label for="risk-attempt">Attempt:</label><select id="risk-attempt" v-model="selectedAttemptSessionId" @change="selectAttemptSession"><option v-for="attempt in attemptOptions" :key="attempt.id" :value="attempt.id">{{ attempt.label }}</option></select></div></header>
+        <header class="risk-page-header"><div><h2><i class="mdi mdi-shield-check-outline"></i>Risk &amp; Compliance</h2><p>{{ isSessionDetailView ? "Risk assessment, verification results, flags and review decision for this attempt." : "Current risk assessment, flags and review decisions." }}</p></div></header>
         <div class="risk-layout">
           <div v-if="hasDetailRiskScore || (isSessionDetailView ? latestRiskDecision : hasManualDecisions)" class="risk-column">
             <article v-if="hasDetailRiskScore" class="risk-detail-card">
@@ -1266,7 +1266,11 @@ export default {
         subtitle: record.createdAt ? this.formatDate(record.createdAt) : "",
         result: this.selfieRecordResult(record),
       }));
-      return [...documents, ...selfies];
+      return [...documents, ...selfies].sort((a, b) => {
+        const aTime = Date.parse(a.record?.updatedAt || a.record?.createdAt) || 0;
+        const bTime = Date.parse(b.record?.updatedAt || b.record?.createdAt) || 0;
+        return bTime - aTime;
+      });
     },
     selectedDocumentItem() {
       const selected = this.documentTypeItems.find(item => item.key === this.selectedDocumentRecordKey);
@@ -1396,15 +1400,7 @@ export default {
       return results;
     },
     riskVerificationResults() {
-      const results = [...this.documentVerificationResults];
-      if (this.zkpVerificationResultFound) {
-        results.push({ label: "Age Verification", passed: this.zkpVerificationPassed, value: this.zkpVerificationPassed ? "Passed" : this.zkpVerificationResultForDisplay });
-      }
-      if (this.userConsentDataFound) {
-        const passed = this.detailsSession?.step_userConsent == 1;
-        results.push({ label: "User Consent", passed, value: passed ? "Passed" : "Failed" });
-      }
-      return results;
+      return this.overviewVerificationResults;
     },
     allAvailableChecksPassed() {
       return this.verificationChecks.length > 0 &&
@@ -1752,6 +1748,7 @@ export default {
       }).sort((a, b) => b.latestTime - a.latestTime);
     },
     overviewVerificationAttempts() {
+      if (this.isSessionDetailView) return [];
       if (this.verificationAttempts.length) {
         const attempts = this.overviewAttemptLimit
           ? this.verificationAttempts.slice(0, this.overviewAttemptLimit)
@@ -2440,11 +2437,17 @@ export default {
           comments: this.reviewComments,
         });
 
-        this.session = await this.fetchSessionsDetailsById({
-          sessionId: this.sessionId,
-          env: this.env,
-          businessId: this.isValidBusinessID ? this.companyId : undefined,
-        }) || {};
+        if (this.isSessionDetailView) {
+          this.session = await this.fetchSessionsDetailsById2({ sessionId: decisionSessionId }) || {};
+          this.selectedAttemptDetails = this.session;
+          this.$set(this.attemptDetailsCache, decisionSessionId, this.session);
+        } else {
+          this.session = await this.fetchSessionsDetailsById({
+            sessionId: this.sessionId,
+            env: this.env,
+            businessId: this.isValidBusinessID ? this.companyId : undefined,
+          }) || {};
+        }
 
         this.notifySuccess("Manual review decision submitted successfully.");
         this.closeManualReviewModal();
