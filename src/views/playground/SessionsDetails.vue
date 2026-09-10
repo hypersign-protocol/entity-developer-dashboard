@@ -607,38 +607,43 @@
 .document-thumbs { display: flex; gap: 12px; justify-content: center; margin-top: 12px; }.document-thumbs button { background: transparent; border: 0; color: #52658a; font-size: 10px; padding: 0; }.document-thumbs button img,.ocr-thumb { align-items: center; background: #f8fafc; border: 1px solid #dbe3ef; border-radius: 5px; display: flex; height: 58px; justify-content: center; margin-bottom: 5px; object-fit: cover; padding: 3px; width: 92px; }.document-thumbs button.active img,.document-thumbs button.active .ocr-thumb { border: 2px solid #2563eb; }.ocr-thumb { color: #607095; font-size: 20px; }
 .document-insights { background: #fbfcfe; padding: 0 12px 12px; }.document-info-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 6px; margin-top: 12px; max-height: 218px; overflow-y: auto; padding: 10px 12px; scrollbar-color: #dbe3ef transparent; scrollbar-width: thin; }.document-info-card h3 { align-items: center; border-bottom: 1px solid #edf1f6; color: #172554; display: flex; font-size: 11px; justify-content: space-between; margin: 0 0 9px; padding-bottom: 8px; }.verification-result-row { align-items: center; display: grid; font-size: 10px; gap: 7px; grid-template-columns: 13px 1fr auto; margin: 7px 0; }.verification-result-row strong { font-size: 10px; }.document-info-card dl { display: grid; font-size: 10px; gap: 5px 12px; grid-template-columns: minmax(100px,.8fr) 1fr; margin: 0; }.document-info-card dt { color: #7180a5; font-weight: 500; }.document-info-card dd { color: #26375f; margin: 0; overflow-wrap: anywhere; }
 .document-info-card h3 > span:first-child { align-items: center; border-radius: 0; display: inline-flex; font-size: inherit; padding: 0; }.document-info-card h3 > span:first-child i { color: #52658a; margin-right: 6px; }
-.audit-panel { align-items: stretch; display: grid; gap: 16px; grid-template-columns: minmax(0, 2.2fr) minmax(280px, .85fr); }
-.audit-log,.audit-event-card { background: #fff; border: 1px solid #dbe3ef; border-radius: 9px; min-width: 0; }.audit-log { align-self: stretch; display: flex; flex-direction: column; min-height: 0; width: 100%; }
-.audit-log-header { align-items: flex-start; border-bottom: 1px solid #e8edf4; display: flex; justify-content: space-between; padding: 15px 16px 12px; }
+.audit-panel { --audit-panel-max-height: 610px; align-items: stretch; display: grid; gap: 16px; grid-template-columns: minmax(0,2.2fr) minmax(280px,.85fr); }
+.audit-log,.audit-event-card { background: #fff; border: 1px solid #dbe3ef; border-radius: 9px; min-width: 0; }
+.audit-log { align-self: stretch; display: flex; flex-direction: column; max-height: var(--audit-panel-max-height); min-height: 0; overflow: hidden; width: 100%; }
+.audit-log-header { align-items: flex-start; border-bottom: 1px solid #e8edf4; display: flex; flex: 0 0 auto; justify-content: space-between; padding: 15px 16px 12px; }
 .audit-log-header h2,.audit-event-card h2 { color: #172554; font-size: 16px; margin: 0; }.audit-log-header h2 i,.audit-event-card h2 i { color: #52658a; margin-right: 8px; }.audit-log-header p { color: #7180a5; font-size: 11px; margin: 3px 0 0 27px; }
-.audit-session-filters { display: flex; gap: 7px; overflow-x: auto; padding: 10px 14px 1px; scrollbar-color: #dbe3ef transparent; scrollbar-width: thin; }
+.audit-session-filters { display: flex; flex: 0 0 auto; gap: 7px; overflow-x: auto; overflow-y: hidden; padding: 10px 14px 4px; scrollbar-color: #dbe3ef transparent; scrollbar-width: thin; }
+.audit-session-filters::-webkit-scrollbar { height: 3px; }.audit-session-filters::-webkit-scrollbar-thumb { background: #dbe3ef; border-radius: 4px; }
 .audit-session-filter { align-items: center; background: #f8fafc; border: 1px solid #e5eaf2; border-radius: 16px; color: #607095; display: inline-flex; font-size: 10px; gap: 5px; padding: 5px 10px; white-space: nowrap; }.audit-session-filter.active { background: #dbeafe; border-color: #93c5fd; color: #1d4ed8; font-weight: 700; }.audit-session-filter.passed i { color: #15803d; }.audit-session-filter.failed i { color: #dc2626; }.audit-session-filter.expired i { color: #475569; }.audit-session-filter.review i,.audit-session-filter.risk i { color: #b45309; }.audit-session-filter.passed.active { background: #dcfce7; border-color: #86efac; color: #15803d; }.audit-session-filter.failed.active { background: #fee2e2; border-color: #fca5a5; color: #dc2626; }.audit-session-filter.expired.active { background: #e5e7eb; border-color: #cbd5e1; color: #475569; }.audit-session-filter.review.active,.audit-session-filter.risk.active { background: #fef3c7; border-color: #fcd34d; color: #92400e; }
-.audit-groups { flex: 1 1 auto; max-height: 515px; min-height: 0; overflow-x: hidden; overflow-y: auto; padding: 0 14px 12px; scrollbar-color: #cbd5e1 transparent; scrollbar-width: thin; }.audit-groups::-webkit-scrollbar { width: 3px; }.audit-groups::-webkit-scrollbar-thumb { background: #dbe3ef; border-radius: 4px; }
-.audit-group { margin-top: 9px; }.audit-group-toggle { align-items: center; background: #dbeafe; border: 0; border-left: 4px solid var(--sd-primary); border-radius: 6px; color: #172554; cursor: pointer; display: flex; gap: 9px; padding: 9px 10px; text-align: left; touch-action: manipulation; transition: filter .15s ease, box-shadow .15s ease; user-select: none; width: 100%; }.audit-group-toggle:hover { filter: brightness(.98); }.audit-group-toggle:focus-visible { box-shadow: 0 0 0 2px rgba(37,99,235,.22); outline: none; }.audit-group-toggle.passed { background: #dcfce7; border-left-color: #16a34a; }.audit-group-toggle.failed { background: #fee2e2; border-left-color: #dc2626; }.audit-group-toggle.review { background: #fef3c7; border-left-color: #d97706; }.audit-group-toggle.expired { background: #e5e7eb; border-left-color: #64748b; }.audit-group-toggle.passed > strong { color: #15803d; }.audit-group-toggle.failed > strong { color: #dc2626; }.audit-group-toggle.review > strong { color: #92400e; }.audit-group-toggle.expired > strong { color: #334155; }.audit-group-toggle.expired .sd-status { background: #cbd5e1; color: #334155; }.audit-group-toggle > strong { font-size: 12px; }.audit-group-toggle > span { color: #64748b; font-size: 10px; }.audit-group-toggle .audit-group-count { margin-left: auto; }.audit-group-toggle > i { color: #52658a; }
+.audit-groups { flex: 1 1 auto; min-height: 0; overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain; padding: 0 10px 12px 14px; scrollbar-color: #cbd5e1 transparent; scrollbar-gutter: stable; scrollbar-width: thin; }.audit-groups::-webkit-scrollbar { width: 3px; }.audit-groups::-webkit-scrollbar-track { background: transparent; }.audit-groups::-webkit-scrollbar-thumb { background: #dbe3ef; border-radius: 4px; }
+.audit-group { margin-top: 9px; min-width: 0; }.audit-group-toggle { align-items: center; background: #dbeafe; border: 0; border-left: 4px solid var(--sd-primary); border-radius: 6px; color: #172554; cursor: pointer; display: flex; gap: 9px; min-width: 0; padding: 9px 10px; text-align: left; touch-action: manipulation; transition: filter .15s ease, box-shadow .15s ease; user-select: none; width: 100%; }.audit-group-toggle:hover { filter: brightness(.98); }.audit-group-toggle:focus-visible { box-shadow: 0 0 0 2px rgba(37,99,235,.22); outline: none; }.audit-group-toggle.passed { background: #dcfce7; border-left-color: #16a34a; }.audit-group-toggle.failed { background: #fee2e2; border-left-color: #dc2626; }.audit-group-toggle.review { background: #fef3c7; border-left-color: #d97706; }.audit-group-toggle.expired { background: #e5e7eb; border-left-color: #64748b; }.audit-group-toggle.passed > strong { color: #15803d; }.audit-group-toggle.failed > strong { color: #dc2626; }.audit-group-toggle.review > strong { color: #92400e; }.audit-group-toggle.expired > strong { color: #334155; }.audit-group-toggle.expired .sd-status { background: #cbd5e1; color: #334155; }.audit-group-toggle > strong { flex: 0 1 auto; font-size: 12px; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }.audit-group-toggle > span { color: #64748b; font-size: 10px; }.audit-group-toggle .sd-status,.audit-group-toggle .audit-risk-count,.audit-group-toggle .audit-group-count { flex: 0 0 auto; }.audit-group-toggle .audit-group-date { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }.audit-group-toggle .audit-group-count { margin-left: auto; }.audit-group-toggle > i { color: #52658a; flex: 0 0 auto; }
 .audit-table-head,.audit-event { align-items: center; display: grid; gap: 10px; grid-template-columns: 86px 24px minmax(130px,.9fr) minmax(180px,1.4fr) 80px; }.audit-table-head { border-bottom: 1px solid #edf1f6; color: #7180a5; font-size: 9px; padding: 8px 9px; }.audit-table-head span:nth-child(2) { grid-column: 2 / 4; }
 .audit-table-head.without-actor,.audit-event.without-actor { grid-template-columns: 86px 24px minmax(130px,.9fr) minmax(180px,1.4fr); }
-.audit-event { background: #fff; border: 0; border-bottom: 1px solid #edf1f6; border-radius: 3px; color: #26375f; cursor: pointer; font-size: 10px; padding: 8px 9px; position: relative; text-align: left; touch-action: manipulation; transition: background-color .14s ease, box-shadow .14s ease; user-select: none; width: 100%; }.audit-event:hover { background: #f8faff; }.audit-event.selected { background: #f8faff; box-shadow: inset 0 0 0 1px #dbeafe; }.audit-event.selected .audit-event-title { color: #1d4ed8; }.audit-event.selected .audit-event-icon { box-shadow: 0 0 0 2px #bfdbfe; }.audit-event:focus-visible { box-shadow: inset 0 0 0 1px #93c5fd, 0 0 0 2px rgba(37,99,235,.14); outline: none; }.audit-event time,.audit-event-detail,.audit-event-actor { color: #7180a5; }.audit-event-icon { align-items: center; background: #eff6ff; border-radius: 50%; color: var(--sd-primary); display: flex; flex: 0 0 22px; font-size: 15px; height: 22px; justify-content: center; transition: box-shadow .14s ease; width: 22px; }.audit-event-icon.passed { background: rgba(78, 201, 107, .12); color: var(--sd-success); }.audit-event-icon.failed { background: rgba(243, 6, 6, .10); color: var(--sd-danger); }.audit-event-icon.expired { background: rgba(108, 117,125,.12); color: var(--sd-secondary); }.audit-event-icon.review { background: rgba(255,193,7,.14); color: #856404; }.audit-event-title { font-weight: 600; transition: color .14s ease; }.audit-event-detail { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.audit-side { display: flex; flex-direction: column; min-height: 0; min-width: 0; }
-.audit-side > .audit-event-card:first-child { display: flex; flex: 1 1 auto; flex-direction: column; min-height: 0; }
-.audit-event-card { padding: 14px; }.audit-event-card + .audit-event-card { margin-top: 12px; }.audit-event-card h2 { border-bottom: 1px solid #edf1f6; font-size: 13px; margin-bottom: 12px; padding-bottom: 10px; }.audit-selected-heading { align-items: flex-start; display: flex; gap: 9px; margin-bottom: 13px; }.audit-selected-heading > i { color: var(--sd-primary); font-size: 22px; }.audit-selected-heading > i.passed { color: var(--sd-success); }.audit-selected-heading > i.failed { color: var(--sd-danger); }.audit-selected-heading > i.expired { color: var(--sd-secondary); }.audit-selected-heading > i.review { color: #856404; }.audit-selected-heading strong { color: #172554; display: block; font-size: 12px; }.audit-selected-heading span { color: #7180a5; display: block; font-size: 10px; margin-top: 2px; }.audit-event-card dl { display: grid; font-size: 10px; gap: 7px 10px; grid-template-columns: 90px minmax(0,1fr); margin: 0; }.audit-event-card dt { color: #7180a5; font-weight: 500; }.audit-event-card dd { color: #26375f; margin: 0; overflow-wrap: anywhere; }
+.audit-event { background: #fff; border: 0; border-bottom: 1px solid #edf1f6; border-radius: 3px; color: #26375f; cursor: pointer; font-size: 10px; min-width: 0; padding: 8px 9px; position: relative; text-align: left; touch-action: manipulation; transition: background-color .14s ease, box-shadow .14s ease; user-select: none; width: 100%; }.audit-event:hover { background: #f8faff; }.audit-event.selected { background: #f8faff; box-shadow: inset 3px 0 #2563eb, inset 0 0 0 1px #dbeafe; }.audit-event.selected .audit-event-title { color: #1d4ed8; }.audit-event.selected .audit-event-icon { box-shadow: 0 0 0 2px #bfdbfe; }.audit-event:focus-visible { box-shadow: inset 3px 0 #2563eb, inset 0 0 0 1px #93c5fd, 0 0 0 2px rgba(37,99,235,.14); outline: none; }.audit-event time,.audit-event-detail,.audit-event-actor { color: #7180a5; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }.audit-event-icon { align-items: center; background: #eff6ff; border-radius: 50%; color: var(--sd-primary); display: flex; flex: 0 0 22px; font-size: 15px; height: 22px; justify-content: center; transition: box-shadow .14s ease; width: 22px; }.audit-event-icon.passed { background: rgba(78,201,107,.12); color: var(--sd-success); }.audit-event-icon.failed { background: rgba(243,6,6,.10); color: var(--sd-danger); }.audit-event-icon.expired { background: rgba(108,117,125,.12); color: var(--sd-secondary); }.audit-event-icon.review { background: rgba(255,193,7,.14); color: #856404; }.audit-event-title { font-weight: 600; min-width: 0; overflow: hidden; text-overflow: ellipsis; transition: color .14s ease; white-space: nowrap; }
+.audit-side { display: flex; flex-direction: column; max-height: var(--audit-panel-max-height); min-height: 0; min-width: 0; }
+.audit-side > .audit-event-card:first-child { display: flex; flex: 0 1 auto; flex-direction: column; max-height: 100%; min-height: 0; }
+.audit-side > .audit-event-card.has-risk-flags { display: grid; flex: 1 1 auto; grid-template-rows: auto auto auto minmax(0,1fr); }
+.audit-event-card { padding: 14px; }.audit-event-card + .audit-event-card { margin-top: 12px; }.audit-event-card h2 { border-bottom: 1px solid #edf1f6; flex: 0 0 auto; font-size: 13px; margin-bottom: 12px; padding-bottom: 10px; }.audit-selected-heading { align-items: flex-start; display: flex; flex: 0 0 auto; gap: 9px; margin-bottom: 13px; min-width: 0; }.audit-selected-heading > i { color: var(--sd-primary); flex: 0 0 auto; font-size: 22px; }.audit-selected-heading > i.passed { color: var(--sd-success); }.audit-selected-heading > i.failed { color: var(--sd-danger); }.audit-selected-heading > i.expired { color: var(--sd-secondary); }.audit-selected-heading > i.review { color: #856404; }.audit-selected-heading > div { min-width: 0; }.audit-selected-heading strong { color: #172554; display: block; font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }.audit-selected-heading span { color: #7180a5; display: -webkit-box; font-size: 10px; margin-top: 2px; overflow: hidden; overflow-wrap: anywhere; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }.audit-event-card > dl { flex: 0 0 auto; }.audit-event-card dl { display: grid; font-size: 10px; gap: 7px 10px; grid-template-columns: minmax(82px,90px) minmax(0,1fr); margin: 0; }.audit-event-card dt { color: #7180a5; font-weight: 500; min-width: 0; overflow-wrap: anywhere; }.audit-event-card dd { color: #26375f; margin: 0; min-width: 0; overflow-wrap: anywhere; }
 .audit-risk-count { align-items: center; background: #fff3cd; border-radius: 10px; color: #856404 !important; display: inline-flex; font-weight: 700; gap: 4px; padding: 3px 7px; }
-.audit-event-flags { border-top: 1px solid #edf1f6; display: flex; flex: 1 1 0; flex-direction: column; margin-top: 13px; min-height: 0; overflow: hidden; padding-top: 12px; }
-.audit-event-flags h3 { align-items: center; color: #172554; display: flex; font-size: 11px; gap: 4px; margin: 0 0 8px; }
-.audit-event-flags-list { align-content: start; display: grid; flex: 1 1 0; gap: 7px; min-height: 0; overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain; padding-right: 6px; scrollbar-color: #cbd5e1 transparent; scrollbar-gutter: stable; scrollbar-width: thin; }
+.audit-event-flags { border-top: 1px solid #edf1f6; display: grid; flex: 1 1 0; grid-template-rows: auto minmax(0,1fr); margin-top: 13px; min-height: 0; padding-top: 12px; }
+.audit-event-flags h3 { align-items: center; color: #172554; display: flex; flex: 0 0 auto; font-size: 11px; gap: 4px; margin: 0 0 8px; }
+.audit-event-flags-list { align-content: start; display: grid; flex: 1 1 0; gap: 7px; grid-auto-rows: max-content; min-height: 0; overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain; padding: 1px 7px 8px 1px; scroll-padding-block: 1px 8px; scrollbar-color: #cbd5e1 transparent; scrollbar-gutter: stable; scrollbar-width: thin; }
 .audit-event-flags-list::-webkit-scrollbar { width: 4px; }
 .audit-event-flags-list::-webkit-scrollbar-track { background: transparent; }
 .audit-event-flags-list::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
-.audit-event-flag { background: #fffbeb; border-left: 3px solid var(--sd-warning); border-radius: 5px; min-width: 0; overflow: hidden; padding: 8px; }
+.audit-event-flag { align-self: start; background: #fffbeb; border-left: 3px solid var(--sd-warning); border-radius: 5px; height: auto; min-width: 0; overflow: visible; padding: 8px; width: 100%; }
+.audit-event-flag.high,.audit-event-flag.critical { background: #fef2f2; border-left-color: #dc2626; }
 .audit-event-flag header { align-items: flex-start; display: flex; gap: 6px; min-width: 0; }
 .audit-event-flag header strong { font-size: 10px; min-width: 0; overflow-wrap: anywhere; }
 .audit-event-flag header span { color: #856404; flex: 0 0 auto; font-size: 9px; font-weight: 700; margin-left: auto; }
+.audit-event-flag.high header span,.audit-event-flag.critical header span { color: #dc2626; }
 .audit-event-flag p { color: #64748b; font-size: 9px; margin: 5px 0 0; overflow-wrap: anywhere; }
-.audit-event-flag dl { grid-template-columns: minmax(82px,.8fr) minmax(0,1.2fr); margin-top: 7px; }
+.audit-event-flag dl { grid-template-columns: minmax(82px,.8fr) minmax(0,1.2fr); line-height: 1.35; margin-top: 7px; }.audit-event-flag dd { align-self: start; }
 .risk-page-header { align-items: center; display: flex; margin-bottom: 13px; padding: 2px 4px; }.risk-page-header h2 { color: #172554; font-size: 17px; margin: 0; }.risk-page-header h2 i { color: #52658a; margin-right: 9px; }.risk-page-header p { color: #7180a5; font-size: 11px; margin: 3px 0 0 29px; }
-.risk-layout { align-items: start; display: grid; gap: 14px; grid-template-columns: repeat(auto-fit,minmax(280px,1fr)); }.risk-column { display: flex; flex-direction: column; gap: 14px; min-width: 0; }.risk-detail-card { background: #fff; border: 1px solid #dbe3ef; border-radius: 8px; min-width: 0; padding: 15px; }.risk-detail-card h3 { align-items: center; border-bottom: 1px solid #edf1f6; color: #172554; display: flex; font-size: 12px; margin: 0 0 13px; padding-bottom: 10px; }.risk-detail-card h3 > i { color: #52658a; font-size: 16px; margin-right: 7px; }.risk-detail-card h3 > span { margin-left: auto; }.risk-score-line { align-items: center; display: flex; gap: 10px; margin-bottom: 17px; }.risk-score-line .sd-risk-large { margin: 0; }.risk-score-line .sd-risk-band { margin: 0; }.risk-verification-row { align-items: center; display: grid; font-size: 11px; gap: 8px; grid-template-columns: 18px minmax(0,1fr) auto; padding: 5px 0; }.risk-verification-row > i { font-size: 16px; }.risk-verification-row strong { font-size: 10px; }.risk-flags-list { display: grid; gap: 9px; max-height: 360px; overflow-y: auto; padding-right: 4px; scrollbar-color: #cbd5e1 transparent; scrollbar-width: thin; }.risk-flags-list::-webkit-scrollbar { width: 3px; }.risk-flags-list::-webkit-scrollbar-track { background: transparent; }.risk-flags-list::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }.risk-flag-item { border: 1px solid #e5eaf2; border-left: 3px solid #f59e0b; border-radius: 6px; padding: 10px; }.risk-flag-item.high,.risk-flag-item.critical { border-left-color: #dc2626; }.risk-flag-head { align-items: center; display: flex; gap: 7px; }.risk-flag-head > i { color: #d97706; font-size: 16px; }.risk-flag-item.high .risk-flag-head > i,.risk-flag-item.critical .risk-flag-head > i { color: #dc2626; }.risk-flag-head strong { color: #172554; font-size: 11px; }.risk-flag-head span { margin-left: auto; }.risk-flag-item p { color: #7180a5; font-size: 10px; margin: 6px 0 0; }.risk-flag-meta { color: #52658a !important; font-weight: 600; }.risk-decision-details { display: grid; font-size: 10px; gap: 7px 10px; grid-template-columns: minmax(90px,.7fr) 1fr; margin: 0; }.risk-decision-details dt { color: #7180a5; font-weight: 500; }.risk-decision-details dd { color: #26375f; margin: 0; overflow-wrap: anywhere; }
+.risk-layout { align-items: start; display: grid; gap: 14px; grid-template-columns: repeat(auto-fit,minmax(280px,1fr)); }.risk-column { display: flex; flex-direction: column; gap: 14px; min-width: 0; }.risk-detail-card { background: #fff; border: 1px solid #dbe3ef; border-radius: 8px; min-width: 0; padding: 15px; }.risk-detail-card h3 { align-items: center; border-bottom: 1px solid #edf1f6; color: #172554; display: flex; font-size: 13px; margin: 0 0 13px; padding-bottom: 10px; }.risk-detail-card h3 > i { color: #52658a; font-size: 16px; margin-right: 7px; }.risk-detail-card h3 > span { margin-left: auto; }.risk-score-line { align-items: center; display: flex; gap: 10px; margin-bottom: 17px; }.risk-score-line .sd-risk-large { margin: 0; }.risk-score-line .sd-risk-band { margin: 0; }.risk-verification-row { align-items: center; display: grid; font-size: 11px; gap: 8px; grid-template-columns: 18px minmax(0,1fr) auto; padding: 5px 0; }.risk-verification-row > i { font-size: 16px; }.risk-verification-row strong { font-size: 10px; }.risk-flags-list { display: grid; gap: 9px; max-height: 324px; overflow-y: auto; padding-right: 4px; scrollbar-color: #cbd5e1 transparent; scrollbar-width: thin; }.risk-flags-list::-webkit-scrollbar { width: 3px; }.risk-flags-list::-webkit-scrollbar-track { background: transparent; }.risk-flags-list::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }.risk-flag-item { border: 1px solid #e5eaf2; border-left: 3px solid #f59e0b; border-radius: 6px; padding: 10px; }.risk-flag-item.high,.risk-flag-item.critical { border-left-color: #dc2626; }.risk-flag-head { align-items: center; display: flex; gap: 7px; }.risk-flag-head > i { color: #d97706; font-size: 16px; }.risk-flag-item.high .risk-flag-head > i,.risk-flag-item.critical .risk-flag-head > i { color: #dc2626; }.risk-flag-head strong { color: #172554; font-size: 11px; }.risk-flag-head span { margin-left: auto; }.risk-flag-item p { color: #7180a5; font-size: 10px; margin: 6px 0 0; }.risk-flag-meta { color: #52658a !important; font-weight: 600; }.risk-decision-details { display: grid; font-size: 10px; gap: 7px 10px; grid-template-columns: minmax(90px,.7fr) 1fr; margin: 0; }.risk-decision-details dt { color: #7180a5; font-weight: 500; }.risk-decision-details dd { color: #26375f; margin: 0; overflow-wrap: anywhere; }
 @media (max-width: 1050px) { .documents-layout { grid-template-columns: 210px 1fr; }.document-insights { border-top: 1px solid #e8edf4; grid-column: 1 / -1; display: grid; gap: 12px; grid-template-columns: repeat(3,1fr); padding-top: 12px; }.document-info-card { margin-top: 0; } }
 @media (max-width: 1050px) { .risk-layout { grid-template-columns: repeat(auto-fit,minmax(260px,1fr)); } }
-@media (max-width: 950px) { .audit-panel { grid-template-columns: 1fr; }.audit-groups { max-height: none; }.audit-side { display: grid; gap: 12px; grid-template-columns: repeat(2,minmax(0,1fr)); }.audit-side > .audit-event-card:first-child { display: block; }.audit-event-flags { display: block; }.audit-event-flags-list { max-height: 220px; }.audit-event-card + .audit-event-card { margin-top: 0; } }
+@media (max-width: 950px) { .audit-panel { align-items: start; grid-template-columns: 1fr; }.audit-log,.audit-side { max-height: none; }.audit-groups { max-height: 515px; }.audit-side { display: grid; gap: 12px; grid-template-columns: repeat(2,minmax(0,1fr)); overflow: visible; }.audit-side > .audit-event-card:first-child,.audit-side > .audit-event-card.has-risk-flags { display: block; }.audit-event-flags { display: block; }.audit-event-flags-list { max-height: 220px; }.audit-event-card + .audit-event-card { margin-top: 0; } }
 @media (max-width: 720px) { .documents-layout { display: block; }.document-types,.document-viewer { border-right: 0; border-bottom: 1px solid #e8edf4; }.document-insights { display: block; }.document-info-card { margin-top: 12px; }.document-stage { height: 280px; } }
 @media (max-width: 720px) { .audit-side { display: block; }.audit-event-card + .audit-event-card { margin-top: 12px; }.audit-table-head { display: none; }.audit-event { grid-template-columns: 70px 22px minmax(110px,1fr); }.audit-event-detail,.audit-event-actor { display: none; } }
 @media (max-width: 720px) { .risk-layout { grid-template-columns: 1fr; } }
@@ -737,17 +742,13 @@
         </div>
       </section>
       <section v-else-if="activeTab === 'risk'">
-        <header class="risk-page-header"><div><h2><i class="mdi mdi-shield-check-outline"></i>Risk &amp; Compliance</h2><p>{{ isSessionDetailView ? "Risk assessment, verification results, flags and review decision for this attempt." : "Current risk assessment, flags and review decisions." }}</p></div></header>
+        <header class="risk-page-header"><div><h2><i class="mdi mdi-shield-check-outline"></i>Risk &amp; Compliance</h2><p>{{ isSessionDetailView ? "Risk assessment and flags for this attempt." : "Current risk assessment, flags and review decisions." }}</p></div></header>
         <div class="risk-layout">
-          <div v-if="hasDetailRiskScore || (isSessionDetailView ? latestRiskDecision : hasManualDecisions)" class="risk-column">
+          <div v-if="hasDetailRiskScore || (!isSessionDetailView && hasManualDecisions)" class="risk-column">
             <article v-if="hasDetailRiskScore" class="risk-detail-card">
               <h3><i class="mdi mdi-shield-alert-outline"></i>Risk Assessment</h3>
               <div class="risk-score-line"><div class="sd-risk-large" :style="{ color: detailRiskColor }">{{ riskDataSession.risk.riskScore }} <small>/ 100</small></div><span v-if="riskDataSession.risk.riskBand" class="sd-risk-band" :style="{ color: detailRiskColor }">{{ riskDataSession.risk.riskBand }}</span></div>
               <div class="sd-risk-track"><span :style="{ left: detailRiskPercent + '%', backgroundColor: detailRiskColor }"></span></div><div class="sd-risk-labels"><span>0</span><span>25</span><span>50</span><span>75</span><span>100</span></div>
-            </article>
-            <article v-if="isSessionDetailView && latestRiskDecision" class="risk-detail-card">
-              <h3><i class="mdi mdi-gavel"></i>Latest Decision <span class="badge badge-pill" :class="decisionStatusClass(latestRiskDecision.action)">{{ decisionStatusLabel(latestRiskDecision.action) }}</span></h3>
-              <dl class="risk-decision-details"><template v-for="item in latestRiskDecisionEntries"><dt :key="item.key + '-risk-decision-label'">{{ item.label }}</dt><dd :key="item.key + '-risk-decision-value'">{{ item.value }}</dd></template></dl>
             </article>
             <article v-if="!isSessionDetailView && hasManualDecisions" class="risk-detail-card decision-history-card">
               <h3><i class="mdi mdi-history"></i>Decision History</h3>
@@ -766,12 +767,6 @@
                   </div>
                 </div>
               </div>
-            </article>
-          </div>
-          <div v-if="isSessionDetailView && riskVerificationResults.length" class="risk-column">
-            <article class="risk-detail-card">
-              <h3><i class="mdi mdi-clipboard-check-outline"></i>Verification Results</h3>
-              <div v-for="result in riskVerificationResults" :key="result.label" class="risk-verification-row"><i :class="result.passed ? 'mdi mdi-check-circle passed' : 'mdi mdi-close-circle failed'"></i><span>{{ result.label }}</span><strong :class="result.passed ? 'passed' : 'failed'">{{ result.value }}</strong></div>
             </article>
           </div>
           <div v-if="hasRiskFlags" class="risk-column">
@@ -799,7 +794,7 @@
                 <strong>{{ group.label }}</strong>
                 <span v-if="group.statusLabel" class="sd-status" :class="group.tone">{{ group.statusLabel }}</span>
                 <span v-if="group.riskFlagCount" class="audit-risk-count"><i class="mdi mdi-alert-outline"></i>{{ group.riskFlagCount }} {{ group.riskFlagCount === 1 ? "risk flag" : "risk flags" }}</span>
-                <span v-if="group.dateRange">{{ group.dateRange }}</span>
+                <span v-if="group.dateRange" class="audit-group-date">{{ group.dateRange }}</span>
                 <span class="audit-group-count">{{ group.events.length }} {{ group.events.length === 1 ? "event" : "events" }}</span>
                 <i :class="isAuditGroupCollapsed(group.key) ? 'mdi mdi-chevron-down' : 'mdi mdi-chevron-up'"></i>
               </button>
@@ -818,7 +813,7 @@
           </div>
         </section>
         <aside v-if="selectedAuditEvent" class="audit-side">
-          <section class="audit-event-card">
+          <section class="audit-event-card" :class="{ 'has-risk-flags': selectedAuditRiskFlags.length }">
             <h2><i class="mdi mdi-file-document-outline"></i>Event Details</h2>
             <div class="audit-selected-heading">
               <i :class="[selectedAuditEvent.icon, selectedAuditEvent.tone]"></i>
@@ -828,7 +823,7 @@
             <div v-if="selectedAuditRiskFlags.length" class="audit-event-flags">
               <h3><i class="mdi mdi-alert-outline"></i> Risk Flags ({{ selectedAuditRiskFlags.length }})</h3>
               <div :key="selectedAuditEvent.key" ref="auditRiskFlagsList" class="audit-event-flags-list">
-                <article v-for="flag in selectedAuditRiskFlags" :key="flag.key" class="audit-event-flag">
+                <article v-for="flag in selectedAuditRiskFlags" :key="flag.key" class="audit-event-flag" :class="(flag.severity || '').toLowerCase()">
                   <header><strong>{{ flag.title }}</strong><span v-if="flag.severity">{{ formatSeverity(flag.severity) }}</span></header>
                   <p v-if="flag.description">{{ flag.description }}</p>
                   <dl v-if="flag.metadataEntries.length"><template v-for="item in flag.metadataEntries"><dt :key="item.key + '-audit-flag-label'">{{ item.label }}</dt><dd :key="item.key + '-audit-flag-value'">{{ item.value }}</dd></template></dl>
@@ -1039,29 +1034,6 @@ const fonts = {
 };
 pdfMake.addFonts(fonts);
 import logoSrc from "../../assets/Entity_full.png";
-
-const ServiceLivenessResultEnum = {
-  0: "None",
-  1: "Spoof",
-  2: "Uncertain",
-  3: "Live",
-  4: "Bad quality image",
-  5: "Face very close",
-  6: "Face not found",
-  7: "Face too small",
-  8: "Face too large",
-  9: "Invalid image format",
-  10: "Internal server error",
-  11: "Image processing error",
-  12: "Too many faces",
-  13: "Face too close to edge",
-  14: "Face was cropped",
-  15: "License error",
-  16: "Face is obstructed",
-  17: "No life detected",
-  18: "Eyes closed",
-  66: "Eye is obstructed"
-};
 
 const ZkpVerificationResultEnum = {
   0: "Age verification could not be performed",
@@ -1385,7 +1357,7 @@ export default {
       if (this.hasValue(selfiDetails.serviceLivenessResult)) {
         const result = selfiDetails.serviceLivenessResult;
         const passed = result == 3;
-        results.push({ label: "Liveness", passed, value: passed ? "Passed" : ServiceLivenessResultEnum[result] || "Failed" });
+        results.push({ label: "Liveness", passed, value: passed ? "Passed" : Config['LivelinessError'][result] });
       }
       if (this.hasValue(zkpDetails.serviceZkpVerificationResult)) {
         const result = zkpDetails.serviceZkpVerificationResult;
@@ -1398,9 +1370,6 @@ export default {
       }
 
       return results;
-    },
-    riskVerificationResults() {
-      return this.overviewVerificationResults;
     },
     allAvailableChecksPassed() {
       return this.verificationChecks.length > 0 &&
@@ -1460,7 +1429,7 @@ export default {
       return this.hasValue(notes) ? [notes] : [];
     },
     visibleTabs() {
-      return [{ id: "overview", label: "Overview", icon: "mdi mdi-view-dashboard-outline", show: true }, { id: "documents", label: "Documents", icon: "mdi mdi-file-document-outline", show: this.attemptOptions.length || this.hasIdentityDocument || this.selfiImageFound }, { id: "risk", label: "Risk & Compliance", icon: "mdi mdi-shield-check-outline", show: this.attemptOptions.length || this.hasRiskScore || this.hasRiskFlags || this.riskVerificationResults.length || this.hasManualDecisions }, { id: "audit", label: "Audit Trail", icon: "mdi mdi-tune-variant", show: this.auditEvents.length }].filter(tab => tab.show);
+      return [{ id: "overview", label: "Overview", icon: "mdi mdi-view-dashboard-outline", show: true }, { id: "documents", label: "Documents", icon: "mdi mdi-file-document-outline", show: this.attemptOptions.length || this.hasIdentityDocument || this.selfiImageFound }, { id: "risk", label: "Risk & Compliance", icon: "mdi mdi-shield-check-outline", show: this.attemptOptions.length || this.hasRiskScore || this.hasRiskFlags || this.hasManualDecisions }, { id: "audit", label: "Audit Trail", icon: "mdi mdi-tune-variant", show: this.auditEvents.length }].filter(tab => tab.show);
     },
     currentCompanyName() {
       const companies = Array.isArray(this.companies) ? this.companies : [];
@@ -1499,8 +1468,7 @@ export default {
       const status = this.effectiveSelfiDetails.serviceLivenessResult == 3;
       return {
         success: status,
-        result:
-          ServiceLivenessResultEnum[this.effectiveSelfiDetails.serviceLivenessResult] ,
+        result: Config['LivelinessError'][this.effectiveSelfiDetails.serviceLivenessResult],
         borderColor: status ? "5px solid rgb(81 137 81 / 20%)" : "5px solid #cd5c5c5e",
       };
     },
@@ -1894,26 +1862,6 @@ export default {
     hasManualDecisions() {
       return this.normalizedManualDecisions.length > 0;
     },
-    normalizedRiskDecisions() {
-      const decisions = this.detailsSession?.manualDecisions || [];
-      if (!Array.isArray(decisions)) return [];
-      return [...decisions].sort((a, b) =>
-        (Date.parse(b.decidedAt) || 0) - (Date.parse(a.decidedAt) || 0)
-      );
-    },
-    latestRiskDecision() {
-      return this.normalizedRiskDecisions[0] || null;
-    },
-    latestRiskDecisionEntries() {
-      if (!this.latestRiskDecision) return [];
-      const decision = this.latestRiskDecision;
-      return [
-        { key: "time", label: "Decision Time", value: decision.decidedAt ? this.formatDate(decision.decidedAt) : "" },
-        { key: "actor", label: "Decided By", value: decision.decidedBy },
-        { key: "reason", label: this.isManualReviewCleared(decision) ? "Review Result" : "Reason", value: decision.reasonCode ? this.formatDecisionReason(decision.reasonCode) : "" },
-        { key: "comment", label: "Comment", value: decision.comments },
-      ].filter(item => this.hasValue(item.value));
-    },
     riskColor() {
       return this.riskBandColor(this.session?.risk?.riskBand);
     }
@@ -2153,7 +2101,7 @@ export default {
       if (!this.hasValue(resultValue)) return "";
 
       if (resultType === "liveness") {
-        return ServiceLivenessResultEnum[resultValue] || "Unknown liveliness result";
+        return Config['LivelinessError'][resultValue] || "";
       }
       if (resultType === "document") {
         if (resultValue == 3) return "Document verification passed";
@@ -3445,7 +3393,7 @@ export default {
                                     stack: [
                                       {
                                         text: livePass
-                                          ? "✓  Live Person Detected"
+                                          ? "✓  Liveness Check Passed"
                                           : "✗  Liveness Check Failed",
                                         bold: true,
                                         fontSize: 11,
@@ -3512,7 +3460,7 @@ export default {
                                 },
                               ]),
                           {
-                            text: "Live Selfie",
+                            text: "Selfie",
                             fontSize: 7.5,
                             color: mid,
                             alignment: "center",
@@ -3816,7 +3764,7 @@ export default {
       const passed = result == 3;
       return {
         passed,
-        label: ServiceLivenessResultEnum[result] || (passed ? "Live" : "Failed"),
+        label: passed ? "Passed" : Config['LivelinessError'][result],
         tone: passed ? "passed" : "failed",
       };
     },
