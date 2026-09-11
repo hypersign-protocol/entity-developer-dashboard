@@ -583,9 +583,9 @@
 .sd-card h2 i { color: #52658a; margin-right: 10px; }
 .sd-card dl { display: grid; font-size: 13px; gap: 8px 14px; grid-template-columns: minmax(110px, .75fr) 1fr; margin: 0; }
 .sd-card dt { color: #7180a5; font-weight: 500; }.sd-card dd { color: #26375f; margin: 0; overflow-wrap: anywhere; }
-.sd-checks { display: flex; justify-content: space-around; margin: 18px 0 22px; position: relative; }.sd-checks::before { background: #bbf7d0; content: ""; height: 2px; left: 12%; position: absolute; right: 12%; top: 10px; }
+.sd-checks { display: flex; justify-content: space-around; margin: 18px 0 22px; position: relative; }.sd-checks::before { background: #e2e8f0; content: ""; height: 2px; left: 12%; position: absolute; right: 12%; top: 10px; }.sd-checks.single-check::before { display: none; }.sd-checks.single-check > div { flex: 0 0 auto; margin: 0 auto; }
 .sd-checks div { align-items: center; color: #7180a5; display: flex; flex: 1; flex-direction: column; font-size: 11px; gap: 6px; position: relative; text-align: center; z-index: 1; }
-.sd-checks div > span { align-items: center; background: #16a34a; border-radius: 50%; color: #fff; display: flex; height: 21px; justify-content: center; width: 21px; }.sd-checks .failed > span { background: #ef4444; }
+.sd-checks div > span { align-items: center; background: #cbd5e1; border-radius: 50%; color: #fff; display: flex; height: 21px; justify-content: center; width: 21px; }.sd-checks .passed > span { background: #16a34a; }.sd-checks .failed > span { background: #ef4444; }.sd-checks .not-attempted { color: #94a3b8; }
 .sd-verification-result { align-items: center; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; color: #64748b; display: flex; gap: 12px; padding: 12px; }.sd-verification-result.passed { background: #ecfdf3; border-color: #d1fae5; color: #16a34a; }.sd-verification-result > i { font-size: 24px; }.sd-verification-result div { align-items: center; display: flex; flex: 1; justify-content: space-between; }.sd-verification-result strong { color: inherit; display: block; font-size: 14px; }.sd-verification-result.passed strong { color: #15803d; }.sd-verification-result span { color: #7180a5; font-size: 11px; }
 .sd-risk-large { display: inline-block; font-size: 38px; font-weight: 800; margin: 2px 8px 18px 0; }.sd-risk-track { background: linear-gradient(90deg,#22c55e 0 24%,#fde68a 30% 49%,#fdba74 55% 74%,#f87171 80% 100%); border-radius: 8px; height: 10px; overflow: visible; position: relative; }.sd-risk-track span { border: 2px solid #fff; border-radius: 50%; box-shadow: 0 0 0 1px rgba(15,23,42,.15); display: block; height: 14px; position: absolute; top: -2px; transform: translateX(-50%); width: 14px !important; }.sd-risk-labels { color: #7180a5; display: flex; font-size: 10px; justify-content: space-between; margin-top: 8px; }
 .sd-flag { border-bottom: 1px solid #edf1f6; padding: 8px 0; }.sd-flag > span { color: #b45309; float: right; font-size: 10px; text-transform: uppercase; }.sd-flag p { clear: both; color: #7180a5; font-size: 12px; margin: 5px 0; }.sd-review-btn { background: #fff7ed; border: 1px solid #fdba74; border-radius: 6px; color: #c2410c; font-size: 12px; font-weight: 700; margin-top: 10px; padding: 8px 12px; width: 100%; }
@@ -688,7 +688,7 @@
       </nav>
       <div v-if="activeTab === 'overview'" class="sd-grid">
         <section v-if="identityEntries.length" class="sd-card"><h2><i class="mdi mdi-account-outline"></i> Identity Information</h2><dl><template v-for="item in identityEntries"><dt :key="item.key + '-label'">{{ item.label }}</dt><dd :key="item.key">{{ formatFieldValue(item.key, item.value) }}</dd></template></dl></section>
-        <section v-if="verificationChecks.length || session.status" class="sd-card"><h2><i class="mdi mdi-shield-check-outline"></i> Verification Status</h2><div v-if="verificationChecks.length" class="sd-checks"><div v-for="check in verificationChecks" :key="check.label" :class="check.passed ? 'passed' : 'failed'"><span><i :class="check.passed ? 'mdi mdi-check' : 'mdi mdi-close'"></i></span><small>{{ check.label }}</small></div></div><div v-if="session.status" class="sd-verification-result" :class="statusTone"><i :class="statusIcon"></i><div><strong>{{ statusDisplayLabel }}<small v-if="allAvailableChecksPassed">All available verification checks passed.</small></strong><span v-if="session.completedAt">{{ formatDate(session.completedAt) }}</span></div></div></section>
+        <section v-if="verificationChecks.length || session.status" class="sd-card"><h2><i class="mdi mdi-shield-check-outline"></i> Verification Status</h2><div v-if="verificationChecks.length" class="sd-checks" :class="{ 'single-check': verificationChecks.length === 1 }"><div v-for="check in verificationChecks" :key="check.label" :class="check.tone"><span><i :class="check.passed ? 'mdi mdi-check' : check.attempted ? 'mdi mdi-close' : 'mdi mdi-minus'"></i></span><small>{{ check.label }}</small></div></div><div v-if="session.status" class="sd-verification-result" :class="statusTone"><i :class="statusIcon"></i><div><strong>{{ statusDisplayLabel }}<small v-if="allAvailableChecksPassed">All available verification checks passed.</small></strong><span v-if="session.completedAt">{{ formatDate(session.completedAt) }}</span></div></div></section>
         <section v-if="hasRiskScore" class="sd-card sd-risk-card"><h2><i class="mdi mdi-alert-outline"></i> Risk Score</h2><div class="sd-risk-large" :style="{ color: riskColor }">{{ session.risk.riskScore }} <small>/ 100</small></div><span v-if="session.risk.riskBand" class="sd-risk-band" :style="{ color: riskColor }">{{ session.risk.riskBand }}</span><div class="sd-risk-track"><span :style="{ left: riskPercent + '%', backgroundColor: riskColor }"></span></div><div class="sd-risk-labels"><span>0</span><span>25</span><span>50</span><span>75</span><span>100</span></div></section>
         <section v-if="deviceLocationEntries.length" class="sd-card"><h2><i class="mdi mdi-laptop"></i> Device &amp; Location</h2><dl><template v-for="item in deviceLocationEntries"><dt :key="item.label + '-label'">{{ item.label }}</dt><dd :key="item.label">{{ item.value }}</dd></template></dl></section>
         <section v-if="overviewVerificationResults.length" class="sd-card"><h2><i class="mdi mdi-clipboard-check-outline"></i> Verification Results</h2><div v-for="result in overviewVerificationResults" :key="result.label" class="risk-verification-row"><i :class="result.passed ? 'mdi mdi-check-circle passed' : 'mdi mdi-close-circle failed'"></i><span>{{ result.label }}</span><strong :class="result.passed ? 'passed' : 'failed'">{{ result.value }}</strong></div></section>
@@ -1295,7 +1295,13 @@ export default {
         results.push({ label: "Document verification", passed: documentResult.passed, value: documentResult.label });
       }
       if (this.faceAuthenticationResultFound) {
-        results.push({ label: "Face authentication", passed: this.isFacialAuthenticationSuccess.success, value: this.isFacialAuthenticationSuccess.success ? "Passed" : "Failed" });
+        results.push({
+          label: "Face authentication",
+          passed: this.isFacialAuthenticationSuccess.success,
+          value: this.isFacialAuthenticationSuccess.success
+            ? "Passed"
+            : this.isFacialAuthenticationSuccess.result || "Failed",
+        });
       }
       if (this.hasValue(this.effectiveOcrIdDocsDetails?.serviceFacialSimilarityResult)) {
         const similarity = Number(this.effectiveOcrIdDocsDetails.serviceFacialSimilarityResult);
@@ -1322,15 +1328,58 @@ export default {
       return [{ label: "Created At", value: createdAt ? this.formatDate(createdAt) : "" }, { label: "Session Device", value: submittedFrom }, { label: "Session Browser", value: this.detailDeviceDetails.browser }, { label: "Session IP Address", value: this.detailsSession?.deviceDetails?.ip || this.detailLocationDetails.ip }, { label: "Session Location", value: location }].filter(item => this.hasValue(item.value));
     },
     verificationChecks() {
-      return [
-        { label: "Document", value: this.session?.step_ocrIdVerification },
-        { label: "Liveness", value: this.session?.step_liveliness },
-        { label: "Age Check", value: this.session?.step_zkProofVerification },
-        { label: "Consent", value: this.session?.step_userConsent },
-      ].filter(item => this.hasValue(item.value)).map(item => ({
-        label: item.label,
-        passed: item.value == 1,
-      }));
+      const failedStep = this.session?.failureInfo?.failureStep;
+      const livenessDetails = this.latestStepDetail(this.session?.selfiDetails);
+      const documentDetails = this.latestStepDetail(this.session?.ocriddocsDetails);
+      const ageDetails = this.latestStepDetail(
+        this.session?.zkProofVerificationDetails || this.session?.zkpVerificationDetails
+      );
+      const consentDetails = this.latestStepDetail(this.session?.userConsentDetails);
+      const livenessResult = livenessDetails?.serviceLivenessResult;
+      const ageResult = ageDetails?.serviceZkpVerificationResult;
+      const checks = [
+        {
+          field: "step_liveliness",
+          label: "Liveness",
+          details: livenessDetails,
+          passed: this.hasValue(livenessResult)
+            ? livenessResult == 3
+            : this.session?.step_liveliness == 1,
+        },
+        {
+          field: "step_ocrIdVerification",
+          label: "Document",
+          details: documentDetails,
+          passed: this.session?.step_ocrIdVerification == 1,
+        },
+        {
+          field: "step_zkProofVerification",
+          label: "Age Check",
+          details: ageDetails,
+          passed: this.hasValue(ageResult)
+            ? ageResult == 3
+            : this.session?.step_zkProofVerification == 1,
+        },
+        {
+          field: "step_userConsent",
+          label: "Consent",
+          details: consentDetails,
+          passed: this.session?.step_userConsent == 1,
+        },
+      ];
+
+      return checks.map(({ field, label, details, passed }) => {
+        const attempted =
+          this.session?.[field] == 1 ||
+          failedStep === field ||
+          this.hasObjectData(details);
+        return {
+          label,
+          attempted,
+          passed: attempted && passed,
+          tone: !attempted ? "not-attempted" : passed ? "passed" : "failed",
+        };
+      });
     },
     overviewVerificationResults() {
       const results = [];
@@ -1340,9 +1389,15 @@ export default {
         this.session?.zkProofVerificationDetails || this.session?.zkpVerificationDetails
       );
 
-      if (this.hasValue(this.session?.step_ocrIdVerification)) {
-        const passed = this.session.step_ocrIdVerification == 1;
-        results.push({ label: "Document verification", passed, value: passed ? "Passed" : "Failed" });
+      const documentCheck = this.verificationChecks.find(check => check.label === "Document" && check.attempted);
+      const consentCheck = this.verificationChecks.find(check => check.label === "Consent" && check.attempted);
+      if (this.hasValue(selfiDetails.serviceLivenessResult)) {
+        const result = selfiDetails.serviceLivenessResult;
+        const passed = result == 3;
+        results.push({ label: "Liveness", passed, value: passed ? "Passed" : Config['LivelinessError'][result] });
+      }
+      if (documentCheck) {
+        results.push({ label: "Document verification", passed: documentCheck.passed, value: documentCheck.passed ? "Passed" : "Failed" });
       }
       if (this.hasValue(ocrDetails.serviceFacialAuthenticationResult)) {
         const result = ocrDetails.serviceFacialAuthenticationResult;
@@ -1354,26 +1409,21 @@ export default {
         const percentage = similarity > 1 ? similarity : similarity * 100;
         results.push({ label: "Face similarity", passed: ocrDetails.serviceFacialAuthenticationResult == 3, value: Number.isNaN(percentage) ? String(ocrDetails.serviceFacialSimilarityResult) : `${Math.round(percentage)}%` });
       }
-      if (this.hasValue(selfiDetails.serviceLivenessResult)) {
-        const result = selfiDetails.serviceLivenessResult;
-        const passed = result == 3;
-        results.push({ label: "Liveness", passed, value: passed ? "Passed" : Config['LivelinessError'][result] });
-      }
       if (this.hasValue(zkpDetails.serviceZkpVerificationResult)) {
         const result = zkpDetails.serviceZkpVerificationResult;
         const passed = result == 3;
         results.push({ label: "Age Verification", passed, value: passed ? "Passed" : ZkpVerificationResultEnum[result] || "Failed" });
       }
-      if (this.hasValue(this.session?.step_userConsent)) {
-        const passed = this.session.step_userConsent == 1;
-        results.push({ label: "User Consent", passed, value: passed ? "Captured" : "Failed" });
+      if (consentCheck) {
+        results.push({ label: "User Consent", passed: consentCheck.passed, value: consentCheck.passed ? "Captured" : "Failed" });
       }
 
       return results;
     },
     allAvailableChecksPassed() {
-      return this.verificationChecks.length > 0 &&
-        this.verificationChecks.every(check => check.passed) &&
+      const attemptedChecks = this.verificationChecks.filter(check => check.attempted);
+      return attemptedChecks.length > 0 &&
+        attemptedChecks.every(check => check.passed) &&
         /success|verified|approved/i.test(this.session?.status || "");
     },
     verificationAttempts() {
@@ -3750,7 +3800,11 @@ export default {
       const result = record?.serviceFacialAuthenticationResult;
       if (this.hasValue(result)) {
         const passed = result == 3;
-        return { passed, label: passed ? "Passed" : "Failed", tone: passed ? "passed" : "failed" };
+        return {
+          passed,
+          label: passed ? "Passed" : Config['FaicalAuthenticationError'][result] || "Failed",
+          tone: passed ? "passed" : "failed",
+        };
       }
       if (this.ocrDocumentRecords.length === 1 && this.hasValue(this.detailsSession?.step_ocrIdVerification)) {
         const passed = this.detailsSession.step_ocrIdVerification == 1;
