@@ -146,33 +146,6 @@
   color: #374151;
 }
 
-/* scrollable table inside cards */
-.card-table-scroll {
-  max-height: 240px;
-  overflow-y: auto;
-  overflow-x: hidden;
-  border-radius: 6px;
-  padding-right: 8px;
-  margin-right: -4px;
-}
-
-.card-table-scroll::-webkit-scrollbar {
-  width: 3px;
-}
-
-.card-table-scroll::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.card-table-scroll::-webkit-scrollbar-thumb {
-  background: #e5e7eb;
-  border-radius: 4px;
-}
-
-.card-table-scroll::-webkit-scrollbar-thumb:hover {
-  background: #9ca3af;
-}
-
 .face-img {
   border-radius: 50%;
   border: 3px solid #e5e7eb;
@@ -431,88 +404,6 @@
   padding: 6px 12px;
 }
 
-.decision-history-wrap {
-  margin-left: 4px;
-  padding-left: 20px;
-  position: relative;
-}
-
-.decision-history-wrap::before {
-  background: #e5e7eb;
-  bottom: 14px;
-  content: "";
-  left: 5px;
-  position: absolute;
-  top: 12px;
-  width: 1px;
-}
-
-.decision-history-item {
-  padding: 0 0 10px;
-  position: relative;
-}
-
-.decision-history-item::before {
-  background: #fff;
-  border: 2px solid #9ca3af;
-  border-radius: 50%;
-  content: "";
-  height: 10px;
-  left: -20px;
-  position: absolute;
-  top: 12px;
-  width: 10px;
-  z-index: 1;
-}
-
-.decision-history-item:first-child::before {
-  background: #6b7280;
-  border-color: #6b7280;
-}
-
-.decision-history-item:last-child {
-  padding-bottom: 0;
-}
-
-.decision-history-event {
-  background: #f9fafb;
-  border: 1px solid #eef0f3;
-  border-radius: 6px;
-  padding: 9px 11px;
-}
-
-.decision-history-event-header {
-  align-items: center;
-  border-bottom: 1px solid #e5e7eb;
-  display: flex;
-  justify-content: space-between;
-  padding-bottom: 7px;
-}
-
-.decision-history-grid {
-  display: grid;
-  gap: 5px 10px;
-  grid-template-columns: 96px minmax(0, 1fr);
-  margin-top: 7px;
-}
-
-.decision-history-label {
-  color: #6b7280;
-  font-size: 11px;
-  font-weight: 500;
-}
-
-.decision-history-value {
-  color: #374151;
-  font-size: 12px;
-  font-weight: 500;
-  min-width: 0;
-  overflow: hidden;
-  text-align: right;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
 .attempt-link {
   background: transparent;
   border: 0;
@@ -593,8 +484,13 @@
 .sd-grid > .sd-card::-webkit-scrollbar-track { background: transparent; }
 .sd-grid > .sd-card::-webkit-scrollbar-thumb { background: #dbe3ef; border-radius: 8px; }
 .sd-grid > .sd-card:hover::-webkit-scrollbar-thumb { background: #b8c4d6; }
+.sd-grid > .sd-card > h2 {
+  background: #fff;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
 .sd-grid > .decision-history-card { overflow: hidden; }
-.decision-history-card .card-table-scroll { max-height: 172px; }
 .sd-grid > .sd-notes-card { grid-column: 1 / -1; height: auto; min-height: 72px; }
 .sd-card h2 { border-bottom: 1px solid #edf1f6; color: #172554; font-size: 14px; font-weight: 700; margin: 0 0 13px; padding-bottom: 13px; }
 .sd-card h2 i { color: #52658a; margin-right: 10px; }
@@ -624,6 +520,12 @@
 .document-thumbs { display: flex; gap: 12px; justify-content: center; margin-top: 12px; }.document-thumbs button { background: transparent; border: 0; color: #52658a; font-size: 10px; padding: 0; }.document-thumbs button img { align-items: center; background: #f8fafc; border: 1px solid #dbe3ef; border-radius: 5px; display: flex; height: 58px; justify-content: center; margin-bottom: 5px; object-fit: cover; padding: 3px; width: 92px; }.document-thumbs button.active img { border: 2px solid #2563eb; }
 .document-insights { background: #fbfcfe; padding: 0 12px 12px; }.document-info-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 6px; margin-top: 12px; max-height: 218px; overflow-y: auto; padding: 10px 12px; scrollbar-color: #dbe3ef transparent; scrollbar-width: thin; }.document-info-card h3 { align-items: center; border-bottom: 1px solid #edf1f6; color: #172554; display: flex; font-size: 11px; justify-content: space-between; margin: 0 0 9px; padding-bottom: 8px; }.verification-result-row { align-items: center; display: grid; font-size: 10px; gap: 7px; grid-template-columns: 13px 1fr auto; margin: 7px 0; }.verification-result-row strong { font-size: 10px; }.document-info-card dl { display: grid; font-size: 10px; gap: 5px 12px; grid-template-columns: minmax(100px,.8fr) 1fr; margin: 0; }.document-info-card dt { color: #7180a5; font-weight: 500; }.document-info-card dd { color: #26375f; margin: 0; overflow-wrap: anywhere; }
 .document-info-card h3 > span:first-child { align-items: center; border-radius: 0; display: inline-flex; font-size: inherit; padding: 0; }.document-info-card h3 > span:first-child i { color: #52658a; margin-right: 6px; }
+.document-info-card > h3 {
+  background: #fff;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
 .face-authentication-comparison { align-items: center; display: flex; gap: 10px; justify-content: center; margin: 2px 0 12px; }.face-authentication-image { align-items: center; display: flex; flex: 1 1 0; flex-direction: column; margin: 0; min-width: 0; }.face-authentication-image img { background: #f8fafc; border: 1px solid #dbe3ef; border-radius: 7px; height: 82px; max-width: 100%; object-fit: cover; width: 82px; }.face-authentication-image figcaption { color: #7180a5; font-size: 9px; margin-top: 5px; }.face-authentication-match { align-items: center; background: #f1f5f9; border-radius: 50%; color: #64748b; display: flex; flex: 0 0 28px; font-size: 17px; height: 28px; justify-content: center; }.face-authentication-match.passed { background: #dcfce7; color: #16a34a !important; }.face-authentication-match.failed { background: #fee2e2; color: #dc2626 !important; }
 .face-authentication-meta { align-items: center; display: grid; font-size: 10px; gap: 7px 10px; grid-template-columns: minmax(100px,.8fr) minmax(0,1fr); }.face-authentication-meta span { color: #7180a5; }.face-authentication-meta strong { color: #26375f; min-width: 0; overflow-wrap: anywhere; text-align: right; }
 .audit-panel { --audit-panel-max-height: 610px; align-items: stretch; display: grid; gap: 16px; grid-template-columns: minmax(0,2.2fr) minmax(280px,.85fr); max-width: 100%; min-width: 0; }
@@ -641,47 +543,52 @@
 .audit-event { background: #fff; border: 0; border-bottom: 1px solid #edf1f6; border-radius: 3px; color: #26375f; cursor: pointer; font-size: 10px; min-width: 0; padding: 8px 9px; position: relative; text-align: left; touch-action: manipulation; transition: background-color .14s ease, box-shadow .14s ease; user-select: none; width: 100%; }.audit-event:hover { background: #f8faff; }.audit-event.selected { background: #f8faff; box-shadow: inset 3px 0 #2563eb, inset 0 0 0 1px #dbeafe; }.audit-event.selected .audit-event-title { color: #1d4ed8; }.audit-event.selected .audit-event-icon { box-shadow: 0 0 0 2px #bfdbfe; }.audit-event:focus-visible { box-shadow: inset 3px 0 #2563eb, inset 0 0 0 1px #93c5fd, 0 0 0 2px rgba(37,99,235,.14); outline: none; }.audit-event time,.audit-event-detail,.audit-event-actor { color: #7180a5; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }.audit-event-icon { align-items: center; background: #eff6ff; border-radius: 50%; color: var(--sd-primary); display: flex; flex: 0 0 22px; font-size: 15px; height: 22px; justify-content: center; transition: box-shadow .14s ease; width: 22px; }.audit-event-icon.passed { background: rgba(78,201,107,.12); color: var(--sd-success); }.audit-event-icon.failed { background: rgba(243,6,6,.10); color: var(--sd-danger); }.audit-event-icon.expired { background: rgba(108,117,125,.12); color: var(--sd-secondary); }.audit-event-icon.review { background: rgba(255,193,7,.14); color: #856404; }.audit-event-title { font-weight: 600; min-width: 0; overflow: hidden; text-overflow: ellipsis; transition: color .14s ease; white-space: nowrap; }
 .audit-side { display: flex; flex-direction: column; max-height: var(--audit-panel-max-height); max-width: 100%; min-height: 0; min-width: 0; width: 100%; }
 .audit-side > .audit-event-card:first-child { display: flex; flex: 0 1 auto; flex-direction: column; max-height: 100%; min-height: 0; }
-.audit-side > .audit-event-card.has-risk-flags { display: grid; flex: 1 1 auto; grid-template-rows: auto auto auto minmax(0,1fr); }
+.audit-side > .audit-event-card:first-child {
+  overflow-y: auto;
+  scrollbar-color: #cbd5e1 transparent;
+  scrollbar-width: thin;
+}
+.audit-side > .audit-event-card:first-child > h2 {
+  background: #fff;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+.audit-side > .audit-event-card:first-child::-webkit-scrollbar { width: 4px; }
+.audit-side > .audit-event-card:first-child::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
 .audit-event-card { box-sizing: border-box; max-width: 100%; overflow: hidden; padding: 14px; }.audit-event-card + .audit-event-card { margin-top: 12px; }.audit-event-card h2 { border-bottom: 1px solid #edf1f6; flex: 0 0 auto; font-size: 13px; margin-bottom: 12px; padding-bottom: 10px; }.audit-selected-heading { align-items: flex-start; display: flex; flex: 0 0 auto; gap: 9px; margin-bottom: 13px; min-width: 0; }.audit-selected-heading > i { color: var(--sd-primary); flex: 0 0 auto; font-size: 22px; }.audit-selected-heading > i.passed { color: var(--sd-success); }.audit-selected-heading > i.failed { color: var(--sd-danger); }.audit-selected-heading > i.expired { color: var(--sd-secondary); }.audit-selected-heading > i.review { color: #856404; }.audit-selected-heading > div { min-width: 0; }.audit-selected-heading strong { color: #172554; display: block; font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }.audit-selected-heading span { color: #7180a5; display: -webkit-box; font-size: 10px; margin-top: 2px; overflow: hidden; overflow-wrap: anywhere; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }.audit-event-card > dl { flex: 0 0 auto; }.audit-event-card dl { display: grid; font-size: 10px; gap: 7px 10px; grid-template-columns: minmax(82px,90px) minmax(0,1fr); margin: 0; }.audit-event-card dt { color: #7180a5; font-weight: 500; min-width: 0; overflow-wrap: anywhere; }.audit-event-card dd { color: #26375f; margin: 0; min-width: 0; overflow-wrap: anywhere; word-break: break-word; }
+.audit-card-heading { align-items: center; display: flex; gap: 8px; justify-content: space-between; min-width: 0; }
+.audit-card-heading > span { align-items: center; display: flex; min-width: 0; }
+.audit-card-heading > .attempt-link { flex: 0 0 auto; font-size: 10px; }
 .audit-consent-proof-details { border-top: 1px solid #edf1f6; display: grid; flex: 0 0 auto; gap: 8px; margin-top: 12px; padding-top: 12px; }.audit-consent-proof-row { align-items: start; display: grid; gap: 10px; grid-template-columns: minmax(82px,90px) minmax(0,1fr); }.audit-consent-proof-row > span { color: #7180a5; font-size: 10px; font-weight: 500; }.audit-consent-proof-row > div { display: flex; flex-wrap: wrap; gap: 5px; min-width: 0; }.audit-key-badge { align-items: center; background: #f0f4ff; border: 1px solid #c9d8ff; border-radius: 4px; color: #3b5bdb; display: inline-flex; font-size: 10px; font-weight: 600; gap: 4px; max-width: 100%; overflow-wrap: anywhere; padding: 3px 7px; }.audit-key-badge i { flex: 0 0 auto; font-size: 12px; }
 .audit-risk-count { align-items: center; background: #fff3cd; border-radius: 10px; color: #856404 !important; display: inline-flex; font-weight: 700; gap: 4px; padding: 3px 7px; }
-.audit-event-flags { border-top: 1px solid #edf1f6; display: grid; flex: 1 1 0; grid-template-rows: auto minmax(0,1fr); margin-top: 13px; min-height: 0; padding-top: 12px; }
-.audit-event-flags h3 { align-items: center; color: #172554; display: flex; flex: 0 0 auto; font-size: 11px; gap: 4px; margin: 0 0 8px; }
-.audit-event-flags-list { align-content: start; display: grid; flex: 1 1 0; gap: 7px; grid-auto-rows: max-content; min-height: 0; overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain; padding: 1px 7px 8px 1px; scroll-padding-block: 1px 8px; scrollbar-color: #cbd5e1 transparent; scrollbar-gutter: stable; scrollbar-width: thin; }
-.audit-event-flags-list::-webkit-scrollbar { width: 4px; }
-.audit-event-flags-list::-webkit-scrollbar-track { background: transparent; }
-.audit-event-flags-list::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
-.audit-event-flag { align-self: start; background: #fffbeb; border-left: 3px solid var(--sd-warning); border-radius: 5px; height: auto; min-width: 0; overflow: visible; padding: 8px; width: 100%; }
-.audit-event-flag.high,.audit-event-flag.critical { background: #fef2f2; border-left-color: #dc2626; }
-.audit-event-flag header { align-items: flex-start; display: flex; gap: 6px; min-width: 0; }
-.audit-event-flag header strong { font-size: 10px; min-width: 0; overflow-wrap: anywhere; }
-.audit-event-flag header span { color: #856404; flex: 0 0 auto; font-size: 9px; font-weight: 700; margin-left: auto; }
-.audit-event-flag.high header span,.audit-event-flag.critical header span { color: #dc2626; }
-.audit-event-flag p { color: #64748b; font-size: 9px; margin: 5px 0 0; overflow-wrap: anywhere; }
-.audit-event-flag dl { grid-template-columns: minmax(82px,.8fr) minmax(0,1.2fr); line-height: 1.35; margin-top: 7px; }.audit-event-flag dd { align-self: start; }
+.audit-risk-flags-card { display: flex; flex: 1 1 180px; flex-direction: column; min-height: 140px; }
 .audit-group-toggle > .audit-attempt-link { background: transparent; border: 0; color: inherit; flex: 0 1 auto; font-size: 12px; font-weight: 700; min-width: 0; overflow: hidden; padding: 0; text-align: left; text-overflow: ellipsis; white-space: nowrap; }.audit-group-toggle > .audit-attempt-link:hover,.audit-group-toggle > .audit-attempt-link:focus-visible { text-decoration: underline; }.audit-group-toggle.passed > .audit-attempt-link { color: #15803d; }.audit-group-toggle.failed > .audit-attempt-link { color: #dc2626; }.audit-group-toggle.review > .audit-attempt-link { color: #92400e; }.audit-group-toggle.expired > .audit-attempt-link { color: #334155; }
 .audit-side > .audit-decision-history { display: flex; flex: 0 0 auto; flex-direction: column; max-height: 240px; min-height: 0; overflow: hidden; }
 .audit-decision-history h2 { margin-bottom: 10px; }
-.audit-decision-history .card-table-scroll { margin: 0; max-height: 184px; min-height: 0; overscroll-behavior: contain; padding: 1px 5px 2px 0; scrollbar-color: #cbd5e1 transparent; scrollbar-gutter: stable; scrollbar-width: thin; }
-.audit-decision-history .decision-history-wrap { margin-left: 1px; padding-left: 17px; }
-.audit-decision-history .decision-history-wrap::before { left: 4px; }
-.audit-decision-history .decision-history-item::before { height: 9px; left: -17px; top: 11px; width: 9px; }
-.audit-decision-history .decision-history-item.approved::before { background: #16a34a; border-color: #16a34a; }
-.audit-decision-history .decision-history-item.rejected::before { background: #dc2626; border-color: #dc2626; }
-.audit-decision-history .decision-history-event { border-left: 3px solid #d97706; padding: 8px 9px; }
-.audit-decision-history .decision-history-item.approved .decision-history-event { border-left-color: #16a34a; }
-.audit-decision-history .decision-history-item.rejected .decision-history-event { border-left-color: #dc2626; }
-.audit-decision-history .decision-history-grid { gap: 6px 8px; grid-template-columns: 76px minmax(0,1fr); }
-.audit-decision-history .decision-history-label { font-size: 10px; }
-.audit-decision-history .decision-history-value { font-size: 10px; line-height: 1.35; overflow: visible; overflow-wrap: anywhere; text-overflow: clip; white-space: normal; }
-.decision-history-value.attempt-link { justify-self: end; text-align: right; }
+.audit-decision-list { flex: 1 1 auto; max-height: 184px; min-height: 0; }
 .risk-page-header { align-items: center; display: flex; margin-bottom: 13px; padding: 2px 4px; }.risk-page-header h2 { color: #172554; font-size: 17px; margin: 0; }.risk-page-header h2 i { color: #52658a; margin-right: 9px; }.risk-page-header p { color: #7180a5; font-size: 11px; margin: 3px 0 0 29px; }
 .risk-page-header { gap: 12px; justify-content: space-between; }.risk-page-header .sd-review-btn { flex: 0 0 auto; margin: 0; width: auto; }
-.risk-layout { align-items: start; display: grid; gap: 14px; grid-template-columns: repeat(auto-fit,minmax(280px,1fr)); }.risk-column { display: flex; flex-direction: column; gap: 14px; min-width: 0; }.risk-detail-card { background: #fff; border: 1px solid #dbe3ef; border-radius: 8px; min-width: 0; padding: 15px; }.risk-detail-card h3 { align-items: center; border-bottom: 1px solid #edf1f6; color: #172554; display: flex; font-size: 13px; margin: 0 0 13px; padding-bottom: 10px; }.risk-detail-card h3 > i { color: #52658a; font-size: 16px; margin-right: 7px; }.risk-detail-card h3 > span { margin-left: auto; }.risk-score-line { align-items: center; display: flex; gap: 10px; margin-bottom: 17px; }.risk-score-line .sd-risk-large { margin: 0; }.risk-score-line .sd-risk-band { margin: 0; }.risk-verification-row { align-items: center; display: grid; font-size: 11px; gap: 8px; grid-template-columns: 18px minmax(0,1fr) auto; padding: 5px 0; }.risk-verification-row > i { font-size: 16px; }.risk-verification-row strong { font-size: 10px; }.risk-flags-list { display: grid; gap: 9px; max-height: 324px; overflow-y: auto; padding-right: 4px; scrollbar-color: #cbd5e1 transparent; scrollbar-width: thin; }.risk-flags-list::-webkit-scrollbar { width: 3px; }.risk-flags-list::-webkit-scrollbar-track { background: transparent; }.risk-flags-list::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }.risk-flag-item { border: 1px solid #e5eaf2; border-left: 3px solid #f59e0b; border-radius: 6px; padding: 10px; }.risk-flag-item.high,.risk-flag-item.critical { border-left-color: #dc2626; }.risk-flag-head { align-items: center; display: flex; gap: 7px; }.risk-flag-head > i { color: #d97706; font-size: 16px; }.risk-flag-item.high .risk-flag-head > i,.risk-flag-item.critical .risk-flag-head > i { color: #dc2626; }.risk-flag-head strong { color: #172554; font-size: 11px; }.risk-flag-head span { margin-left: auto; }.risk-flag-item p { color: #7180a5; font-size: 10px; margin: 6px 0 0; }.risk-flag-meta { color: #52658a !important; font-weight: 600; }.risk-decision-details { display: grid; font-size: 10px; gap: 7px 10px; grid-template-columns: minmax(90px,.7fr) 1fr; margin: 0; }.risk-decision-details dt { color: #7180a5; font-weight: 500; }.risk-decision-details dd { color: #26375f; margin: 0; overflow-wrap: anywhere; }
+.risk-layout { align-items: start; display: grid; gap: 14px; grid-template-columns: repeat(auto-fit,minmax(280px,1fr)); }
+.risk-column { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.risk-detail-card { background: #fff; border: 1px solid #dbe3ef; border-radius: 8px; min-width: 0; overflow: hidden; padding: 15px; }
+.risk-detail-card h3 { align-items: center; border-bottom: 1px solid #edf1f6; color: #172554; display: flex; flex: 0 0 auto; font-size: 13px; gap: 7px; margin: 0 0 13px; min-width: 0; padding-bottom: 10px; }
+.risk-detail-card h3 > i { color: #52658a; flex: 0 0 auto; font-size: 16px; }
+.risk-detail-card h3 > span { flex: 0 0 auto; margin-left: auto; }
+.risk-column > .decision-history-card { display: flex; flex: 1 1 auto; flex-direction: column; min-height: 0; }
+.risk-decision-list { flex: 1 1 auto; max-height: 260px; min-height: 0; }
+.risk-score-line { align-items: center; display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 17px; }.risk-score-line .sd-risk-large { margin: 0; }.risk-score-line .sd-risk-band { margin: 0; }.risk-verification-row { align-items: center; display: grid; font-size: 11px; gap: 8px; grid-template-columns: 18px minmax(0,1fr) auto; padding: 5px 0; }.risk-verification-row > i { font-size: 16px; }.risk-verification-row strong { font-size: 10px; }.risk-flags-list { flex: 1 1 auto; max-height: 360px; min-height: 0; }.risk-decision-details { display: grid; font-size: 10px; gap: 7px 10px; grid-template-columns: minmax(90px,.7fr) 1fr; margin: 0; }.risk-decision-details dt { color: #7180a5; font-weight: 500; }.risk-decision-details dd { color: #26375f; margin: 0; overflow-wrap: anywhere; }
 .risk-breakdown { border-top: 1px solid #edf1f6; margin-top: 15px; padding-top: 12px; }.risk-breakdown-title { align-items: center; display: flex; justify-content: space-between; margin-bottom: 8px; }.risk-breakdown-title strong { color: #172554; font-size: 11px; }.risk-breakdown-title span { color: #7180a5; font-size: 9px; }.risk-breakdown-list { display: grid; gap: 7px; max-height: 180px; overflow-x: hidden; overflow-y: auto; padding-right: 4px; scrollbar-color: #cbd5e1 transparent; scrollbar-width: thin; }.risk-breakdown-list::-webkit-scrollbar { width: 3px; }.risk-breakdown-list::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }.risk-breakdown-item { background: #f8fafc; border: 1px solid #e5eaf2; border-left: 3px solid #f59e0b; border-radius: 6px; padding: 8px 9px; }.risk-breakdown-item.high,.risk-breakdown-item.critical { border-left-color: #dc2626; }.risk-breakdown-item.low { border-left-color: #16a34a; }.risk-breakdown-factor { align-items: center; display: grid; gap: 7px; grid-template-columns: 15px minmax(0,1fr) auto; }.risk-breakdown-factor > i { color: #d97706; font-size: 14px; }.risk-breakdown-item.high .risk-breakdown-factor > i,.risk-breakdown-item.critical .risk-breakdown-factor > i { color: #dc2626; }.risk-breakdown-item.low .risk-breakdown-factor > i { color: #16a34a; }.risk-breakdown-factor strong { color: #172554; font-size: 10px; min-width: 0; overflow-wrap: anywhere; }.risk-breakdown-factor > span { font-size: 10px; font-weight: 700; white-space: nowrap; }.risk-breakdown-meta { align-items: center; display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0 0 22px; }.risk-breakdown-meta > span:last-child { align-items: center; color: #7180a5; display: inline-flex; font-size: 9px; gap: 3px; }
+.risk-breakdown-meta > span.badge:last-child {
+  display: inline-block;
+  font-size: 75%;
+}
+.risk-breakdown-meta > span.badge-outline-danger:last-child { color: rgba(243, 6, 6, .736); }
+.risk-breakdown-meta > span.badge-outline-warning:last-child { color: #ffc107; }
+.risk-breakdown-meta > span.badge-outline-secondary:last-child { color: #6c757d; }
 @media (max-width: 1050px) { .documents-layout { grid-template-columns: 210px 1fr; }.document-insights { border-top: 1px solid #e8edf4; grid-column: 1 / -1; display: grid; gap: 12px; grid-template-columns: repeat(3,1fr); padding-top: 12px; }.document-info-card { margin-top: 0; } }
 @media (max-width: 1050px) { .risk-layout { grid-template-columns: repeat(auto-fit,minmax(260px,1fr)); } }
-@media (max-width: 1200px) { .audit-panel { align-items: start; grid-template-columns: minmax(0,1fr); }.audit-log,.audit-side { max-height: none; }.audit-groups { max-height: 515px; }.audit-side { display: block; overflow: visible; }.audit-side > .audit-event-card:first-child,.audit-side > .audit-event-card.has-risk-flags { display: block; }.audit-event-flags { display: block; }.audit-event-flags-list { max-height: 220px; }.audit-event-card + .audit-event-card { margin-top: 12px; } }
+@media (max-width: 1200px) { .audit-panel { align-items: start; grid-template-columns: minmax(0,1fr); }.audit-log,.audit-side { max-height: none; }.audit-groups { max-height: 515px; }.audit-side { display: block; overflow: visible; }.audit-side > .audit-event-card:first-child { display: block; }.audit-risk-flags-card { min-height: 0; }.audit-event-flags-list { max-height: 220px; }.audit-event-card + .audit-event-card { margin-top: 12px; } }
 @media (max-width: 720px) { .documents-layout { display: block; }.document-types,.document-viewer { border-right: 0; border-bottom: 1px solid #e8edf4; }.document-insights { display: block; }.document-info-card { margin-top: 12px; }.document-stage { height: 280px; } }
 @media (max-width: 720px) { .audit-side { display: block; }.audit-event-card + .audit-event-card { margin-top: 12px; }.audit-table-head { display: none; }.audit-event { grid-template-columns: 70px 22px minmax(110px,1fr); }.audit-event-detail,.audit-event-actor { display: none; } }
 @media (max-width: 720px) { .risk-layout { grid-template-columns: 1fr; }.risk-page-header { align-items: flex-start; flex-direction: column; }.risk-page-header .sd-review-btn { width: 100%; } }
@@ -798,28 +705,24 @@
             </article>
             <article v-if="!isSessionDetailView && hasManualDecisions" class="risk-detail-card decision-history-card">
               <h3><i class="mdi mdi-history"></i>Decision History</h3>
-              <div class="card-table-scroll">
-                <div class="decision-history-wrap">
-                  <div v-for="decision in normalizedManualDecisions" :key="decision.key" class="decision-history-item">
-                    <div class="decision-history-event">
-                      <div v-if="decision.action" class="decision-history-event-header"><span class="decision-history-label">Status</span><span class="badge badge-pill px-2 py-1" :class="decisionStatusClass(decision.action)">{{ decisionStatusLabel(decision.action) }}</span></div>
-                      <div class="decision-history-grid">
-                        <template v-if="decision.attemptLabel"><span class="decision-history-label">Attempt</span><button type="button" class="decision-history-value attempt-link" @click="viewSessionAttempt(decision.sessionId)">{{ decision.attemptLabel }}</button></template>
-                        <template v-if="decision.decidedBy"><span class="decision-history-label">Decided By</span><span class="decision-history-value" :title="decision.decidedBy">{{ decision.decidedBy }}</span></template>
-                        <template v-if="decision.decidedAt"><span class="decision-history-label">Time</span><span class="decision-history-value">{{ formatDate(decision.decidedAt) }}</span></template>
-                        <template v-if="decision.reasonCode"><span class="decision-history-label">{{ isManualReviewCleared(decision) ? "Review Result" : "Reason" }}</span><span class="decision-history-value" :title="formatDecisionReason(decision.reasonCode)"><i class="mdi mr-1" :class="isManualReviewCleared(decision) ? 'mdi-check-circle-outline text-success' : 'mdi-alert-circle-outline text-danger'"></i>{{ formatDecisionReason(decision.reasonCode) }}</span></template>
-                        <template v-if="decision.comments"><span class="decision-history-label">Comment</span><span class="decision-history-value" :title="decision.comments">{{ decision.comments }}</span></template>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <session-decision-history
+                class="risk-decision-list"
+                :decisions="normalizedManualDecisions"
+                :reason-options="reviewReasonOptions"
+                show-attempts
+                @view-attempt="viewSessionAttempt"
+              />
             </article>
           </div>
           <div v-if="hasRiskFlags" class="risk-column">
             <article class="risk-detail-card">
               <h3><i class="mdi mdi-alert-outline"></i>Risk Signals &amp; Flags <span>{{ riskFlagCount }}</span></h3>
-              <div class="risk-flags-list"><div v-for="flag in normalizedRiskFlags" :key="flag.key" class="risk-flag-item" :class="(flag.severity || '').toLowerCase()"><div class="risk-flag-head"><i :class="riskFlagIconClass(flag.severity)"></i><strong>{{ flag.title }}</strong><span v-if="flag.severity" class="badge badge-pill" :class="riskSeverityClass(flag.severity)">{{ formatSeverity(flag.severity) }}</span></div><p v-if="flag.attemptLabel"><button type="button" class="attempt-link" @click="viewSessionAttempt(flag.sessionId)">{{ flag.attemptLabel }}</button></p><p v-if="flag.description">{{ flag.description }}</p><p v-for="item in flag.metadataEntries" :key="item.key" class="risk-flag-meta">{{ item.label }}: {{ item.value }}</p><p v-if="flag.source">Source: {{ formatRiskCode(flag.source) }}</p></div></div>
+              <session-risk-flag-list
+                class="risk-flags-list"
+                :flags="normalizedRiskFlags"
+                show-attempts
+                @view-attempt="viewSessionAttempt"
+              />
             </article>
           </div>
         </div>
@@ -859,7 +762,7 @@
           </div>
         </section>
         <aside v-if="selectedAuditEvent" class="audit-side">
-          <section class="audit-event-card" :class="{ 'has-risk-flags': selectedAuditRiskFlags.length }">
+          <section class="audit-event-card">
             <h2><i class="mdi mdi-file-document-outline"></i>Event Details</h2>
             <div class="audit-selected-heading">
               <i :class="[selectedAuditEvent.category === 'consent' ? 'mdi mdi-certificate-outline' : selectedAuditEvent.icon, selectedAuditEvent.tone]"></i>
@@ -872,35 +775,31 @@
                 <div><span v-for="value in detail.values" :key="detail.label + '-' + value" class="audit-key-badge"><i class="mdi mdi-key-variant"></i>{{ value }}</span></div>
               </div>
             </div>
-            <div v-if="selectedAuditRiskFlags.length" class="audit-event-flags">
-              <h3><i class="mdi mdi-alert-outline"></i> Risk Flags ({{ selectedAuditRiskFlags.length }})</h3>
-              <div :key="selectedAuditEvent.key" ref="auditRiskFlagsList" class="audit-event-flags-list">
-                <article v-for="flag in selectedAuditRiskFlags" :key="flag.key" class="audit-event-flag" :class="(flag.severity || '').toLowerCase()">
-                  <header><strong>{{ flag.title }}</strong><span v-if="flag.severity">{{ formatSeverity(flag.severity) }}</span></header>
-                  <p v-if="flag.description">{{ flag.description }}</p>
-                  <dl v-if="flag.metadataEntries.length"><template v-for="item in flag.metadataEntries"><dt :key="item.key + '-audit-flag-label'">{{ item.label }}</dt><dd :key="item.key + '-audit-flag-value'">{{ item.value }}</dd></template></dl>
-                </article>
-              </div>
-            </div>
+          </section>
+          <section v-if="selectedAuditRiskFlags.length" class="audit-event-card audit-risk-flags-card">
+            <h2 class="audit-card-heading">
+              <span><i class="mdi mdi-alert-outline"></i>Risk Flags ({{ selectedAuditRiskFlags.length }})</span>
+              <button v-if="selectedAuditEvent.attemptKey !== 'session'" type="button" class="attempt-link" @click="viewSessionAttempt(selectedAuditEvent.attemptKey)">{{ attemptDisplayLabelBySessionId(selectedAuditEvent.attemptKey) }}</button>
+            </h2>
+            <session-risk-flag-list
+              :key="selectedAuditEvent.key"
+              ref="auditRiskFlagsList"
+              class="audit-event-flags-list"
+              :flags="selectedAuditRiskFlags"
+              compact
+            />
           </section>
           <section v-if="selectedAuditDecisions.length" class="audit-event-card decision-history-card audit-decision-history">
-            <h2><i class="mdi mdi-history"></i>Decision History</h2>
-            <div class="card-table-scroll">
-              <div class="decision-history-wrap">
-                <div v-for="decision in selectedAuditDecisions" :key="'audit-' + decision.key" class="decision-history-item" :class="(decision.action || '').toLowerCase()">
-                  <div class="decision-history-event">
-                    <div v-if="decision.action" class="decision-history-event-header"><span class="decision-history-label">Status</span><span class="badge badge-pill px-2 py-1" :class="decisionStatusClass(decision.action)">{{ decisionStatusLabel(decision.action) }}</span></div>
-                    <div class="decision-history-grid">
-                      <template v-if="decision.attemptLabel"><span class="decision-history-label">Attempt</span><button type="button" class="decision-history-value attempt-link" @click="viewSessionAttempt(decision.sessionId)">{{ decision.attemptLabel }}</button></template>
-                      <template v-if="decision.decidedBy"><span class="decision-history-label">Decided By</span><span class="decision-history-value" :title="decision.decidedBy">{{ decision.decidedBy }}</span></template>
-                      <template v-if="decision.decidedAt"><span class="decision-history-label">Time</span><span class="decision-history-value">{{ formatDate(decision.decidedAt) }}</span></template>
-                      <template v-if="decision.reasonCode"><span class="decision-history-label">{{ isManualReviewCleared(decision) ? "Review Result" : "Reason" }}</span><span class="decision-history-value" :title="formatDecisionReason(decision.reasonCode)"><i class="mdi mr-1" :class="isManualReviewCleared(decision) ? 'mdi-check-circle-outline text-success' : 'mdi-alert-circle-outline text-danger'"></i>{{ formatDecisionReason(decision.reasonCode) }}</span></template>
-                      <template v-if="decision.comments"><span class="decision-history-label">Comment</span><span class="decision-history-value" :title="decision.comments">{{ decision.comments }}</span></template>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <h2 class="audit-card-heading">
+              <span><i class="mdi mdi-history"></i>Decision History</span>
+              <button v-if="selectedAuditDecisions[0].attemptLabel" type="button" class="attempt-link" @click="viewSessionAttempt(selectedAuditDecisions[0].sessionId)">{{ selectedAuditDecisions[0].attemptLabel }}</button>
+            </h2>
+            <session-decision-history
+              class="audit-decision-list"
+              :decisions="selectedAuditDecisions"
+              :reason-options="reviewReasonOptions"
+              compact
+            />
           </section>
         </aside>
       </div>
@@ -943,30 +842,10 @@
               This verification passed automated checks but requires manual review before it can be approved.
             </p>
 
-            <div class="risk-flag-list">
-              <b-card
-                v-for="flag in normalizedRiskFlags"
-                :key="flag.key"
-                class="mb-3 shadow-none"
-                :class="riskFlagCardClass(flag.severity)"
-                body-class="p-3"
-              >
-                <div class="d-flex align-items-center justify-content-between mb-3">
-                  <strong>{{ flag.title }}</strong>
-                  <span
-                    v-if="flag.severity"
-                    class="badge badge-pill p-2"
-                    :class="riskSeverityClass(flag.severity)"
-                  >
-                    {{ formatSeverity(flag.severity) }}
-                  </span>
-                </div>
-                <p class="text-muted mb-2">{{ flag.description }}</p>
-                <div v-if="flag.metaLine" class="font-weight-bold mb-2">
-                  {{ flag.metaLine }}
-                </div>
-              </b-card>
-            </div>
+            <session-risk-flag-list
+              class="risk-flag-list"
+              :flags="normalizedRiskFlags"
+            />
           </b-card>
         </b-col>
 
@@ -1065,6 +944,8 @@ import UAParser from "ua-parser-js";
 import { getCosmosChainConfig } from "@hypersign-protocol/hypersign-kyc-chains-metadata/cosmos/wallet/cosmos-wallet-utils";
 import { getStellarChainConfig } from "@hypersign-protocol/hypersign-kyc-chains-metadata/stellar/wallet/stellar-wallet-utils";
 import HfPopUp from "../../components/element/hfPopup.vue";
+import SessionDecisionHistory from "../../components/session-details/SessionDecisionHistory.vue";
+import SessionRiskFlagList from "../../components/session-details/SessionRiskFlagList.vue";
 import Config from "../../config";
 import { HYPERSIGN_PROOF_TYPES } from "@hypersign-protocol/hypersign-kyc-chains-metadata/cosmos/wallet/cosmos-wallet-utils";
 import pdfMake from "pdfmake";
@@ -1118,6 +999,8 @@ export default {
   name: "sessionDetails",
   components: {
     HfPopUp,
+    SessionDecisionHistory,
+    SessionRiskFlagList,
   },
   computed: {
     ...mapGetters("mainStore", ["getSessionDetailsBySessionId", "getSelectedService"]),
@@ -2498,7 +2381,7 @@ export default {
     resetAuditRiskFlagsScroll() {
       this.$nextTick(() => {
         const list = this.$refs.auditRiskFlagsList;
-        if (list) list.scrollTop = 0;
+        if (list && typeof list.resetScroll === "function") list.resetScroll();
       });
     },
     viewSessionAttempt(sessionId) {
@@ -2828,41 +2711,15 @@ export default {
         "badge-outline-secondary": value === "low",
       };
     },
-    riskFlagCardClass(severity) {
-      const value = String(severity || "").toLowerCase();
-      return {
-        "border-danger": value === "high",
-        "border-warning": value === "medium",
-        "border-secondary": value === "low",
-      };
-    },
     riskFlagIconClass(severity) {
       const value = String(severity || "").toLowerCase();
       return value === "high" ? "mdi mdi-alert-circle-outline" : "mdi mdi-alert-outline";
-    },
-    decisionStatusLabel(action) {
-      const labels = {
-        MANUAL_REVIEW: "Manual Review",
-        APPROVED: "Approved",
-        REJECTED: "Rejected",
-      };
-
-      if (labels[action]) return labels[action];
-      return this.formatRiskCode(action || "Decision");
-    },
-    decisionStatusClass(action) {
-      if (action === "REJECTED") return "badge-outline-danger";
-      if (action === "APPROVED") return "badge-outline-success";
-      return "badge-outline-warning";
     },
     formatDecisionReason(reasonCode) {
       const reason = this.reviewReasonOptions.find((item) => item.value === reasonCode);
       if (reason) return reason.label;
 
       return this.formatRiskCode(reasonCode);
-    },
-    isManualReviewCleared(decision) {
-      return decision?.reasonCode === "MANUAL_REVIEW_CLEARED";
     },
     formatFieldValue(key, value) {
       if (!value && value !== 0) return value;
