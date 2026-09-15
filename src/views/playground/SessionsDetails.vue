@@ -4923,6 +4923,14 @@ export default {
         this.selectedAttemptDetails = null;
       }
       this.activeTab = tabId;
+      if (this.$route.query.tab !== tabId) {
+        await this.$router.replace({
+          query: {
+            ...this.$route.query,
+            tab: tabId,
+          },
+        });
+      }
       if (tabId === "audit" && this.openedAuditGroup)
         this.cacheAuditConsentSession(this.openedAuditGroup.key);
       if (tabId === "documents")

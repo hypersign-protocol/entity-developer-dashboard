@@ -6,7 +6,8 @@
     centered
     scrollable
     title="Review verification and take action"
-    @hidden="$emit('input', false)"
+    @show="addModalLayoutClass"
+    @hidden="handleHidden"
   >
     <p class="text-muted mb-3">Decide to approve or reject this verification.</p>
 
@@ -103,6 +104,16 @@ export default {
     hide() {
       this.$refs.modal.hide();
     },
+    addModalLayoutClass() {
+      document.body.classList.add("manual-review-modal-open");
+    },
+    handleHidden() {
+      document.body.classList.remove("manual-review-modal-open");
+      this.$emit("input", false);
+    },
+  },
+  beforeDestroy() {
+    document.body.classList.remove("manual-review-modal-open");
   },
   props: {
     decision: {
@@ -130,22 +141,18 @@ export default {
 </script>
 
 <style>
-html {
-  overflow-y: scroll;
-}
-
-body.modal-open {
+body.manual-review-modal-open {
   overflow-y: scroll !important;
   padding-right: 0 !important;
 }
 
-body.modal-open .fixed-top,
-body.modal-open .fixed-bottom,
-body.modal-open .is-fixed {
+body.manual-review-modal-open .fixed-top,
+body.manual-review-modal-open .fixed-bottom,
+body.manual-review-modal-open .is-fixed {
   padding-right: 0 !important;
 }
 
-body.modal-open .sticky-top {
+body.manual-review-modal-open .sticky-top {
   margin-right: 0 !important;
 }
 
