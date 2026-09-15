@@ -2851,7 +2851,7 @@
               <session-risk-flag-list
                 class="risk-flags-list"
                 :flags="normalizedRiskFlags"
-                show-attempts
+                :show-attempts="!isSessionDetailView"
                 @view-attempt="viewSessionAttempt"
               />
             </article>
@@ -4354,7 +4354,12 @@ export default {
       const flags = this.riskDataSession?.riskFlags || [];
       if (!Array.isArray(flags)) return [];
 
-      return flags.map((flag, index) => this.normalizeRiskFlag(flag, index));
+      const attemptDateTime = this.isSessionDetailView
+        ? this.detailsSession?.createdAt || this.detailsSession?.completedAt || ""
+        : "";
+      return flags.map((flag, index) =>
+        this.normalizeRiskFlag(flag, index, attemptDateTime)
+      );
     },
     hasRiskFlags() {
       return this.normalizedRiskFlags.length > 0;
@@ -5370,7 +5375,7 @@ export default {
         .filter((entry) => String(entry.key).toLowerCase() !== "strategy")
         .map((entry) => ({
           ...entry,
-          label: this.isDateFieldKey(entry.key) ? "Time" : entry.label,
+          label: this.isDateFieldKey(entry.key) ? "Date & Time" : entry.label,
           value:
             entry.key === "reason"
               ? this.formatJurisdictionRestrictionReason(metadata.reason)
@@ -5383,7 +5388,7 @@ export default {
       ) {
         metadataEntries.unshift({
           key: "dateTime",
-          label: "Time",
+          label: "Date & Time",
           value: this.formatDate(flagDateTime),
         });
       }
