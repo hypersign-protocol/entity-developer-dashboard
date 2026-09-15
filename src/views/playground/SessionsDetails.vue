@@ -5391,7 +5391,7 @@ export default {
         .filter((entry) => String(entry.key).toLowerCase() !== "strategy")
         .map((entry) => ({
           ...entry,
-          label: /date|time|timestamp/i.test(entry.key) ? "Date & Time" : entry.label,
+          label: /date|time|timestamp/i.test(entry.key) ? "Time" : entry.label,
           value:
             entry.key === "reason"
               ? this.formatJurisdictionRestrictionReason(metadata.reason)
@@ -5404,7 +5404,7 @@ export default {
       ) {
         metadataEntries.unshift({
           key: "dateTime",
-          label: "Date & Time",
+          label: "Time",
           value: this.formatDate(flagDateTime),
         });
       }
