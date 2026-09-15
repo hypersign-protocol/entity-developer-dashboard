@@ -429,7 +429,7 @@
             <div v-if="selectedAuditConsentProofDetails.length" class="audit-consent-proof-details">
               <div v-for="detail in selectedAuditConsentProofDetails" :key="detail.label" class="audit-consent-proof-row">
                 <span>{{ detail.label }}</span>
-                <div><span v-for="value in detail.values" :key="detail.label + '-' + value" class="audit-key-badge"><i class="mdi mdi-key-variant"></i>{{ value }}</span></div>
+                <div><span v-for="value in detail.values" :key="detail.label + '-' + value" class="audit-key-badge"><i :class="detail.icon"></i>{{ value }}</span></div>
               </div>
             </div>
           </section>
@@ -1450,8 +1450,8 @@ export default {
       if (this.hasValue(presentation?.proof?.type)) signatureTypes.add(String(presentation.proof.type));
 
       return [
-        { label: "Proof Type", values: [...proofTypes] },
-        { label: "Signature Type", values: [...signatureTypes] },
+        { label: "Proof Type", icon: "mdi mdi-certificate-outline", values: [...proofTypes] },
+        { label: "Signature Type", icon: "mdi mdi-key-variant", values: [...signatureTypes] },
       ].filter(detail => detail.values.length);
     },
     selectedAuditRiskFlags() {
