@@ -3110,107 +3110,21 @@
       </div>
     </div>
 
-    <b-modal
-      v-if="!isSessionDetailView && latestReviewSessionId"
-      id="manual-review-decision-modal"
-      v-model="showManualReviewModal"
-      size="xl"
-      centered
-      scrollable
-      title="Review verification and take action"
-      header-bg-variant="dark"
-      header-text-variant="light"
-    >
-      <p class="text-muted mb-3">
-        Decide to approve or reject this verification.
-      </p>
-
-      <b-row>
-        <b-col cols="12">
-          <b-card class="h-100 shadow-none" body-class="p-3">
-            <div class="card-section-title">Take decision</div>
-
-            <b-form-radio
-              v-model="reviewDecision"
-              value="APPROVED"
-              class="font-weight-bold mb-2"
-            >
-              Approve
-            </b-form-radio>
-
-            <b-form-radio
-              v-model="reviewDecision"
-              value="REJECTED"
-              class="font-weight-bold mb-3"
-            >
-              Reject
-            </b-form-radio>
-
-            <b-alert
-              v-if="reviewDecision === 'APPROVED'"
-              show
-              variant="success"
-              class="py-2"
-            >
-              This verification will be approved and the user can proceed.
-            </b-alert>
-            <b-alert v-else show variant="danger" class="py-2">
-              This verification will be rejected and the user will not be able to proceed.
-            </b-alert>
-
-            <div v-if="reviewDecision === 'REJECTED'" class="form-group mt-4">
-              <label class="font-weight-bold">
-                Reason <span class="mandatory">*</span>
-              </label>
-              <div class="text-muted small mb-2">Common reasons</div>
-              <b-form-radio
-                v-for="reason in reviewReasonOptions"
-                :key="reason.value"
-                v-model="reviewReasonCode"
-                :value="reason.value"
-                class="mb-2"
-              >
-                {{ reason.label }}
-              </b-form-radio>
-            </div>
-
-            <div class="form-group mt-4 mb-0">
-              <label class="font-weight-bold">
-                Comments <small class="text-muted">(optional)</small>
-              </label>
-              <b-form-textarea
-                v-model="reviewComments"
-                maxlength="300"
-                rows="5"
-                no-resize
-                placeholder="Add additional notes for the audit trail..."
-              ></b-form-textarea>
-              <div class="text-muted small text-right mt-1">
-                {{ reviewComments.length }} / 300
-              </div>
-            </div>
-          </b-card>
-        </b-col>
-      </b-row>
-
-      <template #modal-footer>
-        <b-button
-          variant="outline-secondary"
-          class="manual-review-cancel-btn"
-          @click="closeManualReviewModal"
-        >
-          Cancel
-        </b-button>
-        <b-button
-          variant="primary"
-          class="manual-review-submit-btn"
-          :disabled="isSubmittingReviewDecision"
-          @click="submitReviewDecision"
-        >
-          {{ isSubmittingReviewDecision ? "Submitting..." : "Submit" }}
-        </b-button>
-      </template>
-    </b-modal>
+    <session-manual-review-modal
+      v-if="!isSessionDetailView"
+      ref="manualReviewModal"
+      :decision="reviewDecision"
+      :reason-code="reviewReasonCode"
+      :comments="reviewComments"
+      :reason-options="reviewReasonOptions"
+      :submitting="isSubmittingReviewDecision"
+      @input="showManualReviewModal = $event"
+      @update:decision="reviewDecision = $event"
+      @update:reasonCode="reviewReasonCode = $event"
+      @update:comments="reviewComments = $event"
+      @cancel="closeManualReviewModal"
+      @submit="submitReviewDecision"
+    />
   </b-container>
 </template>
 
@@ -3222,6 +3136,7 @@ import { getCosmosChainConfig } from "@hypersign-protocol/hypersign-kyc-chains-m
 import { getStellarChainConfig } from "@hypersign-protocol/hypersign-kyc-chains-metadata/stellar/wallet/stellar-wallet-utils";
 import SessionDecisionHistory from "../../components/session-details/SessionDecisionHistory.vue";
 import SessionRiskFlagList from "../../components/session-details/SessionRiskFlagList.vue";
+import SessionManualReviewModal from "../../components/session-details/SessionManualReviewModal.vue";
 import Config from "../../config";
 import pdfMake from "pdfmake";
 import pdfFonts from "pdfmake/build/vfs_fonts";
@@ -3275,6 +3190,7 @@ export default {
   components: {
     SessionDecisionHistory,
     SessionRiskFlagList,
+    SessionManualReviewModal,
   },
   computed: {
     ...mapGetters("mainStore", ["getSelectedService"]),
@@ -3485,9 +3401,7 @@ export default {
         .map(([key, value]) => ({
           key,
           value,
-          label: key
-            .replace(/([A-Z])/g, " $1")
-            .replace(/^./, (char) => char.toUpperCase()),
+          label: this.formatFieldLabel(key),
         }));
     },
     deviceLocationEntries() {
@@ -5108,22 +5022,74 @@ export default {
     },
     scalarEntries(value) {
       if (!value || typeof value !== "object") return [];
+      const hiddenFields = new Set([
+        "image",
+        "presentation",
+        "token",
+        "tokenfaceimage",
+        "tokenselfiimage",
+        "tokenfrontdocumentimage",
+        "tokenbackdocumentimage",
+      ]);
+      const statusFields = new Set(["status", "result"]);
       return Object.entries(value)
         .filter(
           ([key, item]) =>
             this.hasValue(item) &&
             typeof item !== "object" &&
-            !/image|presentation|token/i.test(key)
+            !hiddenFields.has(String(key).toLowerCase())
         )
         .map(([key, item]) => ({
           key,
-          label: key
-            .replace(/([A-Z])/g, " $1")
-            .replace(/^./, (char) => char.toUpperCase()),
-          value: /status|result/i.test(key)
+          label: this.formatFieldLabel(key),
+          value: statusFields.has(key)
             ? this.formatStatusLabel(item)
             : this.formatFieldValue(key, item),
         }));
+    },
+    formatFieldLabel(key) {
+      const source = String(key || "");
+      const words = [];
+      let word = "";
+      for (const char of source) {
+        const previous = word.charAt(word.length - 1);
+        if (char === "_" || char === "-") {
+          if (word) words.push(word);
+          word = "";
+        } else if (char === char.toUpperCase() && char !== char.toLowerCase() && previous) {
+          words.push(word);
+          word = char;
+        } else {
+          word += char;
+        }
+      }
+      if (word) words.push(word);
+      return words.map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join(" ");
+    },
+    isDateFieldKey(key) {
+      const normalized = String(key || "")
+        .toLowerCase()
+        .split("_")
+        .join("")
+        .split("-")
+        .join("");
+      return new Set([
+        "date",
+        "dob",
+        "birthdate",
+        "expirationdate",
+        "expirydate",
+        "issueddate",
+        "validfrom",
+        "validuntil",
+        "createdat",
+        "updatedat",
+        "detectedat",
+        "occurredat",
+        "timestamp",
+        "datetime",
+        "time",
+      ]).has(normalized);
     },
     formatStatusLabel(status) {
       if (!this.hasValue(status)) return "";
@@ -5282,9 +5248,11 @@ export default {
     openManualReviewModal() {
       if (!this.latestReviewSessionId) return;
       this.showManualReviewModal = true;
+      this.$nextTick(() => this.$refs.manualReviewModal?.show());
     },
     closeManualReviewModal() {
       this.showManualReviewModal = false;
+      this.$refs.manualReviewModal?.hide();
     },
     async submitReviewDecision() {
       if (this.reviewDecision === "REJECTED" && !this.reviewReasonCode) {
@@ -5320,12 +5288,15 @@ export default {
           this.selectedAttemptDetails = this.session;
           this.$set(this.attemptDetailsCache, decisionSessionId, this.session);
         } else {
-          await this.$router.replace({
-            query: {
-              ...this.$route.query,
-              tab: tabToRestore || "risk",
-            },
-          });
+          const tab = tabToRestore || "risk";
+          if (this.$route.query.tab !== tab) {
+            await this.$router.replace({
+              query: {
+                ...this.$route.query,
+                tab,
+              },
+            });
+          }
           window.location.reload();
           return;
         }
@@ -5391,7 +5362,7 @@ export default {
         .filter((entry) => String(entry.key).toLowerCase() !== "strategy")
         .map((entry) => ({
           ...entry,
-          label: /date|time|timestamp/i.test(entry.key) ? "Time" : entry.label,
+          label: this.isDateFieldKey(entry.key) ? "Time" : entry.label,
           value:
             entry.key === "reason"
               ? this.formatJurisdictionRestrictionReason(metadata.reason)
@@ -5400,7 +5371,7 @@ export default {
       const flagDateTime = this.riskFlagDateTime(flag, index, fallbackDateTime);
       if (
         this.hasValue(flagDateTime) &&
-        !metadataEntries.some((entry) => /date|time|timestamp/i.test(entry.key))
+        !metadataEntries.some((entry) => this.isDateFieldKey(entry.key))
       ) {
         metadataEntries.unshift({
           key: "dateTime",
@@ -5464,8 +5435,7 @@ export default {
     },
     formatFieldValue(key, value) {
       if (!value && value !== 0) return value;
-      const dateKeys = /date|dob|birth|expir|issued|valid/i;
-      if (dateKeys.test(key)) {
+      if (this.isDateFieldKey(key)) {
         // Unix seconds (10 digits) or milliseconds (13 digits)
         const num = Number(value);
         if (
