@@ -59,21 +59,21 @@
 }
 
 .manual-review-submit-btn {
-  background: #3b82f6 !important;
-  border-color: #3b82f6 !important;
+  background: #6c757d !important;
+  border-color: #6c757d !important;
   color: #fff !important;
 }
 
 .manual-review-submit-btn:hover,
 .manual-review-submit-btn:focus {
-  background: #2563eb !important;
-  border-color: #2563eb !important;
+  background: #5a6268 !important;
+  border-color: #5a6268 !important;
   color: #fff !important;
 }
 
 .manual-review-submit-btn:disabled {
-  background: #3b82f6 !important;
-  border-color: #3b82f6 !important;
+  background: #6c757d !important;
+  border-color: #6c757d !important;
   color: #fff !important;
   opacity: 0.65;
 }
@@ -3122,35 +3122,11 @@
       header-text-variant="light"
     >
       <p class="text-muted mb-3">
-        Review the risk flags below and decide to approve or reject this verification.
+        Decide to approve or reject this verification.
       </p>
 
       <b-row>
-        <b-col cols="12" lg="6" class="mb-3 mb-lg-0">
-          <b-card class="h-100 shadow-none" body-class="p-3">
-            <div
-              class="card-section-title d-flex align-items-center justify-content-between"
-            >
-              <span>
-                <i class="mdi mdi-alert-outline mr-2 text-warning"></i>
-                Review Required
-              </span>
-              <span class="text-muted text-lowercase">
-                {{ riskFlagCount }} risk
-                {{ riskFlagCount === 1 ? "flag" : "flags" }}
-              </span>
-            </div>
-
-            <p class="text-muted mb-3">
-              This verification passed automated checks but requires manual review before
-              it can be approved.
-            </p>
-
-            <session-risk-flag-list class="risk-flag-list" :flags="normalizedRiskFlags" />
-          </b-card>
-        </b-col>
-
-        <b-col cols="12" lg="6">
+        <b-col cols="12">
           <b-card class="h-100 shadow-none" body-class="p-3">
             <div class="card-section-title">Take decision</div>
 
@@ -3667,8 +3643,6 @@ export default {
       if (!hasResult && !hasSimilarity) return null;
 
       const passed = hasResult ? this.isFacialAuthenticationSuccess.success : null;
-      const similarity = Number(rawSimilarity);
-      const percentage = similarity > 1 ? similarity : similarity * 100;
       return {
         passed,
         status: hasResult ? (passed ? "Passed" : "Failed") : "",
@@ -3678,9 +3652,9 @@ export default {
             : this.isFacialAuthenticationSuccess.result || "Failed"
           : "",
         similarity: hasSimilarity
-          ? Number.isNaN(percentage)
+          ? Number.isNaN(this.faceSimilarityPercentage)
             ? String(rawSimilarity)
-            : `${Math.round(percentage)}%`
+            : `${Math.round(this.faceSimilarityPercentage)}%`
           : "",
         tone: hasResult ? (passed ? "passed" : "failed") : "",
       };
@@ -3979,7 +3953,7 @@ export default {
 
       const status = facialAuthenticationResult == 3;
       const matchPercentage = this.hasValue(facialSimilarityResult)
-        ? `, match ${Math.round(Number(facialSimilarityResult) * 100)}%`
+        ? `, match ${Math.round(this.faceSimilarityPercentage)}%`
         : "";
       return {
         success: status,
@@ -4025,6 +3999,11 @@ export default {
       return this.faceAuthenticationResultFound
         ? this.isFacialAuthenticationSuccess.result
         : "";
+    },
+    faceSimilarityPercentage() {
+      const value = Number(this.effectiveOcrIdDocsDetails?.serviceFacialSimilarityResult);
+      if (Number.isNaN(value)) return value;
+      return value > 1 ? value : value * 100;
     },
     idDocDocumentImageFound() {
       return Boolean(this.effectiveOcrIdDocsDetails?.tokenFrontDocumentImage);
@@ -4378,7 +4357,9 @@ export default {
         : this.hasObjectData(eventFlags)
         ? [eventFlags]
         : [];
-      return flags.map((flag, index) => this.normalizeRiskFlag(flag, index));
+      return flags.map((flag, index) =>
+        this.normalizeRiskFlag(flag, index, this.selectedAuditEvent?.createdAt)
+      );
     },
     selectedAuditEventEntries() {
       if (!this.selectedAuditEvent) return [];
@@ -4710,6 +4691,10 @@ export default {
           this.selectedAttemptSessionId =
             this.session?.latestSessionId || this.allAuditGroups[0]?.key || "";
           this.selectedAttemptDetails = null;
+        }
+        const requestedTab = this.$route.query.tab;
+        if (requestedTab && this.visibleTabs.some((tab) => tab.id === requestedTab)) {
+          this.activeTab = requestedTab;
         }
         this.selectDocumentCategory("document");
       } catch (e) {
@@ -5319,6 +5304,7 @@ export default {
 
       try {
         this.isSubmittingReviewDecision = true;
+        const tabToRestore = this.activeTab;
         await this.submitManualReviewDecision({
           sessionId: decisionSessionId,
           action: this.reviewDecision,
@@ -5334,12 +5320,14 @@ export default {
           this.selectedAttemptDetails = this.session;
           this.$set(this.attemptDetailsCache, decisionSessionId, this.session);
         } else {
-          this.session =
-            (await this.fetchSessionsDetailsById({
-              sessionId: this.sessionId,
-              env: this.env,
-              businessId: this.isValidBusinessID ? this.companyId : undefined,
-            })) || {};
+          await this.$router.replace({
+            query: {
+              ...this.$route.query,
+              tab: tabToRestore || "risk",
+            },
+          });
+          window.location.reload();
+          return;
         }
 
         this.notifySuccess("Manual review decision submitted successfully.");
@@ -5350,7 +5338,51 @@ export default {
         this.isSubmittingReviewDecision = false;
       }
     },
-    normalizeRiskFlag(flag, index) {
+    riskFlagDateTime(flag, index, fallbackDateTime = "") {
+      const directDateTime =
+        flag?.createdAt ||
+        flag?.created_at ||
+        flag?.detectedAt ||
+        flag?.detected_at ||
+        flag?.occurredAt ||
+        flag?.occurred_at ||
+        flag?.timestamp ||
+        flag?.dateTime ||
+        flag?.date_time ||
+        flag?.metadata?.createdAt ||
+        flag?.metadata?.created_at ||
+        flag?.metadata?.detectedAt ||
+        flag?.metadata?.detected_at ||
+        flag?.metadata?.occurredAt ||
+        flag?.metadata?.occurred_at ||
+        flag?.metadata?.timestamp ||
+        flag?.metadata?.dateTime ||
+        flag?.metadata?.date_time;
+      if (this.hasValue(directDateTime)) return directDateTime;
+      if (this.hasValue(fallbackDateTime)) return fallbackDateTime;
+
+      const aggregateFlags = Array.isArray(this.session?.riskFlags)
+        ? this.session.riskFlags
+        : [];
+      const occurrence = aggregateFlags
+        .slice(0, index + 1)
+        .filter((item) => this.riskFlagFingerprint(item) === this.riskFlagFingerprint(flag))
+        .length - 1;
+      const matchingTimelineEvents = [...this.sortedTimelineDetails]
+        .reverse()
+        .filter((event) => {
+          const eventFlags = Array.isArray(event?.riskFlags)
+            ? event.riskFlags
+            : this.hasObjectData(event?.riskFlags)
+            ? [event.riskFlags]
+            : [];
+          return eventFlags.some(
+            (item) => this.riskFlagFingerprint(item) === this.riskFlagFingerprint(flag)
+          );
+        });
+      return matchingTimelineEvents[occurrence]?.createdAt || "";
+    },
+    normalizeRiskFlag(flag, index, fallbackDateTime = "") {
       const code = flag?.code || flag?.reason || "";
       const severity = flag?.severity || "";
       const metadata = flag?.metadata || {};
@@ -5359,11 +5391,23 @@ export default {
         .filter((entry) => String(entry.key).toLowerCase() !== "strategy")
         .map((entry) => ({
           ...entry,
+          label: /date|time|timestamp/i.test(entry.key) ? "Date & Time" : entry.label,
           value:
             entry.key === "reason"
               ? this.formatJurisdictionRestrictionReason(metadata.reason)
               : entry.value,
         }));
+      const flagDateTime = this.riskFlagDateTime(flag, index, fallbackDateTime);
+      if (
+        this.hasValue(flagDateTime) &&
+        !metadataEntries.some((entry) => /date|time|timestamp/i.test(entry.key))
+      ) {
+        metadataEntries.unshift({
+          key: "dateTime",
+          label: "Date & Time",
+          value: this.formatDate(flagDateTime),
+        });
+      }
 
       return {
         ...flag,
@@ -5968,9 +6012,7 @@ export default {
 
         const facePass = this.faceAuthenticationPassedForDisplay;
         const faceDetail = this.faceAuthenticationResultForDisplay;
-        const matchPct = Math.round(
-          (this.effectiveOcrIdDocsDetails?.serviceFacialSimilarityResult || 0) * 100
-        );
+        const matchPct = Math.round(this.faceSimilarityPercentage || 0);
 
         const sessionStatus = this.session.status || "Unknown";
 
