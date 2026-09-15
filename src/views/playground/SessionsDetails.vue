@@ -4354,11 +4354,8 @@ export default {
       const flags = this.riskDataSession?.riskFlags || [];
       if (!Array.isArray(flags)) return [];
 
-      const attemptDateTime = this.isSessionDetailView
-        ? this.detailsSession?.createdAt || this.detailsSession?.completedAt || ""
-        : "";
       return flags.map((flag, index) =>
-        this.normalizeRiskFlag(flag, index, attemptDateTime)
+        this.normalizeRiskFlag(flag, index)
       );
     },
     hasRiskFlags() {
@@ -4953,6 +4950,8 @@ export default {
       const parentUserId = this.isSessionDetailView
         ? this.parentUserIdentifier
         : this.sessionId;
+      const preservedQuery = { ...this.$route.query };
+      delete preservedQuery.attemptNumber;
       this.$router.push({
         name: "sessionDetails",
         params: {
@@ -4960,7 +4959,7 @@ export default {
           sessionId: String(sessionId),
         },
         query: {
-          ...this.$route.query,
+          ...preservedQuery,
           ...(parentUserId ? { userId: parentUserId } : {}),
           ...(attemptNumber ? { attemptNumber: String(attemptNumber) } : {}),
         },
@@ -5344,6 +5343,27 @@ export default {
         flag?.metadata?.date_time;
       if (this.hasValue(directDateTime)) return directDateTime;
       if (this.hasValue(fallbackDateTime)) return fallbackDateTime;
+
+      const documentRecords = this.stepDetailRecords(
+        this.detailsSession?.ocriddocsDetails
+      );
+      const matchingDocumentRecord = [...documentRecords].reverse().find((record) => {
+        const evaluations = [
+          record?.jurisdictionEvaluation,
+          record?.documentCountryConsistencyEvaluation,
+        ];
+        return evaluations.some((evaluation) => {
+          const flags = Array.isArray(evaluation?.riskFlags)
+            ? evaluation.riskFlags
+            : [];
+          return flags.some(
+            (item) => this.riskFlagFingerprint(item) === this.riskFlagFingerprint(flag)
+          );
+        });
+      });
+      if (this.hasValue(matchingDocumentRecord?.createdAt)) {
+        return matchingDocumentRecord.createdAt;
+      }
 
       const aggregateFlags = Array.isArray(this.session?.riskFlags)
         ? this.session.riskFlags
