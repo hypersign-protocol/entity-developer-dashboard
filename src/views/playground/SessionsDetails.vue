@@ -282,34 +282,43 @@
 }
 
 .sd-grid > .sd-card {
+  display: flex;
+  flex-direction: column;
   height: 235px;
+  overflow: hidden;
+}
+
+.sd-card-body {
+  flex: 1 1 auto;
+  min-height: 0;
   overflow-x: hidden;
   overflow-y: auto;
+  padding-right: 4px;
   scrollbar-color: #dbe3ef transparent;
   scrollbar-width: thin;
 }
 
-.sd-grid > .sd-card::-webkit-scrollbar {
+.sd-card-body::-webkit-scrollbar {
   width: 3px;
 }
 
-.sd-grid > .sd-card::-webkit-scrollbar-track {
+.sd-card-body::-webkit-scrollbar-track {
   background: transparent;
 }
 
-.sd-grid > .sd-card::-webkit-scrollbar-thumb {
+.sd-card-body::-webkit-scrollbar-thumb {
   background: #dbe3ef;
   border-radius: 8px;
 }
 
-.sd-grid > .sd-card:hover::-webkit-scrollbar-thumb {
+.sd-card:hover .sd-card-body::-webkit-scrollbar-thumb {
   background: #b8c4d6;
 }
 
 .sd-grid > .sd-card > h2 {
   background: #fff;
-  position: sticky;
-  top: 0;
+  flex: 0 0 auto;
+  position: static;
   z-index: 2;
 }
 
@@ -607,6 +616,8 @@
 .sd-attempts-card h2 {
   align-items: center;
   display: flex;
+  flex: 0 0 auto;
+  position: relative;
 }
 
 .sd-attempts-card h2 button {
@@ -624,8 +635,39 @@
 }
 
 .sd-attempt-list {
+  align-content: start;
   display: grid;
+  flex: 1 1 auto;
   gap: 8px;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding-right: 4px;
+  scrollbar-color: #dbe3ef transparent;
+  scrollbar-width: thin;
+}
+
+.sd-grid > .sd-attempts-card {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.sd-grid > .sd-attempts-card > h2 {
+  position: static;
+}
+
+.sd-attempt-list::-webkit-scrollbar {
+  width: 3px;
+}
+
+.sd-attempt-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sd-attempt-list::-webkit-scrollbar-thumb {
+  background: #dbe3ef;
+  border-radius: 8px;
 }
 
 .sd-attempt-summary {
