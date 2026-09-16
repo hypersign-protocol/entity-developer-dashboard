@@ -1799,6 +1799,7 @@
 }
 
 .risk-layout--two-cards .risk-column {
+  align-items: start;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
