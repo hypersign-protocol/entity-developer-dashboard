@@ -467,6 +467,66 @@
   font-size: 11px;
 }
 
+.sd-age-details {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sd-age-detail-row {
+  align-items: center;
+  display: flex;
+  font-size: 11px;
+  justify-content: space-between;
+  min-height: 24px;
+}
+
+.sd-age-detail-row > span {
+  color: #7180a5;
+  font-weight: 500;
+}
+
+.sd-age-detail-row > strong {
+  color: #26375f;
+  font-size: 11px;
+  font-weight: 400;
+  text-align: right;
+}
+
+.sd-age-status {
+  align-items: center;
+  display: inline-flex;
+  font-weight: 600 !important;
+  gap: 5px;
+}
+
+.sd-age-status.passed {
+  color: #16a34a;
+}
+
+.sd-age-status.failed {
+  color: var(--sd-danger);
+}
+
+.sd-age-criteria {
+  margin-top: 12px;
+  text-align: right;
+}
+
+.sd-criteria-badge {
+  align-items: center;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 999px;
+  color: #1d4ed8;
+  display: inline-flex;
+  font-size: 11px;
+  font-weight: 700;
+  gap: 5px;
+  max-width: 100%;
+  padding: 5px 9px;
+}
+
 .sd-risk-large {
   display: inline-block;
   font-size: 38px;
@@ -2307,6 +2367,34 @@
             </div>
           </div>
         </section>
+        <section v-if="ageVerificationDetails" class="sd-card sd-age-card">
+          <h2><i class="mdi mdi-account-check-outline"></i> Age Verification</h2>
+          <div class="sd-age-details">
+            <div class="sd-age-detail-row">
+              <span>Status</span>
+              <strong class="sd-age-status" :class="ageVerificationDetails.tone">
+                <i
+                  :class="
+                    ageVerificationDetails.passed
+                      ? 'mdi mdi-check-circle-outline'
+                      : 'mdi mdi-close-circle-outline'
+                  "
+                ></i>
+                {{ ageVerificationDetails.status }}
+              </strong>
+            </div>
+            <div v-if="ageVerificationDetails.createdAt" class="sd-age-detail-row">
+              <span>Verified At</span>
+              <strong>{{ formatDate(ageVerificationDetails.createdAt) }}</strong>
+            </div>
+          </div>
+          <div v-if="ageVerificationCriteria" class="sd-age-criteria">
+            <span class="sd-criteria-badge">
+              {{ formatCriteria(ageVerificationCriteria) }}
+              <i v-if="ageVerificationCriteria.verified" class="mdi mdi-check"></i>
+            </span>
+          </div>
+        </section>
         <section v-if="hasRiskScore" class="sd-card sd-risk-card">
           <h2><i class="mdi mdi-alert-outline"></i> Risk Score</h2>
           <div class="sd-risk-large" :style="{ color: detailRiskColor }">
@@ -3330,6 +3418,52 @@ export default {
           value,
           label: this.formatFieldLabel(key),
         }));
+    },
+    ageVerificationDetails() {
+      const details = this.latestStepDetail(this.detailsSession?.zkpVerificationDetails);
+      if (!this.hasObjectData(details)) return null;
+
+      const result = details.serviceZkpVerificationResult;
+      const hasResult = this.hasValue(result);
+      if (!hasResult) return null;
+
+      const passed = hasResult && Number(result) === 3;
+      const createdAt = details.createdAt || details.updatedAt || "";
+
+      return {
+        passed,
+        status: hasResult ? (passed ? "Passed" : "Failed") : "",
+        tone: passed ? "passed" : "failed",
+        createdAt,
+      };
+    },
+    ageVerificationCriteria() {
+      const presentation = this.parseUserConsentPresentation();
+      const rawCredentials = presentation?.verifiableCredential;
+      const credentials = Array.isArray(rawCredentials)
+        ? rawCredentials
+        : this.hasObjectData(rawCredentials)
+        ? [rawCredentials]
+        : [];
+
+      for (const credential of credentials) {
+        const subject = credential?.credentialSubject;
+        const criteria = subject?.criteria || credential?.criteria;
+        if (!this.hasObjectData(criteria)) continue;
+        if (
+          !this.hasValue(criteria.attribute) ||
+          !this.hasValue(criteria.operator) ||
+          !this.hasValue(criteria.value)
+        )
+          continue;
+
+        return {
+          ...criteria,
+          verified:
+            subject?.criteriaVerified === true || credential?.criteriaVerified === true,
+        };
+      }
+      return null;
     },
     deviceLocationEntries() {
       return [
@@ -5005,30 +5139,22 @@ export default {
       if (word) words.push(word);
       return words.map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join(" ");
     },
+    formatCriteria(criteria) {
+      if (!criteria || typeof criteria !== "object") return "";
+
+      const attribute = this.hasValue(criteria.attribute)
+        ? this.formatFieldLabel(criteria.attribute)
+        : "";
+      const operator = this.hasValue(criteria.operator) ? criteria.operator : "";
+      const value = this.hasValue(criteria.value) ? criteria.value : "";
+      const unit = this.hasValue(criteria.unit) ? criteria.unit : "";
+
+      return [attribute, operator, value, unit].filter(this.hasValue).join(" ");
+    },
     isDateFieldKey(key) {
-      const normalized = String(key || "")
-        .toLowerCase()
-        .split("_")
-        .join("")
-        .split("-")
-        .join("");
-      return new Set([
-        "date",
-        "dob",
-        "birthdate",
-        "expirationdate",
-        "expirydate",
-        "issueddate",
-        "validfrom",
-        "validuntil",
-        "createdat",
-        "updatedat",
-        "detectedat",
-        "occurredat",
-        "timestamp",
-        "datetime",
-        "time",
-      ]).has(normalized);
+      return /date|dob|birth|expir|issued|valid|(?:created|updated|detected|occurred)at$|timestamp|datetime|time$/i.test(
+        String(key || "")
+      );
     },
     formatStatusLabel(status) {
       if (!this.hasValue(status)) return "";
@@ -5396,19 +5522,17 @@ export default {
     formatFieldValue(key, value) {
       if (!value && value !== 0) return value;
       if (this.isDateFieldKey(key)) {
-        // Unix seconds (10 digits) or milliseconds (13 digits)
-        const num = Number(value);
-        if (
-          !isNaN(num) &&
-          String(value)
-            .trim()
-            .match(/^\d{9,13}$/)
-        ) {
-          const ms = String(value).length === 10 ? num * 1000 : num;
-          const d = new Date(ms);
+        const rawValue = String(value).trim();
+        const numericTimestamp = rawValue.match(/^\d{9,13}$/);
+        const isoDate = rawValue.match(/^\d{4}-\d{2}-\d{2}(?:T.*)?$/);
 
-          if (!isNaN(d.getTime())) {
-            return d.toLocaleDateString("en-IN", {
+        if (numericTimestamp || isoDate) {
+          const parsedDate = numericTimestamp
+            ? new Date(rawValue.length <= 10 ? Number(rawValue) * 1000 : Number(rawValue))
+            : new Date(rawValue);
+
+          if (!Number.isNaN(parsedDate.getTime())) {
+            return parsedDate.toLocaleDateString("en-IN", {
               day: "2-digit",
               month: "short",
               year: "numeric",
