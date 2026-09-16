@@ -9,7 +9,7 @@
         :title="summary.userId || summary.sessionId"
       >
         <span class="sd-identifier-value"
-          >User ID: {{ summary.userId || summary.sessionId }}</span
+          >User ID: {{ compactIdentifier(summary.userId || summary.sessionId) }}</span
         >
         <button
           type="button"
@@ -24,7 +24,7 @@
         class="sd-session-id"
         :title="summary.sessionId"
       >
-        Session ID: {{ compactSessionId(summary.sessionId) }}
+        Session ID: {{ compactIdentifier(summary.sessionId) }}
         <button
           type="button"
           title="Copy session ID"
@@ -80,8 +80,8 @@ export default {
     summary: { type: Object, required: true },
   },
   methods: {
-    compactSessionId(sessionId) {
-      const value = String(sessionId || "");
+    compactIdentifier(identifier) {
+      const value = String(identifier || "");
       return value.length > 16
         ? `${value.slice(0, 8)}…${value.slice(-6)}`
         : value;
