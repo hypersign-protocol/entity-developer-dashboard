@@ -3,10 +3,22 @@
     <div class="sd-avatar">{{ summary.initials }}</div>
     <div class="sd-profile-main">
       <strong v-if="summary.email">{{ summary.email }}</strong>
-      <span v-if="summary.userId">User ID: {{ summary.userId }}</span>
-      <span v-else-if="summary.sessionId"
-        >User ID: {{ summary.sessionId }}</span
+      <span
+        v-if="summary.userId || summary.sessionId"
+        class="sd-identifier"
+        :title="summary.userId || summary.sessionId"
       >
+        <span class="sd-identifier-value"
+          >User ID: {{ summary.userId || summary.sessionId }}</span
+        >
+        <button
+          type="button"
+          title="Copy user ID"
+          @click.stop="copyValue(summary.userId || summary.sessionId)"
+        >
+          <i class="mdi mdi-content-copy"></i>
+        </button>
+      </span>
       <span
         v-if="summary.isAttempt && summary.sessionId"
         class="sd-session-id"
@@ -16,7 +28,7 @@
         <button
           type="button"
           title="Copy session ID"
-          @click.stop="copySessionId(summary.sessionId)"
+          @click.stop="copyValue(summary.sessionId)"
         >
           <i class="mdi mdi-content-copy"></i>
         </button>
@@ -74,8 +86,8 @@ export default {
         ? `${value.slice(0, 8)}…${value.slice(-6)}`
         : value;
     },
-    async copySessionId(sessionId) {
-      const value = String(sessionId || "");
+    async copyValue(identifier) {
+      const value = String(identifier || "");
       if (!value) return;
 
       try {
@@ -203,14 +215,28 @@ export default {
   display: flex;
   gap: 3px;
 }
+.sd-identifier {
+  align-items: center;
+  display: flex;
+  gap: 3px;
+  overflow: hidden;
+}
+.sd-identifier-value {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.sd-identifier button,
 .sd-session-id button {
   background: transparent;
   border: 0;
   color: #52658a;
   cursor: pointer;
+  flex: 0 0 auto;
   line-height: 1;
   padding: 0;
 }
+.sd-identifier button:hover,
 .sd-session-id button:hover {
   color: #1d4ed8;
 }
