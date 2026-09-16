@@ -188,11 +188,11 @@ export default {
         },
 
         getUserStatus(status) {
-            // Sucess, Expired, Pending
+            const label = this.getUserStatusLabel(status);
             if (status == 'Success') {
                 return `<span class="badge badge-pill p-2 badge-outline-success">
   <i class="mdi mdi-check-circle-outline mr-1"></i>
-  Approved
+  ${label}
 </span>`
             }
 
@@ -233,8 +233,16 @@ export default {
 
             return `<span class="badge badge-pill badge-outline-warning p-2">
   <i class="mdi mdi-timer-sand mr-1"></i>
-  Pending
+  ${label}
 </span>`
+        },
+
+        getUserStatusLabel(status) {
+            if (status == 'Success') return 'Approved';
+            if (status == 'Failed' || status == 'REJECTED') return 'Rejected';
+            if (status == 'MANUAL_REVIEW') return 'Manual Review';
+            if (status == 'Expired') return 'Expired';
+            return 'Pending';
         },
 
         isValidEmail(email) {

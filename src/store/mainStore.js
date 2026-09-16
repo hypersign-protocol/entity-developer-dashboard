@@ -2362,13 +2362,26 @@ const mainStore = {
                         headers
                     })
                 })
-                    .then(response => response.json()).then(json => {
+                    .then(async response => {
+                        const json = await response.json()
+                        if (!response.ok) {
+                            const details = json.error?.details
+                            const message = Array.isArray(details)
+                                ? details.join(' ')
+                                : json.error?.message || json.error || json.message || 'Unable to fetch session details'
+                            throw new Error(message)
+                        }
+                        return json
+                    }).then(json => {
                         if (json.error) {
-                            return reject(new Error(json.error?.details.join(' ') || json.error.join(' ')))
+                            const details = json.error?.details
+                            const message = Array.isArray(details)
+                                ? details.join(' ')
+                                : json.error?.message || json.error || json.message || 'Unable to fetch session details'
+                            return reject(new Error(message))
                         }
 
                         if (json.data && Object.keys(json.data)?.length > 0) {
-                            commit('updateSessionDetails', json.data);
                             return resolve(json.data)
                         } else {
                             return reject(new Error('Invalid session Id or details not found'))
