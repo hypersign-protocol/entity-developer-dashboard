@@ -3725,6 +3725,7 @@ export default {
           icon: "mdi mdi-file-document-outline",
           show:
             this.attemptOptions.length ||
+            this.documentTypeItems.length ||
             this.hasIdentityDocument ||
             this.selfiImageFound,
         },
