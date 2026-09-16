@@ -1804,6 +1804,10 @@
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
+.risk-layout--single-column {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
 .risk-detail-card {
   background: #fff;
   border: 1px solid #dbe3ef;
@@ -2048,6 +2052,10 @@
   .risk-layout {
     grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   }
+
+  .risk-layout--single-column {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 1200px) {
@@ -2136,6 +2144,10 @@
 
 @media (max-width: 720px) {
   .risk-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .risk-layout--single-column {
     grid-template-columns: 1fr;
   }
 
@@ -2625,6 +2637,8 @@
           :class="{
             'risk-layout--two-cards':
               hasDetailRiskScore && hasManualDecisions && !hasRiskFlags,
+            'risk-layout--single-column':
+              hasRiskFlags !== (hasDetailRiskScore || hasManualDecisions),
           }"
         >
           <div
