@@ -2361,129 +2361,145 @@
       <div v-if="activeTab === 'overview'" class="sd-grid">
         <section v-if="identityEntries.length" class="sd-card">
           <h2><i class="mdi mdi-account-outline"></i> Identity Information</h2>
-          <dl>
-            <template v-for="item in identityEntries">
-              <dt :key="item.key + '-label'">{{ item.label }}</dt>
-              <dd :key="item.key">
-                {{ formatFieldValue(item.key, item.value) }}
-              </dd>
-            </template>
-          </dl>
+          <div class="sd-card-body">
+            <dl>
+              <template v-for="item in identityEntries">
+                <dt :key="item.key + '-label'">{{ item.label }}</dt>
+                <dd :key="item.key">
+                  {{ formatFieldValue(item.key, item.value) }}
+                </dd>
+              </template>
+            </dl>
+          </div>
         </section>
         <section v-if="verificationChecks.length || detailsSession.status" class="sd-card">
           <h2><i class="mdi mdi-shield-check-outline"></i> Verification Status</h2>
-          <div
-            v-if="verificationChecks.length"
-            class="sd-checks"
-            :class="{ 'single-check': verificationChecks.length === 1 }"
-          >
+          <div class="sd-card-body">
             <div
-              v-for="check in verificationChecks"
-              :key="check.label"
-              :class="check.tone"
+              v-if="verificationChecks.length"
+              class="sd-checks"
+              :class="{ 'single-check': verificationChecks.length === 1 }"
             >
-              <span
-                ><i
-                  :class="
-                    check.passed
-                      ? 'mdi mdi-check'
-                      : check.attempted
-                      ? 'mdi mdi-close'
-                      : 'mdi mdi-minus'
-                  "
-                ></i></span
-              ><small>{{ check.label }}</small>
+              <div
+                v-for="check in verificationChecks"
+                :key="check.label"
+                :class="check.tone"
+              >
+                <span
+                  ><i
+                    :class="
+                      check.passed
+                        ? 'mdi mdi-check'
+                        : check.attempted
+                        ? 'mdi mdi-close'
+                        : 'mdi mdi-minus'
+                    "
+                  ></i></span
+                ><small>{{ check.label }}</small>
+              </div>
             </div>
-          </div>
-          <div v-if="detailsSession.status" class="sd-verification-result" :class="statusTone">
-            <i :class="statusIcon"></i>
-            <div>
-              <strong
-                >{{ statusDisplayLabel
-                }}<small v-if="allAvailableChecksPassed"
-                  >All available verification checks passed.</small
-                ></strong
-              ><span v-if="detailsSession.completedAt">{{
-                formatDate(detailsSession.completedAt)
-              }}</span>
+            <div
+              v-if="detailsSession.status"
+              class="sd-verification-result"
+              :class="statusTone"
+            >
+              <i :class="statusIcon"></i>
+              <div>
+                <strong
+                  >{{ statusDisplayLabel
+                  }}<small v-if="allAvailableChecksPassed"
+                    >All available verification checks passed.</small
+                  ></strong
+                ><span v-if="detailsSession.completedAt">{{
+                  formatDate(detailsSession.completedAt)
+                }}</span>
+              </div>
             </div>
           </div>
         </section>
         <section v-if="ageVerificationDetails" class="sd-card sd-age-card">
           <h2><i class="mdi mdi-account-check-outline"></i> Age Verification</h2>
-          <div class="sd-age-details">
-            <div class="sd-age-detail-row">
-              <span>Status</span>
-              <strong class="sd-age-status" :class="ageVerificationDetails.tone">
-                <i
-                  :class="
-                    ageVerificationDetails.passed
-                      ? 'mdi mdi-check-circle-outline'
-                      : 'mdi mdi-close-circle-outline'
-                  "
-                ></i>
-                {{ ageVerificationDetails.status }}
-              </strong>
+          <div class="sd-card-body">
+            <div class="sd-age-details">
+              <div class="sd-age-detail-row">
+                <span>Status</span>
+                <strong class="sd-age-status" :class="ageVerificationDetails.tone">
+                  <i
+                    :class="
+                      ageVerificationDetails.passed
+                        ? 'mdi mdi-check-circle-outline'
+                        : 'mdi mdi-close-circle-outline'
+                    "
+                  ></i>
+                  {{ ageVerificationDetails.status }}
+                </strong>
+              </div>
+              <div v-if="ageVerificationDetails.createdAt" class="sd-age-detail-row">
+                <span>Verified At</span>
+                <strong>{{ formatDate(ageVerificationDetails.createdAt) }}</strong>
+              </div>
             </div>
-            <div v-if="ageVerificationDetails.createdAt" class="sd-age-detail-row">
-              <span>Verified At</span>
-              <strong>{{ formatDate(ageVerificationDetails.createdAt) }}</strong>
+            <div v-if="ageVerificationCriteria" class="sd-age-criteria">
+              <span class="sd-criteria-badge">
+                {{ formatCriteria(ageVerificationCriteria) }}
+                <i v-if="ageVerificationCriteria.verified" class="mdi mdi-check"></i>
+              </span>
             </div>
-          </div>
-          <div v-if="ageVerificationCriteria" class="sd-age-criteria">
-            <span class="sd-criteria-badge">
-              {{ formatCriteria(ageVerificationCriteria) }}
-              <i v-if="ageVerificationCriteria.verified" class="mdi mdi-check"></i>
-            </span>
           </div>
         </section>
         <section v-if="hasRiskScore" class="sd-card sd-risk-card">
           <h2><i class="mdi mdi-alert-outline"></i> Risk Score</h2>
-          <div class="sd-risk-large" :style="{ color: detailRiskColor }">
-            {{ riskDataSession.risk.riskScore }} <small>/ 100</small>
-          </div>
-          <span
-            v-if="riskDataSession.risk.riskBand"
-            class="sd-risk-band"
-            :style="{ color: detailRiskColor }"
-            >{{ riskDataSession.risk.riskBand }}</span
-          >
-          <div class="sd-risk-track">
+          <div class="sd-card-body">
+            <div class="sd-risk-large" :style="{ color: detailRiskColor }">
+              {{ riskDataSession.risk.riskScore }} <small>/ 100</small>
+            </div>
             <span
-              :style="{ left: detailRiskPercent + '%', backgroundColor: detailRiskColor }"
-            ></span>
-          </div>
-          <div class="sd-risk-labels">
-            <span>0</span><span>25</span><span>50</span><span>75</span><span>100</span>
+              v-if="riskDataSession.risk.riskBand"
+              class="sd-risk-band"
+              :style="{ color: detailRiskColor }"
+              >{{ riskDataSession.risk.riskBand }}</span
+            >
+            <div class="sd-risk-track">
+              <span
+                :style="{ left: detailRiskPercent + '%', backgroundColor: detailRiskColor }"
+              ></span>
+            </div>
+            <div class="sd-risk-labels">
+              <span>0</span><span>25</span><span>50</span><span>75</span><span>100</span>
+            </div>
           </div>
         </section>
         <section v-if="deviceLocationEntries.length" class="sd-card">
           <h2><i class="mdi mdi-laptop"></i> Device &amp; Location</h2>
-          <dl>
-            <template v-for="item in deviceLocationEntries">
-              <dt :key="item.label + '-label'">{{ item.label }}</dt>
-              <dd :key="item.label">{{ item.value }}</dd>
-            </template>
-          </dl>
+          <div class="sd-card-body">
+            <dl>
+              <template v-for="item in deviceLocationEntries">
+                <dt :key="item.label + '-label'">{{ item.label }}</dt>
+                <dd :key="item.label">{{ item.value }}</dd>
+              </template>
+            </dl>
+          </div>
         </section>
         <section v-if="overviewVerificationResults.length" class="sd-card">
           <h2><i class="mdi mdi-clipboard-check-outline"></i> Verification Results</h2>
-          <div
-            v-for="result in overviewVerificationResults"
-            :key="result.label"
-            class="risk-verification-row"
-          >
-            <i
-              :class="
-                result.passed
-                  ? 'mdi mdi-check-circle passed'
-                  : 'mdi mdi-close-circle failed'
-              "
-            ></i
-            ><span>{{ result.label }}</span
-            ><strong :class="result.passed ? 'passed' : 'failed'">{{
-              result.value
-            }}</strong>
+          <div class="sd-card-body">
+            <div
+              v-for="result in overviewVerificationResults"
+              :key="result.label"
+              class="risk-verification-row"
+            >
+              <i
+                :class="
+                  result.passed
+                    ? 'mdi mdi-check-circle passed'
+                    : 'mdi mdi-close-circle failed'
+                "
+              ></i
+              ><span>{{ result.label }}</span
+              ><strong :class="result.passed ? 'passed' : 'failed'">{{
+                result.value
+              }}</strong>
+            </div>
           </div>
         </section>
         <section
@@ -2500,7 +2516,7 @@
               View All <i class="mdi mdi-arrow-right"></i>
             </button>
           </h2>
-          <div class="sd-attempt-list">
+          <div class="sd-card-body sd-attempt-list">
             <button
               v-for="attempt in overviewVerificationAttempts"
               :key="attempt.key"
@@ -2520,7 +2536,9 @@
         </section>
         <section v-if="notes.length" class="sd-card sd-notes-card">
           <h2><i class="mdi mdi-information-outline"></i> Notes</h2>
-          <p v-for="(note, index) in notes" :key="index">{{ note }}</p>
+          <div class="sd-card-body">
+            <p v-for="(note, index) in notes" :key="index">{{ note }}</p>
+          </div>
         </section>
       </div>
       <section v-else-if="activeTab === 'documents'" class="documents-panel">
