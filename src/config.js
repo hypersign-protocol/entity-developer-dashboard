@@ -191,6 +191,7 @@ config['FaicalAuthenticationError'] = {
     2: 'Face not found in the image',
     4: 'Rejected, to perform face check due to the pose of the face',
     5: 'Rejected, due to problems in the extraction of the facial pattern',
+    // --- Document Related Error --- //
     6: 'Rejected, because document has already been verified in some other account with this service',
     7: 'Failed, because the date of birth could not be read correctly from the document',
     8: 'Failed, because document issuing country is restricted',

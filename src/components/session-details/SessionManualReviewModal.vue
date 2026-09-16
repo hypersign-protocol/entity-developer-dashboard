@@ -2,7 +2,7 @@
   <b-modal
     id="manual-review-decision-modal"
     ref="modal"
-    size="xl"
+    size="lg"
     centered
     scrollable
     title="Review verification and take action"
@@ -14,23 +14,18 @@
     <div class="manual-review-panel">
       <div class="card-section-title">Take decision</div>
 
-      <b-form-radio
-        :checked="decision === 'APPROVED'"
-        value="APPROVED"
-        class="font-weight-bold mb-2"
+      <b-form-radio-group
+        :checked="decision"
+        name="manual-review-decision"
         @change="$emit('update:decision', $event)"
       >
-        Approve
-      </b-form-radio>
-
-      <b-form-radio
-        :checked="decision === 'REJECTED'"
-        value="REJECTED"
-        class="font-weight-bold mb-3"
-        @change="$emit('update:decision', $event)"
-      >
-        Reject
-      </b-form-radio>
+        <b-form-radio value="APPROVED" class="font-weight-bold mb-2">
+          Approve
+        </b-form-radio>
+        <b-form-radio value="REJECTED" class="font-weight-bold mb-3">
+          Reject
+        </b-form-radio>
+      </b-form-radio-group>
 
       <b-alert v-if="decision === 'APPROVED'" show variant="success" class="py-2">
         This verification will be approved and the user can proceed.
@@ -44,16 +39,20 @@
           Reason <span class="mandatory">*</span>
         </label>
         <div class="text-muted small mb-2">Common reasons</div>
-        <b-form-radio
-          v-for="reason in reasonOptions"
-          :key="reason.value"
-          :checked="reasonCode === reason.value"
-          :value="reason.value"
-          class="mb-2"
+        <b-form-radio-group
+          :checked="reasonCode"
+          name="manual-review-reason"
           @change="$emit('update:reasonCode', $event)"
         >
-          {{ reason.label }}
-        </b-form-radio>
+          <b-form-radio
+            v-for="reason in reasonOptions"
+            :key="reason.value"
+            :value="reason.value"
+            class="mb-2"
+          >
+            {{ reason.label }}
+          </b-form-radio>
+        </b-form-radio-group>
       </div>
 
       <div class="form-group mt-4 mb-0">
@@ -77,26 +76,26 @@
     <template #modal-footer>
       <b-button
         variant="outline-secondary"
-        class="manual-review-cancel-btn"
+        class="mr-2"
         @click="$emit('cancel')"
       >
         Cancel
       </b-button>
-      <b-button
-        variant="primary"
-        class="manual-review-submit-btn"
-        :disabled="submitting"
-        @click="$emit('submit')"
-      >
-        {{ submitting ? "Submitting..." : "Submit" }}
-      </b-button>
+      <HfButtons
+        :name="submitting ? 'Submitting...' : 'Submit'"
+        :class="{ 'manual-review-submit-disabled': submitting }"
+        @executeAction="submitDecision"
+      />
     </template>
   </b-modal>
 </template>
 
 <script>
+import HfButtons from "../element/HfButtons.vue";
+
 export default {
   name: "SessionManualReviewModal",
+  components: { HfButtons },
   methods: {
     show() {
       this.$refs.modal.show();
@@ -110,6 +109,9 @@ export default {
     handleHidden() {
       document.body.classList.remove("manual-review-modal-open");
       this.$emit("input", false);
+    },
+    submitDecision() {
+      if (!this.submitting) this.$emit("submit");
     },
   },
   beforeDestroy() {
@@ -162,6 +164,10 @@ body.manual-review-modal-open .sticky-top {
   box-shadow: 0 16px 40px rgba(23, 37, 84, 0.16);
   overflow: hidden;
   font-size: 13px;
+}
+
+#manual-review-decision-modal .modal-dialog {
+  max-width: 640px;
 }
 
 #manual-review-decision-modal .modal-header {
@@ -226,36 +232,9 @@ body.manual-review-modal-open .sticky-top {
   box-shadow: 0 0 0 3px rgba(148, 163, 184, 0.18);
 }
 
-.manual-review-cancel-btn {
-  background: #fff !important;
-  border-color: #6c757d !important;
-  color: #6c757d !important;
-}
-
-.manual-review-cancel-btn:hover,
-.manual-review-cancel-btn:focus {
-  background: #6c757d !important;
-  color: #fff !important;
-}
-
-.manual-review-submit-btn {
-  background: #6c757d !important;
-  border-color: #6c757d !important;
-  color: #fff !important;
-}
-
-.manual-review-submit-btn:hover,
-.manual-review-submit-btn:focus {
-  background: #5a6268 !important;
-  border-color: #5a6268 !important;
-  color: #fff !important;
-}
-
-.manual-review-submit-btn:disabled {
-  background: #6c757d !important;
-  border-color: #6c757d !important;
-  color: #fff !important;
+.manual-review-submit-disabled {
   opacity: 0.65;
+  pointer-events: none;
 }
 
 .card-section-title {

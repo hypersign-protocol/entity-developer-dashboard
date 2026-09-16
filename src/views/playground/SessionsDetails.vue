@@ -174,81 +174,6 @@
   margin-right: 8px;
 }
 
-.sd-profile-card {
-  align-items: stretch;
-  background: #fff;
-  border: 1px solid #dbe3ef;
-  border-radius: 9px;
-  display: flex;
-  margin-bottom: 16px;
-  padding: 18px;
-}
-
-.sd-avatar {
-  align-items: center;
-  align-self: center;
-  background: #e8edf5;
-  border-radius: 50%;
-  color: #52658a;
-  display: flex;
-  flex: 0 0 58px;
-  font-size: 20px;
-  font-weight: 700;
-  height: 58px;
-  justify-content: center;
-}
-
-.sd-profile-main {
-  align-self: center;
-  border-right: 1px solid #e2e8f0;
-  display: flex;
-  flex: 1 1 260px;
-  flex-direction: column;
-  margin-left: 16px;
-  min-width: 180px;
-  padding-right: 20px;
-}
-
-.sd-profile-main strong {
-  color: #14214a;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.sd-profile-main span {
-  color: #7180a5;
-  font-size: 12px;
-  margin-top: 5px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.sd-stat {
-  border-right: 1px solid #e2e8f0;
-  display: flex;
-  flex: 1 1 135px;
-  flex-direction: column;
-  justify-content: flex-start;
-  padding: 4px 22px 0;
-}
-
-.sd-stat:last-child {
-  border-right: 0;
-}
-
-.sd-stat label {
-  color: #7180a5;
-  font-size: 11px;
-  margin-bottom: 8px;
-}
-
-.sd-stat strong {
-  color: #172554;
-  font-size: 14px;
-}
-
 .sd-status {
   align-self: flex-start;
   background: #f1f5f9;
@@ -290,17 +215,6 @@
   color: var(--sd-secondary);
 }
 
-.sd-current-status-row {
-  align-items: center;
-  display: flex;
-}
-
-.sd-risk-value {
-  display: inline-block;
-  font-size: 19px !important;
-}
-
-.sd-risk-value small,
 .sd-risk-large small {
   color: #52658a;
   font-size: 0.55em;
@@ -695,6 +609,7 @@
 .sd-attempt-summary .sd-status {
   font-size: 9px;
   padding: 3px 6px;
+  justify-self: start;
 }
 
 .sd-attempt-summary small {
@@ -1883,6 +1798,11 @@
   min-width: 0;
 }
 
+.risk-layout--two-cards .risk-column {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
 .risk-detail-card {
   background: #fff;
   border: 1px solid #dbe3ef;
@@ -2218,6 +2138,10 @@
     grid-template-columns: 1fr;
   }
 
+  .risk-layout--two-cards .risk-column {
+    grid-template-columns: 1fr;
+  }
+
   .risk-page-header {
     align-items: flex-start;
     flex-direction: column;
@@ -2237,16 +2161,6 @@
 }
 
 @media (max-width: 1100px) {
-  .sd-profile-card {
-    flex-wrap: wrap;
-  }
-
-  .sd-stat {
-    border-top: 1px solid #e2e8f0;
-    margin-top: 16px;
-    padding-top: 14px;
-  }
-
   .sd-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -2263,16 +2177,6 @@
 
   .sd-header p {
     max-width: 220px;
-  }
-
-  .sd-profile-main {
-    border-right: 0;
-  }
-
-  .sd-stat {
-    border-right: 0;
-    flex-basis: 50%;
-    padding: 12px 8px 0;
   }
 
   .sd-grid {
@@ -2318,52 +2222,15 @@
           <h1>{{ pageTitle }}</h1>
           <p>{{ pageDescription }}</p>
         </div>
-        <button v-if="session.status" class="sd-report-btn" @click="downloadKYCReport">
+        <button
+          v-if="session.status && !isSessionDetailView"
+          class="sd-report-btn"
+          @click="downloadKYCReport"
+        >
           <i class="mdi mdi-download-outline"></i> Report
         </button>
       </header>
-      <section class="sd-profile-card">
-        <div class="sd-avatar">{{ userInitials }}</div>
-        <div class="sd-profile-main">
-          <strong v-if="session.email">{{ session.email }}</strong
-          ><span v-if="isSessionDetailView">{{
-            currentAttemptNumber ? `Attempt #${currentAttemptNumber}` : "Attempt Detail"
-          }}</span
-          ><span v-else-if="session.userId">User ID: {{ session.userId }}</span
-          ><span v-else-if="sessionId">User ID: {{ sessionId }}</span>
-        </div>
-        <div v-if="session.status" class="sd-stat">
-          <label>{{ isSessionDetailView ? "Attempt Status" : "Current Status" }}</label>
-          <div class="sd-current-status-row">
-            <span class="sd-status" :class="statusTone">{{ statusDisplayLabel }}</span>
-          </div>
-        </div>
-        <div v-if="hasRiskScore" class="sd-stat">
-          <label>{{
-            isSessionDetailView ? "Attempt Risk Score" : "Current Risk Score"
-          }}</label
-          ><strong class="sd-risk-value" :style="{ color: riskColor }"
-            >{{ session.risk.riskScore }} <small>/ 100</small></strong
-          ><span
-            v-if="session.risk.riskBand"
-            class="sd-risk-band"
-            :style="{ color: riskColor }"
-            >{{ session.risk.riskBand }}</span
-          >
-        </div>
-        <div v-if="!isSessionDetailView && verificationAttemptCount" class="sd-stat">
-          <label>Total Attempts</label><strong>{{ verificationAttemptCount }}</strong>
-        </div>
-        <div v-if="!isSessionDetailView && latestVerificationSummary" class="sd-stat">
-          <label>{{ latestVerificationSummary.label }}</label
-          ><strong :title="latestVerificationSummary.title">{{
-            latestVerificationSummary.primary
-          }}</strong
-          ><span v-if="latestVerificationSummary.secondary">{{
-            latestVerificationSummary.secondary
-          }}</span>
-        </div>
-      </section>
+      <SessionProfileSummary :summary="profileSummary" />
       <nav class="sd-tabs">
         <button
           v-for="tab in visibleTabs"
@@ -2387,7 +2254,7 @@
             </template>
           </dl>
         </section>
-        <section v-if="verificationChecks.length || session.status" class="sd-card">
+        <section v-if="verificationChecks.length || detailsSession.status" class="sd-card">
           <h2><i class="mdi mdi-shield-check-outline"></i> Verification Status</h2>
           <div
             v-if="verificationChecks.length"
@@ -2412,7 +2279,7 @@
               ><small>{{ check.label }}</small>
             </div>
           </div>
-          <div v-if="session.status" class="sd-verification-result" :class="statusTone">
+          <div v-if="detailsSession.status" class="sd-verification-result" :class="statusTone">
             <i :class="statusIcon"></i>
             <div>
               <strong
@@ -2420,25 +2287,27 @@
                 }}<small v-if="allAvailableChecksPassed"
                   >All available verification checks passed.</small
                 ></strong
-              ><span v-if="session.completedAt">{{
-                formatDate(session.completedAt)
+              ><span v-if="detailsSession.completedAt">{{
+                formatDate(detailsSession.completedAt)
               }}</span>
             </div>
           </div>
         </section>
         <section v-if="hasRiskScore" class="sd-card sd-risk-card">
           <h2><i class="mdi mdi-alert-outline"></i> Risk Score</h2>
-          <div class="sd-risk-large" :style="{ color: riskColor }">
-            {{ session.risk.riskScore }} <small>/ 100</small>
+          <div class="sd-risk-large" :style="{ color: detailRiskColor }">
+            {{ riskDataSession.risk.riskScore }} <small>/ 100</small>
           </div>
           <span
-            v-if="session.risk.riskBand"
+            v-if="riskDataSession.risk.riskBand"
             class="sd-risk-band"
-            :style="{ color: riskColor }"
-            >{{ session.risk.riskBand }}</span
+            :style="{ color: detailRiskColor }"
+            >{{ riskDataSession.risk.riskBand }}</span
           >
           <div class="sd-risk-track">
-            <span :style="{ left: riskPercent + '%', backgroundColor: riskColor }"></span>
+            <span
+              :style="{ left: detailRiskPercent + '%', backgroundColor: detailRiskColor }"
+            ></span>
           </div>
           <div class="sd-risk-labels">
             <span>0</span><span>25</span><span>50</span><span>75</span><span>100</span>
@@ -2750,7 +2619,13 @@
             Review verification and take action
           </button>
         </header>
-        <div class="risk-layout">
+        <div
+          class="risk-layout"
+          :class="{
+            'risk-layout--two-cards':
+              hasDetailRiskScore && hasManualDecisions && !hasRiskFlags,
+          }"
+        >
           <div
             v-if="hasDetailRiskScore || (!isSessionDetailView && hasManualDecisions)"
             class="risk-column"
@@ -2829,7 +2704,7 @@
               </div>
             </article>
             <article
-              v-if="!isSessionDetailView && hasManualDecisions"
+              v-if="hasManualDecisions"
               class="risk-detail-card decision-history-card"
             >
               <h3><i class="mdi mdi-history"></i>Decision History</h3>
@@ -2837,7 +2712,7 @@
                 class="risk-decision-list"
                 :decisions="normalizedManualDecisions"
                 :reason-options="reviewReasonOptions"
-                show-attempts
+                :show-attempts="!isSessionDetailView"
                 @view-attempt="viewSessionAttempt"
               />
             </article>
@@ -3137,6 +3012,7 @@ import { getStellarChainConfig } from "@hypersign-protocol/hypersign-kyc-chains-
 import SessionDecisionHistory from "../../components/session-details/SessionDecisionHistory.vue";
 import SessionRiskFlagList from "../../components/session-details/SessionRiskFlagList.vue";
 import SessionManualReviewModal from "../../components/session-details/SessionManualReviewModal.vue";
+import SessionProfileSummary from "../../components/session-details/SessionProfileSummary.vue";
 import Config from "../../config";
 import pdfMake from "pdfmake";
 import pdfFonts from "pdfmake/build/vfs_fonts";
@@ -3191,6 +3067,7 @@ export default {
     SessionDecisionHistory,
     SessionRiskFlagList,
     SessionManualReviewModal,
+    SessionProfileSummary,
   },
   computed: {
     ...mapGetters("mainStore", ["getSelectedService"]),
@@ -3269,6 +3146,42 @@ export default {
         ? "Verification data for this specific attempt"
         : "View verification history, identity information and compliance record";
     },
+    profileAttemptSummary() {
+      if (!this.isSessionDetailView) return this.latestVerificationSummary;
+      const attemptNumber = this.currentAttemptNumber;
+      const attemptSessionId = this.detailsSession?.sessionId || this.sessionId;
+      if (!attemptNumber && !attemptSessionId) return null;
+      return {
+        label: "Current Attempt",
+        primary: attemptNumber ? `Attempt #${attemptNumber}` : "Attempt",
+        timestamp: this.detailsSession?.createdAt
+          ? this.formatDate(this.detailsSession.createdAt)
+          : "",
+        title: attemptNumber ? `Attempt #${attemptNumber}` : "Attempt",
+      };
+    },
+    profileSummary() {
+      const profileSession = this.riskDataSession;
+      const risk = profileSession?.risk || {};
+      return {
+        initials: this.userInitials,
+        email: this.session?.email || "",
+        userId: this.parentUserIdentifier || this.session?.userId || "",
+        sessionId: this.isSessionDetailView
+          ? profileSession?.sessionId || this.sessionId
+          : "",
+        isAttempt: this.isSessionDetailView,
+        status: profileSession?.status || "",
+        statusTone: this.statusTone,
+        statusLabel: this.statusDisplayLabel,
+        hasRiskScore: this.hasValue(risk.riskScore),
+        riskScore: risk.riskScore,
+        riskBand: risk.riskBand || "",
+        riskColor: this.detailRiskColor,
+        attemptCount: this.isSessionDetailView ? null : this.verificationAttemptCount,
+        latestAttempt: this.profileAttemptSummary,
+      };
+    },
     userInitials() {
       const source =
         this.session?.name || this.session?.email || this.session?.userId || "U";
@@ -3280,15 +3193,14 @@ export default {
         .toUpperCase();
     },
     statusTone() {
-      const status = this.session?.status || "";
-      if (/manual[_\s-]?review/i.test(status)) return "review";
-      if (/expired|timeout/i.test(status)) return "expired";
-      if (/fail|reject|denied|invalid|error/i.test(status)) return "failed";
-      if (/success|verified|approved|passed/i.test(status)) return "passed";
-      return "";
+      const status = this.detailsSession?.status || "";
+      if (status === "Success") return "passed";
+      if (status === "Failed" || status === "REJECTED") return "failed";
+      if (status === "Expired") return "expired";
+      return "review";
     },
     statusDisplayLabel() {
-      return this.formatStatusLabel(this.session?.status);
+      return this.getUserStatusLabel(this.detailsSession?.status);
     },
     statusIcon() {
       if (this.statusTone === "review") return "mdi mdi-alert-circle-outline";
@@ -3298,7 +3210,7 @@ export default {
       return "mdi mdi-circle-outline";
     },
     hasRiskScore() {
-      return this.hasValue(this.session?.risk?.riskScore);
+      return this.hasValue(this.riskDataSession?.risk?.riskScore);
     },
     detailsSession() {
       return this.selectedAttemptDetails || this.session || {};
@@ -3390,7 +3302,7 @@ export default {
         });
     },
     riskPercent() {
-      return Math.max(0, Math.min(100, Number(this.session?.risk?.riskScore) || 0));
+      return this.detailRiskPercent;
     },
     identityEntries() {
       const source = Object.keys(this.userPersonalDataFromUserConsent).length
@@ -3617,72 +3529,60 @@ export default {
       ].filter((item) => this.hasValue(item.value));
     },
     verificationChecks() {
-      const failedStep = this.session?.failureInfo?.failureStep;
-      const livenessDetails = this.latestStepDetail(this.session?.selfiDetails);
-      const documentDetails = this.latestStepDetail(this.session?.ocriddocsDetails);
-      const ageDetails = this.latestStepDetail(
-        this.session?.zkProofVerificationDetails || this.session?.zkpVerificationDetails
-      );
-      const consentDetails = this.latestStepDetail(this.session?.userConsentDetails);
-      const livenessResult = livenessDetails?.serviceLivenessResult;
-      const ageResult = ageDetails?.serviceZkpVerificationResult;
+      const session = this.detailsSession;
+      const failedStep = session?.failureInfo?.failureStep;
       const checks = [
         {
+          field: "step_start",
+          label: "Started",
+        },
+        {
           field: "step_liveliness",
-          label: "Liveness",
-          details: livenessDetails,
-          passed: this.hasValue(livenessResult)
-            ? livenessResult == 3
-            : this.session?.step_liveliness == 1,
+          label: "Liveliness Check",
         },
         {
           field: "step_ocrIdVerification",
-          label: "Document",
-          details: documentDetails,
-          passed: this.session?.step_ocrIdVerification == 1,
+          label: "Document Verification",
         },
         {
-          field: "step_zkProofVerification",
-          label: "Age Check",
-          details: ageDetails,
-          passed: this.hasValue(ageResult)
-            ? ageResult == 3
-            : this.session?.step_zkProofVerification == 1,
+          field: "step_mintSbt",
+          label: "Mint SBT",
         },
         {
           field: "step_userConsent",
-          label: "Consent",
-          details: consentDetails,
-          passed: this.session?.step_userConsent == 1,
+          label: "User Consent",
+        },
+        {
+          field: "step_finish",
+          label: "Finished",
         },
       ];
 
-      return checks.map(({ field, label, details, passed }) => {
-        const attempted =
-          this.session?.[field] == 1 ||
-          failedStep === field ||
-          this.hasObjectData(details);
+      return checks
+        .filter(({ field }) => session?.[field] !== null && session?.[field] !== undefined)
+        .map(({ field, label }) => {
+        const failed = session?.status === "Failed" && failedStep === field;
+        const passed = session?.[field] == 1 && !failed;
         return {
+          field,
           label,
-          attempted,
-          passed: attempted && passed,
-          tone: !attempted ? "not-attempted" : passed ? "passed" : "failed",
+          attempted: session?.[field] == 1 || failed,
+          passed,
+          tone: passed ? "passed" : failed ? "failed" : "not-attempted",
         };
       });
     },
     overviewVerificationResults() {
       const results = [];
-      const ocrDetails = this.latestStepDetail(this.session?.ocriddocsDetails);
-      const selfiDetails = this.latestStepDetail(this.session?.selfiDetails);
-      const zkpDetails = this.latestStepDetail(
-        this.session?.zkProofVerificationDetails || this.session?.zkpVerificationDetails
-      );
+      const session = this.detailsSession;
+      const ocrDetails = this.latestStepDetail(session?.ocriddocsDetails);
+      const selfiDetails = this.latestStepDetail(session?.selfiDetails);
 
       const documentCheck = this.verificationChecks.find(
-        (check) => check.label === "Document" && check.attempted
+        (check) => check.field === "step_ocrIdVerification" && check.attempted
       );
       const consentCheck = this.verificationChecks.find(
-        (check) => check.label === "Consent" && check.attempted
+        (check) => check.field === "step_userConsent" && check.attempted
       );
       if (this.hasValue(selfiDetails.serviceLivenessResult)) {
         const result = selfiDetails.serviceLivenessResult;
@@ -3694,30 +3594,23 @@ export default {
         });
       }
       if (documentCheck) {
+        const documentResult = this.documentRecordResult(ocrDetails);
         results.push({
           label: "Document verification",
           passed: documentCheck.passed,
-          value: documentCheck.passed ? "Passed" : "Failed",
+          value:
+            documentResult?.label || (documentCheck.passed ? "Passed" : "Failed"),
         });
       }
-      if (this.hasValue(ocrDetails.serviceFacialAuthenticationResult)) {
-        const result = ocrDetails.serviceFacialAuthenticationResult;
-        const passed = result == 3;
+      const result = ocrDetails.serviceFacialAuthenticationResult;
+      if (this.hasValue(result) && Number(result) <= 5) {
+        const passed = Number(result) === 3;
         results.push({
           label: "Face authentication",
           passed,
           value: passed
             ? "Passed"
             : Config["FaicalAuthenticationError"][result] || "Failed",
-        });
-      }
-      if (this.hasValue(zkpDetails.serviceZkpVerificationResult)) {
-        const result = zkpDetails.serviceZkpVerificationResult;
-        const passed = result == 3;
-        results.push({
-          label: "Age Verification",
-          passed,
-          value: passed ? "Passed" : ZkpVerificationResultEnum[result] || "Failed",
         });
       }
       if (consentCheck) {
@@ -3735,7 +3628,7 @@ export default {
       return (
         attemptedChecks.length > 0 &&
         attemptedChecks.every((check) => check.passed) &&
-        /success|verified|approved/i.test(this.session?.status || "")
+        /success|verified|approved/i.test(this.detailsSession?.status || "")
       );
     },
     verificationAttempts() {
@@ -3904,7 +3797,8 @@ export default {
       );
     },
     faceAuthenticationDisplayFound() {
-      return this.faceAuthenticationResultFound;
+      const result = this.effectiveOcrIdDocsDetails?.serviceFacialAuthenticationResult;
+      return this.hasValue(result) && Number(result) <= 5;
     },
     faceAuthenticationPassedForDisplay() {
       return this.isFacialAuthenticationSuccess.success;
@@ -4368,7 +4262,17 @@ export default {
       const decisions = this.session?.manualDecisions || [];
       if (!Array.isArray(decisions)) return [];
 
+      const currentAttemptSessionId = this.isSessionDetailView
+        ? String(this.detailsSession?.sessionId || this.sessionId)
+        : "";
+
       const normalizedDecisions = decisions
+        .filter((decision) => {
+          if (!currentAttemptSessionId) return true;
+          const decisionSessionId =
+            decision?.sessionId || decision?.session_id || decision?.attemptSessionId;
+          return String(decisionSessionId || "") === currentAttemptSessionId;
+        })
         .map((decision, index) => {
           const sessionId = this.relatedSessionId(decision);
           return {
@@ -4445,7 +4349,7 @@ export default {
       return this.isSessionDetailView ? "" : String(this.session?.latestSessionId || "");
     },
     riskColor() {
-      return this.riskBandColor(this.session?.risk?.riskBand);
+      return this.detailRiskColor;
     },
   },
   data() {
