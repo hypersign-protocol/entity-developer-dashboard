@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [3.15.0] - 2026-09-16
+
+### Added
+
+- Improved User and Attempt Details UI.
+
 ## [3.14.7] - 2026-09-04
 ### Added
 
