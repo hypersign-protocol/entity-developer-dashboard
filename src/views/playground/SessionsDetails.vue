@@ -2628,7 +2628,7 @@
           }"
         >
           <div
-            v-if="hasDetailRiskScore || (!isSessionDetailView && hasManualDecisions)"
+            v-if="hasDetailRiskScore || hasManualDecisions"
             class="risk-column"
           >
             <article v-if="hasDetailRiskScore" class="risk-detail-card">
