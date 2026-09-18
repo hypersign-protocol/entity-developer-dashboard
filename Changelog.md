@@ -2,6 +2,13 @@
 
 ## [Unreleased]
 
+
+## [3.15.1] - 2026-09-18 
+
+### Fixed
+
+- Fixed login will not allow /studio/login authenticated users
+
 ## [3.15.0] - 2026-09-16
 
 ### Added
