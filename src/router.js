@@ -85,7 +85,11 @@ const router = new Router({
     {
       path: '/studio/login',
       name: 'PKIIdLogin',
-      component: PKIIdLogin
+      component: PKIIdLogin,
+      meta: {
+        guestOnly: true,
+        title: `${config.app.name} - Login`
+      }
     },
     {
       path: '/studio/mfa',
@@ -348,6 +352,10 @@ router.beforeEach(async (to, from, next) => {
 
   if (to.meta && to.meta.title) {
     document.title = to.meta.title;
+  }
+
+  if (to.meta.guestOnly && isAuthenticated) {
+    return next({ name: 'dashboard' });
   }
 
   // console.log("BeforeEach →", {
