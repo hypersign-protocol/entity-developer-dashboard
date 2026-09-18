@@ -159,6 +159,22 @@
   color: #374151;
   padding: 2px 10px;
 }
+
+.sessions-search {
+  max-width: 45vw;
+  width: 360px;
+}
+
+.sessions-search .search-btn {
+  cursor: default;
+}
+
+.search-empty-state {
+  padding: 48px 16px;
+  text-align: center;
+  color: #6b7280;
+  font-size: 0.85rem;
+}
 </style>
 
 <template>
@@ -171,16 +187,16 @@
         <h4 class="page-title">Users Verifications</h4>
         <p class="page-subtitle">Manage and track user verifications</p>
       </div>
-      <div v-if="userList.length > 0" class="search-wrap">
+      <div v-if="userList.length > 0" class="search-wrap sessions-search">
         <input
           type="text"
-          placeholder="Search by user ID or email"
+          placeholder="Search by name or user ID"
+          aria-label="Search users by name or user ID"
           v-model="sessionIdTemp"
-          @keyup.enter="viewSessionDetails(sessionIdTemp)"
         />
-        <button class="search-btn" @click="viewSessionDetails(sessionIdTemp)">
+        <span class="search-btn" aria-hidden="true">
           <i class="fa fa-search"></i>
-        </button>
+        </span>
       </div>
     </div>
 
@@ -188,7 +204,7 @@
     <div v-if="userList.length > 0">
       <div class="table-card">
         <div class="table-scroll">
-          <table class="sessions-table">
+          <table v-if="filteredUserList.length" class="sessions-table">
             <thead>
               <tr>
                 <th>User</th>
@@ -201,7 +217,7 @@
             </thead>
             <tbody>
               <tr
-                v-for="row in userList"
+                v-for="row in filteredUserList"
                 :key="row.userId"
                 @click="viewSessionDetails(row.userId)"
               >
@@ -280,6 +296,9 @@
               </tr>
             </tbody>
           </table>
+          <div v-else class="search-empty-state">
+            No users match “{{ sessionIdTemp.trim() }}”.
+          </div>
         </div>
       </div>
 
@@ -310,8 +329,7 @@ export default {
   name: "SessionsPage",
   components: { PagiNation, AccessDenied },
   computed: {
-    ...mapGetters('mainStore', ['userList', 'getUserAccessList', 'getSelectedService']),
-    ...mapGetters('mainStore', ['getUserDetails']),
+    ...mapGetters('mainStore', ['getSelectedService', 'getUserDetails']),
     ...mapState({
       totalUserCount: state => state.mainStore.totalUserCount,
       userList: state => state.mainStore.userList,
@@ -322,6 +340,16 @@ export default {
     },
     pages() {
       return Math.ceil(parseInt(this.totalUserCount) / this.pageLimit);
+    },
+    filteredUserList() {
+      const query = String(this.sessionIdTemp || '').trim().toLowerCase();
+      if (!query) return this.userList;
+
+      return this.userList.filter((row) =>
+        [row.name, row.userId].some((value) =>
+          String(value || '').toLowerCase().includes(query)
+        )
+      );
     },
   },
   data() {
@@ -335,25 +363,6 @@ export default {
         { field: 'step_userConsent', icon: 'fa-thumbs-up', title: 'User Consent' },
         { field: 'step_finish', icon: 'fa-check', title: 'Finished' },
       ],
-      overviewData: {
-        totalVerifications: 1000,
-        completionRate: 80,
-        successRate: 40,
-        dropOfRate: 0.5,
-        // avgSessionPerUser: 2,
-      },
-
-      // Table column headers
-      headers: [
-        { text: 'USER ID', value: 'userId' },
-        { text: 'START DATE', value: 'start_date' },
-        { text: 'END DATE', value: 'end_date' },
-        { text: 'ATTEMPTS', value: 'attempts' },
-        { text: 'STEPS', value: 'steps' },
-        { text: 'STATUS', value: 'status' },
-      ],
-
-      authToken: localStorage.getItem('authToken'),
       user: {},
       fullPage: true,
       isLoading: false,
@@ -361,7 +370,6 @@ export default {
       accessDeniedMsg: '',
       sessionIdTemp: null,
       hasPermission: false,
-      selectedSessionStatus: 'All',
       currentPage: 1,
       pageLimit: 50,
       isProd: false,
@@ -382,8 +390,6 @@ export default {
       this.isLoading = false
 
 
-      const storedStatus = localStorage.getItem('selectedSessionStatus');
-      this.selectedSessionStatus = storedStatus ? storedStatus : '';
       this.currentPage = localStorage.getItem('selectedPage') || 1;
 
     } catch (e) {
@@ -454,32 +460,6 @@ export default {
         color: 'white'
       };
     },
-    getTooltipText(key) {
-      const descriptions = {
-        totalVerifications: 'Total number of user verification attempts (UVAs).',
-        completionRate: 'Percentage of verifications that reached the final step.',
-        successRate: 'Percentage of verifications that were successful (verified).',
-        dropOfRate: 'Percentage of sessions that expired or were abandoned.',
-        avgSessionPerUser: 'Average number of verification attempts per user.',
-      };
-      return descriptions[key] || 'Metric description not available.';
-    },
-    formatNumber(val) {
-      return typeof val === 'number' ? val.toLocaleString() : val;
-    },
-    formatKey(key) {
-      const map = {
-        totalVerifications: 'Total User Verifications Attempts',
-        completionRate: 'Completion Rate',
-        successRate: 'Success Rate',
-        dropOfRate: 'Drop-off Rate',
-        // avgSessionPerUser: 'Avg Session per User',
-      };
-      return map[key] || key;
-    },
-    isPercentageKey(key) {
-      return ['completionRate', 'successRate', 'dropOfRate'].includes(key);
-    },
     checkIfHasPermission() {
       this.hasPermission = true;
     },
@@ -494,18 +474,15 @@ export default {
     },
 
 
-    async viewSessionDetails(sessionId) {
+    viewSessionDetails(sessionId) {
       const env = this.isProd ? 'prod' : 'dev'
+      const identifier = String(sessionId || '').trim()
 
-      if (!sessionId) {
-        return this.notifyErr('User Id or Email  is required')
+      if (!identifier) {
+        return this.notifyErr('User ID is required')
       }
 
-      if (this.isValidEmail(sessionId.trim())) {
-        sessionId = await this.generateSHA256Hash(sessionId)
-      }
-
-      this.$router.push({ name: "sessionDetails", params: { appId: this.$route.params.appId, sessionId: sessionId.trim(), env } });
+      this.$router.push({ name: "sessionDetails", params: { appId: this.$route.params.appId, sessionId: identifier, env } });
       this.shiftContainer(false);
       this.sessionIdTemp = null
     },

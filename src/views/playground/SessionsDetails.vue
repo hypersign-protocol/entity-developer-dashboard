@@ -2901,10 +2901,16 @@
           <header class="audit-log-header">
             <div>
               <h2><i class="mdi mdi-history"></i>Audit Trail</h2>
-              <p>Verification events grouped by attempt.</p>
+              <p>
+                {{
+                  isSessionDetailView
+                    ? "Verification events for this session."
+                    : "Verification events grouped by attempt."
+                }}
+              </p>
             </div>
           </header>
-          <div class="audit-session-filters">
+          <div v-if="!isSessionDetailView" class="audit-session-filters">
             <button
               v-for="filter in auditSessionFilters"
               :key="filter.id"
@@ -2929,7 +2935,7 @@
                 @keydown.space.prevent="toggleAuditGroup(group.key)"
               >
                 <button
-                  v-if="group.key !== 'session'"
+                  v-if="group.key !== 'session' && !isSessionDetailView"
                   type="button"
                   class="audit-attempt-link"
                   @click.stop="viewSessionAttempt(group.key)"
@@ -4126,7 +4132,9 @@ export default {
         const explicitLabel = events.find((event) => event.attemptLabel)?.attemptLabel;
         labels[key] =
           explicitLabel ||
-          (key === "session"
+          (this.isSessionDetailView && key === String(this.session?.sessionId || this.sessionId)
+            ? "Session Events"
+            : key === "session"
             ? "Attempt Events"
             : this.attemptDisplayLabelBySessionId(key));
         return labels;
@@ -4142,7 +4150,14 @@ export default {
       return [...grouped.entries()]
         .map(([key, events]) => {
           const orderedEvents = [...events].sort(
-            (a, b) => (Date.parse(a.createdAt) || 0) - (Date.parse(b.createdAt) || 0)
+            (a, b) => {
+              const aTime = Date.parse(a.createdAt) || 0;
+              const bTime = Date.parse(b.createdAt) || 0;
+              if (!aTime && !bTime) return 0;
+              if (!aTime) return 1;
+              if (!bTime) return -1;
+              return aTime - bTime;
+            }
           );
           const statusSource = [...orderedEvents]
             .reverse()
@@ -4224,6 +4239,8 @@ export default {
       }));
     },
     auditSessionFilters() {
+      if (this.isSessionDetailView) return [];
+
       const statusCounts = new Map();
       this.allAuditGroups.forEach((group) => {
         if (group.statusKey) {
@@ -4418,41 +4435,7 @@ export default {
           value: raw.comments || raw.comment,
         },
       ];
-      const representedKeys = new Set([
-        "createdAt",
-        "decidedAt",
-        "timestamp",
-        "actor",
-        "performedBy",
-        "decidedBy",
-        "createdBy",
-        "stepName",
-        "step_name",
-        "eventName",
-        "event",
-        "type",
-        "status",
-        "outcome",
-        "action",
-        "result",
-        "error",
-        "failureReason",
-        "reasonCode",
-        "comments",
-        "comment",
-        "sessionId",
-        "session_id",
-        "attemptNumber",
-        "attemptNo",
-        "attempt",
-      ]);
-      const additionalEntries = this.scalarEntries(raw).filter(
-        (item) => !representedKeys.has(item.key)
-      );
-      return [
-        ...entries.filter((item) => this.hasValue(item.value)),
-        ...additionalEntries,
-      ];
+      return entries.filter((item) => this.hasValue(item.value));
     },
     normalizedRiskFlags() {
       const flags = this.riskDataSession?.riskFlags || [];
@@ -4481,6 +4464,7 @@ export default {
           if (!currentAttemptSessionId) return true;
           const decisionSessionId =
             decision?.sessionId || decision?.session_id || decision?.attemptSessionId;
+          if (!this.hasValue(decisionSessionId) && this.isSessionDetailView) return true;
           return String(decisionSessionId || "") === currentAttemptSessionId;
         })
         .map((decision, index) => {
@@ -4672,6 +4656,105 @@ export default {
     isVerificationSessionId(identifier) {
       return /^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(identifier || "");
     },
+    buildSessionAuditTimeline(session = {}) {
+      const sessionId = String(session.sessionId || this.sessionId || "");
+      const events = [];
+      const isCompletedStep = (value) => value === 1 || value === "1";
+      const addEvent = (stepName, details = {}, fallback = {}) => {
+        const event = {
+          ...details,
+          ...fallback,
+          stepName,
+          sessionId: details.sessionId || details.session_id || sessionId,
+          createdAt:
+            details.createdAt ||
+            details.updatedAt ||
+            fallback.createdAt ||
+            "",
+        };
+        events.push(event);
+      };
+      const addVerificationEvents = ({
+        stepName,
+        source,
+        resultKey,
+        errorMap,
+        fallbackError,
+        enhance,
+      }) => {
+        this.stepDetailRecords(source).forEach((details, index) => {
+          const result = resultKey ? details[resultKey] : undefined;
+          const mappedError =
+            resultKey && this.hasValue(result) && Number(result) !== 3
+              ? errorMap?.[result] || fallbackError
+              : "";
+          addEvent(stepName, details, {
+            ...(resultKey ? { result } : {}),
+            ...(mappedError ? { error: details.error || mappedError } : {}),
+            ...(enhance ? enhance(details, index) : {}),
+          });
+        });
+      };
+
+      if (this.hasValue(session.step_start) || this.hasValue(session.createdAt)) {
+        addEvent("Start", {}, {
+          createdAt: session.createdAt,
+          status: session.status,
+        });
+      }
+
+      addVerificationEvents({
+        stepName: "Liveliness",
+        source: session.selfiDetails,
+        resultKey: "serviceLivenessResult",
+        errorMap: Config["LivelinessError"],
+        fallbackError: "Liveness verification failed",
+      });
+
+      const documentRecords = this.stepDetailRecords(session.ocriddocsDetails);
+      const hasRecordRiskFlags = documentRecords.some(
+        (details) =>
+          Array.isArray(details.riskFlags) && details.riskFlags.length > 0
+      );
+      addVerificationEvents({
+        stepName: "Ocr Id Doc",
+        source: documentRecords,
+        resultKey: "serviceFacialAuthenticationResult",
+        errorMap: Config["FaicalAuthenticationError"],
+        fallbackError: "Document verification failed",
+        enhance: (details, index) => ({
+          riskFlags:
+            Array.isArray(details.riskFlags) && details.riskFlags.length
+              ? details.riskFlags
+              : !hasRecordRiskFlags && index === 0
+              ? session.riskFlags
+              : undefined,
+        }),
+      });
+
+      addVerificationEvents({
+        stepName: "Age Verification",
+        source:
+          session.zkProofVerificationDetails || session.zkpVerificationDetails,
+        resultKey: "serviceZkpVerificationResult",
+        errorMap: ZkpVerificationResultEnum,
+        fallbackError: "Age verification failed",
+      });
+
+      addVerificationEvents({
+        stepName: "User Consent",
+        source: session.userConsentDetails,
+      });
+
+      if (isCompletedStep(session.step_finish)) {
+        addEvent("Finish", {}, {
+          createdAt: session.completedAt || session.updatedAt || "",
+          status: session.status,
+        });
+      }
+
+      return events;
+    },
     async loadSessionIdentifier(identifier) {
       try {
         this.isLoading = true;
@@ -4711,10 +4794,13 @@ export default {
             ...this.session.deviceDetails.locationDetail,
           };
         }
-        if (Array.isArray(this.session?.timeLineDetails)) {
-          this.timeLineDetails = this.session.timeLineDetails.map((item) => ({
+        const suppliedTimeline = this.session?.timeLineDetails || this.session?.timelineDetails;
+        if (Array.isArray(suppliedTimeline) && suppliedTimeline.length) {
+          this.timeLineDetails = suppliedTimeline.map((item) => ({
             ...item,
           }));
+        } else if (this.isVerificationSessionId(identifier)) {
+          this.timeLineDetails = this.buildSessionAuditTimeline(this.session);
         }
         if (this.isVerificationSessionId(identifier)) {
           this.selectedAttemptSessionId = this.session?.sessionId || identifier;
@@ -4769,7 +4855,8 @@ export default {
           ? "review"
           : /expired|timeout/.test(normalizedResult)
           ? "expired"
-          : /success|verified|approved|passed/.test(normalizedResult) || resultValue == 3
+          : /success|verified|approved|passed|completed/.test(normalizedResult) ||
+            resultValue == 3
           ? "passed"
           : "";
       const attemptValue =
@@ -5125,7 +5212,7 @@ export default {
     },
     auditSessionStatusIcon(status) {
       const normalized = String(status || "").toLowerCase();
-      if (/success|verified|approved|passed/.test(normalized))
+      if (/success|verified|approved|passed|completed/.test(normalized))
         return "mdi mdi-check-circle-outline";
       if (/fail|reject|denied|invalid|error/.test(normalized))
         return "mdi mdi-close-circle-outline";
@@ -5136,7 +5223,7 @@ export default {
     },
     auditSessionStatusTone(status) {
       const normalized = String(status || "").toLowerCase();
-      if (/success|verified|approved|passed/.test(normalized)) return "passed";
+      if (/success|verified|approved|passed|completed/.test(normalized)) return "passed";
       if (/fail|reject|denied|invalid|error/.test(normalized)) return "failed";
       if (/expired|timeout/.test(normalized)) return "expired";
       if (/manual.review|review|required|pending/.test(normalized)) return "review";

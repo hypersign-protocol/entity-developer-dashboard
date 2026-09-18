@@ -14,7 +14,7 @@
         <button
           type="button"
           title="Copy user ID"
-          @click.stop="copyValue(summary.userId || summary.sessionId)"
+          @click.stop="copyToClip(summary.userId || summary.sessionId, 'User ID')"
         >
           <i class="mdi mdi-content-copy"></i>
         </button>
@@ -28,7 +28,7 @@
         <button
           type="button"
           title="Copy session ID"
-          @click.stop="copyValue(summary.sessionId)"
+          @click.stop="copyToClip(summary.sessionId, 'Session ID')"
         >
           <i class="mdi mdi-content-copy"></i>
         </button>
@@ -74,8 +74,11 @@
 </template>
 
 <script>
+import UtilsMixin from "../../mixins/utils";
+
 export default {
   name: "SessionProfileSummary",
+  mixins: [UtilsMixin],
   props: {
     summary: { type: Object, required: true },
   },
@@ -85,29 +88,6 @@ export default {
       return value.length > 16
         ? `${value.slice(0, 8)}…${value.slice(-6)}`
         : value;
-    },
-    async copyValue(identifier) {
-      const value = String(identifier || "");
-      if (!value) return;
-
-      try {
-        if (navigator.clipboard?.writeText) {
-          await navigator.clipboard.writeText(value);
-          return;
-        }
-      } catch {
-        // Fall back for browsers that deny Clipboard API access.
-      }
-
-      const input = document.createElement("textarea");
-      input.value = value;
-      input.setAttribute("readonly", "");
-      input.style.position = "fixed";
-      input.style.opacity = "0";
-      document.body.appendChild(input);
-      input.select();
-      document.execCommand("copy");
-      document.body.removeChild(input);
     },
   },
 };

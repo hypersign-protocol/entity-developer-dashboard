@@ -57,22 +57,12 @@ export default {
             }
 
         },
-        copyToClip(textToCopy, contentType) {
-            if (textToCopy) {
-                navigator.clipboard
-                    .writeText(textToCopy)
-                    .then(() => {
-                        this.notifySuccess(
-                            `${contentType} copied!`
-                        );
-                    })
-                    .catch((err) => {
-                        this.notifyErr(
-                            'Error while copying',
-                            err
-                        );
-                    });
-            }
+        copyToClip(textToCopy, contentType = 'Value') {
+            if (!textToCopy) return;
+
+            navigator.clipboard.writeText(String(textToCopy))
+                .then(() => this.notifySuccess(`${contentType} was copied`))
+                .catch(() => this.notifyErr('Error while copying'));
         },
         shorten(str) {
             if (!str || str === 'undefined') {
