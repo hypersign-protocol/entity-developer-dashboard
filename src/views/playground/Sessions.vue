@@ -166,7 +166,7 @@
 }
 
 .sessions-search .search-btn {
-  cursor: default;
+  cursor: pointer;
 }
 
 .search-empty-state {
@@ -190,13 +190,18 @@
       <div v-if="userList.length > 0" class="search-wrap sessions-search">
         <input
           type="text"
-          placeholder="Search by name or user ID"
-          aria-label="Search users by name or user ID"
+          placeholder="Search by name, user ID, session ID, or email"
+          aria-label="Search by name, user ID, session ID, or email"
           v-model="sessionIdTemp"
         />
-        <span class="search-btn" aria-hidden="true">
+        <button
+          type="button"
+          class="search-btn"
+          aria-label="Search"
+          @click="handleSearch"
+        >
           <i class="fa fa-search"></i>
-        </span>
+        </button>
       </div>
     </div>
 
@@ -224,7 +229,7 @@
                 <!-- User -->
                 <td>
                   <div class="d-flex align-center">
-                    <v-avatar :style="getAvatarStyle()" size="34" class="font-weight-bold mr-3">
+                    <v-avatar :style="getAvatarStyle(row.userId || row.name)" size="34" class="font-weight-bold mr-3">
                       {{ (row.name || row.email || row.userId || 'U').charAt(0).toUpperCase() }}
                     </v-avatar>
                     <div>
@@ -297,7 +302,7 @@
             </tbody>
           </table>
           <div v-else class="search-empty-state">
-            No users match “{{ sessionIdTemp.trim() }}”.
+            No users match “{{ appliedSearchQuery }}”.
           </div>
         </div>
       </div>
@@ -342,7 +347,7 @@ export default {
       return Math.ceil(parseInt(this.totalUserCount) / this.pageLimit);
     },
     filteredUserList() {
-      const query = String(this.sessionIdTemp || '').trim().toLowerCase();
+      const query = this.appliedSearchQuery.toLowerCase();
       if (!query) return this.userList;
 
       return this.userList.filter((row) =>
@@ -369,6 +374,7 @@ export default {
       accessDenied: false,
       accessDeniedMsg: '',
       sessionIdTemp: null,
+      appliedSearchQuery: '',
       hasPermission: false,
       currentPage: 1,
       pageLimit: 50,
@@ -450,13 +456,16 @@ export default {
 
       return 'Unknown error';
     },
-    getAvatarStyle() {
-      // const colors = ['#607d8b', '#3f51b5', '#009688', '#ff5722', '#795548', '#673ab7', '#e91e63'];
-      const colors = ['#b0bec5', '#9fa8da', '#80cbc4', '#ffab91', '#bcaaa4', '#b39ddb', '#f48fb1'];
-      const seed = Math.floor(Math.random() * colors.length);
-      const color = colors[seed % colors.length];
+    getAvatarStyle(identifier) {
+      const seed = String(identifier || 'user').split('').reduce((hash, character) => {
+        return Math.imul(hash ^ character.charCodeAt(0), 16777619);
+      }, 2166136261) >>> 0;
+      const hue = seed % 360;
+      const saturation = 35 + ((seed >>> 8) % 16);
+      const lightness = 60 + ((seed >>> 16) % 9);
+
       return {
-        backgroundColor: color,
+        backgroundColor: `hsl(${hue}, ${saturation}%, ${lightness}%)`,
         color: 'white'
       };
     },
@@ -471,6 +480,35 @@ export default {
         localStorage.setItem('selectedPage', 1);
         // this.fetchAppsUsers({ appId: "" })
       }
+    },
+
+    async handleSearch() {
+      const query = String(this.sessionIdTemp || '').trim();
+
+      if (!query) {
+        this.appliedSearchQuery = '';
+        return;
+      }
+
+      const sessionIdPattern = /^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i;
+      if (sessionIdPattern.test(query)) {
+        this.viewSessionDetails(query);
+        return;
+      }
+
+      const userIdPattern = /^[0-9a-f]{64}$/i;
+      if (userIdPattern.test(query)) {
+        this.appliedSearchQuery = query;
+        return;
+      }
+
+      if (this.isValidEmail(query)) {
+        const userId = await this.generateSHA256Hash(query);
+        this.viewSessionDetails(userId);
+        return;
+      }
+
+      this.appliedSearchQuery = query;
     },
 
 
