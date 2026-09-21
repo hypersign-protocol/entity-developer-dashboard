@@ -409,7 +409,7 @@ export default {
     });
   },
   methods: {
-    ...mapActions('mainStore', ['fetchAppsUsers']),
+    ...mapActions('mainStore', ['fetchAppsUsers', 'fetchSessionsDetailsById2']),
     ...mapMutations('playgroundStore', ['updateSideNavStatus', 'shiftContainer']),
     handleApiError(error, method = 'GET') {
       console.log(error)
@@ -483,6 +483,8 @@ export default {
     },
 
     async handleSearch() {
+      if (this.isLoading) return;
+
       const query = String(this.sessionIdTemp || '').trim();
 
       if (!query) {
@@ -492,7 +494,21 @@ export default {
 
       const sessionIdPattern = /^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i;
       if (sessionIdPattern.test(query)) {
-        this.viewSessionDetails(query);
+        try {
+          this.isLoading = true;
+          const session = await this.fetchSessionsDetailsById2({ sessionId: query });
+          const isMatchingSession =
+            String(session?.sessionId || '').toLowerCase() === query.toLowerCase();
+          if (!session?.appId || !session?.appUserId || !isMatchingSession) {
+            this.notifyErr('Session not found');
+            return;
+          }
+          this.viewSessionDetails(query, session);
+        } catch {
+          this.notifyErr('Session not found');
+        } finally {
+          this.isLoading = false;
+        }
         return;
       }
 
@@ -504,7 +520,7 @@ export default {
 
       if (this.isValidEmail(query)) {
         const userId = await this.generateSHA256Hash(query);
-        this.viewSessionDetails(userId);
+        this.appliedSearchQuery = userId;
         return;
       }
 
@@ -512,7 +528,7 @@ export default {
     },
 
 
-    viewSessionDetails(sessionId) {
+    viewSessionDetails(sessionId, prefetchedSession) {
       const env = this.isProd ? 'prod' : 'dev'
       const identifier = String(sessionId || '').trim()
 
@@ -520,7 +536,15 @@ export default {
         return this.notifyErr('User ID is required')
       }
 
-      this.$router.push({ name: "sessionDetails", params: { appId: this.$route.params.appId, sessionId: identifier, env } });
+      this.$router.push({
+        name: "sessionDetails",
+        params: {
+          appId: this.$route.params.appId,
+          sessionId: identifier,
+          env,
+          ...(prefetchedSession ? { prefetchedSession } : {}),
+        },
+      });
       this.shiftContainer(false);
       this.sessionIdTemp = null
     },
