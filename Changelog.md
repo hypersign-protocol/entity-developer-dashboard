@@ -2,6 +2,15 @@
 
 ## [Unreleased]
 
+## [3.15.2] - 2026-09-21
+
+### Added
+
+- Added user search by name, user ID, session ID, and email.
+
+### Fixed
+
+- Fixed user avatar colors changing while searching.
 
 ## [3.15.1] - 2026-09-18 
 

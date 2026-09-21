@@ -4608,7 +4608,10 @@ export default {
       this.companyId = this.$route.params.appId;
     }
     this.env = this.$store.getters["mainStore/getSelectedService"]?.env || "prod";
-    await this.loadSessionIdentifier(this.sessionId);
+    await this.loadSessionIdentifier(
+      this.sessionId,
+      this.$route.params.prefetchedSession
+    );
   },
   watch: {
     "$route.params.sessionId": async function (identifier) {
@@ -4755,7 +4758,7 @@ export default {
 
       return events;
     },
-    async loadSessionIdentifier(identifier) {
+    async loadSessionIdentifier(identifier, prefetchedSession = null) {
       try {
         this.isLoading = true;
         this.activeTab = "overview";
@@ -4769,8 +4772,14 @@ export default {
         this.deviceDetails = {};
         this.locationDetails = {};
         this.timeLineDetails = [];
+        const hasPrefetchedSession =
+          this.isVerificationSessionId(identifier) &&
+          String(prefetchedSession?.sessionId || "").toLowerCase() ===
+            String(identifier).toLowerCase();
         this.session = this.isVerificationSessionId(identifier)
-          ? (await this.fetchSessionsDetailsById2({ sessionId: identifier })) || {}
+          ? hasPrefetchedSession
+            ? prefetchedSession
+            : (await this.fetchSessionsDetailsById2({ sessionId: identifier })) || {}
           : (await this.fetchSessionsDetailsById({
               sessionId: identifier,
               env: this.env,
