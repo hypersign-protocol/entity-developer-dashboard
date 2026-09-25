@@ -189,6 +189,15 @@ export default {
           onboardingStatus: result?.onboardingStatus || result?.status || 'INITIATED',
           logs: result?.logs || this.company.logs || [],
         };
+        // Super admins create onboarding requests on behalf of customers. Do not
+        // load the created customer record or lock the admin into its status.
+        if (this.isSuperAdminUser) {
+          this.hasSubmitted = false;
+          this.currentStep = 1;
+          this.scrollToTop();
+          return;
+        }
+
         this.hasSubmitted = true;
         this.currentStep = 4;
         try {

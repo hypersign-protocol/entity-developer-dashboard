@@ -118,6 +118,10 @@
             <p class="pending-message">
               {{ isEditing ? 'The environment change will be applied when you save.' : `Environment is set to ${isProd ? 'Production' : 'Development'}.` }}
             </p>
+            <div v-if="isEditing" class="environment-footer-actions">
+              <button type="button" class="primary-button" @click="saveChanges">Save environment</button>
+              <button type="button" class="secondary-button" @click="cancelEdit">Cancel</button>
+            </div>
           </section>
         </template>
 
@@ -316,6 +320,7 @@
 .logo-row >>> .logo-upload-circle, .logo-row >>> .logo-preview-circle { width: 56px; height: 56px; border-radius: 9px; }
 .logo-row >>> .logo-preview-circle img { border-radius: 9px; }
 .domain-editor { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 16px; align-items: end; }
+.environment-footer-actions { display: flex; justify-content: flex-start; gap: 8px; margin-top: 18px; }
 .domain-actions { display: flex; flex-wrap: wrap; gap: 8px; }
 .domain-summary { display: grid; grid-template-columns: minmax(190px, 400px) auto; gap: 20px; align-items: center; max-width: 550px; }
 .domain-summary strong { font-size: 13px; }
