@@ -37,10 +37,6 @@
                 <button v-if="!isEditing" type="button" class="icon-button" title="Edit application" @click="startEdit">
                   <v-icon small>mdi-pencil-outline</v-icon>
                 </button>
-                <template v-else>
-                  <button type="button" class="secondary-button" @click="cancelEdit">Cancel</button>
-                  <button type="button" class="primary-button" @click="saveChanges">Save changes</button>
-                </template>
               </div>
             </div>
 
@@ -70,6 +66,10 @@
                 </div>
               </div>
             </div>
+            <div v-if="isEditing" class="card-footer-actions">
+              <button type="button" class="secondary-button" @click="cancelEdit">Cancel</button>
+              <button type="button" class="primary-button" @click="saveChanges">Save changes</button>
+            </div>
           </section>
 
           <section class="config-card">
@@ -91,15 +91,15 @@
               <div class="domain-actions">
                 <button type="button" class="secondary-button" @click="toggleVerificationInfo">Verification guide</button>
                 <button type="button" class="secondary-button" @click="verifyDomain">Verify domain</button>
-                <template v-if="isEditingDomain && !isEditing">
-                  <button type="button" class="secondary-button" @click="cancelDomainEdit">Cancel</button>
-                  <button type="button" class="primary-button" @click="saveDomainChange">Save domain</button>
-                </template>
               </div>
             </div>
             <div v-else class="domain-summary">
               <strong>{{ formData.domain || 'No domain configured' }}</strong>
               <button type="button" class="secondary-button" @click="startDomainEdit">Change domain</button>
+            </div>
+            <div v-if="isEditingDomain && !isEditing" class="card-footer-actions">
+              <button type="button" class="secondary-button" @click="cancelDomainEdit">Cancel</button>
+              <button type="button" class="primary-button" @click="saveDomainChange">Save domain</button>
             </div>
           </section>
 
@@ -130,10 +130,6 @@
               </div>
               <div class="edit-actions">
                 <button v-if="!isEditing" type="button" class="icon-button" title="Edit identity settings" @click="startEdit"><v-icon small>mdi-pencil-outline</v-icon></button>
-                <template v-else>
-                  <button type="button" class="secondary-button" @click="cancelEdit">Cancel</button>
-                  <button type="button" class="primary-button" @click="saveChanges">Save changes</button>
-                </template>
               </div>
             </div>
 
@@ -180,6 +176,10 @@
                 <button v-if="txtRecord" type="button" class="secondary-button" @click="copyToClip(txtRecord, 'TXT Record')">Copy record</button>
               </div>
             </div>
+            <div v-if="isEditing" class="card-footer-actions">
+              <button type="button" class="secondary-button" @click="cancelEdit">Cancel</button>
+              <button type="button" class="primary-button" @click="saveChanges">Save changes</button>
+            </div>
           </section>
         </template>
 
@@ -192,10 +192,6 @@
               </div>
               <div class="edit-actions">
                 <button v-if="!isEditing" type="button" class="icon-button" title="Edit allowed origins" @click="startEdit"><v-icon small>mdi-pencil-outline</v-icon></button>
-                <template v-else>
-                  <button type="button" class="secondary-button" @click="cancelEdit">Cancel</button>
-                  <button type="button" class="primary-button" @click="saveChanges">Save changes</button>
-                </template>
               </div>
             </div>
             <div class="origins-editor">
@@ -206,6 +202,10 @@
                 placeholder="Add an origin, for example https://app.example.com"
               />
               <p>Only HTTP or HTTPS origins are accepted. Paths, query strings, and fragments are removed.</p>
+            </div>
+            <div v-if="isEditing" class="card-footer-actions">
+              <button type="button" class="secondary-button" @click="cancelEdit">Cancel</button>
+              <button type="button" class="primary-button" @click="saveChanges">Save changes</button>
             </div>
           </section>
         </template>
@@ -317,8 +317,9 @@
 .logo-row >>> .logo-preview-circle img { border-radius: 9px; }
 .domain-editor { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 16px; align-items: end; }
 .domain-actions { display: flex; flex-wrap: wrap; gap: 8px; }
-.domain-summary { display: grid; grid-template-columns: minmax(190px, 420px) auto; gap: 20px; align-items: center; max-width: 570px; }
+.domain-summary { display: grid; grid-template-columns: minmax(190px, 400px) auto; gap: 20px; align-items: center; max-width: 550px; }
 .domain-summary strong { font-size: 13px; }
+.card-footer-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 22px; padding-top: 18px; border-top: 1px solid #e8edf3; }
 .verification-badge, .inline-verified, .key-type { display: inline-flex; align-items: center; border-radius: 14px; font-size: 11px; font-weight: 700; }
 .verification-badge { padding: 5px 10px; }
 .verified, .inline-verified { background: #eaf8f0; color: #218459; }

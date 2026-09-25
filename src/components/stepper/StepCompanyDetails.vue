@@ -62,14 +62,15 @@
     </div>
 
     <section class="form-section">
-      <div class="section-label">Additional details · optional for now</div>
+      <div class="section-label">Additional details</div>
       <div class="field-grid">
         <div v-if="localCompany.type === 'BUSINESS'" class="field-group">
-          <label>Registration number</label>
+          <label>Registration number <em>*</em></label>
           <input v-model.trim="localCompany.registration_number" type="text" placeholder="Company registration ID" />
+          <span v-if="errors.registration" class="field-error">{{ errors.registration }}</span>
         </div>
         <div class="field-group">
-          <label>Contact phone</label>
+          <label>Contact phone <em v-if="localCompany.type === 'BUSINESS'">*</em></label>
           <div class="phone-control">
             <span v-if="selectedCallingCode">{{ selectedCallingCode }}</span>
             <input v-model.trim="localCompany.phone_no" type="tel" placeholder="Include country code" />
@@ -377,9 +378,14 @@ export default {
       if (!c.name?.trim()) errors.name = `Enter your ${c.type === 'COMMUNITY' ? 'community' : 'organization'} name.`;
       if (!c.country) errors.country = 'Select a country or region.';
       if (!c.logo?.trim()) errors.logo = 'Upload your organization logo.';
+      if (c.type === 'BUSINESS' && !c.registration_number?.trim()) {
+        errors.registration = 'Enter your company registration number.';
+      }
       const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
       if (!emailRegex.test(c.contact_email || '')) errors.email = 'Enter a valid work email address.';
-      if (c.phone_no && !this.isPhoneNumberValid()) {
+      if (c.type === 'BUSINESS' && !c.phone_no?.trim()) {
+        errors.phone = 'Enter a contact phone number.';
+      } else if (c.phone_no && !this.isPhoneNumberValid()) {
         errors.phone = `Enter a valid phone number${c.country ? ` for ${this.COUNTRY_OPTIONS[c.country]}` : ''}.`;
       }
       if (c.twitterUrl && !/^https?:\/\/(twitter\.com|x\.com)\/[A-Za-z0-9_]+\/?$/.test(c.twitterUrl.trim()))

@@ -57,11 +57,11 @@
             <li>Review and submit</li>
           </ul>
           <div class="security-note">
-            <strong>Security setup, including MFA,</strong> can be shown as a separate requirement at the point where access requires it.
+            <strong>Security suite, including MFA,</strong> can be shown as a separate requirement at the point where access requires it.
           </div>
           <div class="privacy-note">
-            <strong>Designed for clarity</strong>
-            <span>Only the information needed to review and prepare your workspace is requested.</span>
+            <strong>Design concept</strong>
+            <span>Sample content and states for UX review. No information entered here is sent anywhere.</span>
           </div>
         </aside>
       </div>
