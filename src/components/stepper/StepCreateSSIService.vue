@@ -50,7 +50,7 @@ export default {
     },
     timeline() {
       const stepMap = new Map(this.onboardingSteps.map(step => [step.key, step]));
-      return (this.company.logs || [])
+      const orderedLogs = (this.company.logs || [])
         .map((log, responseIndex) => ({
           ...log,
           responseIndex,
@@ -64,19 +64,30 @@ export default {
           if (leftHasTime && rightHasTime && leftTime !== rightTime) return leftTime - rightTime;
           if (leftHasTime !== rightHasTime) return leftHasTime ? -1 : 1;
           return left.responseIndex - right.responseIndex;
-        })
-        .map(log => {
-          const step = stepMap.get(log.step) || { key: log.step || 'UNKNOWN_STEP', title: log.step || 'Unknown step', description: '' };
-          const status = (log.status || 'NOT STARTED').replace(/_/g, ' ').toUpperCase();
-          const state = this.getTimelineState(status);
-          return {
-            ...step,
-            state,
-            statusLabel: this.getStatusLabel(status, state),
-            time: log.normalizedTime,
-            failureReason: log.failureReason || '',
-          };
         });
+      const loggedStepKeys = new Set(orderedLogs.map(log => log.step).filter(Boolean));
+      const loggedSteps = orderedLogs.map(log => {
+        const step = stepMap.get(log.step) || { key: log.step || 'UNKNOWN_STEP', title: log.step || 'Unknown step', description: '' };
+        const status = (log.status || 'NOT STARTED').replace(/_/g, ' ').toUpperCase();
+        const state = this.getTimelineState(status);
+        return {
+          ...step,
+          state,
+          statusLabel: this.getStatusLabel(status, state),
+          time: log.normalizedTime,
+          failureReason: log.failureReason || '',
+        };
+      });
+      const missingSteps = this.onboardingSteps
+        .filter(step => !loggedStepKeys.has(step.key))
+        .map(step => ({
+          ...step,
+          state: 'pending',
+          statusLabel: 'Not started',
+          time: '',
+          failureReason: '',
+        }));
+      return [...loggedSteps, ...missingSteps];
     },
   },
   data() {
