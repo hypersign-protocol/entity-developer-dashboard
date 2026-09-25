@@ -1,864 +1,664 @@
 <template>
-    <b-container fluid class="py-3">
-        <load-ing :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></load-ing>
-        
-        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
+  <div class="config-page">
+    <load-ing :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage" />
+
+    <header class="page-header app-page-header">
+      <div>
+        <h1 class="app-page-title">App configuration</h1>
+        <p class="app-page-subtitle">Manage application details, identity settings, and browser access.</p>
+      </div>
+      <span class="environment-badge" :class="isProd ? 'is-production' : 'is-development'">
+        <span></span>{{ isProd ? 'Production' : 'Development' }}
+      </span>
+    </header>
+
+    <nav class="config-tabs" aria-label="Application configuration sections">
+      <button
+        v-for="tab in tabs"
+        :key="tab.value"
+        type="button"
+        :class="{ active: activeTab === tab.value }"
+        @click="selectTab(tab.value)"
+      >
+        {{ tab.label }}
+      </button>
+    </nav>
+
+    <div class="config-layout">
+      <main class="config-content">
+        <template v-if="activeTab === 'general'">
+          <section class="config-card">
+            <div class="card-header-row">
+              <div>
+                <h2>Application details</h2>
+                <p>The name and branding people see when they interact with this application.</p>
+              </div>
+              <div class="edit-actions">
+                <button v-if="!isEditing" type="button" class="icon-button" title="Edit application" @click="startEdit">
+                  <v-icon small>mdi-pencil-outline</v-icon>
+                </button>
+                <template v-else>
+                  <button type="button" class="secondary-button" @click="cancelEdit">Cancel</button>
+                  <button type="button" class="primary-button" @click="saveChanges">Save changes</button>
+                </template>
+              </div>
+            </div>
+
+            <div class="details-grid">
+              <div class="detail-field">
+                <label>Application name</label>
+                <input v-if="isEditing" v-model.trim="formData.appName" type="text" />
+                <p v-else>{{ formData.appName || '—' }}</p>
+              </div>
+              <div class="detail-field">
+                <label>Application ID</label>
+                <div class="copy-value">
+                  <code>{{ formData.appId || '—' }}</code>
+                  <button type="button" @click="copyToClip(formData.appId, 'App ID')">Copy</button>
+                </div>
+              </div>
+              <div class="detail-field">
+                <label>Description</label>
+                <textarea v-if="isEditing" v-model.trim="formData.description" rows="3"></textarea>
+                <p v-else>{{ formData.description || '—' }}</p>
+              </div>
+              <div class="detail-field">
+                <label>Logo</label>
+                <div class="logo-row">
+                  <LogoUploader v-model="formData.logoUrl" :allow-reupload="isEditing" />
+                  <span>Application logo</span>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="config-card">
+            <div class="card-header-row compact">
+              <div>
+                <h2>Verified domain</h2>
+                <p>Your application domain and its ownership status.</p>
+              </div>
+              <span class="verification-badge" :class="formData.hasDomainVerified ? 'verified' : 'unverified'">
+                {{ formData.hasDomainVerified ? 'Verified' : 'Unverified' }}
+              </span>
+            </div>
+
+            <div v-if="isEditing || isEditingDomain" class="domain-editor">
+              <div class="detail-field domain-field">
+                <label>Domain</label>
+                <input v-model.trim="formData.domain" type="text" placeholder="example.com" />
+              </div>
+              <div class="domain-actions">
+                <button type="button" class="secondary-button" @click="toggleVerificationInfo">Verification guide</button>
+                <button type="button" class="secondary-button" @click="verifyDomain">Verify domain</button>
+                <template v-if="isEditingDomain && !isEditing">
+                  <button type="button" class="secondary-button" @click="cancelDomainEdit">Cancel</button>
+                  <button type="button" class="primary-button" @click="saveDomainChange">Save domain</button>
+                </template>
+              </div>
+            </div>
+            <div v-else class="domain-summary">
+              <strong>{{ formData.domain || 'No domain configured' }}</strong>
+              <button type="button" class="secondary-button" @click="startDomainEdit">Change domain</button>
+            </div>
+          </section>
+
+          <section class="config-card">
+            <div class="card-header-row compact">
+              <div>
+                <h2>Environment</h2>
+                <p>Choose which environment this app uses.</p>
+              </div>
+            </div>
+            <div class="environment-toggle" :class="{ disabled: !isEditing }">
+              <button type="button" :class="{ active: !isProd }" :disabled="!isEditing" @click="setEnv(false)">Development</button>
+              <button type="button" :class="{ active: isProd }" :disabled="!isEditing" @click="setEnv(true)">Production</button>
+            </div>
+            <p class="environment-help">Switching environments can affect credentials, integrations, and available services.</p>
+            <p class="pending-message">
+              {{ isEditing ? 'The environment change will be applied when you save.' : `Environment is set to ${isProd ? 'Production' : 'Development'}.` }}
+            </p>
+          </section>
+        </template>
+
+        <template v-else-if="activeTab === 'identity'">
+          <section class="config-card">
+            <div class="card-header-row">
+              <div>
+                <h2>Identity &amp; keys</h2>
+                <p>Configure the identity used to issue and verify credentials.</p>
+              </div>
+              <div class="edit-actions">
+                <button v-if="!isEditing" type="button" class="icon-button" title="Edit identity settings" @click="startEdit"><v-icon small>mdi-pencil-outline</v-icon></button>
+                <template v-else>
+                  <button type="button" class="secondary-button" @click="cancelEdit">Cancel</button>
+                  <button type="button" class="primary-button" @click="saveChanges">Save changes</button>
+                </template>
+              </div>
+            </div>
+
+            <div class="identity-fields">
+              <div class="detail-field">
+                <label>Encrypted Data Vault (EDV) ID</label>
+                <div class="copy-value read-only-value">
+                  <code>{{ formData.edvId || 'Not configured' }}</code>
+                  <button v-if="formData.edvId" type="button" @click="copyToClip(formData.edvId, 'EDV ID')">Copy</button>
+                </div>
+                <small>This identifier is assigned by the service and cannot be edited here.</small>
+              </div>
+
+              <div class="detail-field">
+                <label>Issuer DID</label>
+                <select v-if="isEditing" v-model="formData.issuerDid" @change="resolveDid($event)">
+                  <option value="">Select a DID</option>
+                  <option v-for="did in associatedSSIServiceDIDs" :key="did" :value="did">{{ did }}</option>
+                </select>
+                <div v-else class="copy-value read-only-value">
+                  <code>{{ formData.issuerDid || 'Not configured' }}</code>
+                  <button v-if="formData.issuerDid" type="button" @click="copyToClip(formData.issuerDid, 'Issuer DID')">Copy</button>
+                </div>
+              </div>
+
+              <div class="detail-field">
+                <label>Issuer verification method ID</label>
+                <select v-if="isEditing" v-model="formData.issuerVerificationMethodId" :disabled="!formData.issuerDid">
+                  <option value="">{{ formData.issuerDid ? 'Select a verification method' : 'Select a DID first' }}</option>
+                  <option v-for="vm in issuerVerificationMethodIds" :key="vm.id" :value="vm.id">{{ vm.id }} ({{ vm.type }})</option>
+                </select>
+                <div v-else class="copy-value read-only-value">
+                  <code>{{ formData.issuerVerificationMethodId || 'Not configured' }}</code>
+                  <button v-if="formData.issuerVerificationMethodId" type="button" @click="copyToClip(formData.issuerVerificationMethodId, 'Verification Method ID')">Copy</button>
+                </div>
+                <span v-if="selectedVerificationMethodType" class="key-type">{{ selectedVerificationMethodType }}</span>
+              </div>
+
+              <div class="dns-record">
+                <div>
+                  <label>Domain verification TXT record</label>
+                  <code>{{ txtRecord || 'Select an issuer DID to generate the record.' }}</code>
+                </div>
+                <button v-if="txtRecord" type="button" class="secondary-button" @click="copyToClip(txtRecord, 'TXT Record')">Copy record</button>
+              </div>
+            </div>
+          </section>
+        </template>
+
+        <template v-else>
+          <section class="config-card">
+            <div class="card-header-row">
+              <div>
+                <h2>Allowed origins</h2>
+                <p>Control which browser origins can call this application.</p>
+              </div>
+              <div class="edit-actions">
+                <button v-if="!isEditing" type="button" class="icon-button" title="Edit allowed origins" @click="startEdit"><v-icon small>mdi-pencil-outline</v-icon></button>
+                <template v-else>
+                  <button type="button" class="secondary-button" @click="cancelEdit">Cancel</button>
+                  <button type="button" class="primary-button" @click="saveChanges">Save changes</button>
+                </template>
+              </div>
+            </div>
+            <div class="origins-editor">
+              <label>Whitelisted CORS origins</label>
+              <CorsChipsInput
+                v-model="formData.whitelistedCors"
+                :readonly="!isEditing"
+                placeholder="Add an origin, for example https://app.example.com"
+              />
+              <p>Only HTTP or HTTPS origins are accepted. Paths, query strings, and fragments are removed.</p>
+            </div>
+          </section>
+        </template>
+      </main>
+
+      <aside class="config-sidebar">
+        <section class="side-card">
+          <h2>About this app</h2>
+          <dl>
+            <div><dt>App name</dt><dd>{{ formData.appName || '—' }}</dd></div>
+            <div><dt>Description</dt><dd>{{ formData.description || '—' }}</dd></div>
             <div>
-                <h4 class="mb-1 font-weight-bold mb-1">App Configuration</h4>
-                <p class="text-muted small mb-0">Manage platform environment and identity settings</p>
+              <dt>Domain</dt>
+              <dd>{{ formData.domain || '—' }} <span v-if="formData.hasDomainVerified" class="inline-verified">✓ Verified</span></dd>
             </div>
+          </dl>
+          <div class="about-note">Changes are saved to Hypersign only after you select Save changes.</div>
+        </section>
+        <section class="side-card danger-card">
+          <h2>Danger zone</h2>
+          <p>Remove this application and its associated metadata.</p>
+          <button type="button" class="danger-button" @click="openDeleteServicePopUp">Delete application</button>
+        </section>
+      </aside>
+    </div>
 
-            <div class="d-flex align-items-center flex-wrap mt-2 mt-md-0">
-                <div class="mr-3">
-                    <b-form-radio-group v-if="isEditing" v-model="isProd" :options="[
-                        { text: 'PRODUCTION', value: true },
-                        { text: 'DEVELOPMENT', value: false }
-                    ]" size="sm" name="env-toggle" class="custom-env-toggle"></b-form-radio-group>
+    <hf-pop-up id="entity-linked-service-detail-popup" Header="Linked Service Detail">
+      <div>
+        <p class="modal-error" v-html="formattedErrorMessage"></p>
+        <div class="text-center mt-3"><hf-buttons name="Ok" customClass="btn btn-danger" @executeAction="closeLinkedServiceDetailPopup" /></div>
+      </div>
+    </hf-pop-up>
 
-                    <span v-else class="status-badge" :class="isProd ? 'status-active' : 'status-warning'">
-                        {{ isProd ? 'Production' : 'Development' }}
-                    </span>
-                </div>
+    <hf-pop-up id="entity-delete-service-confirmation-popup" Header="Delete Confirmation">
+      <div>
+        <p class="modal-error">This permanently removes the application metadata and data vault. Enter the exact Application ID to continue.</p>
+        <input id="appId" v-model="appIdToGenerateSecret" type="text" class="form-control" :placeholder="formData.appId" />
+        <div class="text-center mt-3"><hf-buttons name="Delete" customClass="btn btn-danger" iconClass="fa fa-trash-alt" @executeAction="deleteOrg" /></div>
+      </div>
+    </hf-pop-up>
 
-                <div class="d-flex align-items-center">
-                    <template v-if="!isEditing">
-                        <hf-buttons  name="" @executeAction="startEdit()" 
-                        iconClass="mdi mdi-pencil mr-1">
-                        </hf-buttons>
-                        <hf-buttons title="Delete the application" name="" @executeAction="openDeleteServicePopUp()" iconClass="fa fa-trash-alt"
-                                style="margin-left: 8px; color: red">
-                        </hf-buttons>
-                    </template>
-                    
-                    <template v-else>
-                        <hf-buttons name="" @executeAction="saveChanges()" iconClass="mdi mdi-content-save mr-1"  style= "color: green" >
-                        </hf-buttons>
-                        
-                        <hf-buttons name="" @executeAction="cancelEdit()" iconClass="mdi mdi-cancel mr-1"  style="margin-left: 8px; color: red">
-
-                        </hf-buttons>
-                    </template>
-                </div>
-            </div>
+    <hf-pop-up id="domain-verification-guide-popup" Header="Domain Verification Guide (DNS01)" @hidden="showVerificationInfo = false">
+      <div>
+        <ol class="verification-guide-list">
+          <li>Log in to your domain registrar or DNS provider.</li>
+          <li>Open the DNS settings or TXT records section.</li>
+          <li>Add the TXT record shown below.</li>
+          <li>Wait for DNS propagation, which may take 5–30 minutes.</li>
+          <li>Return here and click Verify domain.</li>
+        </ol>
+        <div v-if="txtRecord" class="modal-record">
+          <code>{{ txtRecord }}</code>
+          <button type="button" class="secondary-button" @click="copyToClip(txtRecord, 'TXT Record')">Copy</button>
         </div>
-        
-        <b-card class="serviceCard">
-            <b-form>
-                <b-row>
-                
-                    <b-col md="6">
-                        <b-form-group label="APPLICATION ID">
-
-                            <b-input-group>
-                                <b-form-input v-model="formData.appId" :readonly="!isEditing" class="custom-input" />
-                                <b-input-group-append>
-                                    <b-button variant="outline-secondary" size="sm"
-                                        @click="copyToClip(formData.appId, 'App ID')" title="Copy App ID">
-                                        <i class="mdi mdi-content-copy"></i>
-                                    </b-button>
-                                </b-input-group-append>
-                            </b-input-group>
-                        </b-form-group>
-                    </b-col>
-                    <b-col md="6">
-                        <b-form-group label="APPLICATION NAME">
-                            <b-form-input v-model="formData.appName" :readonly="!isEditing" class="custom-input" />
-                        </b-form-group>
-                    </b-col>
-
-                    
-                    
-                    <b-col cols="6">
-                        <b-form-group label="UPLOAD LOGO">
-                        <LogoUploader 
-                        v-model="formData.logoUrl" 
-                        :allowReupload="isEditing"
-                        />
-                        </b-form-group>
-                    </b-col>
-                    <b-col cols="6">
-                        <b-form-group label="DESCRIPTION">
-                            <b-form-textarea v-model="formData.description" :readonly="!isEditing" rows="3" class="custom-input" />
-                        </b-form-group>
-                    </b-col>
-
-                     
-                    <b-col cols="6">
-                        <b-form-group label="DOMAIN">
-                            <b-input-group>
-                                <b-form-input v-model="formData.domain" :readonly="!isEditing && !isEditingDomain" :disabled="!isEditing && !isEditingDomain"
-                                    placeholder="Enter your domain"  class="custom-input" />
-
-                                <!-- View mode, verified: badge + Change button -->
-                                <b-input-group-append v-if="!isEditing && !isEditingDomain && formData.hasDomainVerified">
-                                    <b-input-group-text class="bg-success text-white">
-                                        <i class="mdi mdi-shield-check mr-1"></i>Verified
-                                    </b-input-group-text>
-                                    <b-button variant="outline-secondary" size="sm" class="ml-2" @click="startDomainEdit" title="Change Domain">
-                                        <i class="mdi mdi-pencil"></i>
-                                    </b-button>
-                                </b-input-group-append>
-
-                                <!-- Full app-config edit mode: show verified chip (if applicable) + Verify + guide toggle -->
-                                <b-input-group-append v-else-if="isEditing">
-                                    <b-input-group-text v-if="formData.hasDomainVerified" class="bg-success text-white">
-                                        <i class="mdi mdi-shield-check mr-1"></i>Verified
-                                    </b-input-group-text>
-                                    <b-button variant="outline-primary" size="sm" @click="verifyDomain">
-                                        <i class="mdi mdi-shield-sync-outline mr-1"></i>Verify Domain
-                                    </b-button>
-                                    <b-button variant="outline-secondary" size="sm" class="ml-1" @click="toggleVerificationInfo" :title="showVerificationInfo ? 'Hide Guide' : 'Show Guide'">
-                                        <i :class="showVerificationInfo ? 'mdi mdi-chevron-up' : 'mdi mdi-help-circle-outline'"></i>
-                                    </b-button>
-                                </b-input-group-append>
-
-                                <!-- Domain-only edit mode: Verify + Save + Cancel + guide toggle -->
-                                <b-input-group-append v-else-if="isEditingDomain">
-                                    <b-button variant="outline-primary" size="sm" @click="verifyDomain">
-                                        <i class="mdi mdi-shield-sync-outline mr-1"></i>Verify Domain
-                                    </b-button>
-                                    <b-button variant="outline-secondary" size="sm" class="ml-1" @click="toggleVerificationInfo" :title="showVerificationInfo ? 'Hide Guide' : 'Show Guide'">
-                                        <i :class="showVerificationInfo ? 'mdi mdi-chevron-up' : 'mdi mdi-help-circle-outline'"></i>
-                                    </b-button>
-                                    <b-button variant="outline-success" size="sm" class="ml-1" @click="saveDomainChange">
-                                        <i class="mdi mdi-content-save mr-1"></i>Save
-                                    </b-button>
-                                    <b-button variant="outline-secondary" size="sm" class="ml-1" @click="cancelDomainEdit">
-                                        <i class="mdi mdi-cancel mr-1"></i>Cancel
-                                    </b-button>
-                                </b-input-group-append>
-
-                                <!-- View mode, not verified -->
-                                <b-input-group-append v-else>
-                                    <b-button variant="outline-warning" size="sm" @click="toggleVerificationInfo">
-                                        <i :class="showVerificationInfo ? 'mdi mdi-chevron-up mr-1' : 'mdi mdi-shield-alert mr-1'"></i>
-                                        {{ showVerificationInfo ? 'Hide Guide' : 'Unverified - View Guide' }}
-                                    </b-button>
-                                </b-input-group-append>
-                            </b-input-group>
-                        </b-form-group>
-
-
-                    </b-col>
-
-                    <b-col md="6">
-                        <b-form-group label="ENCRYPTED DATA VAULT (EDV) ID">
-                            <b-form-input v-model="formData.edvId" :readonly="!isEditing" class="custom-input" />
-                        </b-form-group>
-                    </b-col>
-
-
-
-
-                    <!-- DID Configuration -->
-
-                    <b-col md="6">
-                        <b-form-group label="ISSUER DID">
-                            <b-form-select v-if="isEditing" v-model="formData.issuerDid" @change="resolveDid($event)">
-                                <b-form-select-option value="">— Select a DID —</b-form-select-option>
-                                <b-form-select-option
-                                    v-for="did in associatedSSIServiceDIDs"
-                                    :value="did"
-                                    :key="did">
-                                    {{ did }}
-                                </b-form-select-option>
-                            </b-form-select>
-                            <b-input-group v-else>
-                                <b-form-input v-model="formData.issuerDid" readonly class="custom-input" />
-                                <b-input-group-append v-if="formData.issuerDid">
-                                    <b-button variant="outline-secondary" size="sm"
-                                        @click="copyToClip(formData.issuerDid, 'Issuer DID')" title="Copy Issuer DID">
-                                        <i class="mdi mdi-content-copy"></i>
-                                    </b-button>
-                                </b-input-group-append>
-                            </b-input-group>
-                        </b-form-group>
-                    </b-col>
-
-                    <b-col md="6">
-                        <b-form-group label="ISSUER VERIFICATION METHOD ID">
-                            <!-- Edit mode: select showing vm.id (vm.type) -->
-                            <b-form-select v-if="isEditing" v-model="formData.issuerVerificationMethodId" :disabled="!formData.issuerDid">
-                                <b-form-select-option value="">
-                                    {{ formData.issuerDid ? '— Select a Verification Method —' : '— Select a DID first —' }}
-                                </b-form-select-option>
-                                <b-form-select-option
-                                    v-for="vm in issuerVerificationMethodIds"
-                                    :value="vm.id"
-                                    :key="vm.id">
-                                    {{ vm.id }} ({{ vm.type }})
-                                </b-form-select-option>
-                            </b-form-select>
-                            <!-- View mode: ID input + type chip below -->
-                            <template v-else>
-                                <b-input-group v-if="formData.issuerVerificationMethodId">
-                                    <b-form-input v-model="formData.issuerVerificationMethodId" readonly  class="custom-input"/>
-                                    <b-input-group-append>
-                                        <b-button variant="outline-secondary" size="sm"
-                                            @click="copyToClip(formData.issuerVerificationMethodId, 'Verification Method ID')"
-                                            title="Copy Verification Method ID">
-                                            <i class="mdi mdi-content-copy"></i>
-                                        </b-button>
-                                    </b-input-group-append>
-                                </b-input-group>
-                                <div class="mt-1" v-if="selectedVerificationMethodType">
-                                    <span style="display:inline-flex; align-items:center; background:#f0f4ff; border:1px solid #c9d8ff; border-radius:4px; padding:2px 8px; font-size:0.78rem; color:#3b5bdb;">
-                                        <i class="mdi mdi-key-variant mr-1"></i>{{ selectedVerificationMethodType }}
-                                    </span>
-                                </div>
-                                <b-form-input v-if="!formData.issuerVerificationMethodId" readonly placeholder="No verification method set" class="custom-input" />
-                            </template>
-                        </b-form-group>
-                    </b-col>
-                    <b-col cols="12">
-                        <b-form-group label="WHITELISTED CORS">
-
-                            <CorsChipsInput
-                            v-model="formData.whitelistedCors"
-                            :readonly="!isEditing"
-                            placeholder="Add CORS origin (e.g., https://api.example.com, https://localhost:3000)"
-                            />
-
-                        </b-form-group>
-                        </b-col>
-                </b-row>
-            </b-form>
-        </b-card>
-
-        <hf-pop-up id="entity-linked-service-detail-popup" Header="Linked Service Detail">
-            <div>
-                <p style="color: #ff5400de;" v-html="formattedErrorMessage"></p>
-                <div class="text-center mt-3">
-                    <hf-buttons name="Ok" class="btn btn-primary text-center" customClass="btn btn-danger"
-                        @executeAction="closeLinkedServiceDetailPopup"></hf-buttons>
-                </div>
-            </div>
-        </hf-pop-up>
-
-        <hf-pop-up id="entity-delete-service-confirmation-popup" Header="Delete Confirmation">
-            <div>
-                <p style="color: #ff5400de">
-                    Warning: This is a destructive feature. It will clean all your metadata and delete your data vault.
-                    If you
-                    sure you want to delete this app, please enter the app Id:
-                </p>
-                <input type="text" class="form-control" id="appId" v-model="appIdToGenerateSecret"
-                    aria-describedby="selected App Id" placeholder="d7ca0fbaa178bafe94410a470f506fc387a3" />
-                <div class="text-center mt-3">
-                    <hf-buttons name="Delete" class="btn btn-primary text-center" customClass="btn btn-danger"
-                        iconClass="fa fa-trash-alt" @executeAction="deleteOrg"></hf-buttons>
-                </div>
-            </div>
-        </hf-pop-up>
-
-        <hf-pop-up id="domain-verification-guide-popup" Header="Domain Verification Guide (DNS01)" @hidden="showVerificationInfo = false">
-            <div>
-                <div class="mb-3">
-                    <ol class="verification-guide-list" style="font-size: 0.9rem; margin-bottom: 0;">
-                        <li>Log in to your domain registrar or DNS provider</li>
-                        <li>Locate the DNS settings or TXT records section</li>
-                        <li>Add the TXT record shown below</li>
-                        <li>Wait for DNS propagation (5–30 minutes)</li>
-                        <li v-if="isEditing || isEditingDomain">Click "Verify Domain" to complete verification</li>
-                        <li v-else>Click the pencil icon next to the domain, then click "Verify Domain"</li>
-                    </ol>
-                </div>
-
-                <div v-if="formData.issuerDid" class="mt-3 pt-3 border-top">
-                    <label class="mb-2"><strong>TXT Record to Add:</strong></label>
-                    <b-input-group>
-                        <b-form-input v-model="txtRecord" readonly type="text" />
-                        <b-input-group-append>
-                            <b-button variant="outline-secondary" size="sm"
-                                @click="copyToClip(txtRecord, 'TXT Record')" title="Copy TXT Record">
-                                <i class="mdi mdi-content-copy"></i>
-                            </b-button>
-                        </b-input-group-append>
-                    </b-input-group>
-                    <small class="form-text text-muted d-block mt-2">Copy this entire value to your DNS TXT record.</small>
-                </div>
-
-                <div v-else class="alert alert-info mb-0 mt-3">
-                    <small><strong>Note:</strong> To complete domain verification, you must click "Edit" and set an Issuer DID first.</small>
-                </div>
-
-                <div class="text-center mt-3">
-                    <hf-buttons name="Close" class="btn btn-primary" 
-                        @executeAction="closeVerificationGuidePopup"></hf-buttons>
-                </div>
-            </div>
-        </hf-pop-up>
-    </b-container>
+        <div v-else class="modal-info">Set an Issuer DID before attempting domain verification.</div>
+        <div class="text-center mt-3"><hf-buttons name="Close" @executeAction="closeVerificationGuidePopup" /></div>
+      </div>
+    </hf-pop-up>
+  </div>
 </template>
 
 <style scoped>
-.py-3 {
-  width: 80vw!important;
-}
-/* Field Styling */
-.custom-input {
-    border: 1px solid #e2e8f0;
-    border-radius: 0.5rem;
-    padding: 0.6rem 0.8rem;
-    font-size: 0.9rem;
-}
-
-.custom-input-sm {
-    border: 1px solid #e2e8f0;
-    border-radius: 0.4rem;
-    font-size: 0.85rem;
-    height: 34px;
-}
-
-/* .status-badge {
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 0.72rem;
-    font-weight: 700;
-    color: #fff;
-}
-
-.status-active { background-color: #3b82f6; }
-.status-warning { background-color: #f59e0b; } */
-.verification-guide-list {
-  padding-left: 1.5rem;
-  margin-right: 0.5rem;
+.config-page { padding: 16px 15px 64px; color: #273448; background: #fff; }
+.page-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; }
+.environment-badge { display: inline-flex; align-items: center; gap: 8px; padding: 7px 14px; border: 1px solid; border-radius: 18px; font-size: 12px; font-weight: 700; }
+.environment-badge span { width: 8px; height: 8px; border-radius: 50%; }
+.is-development { border-color: #efd4a5; background: #fff9ee; color: #956625; }
+.is-development span { background: #d99833; }
+.is-production { border-color: #b7e2cb; background: #effaf4; color: #237d52; }
+.is-production span { background: #2daf78; }
+.config-tabs { display: flex; gap: 31px; border-bottom: 1px solid #dce4ed; }
+.config-tabs button { padding: 12px 2px 12px; border: 0; border-bottom: 2px solid transparent; background: transparent; color: #5e6d82; font-size: 13px; font-weight: 700; }
+.config-tabs button.active { border-color: #2563dc; color: #2563dc; }
+.config-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(280px, 320px); gap: 28px; width: 100%; margin-top: 29px; align-items: start; }
+.config-content, .config-sidebar { display: grid; gap: 18px; }
+.config-card, .side-card { border: 1px solid #d7e0ea; border-radius: 12px; background: #fff; box-shadow: 0 1px 2px rgba(15,23,42,.015); }
+.config-card { padding: 28px 30px; }
+.side-card { padding: 22px 22px; }
+.card-header-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; }
+.card-header-row.compact { margin-bottom: 20px; }
+.card-header-row h2, .side-card h2 { margin: 0 0 5px; color: #263244; font-size: 17px; font-weight: 700; line-height: 1.25; }
+.card-header-row p, .side-card > p { margin: 0; color: #718198; font-size: 12px; line-height: 1.45; }
+.edit-actions { display: flex; gap: 8px; }
+.icon-button { width: 42px; height: 42px; border: 1px solid #6c757d; border-radius: 8px; background: #fff; color: #6c757d; font-size: 17px; }
+.icon-button:hover { background: #6c757d; color: #fff; }
+.icon-button:hover >>> .v-icon { color: #fff !important; }
+.primary-button, .secondary-button, .danger-button { min-height: 36px; padding: 0 14px; border-radius: 6px; font-size: 12px; font-weight: 700; }
+.primary-button { border: 1px solid #6c757d; background: #6c757d; color: #fff; }
+.primary-button:hover { border-color: #545b62; background: #5a6268; }
+.secondary-button { border: 1px solid #6c757d; background: #fff; color: #6c757d; }
+.secondary-button:hover { border-color: #6c757d; background: #6c757d; color: #fff; }
+.danger-button { border: 1px solid #dc3545; background: #fff; color: #dc3545; }
+.danger-button:hover { background: #dc3545; color: #fff; }
+.details-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 27px 56px; margin-top: 27px; }
+.detail-field { min-width: 0; }
+.detail-field label, .origins-editor > label, .dns-record label { display: block; margin-bottom: 9px; color: #718096; font-size: 11px; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; }
+.detail-field > p { margin: 0; color: #344054; font-size: 13px; line-height: 1.45; }
+.detail-field input, .detail-field textarea, .detail-field select { width: 100%; border: 1px solid #d5dde7; border-radius: 6px; background: #fff; color: #27364a; font-size: 13px; outline: none; }
+.detail-field input, .detail-field select { height: 38px; padding: 0 11px; }
+.detail-field textarea { padding: 10px 11px; resize: vertical; }
+.detail-field input:focus, .detail-field textarea:focus, .detail-field select:focus { border-color: #2f6fec; box-shadow: 0 0 0 2px rgba(47,111,236,.12); }
+.detail-field small { display: block; margin-top: 6px; color: #8793a5; font-size: 11px; }
+.copy-value { display: flex; min-width: 0; align-items: center; gap: 10px; }
+.copy-value code { overflow: hidden; color: #3e4b5e; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
+.copy-value button { border: 0; background: transparent; color: #2563dc; font-size: 12px; font-weight: 700; }
+.read-only-value { min-height: 38px; padding: 0 10px; border: 1px solid #e1e6ed; border-radius: 6px; background: #f8fafc; }
+.logo-row { display: flex; align-items: center; gap: 12px; color: #657287; font-size: 12px; }
+.logo-row >>> .logo-upload-circle, .logo-row >>> .logo-preview-circle { width: 56px; height: 56px; border-radius: 9px; }
+.logo-row >>> .logo-preview-circle img { border-radius: 9px; }
+.domain-editor { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 16px; align-items: end; }
+.domain-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.domain-summary { display: grid; grid-template-columns: minmax(190px, 420px) auto; gap: 20px; align-items: center; max-width: 570px; }
+.domain-summary strong { font-size: 13px; }
+.verification-badge, .inline-verified, .key-type { display: inline-flex; align-items: center; border-radius: 14px; font-size: 11px; font-weight: 700; }
+.verification-badge { padding: 5px 10px; }
+.verified, .inline-verified { background: #eaf8f0; color: #218459; }
+.unverified { background: #fff4e5; color: #9a641c; }
+.inline-verified { margin-left: 5px; padding: 3px 7px; }
+.environment-toggle { display: inline-flex; padding: 4px; border: 1px solid #d8e0ea; border-radius: 9px; background: #edf2f7; }
+.environment-toggle button { min-width: 126px; height: 37px; border: 1px solid transparent; border-radius: 6px; background: transparent; color: #64748b; font-size: 12px; font-weight: 700; }
+.environment-toggle button.active { border-color: #c7d5e8; background: #fff; color: #2563dc; box-shadow: 0 1px 3px rgba(15,23,42,.08); }
+.environment-toggle button:disabled { cursor: default; opacity: 1; }
+.environment-help { margin: 14px 0 0; color: #7b8798; font-size: 11px; }
+.pending-message { margin: 12px 0 0; color: #218459; font-size: 12px; }
+.identity-fields { display: grid; gap: 22px; margin-top: 24px; }
+.key-type { margin-top: 7px; padding: 4px 8px; background: #f0f4ff; color: #315fba; }
+.dns-record { display: flex; align-items: center; justify-content: space-between; gap: 15px; padding: 14px; border: 1px solid #dfe6ef; border-radius: 7px; background: #f8fafc; }
+.dns-record code { color: #3e4b5e; font-size: 12px; overflow-wrap: anywhere; }
+.origins-editor { margin-top: 22px; }
+.origins-editor > p { margin: 9px 0 0; color: #7c899a; font-size: 11px; }
+.side-card dl { margin: 20px 0 0; }
+.side-card dl div { margin-bottom: 20px; }
+.side-card dl div:last-child { margin-bottom: 0; }
+.side-card dt { margin-bottom: 7px; color: #758399; font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
+.side-card dd { margin: 0; color: #344054; font-size: 13px; line-height: 1.45; overflow-wrap: anywhere; }
+.about-note { margin-top: 24px; padding-top: 18px; border-top: 1px solid #e3e8ef; color: #8995a7; font-size: 11px; line-height: 1.45; }
+.danger-card p { margin-bottom: 16px; }
+.modal-error { color: #b42318; }
+.verification-guide-list { padding-left: 20px; font-size: 13px; }
+.modal-record { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px; border: 1px solid #dfe6ef; border-radius: 6px; background: #f8fafc; }
+.modal-record code { overflow-wrap: anywhere; }
+.modal-info { padding: 10px; border-radius: 5px; background: #f1f6ff; color: #52627a; font-size: 12px; }
+@media (max-width: 1100px) { .config-layout { grid-template-columns: 1fr; } .config-sidebar { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 650px) {
+  .config-page { padding: 16px 15px 48px; }
+  .page-header { align-items: flex-start; flex-wrap: wrap; }
+  .config-tabs { gap: 16px; overflow-x: auto; }
+  .details-grid, .config-sidebar { grid-template-columns: 1fr; }
+  .domain-editor { grid-template-columns: 1fr; }
+  .domain-summary { grid-template-columns: 1fr; align-items: flex-start; }
+  .dns-record { align-items: flex-start; flex-direction: column; }
+  .card-header-row { align-items: flex-start; flex-direction: column; }
 }
 </style>
 
 <script>
-import HfPopUp from "../components/element/hfPopup.vue";
-import UtilsMixin from '../mixins/utils'
-import messages from "../mixins/messages";
+import HfPopUp from '../components/element/hfPopup.vue';
+import UtilsMixin from '../mixins/utils';
+import messages from '../mixins/messages';
 import { mapGetters, mapActions, mapMutations, mapState } from 'vuex/dist/vuex.common.js';
-import LogoUploader from "../components/element/LogoUploader.vue";
-import CorsChipsInput from "../components/element/CorsChips.vue";
-import LoadIng from "../components/element/LoadIng.vue";
+import LogoUploader from '../components/element/LogoUploader.vue';
+import CorsChipsInput from '../components/element/CorsChips.vue';
+import LoadIng from '../components/element/LoadIng.vue';
 import { normalizeCorsOrigin } from '../utils/utils.js';
+
 export default {
-    name: "ServiceConfig",
-    data() {
-        return {
-            isLoading: false,
-            fullPage: true,
-            isEditing: false,
-            // allow editing domain independently of full-form edit
-            isEditingDomain: false,
-            domainBackup: null,
-            isProd: false,
-            appIdToGenerateSecret: "",
-            linkedAppErrorMessage: "",
-            showVerificationInfo: false,
-            associatedSSIServiceDIDs: [],
-            issuerVerificationMethodIds: [],
-            formData: {
-                whitelistedCors: []
-            },
-            backupData: null,
-            serviceFields: [
-                { key: "name", label: "Name" },
-                { key: "domain", label: "Domain" },
-                { key: "description", label: "Description" },
-                { key: "swaggerAPIDocPath", label: "Swagger API Path" },
-            ],
-        };
+  name: 'ServiceConfig',
+  components: { HfPopUp, LogoUploader, CorsChipsInput, LoadIng },
+  mixins: [UtilsMixin],
+  data() {
+    return {
+      activeTab: 'general',
+      tabs: [
+        { value: 'general', label: 'General' },
+        { value: 'identity', label: 'Identity & keys' },
+        { value: 'origins', label: 'Allowed origins' },
+      ],
+      isLoading: false,
+      fullPage: true,
+      isEditing: false,
+      isEditingDomain: false,
+      domainBackup: null,
+      isProd: false,
+      appIdToGenerateSecret: '',
+      linkedAppErrorMessage: '',
+      showVerificationInfo: false,
+      associatedSSIServiceDIDs: [],
+      issuerVerificationMethodIds: [],
+      formData: { whitelistedCors: [] },
+      backupData: null,
+    };
+  },
+  computed: {
+    ...mapGetters('mainStore', ['getSelectedService', 'getAppsWithSSIServices']),
+    ...mapState({
+      widgetConfig: state => state.mainStore.widgetConfig,
+      kybWidgetConfig: state => state.mainStore.kybWidgetConfig,
+    }),
+    formattedErrorMessage() {
+      return this.linkedAppErrorMessage.replace(/\n/g, '<br>');
     },
-    computed: {
-        ...mapGetters("mainStore", ["getSelectedService", "getAppsWithSSIServices"]),
-        ...mapState({ widgetConfig: state => state.mainStore.widgetConfig ,
-            kybWidgetConfig: state => state.mainStore.kybWidgetConfig}),
-        formattedErrorMessage() {
-            return this.linkedAppErrorMessage.replace(/\n/g, "<br>");
-        },
-        txtRecord() {
-            return this.formData.issuerDid
-                ? "hypersign-domain-verification.did=" + this.formData.issuerDid
-                : null;
-        },
-        selectedVerificationMethodType() {
-            if (!this.formData.issuerVerificationMethodId || !this.issuerVerificationMethodIds.length) {
-                return null;
-            }
-            const vm = this.issuerVerificationMethodIds.find(
-                v => v.id === this.formData.issuerVerificationMethodId
-            );
-            return vm ? vm.type : null;
-        },
+    txtRecord() {
+      return this.formData.issuerDid ? `hypersign-domain-verification.did=${this.formData.issuerDid}` : null;
     },
-    components: {
-        HfPopUp,
-        LogoUploader,
-        CorsChipsInput,
-        LoadIng,
+    selectedVerificationMethodType() {
+      if (!this.formData.issuerVerificationMethodId || !this.issuerVerificationMethodIds.length) return null;
+      const method = this.issuerVerificationMethodIds.find(item => item.id === this.formData.issuerVerificationMethodId);
+      return method ? method.type : null;
     },
-    async created() {
-        this.formData = { ...this.getSelectedService };
-        this.isProd = this.formData.env === "prod";
-        // Normalize CORS origins to URL origin form and remove duplicates
-        if (!Array.isArray(this.formData.whitelistedCors)) {
-            this.formData.whitelistedCors = [];
+  },
+  created() {
+    this.formData = { ...this.getSelectedService };
+    this.isProd = this.formData.env === 'prod';
+    const origins = Array.isArray(this.formData.whitelistedCors) ? this.formData.whitelistedCors : [];
+    this.formData.whitelistedCors = origins
+      .map(value => normalizeCorsOrigin(value))
+      .filter(Boolean)
+      .filter((origin, index, all) => all.indexOf(origin) === index);
+  },
+  methods: {
+    ...mapActions('mainStore', [
+      'updateAnAppOnServer', 'deleteAnAppOnServer', 'fetchDIDsForAService',
+      'resolveDIDForAKycService', 'updateAppsWidgetConfig', 'updateAllAppsWidgetConfigs',
+      'updateAppsKybWidgetConfig', 'fetchAppsWidgetConfig', 'fetchAppsKybWidgetConfig',
+    ]),
+    ...mapMutations('mainStore', ['setWidgetConfig', 'setKybWidgetConfig']),
+    getAssociatedSSIService() {
+      const serviceId = this.formData.dependentServices?.[0];
+      return serviceId ? this.getAppsWithSSIServices.find(item => item.appId === serviceId) : null;
+    },
+    async selectTab(tab) {
+      this.activeTab = tab;
+      if (tab === 'identity' && this.isEditing) await this.prepareIdentityEditor();
+    },
+    async prepareIdentityEditor() {
+      await this.ensureWidgetConfigsLoaded();
+      if (!this.associatedSSIServiceDIDs.length) await this.fetchDIDs();
+      if (this.formData.issuerDid) await this.resolveDid(this.formData.issuerDid);
+    },
+    async fetchDIDs() {
+      try {
+        const service = this.getAssociatedSSIService();
+        if (!service) throw new Error('No associated SSI service found');
+        this.isLoading = true;
+        const result = await this.fetchDIDsForAService({ tenantUrl: service.tenantUrl, accessToken: service.access_token, serviceId: service.appId });
+        this.associatedSSIServiceDIDs = Array.isArray(result) ? result : [];
+        if (!this.associatedSSIServiceDIDs.length) this.notifyErr('No DIDs found for the associated SSI service');
+      } catch (error) {
+        this.notifyErr(error.message);
+      } finally {
+        this.isLoading = false;
+      }
+    },
+    async resolveDid(event) {
+      try {
+        const did = typeof event === 'string' ? event : event.target.value;
+        if (!did) {
+          this.issuerVerificationMethodIds = [];
+          return;
         }
-        this.formData.whitelistedCors = this.formData.whitelistedCors
-            .map(v => normalizeCorsOrigin(v))
-            .filter(Boolean)
-            .filter((origin, index, self) => self.indexOf(origin) === index);
-        
-        // Fetch DIDs for display/selection
-        await this.fetchDIDsForDisplay();
-        
-        // If DID is already set, fetch verification methods for display
-        if (this.formData.issuerDid) {
-            await this.fetchVerificationMethodsForDisplay();
+        const service = this.getAssociatedSSIService();
+        if (!service) throw new Error('No associated SSI service found');
+        this.isLoading = true;
+        const document = await this.resolveDIDForAKycService({ tenantUrl: service.tenantUrl, accessToken: service.access_token, did, serviceId: service.appId });
+        if (!document?.verificationMethod) throw new Error('DID document has no verification methods.');
+        this.issuerVerificationMethodIds = document.verificationMethod.filter(Boolean);
+      } catch (error) {
+        this.notifyErr(error.message);
+      } finally {
+        this.isLoading = false;
+      }
+    },
+    async startEdit() {
+      if (!this.isEditing) this.backupData = JSON.parse(JSON.stringify(this.formData));
+      this.isEditing = true;
+      if (this.activeTab === 'general') {
+        await this.ensureWidgetConfigsLoaded();
+      }
+      if (this.activeTab === 'identity') {
+        await this.prepareIdentityEditor();
+      }
+    },
+    cancelEdit() {
+      if (this.backupData) this.formData = JSON.parse(JSON.stringify(this.backupData));
+      this.isProd = this.formData.env === 'prod';
+      this.isEditing = false;
+      this.isEditingDomain = false;
+      this.domainBackup = null;
+      this.showVerificationInfo = false;
+    },
+    setEnv(isProduction) {
+      this.isProd = Boolean(isProduction);
+      this.formData.env = this.isProd ? 'prod' : 'dev';
+    },
+    startDomainEdit() {
+      this.domainBackup = { domain: this.formData.domain, hasDomainVerified: this.formData.hasDomainVerified };
+      this.isEditingDomain = true;
+      this.formData.hasDomainVerified = false;
+    },
+    cancelDomainEdit() {
+      if (this.domainBackup) Object.assign(this.formData, this.domainBackup);
+      this.domainBackup = null;
+      this.isEditingDomain = false;
+    },
+    async saveDomainChange() {
+      if (!this.formData.domain?.trim()) return this.notifyErr('Domain cannot be empty.');
+      try {
+        this.isLoading = true;
+        await this.updateAnAppOnServer({ ...this.formData });
+        this.isEditingDomain = false;
+        this.domainBackup = null;
+        this.notifySuccess('Domain updated. Please verify the domain to re-enable verification.');
+      } catch (error) {
+        if (this.domainBackup) Object.assign(this.formData, this.domainBackup);
+        this.notifyErr(error.message || error);
+      } finally {
+        this.isLoading = false;
+      }
+    },
+    async saveChanges() {
+      if (!this.formData.domain?.trim()) return this.notifyErr('Domain cannot be empty.');
+      try {
+        this.isLoading = true;
+        const backup = this.backupData || {};
+        const logoChanged = this.formData.logoUrl !== backup.logoUrl;
+        const issuerChanged = this.formData.issuerDid !== backup.issuerDid;
+        const methodChanged = this.formData.issuerVerificationMethodId !== backup.issuerVerificationMethodId;
+        const nameChanged = this.formData.appName !== backup.appName;
+        const domainChanged = this.formData.domain !== backup.domain;
+        await this.updateAnAppOnServer({ ...this.formData });
+
+        if (logoChanged && Object.keys(this.widgetConfig || {}).length) {
+          this.setWidgetConfig({ ...this.widgetConfig, userConsent: { ...(this.widgetConfig.userConsent || {}), logoUrl: this.formData.logoUrl } });
+          await this.updateAppsWidgetConfig();
         }
-    },
-    watch: {
-        isProd(newVal) {
-            this.setEnv(newVal);
+        const widgetUpdates = {};
+        if ((issuerChanged || methodChanged) && this.formData.issuerDid) {
+          widgetUpdates.issuerDID = this.formData.issuerDid;
+          widgetUpdates.issuerVerificationMethodId = this.formData.issuerVerificationMethodId;
         }
+        if (domainChanged) widgetUpdates.domain = this.formData.domain;
+        if (Object.keys(widgetUpdates).length) await this.updateAllAppsWidgetConfigs(widgetUpdates);
+
+        if (Object.keys(this.kybWidgetConfig || {}).length) {
+          const kyb = { ...this.kybWidgetConfig };
+          let updateKyb = false;
+          if ((issuerChanged || methodChanged) && this.formData.issuerDid) {
+            kyb.issuerDID = this.formData.issuerDid;
+            kyb.issuerVerificationMethodId = this.formData.issuerVerificationMethodId || this.kybWidgetConfig.issuerVerificationMethodId;
+            updateKyb = true;
+          }
+          if (logoChanged || nameChanged) {
+            kyb.branding = {
+              ...(kyb.branding || {}),
+              ...(logoChanged ? { logoUrl: this.formData.logoUrl } : {}),
+              ...(nameChanged ? { businessName: this.formData.appName } : {}),
+            };
+            updateKyb = true;
+          }
+          if (updateKyb) {
+            this.setKybWidgetConfig(kyb);
+            await this.updateAppsKybWidgetConfig();
+          }
+        }
+        this.isEditing = false;
+        this.isEditingDomain = false;
+        this.domainBackup = null;
+        this.backupData = JSON.parse(JSON.stringify(this.formData));
+        this.notifySuccess('Service configuration updated successfully!');
+      } catch (error) {
+        if (this.backupData) this.formData = JSON.parse(JSON.stringify(this.backupData));
+        this.isProd = this.formData.env === 'prod';
+        this.notifyErr(error.message || error);
+      } finally {
+        this.isLoading = false;
+      }
     },
-    methods: {
-        ...mapActions("mainStore", ["updateAnAppOnServer", "deleteAnAppOnServer", "fetchDIDsForAService", "resolveDIDForAKycService", "updateAppsWidgetConfig", "updateAllAppsWidgetConfigs", "updateAppsKybWidgetConfig", "fetchAppsWidgetConfig", "fetchAppsKybWidgetConfig"]),
-        ...mapMutations("mainStore", ["setWidgetConfig","setKybWidgetConfig"]),
-        async fetchDIDsForDisplay() {
-            try {
-                const ssiServiceId = this.formData.dependentServices && this.formData.dependentServices[0];
-                if (!ssiServiceId) return;
-                
-                const associatedSSIService = this.getAppsWithSSIServices.find(
-                    (x) => x.appId === ssiServiceId
-                );
-                
-                if (!associatedSSIService) return;
-                
-                const payload = {
-                    tenantUrl: associatedSSIService.tenantUrl,
-                    accessToken: associatedSSIService.access_token,
-                    serviceId: associatedSSIService.appId
-                };
-                const allDIDs = await this.fetchDIDsForAService(payload);
-                
-                if (allDIDs && Array.isArray(allDIDs) && allDIDs.length > 0) {
-                    this.associatedSSIServiceDIDs = allDIDs;
-                } else {
-                    this.associatedSSIServiceDIDs = [];
-                }
-            } catch (e) {
-                console.error('Error fetching DIDs for display:', e);
-            }
-        },
-        async fetchVerificationMethodsForDisplay() {
-            try {
-                const ssiServiceId = this.formData.dependentServices && this.formData.dependentServices[0];
-                if (!ssiServiceId) return;
-                
-                const associatedSSIService = this.getAppsWithSSIServices.find(
-                    (x) => x.appId === ssiServiceId
-                );
-                
-                if (!associatedSSIService) return;
-                
-                const payload = {
-                    tenantUrl: associatedSSIService.tenantUrl,
-                    accessToken: associatedSSIService.access_token,
-                    did: this.formData.issuerDid,
-                    serviceId: associatedSSIService.appId,
-
-                };
-                const didDocument = await this.resolveDIDForAKycService(payload);
-                this.issuerVerificationMethodIds = Array.isArray(didDocument?.verificationMethod)
-                    ? didDocument.verificationMethod.filter(vm => vm)
-                    : [];
-            } catch (e) {
-                // Silently fail for display purposes
-                console.error('Error fetching verification methods for display:', e);
-            }
-        },
-        async fetchDIDs() {
-            try {
-                // Find the associated SSI service
-                const ssiServiceId = this.formData.dependentServices && this.formData.dependentServices[0];
-                if (!ssiServiceId) {
-                    throw new Error('No associated SSI service found');
-                }
-                
-                const associatedSSIService = this.getAppsWithSSIServices.find(
-                    (x) => x.appId === ssiServiceId
-                );
-                
-                if (!associatedSSIService) {
-                    throw new Error('Associated SSI service not found');
-                }
-                
-                this.isLoading = true;
-                const payload = {
-                    tenantUrl: associatedSSIService.tenantUrl,
-                    accessToken: associatedSSIService.access_token,
-                    serviceId: associatedSSIService.appId
-                };
-                const allDIDs = await this.fetchDIDsForAService(payload);
-                
-                if (allDIDs && Array.isArray(allDIDs) && allDIDs.length > 0) {
-                    // DIDs are returned as strings, not objects
-                    this.associatedSSIServiceDIDs = allDIDs;
-                } else {
-                    this.associatedSSIServiceDIDs = [];
-                    this.notifyErr('No DIDs found for the associated SSI service');
-                }
-                this.isLoading = false;
-            } catch (e) {
-                this.isLoading = false;
-                console.error('Error fetching DIDs:', e);
-                this.notifyErr(e.message);
-            }
-        },
-        async resolveDid(event) {
-            try {
-                let did;
-                if (typeof event === 'string') {
-                    did = event;
-                } else {
-                    did = event.target.value;
-                }
-                
-                if (!did) {
-                    this.issuerVerificationMethodIds = [];
-                    return;
-                }
-                
-                // Find the associated SSI service
-                const ssiServiceId = this.formData.dependentServices && this.formData.dependentServices[0];
-                if (!ssiServiceId) {
-                    throw new Error('No associated SSI service found');
-                }
-                
-                const associatedSSIService = this.getAppsWithSSIServices.find(
-                    (x) => x.appId === ssiServiceId
-                );
-                
-                if (!associatedSSIService) {
-                    throw new Error('Associated SSI service not found');
-                }
-                
-                this.isLoading = true;
-                const payload = {
-                    tenantUrl: associatedSSIService.tenantUrl,
-                    accessToken: associatedSSIService.access_token,
-                    did,
-                    serviceId: associatedSSIService.appId,
-
-                };
-                const didDocument = await this.resolveDIDForAKycService(payload);
-                if (!didDocument?.verificationMethod) {
-                    throw new Error('DID document has no verification methods.');
-                }
-                this.issuerVerificationMethodIds = didDocument.verificationMethod.filter(vm => vm);
-                this.isLoading = false;
-            } catch (e) {
-                this.isLoading = false;
-                this.notifyErr(e.message);
-            }
-        },
-        async startEdit() {
-            this.backupData = JSON.parse(JSON.stringify(this.formData));
-            this.isEditing = true;
-            // Fetch configs if not already loaded
-              await this.ensureWidgetConfigsLoaded();
-            // Fetch DIDs if not already loaded
-            if (!this.associatedSSIServiceDIDs.length) {
-                await this.fetchDIDs();
-            }
-            
-            // If DID is already set, resolve it to get verification methods
-            if (this.formData.issuerDid) {
-                await this.resolveDid(this.formData.issuerDid);
-            }
-        },
-        // Domain-only edit flow
-        startDomainEdit() {
-            this.domainBackup = { domain: this.formData.domain, hasDomainVerified: this.formData.hasDomainVerified };
-            this.isEditingDomain = true;
-            // Changing domain invalidates previous verification
-            this.formData.hasDomainVerified = false;
-        },
-        cancelDomainEdit() {
-            if (this.domainBackup) {
-                this.formData.domain = this.domainBackup.domain;
-                this.formData.hasDomainVerified = this.domainBackup.hasDomainVerified;
-            }
-            this.domainBackup = null;
-            this.isEditingDomain = false;
-        },
-        async saveDomainChange() {
-            try {
-                if (!this.formData.domain || !this.formData.domain.trim()) {
-                    return this.notifyErr('Domain cannot be empty.');
-                }
-                this.isLoading = true;
-                await this.updateAnAppOnServer({ ...this.formData });
-                this.isEditingDomain = false;
-                this.domainBackup = null;
-                this.notifySuccess('Domain updated. Please verify the domain to re-enable verification.');
-            } catch (e) {
-                // revert on error
-                if (this.domainBackup) {
-                    this.formData.domain = this.domainBackup.domain;
-                    this.formData.hasDomainVerified = this.domainBackup.hasDomainVerified;
-                }
-                this.notifyErr(e.message || e);
-            } finally {
-                this.isLoading = false;
-            }
-        },
-        cancelEdit() {
-            if (this.backupData) {
-                this.formData = JSON.parse(JSON.stringify(this.backupData));
-                this.isProd = this.formData.env === 'prod';
-            }
-            this.isEditing = false;
-            this.isEditingDomain = false;
-            this.domainBackup = null;
-            this.showVerificationInfo = false;
-        },
-        setEnv(flag) {
-            // toggle environment and update formData.env
-            this.isProd = !!flag;
-            this.formData.env = this.isProd ? 'prod' : 'dev';
-        },
-        async saveChanges() {
-            try{
-                if (!this.formData.domain || !this.formData.domain.trim()) {
-                    return this.notifyErr('Domain cannot be empty.');
-                }
-                this.isLoading = true;
-                const isEditing = this.isEditing;
-                const isLogoChanged = isEditing && this.formData.logoUrl !== this.backupData?.logoUrl;
-                const isIssuerChanged = isEditing && this.formData.issuerDid !== this.backupData?.issuerDid;
-                const isVerificationMethodChanged = isEditing && this.formData.issuerVerificationMethodId !== this.backupData?.issuerVerificationMethodId;
-                const isAppNameChanged = isEditing && this.formData.appName !== this.backupData?.appName;
-                const isDomainChanged = isEditing && this.formData.domain !== this.backupData?.domain;
-                await this.updateAnAppOnServer({ ...this.formData })
-                 if (!isLogoChanged && !isIssuerChanged && !isVerificationMethodChanged && !isAppNameChanged && !isDomainChanged) {
-                    this.isEditing = false;
-                    return this.notifySuccess("Service configuration updated successfully!");
-                }
-                // Logo is not supported by the bulk widget configuration endpoint.
-                if (isLogoChanged && Object.keys(this.widgetConfig).length > 0) {
-                    const updatedWidgetConfig = {
-                        ...this.widgetConfig,
-                        userConsent: {
-                            ...(this.widgetConfig.userConsent || {}),
-                            logoUrl: this.formData.logoUrl,
-                        },
-                    };
-                    this.setWidgetConfig(updatedWidgetConfig);
-                    await this.updateAppsWidgetConfig();
-                }
-
-                const widgetConfigUpdates = {};
-                if ((isIssuerChanged || isVerificationMethodChanged) && this.formData.issuerDid) {
-                    widgetConfigUpdates.issuerDID = this.formData.issuerDid;
-                    widgetConfigUpdates.issuerVerificationMethodId = this.formData.issuerVerificationMethodId;
-                }
-                if (isDomainChanged) {
-                    widgetConfigUpdates.domain = this.formData.domain;
-                }
-                if (Object.keys(widgetConfigUpdates).length > 0) {
-                    await this.updateAllAppsWidgetConfigs(widgetConfigUpdates);
-                }
-            // update kyb widget
-                if(Object.keys(this.kybWidgetConfig).length > 0 ){
-                  let updatedKybWidgetConfig = { ...this.kybWidgetConfig };
-                  let shouldUpdateKybWidgetConfig = false;
-                  if ((isIssuerChanged || isVerificationMethodChanged) && this.formData.issuerDid) {
-                        updatedKybWidgetConfig.issuerDID = this.formData.issuerDid;
-                        updatedKybWidgetConfig.issuerVerificationMethodId =
-                        this.formData.issuerVerificationMethodId ||
-                        this.kybWidgetConfig.issuerVerificationMethodId;
-                        shouldUpdateKybWidgetConfig = true;
-                   }
-                    if (isLogoChanged) {
-                        updatedKybWidgetConfig.branding = {
-                        ...(updatedKybWidgetConfig.branding || {}),
-                        logoUrl: this.formData.logoUrl,
-                        };
-                        shouldUpdateKybWidgetConfig = true;
-                    }
-                    if(isAppNameChanged){
-                        updatedKybWidgetConfig.branding = {
-                        ...(updatedKybWidgetConfig.branding || {}),
-                        businessName: this.formData.appName,
-                        };
-                        shouldUpdateKybWidgetConfig = true;
-                    }
-                  if (shouldUpdateKybWidgetConfig) {
-                    this.setKybWidgetConfig(updatedKybWidgetConfig);
-                    await this.updateAppsKybWidgetConfig();
-                    }
-                }
-               this.isEditing = false;
-               this.isEditingDomain = false;
-               this.domainBackup = null;
-                this.notifySuccess("Service configuration updated successfully!");
-            }catch(err){
-                this.formData = JSON.parse(JSON.stringify(this.backupData));
-                this.isProd = this.formData.env === 'prod';
-                this.notifyErr(err.message);
-            } finally {
-                this.isLoading = false;
-            }
-        },
-        async verifyDomain() {
-            try {
-                if (!this.formData.domain) {
-                    throw new Error("Please enter a domain");
-                }
-
-                if (!this.txtRecord) {
-                    throw new Error("Please set an Issuer DID first");
-                }
-
-                if (
-                    this.formData.domain.includes("localhost") ||
-                    this.formData.domain.includes("127.0.0.1")
-                ) {
-                    throw new Error("Domain cannot be localhost or 127.0.0.1");
-                }
-
-                this.isLoading = true;
-                
-                // Sanitize domain: remove www., normalize protocol
-                let domainUrl = this.formData.domain.trim();
-                
-                // Add https:// if no protocol specified
-                if (!domainUrl.includes("http://") && !domainUrl.includes("https://")) {
-                    domainUrl = "https://" + domainUrl;
-                }
-                
-                // Parse URL
-                const urlObj = new URL(domainUrl);
-                let hostname = urlObj.hostname;
-                
-                // Remove www. prefix if present
-                if (hostname.startsWith("www.")) {
-                    hostname = hostname.substring(4);
-                }
-                
-                // Reconstruct clean domain URL
-                const cleanDomainUrl = urlObj.protocol + "//" + hostname;
-                
-                // Import DomainLinkage for verification
-                const DomainLinkage = (await import("@hypersign-protocol/domain-linkage-verifier")).default;
-                const domainLinkage = new DomainLinkage(cleanDomainUrl);
-
-                let result;
-                try {
-                    result = await domainLinkage.verifyDnsTxtRecord(
-                        new URL(cleanDomainUrl),
-                        this.txtRecord
-                    );
-                } catch {
-                    throw new Error(
-                        "No TXT record found for this domain. Please add the TXT record to your DNS and try again. It may take up to 30 minutes to propagate."
-                    );
-                }
-
-                if (result && result.error) {
-                    throw new Error(
-                        result.error?.message +
-                        ". If you have already added the record, it may take some time to propagate. Please try again later."
-                    );
-                }
-
-                if (result && result.verified) {
-                    this.formData.hasDomainVerified = true;
-                    await this.updateAnAppOnServer({ ...this.formData });
-                    this.isEditingDomain = false;
-                    this.domainBackup = null;
-                    this.notifySuccess("Domain verified successfully!");
-                    this.showVerificationInfo = false;
-                } else {
-                    throw new Error("Domain verification failed. Please check your DNS records and try again.");
-                }
-            } catch (e) {
-                this.notifyErr(e.message);
-            } finally {
-                this.isLoading = false;
-            }
-        },
-        openVerificationGuide() {
-            this.$root.$emit("bv::show::modal", "domain-verification-guide-popup");
-        },
-        closeVerificationGuide() {
-            this.$root.$emit("bv::hide::modal", "domain-verification-guide-popup");
-        },
-        toggleVerificationInfo() {
-            this.showVerificationInfo = !this.showVerificationInfo;
-            if (this.showVerificationInfo) {
-                this.openVerificationGuide();
-            } else {
-                this.closeVerificationGuide();
-            }
-        },
-        closeVerificationGuidePopup() {
-            this.showVerificationInfo = false;
-            this.closeVerificationGuide();
-        },
-
-        closeLinkedServiceDetailPopup() {
-            this.linkedAppErrorMessage = '';
-            this.$root.$emit("bv::hide::modal", "entity-linked-service-detail-popup");
-        },
-        openDeleteServicePopUp() {
-            this.appIdToGenerateSecret = "";
-            this.$root.$emit("bv::show::modal", "entity-delete-service-confirmation-popup");
-        },
-        resetDeleteServicePopUp(){
-            this.isEditing = false
-            this.$root.$emit("bv::hide::modal",`entity-delete-service-confirmation-popup`);
-        },
-        async deleteOrg() {
-            try {
-                if (this.appIdToGenerateSecret === "") {
-                    return this.notifyErr(messages.APPLICATION.ENTER_APP_ID);
-                }
-
-                if (this.appIdToGenerateSecret !== this.formData.appId) {
-                    return this.notifyErr(messages.APPLICATION.VALID_ID);
-                }
-                this.$root.$emit("bv::hide::modal", "entity-delete-service-confirmation-popup");
-
-                this.isLoading = true;
-                const appId = this.formData.appId;
-                await this.deleteAnAppOnServer({ appId })
-                this.isLoading = false
-                this.$router.push("/studio/onboarding");
-            } catch (e) {
-                const error = e?.message || e
-                if (error && error.includes('This service is linked with')) {
-                    this.linkedAppErrorMessage = error;
-                    this.$root.$emit("bv::show::modal", "entity-linked-service-detail-popup");
-                    this.isLoading = false
-                } else {
-                    this.notifyErr(error);
-                    this.isLoading = false
-                }
-            }
-        },
-        async ensureWidgetConfigsLoaded() {
-          try {
-                // ID service widget config
-                if (!this.widgetConfig || Object.keys(this.widgetConfig).length === 0) {
-                    await this.fetchAppsWidgetConfig();
-                }
-                // KYB widget config
-                if (!this.kybWidgetConfig || Object.keys(this.kybWidgetConfig).length === 0) {
-                    await this.fetchAppsKybWidgetConfig();
-                }
-            } catch (e) {
-                console.warn("Widget config not found or failed to fetch:", e.message);
-            }
-       },
+    async verifyDomain() {
+      try {
+        if (!this.formData.domain) throw new Error('Please enter a domain');
+        if (!this.txtRecord) throw new Error('Please set an Issuer DID first');
+        if (this.formData.domain.includes('localhost') || this.formData.domain.includes('127.0.0.1')) throw new Error('Domain cannot be localhost or 127.0.0.1');
+        this.isLoading = true;
+        let domainUrl = this.formData.domain.trim();
+        if (!/^https?:\/\//.test(domainUrl)) domainUrl = `https://${domainUrl}`;
+        const parsed = new URL(domainUrl);
+        const hostname = parsed.hostname.startsWith('www.') ? parsed.hostname.substring(4) : parsed.hostname;
+        const cleanDomainUrl = `${parsed.protocol}//${hostname}`;
+        const DomainLinkage = (await import('@hypersign-protocol/domain-linkage-verifier')).default;
+        let result;
+        try {
+          result = await new DomainLinkage(cleanDomainUrl).verifyDnsTxtRecord(new URL(cleanDomainUrl), this.txtRecord);
+        } catch {
+          throw new Error('No TXT record found for this domain. Add the TXT record and try again after DNS propagation.');
+        }
+        if (result?.error) throw new Error(`${result.error.message}. DNS changes may take time to propagate.`);
+        if (!result?.verified) throw new Error('Domain verification failed. Check your DNS records and try again.');
+        this.formData.hasDomainVerified = true;
+        await this.updateAnAppOnServer({ ...this.formData });
+        this.isEditingDomain = false;
+        this.domainBackup = null;
+        this.notifySuccess('Domain verified successfully!');
+        this.closeVerificationGuidePopup();
+      } catch (error) {
+        this.notifyErr(error.message);
+      } finally {
+        this.isLoading = false;
+      }
     },
-    mixins: [UtilsMixin]
+    toggleVerificationInfo() {
+      this.showVerificationInfo = !this.showVerificationInfo;
+      this.$root.$emit(this.showVerificationInfo ? 'bv::show::modal' : 'bv::hide::modal', 'domain-verification-guide-popup');
+    },
+    closeVerificationGuidePopup() {
+      this.showVerificationInfo = false;
+      this.$root.$emit('bv::hide::modal', 'domain-verification-guide-popup');
+    },
+    openDeleteServicePopUp() {
+      this.appIdToGenerateSecret = '';
+      this.$root.$emit('bv::show::modal', 'entity-delete-service-confirmation-popup');
+    },
+    closeLinkedServiceDetailPopup() {
+      this.linkedAppErrorMessage = '';
+      this.$root.$emit('bv::hide::modal', 'entity-linked-service-detail-popup');
+    },
+    async deleteOrg() {
+      if (!this.appIdToGenerateSecret) return this.notifyErr(messages.APPLICATION.ENTER_APP_ID);
+      if (this.appIdToGenerateSecret !== this.formData.appId) return this.notifyErr(messages.APPLICATION.VALID_ID);
+      try {
+        this.$root.$emit('bv::hide::modal', 'entity-delete-service-confirmation-popup');
+        this.isLoading = true;
+        await this.deleteAnAppOnServer({ appId: this.formData.appId });
+        await this.$router.push('/studio/onboarding');
+      } catch (error) {
+        const message = error?.message || error;
+        if (message?.includes('This service is linked with')) {
+          this.linkedAppErrorMessage = message;
+          this.$root.$emit('bv::show::modal', 'entity-linked-service-detail-popup');
+        } else {
+          this.notifyErr(message);
+        }
+      } finally {
+        this.isLoading = false;
+      }
+    },
+    async ensureWidgetConfigsLoaded() {
+      try {
+        if (!this.widgetConfig || !Object.keys(this.widgetConfig).length) await this.fetchAppsWidgetConfig();
+        if (!this.kybWidgetConfig || !Object.keys(this.kybWidgetConfig).length) await this.fetchAppsKybWidgetConfig();
+      } catch (error) {
+        console.warn('Widget config not found or failed to fetch:', error.message || error);
+      }
+    },
+  },
 };
 </script>

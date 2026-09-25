@@ -1,187 +1,150 @@
 <template>
-  <div>
-    <div v-if="step === 1">
-      <h5 class="step-title mb-3">Select Your Business Type</h5>
-      <v-row>
-        <v-col v-for="(label, key) in BUSINESS_TYPE" :key="key" cols="12" md="4">
-          <div 
-            class="step-content-box text-center p-4 selectable-card" 
-            :class="{ 'selected-card': localCompany.type === key }"
-            @click="selectBusinessType(key)"
-          >
-            <v-icon 
-              large 
-              :color="localCompany.type === key ? 'primary' : 'secondary'" 
-              class="mb-4"
-            >
-              {{ getBusinessIcon(key) }}
-            </v-icon>
-            <h6 class="font-weight-bold mb-0">{{ label }}</h6>
+  <form class="form-card" novalidate @submit.prevent="submitStep">
+    <div class="card-heading">
+      <h2>Organization details</h2>
+      <p>A few essentials to create your workspace. You can add branding and social profiles here.</p>
+    </div>
+
+    <fieldset class="type-fieldset">
+      <legend>Organization type</legend>
+      <div class="type-grid">
+        <button
+          v-for="(label, key) in BUSINESS_TYPE"
+          :key="key"
+          type="button"
+          class="type-option"
+          :class="{ 'is-selected': localCompany.type === key }"
+          @click="localCompany.type = key"
+        >
+          <span class="radio-dot"></span>
+          <span>
+            <strong>{{ label }}</strong>
+            <small>{{ key === 'BUSINESS' ? 'A registered company or commercial service' : 'A community, network, or noncommercial project' }}</small>
+          </span>
+        </button>
+      </div>
+    </fieldset>
+
+    <div class="field-grid">
+      <div class="field-group">
+        <label>{{ localCompany.type === 'COMMUNITY' ? 'Community name' : 'Organization name' }} <em>*</em></label>
+        <input v-model.trim="localCompany.name" type="text" :placeholder="localCompany.type === 'COMMUNITY' ? 'e.g. Acme Labs' : 'Organization name'" />
+        <span v-if="errors.name" class="field-error">{{ errors.name }}</span>
+      </div>
+      <div class="field-group">
+        <label>Country or region <em>*</em></label>
+        <select v-model="localCompany.country">
+          <option value="" disabled>Select a country</option>
+          <option v-for="country in countryOptions" :key="country.value" :value="country.value">{{ country.text }}</option>
+        </select>
+        <span v-if="errors.country" class="field-error">{{ errors.country }}</span>
+      </div>
+      <div class="field-group">
+        <label>Work email <em>*</em></label>
+        <input v-model.trim="localCompany.contact_email" type="email" placeholder="name@organization.com" />
+        <small>We’ll send the review decision here.</small>
+        <span v-if="errors.email" class="field-error">{{ errors.email }}</span>
+      </div>
+      <div class="field-group">
+        <label>Website or domain</label>
+        <input v-model.trim="localCompany.domain" type="text" placeholder="example.com" />
+        <small>Adding a domain does not verify ownership.</small>
+      </div>
+    </div>
+
+    <div class="logo-section">
+      <div>
+        <label>Organization logo <em>*</em></label>
+        <p>Upload the logo used to identify your organization.</p>
+        <span v-if="errors.logo" class="field-error">{{ errors.logo }}</span>
+      </div>
+      <LogoUploader v-model="localCompany.logo" />
+    </div>
+
+    <section class="form-section">
+      <div class="section-label">Additional details · optional for now</div>
+      <div class="field-grid">
+        <div v-if="localCompany.type === 'BUSINESS'" class="field-group">
+          <label>Registration number</label>
+          <input v-model.trim="localCompany.registration_number" type="text" placeholder="Company registration ID" />
+        </div>
+        <div class="field-group">
+          <label>Contact phone</label>
+          <div class="phone-control">
+            <span v-if="selectedCallingCode">{{ selectedCallingCode }}</span>
+            <input v-model.trim="localCompany.phone_no" type="tel" placeholder="Include country code" />
           </div>
-        </v-col>
-      </v-row>
-    </div>
-
-    <div v-else-if="step === 2">
-      <h5 class="step-title mb-4">
-        Enter Your {{ localCompany.type === 'BUSINESS' ? "Business" : "Community" }} Details
-      </h5>
-      
-      <v-form @submit.prevent="goToStep3">
-        <v-row>
-          <v-col cols="12" md="6" class="py-0">
-            <label class="input-label mb-2">
-              {{ localCompany.type === 'BUSINESS' ? 'Company Name' : 'Community Name' }}
-            </label>
-            <v-text-field v-model="localCompany.name" placeholder="ABC Pvt Ltd." outlined dense required />
-          </v-col>
-
-          <v-col cols="12" md="6" class="py-0" v-if="localCompany.type === 'BUSINESS'">
-            <label class="input-label mb-2">Domain</label>
-            <v-text-field v-model="localCompany.domain" placeholder="abc.com" outlined dense required />
-          </v-col>
-        </v-row>
-
-        <v-row v-if="localCompany.type === 'BUSINESS'">
-          <v-col cols="12" md="6" class="py-0">
-            <label class="input-label mb-2">Country</label>
-            <v-select v-model="localCompany.country" :items="countryOptions" outlined dense required />
-          </v-col>
-
-          <v-col cols="12" md="6" class="py-0">
-            <label class="input-label mb-2">Registration Number</label>
-            <v-text-field v-model="localCompany.registration_number" outlined dense />
-          </v-col>
-        </v-row>
-
-        <v-row>
-          <v-col cols="12" md="6" class="py-0">
-            <label class="input-label mb-2">Business Email</label>
-            <v-text-field type="email" v-model="localCompany.contact_email" placeholder="contact@gmail.com" outlined dense required />
-          </v-col>
-
-          <!-- <v-col cols="12" md="6" class="py-0">
-            <label class="input-label mb-2">Phone Number</label>
-            <v-text-field v-model="localCompany.phone_no" placeholder="9989212929" outlined dense required />
-          </v-col> -->
-
-          <v-col cols="12" md="6" class="py-0">
-  <label class="input-label mb-2">Phone Number</label>
-  <v-text-field 
-    v-model="localCompany.phone_no" 
-    placeholder="9999999999" 
-    outlined 
-    dense 
-    required
-    :prefix="selectedCallingCode"
-    :rules="phoneRules"
-  >
-    <template v-slot:prepend-inner>
-      <v-icon small color="grey lighten-1">mdi-phone-outline</v-icon>
-    </template>
-  </v-text-field>
-</v-col>
-        </v-row>
-
-        <div class="mb-4">
-          <label class="input-label mb-2">Upload Logo</label>
-          <LogoUploader v-model="localCompany.logo" />
-        </div>
-
-        <label class="input-label mb-3">Social Profiles</label>
-        <v-row>
-          <v-col cols="12" md="4" class="py-0">
-            <v-text-field v-model="localCompany.twitterUrl" prepend-inner-icon="mdi-twitter" placeholder="Twitter" outlined dense />
-          </v-col>
-          <v-col cols="12" md="4" class="py-0">
-            <v-text-field v-model="localCompany.telegramUrl" prepend-inner-icon="mdi-send" placeholder="Telegram" outlined dense />
-          </v-col>
-          <v-col cols="12" md="4" class="py-0">
-            <v-text-field v-model="localCompany.linkedinUrl" prepend-inner-icon="mdi-linkedin" placeholder="LinkedIn" outlined dense />
-          </v-col>
-        </v-row>
-
-        <div class="d-flex justify-end mt-4 align-center">
-          <v-btn text color="secondary" class="text-none mr-2" @click="handleBack()">Back</v-btn>
-          <hf-buttons name="Next Step"   @executeAction="handleNext()"></hf-buttons>
-
-          
-        </div>
-      </v-form>
-    </div>
-
-    <div v-else-if="step === 3">
-      <div v-if="subStep === 1">
-        <h6 class="font-weight-bold mb-4">What services are you interested in?</h6>
-        <div class="interest-list">
-          <b-form-checkbox-group v-model="localCompany.interests" :options="interestOptions" stacked />
+          <span v-if="errors.phone" class="field-error">{{ errors.phone }}</span>
         </div>
       </div>
+    </section>
 
-      <div v-else-if="subStep === 2">
-        <h6 class="font-weight-bold mb-4">Estimated Yearly Verification Volume</h6>
-        <b-form-radio-group v-model="localCompany.yearly_volume" :options="volumeOptions" stacked />
+    <section class="form-section social-section">
+      <div class="section-label">Social profiles · optional</div>
+      <div class="field-grid social-grid">
+        <div class="field-group">
+          <label>Twitter / X</label>
+          <input v-model.trim="localCompany.twitterUrl" type="url" placeholder="https://x.com/organization" />
+          <span v-if="errors.twitter" class="field-error">{{ errors.twitter }}</span>
+        </div>
+        <div class="field-group">
+          <label>LinkedIn</label>
+          <input v-model.trim="localCompany.linkedinUrl" type="url" placeholder="https://linkedin.com/company/organization" />
+          <span v-if="errors.linkedin" class="field-error">{{ errors.linkedin }}</span>
+        </div>
+        <div class="field-group">
+          <label>Telegram</label>
+          <input v-model.trim="localCompany.telegramUrl" type="url" placeholder="https://t.me/organization" />
+          <span v-if="errors.telegram" class="field-error">{{ errors.telegram }}</span>
+        </div>
       </div>
+    </section>
 
-      <div v-else-if="subStep === 3">
-        <h6 class="font-weight-bold mb-4">Which industry does your business belong to?</h6>
-        <v-row>
-          <v-col cols="12" sm="6" class="py-0">
-            <b-form-checkbox-group v-model="localCompany.fields" :options="fieldOptions" stacked />
-          </v-col>
-        </v-row>
-      </div>
-
-      <div class="d-flex justify-end mt-8 align-center">
-        <v-btn text color="secondary" class="text-none mr-2" @click="handleBack()">Back</v-btn>
-        <!-- <v-btn class="btn button" @click="handleNext()">
-          {{ subStep === 3 ? 'Complete Setup' : 'Continue' }}
-        </v-btn> -->
-
-        <hf-buttons :name="subStep === 3 ? 'Complete Setup' : 'Continue'"   @executeAction="handleNext()"></hf-buttons>
-      </div>
-    </div>
-  </div>
+    <div v-if="hasErrors" class="form-error-summary">Please correct the highlighted fields before continuing.</div>
+    <footer class="form-footer">
+      <span><em>*</em> Required to continue</span>
+      <button type="submit" class="primary-button">Continue <span aria-hidden="true">→</span></button>
+    </footer>
+  </form>
 </template>
 
 
 <style scoped>
-
-.selectable-card {
-  cursor: pointer;
-  transition: all 0.2s ease;
-  border: 1px solid #e2e8f0;
-}
-
-.selectable-card:hover {
-  border-color: #3b82f6;
-  transform: translateY(-2px);
-}
-
-.selected-card {
-  border-color: #3b82f6 !important;
-  background-color: #f0f7ff !important;
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1) !important;
-}
-
-.step-title {
-  color: #1e293b;
-  font-weight: 700;
-}
-
-.input-label {
-  display: block;
-  font-size: 0.72rem;
-  font-weight: 700;
-  color: #64748b;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-/* Reusing the established card style */
-.step-content-box {
-  background: white;
-  border-radius: 12px;
+.form-card { padding: 24px; border: 1px solid #dfe5ee; border-radius: 8px; background: #fff; }
+.card-heading h2 { margin: 0 0 5px; color: #1d2939; font-size: 18px; font-weight: 700; }
+.card-heading p, .logo-section p { margin: 0; color: #718096; font-size: 13px; }
+.type-fieldset { margin: 20px 0; padding: 0; border: 0; }
+.type-fieldset legend, label { margin-bottom: 7px; color: #344054; font-size: 12px; font-style: normal; font-weight: 700; }
+.type-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.type-option { display: flex; gap: 10px; min-height: 64px; padding: 13px; border: 1px solid #d8e0ea; border-radius: 6px; background: #fff; color: #344054; text-align: left; }
+.type-option.is-selected { border-color: #2f6fec; background: #f7f9ff; box-shadow: 0 0 0 1px #2f6fec; }
+.radio-dot { flex: 0 0 auto; width: 14px; height: 14px; margin-top: 1px; border: 1px solid #aeb8c6; border-radius: 50%; }
+.is-selected .radio-dot { border: 4px solid #2f6fec; }
+.type-option strong, .type-option small { display: block; }
+.type-option strong { font-size: 13px; }
+.type-option small { margin-top: 3px; color: #7c8798; font-size: 11px; line-height: 1.4; }
+.field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px 14px; }
+.field-group { display: flex; min-width: 0; flex-direction: column; }
+.field-group input, .field-group select, .phone-control { width: 100%; height: 38px; padding: 0 11px; border: 1px solid #d7dfe9; border-radius: 5px; background: #fff; color: #243044; font-size: 13px; outline: none; }
+.field-group input:focus, .field-group select:focus, .phone-control:focus-within { border-color: #2f6fec; box-shadow: 0 0 0 2px rgba(47,111,236,.12); }
+.field-group small { margin-top: 5px; color: #8a95a5; font-size: 11px; }
+em, .field-error, .form-error-summary { color: #d92d20; font-style: normal; }
+.field-error { margin-top: 5px; font-size: 12px; }
+.logo-section { display: flex; align-items: center; justify-content: space-between; gap: 20px; margin-top: 18px; padding: 14px; border: 1px solid #e5eaf1; border-radius: 6px; background: #fafbfd; }
+.form-section { margin-top: 22px; padding-top: 18px; border-top: 1px solid #e8edf3; }
+.section-label { margin-bottom: 14px; color: #66758a; font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
+.social-grid { grid-template-columns: repeat(3, 1fr); }
+.phone-control { display: flex; align-items: center; gap: 7px; }
+.phone-control span { color: #5d6b7e; font-size: 13px; }
+.phone-control input { height: 32px; padding: 0; border: 0; box-shadow: none !important; }
+.form-error-summary { margin-top: 18px; font-size: 12px; }
+.form-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 24px; padding-top: 18px; border-top: 1px solid #e8edf3; }
+.form-footer > span { color: #8a95a5; font-size: 11px; }
+.primary-button { min-width: 104px; height: 38px; padding: 0 16px; border: 0; border-radius: 5px; background: #6c757d; color: #fff; font-size: 12px; font-weight: 700; }
+.primary-button:hover { background: #5a6268; }
+@media (max-width: 650px) {
+  .form-card { padding: 18px; }
+  .field-grid, .type-grid, .social-grid { grid-template-columns: 1fr; }
 }
 </style>
 
@@ -329,51 +292,9 @@ export default {
   props: ["company"],
   data() {
     return {
-      step: 1,
-      subStep: 1,
       BUSINESS_TYPE: {
         BUSINESS: "Business",
         COMMUNITY: "Community",
-      },
-      BUSINESS_INTERESTED_IN: {
-        KYC: "Know Your Customer (KYC)",
-        KYB: "Know Your Business (KYB)",
-        AADHAR_VERIFICATION: "Aadhaar Verification",
-        AGE_VERIFICATION: "Age Verification",
-        PROOF_OF_PERSONHOOD: "Proof of Personhood",
-        AML_SCREEN: "AML Screening",
-        PROOF_OF_ADDRESS: "Proof Of Address",
-        COLLECT_WALLET: "Collect Wallet Address",
-        FRAUD_PREVENTION: "Fraud Prevention",
-      },
-      BUSINESS_EST_YEARLY_VOLUME: {
-        ZERO_ONEK: "0 - 1,000",
-        ONEKONE_TWENTYK: "1,001 - 20,000",
-        TWENTYKONE_FIFTYK: "20,000 - 50,000",
-        PLUS_FIFTYK: "+50,000",
-      },
-      BUSINESS_FIELDS: {
-        FINTECH: "Fintech",
-        CRYPTO: "Crypto",
-        GAMBLING: "Gambling",
-        MARKETPLACES: "Marketplaces",
-        ONLINE_TRAVEL: "Online Travel",
-        TELCO: "Telco",
-        E_COMM: "E-commerce",
-        BANKING: "Banking",
-        INSURANCE: "Insurance",
-        HEALTHCARE: "Healthcare",
-        GOVERNMENT: "Government / Public Sector",
-        EDUCATION: "Education / EdTech",
-        REAL_ESTATE: "Real Estate",
-        TRANSPORT: "Transport / Mobility",
-        SOCIAL_MEDIA: "Social Media / Community Platforms",
-        ENTERTAINMENT: "Entertainment / Streaming",
-        GAMING: "Gaming / Esports",
-        LEGAL: "Legal / Compliance Services",
-        SUPPLY_CHAIN: "Supply Chain / Logistics",
-        NFT_WEB3: "NFT / Web3 Projects",
-        OTHER: "Other"
       },
       COUNTRY_OPTIONS: {
       // --- Asia & Oceania ---
@@ -424,7 +345,7 @@ export default {
         ...this.company,
         service_types: this.company.service_types || [],
       },
-      selectedBusinessType: null,
+      errors: {},
     };
   },
   components: {
@@ -432,184 +353,54 @@ export default {
   },
   computed: {
     ...mapGetters('mainStore', ['getUserDetails']),
-    phoneRules() {
-      return [
-        // Rule 1: Check if field is empty
-        v => !!v || 'Phone number is required',
-        
-        // Rule 2: Validate against the selected country's regex
-        v => {
-          // If no country is selected yet, we don't show a regex error
-          if (!this.localCompany.country) return true;
-
-          const pattern = PhoneRegexMap[this.localCompany.country] || PhoneRegexMap.XXX;
-          
-          // Test the input against the pattern
-          return pattern.test(v) || `Invalid format for ${this.COUNTRY_OPTIONS[this.localCompany.country]}`;
-        }
-      ];
-    },
     selectedCallingCode() {
-    return CallingCodeMap[this.localCompany.country] || "";
-    },
-    interestOptions() {
-      return Object.values(this.BUSINESS_INTERESTED_IN);
-    },
-    volumeOptions() {
-      return Object.values(this.BUSINESS_EST_YEARLY_VOLUME);
-    },
-    fieldOptions() {
-      return Object.values(this.BUSINESS_FIELDS);
+      return CallingCodeMap[this.localCompany.country] || '';
     },
     countryOptions() {
       return Object.entries(this.COUNTRY_OPTIONS).map(([value, text]) => ({ value, text }));
     },
+    hasErrors() {
+      return Object.keys(this.errors).length > 0;
+    },
   },
 
   mounted() {
-    if (this.getUserDetails) {
+    if (!this.localCompany.contact_email && this.getUserDetails?.email) {
       this.localCompany.contact_email = this.getUserDetails.email;
     }
   },
 
   methods: {
-    handleBack() {
-      if (this.step === 3) {
-        if (this.subStep > 1) {
-          this.subStep--;
-        } else {
-          this.goBackToStep2();
-        }
-      } else if (this.step === 2) {
-        this.step = 1
-
-      }
-    },
-    selectBusinessType(type) {
-      this.localCompany.type = type;
-      this.selectedBusinessType = type;
-      this.step = 2;
-    },
-
-    goToStep3() {
-      if (this.validateStep2()) {
-        this.step = 3;
-        this.subStep = 1;
-      }
-    },
-
-    goBackToStep1() {
-      this.step = 1;
-    },
-
-    finishStep3() {
-      if (this.validateStep3()) {
-        this.$emit("update:company", this.localCompany);
-        this.$emit("next-step");
-      }
-    },
-
-    getBusinessIcon(key) {
-      const icons = {
-        BUSINESS: 'mdi-domain',
-        INDIVIDUAL: 'mdi-account-outline',
-        COMMUNITY: 'mdi-account-group-outline'
-      };
-      return icons[key] || 'mdi-help-circle-outline';
-    },
-    handleNext() {
-      if (this.step === 3) {
-        // validate the current subStep before moving forward / finishing
-        if (!this.validateStep3()) return;
-        if (this.subStep < 3) {
-          this.subStep++;
-        } else {
-          // last subStep -> finish
-          this.finishStep3();
-        }
-      } else if (this.step === 2) {
-        // when on step 2, validate step2 before opening step3
-        if (this.validateStep2()) {
-          this.step = 3;
-          this.subStep = 1;
-        }
-      }
-    },
-
-    // ✅ Step 2 validation
-    validateStep2() {
+    submitStep() {
       const c = this.localCompany;
-
-      if (!c.name?.trim()) return this.showToast("Please enter a company/community name");
-      if (!c.logo?.trim()) return this.showToast("Please upload logo.");
-
-      if (c.type == this.BUSINESS_TYPE.BUSINESS && !c.country) return this.showToast("Please select a country");
-      if (c.type == this.BUSINESS_TYPE.BUSINESS && !c.registration_number) return this.showToast("Please enter your company registration number");
-
+      const errors = {};
+      if (!c.name?.trim()) errors.name = `Enter your ${c.type === 'COMMUNITY' ? 'community' : 'organization'} name.`;
+      if (!c.country) errors.country = 'Select a country or region.';
+      if (!c.logo?.trim()) errors.logo = 'Upload your organization logo.';
       const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-      if (!emailRegex.test(c.contact_email)) return this.showToast("Invalid email address");
-
-      if (c.type == this.BUSINESS_TYPE.BUSINESS && !this.validatePhoneNumber()) return false;
-
-      // Optional link checks
-      if (c.twitterUrl && !/^https?:\/\/(twitter\.com|x\.com)\/[A-Za-z0-9_]+\/?$/.test(c.twitterUrl.trim()))
-        return this.showToast("Invalid Twitter/X profile URL");
-
-      if (c.telegramUrl && !/^https?:\/\/(t\.me|telegram\.me)\/[A-Za-z0-9_]+\/?$/.test(c.telegramUrl.trim()))
-        return this.showToast("Invalid Telegram profile URL");
-
-      if (c.linkedinUrl && !/^https?:\/\/(www\.)?linkedin\.com\/(in|company)\/[A-Za-z0-9_-]+\/?$/.test(c.linkedinUrl.trim()))
-        return this.showToast("Invalid LinkedIn profile URL");
-
-      return true;
-    },
-
-    // ✅ Step 3 validation (based on substeps)
-    validateStep3() {
-      const c = this.localCompany;
-      if (this.subStep === 1) {
-        if (!Array.isArray(c.interests) || c.interests.length === 0) {
-          return this.showToast("Please select at least one service of interest");
-        }
-      } else if (this.subStep === 2) {
-        if (!c.yearly_volume) return this.showToast("Please select estimated yearly volume");
-      } else if (this.subStep === 3) {
-        if (!Array.isArray(c.fields) || c.fields.length === 0) {
-          return this.showToast("Please select at least one industry field");
-        }
+      if (!emailRegex.test(c.contact_email || '')) errors.email = 'Enter a valid work email address.';
+      if (c.phone_no && !this.isPhoneNumberValid()) {
+        errors.phone = `Enter a valid phone number${c.country ? ` for ${this.COUNTRY_OPTIONS[c.country]}` : ''}.`;
       }
-      return true;
-    },
+      if (c.twitterUrl && !/^https?:\/\/(twitter\.com|x\.com)\/[A-Za-z0-9_]+\/?$/.test(c.twitterUrl.trim()))
+        errors.twitter = 'Enter a valid Twitter/X profile URL.';
+      if (c.telegramUrl && !/^https?:\/\/(t\.me|telegram\.me)\/[A-Za-z0-9_]+\/?$/.test(c.telegramUrl.trim()))
+        errors.telegram = 'Enter a valid Telegram profile URL.';
+      if (c.linkedinUrl && !/^https?:\/\/(www\.)?linkedin\.com\/(in|company)\/[A-Za-z0-9_-]+\/?$/.test(c.linkedinUrl.trim()))
+        errors.linkedin = 'Enter a valid LinkedIn profile URL.';
 
-    validatePhoneNumber() {
+      this.errors = errors;
+      if (Object.keys(errors).length === 0) {
+        this.$emit('update:company', { ...this.localCompany });
+        this.$emit('next-step');
+      }
+    },
+    isPhoneNumberValid() {
       const c = this.localCompany;
-      if (!c.phone_no) return this.showToast("Please enter a phone number");
       const phone = c.phone_no.trim();
       const rule = PhoneRegexMap[c.country];
-      if (rule && !rule.test(phone))
-        return this.showToast(`Invalid phone number format for ${c.country}`);
-      const fallback = /^\+?\d{8,15}$/;
-      if (!rule && !fallback.test(phone))
-        return this.showToast("Please enter a valid international number (e.g., +919876543210)");
-      return true;
-    },
-
-
-    goBackToStep2() {
-      this.step = 2;
-      this.subStep = 1;
-    },
-
-
-    showToast(msg) {
-      this.$bvToast.toast(msg, {
-        title: "Validation Error",
-        variant: "danger",
-        solid: true,
-      });
-      return false;
+      return rule ? rule.test(phone) : /^\+?\d{4,15}$/.test(phone);
     },
   },
 };
 </script>
-

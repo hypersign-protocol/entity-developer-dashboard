@@ -2,9 +2,9 @@
   <div>
     <loadIng :active.sync="isLoading" :can-cancel="false" :is-full-page="fullPage"></loadIng>
     <div>
-      <v-row dense v-if="appList.length > 0 && aSuperAdminUser">
+      <v-row dense v-if="appList.length > 0 && aSuperAdminUser" class="app-page-header" align="center">
         <v-col>
-          <h4 style="float: left">
+          <h4 class="app-page-title" style="float: left">
             <i class="fa fa-cogs mr-2" aria-hidden="true"></i>Your Services
           </h4>
           <b-button

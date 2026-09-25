@@ -4,10 +4,6 @@
   top: 0;
 }
 
-.container {
-  width: 80vw;
-}
-
 .UI--c-kbgiPT-iehgGlf-css {
   background-color: #9cb5f9;
 }
@@ -118,7 +114,7 @@ h5 span {
 }
 </style>
 <template>
-  <div :class="isContainerShift ? 'homeShift' : 'home'">
+  <div :class="[isContainerShift ? 'homeShift' : 'home', 'py-3']">
     <loadIng :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loadIng>
     <AccessDenied v-if="accessDenied" />
 
@@ -175,10 +171,10 @@ h5 span {
 
     <div class="mt-3">
       <div class="">
-        <div class="form-group">
-          <h3 v-if="usageDetails.serviceDetails && usageDetails.serviceDetails.length > 0" style="text-align: left;">
+        <div class="form-group app-page-header">
+          <h3 v-if="usageDetails.serviceDetails && usageDetails.serviceDetails.length > 0" class="app-page-title" style="text-align: left;">
             API Consumptions </h3>
-          <h3 v-else style="text-align: left;">No usage found!</h3>
+          <h3 v-else class="app-page-title" style="text-align: left;">No usage found!</h3>
         </div>
       </div>
     </div>

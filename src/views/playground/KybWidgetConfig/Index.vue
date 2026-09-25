@@ -4,10 +4,10 @@
     
     <AccessDenied v-if="accessDenied" />
     <template v-if="!accessDenied">
-    <div class="editor-header">
+    <div class="editor-header app-page-header">
       <div>
-        <h4 class="mb-1 font-weight-bold">Business Widget Configuration</h4>
-        <p class="text-muted small mb-0">Configure the business widget for your application</p>
+        <h4 class="app-page-title">Business Widget Configuration</h4>
+        <p class="app-page-subtitle">Configure the business widget for your application</p>
       </div>
       <HfButtons
         :name="kybWidgetConfigTemp._id ? 'Update Configuration' : 'Save Configuration'"

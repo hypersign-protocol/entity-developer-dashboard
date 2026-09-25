@@ -4,10 +4,6 @@
   top: 0;
 }
 
-.container {
-  width: 80vw;
-}
-
 .card-header {
   background: aliceblue;
   padding: 0px;
@@ -1024,10 +1020,10 @@ textarea.form-control {
 
     <AccessDenied v-if="accessDenied" />
     <template v-if="!accessDenied">
-    <v-row>
+    <v-row class="app-page-header" align="center">
       <v-col>
-        <h4 class="font-weight-bold mb-0">Business Verifier Page Configuration</h4>
-        <p class="text-subtitle-2 text-muted">Host a landing page for Business Entity verification</p>
+        <h4 class="app-page-title">Business Verifier Page Configuration</h4>
+        <p class="app-page-subtitle">Host a landing page for Business Entity verification</p>
       </v-col>
       <v-col>
         <HfButtons name="Save Configuration" @executeAction="saveConfiguration()" v-if="!this.kybWebpageConfigTemp._id"

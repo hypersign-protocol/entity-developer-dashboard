@@ -4,10 +4,6 @@
   top: 0;
 }
 
-.container {
-  width: 80vw;
-}
-
 .UI--c-kbgiPT-iehgGlf-css {
   background-color: #9cb5f9;
 }
@@ -120,7 +116,7 @@ h5 span {
 
 
 <template>
-  <div :class="isContainerShift ? 'homeShift' : 'home'">
+  <div :class="[isContainerShift ? 'homeShift' : 'home', 'py-3']">
     <loadIng :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loadIng>
     <!-- <div class="row mb-1">
       <div class="col-12 bg-warning">
@@ -129,10 +125,10 @@ h5 span {
         </b-navbar>
       </div>
     </div> -->
-    <div class="row">
+    <div class="row app-page-header align-items-center">
       <div class="col-6" style="text-align: left">
         <div class="form-group" style="display:flex">
-          <h3 v-if="onchainconfigs.length > 0" style="text-align: left;" class="position-relative">
+          <h3 v-if="onchainconfigs.length > 0" style="text-align: left;" class="app-page-title position-relative">
 
             OnChain KYC Configuration
             <!-- <span class="badge position-absolute  rounded">
@@ -141,7 +137,7 @@ h5 span {
             <HFBeta></HFBeta>
 
           </h3>
-          <h3 v-else style="text-align: left;">No onchain kyc configuration found!</h3>
+          <h3 v-else class="app-page-title" style="text-align: left;">No onchain kyc configuration found!</h3>
         </div>
       </div>
       <div class="col-6">

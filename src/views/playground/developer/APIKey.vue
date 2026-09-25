@@ -7,10 +7,10 @@
     ></load-ing>
 
     <!-- Page Header -->
-    <v-row align="center" class="mb-6">
+    <v-row align="center" class="app-page-header">
       <v-col cols="12">
-        <h4 class="font-weight-bold mb-1">API Key Management</h4>
-        <p class="text-subtitle-2 text-muted mb-0">
+        <h4 class="app-page-title">API Key Management</h4>
+        <p class="app-page-subtitle">
           Configure authentication for your backend integration
         </p>
       </v-col>

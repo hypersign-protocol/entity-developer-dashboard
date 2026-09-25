@@ -1,13 +1,13 @@
 <template>
-  <b-container fluid class="py-3" style="width:80vw !important">
+  <b-container fluid class="py-3">
 
-    <b-row class="align-items-center">
+    <b-row class="app-page-header align-items-center">
       <b-col md="8">
         <div class="d-flex align-items-center">
-          <h4 class="mb-1 font-weight-bold  mb-0">Reusable Identity</h4>
+          <h4 class="app-page-title">Reusable Identity</h4>
           <span class="beta-badge">BETA</span>
         </div>
-        <p class="text-muted small mb-0">Streamline onboarding by allowing users to share verified credentials across the
+        <p class="app-page-subtitle">Streamline onboarding by allowing users to share verified credentials across the
           ecosystem.</p>
       </b-col>
     </b-row>

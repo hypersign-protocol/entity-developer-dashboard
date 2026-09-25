@@ -8,10 +8,6 @@
   animation: flash 0.4s cubic-bezier(1, 0, 0, 1);
 }
 
-.container {
-  width: 80vw;
-}
-
 #json-data {
   white-space: pre-wrap;
   font-family: monospace;
@@ -138,16 +134,16 @@
 }
 </style>
 <template>
-  <div :class="isContainerShift ? 'homeShift' : 'home'">
+  <div :class="[isContainerShift ? 'homeShift' : 'home', 'py-3']">
     <loadIng :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loadIng>
     <AccessDenied v-if="accessDenied" />
     <div v-if="!accessDenied" class="">
       <div class="" style="text-align: left">
         <!-- <Info :message="description" /> -->
-        <div class="form-group" style="display:flex">
-          <h3 v-if="schemaList.length > 0" style="text-align: left;">
+        <div class="form-group app-page-header" style="display:flex; align-items:center">
+          <h3 v-if="schemaList.length > 0" class="app-page-title" style="text-align: left;">
             Schemas</h3>
-          <h3 v-else style="text-align: left;">Create your first schema!</h3>
+          <h3 v-else class="app-page-title" style="text-align: left;">Create your first schema!</h3>
           <hf-buttons name="Create" iconClass="fa fa-plus" class="ml-auto"
             @executeAction="openSlider()"></hf-buttons>
         </div>

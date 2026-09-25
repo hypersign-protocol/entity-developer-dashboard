@@ -1,9 +1,9 @@
 <template>
     <b-container fluid class="py-3">
-    <v-row v-if="!accessDenied" align="center" class="mb-6">
+    <v-row v-if="!accessDenied" align="center" class="app-page-header">
       <v-col cols="12" md="6">
-        <h4 class="font-weight-bold mb-0">API Usage Analytics</h4>
-        <p class="text-subtitle-2 text-muted">Monitor consumption and service costs</p>
+        <h4 class="app-page-title">API Usage Analytics</h4>
+        <p class="app-page-subtitle">Monitor consumption and service costs</p>
       </v-col>
       <v-col cols="12" md="6">
         <div class="date-picker-group d-flex align-center">
@@ -352,9 +352,6 @@ export default {
 </script>
 
 <style scoped>
-.py-3 {
-  width: 80vw !important;
-}
 .overview-container {
   padding: 1.5rem;
   background-color: #f9fafb;

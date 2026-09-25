@@ -4,10 +4,10 @@
 
     <AccessDenied v-if="accessDenied" />
     <template v-if="!accessDenied">
-    <v-row align="center" class="mb-6">
+    <v-row align="center" class="app-page-header">
       <v-col cols="12" md="6">
-        <h4 class="font-weight-bold mb-0">Webhook Configuration</h4>
-        <p class="text-subtitle-2 text-muted">Receive real-time notifications for verification events</p>
+        <h4 class="app-page-title">Webhook Configuration</h4>
+        <p class="app-page-subtitle">Receive real-time notifications for verification events</p>
       </v-col>
       <v-col cols="12" md="6" class="d-flex justify-end align-center">
         <template v-if="getWebhookConfig._id">
@@ -88,9 +88,6 @@
 </template>
 
 <style scoped>
-.py-3 {
-  width: 80vw !important;
-}
 /* Dashboard Container Style */
 .overview-container {
   padding: 1.5rem;

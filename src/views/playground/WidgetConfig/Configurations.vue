@@ -3,10 +3,10 @@
     <load-ing :active.sync="isLoading" :can-cancel="false" :is-full-page="true" />
     <AccessDenied v-if="accessDenied" />
     <template v-else>
-      <div class="page-header">
+      <div class="page-header app-page-header">
         <div>
-          <h3>Widget Configurations</h3>
-          <p>Create and manage widget configurations for your verification use cases.</p>
+          <h3 class="app-page-title">Widget Configurations</h3>
+          <p class="app-page-subtitle">Create and manage widget configurations for your verification use cases.</p>
         </div>
         <div class="header-actions">
           <HfButtons name="New Configuration" iconClass="mdi mdi-plus" @executeAction="createConfiguration" />

@@ -1,7 +1,4 @@
 <style scoped>
-.py-3 {
-  width: 80vw!important;
-}
 /* ── Page Header ─────────────────────────────────────────── */
 .page-title {
   font-size: 1.1rem;
@@ -182,10 +179,10 @@
     <loadIng :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loadIng>
     <AccessDenied v-if="accessDenied" />
     <div v-if="!accessDenied">
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="app-page-header d-flex justify-content-between align-items-center">
       <div>
-        <h4 class="page-title">Users Verifications</h4>
-        <p class="page-subtitle">Manage and track user verifications</p>
+        <h4 class="app-page-title">Users Verifications</h4>
+        <p class="app-page-subtitle">Manage and track user verifications</p>
       </div>
       <div v-if="userList.length > 0" class="search-wrap sessions-search">
         <input

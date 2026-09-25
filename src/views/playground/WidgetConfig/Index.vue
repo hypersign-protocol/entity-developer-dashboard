@@ -5,10 +5,6 @@
   top: 0;
 }
 
-.container {
-  width: 80vw;
-}
-
 .editor-header {
   align-items: center;
   display: flex;
@@ -441,10 +437,10 @@ ul {
     <AccessDenied v-if="accessDenied" />
     <template v-if="!accessDenied">
     <span class="back-link" @click="goBack"><v-icon x-small>mdi-arrow-left</v-icon> Back to configurations</span>
-    <div class="editor-header">
+    <div class="editor-header app-page-header">
       <div>
-        <h4 class="mb-1 font-weight-bold">{{ widgetConfigTemp.name || 'New Widget Configuration' }}</h4>
-        <p class="text-muted small mb-0">Configure the ID widget for your application.</p>
+        <h4 class="app-page-title">{{ widgetConfigTemp.name || 'New Widget Configuration' }}</h4>
+        <p class="app-page-subtitle">Configure the ID widget for your application.</p>
       </div>
       <div>
         <b-button variant="outline-secondary" class="mr-2" @click="goBack">Cancel</b-button>

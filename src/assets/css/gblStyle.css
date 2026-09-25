@@ -237,6 +237,40 @@ a {
     padding-bottom: 1.5rem !important;
 }
 
+/* Shared typography and spacing for top-level dashboard page headers. */
+.app-page-header {
+  min-height: 52px;
+  margin-bottom: 24px !important;
+}
+
+.app-page-title {
+  margin: 0 0 4px !important;
+  color: #263244 !important;
+  font-size: 24px !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.02em;
+  line-height: 1.25 !important;
+}
+
+.app-page-subtitle {
+  margin: 0 !important;
+  color: #718198 !important;
+  font-size: 13px !important;
+  font-weight: 400 !important;
+  line-height: 1.45 !important;
+}
+
+@media (max-width: 650px) {
+  .app-page-header {
+    min-height: 0;
+    margin-bottom: 20px !important;
+  }
+
+  .app-page-title {
+    font-size: 22px !important;
+  }
+}
+
 /* Shared search control used by playground listing pages. */
 .search-wrap {
   display: flex;

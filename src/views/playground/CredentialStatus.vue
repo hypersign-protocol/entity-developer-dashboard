@@ -1,8 +1,4 @@
 <style scoped>
-.container {
-  width: 80vw;
-}
-
 .card-header {
   background: aliceblue;
   padding: 0px;
@@ -103,17 +99,17 @@ h5 span {
 }
 </style>
 <template>
-  <div :class="isContainerShift ? 'homeShift' : 'home'">
+  <div :class="[isContainerShift ? 'homeShift' : 'home', 'py-3']">
     <loadIng :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loadIng>
     <AccessDenied v-if="accessDenied" />
     <div v-if="!accessDenied" class="">
       <div class="" style="text-align: left">
         <!-- <Info :message="description" /> -->
-        <div class="form-group" style="display: flex">
-          <h3 v-if="credentialList.length > 0" style="text-align: left">
+        <div class="form-group app-page-header" style="display: flex; align-items:center">
+          <h3 v-if="credentialList.length > 0" class="app-page-title" style="text-align: left">
             Credentials
           </h3>
-          <h3 v-else style="text-align: left">
+          <h3 v-else class="app-page-title" style="text-align: left">
             Issue your first verifiable credential!
           </h3>
           <hf-buttons iconClass="fa fa-plus" name="Create" class="ml-auto" @executeAction="openSlider()"></hf-buttons>

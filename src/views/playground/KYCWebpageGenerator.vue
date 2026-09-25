@@ -4,10 +4,6 @@
   top: 0;
 }
 
-.container {
-  width: 80vw;
-}
-
 .card-header {
   background: aliceblue;
   padding: 0px;
@@ -1063,10 +1059,10 @@ textarea.form-control {
 
     <AccessDenied v-if="accessDenied" />
     <template v-if="!accessDenied">
-    <v-row>
+    <v-row class="app-page-header" align="center">
       <v-col>
-        <h4 class="font-weight-bold mb-0">ID Verifier Page Configuration</h4>
-        <p class="text-subtitle-2 text-muted">Create a hosted landing page for your ID verification flow</p>
+        <h4 class="app-page-title">ID Verifier Page Configuration</h4>
+        <p class="app-page-subtitle">Create a hosted landing page for your ID verification flow</p>
       </v-col>
       <v-col>
         <HfButtons name="Save Configuration" @executeAction="saveConfiguration()" v-if="!this.kycWebpageConfigTemp._id"

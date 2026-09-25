@@ -2,7 +2,7 @@
   <b-container fluid class="py-3">
     <load-ing :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></load-ing>
 
-    <v-row align="center" class="mb-6">
+    <v-row align="center" class="app-page-header">
   <v-col cols="12" md="8">
     <div class="d-flex align-center">
       <a 
@@ -13,9 +13,9 @@
       </a>
       
       <v-icon class="mx-2" color="grey lighten-1">mdi-chevron-right</v-icon>
-      <span class="company-title text-h6 font-weight-bold">{{ companyName }}</span>
+      <span class="company-title app-page-title">{{ companyName }}</span>
     </div>
-    <p class="text-subtitle-2 text-muted mb-0 mt-1">
+    <p class="app-page-subtitle mt-1">
       Review business documentation and regulatory status
     </p>
   </v-col>
@@ -106,10 +106,6 @@
 </template>
 
 <style scoped>
-.py-3 {
-  width: 80vw !important;
-}
-
 .w-100 {
     width: 100%;
 }

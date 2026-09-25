@@ -4,10 +4,6 @@
     top: 0;
 }
 
-.container {
-    width: 80vw;
-}
-
 .UI--c-kbgiPT-iehgGlf-css {
     background-color: #9cb5f9;
 }
@@ -148,9 +144,9 @@ h5 span {
         <loadIng :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loadIng>
         <AccessDenied v-if="accessDenied" />
         <template v-if="!accessDenied">
-        <v-row align="center" class="mb-6">
+        <v-row align="center" class="app-page-header">
             <v-col cols="12" md="6">
-                <h4 class="font-weight-bold mb-0">Credits</h4>
+                <h4 class="app-page-title">Credits</h4>
             </v-col>
             <v-col cols="12" md="6" class="d-flex align-center justify-end">
                 <div class="ml-auto refresh-button-wrapper">
@@ -963,10 +959,6 @@ export default {
 </script>
 
 <style scoped>
-.py-3 {
-    width: 80vw !important;
-}
-
 .overview-container {
     height: 100%;
     padding: 1.5rem;

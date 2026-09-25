@@ -2333,10 +2333,10 @@
           >{{ breadcrumbCurrentLabel }}</span
         >
       </div>
-      <header class="sd-header">
+      <header class="sd-header app-page-header">
         <div>
-          <h1>{{ pageTitle }}</h1>
-          <p>{{ pageDescription }}</p>
+          <h1 class="app-page-title">{{ pageTitle }}</h1>
+          <p class="app-page-subtitle">{{ pageDescription }}</p>
         </div>
         <button
           v-if="session.status && !isSessionDetailView"

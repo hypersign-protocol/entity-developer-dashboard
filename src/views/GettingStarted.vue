@@ -1,10 +1,10 @@
 <template>
   <b-container fluid class="px-6 py-4">
     <!-- Header Title Section -->
-    <v-row align="center" class="mb-4">
+    <v-row align="center" class="app-page-header">
       <v-col cols="12">
-        <h4 class="font-weight-bold mb-1 text-slate-800">Getting Started</h4>
-        <p class="text-subtitle-2 text-muted mb-0">
+        <h4 class="app-page-title">Getting Started</h4>
+        <p class="app-page-subtitle">
           Follow these steps to integrate and launch your verification flow
         </p>
       </v-col>

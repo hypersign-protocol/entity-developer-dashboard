@@ -1,280 +1,146 @@
 <template>
-  <div>
-    <h5>Credits Request</h5>
-    <p class="text-muted">
-      Requesting credits to setup your business identity on blockchain and setup your ID services.
-    </p>
-
-    <!-- Error Message Display -->
-    <div v-if="errorMessage" class="alert alert-danger mt-3" role="alert">
-      <i class="mdi mdi-alert-circle-outline mr-2"></i>
-      {{ errorMessage }}
-      <button type="button" class="close" @click="$emit('clear-error')" aria-label="Close">
-        <span aria-hidden="true">&times;</span>
-      </button>
+  <section class="receipt-card">
+    <div class="success-mark" :class="{ 'is-failed': normalizedStatus === 'FAILED' }">
+      <span aria-hidden="true">{{ normalizedStatus === 'FAILED' ? '!' : '✓' }}</span>
     </div>
-    <div class="mt-3">
-      <div v-if="isProcessingCredit" class="processing-box mt-3 p-3 bg-light rounded">
-        <div class="mt-2">
-          <b-spinner small type="grow" v-if="!creditProcessComplete"></b-spinner>
-          <p class="mb-0">Processing your credit request...</p>
+
+    <div class="receipt-heading">
+      <h2>{{ normalizedStatus === 'FAILED' ? 'Setup request needs attention' : 'Request submitted' }}</h2>
+      <p v-if="normalizedStatus === 'FAILED'">We couldn’t complete one or more setup tasks. The details below can help identify what needs attention.</p>
+      <p v-else>We received the request for <strong>{{ company.name }}</strong>. We’ll email updates to <strong>{{ company.contact_email }}</strong>.</p>
+    </div>
+
+    <div class="status-timeline">
+      <div v-for="item in timeline" :key="item.title" class="timeline-item" :class="item.state">
+        <div class="timeline-marker">
+          <span v-if="item.state === 'complete'" aria-hidden="true">✓</span>
+          <span v-else-if="item.state === 'failed'" aria-hidden="true">!</span>
+        </div>
+        <div class="timeline-content">
+          <div class="timeline-title-row">
+            <h3>{{ item.title }}</h3>
+            <span class="status-label">{{ item.statusLabel }}</span>
+          </div>
+          <p>{{ item.description }}</p>
+          <time v-if="item.time" :datetime="item.time">{{ formatDate(item.time) }}</time>
+          <div v-if="item.failureReason" class="step-failure">{{ item.failureReason }}</div>
         </div>
       </div>
-
-      <!-- Completion Message -->
-      <div v-if="!isProcessingCredit && isCreditAlreadyRequested"
-        class="mt-3 p-3 bg-info text-white rounded">
-        <h6 class="mb-2">
-          <i class="mdi mdi-check-circle-outline mr-2"></i>
-          {{ getCreditStatusMessage() }}
-        </h6>
-      </div>
-
-      <!-- Onboarding Logs Section - Only show on credit request step -->
-
-
-
-      <div v-if="company.logs && company.logs.length > 0" class="mb-4">
-        <div class="card shadow-sm">
-          <div class="card-header d-flex align-items-center">
-            <h6 class="mb-0">
-              <i class="mdi mdi-history mr-2"></i>
-              Process Logs
-            </h6>
-          </div>
-
-          <div class="card-body p-0">
-            <div class="logs-container" style="max-height: 260px; overflow-y: auto;">
-
-              <div v-for="(log, index) in formattedLogs" :key="index"
-                class="log-entry border-bottom px-3 py-2 d-flex justify-content-between align-items-start">
-
-                <!-- LEFT SECTION -->
-                <div>
-                  <div class="font-weight-bold">
-                    {{ formatStepName(log.step) }}
-                  </div>
-
-                  <div class="small text-muted mt-1">
-                    <i class="mdi mdi-clock-outline mr-1"></i>
-                    {{ formatDate(log.time) }}
-                  </div>
-
-                  <!-- Error Reason -->
-                  <div v-if="log.status === 'FAILED' && log.failureReason"
-                    class="small mt-2 text-danger d-flex align-items-start">
-                    <!-- <i class="mdi mdi-alert-circle-outline mr-1 mt-1"></i> -->
-                    <span>{{ log.failureReason }}</span>
-                  </div>
-                </div>
-
-                <!-- RIGHT SECTION -->
-                <div>
-
-                  <span
-  class="badge px-3 py-1"
-  :class="{
-    'badge-success': log.status === 'SUCCESS',
-    'badge-danger': log.status === 'FAILED',
-    'badge-warning text-dark': log.status === 'PENDING',
-    'badge-secondary': log.status === 'NOT STARTED'
-  }"
->
-  {{ log.status }}
-</span>
-                </div>
-
-              </div>
-
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="text-right mt-3">
-        <b-button v-if="isCreditAlreadyRequested || isCreditApproved" variant="link" @click="$emit('prev-step')"
-          disabled>Back</b-button>
-        <b-button v-else variant="link" @click="$emit('prev-step')">Back</b-button>
-        <v-btn v-if="!isCreditApproved" class="btn btn-outline-secondary" disabled>
-          Finish
-        </v-btn>
-        <v-btn v-else class="btn btn-outline-secondary" @click="$emit('finish')">
-          <i class="mdi mdi-check-circle-outline mr-1"></i>
-          Finish
-        </v-btn>
-      </div>
     </div>
-  </div>
+
+    <div class="dashboard-note">
+      You can return to the dashboard while your request is being reviewed. Check the status here when you sign in again.
+    </div>
+
+    <footer class="receipt-footer">
+      <button type="button" class="secondary-button" @click="$emit('preview-flow')">Preview flow again</button>
+    </footer>
+  </section>
 </template>
 
 <script>
 export default {
-  name: "StepCreateSSIService",
-  props: [
-    "networkType",
-    "isProcessingCredit",
-    "creditProcessComplete",
-    "company",
-    "errorMessage",
-  ],
-  data() {
-    return {
-      stepName: {
-        'CREATE_TEAM_ROLE': '🧑‍🤝‍🧑 Setting up Team & Roles',
-        'CREATE_SSI_SERVICE': '🔧 Creating SSI Service',
-        'CREDIT_SSI_SERVICE': '💳 Crediting SSI Service',
-        'CREATE_DID': '🆔 Creating Business Identity',
-        'REGISTER_DID': '🌐 Registering Business Identity on Blockchain',
-        'CREATE_KYC_SERVICE': '🔒 Creating ID Service',
-        'GIVE_KYC_DASHBOARD_ACCESS': '📊 Granting ID Dashboard Access',
-        'CREDIT_KYC_SERVICE': '💰 Crediting ID Service',
-        'SETUP_KYC_WIDGET': '🧩 Setting up KYC Widget',
-        'CONFIGURE_KYC_VERIFIER_PAGE': '🛠️ Configuring KYC Verifier Page',
-        'COMPLETED': '✅ Onboarding Complete'
-      },
-      localNetworkType: this.networkType,
-
-    };
-  },
-  mounted() {
-    if (!this.isCreditAlreadyRequested) {
-      this.$emit('process-credit');
-    }
+  name: 'StepCreateSSIService',
+  props: {
+    company: { type: Object, required: true },
   },
   computed: {
-    formattedLogs() {
-    const rawLogs = this.company.logs || [];
-
-    // Step 1: map logs by step for fast lookup
-    const logMap = {};
-    
-    rawLogs.forEach(log => {
-      logMap[log.step] = {
-        ...log,
-        time: log.time?.$date || log.time || null
-      };
-    });
-    const finalSteps = [];
-
-    // Step 2: Merge with ALL_STEPS (so missing steps get NOT_STARTED)
-    Object.keys(this.stepName)?.forEach(stepName => {
-      if (logMap[stepName]) {
-        return finalSteps.push(logMap[stepName]); // already has data
-      }
-
-      finalSteps.push({
-        step: stepName,
-        status: "NOT STARTED",
-        time: null,
-        failureReason: null
-      })
-    });
-
-    return finalSteps
-  },
-    isCreditAlreadyRequested() {
-      if (!this.company) return false;
-
-      // Check onboarding status first
-      if (this.company.onboardingStatus) {
-        const status = this.getNormalizedStatus();
-        if (status === '') {
-          return false;
-        }
-
-        return ['INITIATED', 'APPROVED', 'FAILED'].includes(status);
-      }
-
-      // Fallback: Check logs for credit-related steps
-      if (!Array.isArray(this.company.logs)) return false;
-
-      const creditSteps = ['CREDIT_SSI_SERVICE', 'CREDIT_KYC_SERVICE'];
-      return this.company.logs.some(log =>
-        creditSteps.includes(log.step) &&
-        ['SUCCESS', 'FAILED'].includes(log.status)
-      );
+    normalizedStatus() {
+      return (this.company.onboardingStatus || 'INITIATED').toUpperCase();
     },
+    timeline() {
+      const logMap = (this.company.logs || []).reduce((map, log) => {
+        map[log.step] = log;
+        return map;
+      }, {});
+      const firstIncompleteIndex = this.onboardingSteps.findIndex(step => {
+        const status = (logMap[step.key]?.status || '').replace('_', ' ').toUpperCase();
+        return status !== 'SUCCESS';
+      });
 
-    isCreditApproved() {
-      if (!this.company) return false;
-
-      // Check onboarding status for APPROVED
-      const status = this.getNormalizedStatus();
-      return status === 'APPROVED';
+      return this.onboardingSteps.map((step, index) => {
+        const log = logMap[step.key] || {};
+        let status = (log.status || 'NOT STARTED').replace('_', ' ').toUpperCase();
+        if (!log.status && this.normalizedStatus === 'APPROVED') status = 'SUCCESS';
+        const state = this.getTimelineState(status, index, firstIncompleteIndex);
+        return {
+          ...step,
+          state,
+          statusLabel: this.getStatusLabel(status, state),
+          time: log.time?.$date || log.time || '',
+          failureReason: log.failureReason || '',
+        };
+      });
     },
   },
-  watch: {
-    // Watch for changes in company onboarding status
-    'company.onboardingStatus': {
-      handler(newStatus, oldStatus) {
-        console.debug('StepCreateSSIService: Onboarding status changed from', oldStatus, 'to:', newStatus);
-
-        // If status changed to APPROVED, log for user feedback
-        if (newStatus && newStatus.toUpperCase() === 'APPROVED') {
-          console.debug(newStatus)
-        }
-      },
-      immediate: true
-    },
-
-    // Watch for changes in the computed property
-    isCreditApproved: {
-      handler(isApproved) {
-        // console.log('StepCreateSSIService: isCreditApproved changed to:', isApproved);
-        if (isApproved) {
-          this.$emit('finish');
-        }
-      },
-      immediate: true
-    }
+  data() {
+    return {
+      onboardingSteps: [
+        { key: 'CREATE_TEAM_ROLE', title: 'Team and roles setup', description: 'Create the default workspace team and access roles.' },
+        { key: 'CREATE_SSI_SERVICE', title: 'SSI service creation', description: 'Create the organization’s SSI service.' },
+        { key: 'CREDIT_SSI_SERVICE', title: 'SSI credit allocation', description: 'Allocate the approved SSI service credits.' },
+        { key: 'CREATE_DID', title: 'Business identity creation', description: 'Create the organization’s decentralized identity.' },
+        { key: 'REGISTER_DID', title: 'Blockchain registration', description: 'Register the business identity on the blockchain.' },
+        { key: 'CREATE_KYC_SERVICE', title: 'ID service creation', description: 'Create the requested identity-verification service.' },
+        { key: 'GIVE_KYC_DASHBOARD_ACCESS', title: 'Dashboard access', description: 'Grant access to the identity-verification dashboard.' },
+        { key: 'CREDIT_KYC_SERVICE', title: 'ID service credit allocation', description: 'Allocate the approved identity-service credits.' },
+        { key: 'SETUP_KYC_WIDGET', title: 'KYC widget setup', description: 'Prepare the default verification widget.' },
+        { key: 'CONFIGURE_KYC_VERIFIER_PAGE', title: 'Verifier page configuration', description: 'Configure the default verifier experience.' },
+        { key: 'COMPLETED', title: 'Onboarding complete', description: 'Finish workspace activation and make the services available.' },
+      ],
+    };
   },
   methods: {
-
-    formatStepName(step) {
-      
-      return this.stepName[step] || step;
+    getTimelineState(status, index, firstIncompleteIndex) {
+      if (status === 'SUCCESS') return 'complete';
+      if (status === 'FAILED') return 'failed';
+      if (status === 'PENDING') return 'active';
+      if (this.normalizedStatus === 'INITIATED' && index === firstIncompleteIndex) return 'active';
+      return 'pending';
     },
-
-    formatDate(dateString) {
-      if (!dateString) return '';
-      return new Date(dateString).toLocaleString();
+    getStatusLabel(status, state) {
+      if (state === 'complete') return 'Completed';
+      if (state === 'failed') return 'Failed';
+      if (status === 'PENDING' || state === 'active') return 'In progress';
+      return 'Not started';
     },
-    getNormalizedStatus() {
-      return this.company?.onboardingStatus?.toUpperCase() || '';
-    },
-
-    getCreditStatusTitle() {
-      const status = this.getNormalizedStatus();
-
-      if (status === '') {
-        return 'Credit Request Not Initiated';
-      }
-
-      const statusTitles = {
-        'APPROVED': 'Credit Request Approved',
-        'INITIATED': 'Onboarding Submitted',
-      };
-
-      return statusTitles[status] || 'Credit Request Already Initiated';
-    },
-
-    getCreditStatusMessage() {
-      const status = this.getNormalizedStatus();
-      if (status === '') {
-        return 'Request Credit to proceed with the onboarding.';
-      }
-
-      const statusMessages = {
-        'APPROVED': 'Your credit request has been approved. You can now proceed to add team members.',
-        'INITIATED': 'Your credit request has been successfully submitted and is being processed.',
-      };
-
-      return statusMessages[status] || 'Your credit request has been successfully submitted and is being processed';
-    },
-
-    goToBilling() {
-      // console.log("Redirecting to billing...");
+    formatDate(value) {
+      const date = new Date(value);
+      return Number.isNaN(date.getTime()) ? '' : date.toLocaleString();
     },
   },
 };
 </script>
+
+<style scoped>
+.receipt-card { padding: 24px; border: 1px solid #dfe5ee; border-radius: 8px; background: #fff; }
+.success-mark { display: flex; width: 34px; height: 34px; align-items: center; justify-content: center; margin-bottom: 16px; border-radius: 50%; background: #dcf8ea; }
+.success-mark.is-failed { background: #fee4e2; }
+.success-mark span { color: #159a68; font-family: Arial, sans-serif; font-size: 18px; font-weight: 700; line-height: 1; }
+.success-mark.is-failed span { color: #d64545; }
+.receipt-heading h2 { margin: 0 0 6px; color: #1d2939; font-size: 18px; font-weight: 700; }
+.receipt-heading p { margin: 0; color: #657287; font-size: 13px; line-height: 1.55; }
+.status-timeline { margin-top: 22px; padding: 18px; border: 1px solid #e3e8ef; border-radius: 6px; }
+.timeline-item { position: relative; display: flex; gap: 12px; padding-bottom: 19px; }
+.timeline-item:last-child { padding-bottom: 0; }
+.timeline-item:not(:last-child)::after { position: absolute; top: 17px; bottom: 1px; left: 7px; width: 1px; background: #dfe5ed; content: ''; }
+.timeline-marker { z-index: 1; display: flex; flex: 0 0 auto; width: 16px; height: 16px; align-items: center; justify-content: center; border: 2px solid #cdd5df; border-radius: 50%; background: #fff; }
+.complete .timeline-marker { border-color: #2daf78; background: #2daf78; }
+.active .timeline-marker { border: 4px solid #2f6fec; }
+.failed .timeline-marker { border-color: #d64545; background: #d64545; }
+.timeline-marker span { color: #fff; font-family: Arial, sans-serif; font-size: 10px; font-weight: 700; line-height: 1; }
+.timeline-item h3 { margin: 0 0 2px; color: #344054; font-size: 13px; font-weight: 700; }
+.timeline-item p { margin: 0; color: #7a8799; font-size: 12px; }
+.timeline-content { min-width: 0; flex: 1; }
+.timeline-title-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.status-label { flex: 0 0 auto; color: #8993a4; font-size: 10px; font-weight: 700; text-transform: uppercase; }
+.complete .status-label { color: #159a68; }
+.active .status-label { color: #2f6fec; }
+.failed .status-label { color: #d64545; }
+.timeline-item time { display: block; margin-top: 4px; color: #98a2b3; font-size: 10px; }
+.step-failure { margin-top: 7px; padding: 7px 9px; border-radius: 4px; background: #fff1f0; color: #b42318; font-size: 11px; }
+.dashboard-note { margin-top: 18px; padding: 11px 12px; border-radius: 5px; background: #f1f6ff; color: #52627a; font-size: 12px; line-height: 1.5; }
+.receipt-footer { display: flex; justify-content: flex-end; margin-top: 20px; }
+.secondary-button { height: 38px; padding: 0 14px; border: 1px solid #6c757d; border-radius: 5px; background: #fff; color: #6c757d; font-size: 12px; font-weight: 700; }
+.secondary-button:hover { background: #6c757d; color: #fff; }
+</style>

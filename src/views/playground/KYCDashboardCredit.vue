@@ -3,10 +3,10 @@
         <loadIng :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loadIng>
         <AccessDenied v-if="accessDenied" />
         <template v-if="!accessDenied">
-        <v-row align="center" class="mb-6 ">
+        <v-row align="center" class="app-page-header">
             <v-col cols="12" md="6">
-                <h4 class="font-weight-bold mb-0">Credits Management</h4>
-                <p class="text-subtitle-2 text-muted">Manage your API balance and subscription history</p>
+                <h4 class="app-page-title">Credits Management</h4>
+                <p class="app-page-subtitle">Manage your API balance and subscription history</p>
             </v-col>
             <v-col cols="12" md="6" class="d-flex justify-end">
                 <div class="ml-auto">
@@ -362,9 +362,6 @@ export default {
 </script>
 
 <style scoped>
-.py-3 {
-    width: 80vw !important;
-}
 /* Unified Dashboard Styles */
 .overview-container {
     padding:  1.5rem 1.5rem;

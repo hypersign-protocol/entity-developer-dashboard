@@ -4,10 +4,10 @@
 
     <AccessDenied v-if="accessDenied" />
     <template v-if="!accessDenied">
-    <v-row align="center" class="mb-6">
+    <v-row align="center" class="app-page-header">
   <v-col cols="12" md="6">
-    <h4 class="font-weight-bold mb-0">Business Verifications</h4>
-    <p class="text-subtitle-2 text-muted">Manage and monitor corporate identity verification sessions</p>
+    <h4 class="app-page-title">Business Verifications</h4>
+    <p class="app-page-subtitle">Manage and monitor corporate identity verification sessions</p>
   </v-col>
   
   <v-col cols="12" md="6" class="d-flex justify-md-end justify-start">
@@ -136,9 +136,6 @@
 </template>
 
 <style scoped>
-.py-3 {
-  width: 80vw!important;
-}
 /* Inherited Theme Patterns */
 .overview-container {
   padding: 1.25rem;

@@ -2,10 +2,10 @@
     <b-container class="py-3" fluid>
         <AccessDenied v-if="accessDenied" />
         <template v-if="!accessDenied">
-        <v-row align="center" class="mb-6">
+        <v-row align="center" class="app-page-header">
             <v-col cols="12" md="6">
-                <h4 class="font-weight-bold mb-0">User Analytics</h4>
-                <p class="text-subtitle-2 text-muted">View user engagement and behavior data</p>
+                <h4 class="app-page-title">User Analytics</h4>
+                <p class="app-page-subtitle">View user engagement and behavior data</p>
             </v-col>
         </v-row>
         <v-row>
@@ -28,11 +28,7 @@
         </template>
     </b-container>
 </template>
-<style scoped>
-.py-3 {
-    width: 80vw!important;
-}
-</style>
+<style scoped></style>
 
 <script>
 import Overview from './components/Overview.vue';
