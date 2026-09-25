@@ -75,12 +75,29 @@
           <section class="config-card">
             <div class="card-header-row compact">
               <div>
-                <h2>Verified domain</h2>
+                <div class="domain-title-row">
+                  <h2>Verified domain</h2>
+                  <span class="verification-badge" :class="displayDomainVerified ? 'verified' : 'unverified'">
+                    {{ displayDomainVerified ? '✓ Verified' : 'Unverified' }}
+                  </span>
+                  <button
+                    v-if="formData.domain && !displayDomainVerified && !isEditing && !isEditingDomain"
+                    type="button"
+                    class="verification-help-button"
+                    title="Open verification guide"
+                    aria-label="Open domain verification guide"
+                    @click="toggleVerificationInfo"
+                  >
+                    <v-icon small>mdi-help-circle-outline</v-icon>
+                  </button>
+                </div>
                 <p>Your application domain and its ownership status.</p>
               </div>
-              <span class="verification-badge" :class="displayDomainVerified ? 'verified' : 'unverified'">
-                {{ displayDomainVerified ? 'Verified' : 'Unverified' }}
-              </span>
+              <div class="edit-actions">
+                <button v-if="!isEditing && !isEditingDomain" type="button" class="icon-button" title="Edit domain" @click="startDomainEdit">
+                  <v-icon small>mdi-pencil-outline</v-icon>
+                </button>
+              </div>
             </div>
 
             <div v-if="isEditing || isEditingDomain" class="domain-editor">
@@ -93,13 +110,6 @@
             </div>
             <div v-else class="domain-summary">
               <strong>{{ formData.domain || 'No domain configured' }}</strong>
-              <div class="domain-summary-actions">
-                <button type="button" class="secondary-button" @click="startDomainEdit">Change domain</button>
-                <template v-if="formData.domain && !formData.hasDomainVerified">
-                  <button type="button" class="secondary-button" @click="toggleVerificationInfo">Verification guide</button>
-                  <button type="button" class="secondary-button" @click="verifyDomain">Verify domain</button>
-                </template>
-              </div>
             </div>
             <div v-if="isEditing || isEditingDomain" class="card-footer-actions domain-footer-actions">
               <button type="button" class="secondary-button" @click="isEditing ? cancelEdit() : cancelDomainEdit()">Cancel</button>
@@ -269,7 +279,10 @@
           <button type="button" class="secondary-button" @click="copyToClip(txtRecord, 'TXT Record')">Copy</button>
         </div>
         <div v-else class="modal-info">Set an Issuer DID before attempting domain verification.</div>
-        <div class="text-center mt-3"><hf-buttons name="Close" @executeAction="closeVerificationGuidePopup" /></div>
+        <div class="modal-footer-actions">
+          <button type="button" class="secondary-button" @click="closeVerificationGuidePopup">Close</button>
+          <button v-if="txtRecord && formData.domain" type="button" class="primary-button" @click="verifyDomain">Verify domain</button>
+        </div>
       </div>
     </hf-pop-up>
   </div>
@@ -325,8 +338,12 @@
 .logo-row >>> .logo-preview-circle img { border-radius: 9px; }
 .domain-editor { display: grid; gap: 14px; }
 .current-domain { color: #344054; font-size: 13px; }
-.domain-summary { display: grid; grid-template-columns: minmax(190px, 400px) auto; gap: 20px; align-items: center; max-width: 550px; }
-.domain-summary-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.domain-title-row { display: flex; align-items: center; gap: 8px; }
+.domain-title-row h2 { margin-bottom: 0; }
+.verification-help-button { display: inline-flex; width: 24px; height: 24px; align-items: center; justify-content: center; padding: 0; border: 0; border-radius: 50%; background: transparent; color: #9a641c; }
+.verification-help-button:hover { background: #fff4e5; }
+.verification-help-button >>> .v-icon { color: inherit !important; }
+.domain-summary { width: 100%; }
 .domain-summary strong { font-size: 13px; }
 .card-footer-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 22px; padding-top: 18px; border-top: 1px solid #e8edf3; }
 .domain-footer-actions { margin-top: 16px; padding-top: 0; border-top: 0; }
@@ -359,6 +376,7 @@
 .modal-record { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px; border: 1px solid #dfe6ef; border-radius: 6px; background: #f8fafc; }
 .modal-record code { overflow-wrap: anywhere; }
 .modal-info { padding: 10px; border-radius: 5px; background: #f1f6ff; color: #52627a; font-size: 12px; }
+.modal-footer-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; }
 @media (max-width: 1100px) { .config-layout { grid-template-columns: 1fr; } .config-sidebar { grid-template-columns: 1fr 1fr; } }
 @media (max-width: 650px) {
   .config-page { padding: 16px 15px 48px; }
@@ -366,7 +384,6 @@
   .config-tabs { gap: 16px; overflow-x: auto; }
   .details-grid, .config-sidebar { grid-template-columns: 1fr; }
   .domain-editor { grid-template-columns: 1fr; }
-  .domain-summary { grid-template-columns: 1fr; align-items: flex-start; }
   .dns-record { align-items: flex-start; flex-direction: column; }
   .card-header-row { align-items: flex-start; flex-direction: column; }
 }
@@ -524,7 +541,6 @@ export default {
     startDomainEdit() {
       this.domainBackup = { domain: this.formData.domain, hasDomainVerified: this.formData.hasDomainVerified };
       this.isEditingDomain = true;
-      this.formData.hasDomainVerified = false;
     },
     cancelDomainEdit() {
       if (this.domainBackup) Object.assign(this.formData, this.domainBackup);
@@ -533,6 +549,9 @@ export default {
     },
     async saveDomainChange() {
       if (!this.formData.domain?.trim()) return this.notifyErr('Domain cannot be empty.');
+      const previousDomain = (this.domainBackup?.domain || String()).trim();
+      const domainChanged = this.formData.domain.trim() !== previousDomain;
+      if (domainChanged) this.formData.hasDomainVerified = false;
       try {
         this.isLoading = true;
         await this.updateAnAppOnServer({ ...this.formData });
@@ -556,6 +575,7 @@ export default {
         const methodChanged = this.formData.issuerVerificationMethodId !== backup.issuerVerificationMethodId;
         const nameChanged = this.formData.appName !== backup.appName;
         const domainChanged = this.formData.domain !== backup.domain;
+        if (domainChanged) this.formData.hasDomainVerified = false;
         await this.updateAnAppOnServer({ ...this.formData });
 
         if (logoChanged && Object.keys(this.widgetConfig || {}).length) {
