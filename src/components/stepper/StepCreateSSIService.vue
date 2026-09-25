@@ -11,7 +11,7 @@
     </div>
 
     <div class="status-timeline">
-      <div v-for="item in timeline" :key="item.title" class="timeline-item" :class="item.state">
+      <div v-for="(item, index) in timeline" :key="`${item.key}-${item.time || index}-${index}`" class="timeline-item" :class="item.state">
         <div class="timeline-marker">
           <span v-if="item.state === 'complete'" aria-hidden="true">✓</span>
           <span v-else-if="item.state === 'failed'" aria-hidden="true">!</span>
@@ -49,28 +49,34 @@ export default {
       return (this.company.onboardingStatus || 'INITIATED').toUpperCase();
     },
     timeline() {
-      const logMap = (this.company.logs || []).reduce((map, log) => {
-        map[log.step] = log;
-        return map;
-      }, {});
-      const firstIncompleteIndex = this.onboardingSteps.findIndex(step => {
-        const status = (logMap[step.key]?.status || '').replace('_', ' ').toUpperCase();
-        return status !== 'SUCCESS';
-      });
-
-      return this.onboardingSteps.map((step, index) => {
-        const log = logMap[step.key] || {};
-        let status = (log.status || 'NOT STARTED').replace('_', ' ').toUpperCase();
-        if (!log.status && this.normalizedStatus === 'APPROVED') status = 'SUCCESS';
-        const state = this.getTimelineState(status, index, firstIncompleteIndex);
-        return {
-          ...step,
-          state,
-          statusLabel: this.getStatusLabel(status, state),
-          time: log.time?.$date || log.time || '',
-          failureReason: log.failureReason || '',
-        };
-      });
+      const stepMap = new Map(this.onboardingSteps.map(step => [step.key, step]));
+      return (this.company.logs || [])
+        .map((log, responseIndex) => ({
+          ...log,
+          responseIndex,
+          normalizedTime: log.time?.$date || log.time || '',
+        }))
+        .sort((left, right) => {
+          const leftTime = new Date(left.normalizedTime).getTime();
+          const rightTime = new Date(right.normalizedTime).getTime();
+          const leftHasTime = Number.isFinite(leftTime);
+          const rightHasTime = Number.isFinite(rightTime);
+          if (leftHasTime && rightHasTime && leftTime !== rightTime) return leftTime - rightTime;
+          if (leftHasTime !== rightHasTime) return leftHasTime ? -1 : 1;
+          return left.responseIndex - right.responseIndex;
+        })
+        .map(log => {
+          const step = stepMap.get(log.step) || { key: log.step || 'UNKNOWN_STEP', title: log.step || 'Unknown step', description: '' };
+          const status = (log.status || 'NOT STARTED').replace(/_/g, ' ').toUpperCase();
+          const state = this.getTimelineState(status);
+          return {
+            ...step,
+            state,
+            statusLabel: this.getStatusLabel(status, state),
+            time: log.normalizedTime,
+            failureReason: log.failureReason || '',
+          };
+        });
     },
   },
   data() {
@@ -91,11 +97,10 @@ export default {
     };
   },
   methods: {
-    getTimelineState(status, index, firstIncompleteIndex) {
+    getTimelineState(status) {
       if (status === 'SUCCESS') return 'complete';
       if (status === 'FAILED') return 'failed';
       if (status === 'PENDING') return 'active';
-      if (this.normalizedStatus === 'INITIATED' && index === firstIncompleteIndex) return 'active';
       return 'pending';
     },
     getStatusLabel(status, state) {

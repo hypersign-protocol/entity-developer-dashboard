@@ -78,28 +78,32 @@
                 <h2>Verified domain</h2>
                 <p>Your application domain and its ownership status.</p>
               </div>
-              <span class="verification-badge" :class="formData.hasDomainVerified ? 'verified' : 'unverified'">
-                {{ formData.hasDomainVerified ? 'Verified' : 'Unverified' }}
+              <span class="verification-badge" :class="displayDomainVerified ? 'verified' : 'unverified'">
+                {{ displayDomainVerified ? 'Verified' : 'Unverified' }}
               </span>
             </div>
 
             <div v-if="isEditing || isEditingDomain" class="domain-editor">
+              <strong class="current-domain">{{ currentDomain || 'No domain configured' }}</strong>
               <div class="detail-field domain-field">
-                <label>Domain</label>
+                <label>New domain</label>
                 <input v-model.trim="formData.domain" type="text" placeholder="example.com" />
-              </div>
-              <div class="domain-actions">
-                <button type="button" class="secondary-button" @click="toggleVerificationInfo">Verification guide</button>
-                <button type="button" class="secondary-button" @click="verifyDomain">Verify domain</button>
+                <small>Changing the domain starts a new ownership check. The new domain will not be marked verified when you save it.</small>
               </div>
             </div>
             <div v-else class="domain-summary">
               <strong>{{ formData.domain || 'No domain configured' }}</strong>
-              <button type="button" class="secondary-button" @click="startDomainEdit">Change domain</button>
+              <div class="domain-summary-actions">
+                <button type="button" class="secondary-button" @click="startDomainEdit">Change domain</button>
+                <template v-if="formData.domain && !formData.hasDomainVerified">
+                  <button type="button" class="secondary-button" @click="toggleVerificationInfo">Verification guide</button>
+                  <button type="button" class="secondary-button" @click="verifyDomain">Verify domain</button>
+                </template>
+              </div>
             </div>
-            <div v-if="isEditingDomain && !isEditing" class="card-footer-actions">
-              <button type="button" class="secondary-button" @click="cancelDomainEdit">Cancel</button>
-              <button type="button" class="primary-button" @click="saveDomainChange">Save domain</button>
+            <div v-if="isEditing || isEditingDomain" class="card-footer-actions domain-footer-actions">
+              <button type="button" class="secondary-button" @click="isEditing ? cancelEdit() : cancelDomainEdit()">Cancel</button>
+              <button type="button" class="primary-button" @click="isEditing ? saveChanges() : saveDomainChange()">Save domain</button>
             </div>
           </section>
 
@@ -118,9 +122,9 @@
             <p class="pending-message">
               {{ isEditing ? 'The environment change will be applied when you save.' : `Environment is set to ${isProd ? 'Production' : 'Development'}.` }}
             </p>
-            <div v-if="isEditing" class="environment-footer-actions">
-              <button type="button" class="primary-button" @click="saveChanges">Save environment</button>
+            <div v-if="isEditing" class="card-footer-actions">
               <button type="button" class="secondary-button" @click="cancelEdit">Cancel</button>
+              <button type="button" class="primary-button" @click="saveChanges">Save environment</button>
             </div>
           </section>
         </template>
@@ -223,7 +227,7 @@
             <div><dt>Description</dt><dd>{{ formData.description || '—' }}</dd></div>
             <div>
               <dt>Domain</dt>
-              <dd>{{ formData.domain || '—' }} <span v-if="formData.hasDomainVerified" class="inline-verified">✓ Verified</span></dd>
+              <dd>{{ currentDomain || '—' }} <span v-if="displayDomainVerified" class="inline-verified">✓ Verified</span></dd>
             </div>
           </dl>
           <div class="about-note">Changes are saved to Hypersign only after you select Save changes.</div>
@@ -319,12 +323,13 @@
 .logo-row { display: flex; align-items: center; gap: 12px; color: #657287; font-size: 12px; }
 .logo-row >>> .logo-upload-circle, .logo-row >>> .logo-preview-circle { width: 56px; height: 56px; border-radius: 9px; }
 .logo-row >>> .logo-preview-circle img { border-radius: 9px; }
-.domain-editor { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 16px; align-items: end; }
-.environment-footer-actions { display: flex; justify-content: flex-start; gap: 8px; margin-top: 18px; }
-.domain-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.domain-editor { display: grid; gap: 14px; }
+.current-domain { color: #344054; font-size: 13px; }
 .domain-summary { display: grid; grid-template-columns: minmax(190px, 400px) auto; gap: 20px; align-items: center; max-width: 550px; }
+.domain-summary-actions { display: flex; flex-wrap: wrap; gap: 8px; }
 .domain-summary strong { font-size: 13px; }
 .card-footer-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 22px; padding-top: 18px; border-top: 1px solid #e8edf3; }
+.domain-footer-actions { margin-top: 16px; padding-top: 0; border-top: 0; }
 .verification-badge, .inline-verified, .key-type { display: inline-flex; align-items: center; border-radius: 14px; font-size: 11px; font-weight: 700; }
 .verification-badge { padding: 5px 10px; }
 .verified, .inline-verified { background: #eaf8f0; color: #218459; }
@@ -412,6 +417,16 @@ export default {
     }),
     formattedErrorMessage() {
       return this.linkedAppErrorMessage.replace(/\n/g, '<br>');
+    },
+    currentDomain() {
+      if (this.isEditingDomain && this.domainBackup) return this.domainBackup.domain;
+      if (this.isEditing && this.backupData) return this.backupData.domain;
+      return this.formData.domain;
+    },
+    displayDomainVerified() {
+      if (this.isEditingDomain && this.domainBackup) return Boolean(this.domainBackup.hasDomainVerified);
+      if (this.isEditing && this.backupData) return Boolean(this.backupData.hasDomainVerified);
+      return Boolean(this.formData.hasDomainVerified);
     },
     txtRecord() {
       return this.formData.issuerDid ? `hypersign-domain-verification.did=${this.formData.issuerDid}` : null;
