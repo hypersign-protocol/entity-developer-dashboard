@@ -50,21 +50,37 @@ export default {
     },
     timeline() {
       const stepMap = new Map(this.onboardingSteps.map(step => [step.key, step]));
-      const orderedLogs = (this.company.logs || [])
-        .map((log, responseIndex) => ({
-          ...log,
-          responseIndex,
-          normalizedTime: log.time?.$date || log.time || '',
-        }))
-        .sort((left, right) => {
-          const leftTime = new Date(left.normalizedTime).getTime();
-          const rightTime = new Date(right.normalizedTime).getTime();
-          const leftHasTime = Number.isFinite(leftTime);
-          const rightHasTime = Number.isFinite(rightTime);
-          if (leftHasTime && rightHasTime && leftTime !== rightTime) return leftTime - rightTime;
-          if (leftHasTime !== rightHasTime) return leftHasTime ? -1 : 1;
-          return left.responseIndex - right.responseIndex;
-        });
+      const normalizedLogs = (this.company.logs || []).map((log, responseIndex) => ({
+        ...log,
+        step: typeof log.step === 'string' ? log.step.trim().toUpperCase() : '',
+        responseIndex,
+        normalizedTime: log.time?.$date || log.time || '',
+      }));
+      const latestLogByStep = normalizedLogs.reduce((map, log) => {
+        const stepKey = log.step || `UNKNOWN_STEP_${log.responseIndex}`;
+        const existing = map.get(stepKey);
+        if (!existing) {
+          map.set(stepKey, { ...log, step: stepKey });
+          return map;
+        }
+        const existingTime = new Date(existing.normalizedTime).getTime();
+        const candidateTime = new Date(log.normalizedTime).getTime();
+        const existingHasTime = Number.isFinite(existingTime);
+        const candidateHasTime = Number.isFinite(candidateTime);
+        const isNewer = candidateHasTime && (!existingHasTime || candidateTime >= existingTime);
+        const shouldUseLaterResponse = !candidateHasTime && !existingHasTime && log.responseIndex > existing.responseIndex;
+        if (isNewer || shouldUseLaterResponse) map.set(stepKey, { ...log, step: stepKey });
+        return map;
+      }, new Map());
+      const orderedLogs = [...latestLogByStep.values()].sort((left, right) => {
+        const leftTime = new Date(left.normalizedTime).getTime();
+        const rightTime = new Date(right.normalizedTime).getTime();
+        const leftHasTime = Number.isFinite(leftTime);
+        const rightHasTime = Number.isFinite(rightTime);
+        if (leftHasTime && rightHasTime && leftTime !== rightTime) return leftTime - rightTime;
+        if (leftHasTime !== rightHasTime) return leftHasTime ? -1 : 1;
+        return left.responseIndex - right.responseIndex;
+      });
       const loggedStepKeys = new Set(orderedLogs.map(log => log.step).filter(Boolean));
       const loggedSteps = orderedLogs.map(log => {
         const step = stepMap.get(log.step) || { key: log.step || 'UNKNOWN_STEP', title: log.step || 'Unknown step', description: '' };
@@ -93,16 +109,18 @@ export default {
   data() {
     return {
       onboardingSteps: [
+        { key: 'GIVE_DASHBOARD_ACCESS', title: 'Dashboard access', description: 'Grant access to the identity-verification dashboard.' },
         { key: 'CREATE_TEAM_ROLE', title: 'Team and roles setup', description: 'Create the default workspace team and access roles.' },
         { key: 'CREATE_SSI_SERVICE', title: 'SSI service creation', description: 'Create the organization’s SSI service.' },
         { key: 'CREDIT_SSI_SERVICE', title: 'SSI credit allocation', description: 'Allocate the approved SSI service credits.' },
         { key: 'CREATE_DID', title: 'Business identity creation', description: 'Create the organization’s decentralized identity.' },
         { key: 'REGISTER_DID', title: 'Blockchain registration', description: 'Register the business identity on the blockchain.' },
         { key: 'CREATE_KYC_SERVICE', title: 'ID service creation', description: 'Create the requested identity-verification service.' },
-        { key: 'GIVE_KYC_DASHBOARD_ACCESS', title: 'Dashboard access', description: 'Grant access to the identity-verification dashboard.' },
         { key: 'CREDIT_KYC_SERVICE', title: 'ID service credit allocation', description: 'Allocate the approved identity-service credits.' },
         { key: 'SETUP_KYC_WIDGET', title: 'KYC widget setup', description: 'Prepare the default verification widget.' },
-        { key: 'CONFIGURE_KYC_VERIFIER_PAGE', title: 'Verifier page configuration', description: 'Configure the default verifier experience.' },
+        { key: 'SETUP_KYB_WIDGET', title: 'KYB widget setup', description: 'Prepare the default business-verification widget.' },
+        { key: 'CONFIGURE_KYC_VERIFIER_PAGE', title: 'KYC verifier page configuration', description: 'Configure the default identity-verification experience.' },
+        { key: 'CONFIGURE_KYB_VERIFIER_PAGE', title: 'KYB verifier page configuration', description: 'Configure the default business-verification experience.' },
         { key: 'COMPLETED', title: 'Onboarding complete', description: 'Finish workspace activation and make the services available.' },
       ],
     };
