@@ -238,7 +238,7 @@
           <div class="side-card-header">
             <div>
               <h2>Environment</h2>
-              <p>Choose which environment this app uses.</p>
+              <p>Choose an environment the app uses.</p>
             </div>
             <button
               v-if="!isEditing && !isEditingDomain"
