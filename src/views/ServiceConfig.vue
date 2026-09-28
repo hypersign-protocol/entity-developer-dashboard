@@ -256,9 +256,6 @@
             <button type="button" :class="{ active: isProd }" :disabled="!(isEditing && editingSection === 'environment')" @click="setEnv(true)">Production</button>
           </div>
           <p class="environment-help">Switching environments can affect credentials, integrations, and available services.</p>
-          <p class="pending-message">
-            {{ isEditing && editingSection === 'environment' ? 'The environment change will be applied when you save.' : `Environment is set to ${isProd ? 'Production' : 'Development'}.` }}
-          </p>
           <div v-if="isEditing && editingSection === 'environment'" class="side-card-actions">
             <button type="button" class="secondary-button" @click="cancelEdit">Cancel</button>
             <button type="button" class="primary-button" @click="saveChanges">Save environment</button>
