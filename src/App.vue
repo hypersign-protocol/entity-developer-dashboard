@@ -454,7 +454,6 @@ color: #1a1a2e !important;
   font-size: 0.65rem;
   font-weight: 700;
   letter-spacing: 0.03em;
-  text-transform: uppercase;
   border-radius: 14px;
 }
 
@@ -586,7 +585,7 @@ color: #1a1a2e !important;
           <b-nav-item v-if="getSelectedService && getSelectedService.env !== 'prod'" class="px-1">
             <div class="env-banner env-banner--dev" title="Development Mode">
               <span class="env-banner__dot"></span>
-              <span class="env-banner__label">DEV</span>
+              <span class="env-banner__label">Development</span>
             </div>
           </b-nav-item>
 
