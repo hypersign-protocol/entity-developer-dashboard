@@ -2,6 +2,16 @@
 
 ## [Unreleased]
 
+## [3.15.3] - 2026-09-28
+
+### Added
+
+- Added an inline DNS TXT record guide and domain verification controls to App Configuration.
+
+### Changed
+
+- Redesigned App Configuration into General, Domain Verification, and Issuer Configuration tabs.
+
 ## [3.15.2] - 2026-09-21
 
 ### Added
