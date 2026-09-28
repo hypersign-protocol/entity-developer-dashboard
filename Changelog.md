@@ -7,6 +7,7 @@
 ### Added
 
 - Added an inline DNS TXT record guide and domain verification controls to App Configuration.
+- Added direct URL access to the General, Domain Verification, and Issuer Configuration tabs.
 
 ### Changed
 
