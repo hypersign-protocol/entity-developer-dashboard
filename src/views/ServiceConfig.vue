@@ -112,7 +112,7 @@
                     {{ displayDomainVerified ? '✓ Verified' : 'Unverified' }}
                   </span>
                 </div>
-                <p>Confirm ownership of the domain used by this application.</p>
+                <p>Verify domain ownership to unlock Production access.</p>
               </div>
               <div class="edit-actions">
                 <button v-if="!isEditing && !isEditingDomain" type="button" class="icon-button" title="Edit domain" aria-label="Edit domain" @click="startDomainEdit">
@@ -256,6 +256,8 @@
             <button type="button" :class="{ active: isProd }" :disabled="!(isEditing && editingSection === 'environment')" @click="setEnv(true)">Production</button>
           </div>
           <p class="environment-help">Switching environments can affect credentials, integrations, and available services.</p>
+          <p class="production-requirement">Your domain must be verified before moving to Production.</p>
+          <p v-if="isEditing && editingSection === 'environment'" class="pending-message">The environment change will be applied when you save.</p>
           <div v-if="isEditing && editingSection === 'environment'" class="side-card-actions">
             <button type="button" class="secondary-button" @click="cancelEdit">Cancel</button>
             <button type="button" class="primary-button" @click="saveChanges">Save environment</button>
@@ -354,7 +356,6 @@
 .domain-summary { width: 100%; }
 .domain-summary strong { font-size: 13px; }
 .card-footer-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 22px; padding-top: 18px; border-top: 1px solid #e8edf3; }
-.domain-footer-actions { margin-top: 16px; padding-top: 0; border-top: 0; }
 .verification-badge, .inline-verified, .key-type { display: inline-flex; align-items: center; border-radius: 14px; font-size: 11px; font-weight: 700; }
 .verification-badge { padding: 5px 10px; }
 .verified, .inline-verified { background: #eaf8f0; color: #218459; }
@@ -366,6 +367,7 @@
 .environment-toggle button:disabled { cursor: default; opacity: 1; }
 .environment-help { margin: 14px 0 0; color: #7b8798; font-size: 11px; }
 .pending-message { margin: 12px 0 0; color: #218459; font-size: 12px; }
+.production-requirement { margin: 10px 0 0; padding: 9px 10px; border-radius: 6px; background: #fff8e8; color: #8a611d; font-size: 11px; line-height: 1.45; }
 .identity-fields { display: grid; gap: 22px; margin-top: 24px; }
 .key-type { margin-top: 7px; padding: 4px 8px; background: #f0f4ff; color: #315fba; }
 .dns-record { display: flex; align-items: center; justify-content: space-between; gap: 15px; padding: 14px; border: 1px solid #dfe6ef; border-radius: 7px; background: #f8fafc; }
@@ -483,6 +485,13 @@ export default {
       .map(value => normalizeCorsOrigin(value))
       .filter(Boolean)
       .filter((origin, index, all) => all.indexOf(origin) === index);
+    this.activeTab = this.isValidTab(this.$route.query.tab) ? this.$route.query.tab : 'general';
+  },
+  watch: {
+    '$route.query.tab'(tab) {
+      if (this.isEditing || this.isEditingDomain) return;
+      this.activeTab = this.isValidTab(tab) ? tab : 'general';
+    },
   },
   methods: {
     ...mapActions('mainStore', [
@@ -496,8 +505,20 @@ export default {
       return serviceId ? this.getAppsWithSSIServices.find(item => item.appId === serviceId) : null;
     },
     async selectTab(tab) {
+      if (!this.isValidTab(tab)) return;
       this.activeTab = tab;
+      if (this.$route.query.tab !== tab) {
+        await this.$router.replace({
+          query: {
+            ...this.$route.query,
+            tab,
+          },
+        });
+      }
       if (tab === 'issuer' && this.isEditing && this.editingSection === 'issuer') await this.prepareIdentityEditor();
+    },
+    isValidTab(tab) {
+      return this.tabs.some(item => item.value === tab);
     },
     async prepareIdentityEditor() {
       await this.ensureWidgetConfigsLoaded();

@@ -728,7 +728,7 @@ const mainStore = {
                             resolve(json)
                         }
                     }).catch((e) => {
-                        reject(new Error(`while updating an app  ${e}`))
+                        reject(new Error(`${e}`))
                     })
             })
         },
@@ -936,7 +936,7 @@ const mainStore = {
                             resolve(json)
                         }
                     }).catch((e) => {
-                        reject(new Error(`while updating an app  ${e}`))
+                        reject(new Error(`${e}`))
                     })
             })
         },
@@ -963,7 +963,7 @@ const mainStore = {
                         }
                     })
                     .catch(e => {
-                        reject(new Error(`while updating an app ${e}`));
+                        reject(new Error(`${e}`));
                     });
             });
         },
