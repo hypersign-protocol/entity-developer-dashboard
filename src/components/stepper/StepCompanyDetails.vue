@@ -338,6 +338,7 @@ export default {
       BUSINESS_INTERESTED_IN: {
         KYC: "Know Your Customer (KYC)",
         KYB: "Know Your Business (KYB)",
+        AADHAR_VERIFICATION: "Aadhaar Verification",
         AGE_VERIFICATION: "Age Verification",
         PROOF_OF_PERSONHOOD: "Proof of Personhood",
         AML_SCREEN: "AML Screening",

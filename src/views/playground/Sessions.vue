@@ -159,6 +159,22 @@
   color: #374151;
   padding: 2px 10px;
 }
+
+.sessions-search {
+  max-width: 45vw;
+  width: 360px;
+}
+
+.sessions-search .search-btn {
+  cursor: pointer;
+}
+
+.search-empty-state {
+  padding: 48px 16px;
+  text-align: center;
+  color: #6b7280;
+  font-size: 0.85rem;
+}
 </style>
 
 <template>
@@ -171,14 +187,19 @@
         <h4 class="page-title">Users Verifications</h4>
         <p class="page-subtitle">Manage and track user verifications</p>
       </div>
-      <div v-if="userList.length > 0" class="search-wrap">
+      <div v-if="userList.length > 0" class="search-wrap sessions-search">
         <input
           type="text"
-          placeholder="Search by user ID or email"
+          placeholder="Search by name, user ID, session ID, or email"
+          aria-label="Search by name, user ID, session ID, or email"
           v-model="sessionIdTemp"
-          @keyup.enter="viewSessionDetails(sessionIdTemp)"
         />
-        <button class="search-btn" @click="viewSessionDetails(sessionIdTemp)">
+        <button
+          type="button"
+          class="search-btn"
+          aria-label="Search"
+          @click="handleSearch"
+        >
           <i class="fa fa-search"></i>
         </button>
       </div>
@@ -188,7 +209,7 @@
     <div v-if="userList.length > 0">
       <div class="table-card">
         <div class="table-scroll">
-          <table class="sessions-table">
+          <table v-if="filteredUserList.length" class="sessions-table">
             <thead>
               <tr>
                 <th>User</th>
@@ -201,14 +222,14 @@
             </thead>
             <tbody>
               <tr
-                v-for="row in userList"
+                v-for="row in filteredUserList"
                 :key="row.userId"
                 @click="viewSessionDetails(row.userId)"
               >
                 <!-- User -->
                 <td>
                   <div class="d-flex align-center">
-                    <v-avatar :style="getAvatarStyle()" size="34" class="font-weight-bold mr-3">
+                    <v-avatar :style="getAvatarStyle(row.userId || row.name)" size="34" class="font-weight-bold mr-3">
                       {{ (row.name || row.email || row.userId || 'U').charAt(0).toUpperCase() }}
                     </v-avatar>
                     <div>
@@ -280,6 +301,9 @@
               </tr>
             </tbody>
           </table>
+          <div v-else class="search-empty-state">
+            No users match “{{ appliedSearchQuery }}”.
+          </div>
         </div>
       </div>
 
@@ -310,8 +334,7 @@ export default {
   name: "SessionsPage",
   components: { PagiNation, AccessDenied },
   computed: {
-    ...mapGetters('mainStore', ['userList', 'getUserAccessList', 'getSelectedService']),
-    ...mapGetters('mainStore', ['getUserDetails']),
+    ...mapGetters('mainStore', ['getSelectedService', 'getUserDetails']),
     ...mapState({
       totalUserCount: state => state.mainStore.totalUserCount,
       userList: state => state.mainStore.userList,
@@ -322,6 +345,16 @@ export default {
     },
     pages() {
       return Math.ceil(parseInt(this.totalUserCount) / this.pageLimit);
+    },
+    filteredUserList() {
+      const query = this.appliedSearchQuery.toLowerCase();
+      if (!query) return this.userList;
+
+      return this.userList.filter((row) =>
+        [row.name, row.userId].some((value) =>
+          String(value || '').toLowerCase().includes(query)
+        )
+      );
     },
   },
   data() {
@@ -335,33 +368,14 @@ export default {
         { field: 'step_userConsent', icon: 'fa-thumbs-up', title: 'User Consent' },
         { field: 'step_finish', icon: 'fa-check', title: 'Finished' },
       ],
-      overviewData: {
-        totalVerifications: 1000,
-        completionRate: 80,
-        successRate: 40,
-        dropOfRate: 0.5,
-        // avgSessionPerUser: 2,
-      },
-
-      // Table column headers
-      headers: [
-        { text: 'USER ID', value: 'userId' },
-        { text: 'START DATE', value: 'start_date' },
-        { text: 'END DATE', value: 'end_date' },
-        { text: 'ATTEMPTS', value: 'attempts' },
-        { text: 'STEPS', value: 'steps' },
-        { text: 'STATUS', value: 'status' },
-      ],
-
-      authToken: localStorage.getItem('authToken'),
       user: {},
       fullPage: true,
       isLoading: false,
       accessDenied: false,
       accessDeniedMsg: '',
       sessionIdTemp: null,
+      appliedSearchQuery: '',
       hasPermission: false,
-      selectedSessionStatus: 'All',
       currentPage: 1,
       pageLimit: 50,
       isProd: false,
@@ -382,8 +396,6 @@ export default {
       this.isLoading = false
 
 
-      const storedStatus = localStorage.getItem('selectedSessionStatus');
-      this.selectedSessionStatus = storedStatus ? storedStatus : '';
       this.currentPage = localStorage.getItem('selectedPage') || 1;
 
     } catch (e) {
@@ -397,7 +409,7 @@ export default {
     });
   },
   methods: {
-    ...mapActions('mainStore', ['fetchAppsUsers']),
+    ...mapActions('mainStore', ['fetchAppsUsers', 'fetchSessionsDetailsById2']),
     ...mapMutations('playgroundStore', ['updateSideNavStatus', 'shiftContainer']),
     handleApiError(error, method = 'GET') {
       console.log(error)
@@ -444,41 +456,18 @@ export default {
 
       return 'Unknown error';
     },
-    getAvatarStyle() {
-      // const colors = ['#607d8b', '#3f51b5', '#009688', '#ff5722', '#795548', '#673ab7', '#e91e63'];
-      const colors = ['#b0bec5', '#9fa8da', '#80cbc4', '#ffab91', '#bcaaa4', '#b39ddb', '#f48fb1'];
-      const seed = Math.floor(Math.random() * colors.length);
-      const color = colors[seed % colors.length];
+    getAvatarStyle(identifier) {
+      const seed = String(identifier || 'user').split('').reduce((hash, character) => {
+        return Math.imul(hash ^ character.charCodeAt(0), 16777619);
+      }, 2166136261) >>> 0;
+      const hue = seed % 360;
+      const saturation = 35 + ((seed >>> 8) % 16);
+      const lightness = 60 + ((seed >>> 16) % 9);
+
       return {
-        backgroundColor: color,
+        backgroundColor: `hsl(${hue}, ${saturation}%, ${lightness}%)`,
         color: 'white'
       };
-    },
-    getTooltipText(key) {
-      const descriptions = {
-        totalVerifications: 'Total number of user verification attempts (UVAs).',
-        completionRate: 'Percentage of verifications that reached the final step.',
-        successRate: 'Percentage of verifications that were successful (verified).',
-        dropOfRate: 'Percentage of sessions that expired or were abandoned.',
-        avgSessionPerUser: 'Average number of verification attempts per user.',
-      };
-      return descriptions[key] || 'Metric description not available.';
-    },
-    formatNumber(val) {
-      return typeof val === 'number' ? val.toLocaleString() : val;
-    },
-    formatKey(key) {
-      const map = {
-        totalVerifications: 'Total User Verifications Attempts',
-        completionRate: 'Completion Rate',
-        successRate: 'Success Rate',
-        dropOfRate: 'Drop-off Rate',
-        // avgSessionPerUser: 'Avg Session per User',
-      };
-      return map[key] || key;
-    },
-    isPercentageKey(key) {
-      return ['completionRate', 'successRate', 'dropOfRate'].includes(key);
     },
     checkIfHasPermission() {
       this.hasPermission = true;
@@ -493,19 +482,69 @@ export default {
       }
     },
 
+    async handleSearch() {
+      if (this.isLoading) return;
 
-    async viewSessionDetails(sessionId) {
+      const query = String(this.sessionIdTemp || '').trim();
+
+      if (!query) {
+        this.appliedSearchQuery = '';
+        return;
+      }
+
+      const sessionIdPattern = /^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i;
+      if (sessionIdPattern.test(query)) {
+        try {
+          this.isLoading = true;
+          const session = await this.fetchSessionsDetailsById2({ sessionId: query });
+          const isMatchingSession =
+            String(session?.sessionId || '').toLowerCase() === query.toLowerCase();
+          if (!session?.appId || !session?.appUserId || !isMatchingSession) {
+            this.notifyErr('Session not found');
+            return;
+          }
+          this.viewSessionDetails(query, session);
+        } catch {
+          this.notifyErr('Session not found');
+        } finally {
+          this.isLoading = false;
+        }
+        return;
+      }
+
+      const userIdPattern = /^[0-9a-f]{64}$/i;
+      if (userIdPattern.test(query)) {
+        this.appliedSearchQuery = query;
+        return;
+      }
+
+      if (this.isValidEmail(query)) {
+        const userId = await this.generateSHA256Hash(query);
+        this.appliedSearchQuery = userId;
+        return;
+      }
+
+      this.appliedSearchQuery = query;
+    },
+
+
+    viewSessionDetails(sessionId, prefetchedSession) {
       const env = this.isProd ? 'prod' : 'dev'
+      const identifier = String(sessionId || '').trim()
 
-      if (!sessionId) {
-        return this.notifyErr('User Id or Email  is required')
+      if (!identifier) {
+        return this.notifyErr('User ID is required')
       }
 
-      if (this.isValidEmail(sessionId.trim())) {
-        sessionId = await this.generateSHA256Hash(sessionId)
-      }
-
-      this.$router.push({ name: "sessionDetails", params: { appId: this.$route.params.appId, sessionId: sessionId.trim(), env } });
+      this.$router.push({
+        name: "sessionDetails",
+        params: {
+          appId: this.$route.params.appId,
+          sessionId: identifier,
+          env,
+          ...(prefetchedSession ? { prefetchedSession } : {}),
+        },
+      });
       this.shiftContainer(false);
       this.sessionIdTemp = null
     },
