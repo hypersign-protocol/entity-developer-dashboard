@@ -356,7 +356,6 @@
 .domain-summary { width: 100%; }
 .domain-summary strong { font-size: 13px; }
 .card-footer-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 22px; padding-top: 18px; border-top: 1px solid #e8edf3; }
-.domain-footer-actions { margin-top: 16px; padding-top: 0; border-top: 0; }
 .verification-badge, .inline-verified, .key-type { display: inline-flex; align-items: center; border-radius: 14px; font-size: 11px; font-weight: 700; }
 .verification-badge { padding: 5px 10px; }
 .verified, .inline-verified { background: #eaf8f0; color: #218459; }
