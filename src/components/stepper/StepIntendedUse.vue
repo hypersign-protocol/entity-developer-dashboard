@@ -182,44 +182,44 @@ export default {
 </script>
 
 <style scoped>
-.form-card { padding: 24px; border: 1px solid #cfe0fb; border-radius: 7px; background: #fff; }
+.form-card { padding: 24px; border: 1px solid #d5d9dd; border-radius: 7px; background: #fff; }
 .card-heading h2 { margin: 0 0 4px; color: #17213d; font-size: 18px; font-weight: 700; }
-.card-heading p { margin: 0; color: #6881aa; font-size: 12px; }
-.form-section { margin-top: 22px; padding-top: 18px; border-top: 1px solid #dce8f8; }
+.card-heading p { margin: 0; color: #6f7881; font-size: 12px; }
+.form-section { margin-top: 22px; padding-top: 18px; border-top: 1px solid #e1e4e7; }
 .first-section { padding-top: 0; border-top: 0; }
 .section-title, label { margin-bottom: 9px; color: #243453; font-size: 12px; font-weight: 700; }
 .section-title span { margin-left: 6px; color: #7c8da8; font-size: 10px; font-weight: 400; }
 em, .field-error { color: #e43d4f; font-style: normal; }
 .service-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-.service-option { display: flex; min-height: 40px; align-items: center; gap: 9px; margin: 0; padding: 9px 11px; border: 1px solid #cfddf0; border-radius: 5px; background: #fff; cursor: pointer; color: #263550; font-size: 12px; font-weight: 500; }
-.service-option.is-selected { border-color: #1769ff; background: #f5f8ff; color: #1055cf; box-shadow: 0 0 0 1px rgba(23,105,255,.08); }
-.service-option input { width: 14px; height: 14px; accent-color: #1769ff; }
+.service-option { display: flex; min-height: 40px; align-items: center; gap: 9px; margin: 0; padding: 9px 11px; border: 1px solid #d5d9dd; border-radius: 5px; background: #fff; cursor: pointer; color: #263550; font-size: 12px; font-weight: 500; }
+.service-option.is-selected { border-color: #6c757d; background: #f3f4f5; color: #495057; box-shadow: 0 0 0 1px rgba(108,117,125,.08); }
+.service-option input { width: 14px; height: 14px; accent-color: #6c757d; }
 .field-group { display: flex; min-width: 0; flex-direction: column; }
 .volume-field { min-width: 0; margin: 0; padding: 0; border: 0; }
 .volume-field legend { width: auto; margin: 0 0 10px; padding: 0; color: #243453; font-size: 12px; font-weight: 700; }
 .volume-options { display: flex; flex-wrap: wrap; gap: 16px 28px; align-items: center; min-height: 40px; }
 .volume-option { display: inline-flex; align-items: center; gap: 8px; margin: 0; color: #344563; cursor: pointer; font-size: 12px; font-weight: 500; }
-.volume-option input { width: 15px; height: 15px; margin: 0; accent-color: #1769ff; cursor: pointer; }
-.field-group select, .field-group > input, .industry-picker > input, .other-source-field input { width: 100%; height: 40px; padding: 0 11px; border: 1px solid #cfe0f5; border-radius: 5px; background: #fff; color: #243454; font-size: 12px; outline: none; }
-.field-group select:focus, .field-group > input:focus, .industry-picker > input:focus, .other-source-field input:focus { border-color: #1769ff; box-shadow: 0 0 0 2px rgba(23,105,255,.1); }
+.volume-option input { width: 15px; height: 15px; margin: 0; accent-color: #6c757d; cursor: pointer; }
+.field-group select, .field-group > input, .industry-picker > input, .other-source-field input { width: 100%; height: 40px; padding: 0 11px; border: 1px solid #d5d9dd; border-radius: 5px; background: #fff; color: #243454; font-size: 12px; outline: none; }
+.field-group select:focus, .field-group > input:focus, .industry-picker > input:focus, .other-source-field input:focus { border-color: #6c757d; box-shadow: 0 0 0 2px rgba(108,117,125,.14); }
 .select-control { position: relative; }
 .select-control select { padding-right: 40px; appearance: none; cursor: pointer; }
-.select-control > i { position: absolute; top: 50%; right: 12px; color: #5576a9; font-size: 18px; pointer-events: none; transform: translateY(-50%); }
+.select-control > i { position: absolute; top: 50%; right: 12px; color: #6c757d; font-size: 18px; pointer-events: none; transform: translateY(-50%); }
 .other-source-field { display: flex; flex-direction: column; margin-top: 8px; }
 .field-error { display: block; margin-top: 6px; font-size: 11px; }
 .industry-picker { position: relative; }
 .industry-picker > input { padding-right: 42px; }
 .industry-picker > input::-webkit-search-cancel-button { display: none; }
-.dropdown-toggle-button { position: absolute; z-index: 2; top: 1px; right: 1px; display: flex; width: 39px; height: 38px; align-items: center; justify-content: center; border: 0; border-radius: 0 5px 5px 0; background: transparent; color: #5576a9; }
+.dropdown-toggle-button { position: absolute; z-index: 2; top: 1px; right: 1px; display: flex; width: 39px; height: 38px; align-items: center; justify-content: center; border: 0; border-radius: 0 5px 5px 0; background: transparent; color: #6c757d; }
 .dropdown-toggle-button i { font-size: 18px; transition: transform .18s ease; }
 .dropdown-toggle-button i.is-open { transform: rotate(180deg); }
 .industry-results { position: absolute; z-index: 20; top: calc(100% + 4px); right: 0; left: 0; max-height: 220px; overflow-y: auto; padding: 5px; border: 1px solid #dce3ec; border-radius: 5px; background: #fff; box-shadow: 0 8px 20px rgba(15,23,42,.12); }
 .industry-results button { display: block; width: 100%; padding: 8px; border: 0; border-radius: 4px; background: #fff; color: #344054; font-size: 12px; text-align: left; }
-.industry-results button:hover { background: #f4f7fb; }
+.industry-results button:hover { background: #f3f4f5; }
 .industry-empty { padding: 12px; color: #7a8799; font-size: 11px; }
 .selected-industries { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
-.selected-industries button { padding: 4px 8px; border: 1px solid #cbd9f4; border-radius: 14px; background: #f2f6ff; color: #315fba; font-size: 10px; }
-.form-footer { display: flex; justify-content: space-between; margin-top: 24px; padding-top: 18px; border-top: 1px solid #dce8f8; }
+.selected-industries button { padding: 4px 8px; border: 1px solid #cfd3d6; border-radius: 14px; background: #f3f4f5; color: #5a6268; font-size: 10px; }
+.form-footer { display: flex; justify-content: space-between; margin-top: 24px; padding-top: 18px; border-top: 1px solid #e1e4e7; }
 .primary-button, .secondary-button { min-width: 92px; height: 38px; padding: 0 16px; border-radius: 5px; font-size: 12px; font-weight: 700; }
 .primary-button { border: 1px solid #6c757d; background: #6c757d; color: #fff; }
 .primary-button:hover { border-color: #5a6268; background: #5a6268; }

@@ -155,17 +155,17 @@ export default {
   justify-content: space-between;
   gap: 16px;
   padding: 10px 12px;
-  border: 1px dashed #bcd3f2;
+  border: 1px dashed #bfc4c8;
   border-radius: 6px;
-  background: #fbfdff;
+  background: #fafafa;
   cursor: pointer;
   outline: none;
 }
 
 .logo-upload-dropzone:focus,
 .logo-upload-dropzone:hover {
-  border-color: #1769ff;
-  background: #f7faff;
+  border-color: #6c757d;
+  background: #f3f4f5;
 }
 
 .dropzone-copy {
@@ -201,8 +201,8 @@ export default {
   justify-content: center;
   overflow: hidden;
   border-radius: 5px;
-  background: #eef4ff;
-  color: #315fa9;
+  background: #eceeef;
+  color: #6c757d;
 }
 
 .dropzone-icon i { font-size: 18px; }

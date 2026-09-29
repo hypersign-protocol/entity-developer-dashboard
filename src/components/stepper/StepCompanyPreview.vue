@@ -113,7 +113,7 @@ export default {
 .review-section { margin-top: 22px; padding-top: 18px; border-top: 1px solid #e8edf3; }
 .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
 .section-header h3 { margin: 0; color: #344054; font-size: 12px; font-weight: 700; text-transform: uppercase; }
-.section-header button { border: 0; background: transparent; color: #2563dc; font-size: 12px; font-weight: 700; }
+.section-header button { border: 0; background: transparent; color: #6c757d; font-size: 12px; font-weight: 700; }
 .review-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 24px; margin: 0; }
 .review-grid div, .review-list div { min-width: 0; }
 dt { margin-bottom: 3px; color: #8a95a5; font-size: 11px; font-weight: 600; }
@@ -122,7 +122,7 @@ dd { margin: 0; overflow-wrap: anywhere; color: #27364a; font-size: 13px; font-w
 .review-list { margin: 0; }
 .review-list div { display: grid; grid-template-columns: 135px 1fr; gap: 12px; padding: 9px 0; border-bottom: 1px solid #f0f3f7; }
 .review-list div:last-child { border-bottom: 0; }
-.review-notice { display: flex; gap: 9px; margin-top: 22px; padding: 12px; border-radius: 5px; background: #f1f6ff; }
+.review-notice { display: flex; gap: 9px; margin-top: 22px; padding: 12px; border-radius: 5px; background: #f3f4f5; }
 .review-notice p { margin: 0; color: #52627a; font-size: 12px; line-height: 1.5; }
 .review-footer { display: flex; justify-content: space-between; margin-top: 24px; padding-top: 18px; border-top: 1px solid #e8edf3; }
 .primary-button, .secondary-button { min-width: 92px; height: 38px; padding: 0 16px; border-radius: 5px; font-size: 12px; font-weight: 700; }
