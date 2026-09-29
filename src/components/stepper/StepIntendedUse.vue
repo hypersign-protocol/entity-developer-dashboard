@@ -105,7 +105,7 @@ export default {
         { value: 'AML Screening', label: 'AML screening' },
         { value: 'Deepfake Detection', label: 'Deepfake Detection' },
       ],
-      volumeOptions: ['0 – 1,000', '1,000 – 5,000', '5,000 – 10,000', '10,000+'],
+      volumeOptions: ['0 - 1,000', '1,000 - 5,000', '5,000 - 10,000', '+10,000'],
       referralOptions: ['LinkedIn', 'Google', 'ChatGPT', 'Claude', 'Gemini', 'Closed network', 'Other'],
       industryOptions: [
         'Fintech', 'Crypto', 'Gambling', 'Marketplaces', 'Online Travel', 'Telco',
