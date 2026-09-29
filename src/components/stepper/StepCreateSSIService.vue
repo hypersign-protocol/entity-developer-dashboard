@@ -1,41 +1,96 @@
 <template>
-  <section class="receipt-card">
-    <div class="success-mark" :class="{ 'is-failed': normalizedStatus === 'FAILED' }">
-      <span aria-hidden="true">{{ normalizedStatus === 'FAILED' ? '!' : '✓' }}</span>
-    </div>
-
-    <div class="receipt-heading">
-      <h2>{{ normalizedStatus === 'FAILED' ? 'Setup request needs attention' : 'Request submitted' }}</h2>
-      <p v-if="normalizedStatus === 'FAILED'">We couldn’t complete one or more setup tasks. The details below can help identify what needs attention.</p>
-      <p v-else>We received the request for <strong>{{ company.name }}</strong>. We’ll email updates to <strong>{{ company.contact_email }}</strong>.</p>
-    </div>
-
-    <div class="status-timeline">
-      <div v-for="(item, index) in timeline" :key="`${item.key}-${item.time || index}-${index}`" class="timeline-item" :class="item.state">
-        <div class="timeline-marker">
-          <span v-if="item.state === 'complete'" aria-hidden="true">✓</span>
-          <span v-else-if="item.state === 'failed'" aria-hidden="true">!</span>
-        </div>
-        <div class="timeline-content">
-          <div class="timeline-title-row">
-            <h3>{{ item.title }}</h3>
-            <span class="status-label">{{ item.statusLabel }}</span>
+  <div class="status-page-layout">
+    <section class="status-card">
+      <div class="setup-summary-banner" :class="summaryState" role="status">
+        <span class="summary-icon" aria-hidden="true">
+          <i :class="summaryIcon"></i>
+        </span>
+        <div class="summary-copy">
+          <div class="summary-title-row">
+            <h2>Workspace setup</h2>
+            <span class="summary-badge">{{ summaryBadge }}</span>
           </div>
-          <p>{{ item.description }}</p>
-          <time v-if="item.time" :datetime="item.time">{{ formatDate(item.time) }}</time>
-          <div v-if="item.failureReason" class="step-failure">{{ item.failureReason }}</div>
+          <p>{{ summaryMessage }}</p>
+          <div class="setup-progress">
+            <div class="progress-meta">
+              <span>{{ completedItems.length }} of {{ timeline.length }} tasks completed</span>
+              <strong>{{ progressPercentage }}%</strong>
+            </div>
+            <div
+              class="progress-track"
+              role="progressbar"
+              aria-label="Workspace setup progress"
+              :aria-valuenow="progressPercentage"
+              aria-valuemin="0"
+              aria-valuemax="100"
+            >
+              <span class="progress-fill" :style="{ width: `${progressPercentage}%` }"></span>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
 
-    <div class="dashboard-note">
-      You can return to the dashboard while your request is being reviewed. Check the status here when you sign in again.
-    </div>
+      <div class="status-timeline">
+        <div
+          v-for="(item, index) in timeline"
+          :key="`${item.key}-${item.time || index}-${index}`"
+          class="timeline-item"
+          :class="item.state"
+        >
+          <div class="timeline-rail" aria-hidden="true">
+            <span class="timeline-marker">
+              <i v-if="item.state === 'complete'" class="mdi mdi-check"></i>
+              <span v-else-if="item.state === 'failed'">!</span>
+            </span>
+          </div>
 
-    <footer class="receipt-footer">
-      <button type="button" class="secondary-button" @click="$emit('preview-flow')">Preview flow again</button>
-    </footer>
-  </section>
+          <div class="timeline-content">
+            <div class="timeline-title-row">
+              <div>
+                <h3>{{ item.title }}</h3>
+                <p>{{ item.description }}</p>
+                <time v-if="item.time" :datetime="item.time">{{ formatDate(item.time) }}</time>
+              </div>
+              <span class="status-label">{{ item.statusLabel }}</span>
+            </div>
+
+            <div v-if="item.failureReason" class="failure-row">
+              <span>{{ item.failureReason }}</span>
+              <button type="button" class="retry-button">Retry</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <footer class="status-footer">
+        <div class="progress-note">
+          <i class="mdi mdi-information-outline" aria-hidden="true"></i>
+          <span>You can leave this page and return anytime. Progress is saved and available whenever you return.</span>
+        </div>
+        <button type="button" class="secondary-button refresh-button" :disabled="isRefreshing" @click="$emit('refresh-status')">
+          <i class="mdi mdi-refresh" :class="{ 'is-spinning': isRefreshing }" aria-hidden="true"></i>
+          {{ isRefreshing ? 'Refreshing…' : 'Refresh status' }}
+        </button>
+      </footer>
+    </section>
+
+    <aside class="status-sidebar">
+      <section class="included-card">
+        <h2>What’s included</h2>
+        <p>We’ll set up your verification workspace with the following:</p>
+        <ul>
+          <li>Organization details</li>
+          <li>Selected verification services</li>
+          <li>Workspace activation</li>
+        </ul>
+      </section>
+
+      <a class="support-card" href="mailto:support@hypersign.id">
+        <i class="mdi mdi-email-outline" aria-hidden="true"></i>
+        <span>Need help? Contact us</span>
+      </a>
+    </aside>
+  </div>
 </template>
 
 <script>
@@ -43,10 +98,43 @@ export default {
   name: 'StepCreateSSIService',
   props: {
     company: { type: Object, required: true },
+    isRefreshing: { type: Boolean, default: false },
   },
   computed: {
     normalizedStatus() {
       return (this.company.onboardingStatus || 'INITIATED').toUpperCase();
+    },
+    failedItems() {
+      return this.timeline.filter(item => item.state === 'failed');
+    },
+    completedItems() {
+      return this.timeline.filter(item => item.state === 'complete');
+    },
+    progressPercentage() {
+      if (this.normalizedStatus === 'APPROVED') return 100;
+      if (!this.timeline.length) return 0;
+      return Math.round((this.completedItems.length / this.timeline.length) * 100);
+    },
+    summaryState() {
+      if (this.failedItems.length) return 'is-failed';
+      if (this.normalizedStatus === 'APPROVED' || this.completedItems.length === this.timeline.length) return 'is-complete';
+      return 'is-progress';
+    },
+    summaryIcon() {
+      if (this.summaryState === 'is-failed') return 'mdi mdi-alert-outline';
+      if (this.summaryState === 'is-complete') return 'mdi mdi-check';
+      return 'mdi mdi-clock-outline';
+    },
+    summaryBadge() {
+      if (this.summaryState === 'is-failed') return 'Action required';
+      if (this.summaryState === 'is-complete') return 'Completed';
+      return 'In progress';
+    },
+    summaryMessage() {
+      if (this.failedItems.length === 1) return 'One setup task needs attention. You can retry it below.';
+      if (this.failedItems.length > 1) return `${this.failedItems.length} setup tasks need attention. You can retry them below.`;
+      if (this.summaryState === 'is-complete') return 'Your verification workspace is ready.';
+      return 'Your verification workspace is being prepared. Progress will update automatically.';
     },
     timeline() {
       const stepMap = new Map(this.onboardingSteps.map(step => [step.key, step]));
@@ -73,12 +161,11 @@ export default {
         return map;
       }, new Map());
       const orderedLogs = [...latestLogByStep.values()].sort((left, right) => {
-        const leftTime = new Date(left.normalizedTime).getTime();
-        const rightTime = new Date(right.normalizedTime).getTime();
-        const leftHasTime = Number.isFinite(leftTime);
-        const rightHasTime = Number.isFinite(rightTime);
-        if (leftHasTime && rightHasTime && leftTime !== rightTime) return leftTime - rightTime;
-        if (leftHasTime !== rightHasTime) return leftHasTime ? -1 : 1;
+        const leftIndex = this.onboardingSteps.findIndex(step => step.key === left.step);
+        const rightIndex = this.onboardingSteps.findIndex(step => step.key === right.step);
+        if (leftIndex !== -1 && rightIndex !== -1) return leftIndex - rightIndex;
+        if (leftIndex !== -1) return -1;
+        if (rightIndex !== -1) return 1;
         return left.responseIndex - right.responseIndex;
       });
       const loggedStepKeys = new Set(orderedLogs.map(log => log.step).filter(Boolean));
@@ -121,7 +208,7 @@ export default {
         { key: 'SETUP_KYB_WIDGET', title: 'KYB widget setup', description: 'Prepare the default business-verification widget.' },
         { key: 'CONFIGURE_KYC_VERIFIER_PAGE', title: 'KYC verifier page configuration', description: 'Configure the default identity-verification experience.' },
         { key: 'CONFIGURE_KYB_VERIFIER_PAGE', title: 'KYB verifier page configuration', description: 'Configure the default business-verification experience.' },
-        { key: 'COMPLETED', title: 'Onboarding complete', description: 'Finish workspace activation and make the services available.' },
+        { key: 'COMPLETED', title: 'Workspace activation', description: 'Finish workspace activation and make the services available.' },
       ],
     };
   },
@@ -134,47 +221,104 @@ export default {
     },
     getStatusLabel(status, state) {
       if (state === 'complete') return 'Completed';
-      if (state === 'failed') return 'Failed';
+      if (state === 'failed') return 'Action required';
       if (status === 'PENDING' || state === 'active') return 'In progress';
       return 'Not started';
     },
     formatDate(value) {
       const date = new Date(value);
-      return Number.isNaN(date.getTime()) ? '' : date.toLocaleString();
+      if (Number.isNaN(date.getTime())) return '';
+      return date.toLocaleString('en-GB', {
+        day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit',
+      });
     },
   },
 };
 </script>
 
 <style scoped>
-.receipt-card { padding: 24px; border: 1px solid #dfe5ee; border-radius: 8px; background: #fff; }
-.success-mark { display: flex; width: 34px; height: 34px; align-items: center; justify-content: center; margin-bottom: 16px; border-radius: 50%; background: #dcf8ea; }
-.success-mark.is-failed { background: #fee4e2; }
-.success-mark span { color: #159a68; font-family: Arial, sans-serif; font-size: 18px; font-weight: 700; line-height: 1; }
-.success-mark.is-failed span { color: #d64545; }
-.receipt-heading h2 { margin: 0 0 6px; color: #1d2939; font-size: 18px; font-weight: 700; }
-.receipt-heading p { margin: 0; color: #657287; font-size: 13px; line-height: 1.55; }
-.status-timeline { margin-top: 22px; padding: 18px; border: 1px solid #e3e8ef; border-radius: 6px; }
-.timeline-item { position: relative; display: flex; gap: 12px; padding-bottom: 19px; }
-.timeline-item:last-child { padding-bottom: 0; }
-.timeline-item:not(:last-child)::after { position: absolute; top: 17px; bottom: 1px; left: 7px; width: 1px; background: #dfe5ed; content: ''; }
-.timeline-marker { z-index: 1; display: flex; flex: 0 0 auto; width: 16px; height: 16px; align-items: center; justify-content: center; border: 2px solid #cdd5df; border-radius: 50%; background: #fff; }
-.complete .timeline-marker { border-color: #2daf78; background: #2daf78; }
-.active .timeline-marker { border: 4px solid #2f6fec; }
-.failed .timeline-marker { border-color: #d64545; background: #d64545; }
-.timeline-marker span { color: #fff; font-family: Arial, sans-serif; font-size: 10px; font-weight: 700; line-height: 1; }
-.timeline-item h3 { margin: 0 0 2px; color: #344054; font-size: 13px; font-weight: 700; }
-.timeline-item p { margin: 0; color: #7a8799; font-size: 12px; }
-.timeline-content { min-width: 0; flex: 1; }
-.timeline-title-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-.status-label { flex: 0 0 auto; color: #8993a4; font-size: 10px; font-weight: 700; text-transform: uppercase; }
-.complete .status-label { color: #159a68; }
-.active .status-label { color: #2f6fec; }
-.failed .status-label { color: #d64545; }
-.timeline-item time { display: block; margin-top: 4px; color: #98a2b3; font-size: 10px; }
-.step-failure { margin-top: 7px; padding: 7px 9px; border-radius: 4px; background: #fff1f0; color: #b42318; font-size: 11px; }
-.dashboard-note { margin-top: 18px; padding: 11px 12px; border-radius: 5px; background: #f1f6ff; color: #52627a; font-size: 12px; line-height: 1.5; }
-.receipt-footer { display: flex; justify-content: flex-end; margin-top: 20px; }
-.secondary-button { height: 38px; padding: 0 14px; border: 1px solid #6c757d; border-radius: 5px; background: #fff; color: #6c757d; font-size: 12px; font-weight: 700; }
+.status-page-layout { display: grid; grid-template-columns: minmax(0, 760px) 220px; gap: 20px; align-items: start; }
+.status-card, .included-card, .support-card { border: 1px solid #cfe0fb; border-radius: 7px; background: #fff; }
+.status-card { padding: 14px; }
+.setup-summary-banner { display: flex; gap: 15px; align-items: center; padding: 14px 16px; border-radius: 6px; background: #f1f6ff; }
+.setup-summary-banner.is-failed { background: linear-gradient(90deg, #fff4f4, #fff8f8); }
+.setup-summary-banner.is-complete { background: #f1fbf6; }
+.summary-icon { display: inline-flex; flex: 0 0 30px; width: 30px; height: 30px; align-items: center; justify-content: center; border: 2px solid #1769ff; border-radius: 50%; color: #1769ff; font-size: 17px; }
+.is-failed .summary-icon { border-color: #e64b4b; color: #e64b4b; }
+.is-complete .summary-icon { border-color: #2eb67d; background: #2eb67d; color: #fff; }
+.summary-copy { min-width: 0; flex: 1; }
+.summary-title-row { display: flex; align-items: center; gap: 10px; }
+.summary-title-row h2 { margin: 0; color: #17213d; font-size: 16px; font-weight: 750; }
+.summary-badge, .status-label { display: inline-flex; align-items: center; border-radius: 4px; font-size: 10px; font-weight: 700; line-height: 1; }
+.summary-badge { min-height: 20px; padding: 0 8px; background: #e8f1ff; color: #1769ff; }
+.is-failed .summary-badge { background: #ffe1e1; color: #e04343; }
+.is-complete .summary-badge { background: #dcf7e9; color: #19945f; }
+.summary-copy p { margin: 4px 0 0; color: #6980a7; font-size: 12px; line-height: 1.45; }
+.setup-progress { width: 100%; max-width: 520px; margin-top: 11px; }
+.progress-meta { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 6px; color: #60769c; font-size: 10px; line-height: 1.3; }
+.progress-meta strong { color: #344563; font-size: 10px; font-weight: 750; }
+.progress-track { width: 100%; height: 7px; overflow: hidden; border-radius: 999px; background: #dce5f1; }
+.progress-fill { display: block; height: 100%; border-radius: inherit; background: #6c757d; transition: width .3s ease; }
+.is-failed .progress-fill { background: #6c757d; }
+.is-complete .progress-fill { background: #2eb67d; }
+.status-timeline { padding: 12px 4px 4px; }
+.timeline-item { position: relative; display: flex; min-height: 52px; gap: 12px; }
+.timeline-item:last-child { min-height: 42px; }
+.timeline-rail { position: relative; flex: 0 0 18px; width: 18px; }
+.timeline-item:not(:last-child) .timeline-rail::after { position: absolute; z-index: 0; top: 17px; bottom: -1px; left: 8px; width: 1px; background: #d8e2f0; content: ''; }
+.timeline-marker { position: relative; z-index: 1; display: flex; width: 16px; height: 16px; align-items: center; justify-content: center; margin-top: 2px; border: 1.5px solid #cad8eb; border-radius: 50%; background: #fff; color: #fff; font-size: 9px; font-weight: 800; }
+.complete .timeline-marker { border-color: #2eb67d; background: #2eb67d; }
+.failed .timeline-marker { border-color: #ed3f36; background: #ed3f36; }
+.active .timeline-marker { border: 4px solid #1769ff; }
+.timeline-marker i { font-size: 11px; }
+.timeline-content { min-width: 0; flex: 1; padding: 0 0 10px; border-bottom: 1px solid #e7edf6; }
+.timeline-item:last-child .timeline-content { border-bottom: 0; }
+.timeline-title-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; }
+.timeline-item h3 { margin: 0 0 2px; color: #253455; font-size: 13px; font-weight: 750; line-height: 1.35; }
+.timeline-item p { margin: 0; color: #7187ab; font-size: 11px; line-height: 1.4; }
+.timeline-item time { display: block; margin-top: 2px; color: #7e91b1; font-size: 10px; line-height: 1.35; }
+.status-label { flex: 0 0 auto; min-height: 18px; padding: 0 7px; background: #eef2f7; color: #7686a0; }
+.complete .status-label { background: #e3f8ed; color: #159a68; }
+.active .status-label { background: #e8f1ff; color: #1769ff; }
+.failed .status-label { background: #ffe1e1; color: #dc3c3c; }
+.failure-row { display: flex; gap: 12px; align-items: center; margin-top: 6px; }
+.failure-row > span { min-width: 0; flex: 1; padding: 7px 10px; border-radius: 4px; background: #fff0f0; color: #d74848; font-size: 11px; line-height: 1.35; }
+.retry-button { flex: 0 0 66px; height: 30px; border: 1px solid #6c757d; border-radius: 4px; background: #fff; color: #6c757d; font-size: 11px; font-weight: 700; }
+.retry-button:hover { background: #6c757d; color: #fff; }
+.status-footer { display: flex; gap: 12px; align-items: center; justify-content: space-between; margin-top: 2px; }
+.progress-note { display: flex; min-width: 0; flex: 1; gap: 8px; align-items: center; min-height: 40px; padding: 9px 11px; border-radius: 4px; background: #f0f6ff; color: #5b76a5; font-size: 11px; line-height: 1.4; }
+.progress-note i { flex: 0 0 auto; color: #1769ff; font-size: 14px; }
+.secondary-button { display: inline-flex; height: 40px; align-items: center; justify-content: center; gap: 7px; padding: 0 15px; border: 1px solid #6c757d; border-radius: 5px; background: #fff; color: #6c757d; font-size: 11px; font-weight: 700; white-space: nowrap; }
 .secondary-button:hover { background: #6c757d; color: #fff; }
+.secondary-button:disabled { cursor: wait; opacity: .65; }
+.refresh-button { flex: 0 0 auto; min-width: 112px; }
+.refresh-button i { font-size: 15px; }
+.refresh-button i.is-spinning { animation: spin .8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.status-sidebar { display: grid; gap: 14px; }
+.included-card { padding: 18px; }
+.included-card h2 { margin: 0 0 7px; color: #17213d; font-size: 16px; font-weight: 750; }
+.included-card p, .included-card li { color: #6881aa; font-size: 11px; line-height: 1.55; }
+.included-card p { margin: 0; }
+.included-card ul { margin: 13px 0 0; padding-left: 18px; }
+.included-card li { padding: 4px 0 4px 6px; }
+.support-card { display: flex; min-height: 58px; align-items: center; justify-content: center; gap: 9px; color: #1769ff; font-size: 11px; font-weight: 700; text-decoration: none; }
+.support-card:hover { border-color: #1769ff; background: #f8fbff; }
+.support-card i { font-size: 17px; }
+@media (max-width: 900px) {
+  .status-page-layout { grid-template-columns: 1fr; }
+  .status-sidebar { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 700px) {
+  .status-card { padding: 12px; }
+  .status-footer { align-items: stretch; flex-direction: column; }
+  .refresh-button { align-self: flex-end; }
+}
+@media (max-width: 520px) {
+  .status-sidebar { grid-template-columns: 1fr; }
+  .setup-summary-banner { align-items: flex-start; }
+  .summary-title-row, .timeline-title-row { align-items: flex-start; }
+  .summary-title-row { flex-direction: column; gap: 5px; }
+  .secondary-button { width: 100%; }
+}
 </style>

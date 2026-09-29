@@ -4,26 +4,32 @@
 
     <div class="onboarding-shell">
       <header class="onboarding-header">
-        <div class="eyebrow">Account setup</div>
-        <h1>{{ currentStep === 4 ? 'Setup request received' : 'Set up your organization' }}</h1>
-        <p>{{ currentStep === 4 ? "We'll keep you updated as your request moves through review." : 'Tell us about your organization so we can prepare the right verification workspace.' }}</p>
+        <div class="eyebrow">Workspace setup</div>
+        <h1>{{ pageTitle }}</h1>
+        <p>{{ pageDescription }}</p>
       </header>
 
-      <div v-if="currentStep !== 4" class="step-navigation" aria-label="Onboarding progress">
+      <div v-if="currentStep <= 2" class="step-navigation" aria-label="Onboarding progress">
         <div v-for="(step, index) in steps" :key="step.label" class="step-navigation__item" :class="{ 'is-active': currentStep === index + 1, 'is-complete': currentStep > index + 1 }">
           <span class="step-number">{{ index + 1 }}</span>
           <span>{{ step.label }}</span>
         </div>
       </div>
 
-      <div class="onboarding-layout">
+      <div class="onboarding-layout" :class="{ 'is-preview-layout': currentStep === 3, 'is-status-layout': currentStep === 4 }">
         <main class="onboarding-main">
           <StepCompanyDetails v-if="!isLoading && currentStep === 1" :company="company" @update:company="company = $event" @next-step="nextStep" />
           <StepIntendedUse v-else-if="!isLoading && currentStep === 2" :company="company" @update:company="company = $event" @prev-step="prevStep" @request-submit="openConfirmation" />
-          <StepCreateSSIService v-else-if="!isLoading && currentStep === 4" :company="company" @preview-flow="returnToForm" />
+          <StepCompanyPreview v-else-if="!isLoading && currentStep === 3" :company="company" :read-only-review="true" @back-to-status="backToStatus" />
+          <StepCreateSSIService
+            v-else-if="!isLoading && currentStep === 4"
+            :company="company"
+            :is-refreshing="isRefreshingStatus"
+            @refresh-status="refreshOnboardingStatus"
+          />
         </main>
 
-        <aside v-if="currentStep !== 4" class="setup-sidebar">
+        <aside v-if="currentStep <= 2" class="setup-sidebar">
           <section class="setup-summary">
             <h2>What you’ll set up</h2>
             <p>One short request to prepare your identity verification workspace.</p>
@@ -82,12 +88,13 @@
 <script>
 import StepCompanyDetails from './StepCompanyDetails.vue';
 import StepIntendedUse from './StepIntendedUse.vue';
+import StepCompanyPreview from './StepCompanyPreview.vue';
 import StepCreateSSIService from './StepCreateSSIService.vue';
 import { mapGetters } from 'vuex';
 
 export default {
   name: 'OnboardingStepper',
-  components: { StepCompanyDetails, StepIntendedUse, StepCreateSSIService },
+  components: { StepCompanyDetails, StepIntendedUse, StepCompanyPreview, StepCreateSSIService },
   data() {
     return {
       isLoading: true,
@@ -103,12 +110,23 @@ export default {
       },
       steps: [{ label: 'Organization' }, { label: 'Intended use' }],
       isProcessingCredit: false,
+      isRefreshingStatus: false,
       creditErrorMessage: null,
     };
   },
   computed: {
     ...mapGetters('mainStore', ['getUserDetails']),
     isSuperAdminUser() { return this.getUserDetails?.role === 'SUPER_ADMIN'; },
+    pageTitle() {
+      if (this.currentStep === 4) return 'Your workspace is being set up';
+      if (this.currentStep === 3) return 'Review your submitted request';
+      return 'Set up your workspace';
+    },
+    pageDescription() {
+      if (this.currentStep === 4) return 'Track the progress of your verification environment.';
+      if (this.currentStep === 3) return 'This is a read-only copy of the information you submitted.';
+      return 'Tell us about your organization so we can prepare the right verification workspace.';
+    },
   },
   mounted() { this.checkExistingOnboarding(); },
   methods: {
@@ -159,7 +177,28 @@ export default {
     prevStep() { this.currentStep = 1; this.creditErrorMessage = null; this.scrollToTop(); },
     openConfirmation() { this.creditErrorMessage = null; this.showConfirmation = true; },
     closeConfirmation() { if (!this.isProcessingCredit) this.showConfirmation = false; },
-    returnToForm() { this.hasSubmitted = false; this.currentStep = 2; this.scrollToTop(); },
+    previewSubmittedFlow() {
+      if (!this.hasSubmitted) return;
+      this.showConfirmation = false;
+      this.currentStep = 3;
+      this.scrollToTop();
+    },
+    backToStatus() {
+      this.currentStep = 4;
+      this.scrollToTop();
+    },
+    async refreshOnboardingStatus() {
+      if (this.isRefreshingStatus) return;
+      this.isRefreshingStatus = true;
+      try {
+        const existing = await this.$store.dispatch('mainStore/checkIfAlreadyExistOnBoarding');
+        if (existing && existing._id) this.populateCompanyFromOnboarding(existing);
+      } catch (error) {
+        console.error(error?.message || error);
+      } finally {
+        this.isRefreshingStatus = false;
+      }
+    },
     async processCreditRequest() {
       if (this.isProcessingCredit || this.hasSubmitted) return;
       this.isProcessingCredit = true;
@@ -227,6 +266,8 @@ export default {
 .step-number { display: inline-flex; width: 25px; height: 25px; align-items: center; justify-content: center; border-radius: 50%; background: #edf4fe; font-size: 11px; }
 .is-active .step-number, .is-complete .step-number { background: #1769ff; color: #fff; }
 .onboarding-layout { display: grid; grid-template-columns: minmax(0, 760px) 220px; gap: 20px; align-items: start; }
+.onboarding-layout.is-preview-layout, .onboarding-layout.is-status-layout { display: block; }
+.onboarding-layout.is-preview-layout { max-width: 760px; }
 .onboarding-main { min-width: 0; }
 .setup-sidebar { display: grid; gap: 14px; }
 .setup-summary, .contact-card { border: 1px solid #cfe0fb; border-radius: 7px; background: #fff; }
@@ -266,8 +307,10 @@ export default {
 .submission-error { margin-top: 12px; padding: 9px 11px; border-radius: 5px; background: #fff1f0; color: #b42318; font-size: 11px; }
 .workspace-confirmation-footer { display: flex; align-items: center; justify-content: space-between; padding: 15px 22px; border-top: 1px solid #e3e9f2; background: #fff; }
 .primary-button, .secondary-button { min-height: 36px; padding: 0 16px; border-radius: 5px; font-size: 11px; font-weight: 700; }
-.primary-button { border: 0; background: #0664f9; color: #fff; }
-.secondary-button { border: 1px solid #b9c9de; background: #fff; color: #405472; }
+.primary-button { border: 1px solid #6c757d; background: #6c757d; color: #fff; }
+.primary-button:hover:not(:disabled) { border-color: #5a6268; background: #5a6268; }
+.secondary-button { border: 1px solid #6c757d; background: #fff; color: #6c757d; }
+.secondary-button:hover:not(:disabled) { background: #6c757d; color: #fff; }
 .primary-button:disabled, .secondary-button:disabled { cursor: wait; opacity: .6; }
 @media (max-width: 900px) { .onboarding-layout { grid-template-columns: 1fr; } .setup-sidebar { grid-template-columns: 1fr 1fr; } }
 @media (max-width: 600px) {

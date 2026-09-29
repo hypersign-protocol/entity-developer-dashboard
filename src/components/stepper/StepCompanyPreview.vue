@@ -37,8 +37,9 @@
       </div>
       <dl class="review-list">
         <div><dt>Services</dt><dd>{{ joinedServices }}</dd></div>
-        <div><dt>Yearly volume</dt><dd>{{ company.yearly_volume || '—' }}</dd></div>
+        <div><dt>Expected verifications per month</dt><dd>{{ company.yearly_volume || '—' }}</dd></div>
         <div><dt>Industries</dt><dd>{{ joinedIndustries }}</dd></div>
+        <div><dt>How you heard about us</dt><dd>{{ referralSource }}</dd></div>
       </dl>
     </section>
 
@@ -91,6 +92,10 @@ export default {
     },
     joinedIndustries() {
       return this.company.fields?.length ? this.company.fields.join(', ') : '—';
+    },
+    referralSource() {
+      if (this.company.referral_source !== 'Other') return this.company.referral_source || '—';
+      return this.company.referral_source_other ? `Other: ${this.company.referral_source_other}` : 'Other';
     },
     hasSocialProfiles() {
       return Boolean(this.company.twitterUrl || this.company.linkedinUrl || this.company.telegramUrl);

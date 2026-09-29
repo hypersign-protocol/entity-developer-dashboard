@@ -10,10 +10,13 @@
       </div>
       <div class="field-group">
         <label for="organization-country">Country or region <em>*</em></label>
-        <select id="organization-country" v-model="localCompany.country" autocomplete="country">
-          <option value="" disabled>Select a country</option>
-          <option v-for="country in countryOptions" :key="country.value" :value="country.value">{{ country.text }}</option>
-        </select>
+        <div class="select-control">
+          <select id="organization-country" v-model="localCompany.country" autocomplete="country">
+            <option value="" disabled>Select a country</option>
+            <option v-for="country in countryOptions" :key="country.value" :value="country.value">{{ country.text }}</option>
+          </select>
+          <i class="mdi mdi-chevron-down" aria-hidden="true"></i>
+        </div>
         <small v-if="isDetectingCountry">Detecting your country…</small>
         <span v-if="errors.country" class="field-error">{{ errors.country }}</span>
       </div>
@@ -230,6 +233,9 @@ label { margin-bottom: 7px; color: #253454; font-size: 12px; font-weight: 700; }
 em, .field-error, .form-error-summary { color: #e43d4f; font-style: normal; }
 .field-group input, .field-group select, .phone-control { width: 100%; height: 40px; padding: 0 11px; border: 1px solid #cfe0f5; border-radius: 5px; background: #fff; color: #20304e; font-size: 13px; outline: none; }
 .field-group input:focus, .field-group select:focus, .phone-control:focus-within { border-color: #1769ff; box-shadow: 0 0 0 2px rgba(23,105,255,.1); }
+.select-control { position: relative; }
+.select-control select { padding-right: 40px; appearance: none; cursor: pointer; }
+.select-control > i { position: absolute; top: 50%; right: 12px; color: #5576a9; font-size: 18px; pointer-events: none; transform: translateY(-50%); }
 .field-group small { margin-top: 6px; color: #7182a0; font-size: 11px; }
 .field-error { margin-top: 5px; font-size: 11px; }
 .input-with-icon { position: relative; }
@@ -261,8 +267,8 @@ em, .field-error, .form-error-summary { color: #e43d4f; font-style: normal; }
 .form-error-summary { margin-top: 16px; font-size: 11px; }
 .form-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 24px; padding-top: 18px; border-top: 1px solid #dce8f8; }
 .form-footer > span { color: #7889a3; font-size: 10px; }
-.primary-button { min-width: 105px; height: 38px; padding: 0 16px; border: 0; border-radius: 5px; background: #0664f9; color: #fff; font-size: 12px; font-weight: 700; box-shadow: 0 4px 10px rgba(6,100,249,.2); }
-.primary-button:hover { background: #0057dc; }
+.primary-button { min-width: 105px; height: 38px; padding: 0 16px; border: 1px solid #6c757d; border-radius: 5px; background: #6c757d; color: #fff; font-size: 12px; font-weight: 700; }
+.primary-button:hover { border-color: #5a6268; background: #5a6268; }
 @media (max-width: 650px) {
   .form-card { padding: 18px; }
   .field-grid, .social-grid { grid-template-columns: 1fr; }

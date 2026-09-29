@@ -215,15 +215,15 @@ export default {
   align-items: center;
   gap: 6px;
   padding: 0 12px;
-  border: 1px solid #1769ff;
+  border: 1px solid #6c757d;
   border-radius: 5px;
   background: #fff;
-  color: #1769ff;
+  color: #6c757d;
   font-size: 10px;
   font-weight: 700;
 }
 
-.choose-file-button:hover { background: #f0f6ff; }
+.choose-file-button:hover { background: #6c757d; color: #fff; }
 
 .logo-upload-circle,
 .logo-preview-circle {

@@ -16,20 +16,27 @@
       <span v-if="errors.interests" class="field-error">{{ errors.interests }}</span>
     </section>
 
-    <section class="form-section two-column-fields">
-      <div class="field-group">
-        <label for="verification-volume">Expected verifications per month <em>*</em></label>
-        <select id="verification-volume" v-model="localCompany.yearly_volume">
-          <option value="" disabled>Select expected volume</option>
-          <option v-for="volume in volumeOptions" :key="volume" :value="volume">{{ volume }}</option>
-        </select>
+    <section class="form-section">
+      <fieldset class="field-group volume-field">
+        <legend>Expected verifications per month <em>*</em></legend>
+        <div class="volume-options">
+          <label v-for="volume in volumeOptions" :key="volume" class="volume-option">
+            <input v-model="localCompany.yearly_volume" type="radio" name="verification-volume" :value="volume" />
+            <span>{{ volume }}</span>
+          </label>
+        </div>
         <span v-if="errors.volume" class="field-error">{{ errors.volume }}</span>
-      </div>
+      </fieldset>
+    </section>
 
+    <section class="form-section">
       <div class="field-group">
         <label for="industry-search">Industries <em>*</em></label>
         <div ref="industryPicker" class="industry-picker">
           <input id="industry-search" v-model.trim="industrySearch" type="search" placeholder="Search or select industries" :aria-expanded="industryMenuOpen ? 'true' : 'false'" aria-controls="industry-options" @focus="industryMenuOpen = true" @keydown.esc="industryMenuOpen = false" />
+          <button type="button" class="dropdown-toggle-button" aria-label="Toggle industry options" :aria-expanded="industryMenuOpen ? 'true' : 'false'" @click="industryMenuOpen = !industryMenuOpen">
+            <i class="mdi mdi-chevron-down" :class="{ 'is-open': industryMenuOpen }" aria-hidden="true"></i>
+          </button>
           <div v-if="industryMenuOpen && filteredIndustries.length" id="industry-options" class="industry-results" role="listbox">
             <button v-for="industry in filteredIndustries" :key="industry" type="button" role="option" @click="addIndustry(industry)">{{ industry }}</button>
           </div>
@@ -47,18 +54,21 @@
     <section class="form-section">
       <div class="field-group">
         <label for="referral-source">How did you hear about us? <em>*</em></label>
-        <select id="referral-source" v-model="localCompany.referral_source">
-          <option value="" disabled>Select an option</option>
-          <option v-for="source in referralOptions" :key="source" :value="source">{{ source }}</option>
-        </select>
+        <div class="select-control">
+          <select id="referral-source" v-model="localCompany.referral_source">
+            <option value="" disabled>Select an option</option>
+            <option v-for="source in referralOptions" :key="source" :value="source">{{ source }}</option>
+          </select>
+          <i class="mdi mdi-chevron-down" aria-hidden="true"></i>
+        </div>
         <span v-if="errors.referral" class="field-error">{{ errors.referral }}</span>
         <div v-if="localCompany.referral_source === 'Other'" class="other-source-field">
-          <label for="other-referral-source">Please specify <em>*</em></label>
           <input
             id="other-referral-source"
             v-model.trim="localCompany.referral_source_other"
             type="text"
-            placeholder="Tell us how you heard about Hypersign"
+            aria-label="Specify how you heard about us"
+            placeholder="Please specify how you heard about us"
           />
           <span v-if="errors.referralOther" class="field-error">{{ errors.referralOther }}</span>
         </div>
@@ -184,13 +194,25 @@ em, .field-error { color: #e43d4f; font-style: normal; }
 .service-option { display: flex; min-height: 40px; align-items: center; gap: 9px; margin: 0; padding: 9px 11px; border: 1px solid #cfddf0; border-radius: 5px; background: #fff; cursor: pointer; color: #263550; font-size: 12px; font-weight: 500; }
 .service-option.is-selected { border-color: #1769ff; background: #f5f8ff; color: #1055cf; box-shadow: 0 0 0 1px rgba(23,105,255,.08); }
 .service-option input { width: 14px; height: 14px; accent-color: #1769ff; }
-.two-column-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 .field-group { display: flex; min-width: 0; flex-direction: column; }
-.field-group select, .field-group > input, .industry-picker > input { width: 100%; height: 40px; padding: 0 11px; border: 1px solid #cfe0f5; border-radius: 5px; background: #fff; color: #243454; font-size: 12px; outline: none; }
-.field-group select:focus, .field-group > input:focus, .industry-picker > input:focus { border-color: #1769ff; box-shadow: 0 0 0 2px rgba(23,105,255,.1); }
-.other-source-field { display: flex; flex-direction: column; margin-top: 14px; }
+.volume-field { min-width: 0; margin: 0; padding: 0; border: 0; }
+.volume-field legend { width: auto; margin: 0 0 10px; padding: 0; color: #243453; font-size: 12px; font-weight: 700; }
+.volume-options { display: flex; flex-wrap: wrap; gap: 16px 28px; align-items: center; min-height: 40px; }
+.volume-option { display: inline-flex; align-items: center; gap: 8px; margin: 0; color: #344563; cursor: pointer; font-size: 12px; font-weight: 500; }
+.volume-option input { width: 15px; height: 15px; margin: 0; accent-color: #1769ff; cursor: pointer; }
+.field-group select, .field-group > input, .industry-picker > input, .other-source-field input { width: 100%; height: 40px; padding: 0 11px; border: 1px solid #cfe0f5; border-radius: 5px; background: #fff; color: #243454; font-size: 12px; outline: none; }
+.field-group select:focus, .field-group > input:focus, .industry-picker > input:focus, .other-source-field input:focus { border-color: #1769ff; box-shadow: 0 0 0 2px rgba(23,105,255,.1); }
+.select-control { position: relative; }
+.select-control select { padding-right: 40px; appearance: none; cursor: pointer; }
+.select-control > i { position: absolute; top: 50%; right: 12px; color: #5576a9; font-size: 18px; pointer-events: none; transform: translateY(-50%); }
+.other-source-field { display: flex; flex-direction: column; margin-top: 8px; }
 .field-error { display: block; margin-top: 6px; font-size: 11px; }
 .industry-picker { position: relative; }
+.industry-picker > input { padding-right: 42px; }
+.industry-picker > input::-webkit-search-cancel-button { display: none; }
+.dropdown-toggle-button { position: absolute; z-index: 2; top: 1px; right: 1px; display: flex; width: 39px; height: 38px; align-items: center; justify-content: center; border: 0; border-radius: 0 5px 5px 0; background: transparent; color: #5576a9; }
+.dropdown-toggle-button i { font-size: 18px; transition: transform .18s ease; }
+.dropdown-toggle-button i.is-open { transform: rotate(180deg); }
 .industry-results { position: absolute; z-index: 20; top: calc(100% + 4px); right: 0; left: 0; max-height: 220px; overflow-y: auto; padding: 5px; border: 1px solid #dce3ec; border-radius: 5px; background: #fff; box-shadow: 0 8px 20px rgba(15,23,42,.12); }
 .industry-results button { display: block; width: 100%; padding: 8px; border: 0; border-radius: 4px; background: #fff; color: #344054; font-size: 12px; text-align: left; }
 .industry-results button:hover { background: #f4f7fb; }
@@ -199,12 +221,13 @@ em, .field-error { color: #e43d4f; font-style: normal; }
 .selected-industries button { padding: 4px 8px; border: 1px solid #cbd9f4; border-radius: 14px; background: #f2f6ff; color: #315fba; font-size: 10px; }
 .form-footer { display: flex; justify-content: space-between; margin-top: 24px; padding-top: 18px; border-top: 1px solid #dce8f8; }
 .primary-button, .secondary-button { min-width: 92px; height: 38px; padding: 0 16px; border-radius: 5px; font-size: 12px; font-weight: 700; }
-.primary-button { border: 0; background: #0664f9; color: #fff; box-shadow: 0 4px 10px rgba(6,100,249,.2); }
-.primary-button:hover { background: #0057dc; }
-.secondary-button { border: 1px solid #b8cff0; background: #fff; color: #365b92; }
-.secondary-button:hover { border-color: #1769ff; color: #1769ff; }
+.primary-button { border: 1px solid #6c757d; background: #6c757d; color: #fff; }
+.primary-button:hover { border-color: #5a6268; background: #5a6268; }
+.secondary-button { border: 1px solid #6c757d; background: #fff; color: #6c757d; }
+.secondary-button:hover { background: #6c757d; color: #fff; }
 @media (max-width: 600px) {
   .form-card { padding: 18px; }
-  .service-grid, .two-column-fields { grid-template-columns: 1fr; }
+  .service-grid { grid-template-columns: 1fr; }
+  .volume-options { align-items: flex-start; flex-direction: column; gap: 12px; }
 }
 </style>
