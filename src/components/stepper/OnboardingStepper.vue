@@ -39,7 +39,7 @@
               <li>Review and submit</li>
             </ul>
           </section>
-          <a class="contact-card" href="mailto:support@hypersign.id">
+          <a class="contact-card" :href="supportMailto">
             <i class="mdi mdi-email-outline" aria-hidden="true"></i>
             <span>Need help? Contact us</span>
           </a>
@@ -91,6 +91,7 @@ import StepIntendedUse from './StepIntendedUse.vue';
 import StepCompanyPreview from './StepCompanyPreview.vue';
 import StepCreateSSIService from './StepCreateSSIService.vue';
 import { mapGetters } from 'vuex';
+import config from '../../config';
 
 export default {
   name: 'OnboardingStepper',
@@ -117,6 +118,7 @@ export default {
   computed: {
     ...mapGetters('mainStore', ['getUserDetails']),
     isSuperAdminUser() { return this.getUserDetails?.role === 'SUPER_ADMIN'; },
+    supportMailto() { return `mailto:${config.app.supportEmails}`; },
     pageTitle() {
       if (this.currentStep === 4) return 'Your workspace is being set up';
       if (this.currentStep === 3) return 'Review your submitted request';
@@ -253,31 +255,31 @@ export default {
 </script>
 
 <style scoped>
-.onboarding-page { min-height: calc(100vh - 64px); padding: 38px 32px 72px; background: #fff; color: #17213d; }
+.onboarding-page { min-height: calc(100vh - 64px); padding: 38px 32px 72px; background: #fff; color: #1e293b; }
 .onboarding-shell { width: 100%; max-width: 1080px; margin: 0 auto; }
 .onboarding-header { margin-bottom: 24px; }
-.eyebrow { margin-bottom: 4px; color: #6c757d; font-size: 10px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
-.onboarding-header h1 { margin: 0 0 5px; color: #111b39; font-size: 28px; font-weight: 750; line-height: 1.2; }
-.onboarding-header p { margin: 0; color: #6b7280; font-size: 13px; }
+.eyebrow { margin-bottom: 4px; color: #2563eb; font-size: 10px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
+.onboarding-header h1 { margin: 0 0 5px; color: #1e293b; font-size: 28px; font-weight: 750; line-height: 1.2; }
+.onboarding-header p { margin: 0; color: #64748b; font-size: 13px; }
 .step-navigation { display: grid; grid-template-columns: repeat(2, 1fr); max-width: 760px; margin-bottom: 18px; }
-.step-navigation__item { display: flex; gap: 9px; align-items: center; padding: 0 8px 12px; border-bottom: 2px solid #e1e4e7; color: #7a8288; font-size: 12px; font-weight: 650; }
+.step-navigation__item { display: flex; gap: 9px; align-items: center; padding: 0 8px 12px; border-bottom: 2px solid #e2e8f0; color: #64748b; font-size: 12px; font-weight: 650; }
 .step-navigation__item:first-child { padding-left: 0; }
-.step-navigation__item.is-active, .step-navigation__item.is-complete { border-color: #4178c0; color: #356daf; }
-.step-number { display: inline-flex; width: 25px; height: 25px; align-items: center; justify-content: center; border-radius: 50%; background: #f0f1f2; font-size: 11px; }
-.is-active .step-number, .is-complete .step-number { background: #4178c0; color: #fff; }
+.step-navigation__item.is-active, .step-navigation__item.is-complete { border-color: #2563eb; color: #2563eb; }
+.step-number { display: inline-flex; width: 25px; height: 25px; align-items: center; justify-content: center; border-radius: 50%; background: #f0f7ff; font-size: 11px; }
+.is-active .step-number, .is-complete .step-number { background: #2563eb; color: #fff; }
 .onboarding-layout { display: grid; grid-template-columns: minmax(0, 760px) 220px; gap: 20px; align-items: start; }
 .onboarding-layout.is-preview-layout, .onboarding-layout.is-status-layout { display: block; }
 .onboarding-layout.is-preview-layout { max-width: 760px; }
 .onboarding-main { min-width: 0; }
 .setup-sidebar { display: grid; gap: 14px; }
-.setup-summary, .contact-card { border: 1px solid #d5d9dd; border-radius: 7px; background: #fff; }
+.setup-summary, .contact-card { border: 1px solid #bfdbfe; border-radius: 7px; background: #fff; }
 .setup-summary { padding: 18px; }
 .setup-summary h2 { margin: 0 0 7px; color: #17213d; font-size: 16px; font-weight: 700; }
-.setup-summary p, .setup-summary li { color: #6f7881; font-size: 11px; line-height: 1.55; }
+.setup-summary p, .setup-summary li { color: #64748b; font-size: 11px; line-height: 1.55; }
 .setup-summary ul { margin: 14px 0 0; padding-left: 18px; }
 .setup-summary li { padding: 4px 0 4px 7px; }
-.contact-card { display: flex; align-items: center; justify-content: center; gap: 9px; min-height: 58px; color: #6c757d; font-size: 11px; font-weight: 700; text-decoration: none; }
-.contact-card:hover { border-color: #6c757d; background: #f5f6f7; color: #5a6268; }
+.contact-card { display: flex; align-items: center; justify-content: center; gap: 9px; min-height: 58px; color: #2563eb; font-size: 11px; font-weight: 700; text-decoration: none; }
+.contact-card:hover { border-color: #bfdbfe; background: #f0f7ff; color: #2563eb; }
 .contact-card i { font-size: 17px; }
 .workspace-confirmation-backdrop { position: fixed; z-index: 3000; inset: 0; display: flex; align-items: center; justify-content: center; padding: 20px; background: rgba(15, 23, 42, .5); opacity: 1; }
 .workspace-confirmation-dialog { width: min(100%, 620px); max-height: calc(100vh - 40px); overflow: auto; border-radius: 7px; background: #fff; box-shadow: 0 24px 70px rgba(15,23,42,.28); }
@@ -291,14 +293,14 @@ export default {
 .setup-preview { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 18px; padding: 14px; border-radius: 6px; background: #f7f9fc; }
 .setup-preview > div { display: flex; align-items: flex-start; gap: 9px; }
 .setup-preview i { display: inline-flex; flex: 0 0 auto; width: 28px; height: 28px; align-items: center; justify-content: center; border-radius: 50%; font-size: 16px; }
-.setup-preview .blue { background: #eceeef; color: #6c757d; }
+.setup-preview .blue { background: #f0f7ff; color: #2563eb; }
 .setup-preview .green { background: #e7f8ef; color: #1d9b63; }
-.setup-preview .purple { background: #eceeef; color: #6c757d; }
+.setup-preview .purple { background: #f0f7ff; color: #2563eb; }
 .setup-preview strong, .setup-preview small { display: block; }
 .setup-preview strong { color: #263550; font-size: 10px; }
 .setup-preview small { margin-top: 2px; color: #718096; font-size: 8px; line-height: 1.35; }
-.production-note { display: flex; gap: 10px; margin-top: 18px; padding: 14px; border: 1px solid #d8dcdf; border-radius: 6px; background: #f5f6f7; color: #626b73; }
-.production-note > i { flex: 0 0 auto; color: #6c757d; font-size: 17px; }
+.production-note { display: flex; gap: 10px; margin-top: 18px; padding: 14px; border: 1px solid #bfdbfe; border-radius: 6px; background: #f0f7ff; color: #475569; }
+.production-note > i { flex: 0 0 auto; color: #2563eb; font-size: 17px; }
 .production-note strong { color: #253454; font-size: 11px; }
 .production-note p, .production-note li { font-size: 9px; line-height: 1.5; }
 .production-note p { margin: 3px 0 5px; }
@@ -308,9 +310,9 @@ export default {
 .workspace-confirmation-footer { display: flex; align-items: center; justify-content: space-between; padding: 15px 22px; border-top: 1px solid #e3e9f2; background: #fff; }
 .primary-button, .secondary-button { min-height: 36px; padding: 0 16px; border-radius: 5px; font-size: 11px; font-weight: 700; }
 .primary-button { border: 1px solid #6c757d; background: #6c757d; color: #fff; }
-.primary-button:hover:not(:disabled) { border-color: #5a6268; background: #5a6268; }
+.primary-button:hover:not(:disabled) { border-color: #545b62; background: #5a6268; }
 .secondary-button { border: 1px solid #6c757d; background: #fff; color: #6c757d; }
-.secondary-button:hover:not(:disabled) { background: #6c757d; color: #fff; }
+.secondary-button:hover:not(:disabled) { border-color: #6c757d; background: #6c757d; color: #fff; }
 .primary-button:disabled, .secondary-button:disabled { cursor: wait; opacity: .6; }
 @media (max-width: 900px) { .onboarding-layout { grid-template-columns: 1fr; } .setup-sidebar { grid-template-columns: 1fr 1fr; } }
 @media (max-width: 600px) {

@@ -11,21 +11,21 @@
             <span class="summary-badge">{{ summaryBadge }}</span>
           </div>
           <p>{{ summaryMessage }}</p>
-          <div class="setup-progress">
-            <div class="progress-meta">
-              <span>{{ completedItems.length }} of {{ timeline.length }} tasks completed</span>
-              <strong>{{ progressPercentage }}%</strong>
-            </div>
-            <div
-              class="progress-track"
-              role="progressbar"
-              aria-label="Workspace setup progress"
-              :aria-valuenow="progressPercentage"
-              aria-valuemin="0"
-              aria-valuemax="100"
-            >
-              <span class="progress-fill" :style="{ width: `${progressPercentage}%` }"></span>
-            </div>
+        </div>
+        <div class="setup-progress">
+          <div class="progress-meta">
+            <span>{{ completedItems.length }} of {{ timeline.length }} tasks completed</span>
+            <strong>{{ progressPercentage }}%</strong>
+          </div>
+          <div
+            class="progress-track"
+            role="progressbar"
+            aria-label="Workspace setup progress"
+            :aria-valuenow="progressPercentage"
+            aria-valuemin="0"
+            aria-valuemax="100"
+          >
+            <span class="progress-fill" :style="{ width: `${progressPercentage}%` }"></span>
           </div>
         </div>
       </div>
@@ -56,7 +56,6 @@
 
             <div v-if="item.failureReason" class="failure-row">
               <span>{{ item.failureReason }}</span>
-              <button type="button" class="retry-button">Retry</button>
             </div>
           </div>
         </div>
@@ -85,7 +84,7 @@
         </ul>
       </section>
 
-      <a class="support-card" href="mailto:support@hypersign.id">
+      <a class="support-card" :href="supportMailto">
         <i class="mdi mdi-email-outline" aria-hidden="true"></i>
         <span>Need help? Contact us</span>
       </a>
@@ -94,6 +93,8 @@
 </template>
 
 <script>
+import config from '../../config';
+
 export default {
   name: 'StepCreateSSIService',
   props: {
@@ -101,6 +102,9 @@ export default {
     isRefreshing: { type: Boolean, default: false },
   },
   computed: {
+    supportMailto() {
+      return `mailto:${config.app.supportEmails}`;
+    },
     normalizedStatus() {
       return (this.company.onboardingStatus || 'INITIATED').toUpperCase();
     },
@@ -238,28 +242,28 @@ export default {
 
 <style scoped>
 .status-page-layout { display: grid; grid-template-columns: minmax(0, 760px) 220px; gap: 20px; align-items: start; }
-.status-card, .included-card, .support-card { border: 1px solid #d5d9dd; border-radius: 7px; background: #fff; }
+.status-card, .included-card, .support-card { border: 1px solid #bfdbfe; border-radius: 7px; background: #fff; }
 .status-card { padding: 14px; }
-.setup-summary-banner { display: flex; gap: 15px; align-items: center; padding: 14px 16px; border-radius: 6px; background: #f3f4f5; }
+.setup-summary-banner { display: flex; flex-wrap: wrap; gap: 15px; align-items: center; padding: 14px 16px; border-radius: 6px; background: #f0f7ff; }
 .setup-summary-banner.is-failed { background: linear-gradient(90deg, #fff4f4, #fff8f8); }
 .setup-summary-banner.is-complete { background: #f1fbf6; }
-.summary-icon { display: inline-flex; flex: 0 0 30px; width: 30px; height: 30px; align-items: center; justify-content: center; border: 2px solid #6c757d; border-radius: 50%; color: #6c757d; font-size: 17px; }
+.summary-icon { display: inline-flex; flex: 0 0 30px; width: 30px; height: 30px; align-items: center; justify-content: center; border: 2px solid #2563eb; border-radius: 50%; color: #2563eb; font-size: 17px; }
 .is-failed .summary-icon { border-color: #e64b4b; color: #e64b4b; }
 .is-complete .summary-icon { border-color: #2eb67d; background: #2eb67d; color: #fff; }
 .summary-copy { min-width: 0; flex: 1; }
 .summary-title-row { display: flex; align-items: center; gap: 10px; }
 .summary-title-row h2 { margin: 0; color: #17213d; font-size: 16px; font-weight: 750; }
 .summary-badge, .status-label { display: inline-flex; align-items: center; border-radius: 4px; font-size: 10px; font-weight: 700; line-height: 1; }
-.summary-badge { min-height: 20px; padding: 0 8px; background: #e2e4e6; color: #5a6268; }
+.summary-badge { min-height: 20px; padding: 0 8px; background: #f0f7ff; color: #2563eb; }
 .is-failed .summary-badge { background: #ffe1e1; color: #e04343; }
 .is-complete .summary-badge { background: #dcf7e9; color: #19945f; }
-.summary-copy p { margin: 4px 0 0; color: #6f7881; font-size: 12px; line-height: 1.45; }
-.setup-progress { width: 100%; max-width: 520px; margin-top: 11px; }
-.progress-meta { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 6px; color: #60769c; font-size: 10px; line-height: 1.3; }
+.summary-copy p { margin: 4px 0 0; color: #64748b; font-size: 12px; line-height: 1.45; }
+.setup-progress { box-sizing: border-box; flex: 0 0 100%; width: 100%; margin: 0; padding: 0 5%; }
+.progress-meta { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 6px; color: #64748b; font-size: 10px; line-height: 1.3; }
 .progress-meta strong { color: #344563; font-size: 10px; font-weight: 750; }
-.progress-track { width: 100%; height: 7px; overflow: hidden; border-radius: 999px; background: #dce5f1; }
-.progress-fill { display: block; height: 100%; border-radius: inherit; background: #6c757d; transition: width .3s ease; }
-.is-failed .progress-fill { background: #6c757d; }
+.progress-track { width: 100%; height: 6px; overflow: hidden; border-radius: 999px; background: #dbeafe; }
+.progress-fill { display: block; height: 100%; border-radius: inherit; background: #2563eb; transition: width .3s ease; }
+.is-failed .progress-fill { background: #2563eb; }
 .is-complete .progress-fill { background: #2eb67d; }
 .status-timeline { max-height: min(58vh, 560px); overflow-y: auto; padding: 12px 8px 4px 4px; scrollbar-color: #aeb4b9 #f0f1f2; scrollbar-width: thin; }
 .status-timeline::-webkit-scrollbar { width: 7px; }
@@ -268,30 +272,28 @@ export default {
 .status-timeline::-webkit-scrollbar-thumb:hover { background: #878e94; }
 .timeline-item { position: relative; display: flex; min-height: 62px; gap: 12px; padding-top: 6px; }
 .timeline-item:last-child { min-height: 50px; }
-.timeline-item:not(:last-child)::after { position: absolute; right: 4px; bottom: 6px; left: 30px; height: 1px; background: #e2e5e7; content: ''; }
+.timeline-item:not(:last-child)::after { position: absolute; right: 4px; bottom: 6px; left: 30px; height: 1px; background: #e2e8f0; content: ''; }
 .timeline-rail { position: relative; flex: 0 0 18px; width: 18px; }
-.timeline-item:not(:last-child) .timeline-rail::after { position: absolute; z-index: 0; top: 17px; bottom: -1px; left: 8px; width: 1px; background: #d8dcdf; content: ''; }
-.timeline-marker { position: relative; z-index: 1; display: flex; width: 16px; height: 16px; align-items: center; justify-content: center; margin-top: 2px; border: 1.5px solid #c9ced2; border-radius: 50%; background: #fff; color: #fff; font-size: 9px; font-weight: 800; }
+.timeline-item:not(:last-child) .timeline-rail::after { position: absolute; z-index: 0; top: 17px; bottom: -1px; left: 8px; width: 1px; background: #e2e8f0; content: ''; }
+.timeline-marker { position: relative; z-index: 1; display: flex; width: 16px; height: 16px; align-items: center; justify-content: center; margin-top: 2px; border: 1.5px solid #cbd5e1; border-radius: 50%; background: #fff; color: #fff; font-size: 9px; font-weight: 800; }
 .complete .timeline-marker { border-color: #2eb67d; background: #2eb67d; }
 .failed .timeline-marker { border-color: #ed3f36; background: #ed3f36; }
-.active .timeline-marker { border: 4px solid #6c757d; }
+.active .timeline-marker { border: 4px solid #2563eb; }
 .timeline-marker i { font-size: 11px; }
 .timeline-content { min-width: 0; flex: 1; padding: 0 0 16px; }
 .timeline-title-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; }
 .timeline-item h3 { margin: 0 0 2px; color: #253455; font-size: 13px; font-weight: 750; line-height: 1.35; }
 .timeline-item p { margin: 0; color: #747d85; font-size: 11px; line-height: 1.4; }
 .timeline-item time { display: block; margin-top: 2px; color: #858d94; font-size: 10px; line-height: 1.35; }
-.status-label { display: inline-flex; flex: 0 0 auto; min-width: 70px; min-height: 20px; align-items: center; justify-content: center; padding: 0 8px; background: #eef0f2; color: #707980; text-align: center; }
+.status-label { display: inline-flex; flex: 0 0 auto; min-width: 70px; min-height: 20px; align-items: center; justify-content: center; padding: 0 8px; background: #f1f5f9; color: #64748b; text-align: center; }
 .complete .status-label { background: #e3f8ed; color: #159a68; }
-.active .status-label { background: #e2e4e6; color: #5a6268; }
+.active .status-label { background: #f0f7ff; color: #2563eb; }
 .failed .status-label { background: #ffe1e1; color: #dc3c3c; }
 .failure-row { display: flex; gap: 12px; align-items: center; margin-top: 6px; }
 .failure-row > span { min-width: 0; flex: 1; padding: 7px 10px; border-radius: 4px; background: #fff0f0; color: #d74848; font-size: 11px; line-height: 1.35; }
-.retry-button { flex: 0 0 66px; height: 30px; border: 1px solid #6c757d; border-radius: 4px; background: #fff; color: #6c757d; font-size: 11px; font-weight: 700; }
-.retry-button:hover { background: #6c757d; color: #fff; }
 .status-footer { display: flex; gap: 12px; align-items: center; justify-content: space-between; margin-top: 2px; }
-.progress-note { display: flex; min-width: 0; flex: 1; gap: 8px; align-items: center; min-height: 40px; padding: 9px 11px; border-radius: 4px; background: #f3f4f5; color: #626b73; font-size: 11px; line-height: 1.4; }
-.progress-note i { flex: 0 0 auto; color: #6c757d; font-size: 14px; }
+.progress-note { display: flex; min-width: 0; flex: 1; gap: 8px; align-items: center; min-height: 40px; padding: 9px 11px; border-radius: 4px; background: #f0f7ff; color: #475569; font-size: 11px; line-height: 1.4; }
+.progress-note i { flex: 0 0 auto; color: #2563eb; font-size: 14px; }
 .secondary-button { display: inline-flex; height: 40px; align-items: center; justify-content: center; gap: 7px; padding: 0 15px; border: 1px solid #6c757d; border-radius: 5px; background: #fff; color: #6c757d; font-size: 11px; font-weight: 700; white-space: nowrap; }
 .secondary-button:hover { background: #6c757d; color: #fff; }
 .secondary-button:disabled { cursor: wait; opacity: .65; }
@@ -302,12 +304,12 @@ export default {
 .status-sidebar { display: grid; gap: 14px; }
 .included-card { padding: 18px; }
 .included-card h2 { margin: 0 0 7px; color: #17213d; font-size: 16px; font-weight: 750; }
-.included-card p, .included-card li { color: #6f7881; font-size: 11px; line-height: 1.55; }
+.included-card p, .included-card li { color: #64748b; font-size: 11px; line-height: 1.55; }
 .included-card p { margin: 0; }
 .included-card ul { margin: 13px 0 0; padding-left: 18px; }
 .included-card li { padding: 4px 0 4px 6px; }
-.support-card { display: flex; min-height: 58px; align-items: center; justify-content: center; gap: 9px; color: #6c757d; font-size: 11px; font-weight: 700; text-decoration: none; }
-.support-card:hover { border-color: #6c757d; background: #f5f6f7; color: #5a6268; }
+.support-card { display: flex; min-height: 58px; align-items: center; justify-content: center; gap: 9px; color: #2563eb; font-size: 11px; font-weight: 700; text-decoration: none; }
+.support-card:hover { border-color: #bfdbfe; background: #f0f7ff; color: #2563eb; }
 .support-card i { font-size: 17px; }
 @media (max-width: 900px) {
   .status-page-layout { grid-template-columns: 1fr; }
@@ -324,5 +326,6 @@ export default {
   .summary-title-row, .timeline-title-row { align-items: flex-start; }
   .summary-title-row { flex-direction: column; gap: 5px; }
   .secondary-button { width: 100%; }
+  .setup-progress { padding: 0; }
 }
 </style>

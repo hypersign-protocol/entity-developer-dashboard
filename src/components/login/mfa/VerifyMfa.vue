@@ -48,7 +48,7 @@
         <div class="mt-2">
             <span>Lost App?</span>
 
-            <a type="button" class="btn btn-sm btn-link p-0 ml-1" href="mailto:support@hypersign.id" target="_blank">
+            <a type="button" class="btn btn-sm btn-link p-0 ml-1" :href="supportMailto" target="_blank">
                 Contact Us
             </a>
 
@@ -70,6 +70,7 @@ import { mapMutations, mapActions } from 'vuex/dist/vuex.common.js';
 import UtilsMixin from "../../../mixins/utils";
 import EventBus from "../../../eventbus";
 import { AUTHENTICATION_METHODS_LIST } from "../../../constants/authenticators";
+import config from "../../../config";
 
 export default {
     name: 'VerifyMfa',
@@ -93,6 +94,12 @@ export default {
         sessionId: {
             type: String
         } 
+    },
+
+    computed: {
+        supportMailto() {
+            return `mailto:${config.app.supportEmails}`;
+        }
     },
 
     watch: {

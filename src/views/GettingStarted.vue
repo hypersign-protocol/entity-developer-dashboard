@@ -63,7 +63,7 @@
             <a href="https://docs.hypersign.id" target="_blank" class="resource-link">
               <v-icon small color="grey darken-1" class="mr-2">mdi-file-document-outline</v-icon> Technical Docs
             </a>
-            <a href="mailto:support@hypersign.id" class="resource-link">
+            <a :href="supportMailto" class="resource-link">
               <v-icon small color="grey darken-1" class="mr-2">mdi-message-outline</v-icon> Contact Support
             </a>
           </nav>
@@ -129,6 +129,7 @@
 
 <script>
 import { mapMutations, mapGetters } from "vuex";
+import config from "../config";
 
 export default {
   name: "GettingStarted",
@@ -183,7 +184,10 @@ export default {
     this.updateSideNavStatus(true);
   },
   computed: {
-    ...mapGetters('mainStore', ['getSelectedService'])
+    ...mapGetters('mainStore', ['getSelectedService']),
+    supportMailto() {
+      return `mailto:${config.app.supportEmails}`;
+    }
   },
   methods: {
     // eslint-disable-next-line no-undef
