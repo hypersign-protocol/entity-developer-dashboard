@@ -283,9 +283,9 @@ export default {
 .timeline-rail { position: relative; flex: 0 0 18px; width: 18px; }
 .timeline-item:not(:last-child) .timeline-rail::after { position: absolute; z-index: 0; top: 17px; bottom: -1px; left: 8px; width: 1px; background: #e2e8f0; content: ''; }
 .timeline-marker { position: relative; z-index: 1; display: flex; width: 16px; height: 16px; align-items: center; justify-content: center; margin-top: 2px; border: 1.5px solid #cbd5e1; border-radius: 50%; background: #fff; color: #fff; font-size: 9px; font-weight: 800; }
-.complete .timeline-marker { border-color: #2eb67d; background: #2eb67d; }
-.failed .timeline-marker { border-color: #ed3f36; background: #ed3f36; }
-.active .timeline-marker { border: 4px solid #6c757d; }
+.complete .timeline-marker { border-color: #bfdbfe; background: #bfdbfe; color: #fff; }
+.failed .timeline-marker { border-color: #fecaca; background: #fecaca; color: #fff; }
+.active .timeline-marker { border: 4px solid #cbd5e1; }
 .timeline-marker i { font-size: 11px; }
 .timeline-content { min-width: 0; flex: 1; padding: 0 0 16px; }
 .timeline-title-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; }
