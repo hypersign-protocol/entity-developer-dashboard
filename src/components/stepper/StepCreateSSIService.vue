@@ -248,28 +248,29 @@ export default {
 
 <style scoped>
 .status-page-layout { display: grid; grid-template-columns: minmax(0, 760px) 220px; gap: 20px; align-items: start; }
-.status-card, .included-card, .support-card { border: 1px solid #bfdbfe; border-radius: 7px; background: #fff; }
+.status-card, .included-card, .support-card { border: 1px solid #e5e7eb; border-radius: 7px; background: #fff; }
+.support-card { border-color: #bfdbfe; }
 .status-card { padding: 14px; }
-.setup-summary-banner { display: flex; flex-wrap: wrap; gap: 15px; align-items: center; padding: 14px 16px; border-radius: 6px; background: #f0f7ff; }
+.setup-summary-banner { display: flex; flex-wrap: wrap; gap: 15px; align-items: center; padding: 14px 16px; border-radius: 6px; background: #f3f4f5; }
 .setup-summary-banner.is-failed { background: linear-gradient(90deg, #fff4f4, #fff8f8); }
 .setup-summary-banner.is-complete { background: #f1fbf6; }
-.summary-icon { display: inline-flex; flex: 0 0 30px; width: 30px; height: 30px; align-items: center; justify-content: center; border: 2px solid #2563eb; border-radius: 50%; color: #2563eb; font-size: 17px; }
+.summary-icon { display: inline-flex; flex: 0 0 30px; width: 30px; height: 30px; align-items: center; justify-content: center; border: 2px solid #6c757d; border-radius: 50%; color: #6c757d; font-size: 17px; }
 .is-failed .summary-icon { border-color: #e64b4b; color: #e64b4b; }
 .is-complete .summary-icon { border-color: #2eb67d; background: #2eb67d; color: #fff; }
 .summary-copy { min-width: 0; flex: 1; }
 .summary-title-row { display: flex; align-items: center; gap: 10px; }
 .summary-title-row h2 { margin: 0; color: #17213d; font-size: 16px; font-weight: 750; }
 .summary-badge, .status-label { display: inline-flex; align-items: center; border-radius: 4px; font-size: 10px; font-weight: 700; line-height: 1; }
-.summary-badge { min-height: 20px; padding: 0 8px; background: #f0f7ff; color: #2563eb; }
+.summary-badge { min-height: 20px; padding: 0 8px; background: #e2e4e6; color: #5a6268; }
 .is-failed .summary-badge { background: #ffe1e1; color: #e04343; }
 .is-complete .summary-badge { background: #dcf7e9; color: #19945f; }
 .summary-copy p { margin: 4px 0 0; color: #64748b; font-size: 12px; line-height: 1.45; }
 .setup-progress { box-sizing: border-box; flex: 0 0 100%; width: 100%; margin: 0; padding: 0 5%; }
 .progress-meta { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 6px; color: #64748b; font-size: 10px; line-height: 1.3; }
 .progress-meta strong { color: #344563; font-size: 10px; font-weight: 750; }
-.progress-track { width: 100%; height: 6px; overflow: hidden; border-radius: 999px; background: #dbeafe; }
-.progress-fill { display: block; height: 100%; border-radius: inherit; background: #2563eb; transition: width .3s ease; }
-.is-failed .progress-fill { background: #2563eb; }
+.progress-track { width: 100%; height: 6px; overflow: hidden; border-radius: 999px; background: #dce2e7; }
+.progress-fill { display: block; height: 100%; border-radius: inherit; background: #6c757d; transition: width .3s ease; }
+.is-failed .progress-fill { background: #6c757d; }
 .is-complete .progress-fill { background: #2eb67d; }
 .status-timeline { max-height: min(58vh, 560px); overflow-y: auto; padding: 12px 8px 4px 4px; scrollbar-color: #aeb4b9 #f0f1f2; scrollbar-width: thin; }
 .status-timeline::-webkit-scrollbar { width: 7px; }
@@ -284,7 +285,7 @@ export default {
 .timeline-marker { position: relative; z-index: 1; display: flex; width: 16px; height: 16px; align-items: center; justify-content: center; margin-top: 2px; border: 1.5px solid #cbd5e1; border-radius: 50%; background: #fff; color: #fff; font-size: 9px; font-weight: 800; }
 .complete .timeline-marker { border-color: #2eb67d; background: #2eb67d; }
 .failed .timeline-marker { border-color: #ed3f36; background: #ed3f36; }
-.active .timeline-marker { border: 4px solid #2563eb; }
+.active .timeline-marker { border: 4px solid #6c757d; }
 .timeline-marker i { font-size: 11px; }
 .timeline-content { min-width: 0; flex: 1; padding: 0 0 16px; }
 .timeline-title-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; }
@@ -293,13 +294,13 @@ export default {
 .timeline-item time { display: block; margin-top: 2px; color: #858d94; font-size: 10px; line-height: 1.35; }
 .status-label { display: inline-flex; flex: 0 0 auto; min-width: 70px; min-height: 20px; align-items: center; justify-content: center; padding: 0 8px; background: #f1f5f9; color: #64748b; text-align: center; }
 .complete .status-label { background: #e3f8ed; color: #159a68; }
-.active .status-label { background: #f0f7ff; color: #2563eb; }
+.active .status-label { background: #e2e4e6; color: #5a6268; }
 .failed .status-label { background: #ffe1e1; color: #dc3c3c; }
 .failure-row { display: flex; gap: 12px; align-items: center; margin-top: 6px; }
 .failure-row > span { min-width: 0; flex: 1; padding: 7px 10px; border-radius: 4px; background: #fff0f0; color: #d74848; font-size: 11px; line-height: 1.35; }
 .status-footer { display: flex; gap: 12px; align-items: center; justify-content: space-between; margin-top: 2px; }
-.progress-note { display: flex; min-width: 0; flex: 1; gap: 8px; align-items: center; min-height: 40px; padding: 9px 11px; border-radius: 4px; background: #f0f7ff; color: #475569; font-size: 11px; line-height: 1.4; }
-.progress-note i { flex: 0 0 auto; color: #2563eb; font-size: 14px; }
+.progress-note { display: flex; min-width: 0; flex: 1; gap: 8px; align-items: center; min-height: 40px; padding: 9px 11px; border-radius: 4px; background: #f3f4f5; color: #626b73; font-size: 11px; line-height: 1.4; }
+.progress-note i { flex: 0 0 auto; color: #6c757d; font-size: 14px; }
 .secondary-button { display: inline-flex; height: 40px; align-items: center; justify-content: center; gap: 7px; padding: 0 15px; border: 1px solid #6c757d; border-radius: 5px; background: #fff; color: #6c757d; font-size: 11px; font-weight: 700; white-space: nowrap; }
 .secondary-button:hover { background: #6c757d; color: #fff; }
 .secondary-button:disabled { cursor: wait; opacity: .65; }

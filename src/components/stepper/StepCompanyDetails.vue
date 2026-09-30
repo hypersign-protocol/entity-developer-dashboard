@@ -224,15 +224,15 @@ export default {
 </script>
 
 <style scoped>
-.form-card { padding: 24px; border: 1px solid #bfdbfe; border-radius: 7px; background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,.03); }
+.form-card { padding: 24px; border: 1px solid #e5e7eb; border-radius: 7px; background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,.03); }
 .card-heading h2 { margin: 0; color: #17213d; font-size: 18px; font-weight: 700; }
 .field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 22px 16px; }
 .primary-fields { margin-top: 26px; }
 .field-group { display: flex; min-width: 0; flex-direction: column; }
 label { margin-bottom: 7px; color: #253454; font-size: 12px; font-weight: 700; }
 em, .field-error, .form-error-summary { color: #e43d4f; font-style: normal; }
-.field-group input, .field-group select, .phone-control { width: 100%; height: 40px; padding: 0 11px; border: 1px solid #bfdbfe; border-radius: 5px; background: #fff; color: #1e293b; font-size: 13px; outline: none; }
-.field-group input:focus, .field-group select:focus, .phone-control:focus-within { border-color: #bfdbfe; box-shadow: 0 0 0 2px rgba(191,219,254,.45); }
+.field-group input, .field-group select, .phone-control { width: 100%; height: 40px; padding: 0 11px; border: 1px solid #d5dde7; border-radius: 5px; background: #fff; color: #1e293b; font-size: 13px; outline: none; }
+.field-group input:focus, .field-group select:focus, .phone-control:focus-within { border-color: #6c757d; box-shadow: 0 0 0 2px rgba(108,117,125,.14); }
 .select-control { position: relative; }
 .select-control select { padding-right: 40px; appearance: none; cursor: pointer; }
 .select-control > i { position: absolute; top: 50%; right: 12px; color: #64748b; font-size: 18px; pointer-events: none; transform: translateY(-50%); }
@@ -241,9 +241,9 @@ em, .field-error, .form-error-summary { color: #e43d4f; font-style: normal; }
 .input-with-icon { position: relative; }
 .input-with-icon i { position: absolute; top: 11px; left: 11px; color: #64748b; font-size: 16px; }
 .input-with-icon input { padding-left: 35px; }
-.personal-email-note { display: flex; gap: 8px; margin-top: 9px; padding: 9px 10px; border-radius: 5px; background: #f0f7ff; color: #475569; font-size: 10px; line-height: 1.45; }
+.personal-email-note { display: flex; gap: 8px; margin-top: 9px; padding: 9px 10px; border-radius: 5px; background: #f3f4f5; color: #626b73; font-size: 10px; line-height: 1.45; }
 .personal-email-note i { flex: 0 0 auto; font-size: 15px; }
-.additional-details { margin-top: 26px; border: 1px solid #bfdbfe; border-radius: 6px; overflow: hidden; }
+.additional-details { margin-top: 26px; border: 1px solid #e5e7eb; border-radius: 6px; overflow: hidden; }
 .section-toggle { display: flex; width: 100%; height: 44px; align-items: center; justify-content: space-between; padding: 0 14px; border: 0; background: #f8fafc; color: #1e293b; font-size: 13px; font-weight: 700; }
 .toggle-title { display: flex; align-items: center; gap: 8px; }
 .toggle-title small { color: #737b82; font-size: 10px; font-weight: 600; }
@@ -253,7 +253,7 @@ em, .field-error, .form-error-summary { color: #e43d4f; font-style: normal; }
 .additional-content { padding: 18px 14px; border-top: 1px solid #e2e8f0; }
 .optional-row + .optional-row { margin-top: 20px; }
 .row-label { display: flex; align-items: center; gap: 8px; margin-bottom: 9px; color: #253454; font-size: 12px; font-weight: 700; }
-.row-label > i { display: inline-flex; width: 24px; height: 24px; align-items: center; justify-content: center; border-radius: 50%; background: #eff6ff; color: #2563eb; }
+.row-label > i { display: inline-flex; width: 24px; height: 24px; align-items: center; justify-content: center; border-radius: 50%; background: #eceeef; color: #6c757d; }
 .optional-indent { margin-left: 32px; }
 .phone-field { width: calc(50% - 8px); }
 .phone-control { display: flex; align-items: center; gap: 7px; }
