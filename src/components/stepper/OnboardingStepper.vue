@@ -139,8 +139,9 @@ export default {
         const existing = await this.$store.dispatch('mainStore/checkIfAlreadyExistOnBoarding');
         if (existing && existing._id) {
           this.populateCompanyFromOnboarding(existing);
+          if (this.redirectToDashboardIfApproved(existing)) return;
           const status = (existing.onboardingStatus || existing.status || '').toUpperCase();
-          if (['APPROVED', 'INITIATED', 'FAILED'].includes(status)) {
+          if (['INITIATED', 'FAILED'].includes(status)) {
             this.hasSubmitted = true;
             this.currentStep = 4;
           }
@@ -189,12 +190,22 @@ export default {
       this.currentStep = 4;
       this.scrollToTop();
     },
+    redirectToDashboardIfApproved(data) {
+      const status = (data?.onboardingStatus || data?.status || '').toUpperCase();
+      if (status !== 'APPROVED') return false;
+      this.hasSubmitted = true;
+      if (this.$route.path !== '/studio/dashboard') this.$router.push('/studio/dashboard');
+      return true;
+    },
     async refreshOnboardingStatus() {
       if (this.isRefreshingStatus) return;
       this.isRefreshingStatus = true;
       try {
         const existing = await this.$store.dispatch('mainStore/checkIfAlreadyExistOnBoarding');
-        if (existing && existing._id) this.populateCompanyFromOnboarding(existing);
+        if (existing && existing._id) {
+          this.populateCompanyFromOnboarding(existing);
+          this.redirectToDashboardIfApproved(existing);
+        }
       } catch (error) {
         console.error(error?.message || error);
       } finally {
@@ -217,12 +228,17 @@ export default {
         }
         this.hasSubmitted = true;
         this.currentStep = 4;
+        let refreshedOnboarding = null;
         try {
           const existing = await this.$store.dispatch('mainStore/checkIfAlreadyExistOnBoarding');
-          if (existing && existing._id) this.populateCompanyFromOnboarding(existing);
+          if (existing && existing._id) {
+            refreshedOnboarding = existing;
+            this.populateCompanyFromOnboarding(existing);
+          }
         } catch (refreshError) {
           console.error(refreshError?.message || refreshError);
         }
+        if (this.redirectToDashboardIfApproved(refreshedOnboarding || result)) return;
         this.scrollToTop();
       } catch (error) {
         this.creditErrorMessage = typeof error === 'string' ? error : error?.message || 'Unable to create your workspace. Please try again.';
