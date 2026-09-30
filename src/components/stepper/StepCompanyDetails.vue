@@ -1,615 +1,278 @@
 <template>
-  <div>
-    <div v-if="step === 1">
-      <h5 class="step-title mb-3">Select Your Business Type</h5>
-      <v-row>
-        <v-col v-for="(label, key) in BUSINESS_TYPE" :key="key" cols="12" md="4">
-          <div 
-            class="step-content-box text-center p-4 selectable-card" 
-            :class="{ 'selected-card': localCompany.type === key }"
-            @click="selectBusinessType(key)"
-          >
-            <v-icon 
-              large 
-              :color="localCompany.type === key ? 'primary' : 'secondary'" 
-              class="mb-4"
-            >
-              {{ getBusinessIcon(key) }}
-            </v-icon>
-            <h6 class="font-weight-bold mb-0">{{ label }}</h6>
+  <form class="form-card" novalidate @submit.prevent="submitStep">
+    <header class="card-heading"><h2>Organization details</h2></header>
+
+    <div class="field-grid primary-fields">
+      <div class="field-group">
+        <label for="organization-name">Organization name <em>*</em></label>
+        <input id="organization-name" v-model.trim="localCompany.name" type="text" placeholder="Organization name" autocomplete="organization" />
+        <span v-if="errors.name" class="field-error">{{ errors.name }}</span>
+      </div>
+      <div class="field-group">
+        <label for="organization-country">Country or region <em>*</em></label>
+        <div class="select-control">
+          <select id="organization-country" v-model="localCompany.country" autocomplete="country">
+            <option value="" disabled>Select a country</option>
+            <option v-for="country in countryOptions" :key="country.value" :value="country.value">{{ country.text }}</option>
+          </select>
+          <i class="mdi mdi-chevron-down" aria-hidden="true"></i>
+        </div>
+        <small v-if="isDetectingCountry">Detecting your country…</small>
+        <span v-if="errors.country" class="field-error">{{ errors.country }}</span>
+      </div>
+      <div class="field-group">
+        <label for="work-email">Work email <em>*</em></label>
+        <div class="input-with-icon">
+          <i class="mdi mdi-email-outline" aria-hidden="true"></i>
+          <input id="work-email" v-model.trim="localCompany.contact_email" type="email" placeholder="name@organization.com" autocomplete="email" />
+        </div>
+        <small>We’ll send the review decision here.</small>
+        <span v-if="errors.email" class="field-error">{{ errors.email }}</span>
+      </div>
+      <div class="field-group">
+        <label for="organization-domain">Website or domain</label>
+        <input id="organization-domain" v-model.trim="localCompany.domain" type="text" placeholder="example.com" autocomplete="url" @input="domainWasAutofilled = false" />
+        <div v-if="isGmailAddress" class="personal-email-note">
+          <i class="mdi mdi-information-outline" aria-hidden="true"></i>
+          <span>Using a personal email? Please enter your company, project, or GitHub website to initialize your workspace.</span>
+        </div>
+      </div>
+    </div>
+
+    <section class="additional-details" :class="{ 'is-open': additionalDetailsOpen }">
+      <button type="button" class="section-toggle" :aria-expanded="String(additionalDetailsOpen)" aria-controls="additional-details-fields" @click="additionalDetailsOpen = !additionalDetailsOpen">
+        <span class="toggle-title"><i class="mdi mdi-chevron-down" aria-hidden="true"></i>Additional details <small>(Optional)</small></span>
+        <i class="mdi mdi-chevron-up toggle-chevron" aria-hidden="true"></i>
+      </button>
+      <div v-show="additionalDetailsOpen" id="additional-details-fields" class="additional-content">
+        <div class="optional-row">
+          <div class="row-label"><i class="mdi mdi-phone-outline" aria-hidden="true"></i><span>Contact phone number</span></div>
+          <div class="field-group optional-indent phone-field">
+            <div class="phone-control">
+              <span v-if="selectedCallingCode">{{ selectedCallingCode }}</span>
+              <input v-model.trim="localCompany.phone_no" type="tel" placeholder="98765 43210" autocomplete="tel-national" />
+            </div>
+            <span v-if="errors.phone" class="field-error">{{ errors.phone }}</span>
           </div>
-        </v-col>
-      </v-row>
-    </div>
-
-    <div v-else-if="step === 2">
-      <h5 class="step-title mb-4">
-        Enter Your {{ localCompany.type === 'BUSINESS' ? "Business" : "Community" }} Details
-      </h5>
-      
-      <v-form @submit.prevent="goToStep3">
-        <v-row>
-          <v-col cols="12" md="6" class="py-0">
-            <label class="input-label mb-2">
-              {{ localCompany.type === 'BUSINESS' ? 'Company Name' : 'Community Name' }}
-            </label>
-            <v-text-field v-model="localCompany.name" placeholder="ABC Pvt Ltd." outlined dense required />
-          </v-col>
-
-          <v-col cols="12" md="6" class="py-0" v-if="localCompany.type === 'BUSINESS'">
-            <label class="input-label mb-2">Domain</label>
-            <v-text-field v-model="localCompany.domain" placeholder="abc.com" outlined dense required />
-          </v-col>
-        </v-row>
-
-        <v-row v-if="localCompany.type === 'BUSINESS'">
-          <v-col cols="12" md="6" class="py-0">
-            <label class="input-label mb-2">Country</label>
-            <v-select v-model="localCompany.country" :items="countryOptions" outlined dense required />
-          </v-col>
-
-          <v-col cols="12" md="6" class="py-0">
-            <label class="input-label mb-2">Registration Number</label>
-            <v-text-field v-model="localCompany.registration_number" outlined dense />
-          </v-col>
-        </v-row>
-
-        <v-row>
-          <v-col cols="12" md="6" class="py-0">
-            <label class="input-label mb-2">Business Email</label>
-            <v-text-field type="email" v-model="localCompany.contact_email" placeholder="contact@gmail.com" outlined dense required />
-          </v-col>
-
-          <!-- <v-col cols="12" md="6" class="py-0">
-            <label class="input-label mb-2">Phone Number</label>
-            <v-text-field v-model="localCompany.phone_no" placeholder="9989212929" outlined dense required />
-          </v-col> -->
-
-          <v-col cols="12" md="6" class="py-0">
-  <label class="input-label mb-2">Phone Number</label>
-  <v-text-field 
-    v-model="localCompany.phone_no" 
-    placeholder="9999999999" 
-    outlined 
-    dense 
-    required
-    :prefix="selectedCallingCode"
-    :rules="phoneRules"
-  >
-    <template v-slot:prepend-inner>
-      <v-icon small color="grey lighten-1">mdi-phone-outline</v-icon>
-    </template>
-  </v-text-field>
-</v-col>
-        </v-row>
-
-        <div class="mb-4">
-          <label class="input-label mb-2">Upload Logo</label>
-          <LogoUploader v-model="localCompany.logo" />
         </div>
-
-        <label class="input-label mb-3">Social Profiles</label>
-        <v-row>
-          <v-col cols="12" md="4" class="py-0">
-            <v-text-field v-model="localCompany.twitterUrl" prepend-inner-icon="mdi-twitter" placeholder="Twitter" outlined dense />
-          </v-col>
-          <v-col cols="12" md="4" class="py-0">
-            <v-text-field v-model="localCompany.telegramUrl" prepend-inner-icon="mdi-send" placeholder="Telegram" outlined dense />
-          </v-col>
-          <v-col cols="12" md="4" class="py-0">
-            <v-text-field v-model="localCompany.linkedinUrl" prepend-inner-icon="mdi-linkedin" placeholder="LinkedIn" outlined dense />
-          </v-col>
-        </v-row>
-
-        <div class="d-flex justify-end mt-4 align-center">
-          <v-btn text color="secondary" class="text-none mr-2" @click="handleBack()">Back</v-btn>
-          <hf-buttons name="Next Step"   @executeAction="handleNext()"></hf-buttons>
-
-          
+        <div class="optional-row">
+          <div class="row-label"><i class="mdi mdi-camera-outline" aria-hidden="true"></i><span>Organization logo</span></div>
+          <div class="logo-upload-area optional-indent">
+            <LogoUploader v-model="localCompany.logo" variant="dropzone" />
+          </div>
         </div>
-      </v-form>
-    </div>
-
-    <div v-else-if="step === 3">
-      <div v-if="subStep === 1">
-        <h6 class="font-weight-bold mb-4">What services are you interested in?</h6>
-        <div class="interest-list">
-          <b-form-checkbox-group v-model="localCompany.interests" :options="interestOptions" stacked />
+        <div class="optional-row">
+          <div class="row-label"><i class="mdi mdi-link-variant" aria-hidden="true"></i><span>Social profiles</span></div>
+          <div class="social-grid optional-indent">
+            <div class="field-group">
+              <label for="twitter-url"><i class="mdi mdi-twitter" aria-hidden="true"></i>Twitter URL</label>
+              <input id="twitter-url" v-model.trim="localCompany.twitterUrl" type="url" placeholder="https://x.com/yourhandle" />
+              <span v-if="errors.twitter" class="field-error">{{ errors.twitter }}</span>
+            </div>
+            <div class="field-group">
+              <label for="linkedin-url"><i class="mdi mdi-linkedin" aria-hidden="true"></i>LinkedIn URL</label>
+              <input id="linkedin-url" v-model.trim="localCompany.linkedinUrl" type="url" placeholder="https://linkedin.com/company" />
+              <span v-if="errors.linkedin" class="field-error">{{ errors.linkedin }}</span>
+            </div>
+            <div class="field-group">
+              <label for="telegram-url"><i class="mdi mdi-send" aria-hidden="true"></i>Telegram URL</label>
+              <input id="telegram-url" v-model.trim="localCompany.telegramUrl" type="url" placeholder="https://t.me/yourhandle" />
+              <span v-if="errors.telegram" class="field-error">{{ errors.telegram }}</span>
+            </div>
+          </div>
         </div>
       </div>
+    </section>
 
-      <div v-else-if="subStep === 2">
-        <h6 class="font-weight-bold mb-4">Estimated Yearly Verification Volume</h6>
-        <b-form-radio-group v-model="localCompany.yearly_volume" :options="volumeOptions" stacked />
-      </div>
-
-      <div v-else-if="subStep === 3">
-        <h6 class="font-weight-bold mb-4">Which industry does your business belong to?</h6>
-        <v-row>
-          <v-col cols="12" sm="6" class="py-0">
-            <b-form-checkbox-group v-model="localCompany.fields" :options="fieldOptions" stacked />
-          </v-col>
-        </v-row>
-      </div>
-
-      <div class="d-flex justify-end mt-8 align-center">
-        <v-btn text color="secondary" class="text-none mr-2" @click="handleBack()">Back</v-btn>
-        <!-- <v-btn class="btn button" @click="handleNext()">
-          {{ subStep === 3 ? 'Complete Setup' : 'Continue' }}
-        </v-btn> -->
-
-        <hf-buttons :name="subStep === 3 ? 'Complete Setup' : 'Continue'"   @executeAction="handleNext()"></hf-buttons>
-      </div>
-    </div>
-  </div>
+    <div v-if="hasErrors" class="form-error-summary">Please correct the highlighted fields before continuing.</div>
+    <footer class="form-footer">
+      <span><em>*</em> Required to continue</span>
+      <button type="submit" class="primary-button">Continue <span aria-hidden="true">→</span></button>
+    </footer>
+  </form>
 </template>
 
-
-<style scoped>
-
-.selectable-card {
-  cursor: pointer;
-  transition: all 0.2s ease;
-  border: 1px solid #e2e8f0;
-}
-
-.selectable-card:hover {
-  border-color: #3b82f6;
-  transform: translateY(-2px);
-}
-
-.selected-card {
-  border-color: #3b82f6 !important;
-  background-color: #f0f7ff !important;
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1) !important;
-}
-
-.step-title {
-  color: #1e293b;
-  font-weight: 700;
-}
-
-.input-label {
-  display: block;
-  font-size: 0.72rem;
-  font-weight: 700;
-  color: #64748b;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-/* Reusing the established card style */
-.step-content-box {
-  background: white;
-  border-radius: 12px;
-}
-</style>
-
 <script>
-
-const CallingCodeMap = {
-  // --- Asia & Oceania ---
-  AFG: "+93",  AUS: "+61",  BGD: "+880", BRN: "+673", KHM: "+855", 
-  CHN: "+86",  HKG: "+852", IND: "+91",  IDN: "+62",  JPN: "+81",  
-  LAO: "+856", MYS: "+60",  MNG: "+976", MMR: "+95",  NPL: "+977", 
-  NZL: "+64",  PAK: "+92",  PHL: "+63",  SGP: "+65",  KOR: "+82",  
-  LKA: "+94",  TWN: "+886", THA: "+66",  TLS: "+670", VNM: "+84",
-
-  // --- Americas ---
-  ARG: "+54",  BRA: "+55",  CAN: "+1",   CHL: "+56",  COL: "+57",  
-  CRI: "+506", CUB: "+53",  DOM: "+1",   ECU: "+593", GTM: "+502", 
-  JAM: "+1",   MEX: "+52",  PAN: "+507", PER: "+51",  PRI: "+1",   
-  URY: "+598", VEN: "+58",  USA: "+1",
-
-  // --- Europe ---
-  AUT: "+43",  BEL: "+32",  BGR: "+359", HRV: "+385", CYP: "+357", 
-  CZE: "+420", DNK: "+45",  EST: "+372", FIN: "+358", FRA: "+33",  
-  DEU: "+49",  GRC: "+30",  HUN: "+36",  ISL: "+354", IRL: "+353", 
-  ITA: "+39",  LVA: "+371", LIE: "+423", LTU: "+370", LUX: "+352", 
-  MLT: "+356", NLD: "+31",  NOR: "+47",  POL: "+48",  PRT: "+351", 
-  ROU: "+40",  RUS: "+7",   SVK: "+421", SVN: "+386", ESP: "+34",  
-  SWE: "+46",  CHE: "+41",  TUR: "+90",  UKR: "+380", GBR: "+44",
-
-  // --- Middle East & Central Asia ---
-  ARM: "+374", AZE: "+994", BHR: "+973", GEO: "+995", IRN: "+98",  
-  IRQ: "+964", ISR: "+972", JOR: "+962", KWT: "+965", LBN: "+961", 
-  OMN: "+968", QAT: "+966", SAU: "+966", SYR: "+963", ARE: "+971", 
-  UZB: "+998", YEM: "+967",
-
-  // --- Africa ---
-  DZA: "+213", AGO: "+244", BWA: "+267", CMR: "+237", EGY: "+20",  
-  ETH: "+251", GHA: "+233", KEN: "+254", MAR: "+212", MUS: "+230", 
-  NAM: "+264", NGA: "+234", RWA: "+250", SEN: "+221", ZAF: "+27",  
-  TZA: "+255", TUN: "+216", UGA: "+256", ZMB: "+260", ZWE: "+263",
-
-  // --- Fallback ---
-  XXX: ""
-};
-export const PhoneRegexMap = {
-  // --- Asia & Oceania ---
-  AFG: /^[2-7]\d{8}$/,                   // Afghanistan
-  AUS: /^4\d{8}$/,                       // Australia (Mobile)
-  BGD: /^1[3-9]\d{8}$/,                  // Bangladesh
-  BRN: /^[278]\d{6}$/,                   // Brunei
-  KHM: /^[1-9]\d{7,8}$/,                 // Cambodia
-  CHN: /^1[3-9]\d{9}$/,                  // China
-  HKG: /^[4-9]\d{7}$/,                   // Hong Kong
-  IND: /^[6-9]\d{9}$/,                   // India
-  IDN: /^8[1-9]\d{7,10}$/,               // Indonesia
-  JPN: /^[789]0\d{8}$/,                  // Japan (Mobile)
-  LAO: /^20\d{8}$/,                      // Laos
-  MYS: /^1[0-9]\d{7,8}$/,                // Malaysia
-  MNG: /^[89]\d{7}$/,                    // Mongolia
-  MMR: /^9\d{7,9}$/,                     // Myanmar
-  NPL: /^9[6-8]\d{8}$/,                  // Nepal
-  NZL: /^2\d{7,9}$/,                     // New Zealand
-  PAK: /^3\d{9}$/,                       // Pakistan
-  PHL: /^9\d{9}$/,                       // Philippines
-  SGP: /^[89]\d{7}$/,                    // Singapore
-  KOR: /^10\d{7,8}$/,                    // South Korea
-  LKA: /^7\d{8}$/,                       // Sri Lanka
-  TWN: /^9\d{8}$/,                       // Taiwan
-  THA: /^[689]\d{8}$/,                   // Thailand
-  TLS: /^7[78]\d{6}$/,                   // Timor-Leste
-  VNM: /^(3|5|7|8|9)[0-9]{8}$/,          // Vietnam
-
-  // --- Americas ---
-  ARG: /^(9\d{2})?\d{7}$/,               // Argentina
-  BRA: /^[1-9]{2}9?\d{8}$/,              // Brazil
-  CAN: /^\d{10}$/,                       // Canada
-  CHL: /^9\d{8}$/,                       // Chile
-  COL: /^3\d{9}$/,                       // Colombia
-  CRI: /^[2-8]\d{7}$/,                   // Costa Rica
-  CUB: /^5\d{7}$/,                       // Cuba
-  DOM: /^\d{10}$/,                       // Dominican Republic
-  ECU: /^9\d{8}$/,                       // Ecuador
-  GTM: /^[1-9]\d{7}$/,                   // Guatemala
-  JAM: /^\d{10}$/,                       // Jamaica
-  MEX: /^[1-9]\d{9}$/,                   // Mexico
-  PAN: /^[68]\d{7}$/,                    // Panama
-  PER: /^9\d{8}$/,                       // Peru
-  PRI: /^\d{10}$/,                       // Puerto Rico
-  URY: /^9\d{7}$/,                       // Uruguay
-  VEN: /^[42]\d{9}$/,                    // Venezuela
-  USA: /^\d{10}$/,                       // United States
-
-  // --- Europe ---
-  AUT: /^6\d{4,12}$/,                    // Austria
-  BEL: /^4\d{8}$/,                       // Belgium
-  BGR: /^8[7-9]\d{7}$/,                  // Bulgaria
-  HRV: /^9\d{7,8}$/,                     // Croatia
-  CYP: /^9\d{7}$/,                       // Cyprus
-  CZE: /^[1-9]\d{8}$/,                   // Czech Republic
-  DNK: /^[1-9]\d{7}$/,                   // Denmark
-  EST: /^[58]\d{6,7}$/,                  // Estonia
-  FIN: /^4\d{5,10}$/,                    // Finland
-  FRA: /^[67]\d{8}$/,                    // France
-  DEU: /^1[5-7]\d{8,9}$/,                // Germany
-  GRC: /^69\d{8}$/,                      // Greece
-  HUN: /^(20|30|31|70)\d{7}$/,           // Hungary
-  ISL: /^[1-9]\d{6}$/,                   // Iceland
-  IRL: /^8[3-9]\d{7}$/,                  // Ireland
-  ITA: /^3\d{8,9}$/,                     // Italy
-  LVA: /^2\d{7}$/,                       // Latvia
-  LIE: /^[1-9]\d{6}$/,                   // Liechtenstein
-  LTU: /^6\d{7}$/,                       // Lithuania
-  LUX: /^6[269]1\d{6}$/,                 // Luxembourg
-  MLT: /^[79]\d{7}$/,                    // Malta
-  NLD: /^6\d{8}$/,                       // Netherlands
-  NOR: /^[49]\d{7}$/,                    // Norway
-  POL: /^[1-9]\d{8}$/,                   // Poland
-  PRT: /^9[1236]\d{7}$/,                 // Portugal
-  ROU: /^7\d{8}$/,                       // Romania
-  RUS: /^9\d{9}$/,                       // Russia
-  SVK: /^9\d{8}$/,                       // Slovakia
-  SVN: /^[3-7]\d{7}$/,                   // Slovenia
-  ESP: /^[67]\d{8}$/,                    // Spain
-  SWE: /^7\d{8}$/,                       // Sweden
-  CHE: /^7[4-9]\d{7}$/,                  // Switzerland
-  TUR: /^5\d{9}$/,                       // Turkey
-  UKR: /^\d{9}$/,                        // Ukraine
-  GBR: /^7\d{9}$/,                       // United Kingdom
-
-  // --- Middle East & Africa ---
-  ARE: /^5[02456]\d{7}$/,                // UAE
-  EGY: /^1[0125]\d{8}$/,                 // Egypt
-  KEN: /^[71]\d{8}$/,                    // Kenya
-  NGA: /^[789][01]\d{8}$/,               // Nigeria
-  SAU: /^5\d{8}$/,                       // Saudi Arabia
-  ZAF: /^[1-9]\d{8}$/,                   // South Africa
-
-  // Fallback for others
-  XXX: /^\d{4,15}$/
-};
-
 import { mapGetters } from 'vuex/dist/vuex.common.js';
-import LogoUploader from "../element/LogoUploader.vue";
+import LogoUploader from '../element/LogoUploader.vue';
+
+const CONSUMER_EMAIL_DOMAINS = new Set([
+  'gmail.com', 'googlemail.com', 'yahoo.com', 'yahoo.co.in', 'hotmail.com', 'outlook.com',
+  'live.com', 'icloud.com', 'me.com', 'aol.com', 'proton.me', 'protonmail.com', 'mail.com',
+]);
+const CALLING_CODES = {
+  AUS: '+61', BGD: '+880', BRA: '+55', CAN: '+1', CHN: '+86', DEU: '+49', EGY: '+20',
+  ESP: '+34', FRA: '+33', GBR: '+44', HKG: '+852', IDN: '+62', IND: '+91', IRL: '+353',
+  ITA: '+39', JPN: '+81', KEN: '+254', KOR: '+82', MEX: '+52', MYS: '+60', NGA: '+234',
+  NLD: '+31', NZL: '+64', PAK: '+92', PHL: '+63', SGP: '+65', THA: '+66', TUR: '+90',
+  USA: '+1', ARE: '+971', ZAF: '+27',
+};
+const COUNTRY_OPTIONS = {
+  AFG: 'Afghanistan', DZA: 'Algeria', AGO: 'Angola', ARG: 'Argentina', ARM: 'Armenia', AUS: 'Australia',
+  AUT: 'Austria', AZE: 'Azerbaijan', BHR: 'Bahrain', BGD: 'Bangladesh', BEL: 'Belgium', BWA: 'Botswana',
+  BRA: 'Brazil', BRN: 'Brunei', BGR: 'Bulgaria', KHM: 'Cambodia', CMR: 'Cameroon', CAN: 'Canada',
+  CHL: 'Chile', CHN: 'China', COL: 'Colombia', CRI: 'Costa Rica', HRV: 'Croatia', CUB: 'Cuba',
+  CYP: 'Cyprus', CZE: 'Czech Republic', DNK: 'Denmark', DOM: 'Dominican Republic', ECU: 'Ecuador',
+  EGY: 'Egypt', EST: 'Estonia', ETH: 'Ethiopia', FIN: 'Finland', FRA: 'France', GEO: 'Georgia',
+  DEU: 'Germany', GHA: 'Ghana', GRC: 'Greece', GTM: 'Guatemala', HKG: 'Hong Kong', HUN: 'Hungary',
+  ISL: 'Iceland', IND: 'India', IDN: 'Indonesia', IRN: 'Iran', IRQ: 'Iraq', IRL: 'Ireland',
+  ISR: 'Israel', ITA: 'Italy', JAM: 'Jamaica', JPN: 'Japan', JOR: 'Jordan', KEN: 'Kenya',
+  KWT: 'Kuwait', LAO: 'Laos', LVA: 'Latvia', LBN: 'Lebanon', LIE: 'Liechtenstein', LTU: 'Lithuania',
+  LUX: 'Luxembourg', MYS: 'Malaysia', MLT: 'Malta', MUS: 'Mauritius', MEX: 'Mexico', MNG: 'Mongolia',
+  MAR: 'Morocco', MMR: 'Myanmar', NAM: 'Namibia', NPL: 'Nepal', NLD: 'Netherlands', NZL: 'New Zealand',
+  NGA: 'Nigeria', NOR: 'Norway', OMN: 'Oman', PAK: 'Pakistan', PAN: 'Panama', PER: 'Peru',
+  PHL: 'Philippines', POL: 'Poland', PRT: 'Portugal', QAT: 'Qatar', ROU: 'Romania', RWA: 'Rwanda',
+  SAU: 'Saudi Arabia', SEN: 'Senegal', SGP: 'Singapore', SVK: 'Slovakia', SVN: 'Slovenia',
+  ZAF: 'South Africa', KOR: 'South Korea', ESP: 'Spain', LKA: 'Sri Lanka', SWE: 'Sweden',
+  CHE: 'Switzerland', TWN: 'Taiwan', TZA: 'Tanzania', THA: 'Thailand', TUN: 'Tunisia', TUR: 'Turkey',
+  UGA: 'Uganda', UKR: 'Ukraine', ARE: 'United Arab Emirates', GBR: 'United Kingdom', USA: 'United States',
+  URY: 'Uruguay', UZB: 'Uzbekistan', VEN: 'Venezuela', VNM: 'Vietnam', ZMB: 'Zambia', ZWE: 'Zimbabwe',
+  XXX: 'Other',
+};
+
 export default {
-  name: "StepCompanyDetails",
-  props: ["company"],
+  name: 'StepCompanyDetails',
+  components: { LogoUploader },
+  props: { company: { type: Object, required: true } },
   data() {
     return {
-      step: 1,
-      subStep: 1,
-      BUSINESS_TYPE: {
-        BUSINESS: "Business",
-        COMMUNITY: "Community",
-      },
-      BUSINESS_INTERESTED_IN: {
-        KYC: "Know Your Customer (KYC)",
-        KYB: "Know Your Business (KYB)",
-        AADHAR_VERIFICATION: "Aadhaar Verification",
-        AGE_VERIFICATION: "Age Verification",
-        PROOF_OF_PERSONHOOD: "Proof of Personhood",
-        AML_SCREEN: "AML Screening",
-        PROOF_OF_ADDRESS: "Proof Of Address",
-        COLLECT_WALLET: "Collect Wallet Address",
-        FRAUD_PREVENTION: "Fraud Prevention",
-      },
-      BUSINESS_EST_YEARLY_VOLUME: {
-        ZERO_ONEK: "0 - 1,000",
-        ONEKONE_TWENTYK: "1,001 - 20,000",
-        TWENTYKONE_FIFTYK: "20,000 - 50,000",
-        PLUS_FIFTYK: "+50,000",
-      },
-      BUSINESS_FIELDS: {
-        FINTECH: "Fintech",
-        CRYPTO: "Crypto",
-        GAMBLING: "Gambling",
-        MARKETPLACES: "Marketplaces",
-        ONLINE_TRAVEL: "Online Travel",
-        TELCO: "Telco",
-        E_COMM: "E-commerce",
-        BANKING: "Banking",
-        INSURANCE: "Insurance",
-        HEALTHCARE: "Healthcare",
-        GOVERNMENT: "Government / Public Sector",
-        EDUCATION: "Education / EdTech",
-        REAL_ESTATE: "Real Estate",
-        TRANSPORT: "Transport / Mobility",
-        SOCIAL_MEDIA: "Social Media / Community Platforms",
-        ENTERTAINMENT: "Entertainment / Streaming",
-        GAMING: "Gaming / Esports",
-        LEGAL: "Legal / Compliance Services",
-        SUPPLY_CHAIN: "Supply Chain / Logistics",
-        NFT_WEB3: "NFT / Web3 Projects",
-        OTHER: "Other"
-      },
-      COUNTRY_OPTIONS: {
-      // --- Asia & Oceania ---
-      AFG: "Afghanistan", AUS: "Australia", BGD: "Bangladesh", BRN: "Brunei", 
-      KHM: "Cambodia", CHN: "China", HKG: "Hong Kong", IND: "India", 
-      IDN: "Indonesia", JPN: "Japan", LAO: "Laos", MYS: "Malaysia", 
-      MNG: "Mongolia", MMR: "Myanmar", NPL: "Nepal", NZL: "New Zealand", 
-      PAK: "Pakistan", PHL: "Philippines", SGP: "Singapore", KOR: "South Korea", 
-      LKA: "Sri Lanka", TWN: "Taiwan", THA: "Thailand", TLS: "Timor-Leste", 
-      VNM: "Vietnam",
-
-      // --- Americas ---
-      ARG: "Argentina", BRA: "Brazil", CAN: "Canada", CHL: "Chile", 
-      COL: "Colombia", CRI: "Costa Rica", CUB: "Cuba", DOM: "Dominican Republic", 
-      ECU: "Ecuador", GTM: "Guatemala", JAM: "Jamaica", MEX: "Mexico", 
-      PAN: "Panama", PER: "Peru", PRI: "Puerto Rico", URY: "Uruguay", 
-      VEN: "Venezuela", USA: "United States",
-
-      // --- Europe ---
-      AUT: "Austria", BEL: "Belgium", BGR: "Bulgaria", HRV: "Croatia", 
-      CYP: "Cyprus", CZE: "Czech Republic", DNK: "Denmark", EST: "Estonia", 
-      FIN: "Finland", FRA: "France", DEU: "Germany", GRC: "Greece", 
-      HUN: "Hungary", ISL: "Iceland", IRL: "Ireland", ITA: "Italy", 
-      LVA: "Latvia", LIE: "Liechtenstein", LTU: "Lithuania", LUX: "Luxembourg", 
-      MLT: "Malta", NLD: "Netherlands", NOR: "Norway", POL: "Poland", 
-      PRT: "Portugal", ROU: "Romania", RUS: "Russia", SVK: "Slovakia", 
-      SVN: "Slovenia", ESP: "Spain", SWE: "Sweden", CHE: "Switzerland", 
-      TUR: "Turkey", UKR: "Ukraine", GBR: "United Kingdom",
-
-      // --- Middle East & Central Asia ---
-      ARM: "Armenia", AZE: "Azerbaijan", BHR: "Bahrain", GEO: "Georgia", 
-      IRN: "Iran", IRQ: "Iraq", ISR: "Israel", JOR: "Jordan", 
-      KWT: "Kuwait", LBN: "Lebanon", OMN: "Oman", QAT: "Qatar", 
-      SAU: "Saudi Arabia", SYR: "Syria", ARE: "United Arab Emirates", 
-      UZB: "Uzbekistan", YEM: "Yemen",
-
-      // --- Africa ---
-      DZA: "Algeria", AGO: "Angola", BWA: "Botswana", CMR: "Cameroon", 
-      EGY: "Egypt", ETH: "Ethiopia", GHA: "Ghana", KEN: "Kenya", 
-      MAR: "Morocco", MUS: "Mauritius", NAM: "Namibia", NGA: "Nigeria", 
-      RWA: "Rwanda", SEN: "Senegal", ZAF: "South Africa", TZA: "Tanzania", 
-      TUN: "Tunisia", UGA: "Uganda", ZMB: "Zambia", ZWE: "Zimbabwe",
-
-      // --- Fallback ---
-      XXX: "Other"
-      },
-      localCompany: {
-        ...this.company,
-        service_types: this.company.service_types || [],
-      },
-      selectedBusinessType: null,
+      localCompany: { ...this.company, type: this.company.type || 'BUSINESS' },
+      errors: {},
+      additionalDetailsOpen: false,
+      isDetectingCountry: false,
+      domainWasAutofilled: false,
     };
-  },
-  components: {
-    LogoUploader,
   },
   computed: {
     ...mapGetters('mainStore', ['getUserDetails']),
-    phoneRules() {
-      return [
-        // Rule 1: Check if field is empty
-        v => !!v || 'Phone number is required',
-        
-        // Rule 2: Validate against the selected country's regex
-        v => {
-          // If no country is selected yet, we don't show a regex error
-          if (!this.localCompany.country) return true;
-
-          const pattern = PhoneRegexMap[this.localCompany.country] || PhoneRegexMap.XXX;
-          
-          // Test the input against the pattern
-          return pattern.test(v) || `Invalid format for ${this.COUNTRY_OPTIONS[this.localCompany.country]}`;
-        }
-      ];
-    },
-    selectedCallingCode() {
-    return CallingCodeMap[this.localCompany.country] || "";
-    },
-    interestOptions() {
-      return Object.values(this.BUSINESS_INTERESTED_IN);
-    },
-    volumeOptions() {
-      return Object.values(this.BUSINESS_EST_YEARLY_VOLUME);
-    },
-    fieldOptions() {
-      return Object.values(this.BUSINESS_FIELDS);
-    },
+    selectedCallingCode() { return CALLING_CODES[this.localCompany.country] || ''; },
     countryOptions() {
-      return Object.entries(this.COUNTRY_OPTIONS).map(([value, text]) => ({ value, text }));
+      return Object.entries(COUNTRY_OPTIONS)
+        .map(([value, text]) => ({ value, text }))
+        .sort((left, right) => left.text.localeCompare(right.text));
     },
+    emailDomain() {
+      const parts = (this.localCompany.contact_email || '').trim().toLowerCase().split('@');
+      return parts.length === 2 ? parts[1] : '';
+    },
+    isGmailAddress() { return ['gmail.com', 'googlemail.com'].includes(this.emailDomain); },
+    hasErrors() { return Object.keys(this.errors).length > 0; },
   },
-
+  watch: {
+    'localCompany.contact_email'() { this.syncDomainFromEmail(); },
+  },
   mounted() {
-    if (this.getUserDetails) {
-      this.localCompany.contact_email = this.getUserDetails.email;
-    }
+    const loginEmail = this.getUserDetails?.accessAccount?.email
+      || this.getUserDetails?.email
+      || this.getUserDetails?.emailId
+      || '';
+    if (!this.localCompany.contact_email && loginEmail) this.localCompany.contact_email = loginEmail;
+    this.syncDomainFromEmail();
+    this.detectCountry();
   },
-
   methods: {
-    handleBack() {
-      if (this.step === 3) {
-        if (this.subStep > 1) {
-          this.subStep--;
-        } else {
-          this.goBackToStep2();
-        }
-      } else if (this.step === 2) {
-        this.step = 1
-
+    syncDomainFromEmail() {
+      if (!this.emailDomain || !this.emailDomain.includes('.')) return;
+      if (CONSUMER_EMAIL_DOMAINS.has(this.emailDomain)) {
+        if (this.domainWasAutofilled) this.localCompany.domain = '';
+        this.domainWasAutofilled = false;
+        return;
+      }
+      if (!this.localCompany.domain || this.domainWasAutofilled) {
+        this.localCompany.domain = this.emailDomain;
+        this.domainWasAutofilled = true;
       }
     },
-    selectBusinessType(type) {
-      this.localCompany.type = type;
-      this.selectedBusinessType = type;
-      this.step = 2;
-    },
-
-    goToStep3() {
-      if (this.validateStep2()) {
-        this.step = 3;
-        this.subStep = 1;
+    async detectCountry() {
+      if (this.localCompany.country) return;
+      this.isDetectingCountry = true;
+      const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
+      const timeout = controller ? setTimeout(() => controller.abort(), 4000) : null;
+      try {
+        const response = await fetch('https://ipapi.co/json/', controller ? { signal: controller.signal } : undefined);
+        if (!response.ok) return;
+        const location = await response.json();
+        const match = Object.entries(COUNTRY_OPTIONS).find(([, name]) => name === location.country_name);
+        if (match && !this.localCompany.country) this.localCompany.country = match[0];
+      } catch (error) {
+        // Country detection is best-effort; the field remains editable.
+      } finally {
+        if (timeout) clearTimeout(timeout);
+        this.isDetectingCountry = false;
       }
     },
-
-    goBackToStep1() {
-      this.step = 1;
-    },
-
-    finishStep3() {
-      if (this.validateStep3()) {
-        this.$emit("update:company", this.localCompany);
-        this.$emit("next-step");
+    submitStep() {
+      const company = this.localCompany;
+      const errors = {};
+      if (!company.name?.trim()) errors.name = 'Enter your organization name.';
+      if (!company.country) errors.country = 'Select a country or region.';
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(company.contact_email || '')) errors.email = 'Enter a valid work email address.';
+      if (company.phone_no && !/^\+?[\d\s()-]{7,20}$/.test(company.phone_no.trim())) errors.phone = 'Enter a valid contact phone number.';
+      if (company.twitterUrl && !/^https?:\/\/(www\.)?(twitter\.com|x\.com)\/[A-Za-z0-9_]+\/?$/.test(company.twitterUrl.trim())) errors.twitter = 'Enter a valid Twitter/X profile URL.';
+      if (company.telegramUrl && !/^https?:\/\/(t\.me|telegram\.me)\/[A-Za-z0-9_]+\/?$/.test(company.telegramUrl.trim())) errors.telegram = 'Enter a valid Telegram profile URL.';
+      if (company.linkedinUrl && !/^https?:\/\/(www\.)?linkedin\.com\/(in|company)\/[A-Za-z0-9_-]+\/?$/.test(company.linkedinUrl.trim())) errors.linkedin = 'Enter a valid LinkedIn profile URL.';
+      this.errors = errors;
+      if (Object.keys(errors).length) {
+        if (errors.phone || errors.twitter || errors.telegram || errors.linkedin) this.additionalDetailsOpen = true;
+        return;
       }
-    },
-
-    getBusinessIcon(key) {
-      const icons = {
-        BUSINESS: 'mdi-domain',
-        INDIVIDUAL: 'mdi-account-outline',
-        COMMUNITY: 'mdi-account-group-outline'
-      };
-      return icons[key] || 'mdi-help-circle-outline';
-    },
-    handleNext() {
-      if (this.step === 3) {
-        // validate the current subStep before moving forward / finishing
-        if (!this.validateStep3()) return;
-        if (this.subStep < 3) {
-          this.subStep++;
-        } else {
-          // last subStep -> finish
-          this.finishStep3();
-        }
-      } else if (this.step === 2) {
-        // when on step 2, validate step2 before opening step3
-        if (this.validateStep2()) {
-          this.step = 3;
-          this.subStep = 1;
-        }
-      }
-    },
-
-    // ✅ Step 2 validation
-    validateStep2() {
-      const c = this.localCompany;
-
-      if (!c.name?.trim()) return this.showToast("Please enter a company/community name");
-      if (!c.logo?.trim()) return this.showToast("Please upload logo.");
-
-      if (c.type == this.BUSINESS_TYPE.BUSINESS && !c.country) return this.showToast("Please select a country");
-      if (c.type == this.BUSINESS_TYPE.BUSINESS && !c.registration_number) return this.showToast("Please enter your company registration number");
-
-      const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-      if (!emailRegex.test(c.contact_email)) return this.showToast("Invalid email address");
-
-      if (c.type == this.BUSINESS_TYPE.BUSINESS && !this.validatePhoneNumber()) return false;
-
-      // Optional link checks
-      if (c.twitterUrl && !/^https?:\/\/(twitter\.com|x\.com)\/[A-Za-z0-9_]+\/?$/.test(c.twitterUrl.trim()))
-        return this.showToast("Invalid Twitter/X profile URL");
-
-      if (c.telegramUrl && !/^https?:\/\/(t\.me|telegram\.me)\/[A-Za-z0-9_]+\/?$/.test(c.telegramUrl.trim()))
-        return this.showToast("Invalid Telegram profile URL");
-
-      if (c.linkedinUrl && !/^https?:\/\/(www\.)?linkedin\.com\/(in|company)\/[A-Za-z0-9_-]+\/?$/.test(c.linkedinUrl.trim()))
-        return this.showToast("Invalid LinkedIn profile URL");
-
-      return true;
-    },
-
-    // ✅ Step 3 validation (based on substeps)
-    validateStep3() {
-      const c = this.localCompany;
-      if (this.subStep === 1) {
-        if (!Array.isArray(c.interests) || c.interests.length === 0) {
-          return this.showToast("Please select at least one service of interest");
-        }
-      } else if (this.subStep === 2) {
-        if (!c.yearly_volume) return this.showToast("Please select estimated yearly volume");
-      } else if (this.subStep === 3) {
-        if (!Array.isArray(c.fields) || c.fields.length === 0) {
-          return this.showToast("Please select at least one industry field");
-        }
-      }
-      return true;
-    },
-
-    validatePhoneNumber() {
-      const c = this.localCompany;
-      if (!c.phone_no) return this.showToast("Please enter a phone number");
-      const phone = c.phone_no.trim();
-      const rule = PhoneRegexMap[c.country];
-      if (rule && !rule.test(phone))
-        return this.showToast(`Invalid phone number format for ${c.country}`);
-      const fallback = /^\+?\d{8,15}$/;
-      if (!rule && !fallback.test(phone))
-        return this.showToast("Please enter a valid international number (e.g., +919876543210)");
-      return true;
-    },
-
-
-    goBackToStep2() {
-      this.step = 2;
-      this.subStep = 1;
-    },
-
-
-    showToast(msg) {
-      this.$bvToast.toast(msg, {
-        title: "Validation Error",
-        variant: "danger",
-        solid: true,
-      });
-      return false;
+      this.$emit('update:company', { ...company });
+      this.$emit('next-step');
     },
   },
 };
 </script>
 
+<style scoped>
+.form-card { padding: 24px; border: 1px solid #e5e7eb; border-radius: 7px; background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,.03); }
+.card-heading h2 { margin: 0; color: #17213d; font-size: 18px; font-weight: 700; }
+.field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 22px 16px; }
+.primary-fields { margin-top: 26px; }
+.field-group { display: flex; min-width: 0; flex-direction: column; }
+label { margin-bottom: 7px; color: #253454; font-size: 12px; font-weight: 700; }
+em, .field-error, .form-error-summary { color: #e43d4f; font-style: normal; }
+.field-group input, .field-group select, .phone-control { width: 100%; height: 40px; padding: 0 11px; border: 1px solid #d5dde7; border-radius: 5px; background: #fff; color: #1e293b; font-size: 13px; outline: none; }
+.field-group input:focus, .field-group select:focus, .phone-control:focus-within { border-color: #6c757d; box-shadow: 0 0 0 2px rgba(108,117,125,.14); }
+.select-control { position: relative; }
+.select-control select { padding-right: 40px; appearance: none; cursor: pointer; }
+.select-control > i { position: absolute; top: 50%; right: 12px; color: #64748b; font-size: 18px; pointer-events: none; transform: translateY(-50%); }
+.field-group small { margin-top: 6px; color: #7182a0; font-size: 11px; }
+.field-error { margin-top: 5px; font-size: 11px; }
+.input-with-icon { position: relative; }
+.input-with-icon i { position: absolute; top: 11px; left: 11px; color: #64748b; font-size: 16px; }
+.input-with-icon input { padding-left: 35px; }
+.personal-email-note { display: flex; gap: 8px; margin-top: 9px; padding: 9px 10px; border-radius: 5px; background: #f3f4f5; color: #626b73; font-size: 10px; line-height: 1.45; }
+.personal-email-note i { flex: 0 0 auto; font-size: 15px; }
+.additional-details { margin-top: 26px; border: 1px solid #e5e7eb; border-radius: 6px; overflow: hidden; }
+.section-toggle { display: flex; width: 100%; height: 44px; align-items: center; justify-content: space-between; padding: 0 14px; border: 0; background: #f8fafc; color: #1e293b; font-size: 13px; font-weight: 700; }
+.toggle-title { display: flex; align-items: center; gap: 8px; }
+.toggle-title small { color: #737b82; font-size: 10px; font-weight: 600; }
+.toggle-title > i, .toggle-chevron { transition: transform .2s ease; }
+.additional-details.is-open .toggle-title > i, .additional-details:not(.is-open) .toggle-chevron { transform: rotate(180deg); }
+.toggle-chevron { color: #64748b; }
+.additional-content { padding: 18px 14px; border-top: 1px solid #e2e8f0; }
+.optional-row + .optional-row { margin-top: 20px; }
+.row-label { display: flex; align-items: center; gap: 8px; margin-bottom: 9px; color: #253454; font-size: 12px; font-weight: 700; }
+.row-label > i { display: inline-flex; width: 24px; height: 24px; align-items: center; justify-content: center; border-radius: 50%; background: #eceeef; color: #6c757d; }
+.optional-indent { margin-left: 32px; }
+.phone-field { width: calc(50% - 8px); }
+.phone-control { display: flex; align-items: center; gap: 7px; }
+.phone-control span { color: #5d6b7e; font-size: 13px; }
+.phone-control input { height: 34px; padding: 0; border: 0; box-shadow: none !important; }
+.logo-upload-area { display: block; }
+.social-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.social-grid label { display: flex; min-height: 18px; align-items: center; gap: 6px; margin-bottom: 7px; color: #50688e; font-size: 10px; line-height: 18px; }
+.social-grid label i { display: inline-flex; width: 16px; height: 18px; flex: 0 0 16px; align-items: center; justify-content: center; font-size: 15px; line-height: 18px; }
+.social-grid input { font-size: 11px; }
+.form-error-summary { margin-top: 16px; font-size: 11px; }
+.form-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 24px; padding-top: 18px; border-top: 1px solid #e2e8f0; }
+.form-footer > span { color: #7889a3; font-size: 10px; }
+.primary-button { min-width: 105px; height: 38px; padding: 0 16px; border: 1px solid #6c757d; border-radius: 5px; background: #6c757d; color: #fff; font-size: 12px; font-weight: 700; }
+.primary-button:hover { border-color: #545b62; background: #5a6268; }
+@media (max-width: 650px) {
+  .form-card { padding: 18px; }
+  .field-grid, .social-grid { grid-template-columns: 1fr; }
+  .phone-field { width: auto; }
+  .optional-indent { margin-left: 0; }
+}
+</style>

@@ -72,6 +72,11 @@ const config = {
         buttonBgColor: process.env.VUE_APP_BTN_BACKGROUND || "#f1b319",
         buttonTextColor: process.env.VUE_APP_BTN_TXT_COLOR || "black",
         url: sanitizeUrl(process.env.VUE_APP_URL || "https://entity.dashboard.hypersign.id", false),
+        supportEmails: (process.env.VUE_APP_SUPPORT_EMAILS || 'vikram@hypermine.in,irfan@hypermine.in')
+            .split(',')
+            .map(email => email.trim())
+            .filter(Boolean)
+            .join(','),
     },
     apiServer: {
         host: sanitizeUrl(process.env.VUE_APP_STUDIO_SERVER_BASE_URL || 'http://localhost:3001', false),

@@ -10,9 +10,26 @@
       @change="handleUpload"
     />
 
+    <div v-if="variant === 'dropzone'" class="logo-upload-dropzone" role="button" tabindex="0" @click="triggerUpload" @keydown.enter.prevent="triggerUpload" @keydown.space.prevent="triggerUpload">
+      <div class="dropzone-copy">
+        <span class="dropzone-icon">
+          <img v-if="value" :src="value" alt="Selected organization logo" />
+          <i v-else class="mdi mdi-image-outline" aria-hidden="true"></i>
+        </span>
+        <span>
+          <strong>{{ value ? 'Organization logo selected' : 'Upload your organization logo' }}</strong>
+          <small>PNG, JPG or SVG · Max 5MB</small>
+        </span>
+      </div>
+      <button type="button" class="choose-file-button" @click.stop="triggerUpload">
+        <i class="mdi mdi-cloud-upload-outline" aria-hidden="true"></i>
+        {{ value ? 'Change file' : 'Choose file' }}
+      </button>
+    </div>
+
     <!-- If logo exists -->
     <div
-        v-if="value"
+        v-else-if="value"
         class="logo-preview-circle hover-overlay"
         :class="{ 'no-pointer': !allowReupload }"
         @click="triggerUpload"
@@ -46,6 +63,10 @@ export default {
     allowReupload: {
         type: Boolean,
         default: true
+    },
+    variant: {
+      type: String,
+      default: "circle"
     }
   },
 
@@ -59,8 +80,9 @@ export default {
       const file = event.target.files[0];
       if (!file) return;
 
-      if (file.size > 2 * 1024 * 1024) {
-        this.$bvToast?.toast("File too large. Please upload below 2MB.", {
+      const maxSizeMb = this.variant === "dropzone" ? 5 : 2;
+      if (file.size > maxSizeMb * 1024 * 1024) {
+        this.$bvToast?.toast(`File too large. Please upload below ${maxSizeMb}MB.`, {
           title: "Error",
           variant: "danger",
           solid: true
@@ -121,8 +143,87 @@ export default {
 }
 .logo-upload-wrapper {
   display: flex;
+  width: 100%;
   align-items: center;
 }
+
+.logo-upload-dropzone {
+  display: flex;
+  width: 100%;
+  min-height: 62px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 10px 12px;
+  border: 1px dashed #cbd5e1;
+  border-radius: 6px;
+  background: #ffffff;
+  cursor: pointer;
+  outline: none;
+}
+
+.logo-upload-dropzone:focus,
+.logo-upload-dropzone:hover {
+  border-color: #94a3b8;
+  background: #f3f4f5;
+}
+
+.dropzone-copy {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 11px;
+}
+
+.dropzone-copy > span:last-child,
+.dropzone-copy strong,
+.dropzone-copy small {
+  display: block;
+}
+
+.dropzone-copy strong {
+  color: #385278;
+  font-size: 11px;
+}
+
+.dropzone-copy small {
+  margin-top: 3px;
+  color: #8290a5;
+  font-size: 9px;
+}
+
+.dropzone-icon {
+  display: inline-flex;
+  width: 34px;
+  height: 34px;
+  flex: 0 0 34px;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: 5px;
+  background: #eceeef;
+  color: #6c757d;
+}
+
+.dropzone-icon i { font-size: 18px; }
+.dropzone-icon img { width: 100%; height: 100%; object-fit: cover; }
+
+.choose-file-button {
+  display: inline-flex;
+  min-height: 34px;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 6px;
+  padding: 0 12px;
+  border: 1px solid #6c757d;
+  border-radius: 5px;
+  background: #fff;
+  color: #6c757d;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.choose-file-button:hover { background: #6c757d; color: #fff; }
 
 .logo-upload-circle,
 .logo-preview-circle {
@@ -177,5 +278,10 @@ export default {
 
 .hover-overlay:hover .hover-text {
   opacity: 1;
+}
+
+@media (max-width: 480px) {
+  .logo-upload-dropzone { align-items: stretch; flex-direction: column; }
+  .choose-file-button { justify-content: center; }
 }
 </style>

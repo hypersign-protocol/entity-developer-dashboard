@@ -153,6 +153,7 @@ jobs:
         VUE_APP_NODE_SERVER_BASE_URL_REST: ${{ vars.VUE_APP_NODE_SERVER_BASE_URL_REST }}
         VUE_APP_EXPLORER_BASE_URL: ${{ vars.VUE_APP_EXPLORER_BASE_URL }}
         VUE_APP_WEB_WALLET_ADDRESS: ${{ vars.VUE_APP_WEB_WALLET_ADDRESS }}
+        VUE_APP_SUPPORT_EMAILS: ${{ vars.VUE_APP_SUPPORT_EMAILS }}
       run: find Dockerfile -type f -exec sed  -i -e "s#__NODE_ENV__#${{ vars.NODE_ENV }}#" {} \;
 
 
@@ -188,6 +189,8 @@ jobs:
         find Dockerfile -type f -exec sed  -i -e "s#__VUE_APP_WEB_WALLET_ADDRESS__#${{ vars.VUE_APP_WEB_WALLET_ADDRESS }}#" {} \;
 
         find Dockerfile -type f -exec sed  -i -e "s#__VUE_APP_ORIGINS__#${{ vars.VUE_APP_ORIGINS }}#" {} \;
+
+        find Dockerfile -type f -exec sed  -i -e "s#__VUE_APP_SUPPORT_EMAILS__#${{ vars.VUE_APP_SUPPORT_EMAILS }}#" {} \;
 
 
 
