@@ -144,8 +144,19 @@ export default {
       if (this.summaryState === 'is-complete') return 'Your verification workspace is ready.';
       return 'Your verification workspace is being prepared. Progress will update automatically.';
     },
+    hasKybInterest() {
+      const serviceTypes = (this.company.service_types || []).map(type => String(type).toUpperCase());
+      const interests = [
+        ...(this.company.interestedService || []),
+        ...(this.company.interests || []),
+      ].map(interest => String(interest).trim().toUpperCase());
+      return serviceTypes.includes('KYB') || interests.includes('KNOW YOUR BUSINESS (KYB)');
+    },
+    visibleOnboardingSteps() {
+      return this.onboardingSteps.filter(step => step.serviceType !== 'KYB' || this.hasKybInterest);
+    },
     timeline() {
-      const stepMap = new Map(this.onboardingSteps.map(step => [step.key, step]));
+      const stepMap = new Map(this.visibleOnboardingSteps.map(step => [step.key, step]));
       const normalizedLogs = (this.company.logs || [])
         .map((log, responseIndex) => ({
           ...log,
@@ -171,7 +182,7 @@ export default {
         return map;
       }, new Map());
       const isApproved = this.normalizedStatus === 'APPROVED';
-      return this.onboardingSteps.reduce((items, step) => {
+      return this.visibleOnboardingSteps.reduce((items, step) => {
         const log = latestLogByStep.get(step.key);
         if (!log) {
           if (!isApproved) {
@@ -201,12 +212,12 @@ export default {
         { key: 'CREDIT_SSI_SERVICE', title: 'SSI credit allocation', description: 'Allocate the approved SSI service credits.' },
         { key: 'CREATE_DID', title: 'Business identity creation', description: 'Create the organization’s decentralized identity.' },
         { key: 'REGISTER_DID', title: 'Blockchain registration', description: 'Register the business identity on the blockchain.' },
-        { key: 'CREATE_KYC_SERVICE', title: 'ID service creation', description: 'Create the requested identity-verification service.' },
-        { key: 'CREDIT_KYC_SERVICE', title: 'ID service credit allocation', description: 'Allocate the approved identity-service credits.' },
-        { key: 'SETUP_KYC_WIDGET', title: 'KYC widget setup', description: 'Prepare the default verification widget.' },
-        { key: 'SETUP_KYB_WIDGET', title: 'KYB widget setup', description: 'Prepare the default business-verification widget.' },
-        { key: 'CONFIGURE_KYC_VERIFIER_PAGE', title: 'KYC verifier page configuration', description: 'Configure the default identity-verification experience.' },
-        { key: 'CONFIGURE_KYB_VERIFIER_PAGE', title: 'KYB verifier page configuration', description: 'Configure the default business-verification experience.' },
+        { key: 'CREATE_KYC_SERVICE', title: 'ID service creation', description: 'Create the requested identity-verification service.', serviceType: 'KYC' },
+        { key: 'CREDIT_KYC_SERVICE', title: 'ID service credit allocation', description: 'Allocate the approved identity-service credits.', serviceType: 'KYC' },
+        { key: 'SETUP_KYC_WIDGET', title: 'KYC widget setup', description: 'Prepare the default verification widget.', serviceType: 'KYC' },
+        { key: 'SETUP_KYB_WIDGET', title: 'KYB widget setup', description: 'Prepare the default business-verification widget.', serviceType: 'KYB' },
+        { key: 'CONFIGURE_KYC_VERIFIER_PAGE', title: 'KYC verifier page configuration', description: 'Configure the default identity-verification experience.', serviceType: 'KYC' },
+        { key: 'CONFIGURE_KYB_VERIFIER_PAGE', title: 'KYB verifier page configuration', description: 'Configure the default business-verification experience.', serviceType: 'KYB' },
         { key: 'COMPLETED', title: 'Workspace activation', description: 'Finish workspace activation and make the services available.' },
       ],
     };
