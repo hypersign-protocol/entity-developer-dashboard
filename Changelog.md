@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [3.15.4] - 2026-09-30
+
+### Added
+
+- Refactor onboarding page
+
 ## [3.15.3] - 2026-09-28
 
 ### Added
@@ -23,7 +29,7 @@
 
 - Fixed user avatar colors changing while searching.
 
-## [3.15.1] - 2026-09-18 
+## [3.15.1] - 2026-09-18
 
 ### Fixed
 
@@ -36,48 +42,71 @@
 - Improved User and Attempt Details UI.
 
 ## [3.14.7] - 2026-09-04
+
 ### Added
 
 - User now can create multiple widget configurations for a single kyc app. Each configuration can have its own set of settings, allowing for greater flexibility and customization.
 
 ## [3.14.6] - 2026-08-29
+
 ### Fixed
+
 - Fixed CI Check for Tag.
 
 ### [3.14.4] - 2026-08-27
+
 ### Modified
+
 - Updated the credit API to fetch and activate credits from the dashboard instead of for a specific tenant.
+
 ### Fixed
+
 - Fixed the exhausted credit color issue in the ID Service dashboard.
+
 ### [3.14.3] - 2026-08-25
 
 ### Added
+
 - Added jurisdictional restrictions configuration to the ID widget config, including Blocklist/Allowlist strategy selection, searchable ISO alpha-3 country selection, backend payload persistence through `jurisdictionRules`, and hard-reject defaults.
 
 ### [3.14.0] - 2026-08-07
+
 ### Added
+
 - Added a toggle for mobile-assisted verification.
 
 ### [3.13.0] - 2026-07-24
+
 ### Added
+
 - Added support for configuring the ID document capture mode through widget configuration.
 
 ### [3.12.2] - 2026-07-06
+
 ### Fixed
+
 - Fixed a bug where a section was removed from the consent screen.
 
 ### [3.12.1] - 2026-07-06
+
 ### Changed
+
 - Rearranged the order of the service list.
 
 ### [3.12.0]- 2026-07-03
+
 ### Added
+
 - Added toggle for requesting fields for selective disclosure
+
 ### Fixed
+
 - Fixed a bug where a section was removed from the consent screen.
 
 ### [3.11.1] - 2026-06-18
+
 ### Added
+
 - Show tile for zkp
 - show zkp error message
 - change the zkp label to normal user readable text
@@ -87,11 +116,13 @@
 ### [3.11.0] - 2026-06-18
 
 ### Added
+
 - Added toggel to disable widget login
 
 ### [3.10.5] - 2026-06-11
 
 ### Fixed
+
 - Fixed busines icon
 
 - Fixed some text
@@ -99,17 +130,21 @@
 ### [3.10.4] - 2026-06-10
 
 ### Fixed
-- PDF unicode font 
+
+- PDF unicode font
 
 - UBO Kyc Separation
 
 ## [3.10.3] - 2026-06-08
 
 ### Fixed
+
 - Fixed error occuring while Approving kyb verification due to wrong token getting passed
+
 ## [3.10.2] - 2026-06-04
 
 ### Fixed
+
 - Fixed error occuring while registering did using update
 - Fixed issue of undefined getting passed as appId
 - Fixed issue of token is not getting re-generated in usage page
@@ -117,27 +152,30 @@
 ## [3.10.0] - 2026-06-02
 
 ### Added
+
 - Implemetned new role for dashboard access permission
 
 ## [3.9.0] - 2026-05-29
 
 ### Added
+
 - Implemetned new design for role permission
 - Implemented tenant access list
 
 ## [3.8.0] - 2026-05-29
 
 ### Fixed
+
 - Handled permission denied issue properly
 - Rempved Quest from role
 - Fixed issue of did update. It was giving sucess even if update failed
 
 ### Added
+
 - Implemented remove authenticator
 - Implemented categorized role
 
 ## [3.7.32] - 2026-05-20
-
 
 ### Fixed
 
