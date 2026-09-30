@@ -77,7 +77,7 @@
 
     <footer class="form-footer">
       <button type="button" class="secondary-button" @click="$emit('prev-step')">← Back</button>
-      <button type="submit" class="primary-button">Submit <span aria-hidden="true">→</span></button>
+      <button type="submit" class="primary-button">Continue <span aria-hidden="true">→</span></button>
     </footer>
   </form>
 </template>
@@ -116,7 +116,7 @@ export default {
         { value: 'Deepfake Detection', label: 'Deepfake Detection' },
       ],
       volumeOptions: ['0 - 1,000', '1,000 - 5,000', '5,000 - 10,000', '+10,000'],
-      referralOptions: ['LinkedIn', 'Google', 'ChatGPT', 'Claude', 'Gemini', 'Closed network', 'Other'],
+      referralOptions: ['LinkedIn', 'Google', 'ChatGPT', 'Claude', 'Gemini', 'Other'],
       industryOptions: [
         'Fintech', 'Crypto', 'Gambling', 'Marketplaces', 'Online Travel', 'Telco',
         'E-commerce', 'Banking', 'Insurance', 'Healthcare', 'Government / Public Sector',
@@ -217,8 +217,10 @@ em, .field-error { color: #e43d4f; font-style: normal; }
 .industry-results button { display: block; width: 100%; padding: 8px; border: 0; border-radius: 4px; background: #fff; color: #344054; font-size: 12px; text-align: left; }
 .industry-results button:hover { background: #f3f4f5; }
 .industry-empty { padding: 12px; color: #7a8799; font-size: 11px; }
-.selected-industries { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
-.selected-industries button { padding: 4px 8px; border: 1px solid #cfd3d6; border-radius: 14px; background: #f3f4f5; color: #5a6268; font-size: 10px; }
+.selected-industries { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 9px; }
+.selected-industries button { display: inline-flex; align-items: center; gap: 5px; min-height: 28px; padding: 4px 10px; border: 1px solid #9da4aa; border-radius: 14px; background: #e4e7e9; color: #343a40; font-size: 11px; font-weight: 650; }
+.selected-industries button:hover { border-color: #6c757d; background: #d8dcdf; }
+.selected-industries button span { color: #5f676e; font-size: 13px; font-weight: 700; line-height: 1; }
 .form-footer { display: flex; justify-content: space-between; margin-top: 24px; padding-top: 18px; border-top: 1px solid #e1e4e7; }
 .primary-button, .secondary-button { min-width: 92px; height: 38px; padding: 0 16px; border-radius: 5px; font-size: 12px; font-weight: 700; }
 .primary-button { border: 1px solid #6c757d; background: #6c757d; color: #fff; }
