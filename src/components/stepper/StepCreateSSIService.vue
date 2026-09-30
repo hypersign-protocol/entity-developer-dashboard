@@ -14,7 +14,7 @@
         </div>
         <div class="setup-progress">
           <div class="progress-meta">
-            <span>{{ completedItems.length }} of {{ timeline.length }} tasks completed</span>
+            <span>{{ progressLabel }}</span>
             <strong>{{ progressPercentage }}%</strong>
           </div>
           <div
@@ -119,6 +119,10 @@ export default {
       if (!this.timeline.length) return 0;
       return Math.round((this.completedItems.length / this.timeline.length) * 100);
     },
+    progressLabel() {
+      if (this.normalizedStatus === 'APPROVED' && !this.timeline.length) return 'Workspace setup completed';
+      return `${this.completedItems.length} of ${this.timeline.length} tasks completed`;
+    },
     summaryState() {
       if (this.failedItems.length) return 'is-failed';
       if (this.normalizedStatus === 'APPROVED' || this.completedItems.length === this.timeline.length) return 'is-complete';
@@ -135,21 +139,23 @@ export default {
       return 'In progress';
     },
     summaryMessage() {
-      if (this.failedItems.length === 1) return 'One setup task needs attention. You can retry it below.';
-      if (this.failedItems.length > 1) return `${this.failedItems.length} setup tasks need attention. You can retry them below.`;
+      if (this.failedItems.length === 1) return 'One setup task needs attention. Refresh the status after it has been resolved.';
+      if (this.failedItems.length > 1) return `${this.failedItems.length} setup tasks need attention. Refresh the status after they have been resolved.`;
       if (this.summaryState === 'is-complete') return 'Your verification workspace is ready.';
       return 'Your verification workspace is being prepared. Progress will update automatically.';
     },
     timeline() {
       const stepMap = new Map(this.onboardingSteps.map(step => [step.key, step]));
-      const normalizedLogs = (this.company.logs || []).map((log, responseIndex) => ({
-        ...log,
-        step: typeof log.step === 'string' ? log.step.trim().toUpperCase() : '',
-        responseIndex,
-        normalizedTime: log.time?.$date || log.time || '',
-      }));
+      const normalizedLogs = (this.company.logs || [])
+        .map((log, responseIndex) => ({
+          ...log,
+          step: typeof log.step === 'string' ? log.step.trim().toUpperCase() : '',
+          responseIndex,
+          normalizedTime: log.time?.$date || log.time || '',
+        }))
+        .filter(log => stepMap.has(log.step));
       const latestLogByStep = normalizedLogs.reduce((map, log) => {
-        const stepKey = log.step || `UNKNOWN_STEP_${log.responseIndex}`;
+        const stepKey = log.step;
         const existing = map.get(stepKey);
         if (!existing) {
           map.set(stepKey, { ...log, step: stepKey });
@@ -164,37 +170,26 @@ export default {
         if (isNewer || shouldUseLaterResponse) map.set(stepKey, { ...log, step: stepKey });
         return map;
       }, new Map());
-      const orderedLogs = [...latestLogByStep.values()].sort((left, right) => {
-        const leftIndex = this.onboardingSteps.findIndex(step => step.key === left.step);
-        const rightIndex = this.onboardingSteps.findIndex(step => step.key === right.step);
-        if (leftIndex !== -1 && rightIndex !== -1) return leftIndex - rightIndex;
-        if (leftIndex !== -1) return -1;
-        if (rightIndex !== -1) return 1;
-        return left.responseIndex - right.responseIndex;
-      });
-      const loggedStepKeys = new Set(orderedLogs.map(log => log.step).filter(Boolean));
-      const loggedSteps = orderedLogs.map(log => {
-        const step = stepMap.get(log.step) || { key: log.step || 'UNKNOWN_STEP', title: log.step || 'Unknown step', description: '' };
+      const isApproved = this.normalizedStatus === 'APPROVED';
+      return this.onboardingSteps.reduce((items, step) => {
+        const log = latestLogByStep.get(step.key);
+        if (!log) {
+          if (!isApproved) {
+            items.push({ ...step, state: 'pending', statusLabel: 'Not started', time: '', failureReason: '' });
+          }
+          return items;
+        }
         const status = (log.status || 'NOT STARTED').replace(/_/g, ' ').toUpperCase();
-        const state = this.getTimelineState(status);
-        return {
+        const state = isApproved ? 'complete' : this.getTimelineState(status);
+        items.push({
           ...step,
           state,
-          statusLabel: this.getStatusLabel(status, state),
+          statusLabel: isApproved ? 'Completed' : this.getStatusLabel(status, state),
           time: log.normalizedTime,
-          failureReason: log.failureReason || '',
-        };
-      });
-      const missingSteps = this.onboardingSteps
-        .filter(step => !loggedStepKeys.has(step.key))
-        .map(step => ({
-          ...step,
-          state: 'pending',
-          statusLabel: 'Not started',
-          time: '',
-          failureReason: '',
-        }));
-      return [...loggedSteps, ...missingSteps];
+          failureReason: isApproved ? '' : log.failureReason || '',
+        });
+        return items;
+      }, []);
     },
   },
   data() {
