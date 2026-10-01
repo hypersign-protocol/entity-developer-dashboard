@@ -25,7 +25,9 @@
             v-else-if="!isLoading && currentStep === 4"
             :company="company"
             :is-refreshing="isRefreshingStatus"
+            :is-retrying="isRetryingOnboarding"
             @refresh-status="refreshOnboardingStatus"
+            @retry-onboarding="retryOnboarding"
           />
         </main>
 
@@ -112,6 +114,7 @@ export default {
       steps: [{ label: 'Organization' }, { label: 'Intended use' }],
       isProcessingCredit: false,
       isRefreshingStatus: false,
+      isRetryingOnboarding: false,
       creditErrorMessage: null,
     };
   },
@@ -154,6 +157,7 @@ export default {
     },
     populateCompanyFromOnboarding(data) {
       this.company = {
+        onboardingRecordId: data._id || data.id || '',
         name: data.companyName || '', logo: data.companyLogo || '',
         contact_email: data.customerEmail || '', domain: data.domain || '',
         type: data.type === 2 || data.type === 'COMMUNITY' ? 'COMMUNITY' : 'BUSINESS',
@@ -211,6 +215,20 @@ export default {
         console.error(error?.message || error);
       } finally {
         this.isRefreshingStatus = false;
+      }
+    },
+    async retryOnboarding() {
+      if (this.isRetryingOnboarding || !this.company.onboardingRecordId) return;
+      this.isRetryingOnboarding = true;
+      try {
+        await this.$store.dispatch('mainStore/approveOnboardingRequest', {
+          recordId: this.company.onboardingRecordId,
+        });
+        await this.refreshOnboardingStatus();
+      } catch (error) {
+        console.error(error?.message || error);
+      } finally {
+        this.isRetryingOnboarding = false;
       }
     },
     async processCreditRequest() {
