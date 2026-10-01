@@ -32,7 +32,7 @@
 
               <!-- Content Card -->
               <div class="step-content-box p-4 flex-grow-1">
-                <h5 class="step-title mb-2">{{ i + 1 }}. {{ item.title }}</h5>
+                <h5 class="step-title mb-2">{{ item.title }}</h5>
                 <p class="text-muted small mb-3 lh-lg">{{ item.description }}</p>
                 
                 <a 
