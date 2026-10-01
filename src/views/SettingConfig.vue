@@ -168,6 +168,11 @@ export default {
         this.$nextTick(() => {
           this.activeProfileSubTab = 0;
         });
+      } else if (ref === 'members') {
+        this.activeMainTab = 1;
+        this.$nextTick(() => {
+          this.activeMembersSubTab = 0;
+        });
       } else {
         this.activeMainTab = 1;
         this.activeMembersSubTab = 0;

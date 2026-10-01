@@ -57,20 +57,22 @@
             <v-icon x-small class="mr-1" color="grey darken-1">mdi-lifebuoy</v-icon> Helpful Links
           </h6>
           <nav class="resource-nav">
-            <a href="https://docs.hypersign.id" target="_blank" class="resource-link">
-              <v-icon small color="grey darken-1" class="mr-2">mdi-book-open-variant</v-icon> Core Concepts
+            <a href="https://docs.hypersign.id/hypersign-id/tutorials/how-to-build-a-custom-kyc-flow-with-the-hypersign-id-apis" target="_blank" class="resource-link">
+              <v-icon small color="grey darken-1" class="mr-2">mdi-file-document-outline</v-icon> KYC API Integration Guide
             </a>
-            <a href="https://docs.hypersign.id" target="_blank" class="resource-link">
-              <v-icon small color="grey darken-1" class="mr-2">mdi-file-document-outline</v-icon> Technical Docs
+            
+            <a href="https://docs.hypersign.id/hypersign-id/tutorials" target="_blank" class="resource-link">
+              <v-icon small color="grey darken-1" class="mr-2">mdi-school-outline</v-icon> Tutorials
             </a>
+            
             <a :href="supportMailto" class="resource-link">
-              <v-icon small color="grey darken-1" class="mr-2">mdi-message-outline</v-icon> Contact Support
+              <v-icon small color="grey darken-1" class="mr-2">mdi-email-outline</v-icon> Contact Support
             </a>
           </nav>
         </div>
 
         <!-- Tutorials Card -->
-        <div class="overview-container mb-4 secondary-bg">
+        <!-- <div class="overview-container mb-4 secondary-bg">
           <h6 class="input-label mb-2">
             <v-icon x-small class="mr-1" color="primary">mdi-school-outline</v-icon> Tutorials
           </h6>
@@ -83,12 +85,12 @@
             small 
             color="primary" 
             class="text-none font-weight-bold bg-white elevation-0"
-            href="https://docs.hypersign.id/hypersign-kyc/tutorials"
+            href="https://docs.hypersign.id/hypersign-id/tutorials"
             target="_blank"
           >
             Explore Tutorials
           </v-btn>
-        </div>
+        </div> -->
 
         <!-- Business Verification Card -->
         <div class="overview-container mb-4">
@@ -96,18 +98,21 @@
             <v-icon x-small class="mr-1" color="grey darken-1">mdi-domain</v-icon> Business Verification
           </h6>
           <p class="x-small text-muted mb-4">
-            Set up your Business Verifier page to verify and onboard your stakeholders and businesses.
+            Set up your custom Business Verifier Page to verify and onboard your stakeholders and businesses.
           </p>
-          <v-btn
+          <!-- <v-btn
             block
             outlined
             small
             color="grey darken-2"
-            class="text-none font-weight-bold bg-white elevation-0"
+            class="text-none bg-white elevation-0"
             :href="`#/studio/kyb-webpage-generator/${appId()}`"
           >
             Set Up Business Verifier
-          </v-btn>
+          </v-btn> -->
+          <a :href="`#/studio/kyb-webpage-generator/${appId()}`" target="_blank" class="step-action-link d-inline-flex align-center x-small">
+            Set Up Business Verifier Page →
+          </a>
         </div>
 
         <!-- Case Studies Card -->
@@ -118,8 +123,8 @@
           <p class="x-small text-muted mb-3">
             Discover how companies streamline onboarding with Hypersign.
           </p>
-          <a href="https://www.hypersign.id/blogs" target="_blank" class="step-action-link d-inline-flex align-center x-small">
-            Read Success Stories <v-icon x-small color="primary" class="ml-1">mdi-open-in-new</v-icon>
+          <a href="https://hypersign.id/case-studies/" target="_blank" class="step-action-link d-inline-flex align-center x-small">
+            Read Case Studies <v-icon x-small color="primary" class="ml-1">mdi-open-in-new</v-icon>
           </a>
         </div>
       </v-col>
@@ -137,44 +142,46 @@ export default {
     return {
       guideItems: [
         {
-          title: "Understand Hypersign Basics",
-          icon: "mdi-book-open-page-variant-outline",
-          description:
-            "Start by learning how Hypersign ID works — from identity capture to verification and issuance. This guide explains each component and how it ensures secure, compliant onboarding.",
-          link: "https://docs.hypersign.id/hypersign-kyc/introduction",
-          openInNewTab: true,
-        },
-        {
-          title: "Configure Your ID Widget",
-          icon: "mdi-cog-outline",
-          description:
-            "Set up your ID widget according to your needs — choose between liveliness checks, ID document verification, and consent capture. You’ll also learn how to customize branding and themes.",
-          link: "https://docs.hypersign.id/hypersign-kyc/integrations/widget-configuration",
-          openInNewTab: true,
-        },
-        {
-          title: "Create Your Custom ID Verifier Page",
+          title: "Try the Magic Link",
           icon: "mdi-web-check",
           description:
-            "Quickly test your ID verification flow by creating a Custom Verifier page. Just add a title, description, and theme — and you’ll get a sharable KYC URL to test the end-to-end verification process with sample users.",
+            "Create a branded, hosted KYC page and test your verification flow instantly. No integration or coding required.",
           link: `#/studio/kyc-webpage-generator/${this.appId()}`, 
-          anchorText: "Go to ID Verifier Setup",
+          anchorText: "Create your Magic Link →",
           openInNewTab: false,
         },
         {
-          title: "Integrate into Your App",
+          title: "Choose Your Integration Mode",
           icon: "mdi-code-tags",
           description:
-            "Developers can embed the ID widget directly into their web or mobile apps. Learn how to authenticate via backend APIs, generate session IDs, prepare the widget URL, and handle verification events.",
-          link: "https://docs.hypersign.id/hypersign-kyc/kyc-widget/integrations",
+            "Embed our ID Widget or integrate KYC APIs to bring identity verification directly into your application.",
+          link: "https://docs.hypersign.id/hypersign-id/tutorials/how-to-integrate-hypersign-id-widget-in-your-app",
+          anchorText: "Explore integrations →",
           openInNewTab: true,
         },
         {
-          title: "Go Live",
+          title: "Invite Your Team",
+          icon: "mdi-account-multiple-plus",
+          description:
+            "Add your developers, compliance team, and collaborators to your workspace to manage onboarding together.",
+          link: `#/studio/settings?ref=members`, 
+          anchorText: "Manage team →",
+          openInNewTab: false,
+        },
+        {
+          title: "Ready for Production?",
           icon: "mdi-rocket-launch-outline",
           description:
-            "Once you’re satisfied with testing, verify your domain and switch from the Dev to Production environment. This step ensures real user verification in a secure, compliant setting.",
-          link: "https://docs.hypersign.id/hypersign-kyc/integrations/environments",
+            "Once you’re satisfied with testing, verify your domain and switch from the Developement to Production environment. This step ensures real user verification in a secure, compliant setting.",
+          link: `#/studio/service-config/${this.appId()}?tab=domain`,
+          openInNewTab: false,
+        },
+        {
+          title: "Need Help?",
+          icon: "mdi-email-outline",
+          description:
+            "Get expert guidance on setup, integration, or compliance. Our team is here to help you get started.",
+          link: `mailto:${config.app.supportEmails}`,
           openInNewTab: true,
         },
       ]
