@@ -41,7 +41,7 @@
                   class="step-action-link d-inline-flex align-center"
                 >
                   {{ item.anchorText || "Read Documentation" }}
-                  <v-icon x-small color="primary" class="ml-1">mdi-arrow-right</v-icon>
+                  <!-- <v-icon x-small color="primary" class="ml-1">mdi-arrow-right</v-icon> -->
                 </a>
               </div>
             </div>
@@ -58,15 +58,15 @@
           </h6>
           <nav class="resource-nav">
             <a href="https://docs.hypersign.id/hypersign-id/tutorials/how-to-build-a-custom-kyc-flow-with-the-hypersign-id-apis" target="_blank" class="resource-link">
-              <v-icon small color="grey darken-1" class="mr-2">mdi-file-document-outline</v-icon> KYC API Integration Guide
+              <v-icon small color="grey darken-1" class="mr-2">mdi-file-document-outline</v-icon> KYC API Integration Guide 
             </a>
             
             <a href="https://docs.hypersign.id/hypersign-id/tutorials" target="_blank" class="resource-link">
-              <v-icon small color="grey darken-1" class="mr-2">mdi-school-outline</v-icon> Tutorials
+              <v-icon small color="grey darken-1" class="mr-2">mdi-school-outline</v-icon> Tutorials 
             </a>
             
             <a :href="supportMailto" class="resource-link">
-              <v-icon small color="grey darken-1" class="mr-2">mdi-email-outline</v-icon> Contact Support
+              <v-icon small color="grey darken-1" class="mr-2">mdi-email-outline</v-icon> Contact Support 
             </a>
           </nav>
         </div>
@@ -110,7 +110,7 @@
           >
             Set Up Business Verifier
           </v-btn> -->
-          <a :href="`#/studio/kyb-webpage-generator/${appId()}`" target="_blank" class="step-action-link d-inline-flex align-center x-small">
+          <a :href="`#/studio/kyb-webpage-generator/${appId()}`" class="step-action-link d-inline-flex align-center x-small">
             Set Up Business Verifier Page →
           </a>
         </div>
@@ -156,7 +156,7 @@ export default {
           description:
             "Embed our ID Widget or integrate KYC APIs to bring identity verification directly into your application.",
           link: "https://docs.hypersign.id/hypersign-id/tutorials/how-to-integrate-hypersign-id-widget-in-your-app",
-          anchorText: "Explore integrations →",
+          anchorText: "Explore integrations ↗",
           openInNewTab: true,
         },
         {
@@ -174,6 +174,7 @@ export default {
           description:
             "Once you’re satisfied with testing, verify your domain and switch from the Developement to Production environment. This step ensures real user verification in a secure, compliant setting.",
           link: `#/studio/service-config/${this.appId()}?tab=domain`,
+          anchorText: "Get production access →",
           openInNewTab: false,
         },
         {
@@ -182,6 +183,7 @@ export default {
           description:
             "Get expert guidance on setup, integration, or compliance. Our team is here to help you get started.",
           link: `mailto:${config.app.supportEmails}`,
+          anchorText: "Contact support ↗",
           openInNewTab: true,
         },
       ]
