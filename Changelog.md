@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [3.15.5] - 2026-10-1
+
+### Changed
+- Updated text and action links of getting started page. 
+- Added ref=memebers to support direct rediction to the team mate tab in setting
+
 ## [3.15.4] - 2026-09-30
 
 ### Added
