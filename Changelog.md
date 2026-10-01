@@ -6,7 +6,7 @@
 ### Changed
 
 - Added a retry action for failed workspace setup tasks using the onboarding approval API without a request body.
-- Hid credit detail inputs on the Superadmin onboarding approval page.
+- Hide the  credit detail inputs on the Superadmin onboarding approval page.
 
 ## [3.15.5] - 2026-10-1
 
