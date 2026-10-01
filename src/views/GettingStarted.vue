@@ -1,7 +1,7 @@
 <template>
   <b-container fluid class="px-6 py-4">
     <!-- Header Title Section -->
-    <v-row align="center" class="mb-4">
+    <v-row align="center" class="mb-3">
       <v-col cols="12">
         <h4 class="font-weight-bold mb-1 text-slate-800">Getting Started</h4>
         <p class="text-subtitle-2 text-muted mb-0">
@@ -172,7 +172,7 @@ export default {
           title: "Ready for Production?",
           icon: "mdi-rocket-launch-outline",
           description:
-            "Once you’re satisfied with testing, verify your domain and switch from the Developement to Production environment. This step ensures real user verification in a secure, compliant setting.",
+            "Once you’re satisfied with testing, verify your domain and switch from the Development to Production environment. This step ensures real user verification in a secure, compliant setting.",
           link: `#/studio/service-config/${this.appId()}?tab=domain`,
           anchorText: "Get production access →",
           openInNewTab: false,
