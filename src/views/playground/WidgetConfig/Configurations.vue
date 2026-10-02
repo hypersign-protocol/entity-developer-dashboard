@@ -5,8 +5,8 @@
     <template v-else>
       <div class="page-header">
         <div>
-          <h3>Widget Configurations</h3>
-          <p>Create and manage widget configurations for your verification use cases.</p>
+          <h4 class="font-weight-bold mb-0">Widget Configurations</h4>
+          <p class="text-subtitle-2 text-muted">Create and manage widget configurations for your verification use cases</p>
         </div>
         <div class="header-actions">
           <HfButtons name="New Configuration" iconClass="mdi mdi-plus" @executeAction="createConfiguration" />

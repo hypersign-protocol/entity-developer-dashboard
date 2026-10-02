@@ -184,8 +184,8 @@
     <div v-if="!accessDenied">
     <div class="d-flex justify-content-between align-items-center mb-4">
       <div>
-        <h4 class="page-title">Users Verifications</h4>
-        <p class="page-subtitle">Manage and track user verifications</p>
+        <h4 class="font-weight-bold mb-0">Users Verifications</h4>
+        <p class="text-subtitle-2 text-muted">Manage and track user verifications</p>
       </div>
       <div v-if="userList.length > 0" class="search-wrap sessions-search">
         <input
