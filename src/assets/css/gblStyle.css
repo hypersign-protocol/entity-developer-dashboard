@@ -279,3 +279,12 @@ a {
   background: #f1f5f9;
   color: #374151;
 }
+
+.hm-badge {
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 0.125rem 0.625rem;
+  background-color: #dbeafe;
+  color: #1e40af;
+  border-radius: 9999px;
+}

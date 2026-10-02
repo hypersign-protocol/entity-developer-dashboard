@@ -30,12 +30,13 @@
         <span v-if="errors.email" class="field-error">{{ errors.email }}</span>
       </div>
       <div class="field-group">
-        <label for="organization-domain">Website or domain</label>
+        <label for="organization-domain">Website or domain <em>*</em></label>
         <input id="organization-domain" v-model.trim="localCompany.domain" type="text" placeholder="example.com" autocomplete="url" @input="domainWasAutofilled = false" />
         <div v-if="isGmailAddress" class="personal-email-note">
           <i class="mdi mdi-information-outline" aria-hidden="true"></i>
           <span>Using a personal email? Please enter your company, project, or GitHub website to initialize your workspace.</span>
         </div>
+        <span v-if="errors.domain" class="field-error">{{ errors.domain }}</span>
       </div>
     </div>
 
@@ -50,7 +51,7 @@
           <div class="field-group optional-indent phone-field">
             <div class="phone-control">
               <span v-if="selectedCallingCode">{{ selectedCallingCode }}</span>
-              <input v-model.trim="localCompany.phone_no" type="tel" placeholder="98765 43210" autocomplete="tel-national" />
+              <input v-model.trim="localCompany.phone_no" type="tel" placeholder="9876543210" autocomplete="tel-national" />
             </div>
             <span v-if="errors.phone" class="field-error">{{ errors.phone }}</span>
           </div>
@@ -207,6 +208,7 @@ export default {
       if (!company.name?.trim()) errors.name = 'Enter your organization name.';
       if (!company.country) errors.country = 'Select a country or region.';
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(company.contact_email || '')) errors.email = 'Enter a valid work email address.';
+      if (!company.domain) errors.domain = 'Enter your organization website or domain.';
       if (company.phone_no && !/^\+?[\d\s()-]{7,20}$/.test(company.phone_no.trim())) errors.phone = 'Enter a valid contact phone number.';
       if (company.twitterUrl && !/^https?:\/\/(www\.)?(twitter\.com|x\.com)\/[A-Za-z0-9_]+\/?$/.test(company.twitterUrl.trim())) errors.twitter = 'Enter a valid Twitter/X profile URL.';
       if (company.telegramUrl && !/^https?:\/\/(t\.me|telegram\.me)\/[A-Za-z0-9_]+\/?$/.test(company.telegramUrl.trim())) errors.telegram = 'Enter a valid Telegram profile URL.';

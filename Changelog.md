@@ -2,6 +2,14 @@
 
 ## [Unreleased]
 
+## [3.15.6] - 2026-10-2
+
+### Changed
+- Made website mandatory field in onoarding form 
+- Added badges in getting started page 
+- Fixed loader design while login
+
+
 ## [3.15.5] - 2026-10-1
 
 ### Changed

@@ -32,9 +32,17 @@
 
               <!-- Content Card -->
               <div class="step-content-box p-4 flex-grow-1">
-                <h5 class="step-title mb-2">{{ item.title }}</h5>
-                <p class="text-muted small mb-3 lh-lg">{{ item.description }}</p>
+                <!-- Flex container aligns title to left and badge to far right -->
                 
+                  <h5 class="step-title mb-0">{{ item.title }}</h5>
+                  
+
+                  
+                
+
+                <p class="text-muted mb-3 lh-lg">{{ item.description }}</p>
+                
+                <div class="d-flex justify-content-between align-items-center mb-2">
                 <a 
                   :href="item.link" 
                   :target="item.openInNewTab ? '_blank' : '_self'" 
@@ -42,7 +50,20 @@
                 >
                   {{ item.anchorText || "Read Documentation" }}
                   <!-- <v-icon x-small color="primary" class="ml-1">mdi-arrow-right</v-icon> -->
-                </a>
+ </a>
+                  <!-- Container for multiple badges with gap spacing -->
+                  <div v-if="item.badges && item.badges.length" class="d-flex align-items-center gap-1">
+                    <span 
+                      v-for="(badge, index) in item.badges" 
+                      :key="index" 
+                      class="hm-badge mr-1"
+                    >
+                      {{ badge }}
+                    </span>
+                  </div>
+              </div>
+
+               
               </div>
             </div>
           </div>
@@ -147,7 +168,8 @@ export default {
           description:
             "Create a branded, hosted KYC page and test your verification flow instantly. No integration or coding required.",
           link: `#/studio/kyc-webpage-generator/${this.appId()}`, 
-          anchorText: "Create your Magic Link →",
+          anchorText: "Create your magic link →",
+          badges: ["Product Managers", "Business Owners"],
           openInNewTab: false,
         },
         {
@@ -157,6 +179,7 @@ export default {
             "Embed our ID Widget or integrate KYC APIs to bring identity verification directly into your application.",
           link: "https://docs.hypersign.id/hypersign-id/tutorials/how-to-integrate-hypersign-id-widget-in-your-app",
           anchorText: "Explore integrations ↗",
+          badges: ["Developers", "Engineers"],
           openInNewTab: true,
         },
         {
@@ -165,7 +188,7 @@ export default {
           description:
             "Add your developers, compliance team, and collaborators to your workspace to manage onboarding together.",
           link: `#/studio/settings?ref=members`, 
-          anchorText: "Manage team →",
+          anchorText: "Manage your team →",
           openInNewTab: false,
         },
         {
