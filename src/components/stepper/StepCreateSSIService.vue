@@ -51,18 +51,19 @@
                 <p>{{ item.description }}</p>
                 <time v-if="item.time" :datetime="item.time">{{ formatDate(item.time) }}</time>
               </div>
-              <button
-                v-if="item.state === 'failed'"
-                type="button"
-                class="status-label retry-button"
-                :disabled="isRetrying"
-                @click="$emit('retry-onboarding')"
-              >{{ isRetrying ? 'Retrying…' : 'Retry' }}</button>
+              <span v-if="item.state === 'failed'" class="status-label failed-label">Action required</span>
               <span v-else class="status-label">{{ item.statusLabel }}</span>
             </div>
 
             <div v-if="item.failureReason" class="failure-row">
               <span>{{ item.failureReason }}</span>
+              <button
+                v-if="item.state === 'failed'"
+                type="button"
+                class="retry-button"
+                :disabled="isRetrying"
+                @click="$emit('retry-onboarding')"
+              >{{ isRetrying ? 'Retrying…' : 'Retry' }}</button>
             </div>
           </div>
         </div>
@@ -304,11 +305,12 @@ export default {
 .complete .status-label { background: #e3f8ed; color: #159a68; }
 .active .status-label { background: #e2e4e6; color: #5a6268; }
 .failed .status-label { background: #ffe1e1; color: #dc3c3c; }
-.retry-button { border: 0; cursor: pointer; font: inherit; }
-.retry-button:hover:not(:disabled) { background: #dc3c3c; color: #fff; }
+.failed .failed-label { min-width: auto; min-height: 16px; padding: 0 7px; border-radius: 3px; font-size: 9px; }
+.retry-button { box-sizing: border-box; flex: 0 0 53px; width: 53px; height: 24px; padding: 0; border: 1px solid #64748b; border-radius: 4px; background: #fff; color: #475569; cursor: pointer; font-family: inherit; font-size: 10px; font-weight: 500; line-height: 22px; }
+.retry-button:hover:not(:disabled) { background: #f8fafc; }
 .retry-button:disabled { cursor: wait; opacity: .65; }
-.failure-row { display: flex; gap: 12px; align-items: center; margin-top: 6px; }
-.failure-row > span { min-width: 0; flex: 1; padding: 7px 10px; border-radius: 4px; background: #fff0f0; color: #d74848; font-size: 11px; line-height: 1.35; }
+.failure-row { display: flex; gap: 9px; align-items: center; margin-top: 6px; }
+.failure-row > span { min-width: 0; flex: 1; padding: 6px 9px; border-radius: 4px; background: #fff0f0; color: #d74848; font-size: 9px; line-height: 1.35; }
 .status-footer { display: flex; gap: 12px; align-items: center; justify-content: space-between; margin-top: 2px; }
 .progress-note { display: flex; min-width: 0; flex: 1; gap: 8px; align-items: center; min-height: 40px; padding: 9px 11px; border-radius: 4px; background: #f3f4f5; color: #626b73; font-size: 11px; line-height: 1.4; }
 .progress-note i { flex: 0 0 auto; color: #6c757d; font-size: 14px; }
