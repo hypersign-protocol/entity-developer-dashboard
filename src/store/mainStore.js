@@ -598,7 +598,7 @@ const mainStore = {
             const url = `${apiServerBaseUrl}/customer-onboarding/${payload.recordId}/process`;
             const resp = await RequestHandler(url,
                 'POST',
-                payload,
+                {},
                 UtilsMixin.methods.getHeader(getters.getAuthToken),
             )
             if (!resp || Array.isArray(resp.message)) {
