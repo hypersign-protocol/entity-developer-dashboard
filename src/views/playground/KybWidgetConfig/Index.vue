@@ -63,7 +63,7 @@
               <div class="config-card">
                 <div class="d-flex justify-content-between align-items-start">
                   <label class="font-weight-bold mb-0">{{ kybWidgetConfigUI.collectCertOfIncorporationDoc.label }}</label>
-                  <b-form-checkbox switch v-model="kybWidgetConfigTemp.collectCertOfIncorporationDoc" disabled></b-form-checkbox>
+                  <b-form-checkbox switch v-model="kybWidgetConfigTemp.collectCertOfIncorporationDoc"></b-form-checkbox>
                 </div>
                 <small class="text-muted d-block mt-1" v-html="kybWidgetConfigUI.collectCertOfIncorporationDoc.description"></small>
               </div>
@@ -72,7 +72,7 @@
               <div class="config-card">
                 <div class="d-flex justify-content-between align-items-start">
                   <label class="font-weight-bold mb-0">{{ kybWidgetConfigUI.collectPowerOfAttorneyDoc.label }}</label>
-                  <b-form-checkbox switch v-model="kybWidgetConfigTemp.collectPowerOfAttorneyDoc" disabled></b-form-checkbox>
+                  <b-form-checkbox switch v-model="kybWidgetConfigTemp.collectPowerOfAttorneyDoc"></b-form-checkbox>
                 </div>
                 <small class="text-muted d-block mt-1" v-html="kybWidgetConfigUI.collectPowerOfAttorneyDoc.description"></small>
               </div>
@@ -81,9 +81,18 @@
               <div class="config-card">
                 <div class="d-flex justify-content-between align-items-start">
                   <label class="font-weight-bold mb-0">{{ kybWidgetConfigUI.collectAddressProofDoc.label }}</label>
-                  <b-form-checkbox switch v-model="kybWidgetConfigTemp.collectAddressProofDoc" disabled></b-form-checkbox>
+                  <b-form-checkbox switch v-model="kybWidgetConfigTemp.collectAddressProofDoc"></b-form-checkbox>
                 </div>
                 <small class="text-muted d-block mt-1" v-html="kybWidgetConfigUI.collectAddressProofDoc.description"></small>
+              </div>
+            </div>
+            <div class="col-md-6 p-2">
+              <div class="config-card">
+                <div class="d-flex justify-content-between align-items-start">
+                  <label class="font-weight-bold mb-0">{{ kybWidgetConfigUI.collectTaxRegistrationDoc.label }}</label>
+                  <b-form-checkbox switch v-model="kybWidgetConfigTemp.collectTaxRegistrationDoc"></b-form-checkbox>
+                </div>
+                <small class="text-muted d-block mt-1">{{ kybWidgetConfigUI.collectTaxRegistrationDoc.description }}</small>
               </div>
             </div>
           </div>
@@ -300,6 +309,10 @@ export default {
           label: "Collect Address Proof Document",
           description: 'Enable collection of business address verification documents.'
         },
+        collectTaxRegistrationDoc: {
+          label: "Collect Tax Registration Document",
+          description: 'Enable collection of the company’s tax registration certificate or equivalent tax document.'
+        },
         collectZkProof: {
           label: "Enable Zero Knowledge Proof",
           description: 'Enable businesses to share only proof of their data for enhanced privacy and compliance.'
@@ -361,6 +374,7 @@ export default {
         collectCertOfIncorporationDoc: true,
         collectPowerOfAttorneyDoc: true,
         collectAddressProofDoc: true,
+        collectTaxRegistrationDoc: false,
         collectZkProof: {
           enable: false,
           proofType: "",
@@ -407,6 +421,12 @@ export default {
     validateField() {
       if (!this.kybWidgetConfigTemp.issuerDID) {
         throw new Error('Issuer DID is required')
+      }
+
+      if (!this.kybWidgetConfigTemp.collectCertOfIncorporationDoc &&
+          !this.kybWidgetConfigTemp.collectAddressProofDoc &&
+          !this.kybWidgetConfigTemp.collectTaxRegistrationDoc) {
+        throw new Error('Enable at least one company document: Certificate of Incorporation, Address Proof, or Tax Registration Document')
       }
 
       if (this.kybWidgetConfigTemp.collectZkProof.enable) {

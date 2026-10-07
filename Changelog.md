@@ -1,6 +1,12 @@
 # Changelog
 
 ## [Unreleased]
+## [3.16.0] - 2026-10-07
+### Changed
+
+- Added new document type  `TaxRegistrationDocument`in kyb widget
+- Made all document relatedf ield configurable
+
 
 ## [3.15.6] - 2026-10-2
 
