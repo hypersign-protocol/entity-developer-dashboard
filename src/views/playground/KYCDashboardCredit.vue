@@ -50,7 +50,28 @@
                                     / {{ numberFormat(myKYCCredits.allAvailableCredits) }} Credits
                                 </span>
                             </div>
-                            <p class="approx-inline mt-1 mb-0">upto ~<strong>{{ numberFormat(approxKYCLeftBestCase) }}</strong> ID Verifications</p>
+                            <button type="button" class="calculator-callout mt-3" @click="calculatorOpen = true">
+                                <span class="calculator-callout-icon" aria-hidden="true">
+                                    <v-icon>{{ hasSavedCalculatorConfiguration ? 'mdi-chart-bar' : 'mdi-calculator-variant-outline' }}</v-icon>
+                                </span>
+                                <span class="calculator-callout-copy">
+                                    <template v-if="hasSavedCalculatorConfiguration">
+                                        <strong>{{ numberFormat(savedVerificationEstimate) }} verifications available</strong>
+                                        <small>
+                                            Based on your saved configuration at
+                                            {{ numberFormat(savedCalculatorConfiguration.creditsPerVerification) }} credits each.
+                                        </small>
+                                    </template>
+                                    <template v-else>
+                                        <strong>See how many verifications you can perform</strong>
+                                        <small>Select your verification flow to get an estimate.</small>
+                                    </template>
+                                </span>
+                                <span class="calculator-callout-action">
+                                    {{ hasSavedCalculatorConfiguration ? 'Edit configuration' : 'Calculate now' }}
+                                    <v-icon small>mdi-arrow-right</v-icon>
+                                </span>
+                            </button>
                         </div>
 
                         <div>
@@ -156,6 +177,11 @@
             </v-col>
         </v-row>
         </template>
+        <KycCreditCalculator
+            v-model="calculatorOpen"
+            :remaining-credits="myKYCCredits.allRemainingCredits"
+            :total-credits="myKYCCredits.allAvailableCredits"
+        />
     </b-container>
 </template>
 
@@ -165,10 +191,11 @@ import { mapActions, mapGetters } from "vuex";
 import UtilsMixin from '../../mixins/utils';
 import HfButtons from "../../components/element/HfButtons.vue";
 import AccessDenied from '../AccessDenied.vue';
+import KycCreditCalculator from '../../components/credit/KycCreditCalculator.vue';
 
 export default {
-    name: "SSIDashboardCredit",
-    components: { HfButtons, AccessDenied },
+    name: "KYCDashboardCredit",
+    components: { HfButtons, AccessDenied, KycCreditCalculator },
     mixins: [UtilsMixin],
     data() {
         return {
@@ -180,7 +207,7 @@ export default {
             accessDeniedMsg: '',
             fullPage: true,
             doughNutChartLabel: ['Used', 'Remaining'],
-            analyticsOverview: null,
+            calculatorOpen: false,
         }
     },
     computed: {
@@ -197,23 +224,21 @@ export default {
             return 'color-green';
         },
 
-        // Formula: (1/completionRate) accounts for sessions that don't complete
-        //          + dropOffRate adds waste from abandoned sessions
-        // Example: 70% completion, 24% drop-off → (1/0.7) + 0.24 = 1.67 → ~125 credits/ID
-        costPerKYC() {
-            if (!this.analyticsOverview) return 75; // no data yet: assume best case
-            const completionRate = Math.max((this.analyticsOverview.completionRate || 100), 1) / 100;
-            const dropOff = (this.analyticsOverview.dropOffRate || 0) / 100;
-            const multiplier = Math.min(Math.max((1 / completionRate) + dropOff, 1.0), 2.5);
-            return Math.ceil(75 * multiplier);
+        savedCalculatorConfiguration() {
+            return this.$store.getters['creditCalculatorStore/getConfiguration'] || {};
         },
 
-        approxKYCLeft() {
-            return Math.floor((this.myKYCCredits.allRemainingCredits || 0) / this.costPerKYC);
+        hasSavedCalculatorConfiguration() {
+            const configuration = this.savedCalculatorConfiguration;
+            return Array.isArray(configuration.selectedFlowIds)
+                && configuration.selectedFlowIds.length > 0
+                && Number(configuration.creditsPerVerification) > 0;
         },
 
-        approxKYCLeftBestCase() {
-            return Math.floor((this.myKYCCredits.allRemainingCredits || 0) / 75);
+        savedVerificationEstimate() {
+            const cost = Number(this.savedCalculatorConfiguration.creditsPerVerification || 0);
+            if (!cost) return 0;
+            return Math.floor(Math.max(this.myKYCCredits.allRemainingCredits, 0) / cost);
         },
 
         myKYCCredits() {
@@ -253,17 +278,12 @@ export default {
         this.stopTimer();
     },
     methods: {
-        ...mapActions('mainStore', ['fetchKYCCredits', 'activateCredit', 'fetchAnalyticsOverview']),
+        ...mapActions('mainStore', ['fetchKYCCredits', 'activateCredit']),
 
         async reloadData() {
             try {
                 this.isLoading = true;
                 await this.fetchKYCCredits();
-
-                // Non-blocking: fetch analytics to refine estimate
-                this.fetchAnalyticsOverview({ env: this.$store.getters['mainStore/getSelectedService']?.env || 'prod' })
-                    .then(res => { if (res?.data) this.analyticsOverview = res.data; })
-                    .catch(() => {});
 
                 this.startTimer();
                 this.renderChart();
@@ -458,9 +478,74 @@ export default {
     /* Keeps label close to the value below it */
 }
 
-.approx-inline {
-    font-size: 0.75rem;
-    color: #9ca3af;
+.calculator-callout {
+    display: grid;
+    width: 100%;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 0.85rem;
+    align-items: center;
+    padding: 0.75rem 0.9rem;
+    border: 1px solid #dbeafe;
+    border-radius: 0.65rem;
+    background: #eff6ff;
+    color: #1e3a5f;
+    text-align: left;
+    transition: border-color .15s ease, background-color .15s ease;
+}
+
+.calculator-callout:hover {
+    border-color: #93c5fd;
+    background: #eaf3ff;
+}
+
+.calculator-callout:focus-visible {
+    outline: 3px solid rgba(59, 130, 246, .28);
+    outline-offset: 2px;
+}
+
+.calculator-callout-icon {
+    display: inline-flex;
+    width: 2.5rem;
+    height: 2.5rem;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: #dbeafe;
+}
+
+.calculator-callout-icon .v-icon,
+.calculator-callout-action,
+.calculator-callout-action .v-icon {
+    color: #1677ff;
+}
+
+.calculator-callout-copy {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+}
+
+.calculator-callout-copy strong {
+    color: #172554;
+    font-size: 0.86rem;
+}
+
+.calculator-callout-copy small {
+    margin-top: 0.1rem;
+    color: #64748b;
+    font-size: 0.76rem;
+}
+
+.calculator-callout-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.7rem 0.85rem;
+    border-radius: 0.55rem;
+    background: #dceaff;
+    font-size: 0.78rem;
+    font-weight: 700;
+    white-space: nowrap;
 }
 
 /* Ensure the button doesn't have extra margin pushing it away from the edge */
@@ -488,6 +573,29 @@ export default {
 /* Ensure the table cell doesn't squash the progress bar */
 .usage-table td {
     vertical-align: middle;
+}
+
+@media (max-width: 767.98px) {
+    .py-3 {
+        width: 100% !important;
+    }
+
+    .calculator-callout {
+        grid-template-columns: auto minmax(0, 1fr);
+    }
+
+    .calculator-callout-action {
+        grid-column: 2;
+        justify-self: start;
+    }
+
+    .usage-table-wrapper {
+        overflow-x: auto;
+    }
+
+    .usage-table {
+        min-width: 760px;
+    }
 }
 
 </style>
