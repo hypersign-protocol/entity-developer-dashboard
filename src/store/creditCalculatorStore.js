@@ -1,6 +1,7 @@
 const emptyConfiguration = () => ({
     selectedFlowIds: [],
     selectedServiceIds: [],
+    serviceQuantities: {},
     creditsPerVerification: 0,
     updatedAt: null
 })
@@ -19,9 +20,20 @@ const creditCalculatorStore = {
     },
     mutations: {
         saveConfiguration(state, payload = {}) {
+            const selectedServiceIds = uniqueStrings(payload.selectedServiceIds)
+            const rawQuantities = payload.serviceQuantities && typeof payload.serviceQuantities === 'object'
+                ? payload.serviceQuantities
+                : {}
+            const serviceQuantities = Object.keys(rawQuantities).reduce((quantities, serviceId) => {
+                if (!selectedServiceIds.includes(serviceId)) return quantities
+                quantities[serviceId] = Math.max(Math.floor(Number(rawQuantities[serviceId]) || 1), 1)
+                return quantities
+            }, {})
+
             state.configuration = {
                 selectedFlowIds: uniqueStrings(payload.selectedFlowIds),
-                selectedServiceIds: uniqueStrings(payload.selectedServiceIds),
+                selectedServiceIds,
+                serviceQuantities,
                 creditsPerVerification: Number.isFinite(Number(payload.creditsPerVerification))
                     ? Math.max(Number(payload.creditsPerVerification), 0)
                     : 0,

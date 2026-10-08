@@ -56,7 +56,7 @@
                                 </span>
                                 <span class="calculator-callout-copy">
                                     <template v-if="hasSavedCalculatorConfiguration">
-                                        <strong>{{ numberFormat(savedVerificationEstimate) }} verifications available</strong>
+                                        <strong>{{ numberFormat(savedVerificationEstimate) }} verification flows available</strong>
                                         <small>
                                             Based on your saved configuration at
                                             {{ numberFormat(savedCalculatorConfiguration.creditsPerVerification) }} credits each.
@@ -485,21 +485,21 @@ export default {
     gap: 0.85rem;
     align-items: center;
     padding: 0.75rem 0.9rem;
-    border: 1px solid #dbeafe;
+    border: 1px solid #d5dde7;
     border-radius: 0.65rem;
-    background: #eff6ff;
-    color: #1e3a5f;
+    background: #f8fafc;
+    color: #495057;
     text-align: left;
     transition: border-color .15s ease, background-color .15s ease;
 }
 
 .calculator-callout:hover {
-    border-color: #93c5fd;
-    background: #eaf3ff;
+    border-color: #94a3b8;
+    background: #f3f4f5;
 }
 
 .calculator-callout:focus-visible {
-    outline: 3px solid rgba(59, 130, 246, .28);
+    outline: 3px solid rgba(108, 117, 125, .2);
     outline-offset: 2px;
 }
 
@@ -510,13 +510,13 @@ export default {
     align-items: center;
     justify-content: center;
     border-radius: 50%;
-    background: #dbeafe;
+    background: #eceeef;
 }
 
 .calculator-callout-icon .v-icon,
 .calculator-callout-action,
 .calculator-callout-action .v-icon {
-    color: #1677ff;
+    color: #6c757d;
 }
 
 .calculator-callout-copy {
@@ -526,7 +526,7 @@ export default {
 }
 
 .calculator-callout-copy strong {
-    color: #172554;
+    color: #253454;
     font-size: 0.86rem;
 }
 
@@ -542,7 +542,7 @@ export default {
     gap: 0.3rem;
     padding: 0.7rem 0.85rem;
     border-radius: 0.55rem;
-    background: #dceaff;
+    background: #e4e7e9;
     font-size: 0.78rem;
     font-weight: 700;
     white-space: nowrap;
