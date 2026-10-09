@@ -137,6 +137,39 @@
           </div>
         </li>
 
+        <li v-show="activeTab === 'Company Fields'" class="list-group-item p-3">
+          <div class="company-fields-intro mb-3">
+            <strong>Choose the company information to collect</strong>
+            <small class="text-muted d-block mt-1">Select each field you want businesses to provide, then choose whether it is required.</small>
+          </div>
+          <div class="row mx-0">
+            <div v-for="field in companyFieldDefinitions" :key="field.fieldName" class="col-md-6 p-2">
+              <div class="config-card company-field-card">
+                <div class="d-flex justify-content-between align-items-start">
+                  <div class="pr-3">
+                    <label class="font-weight-bold mb-1">{{ field.label }}</label>
+                    <small class="text-muted d-block">{{ field.description }}</small>
+                  </div>
+                  <b-form-checkbox
+                    switch
+                    :checked="isCompanyFieldSelected(field.fieldName)"
+                    :disabled="field.required"
+                    :aria-label="`Collect ${field.label}`"
+                    @change="setCompanyFieldSelected(field, $event)"
+                  ></b-form-checkbox>
+                </div>
+                <div class="field-required-control mt-3" :class="{ 'text-muted': !isCompanyFieldSelected(field.fieldName) }">
+                  <b-form-checkbox
+                    :checked="isCompanyFieldMandatory(field.fieldName)"
+                    :disabled="!isCompanyFieldSelected(field.fieldName) || field.required"
+                    @change="setCompanyFieldMandatory(field, $event)"
+                  >Required</b-form-checkbox>
+                </div>
+              </div>
+            </div>
+          </div>
+        </li>
+
       </ul>
     </div>
     </template>
@@ -190,6 +223,19 @@
   border-radius: 8px;
   height: 100%;
   padding: 15px;
+}
+
+.company-fields-intro {
+  padding: 4px 10px;
+}
+
+.company-field-card {
+  min-height: 145px;
+}
+
+.field-required-control {
+  align-items: center;
+  display: flex;
 }
 
 .sanction-badge-row {
@@ -365,7 +411,18 @@ export default {
       accessDenied: false,
       accessDeniedMsg: '',
       activeTab: 'Branding',
-      tabs: ['Branding', 'Document Collection', 'Compliance Checks'],
+      tabs: ['Branding', 'Document Collection', 'Company Fields', 'Compliance Checks'],
+      companyFieldDefinitions: [
+        { fieldName: 'name', label: 'Company Name', description: 'Registered or legal name of the company.', type: 'text', required: true },
+        { fieldName: 'domain', label: 'Company Domain', description: 'Website domain associated with the company.', type: 'text', required: true },
+        { fieldName: 'region', label: 'Region', description: 'Region where the company operates.', type: 'text', required: true },
+        { fieldName: 'countryOfRegistration', label: 'Country of Registration', description: 'Country where the company is registered.', type: 'country', required: true },
+        { fieldName: 'registrationNumberType', label: 'Registration Number Type', description: 'Type of company registration number.', type: 'registration-type' },
+        { fieldName: 'registrationNumber', label: 'Registration Number', description: 'Company registration or incorporation number.', type: 'text' },
+        { fieldName: 'taxIdType', label: 'Tax ID Type', description: 'Type of company tax identifier.', type: 'tax-id-type' },
+        { fieldName: 'taxIdNumber', label: 'Tax ID Number', description: 'Company tax identification number.', type: 'text' },
+        { fieldName: 'address', label: 'Company Address', description: 'Registered or operating business address.', type: 'address' }
+      ],
       appId: "",
       app: {},
       kybWidgetConfigTemp: {
@@ -375,6 +432,14 @@ export default {
         collectPowerOfAttorneyDoc: true,
         collectAddressProofDoc: true,
         collectTaxRegistrationDoc: false,
+        companyFields: [
+          { fieldName: 'name', type: 'text', isMandatory: true },
+          { fieldName: 'domain', type: 'text', isMandatory: true },
+          { fieldName: 'region', type: 'text', isMandatory: true },
+          { fieldName: 'countryOfRegistration', type: 'country', isMandatory: true },
+          { fieldName: 'registrationNumber', type: 'text', isMandatory: true },
+          { fieldName: 'registrationNumberType', type: 'registration-type', isMandatory: true }
+        ],
         collectZkProof: {
           enable: false,
           proofType: "",
@@ -407,6 +472,56 @@ export default {
     ...mapMutations('mainStore', ['setKybWidgetConfig']),
     ...mapActions('mainStore', ['createAppsKybWidgetConfig', 'fetchAppsKybWidgetConfig', 'updateAppsKybWidgetConfig']),
 
+    isCompanyFieldSelected(fieldName) {
+      return this.kybWidgetConfigTemp.companyFields.some(field => field.fieldName === fieldName)
+    },
+
+    isCompanyFieldMandatory(fieldName) {
+      const field = this.kybWidgetConfigTemp.companyFields.find(item => item.fieldName === fieldName)
+      return Boolean(field && field.isMandatory)
+    },
+
+    isCompanyFieldRequiredByDocument(fieldName) {
+      return (this.kybWidgetConfigTemp.collectCertOfIncorporationDoc && ['registrationNumber', 'registrationNumberType'].includes(fieldName)) ||
+        (this.kybWidgetConfigTemp.collectTaxRegistrationDoc && ['taxIdNumber', 'taxIdType'].includes(fieldName))
+    },
+
+    setCompanyFieldSelected(definition, selected) {
+      const fields = this.kybWidgetConfigTemp.companyFields.filter(field => field.fieldName !== definition.fieldName)
+      if (selected) {
+        const pair = definition.fieldName === 'registrationNumber' ? 'registrationNumberType' :
+          definition.fieldName === 'registrationNumberType' ? 'registrationNumber' :
+            definition.fieldName === 'taxIdNumber' ? 'taxIdType' :
+              definition.fieldName === 'taxIdType' ? 'taxIdNumber' : null
+        fields.push({ fieldName: definition.fieldName, type: definition.type, isMandatory: this.isCompanyFieldRequiredByDocument(definition.fieldName) })
+        if (pair && !fields.some(field => field.fieldName === pair)) {
+          const pairDefinition = this.companyFieldDefinitions.find(field => field.fieldName === pair)
+          fields.push({ fieldName: pair, type: pairDefinition.type, isMandatory: this.isCompanyFieldRequiredByDocument(definition.fieldName) })
+        }
+      } else {
+        const pair = definition.fieldName === 'registrationNumber' ? 'registrationNumberType' :
+          definition.fieldName === 'registrationNumberType' ? 'registrationNumber' :
+            definition.fieldName === 'taxIdNumber' ? 'taxIdType' :
+              definition.fieldName === 'taxIdType' ? 'taxIdNumber' : null
+        this.kybWidgetConfigTemp.companyFields = fields.filter(field => field.fieldName !== pair)
+        return
+      }
+      this.kybWidgetConfigTemp.companyFields = fields
+    },
+
+    setCompanyFieldMandatory(definition, mandatory) {
+      const fields = this.kybWidgetConfigTemp.companyFields
+      const pair = definition.fieldName === 'registrationNumber' ? 'registrationNumberType' :
+        definition.fieldName === 'registrationNumberType' ? 'registrationNumber' :
+          definition.fieldName === 'taxIdNumber' ? 'taxIdType' :
+            definition.fieldName === 'taxIdType' ? 'taxIdNumber' : null
+      fields.forEach(field => {
+        if (field.fieldName === definition.fieldName || (pair && field.fieldName === pair)) {
+          field.isMandatory = mandatory
+        }
+      })
+    },
+
     handleApiError(error, method = 'GET') {
       const message = typeof error === 'string' ? error : error?.message || 'Something went wrong';
       if (method.toUpperCase() === 'GET' && isAccessDeniedError(error)) {
@@ -421,6 +536,35 @@ export default {
     validateField() {
       if (!this.kybWidgetConfigTemp.issuerDID) {
         throw new Error('Issuer DID is required')
+      }
+
+      const fields = this.kybWidgetConfigTemp.companyFields || []
+      const fieldNames = new Set(fields.map(field => field.fieldName))
+      const requiredNames = this.companyFieldDefinitions.filter(field => field.required).map(field => field.fieldName)
+      if (requiredNames.some(name => !fieldNames.has(name) || !fields.find(field => field.fieldName === name).isMandatory)) {
+        throw new Error('Company name, domain, region, and country of registration must be collected as required fields')
+      }
+      for (const [numberField, typeField] of [['registrationNumber', 'registrationNumberType'], ['taxIdNumber', 'taxIdType']]) {
+        const number = fields.find(field => field.fieldName === numberField)
+        const type = fields.find(field => field.fieldName === typeField)
+        if (Boolean(number) !== Boolean(type) || (number && number.isMandatory !== type.isMandatory)) {
+          throw new Error(`${numberField} and ${typeField} must be selected together with the same required setting`)
+        }
+      }
+      if (this.kybWidgetConfigTemp.collectCertOfIncorporationDoc &&
+          (!fieldNames.has('registrationNumber') || !fieldNames.has('registrationNumberType') ||
+            !fields.find(field => field.fieldName === 'registrationNumber').isMandatory ||
+            !fields.find(field => field.fieldName === 'registrationNumberType').isMandatory)) {
+        throw new Error('Certificate of Incorporation collection requires Registration Number and Registration Number Type as required fields')
+      }
+      if (this.kybWidgetConfigTemp.collectTaxRegistrationDoc &&
+          (!fieldNames.has('taxIdNumber') || !fieldNames.has('taxIdType') ||
+            !fields.find(field => field.fieldName === 'taxIdNumber').isMandatory ||
+            !fields.find(field => field.fieldName === 'taxIdType').isMandatory)) {
+        throw new Error('Tax Registration collection requires Tax ID Number and Tax ID Type as required fields')
+      }
+      if (!fields.some(field => ['registrationNumber', 'taxIdNumber'].includes(field.fieldName) && field.isMandatory)) {
+        throw new Error('At least one registration number or tax ID pair must be required')
       }
 
       if (!this.kybWidgetConfigTemp.collectCertOfIncorporationDoc &&
