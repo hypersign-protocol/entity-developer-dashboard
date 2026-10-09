@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+## [3.16.0] - 2026-10-09
+### Added
+- Added Id service credit calculator
+
 ## [3.15.6] - 2026-10-2
 
 ### Changed
