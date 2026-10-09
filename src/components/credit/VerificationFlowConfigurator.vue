@@ -75,7 +75,18 @@
                     :aria-label="`Decrease ${service.title} quantity`"
                     @click="changeServiceQuantity(service, -1)"
                   >−</button>
-                  <strong :aria-label="`${service.title} quantity`">{{ serviceQuantity(service) }}</strong>
+                  <input
+                    class="quantity-input"
+                    type="number"
+                    inputmode="numeric"
+                    step="1"
+                    :min="minimumQuantity(service)"
+                    :value="serviceQuantity(service)"
+                    :aria-label="`${service.title} quantity`"
+                    @click.stop
+                    @change="setServiceQuantity(service, $event.target.value)"
+                    @keydown.enter="$event.target.blur()"
+                  >
                   <button
                     type="button"
                     :disabled="!canIncreaseServiceQuantity(service, serviceQuantity(service) + 1)"
@@ -243,6 +254,33 @@ export default {
         [service.id]: quantity
       });
     },
+    setServiceQuantity(service, value) {
+      if (!this.isServiceSelected(service.id)) return;
+
+      const minimum = this.minimumQuantity(service);
+      const numericValue = Number(value);
+      const requestedQuantity = Number.isFinite(numericValue)
+        ? Math.max(Math.floor(numericValue), minimum)
+        : minimum;
+      const currentQuantity = this.serviceQuantity(service);
+      let quantity = requestedQuantity;
+
+      if (quantity > currentQuantity && !this.canIncreaseServiceQuantity(service, quantity)) {
+        let allowedQuantity = currentQuantity;
+        let blockedQuantity = quantity;
+        while (allowedQuantity < blockedQuantity) {
+          const candidate = Math.ceil((allowedQuantity + blockedQuantity) / 2);
+          if (this.canIncreaseServiceQuantity(service, candidate)) allowedQuantity = candidate;
+          else blockedQuantity = candidate - 1;
+        }
+        quantity = allowedQuantity;
+      }
+
+      this.emitSelection(this.selectedFlowIds, this.selectedServiceIds, {
+        ...this.serviceQuantities,
+        [service.id]: quantity
+      });
+    },
     emitSelection(selectedFlowIds, selectedServiceIds, serviceQuantities = this.serviceQuantities) {
       const uniqueServiceIds = [...new Set(selectedServiceIds)];
       const normalizedQuantities = Object.keys(serviceQuantities).reduce((quantities, serviceId) => {
@@ -263,8 +301,8 @@ export default {
       const baseCost = Number(this.serviceCost(service) || 0);
       const multiplier = Math.max(Number(this.serviceCostMultiplier(service) || 1), 1);
       const cost = baseCost * multiplier;
-      if (multiplier > 1) return `${baseCost} × ${multiplier} = ${cost} credits`;
-      return `${cost} ${cost === 1 ? 'credit' : 'credits'}`;
+      const formattedCost = new Intl.NumberFormat().format(cost);
+      return `${formattedCost} ${cost === 1 ? 'credit' : 'credits'}`;
     }
   }
 };
@@ -358,6 +396,11 @@ export default {
   text-align: left;
 }
 
+@media (min-width: 641px) {
+  .service-row { grid-template-columns: 22px 38px minmax(0, 1fr) 204px; }
+  .service-actions { width: 204px; justify-self: end; }
+}
+
 .service-row:not(.required):hover { border-color: #b7c9dc; }
 .service-row.selected { border-color: #a9bfd5; background: #f4f8fc; }
 .service-row.required { cursor: not-allowed; }
@@ -383,21 +426,24 @@ export default {
 
 .required-label { display: inline-block; margin-left: 5px; padding: 2px 6px; border-radius: 999px; background: #e2e8f0; color: #52627b; font-size: 0.58rem; font-weight: 700; letter-spacing: .03em; text-transform: uppercase; vertical-align: middle; }
 .service-actions { display: inline-flex; align-items: center; justify-content: flex-end; gap: 8px; }
-.service-actions.has-quantity { display: grid; width: 244px; grid-template-columns: 100px minmax(0, 136px); }
+.service-actions.has-quantity { display: grid; width: 204px; grid-template-columns: 100px 96px; }
 .quantity-stepper { display: inline-flex; width: 100px; height: 30px; align-items: center; overflow: hidden; border: 1px solid #b7c9dc; border-radius: 6px; background: #fff; box-sizing: border-box; }
 .quantity-stepper button { width: 28px; height: 28px; flex: 0 0 28px; border: 0; background: #f4f8fc; color: #405b78; font-size: 16px; font-weight: 700; line-height: 1; }
 .quantity-stepper button:hover:not(:disabled) { background: #e6eef6; }
 .quantity-stepper button:disabled { cursor: not-allowed; color: #b5c2cf; }
-.quantity-stepper strong { width: 42px; flex: 0 0 42px; color: #344563; font-size: 0.75rem; font-variant-numeric: tabular-nums; text-align: center; }
-.credit-pill { padding: 5px 11px; border-radius: 999px; background: #eaf2f9; color: #5b7896; font-size: 0.74rem; font-weight: 700; white-space: nowrap; }
-.service-actions.has-quantity .credit-pill { width: 100%; max-width: 136px; box-sizing: border-box; overflow: hidden; padding-right: 6px; padding-left: 6px; font-variant-numeric: tabular-nums; text-align: center; text-overflow: ellipsis; }
+.quantity-input { width: 42px; height: 28px; flex: 0 0 42px; border: 0; outline: 0; background: #fff; color: #344563; font: inherit; font-size: 0.75rem; font-variant-numeric: tabular-nums; font-weight: 700; text-align: center; appearance: textfield; }
+.quantity-input::-webkit-inner-spin-button,
+.quantity-input::-webkit-outer-spin-button { margin: 0; appearance: none; }
+.quantity-input:focus { box-shadow: inset 0 0 0 2px rgba(120, 152, 184, .35); }
+.credit-pill { display: inline-flex; width: 96px; height: 28px; align-items: center; justify-content: center; overflow: hidden; padding: 0 7px; border: 0; border-radius: 999px; background: #eaf2f9; box-sizing: border-box; color: #5b7896; font-size: 0.74rem; font-variant-numeric: tabular-nums; font-weight: 700; text-align: center; text-overflow: ellipsis; white-space: nowrap; }
+.service-actions.has-quantity .credit-pill { justify-self: end; }
 .service-placeholder { display: flex; min-height: 120px; align-items: center; justify-content: center; gap: 8px; margin-top: 14px; border: 1px dashed #cbd5e1; border-radius: 10px; color: #64748b; font-size: 0.84rem; }
 
 @media (max-width: 640px) {
   .flow-grid { grid-template-columns: 1fr; }
   .flow-card { min-height: 128px; }
   .service-row { grid-template-columns: 22px 34px minmax(0, 1fr); }
-  .service-actions { grid-column: 3; justify-self: start; flex-wrap: wrap; justify-content: flex-start; }
+  .service-actions { width: auto; grid-column: 3; justify-self: start; flex-wrap: wrap; justify-content: flex-start; }
   .service-actions.has-quantity { max-width: 100%; }
 }
 </style>

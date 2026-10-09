@@ -50,6 +50,7 @@
           </div>
 
           <div class="estimate-actions">
+            <!--
             <div class="configuration-summary" :class="{ empty: !creditsPerVerification }">
               <span class="configuration-summary-icon">
                 <v-icon small>mdi-format-list-checks</v-icon>
@@ -60,6 +61,7 @@
                 <small>{{ configurationSummary.detail }}</small>
               </div>
             </div>
+            -->
 
             <button class="got-it-button" type="button" @click="saveConfiguration">
               <v-icon small>mdi-content-save-outline</v-icon>
@@ -130,7 +132,7 @@ const flows = [
         title: 'Document Verification',
         description: 'Extract and verify information from passports and government-issued IDs.',
         icon: 'mdi-file-document-check-outline',
-        routes: ['/api/v2/documents/extract', '/api/v1/document/:id/verification'],
+        routes: ['/api/v2/documents/extract', '/api/v2/biometrics/verify'],
         defaultSelected: true
       },
       {

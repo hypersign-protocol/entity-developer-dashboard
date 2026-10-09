@@ -58,8 +58,7 @@
                                     <template v-if="hasSavedCalculatorConfiguration">
                                         <strong>{{ numberFormat(savedVerificationEstimate) }} verification flows available</strong>
                                         <small>
-                                            Based on your saved configuration at
-                                            {{ numberFormat(savedCalculatorConfiguration.creditsPerVerification) }} credits each.
+                                            Based on configurations you saved
                                         </small>
                                     </template>
                                     <template v-else>

@@ -84,6 +84,24 @@ describe('VerificationFlowConfigurator.vue', () => {
     expect(wrapper.emitted('input')).to.equal(undefined)
   })
 
+  it('accepts a typed quantity and caps it at the highest allowed value', () => {
+    const value = {
+      selectedFlowIds: ['global', 'business'],
+      selectedServiceIds: ['session', 'document', 'ubo'],
+      serviceQuantities: { ubo: 1 }
+    }
+    const wrapper = shallowMount(VerificationFlowConfigurator, {
+      propsData: {
+        flows,
+        value,
+        canIncreaseServiceQuantity: (service, quantity) => service.id !== 'ubo' || quantity <= 3
+      }
+    })
+
+    wrapper.vm.setServiceQuantity(flows[1].services[0], '20')
+    expect(wrapper.emitted('input')[0][0].serviceQuantities).to.deep.equal({ ubo: 3 })
+  })
+
   it('allows optional services to toggle but rejects required services', () => {
     const wrapper = mountConfigurator({
       selectedFlowIds: ['global'],
