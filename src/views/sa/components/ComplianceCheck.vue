@@ -13,11 +13,11 @@
                     </div>
                     <div>
                         <p class="text-subtitle-2 text-muted mb-2">
-                            Enter <strong>Service ID</strong> and Authenticate.
+                            Enter <strong>Application ID</strong> and Authenticate.
                         </p>
                         <v-row align="start" no-gutters class="mb-4">
                              <v-col cols="12" sm="8" md="8">
-                                <v-text-field v-model="serviceId" label="Service ID"
+                                <v-text-field v-model="serviceId" label="Application ID"
                                     placeholder="e.g. 68afa3d8a4975d9c9e4671a7..." outlined dense color="primary"
                                     class="mono-text mr-sm-4" @keyup.enter="authenticateService" hide-details></v-text-field>
                             </v-col>

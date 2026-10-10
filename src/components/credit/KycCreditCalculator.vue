@@ -6,7 +6,7 @@
     @hidden="isOpen = false"
   >
     <section class="calculator-modal">
-      <p class="calculator-subtitle">See how many verifications your remaining credits can cover.</p>
+      <p class="calculator-subtitle">{{ copy.subtitle }}</p>
 
       <div class="calculator-layout">
         <VerificationFlowConfigurator
@@ -23,9 +23,23 @@
           <div class="summary-card credits-card">
             <span class="summary-icon"><v-icon>mdi-database-outline</v-icon></span>
             <div>
-              <span>Available Credits</span>
-              <strong>{{ numberFormat(remainingCredits) }}</strong>
-              <small>/ {{ numberFormat(totalCredits) }} credits</small>
+              <span>{{ copy.creditsLabel }}</span>
+              <template v-if="isAllocateMode">
+                <input
+                  v-model="creditsInput"
+                  class="credits-input"
+                  type="number"
+                  min="0"
+                  step="1"
+                  aria-label="Credits to allocate"
+                  @input="updateCredits"
+                />
+                <small>credits</small>
+              </template>
+              <template v-else>
+                <strong>{{ numberFormat(remainingCredits) }}</strong>
+                <small>/ {{ numberFormat(totalCredits) }} credits</small>
+              </template>
             </div>
           </div>
 
@@ -41,7 +55,7 @@
             </div>
           </div>
 
-          <div class="estimate-actions">
+          <div v-if="!isAllocateMode" class="estimate-actions">
             <!--
             <div class="configuration-summary" :class="{ empty: !creditsPerVerification }">
               <span class="configuration-summary-icon">
@@ -191,18 +205,36 @@ export default {
   props: {
     value: { type: Boolean, default: false },
     remainingCredits: { type: Number, default: 0 },
-    totalCredits: { type: Number, default: 0 }
+    totalCredits: { type: Number, default: 0 },
+    // 'customer': estimate against the user's own remaining credits, with a saved config.
+    // 'allocate': super admin previewing what a credit amount they are about to give covers.
+    mode: { type: String, default: 'customer', validator: (v) => ['customer', 'allocate'].includes(v) }
   },
   data() {
     return {
       flows,
       popupId: 'kyc-credit-calculator-popup',
+      creditsInput: String(this.remainingCredits),
       selectedFlowIds: [],
       selectedServiceIds: [],
       serviceQuantities: {}
     };
   },
   computed: {
+    isAllocateMode() {
+      return this.mode === 'allocate';
+    },
+    copy() {
+      return this.isAllocateMode
+        ? {
+          subtitle: 'See how many verifications this credit amount will cover.',
+          creditsLabel: 'Credits to allocate'
+        }
+        : {
+          subtitle: 'See how many verifications your remaining credits can cover.',
+          creditsLabel: 'Available Credits'
+        };
+    },
     isOpen: {
       get() { return this.value; },
       set(value) { this.$emit('input', value); }
@@ -286,10 +318,13 @@ export default {
     }
   },
   watch: {
+    remainingCredits(credits) {
+      if (Number(this.creditsInput) !== credits) this.creditsInput = String(credits);
+    },
     value: {
       immediate: true,
       handler(isOpen) {
-        if (isOpen) this.loadSavedConfiguration();
+        if (isOpen && !this.isAllocateMode) this.loadSavedConfiguration();
         this.$nextTick(() => {
           this.$root.$emit(isOpen ? 'bv::show::modal' : 'bv::hide::modal', this.popupId);
         });
@@ -297,6 +332,11 @@ export default {
     }
   },
   methods: {
+    // Allocate mode only: the parent owns the amount and passes it back via the prop.
+    updateCredits() {
+      const credits = Math.max(Math.floor(Number(this.creditsInput) || 0), 0);
+      this.$emit('update:remainingCredits', credits);
+    },
     updateSelection(selection) {
       this.selectedFlowIds = [...selection.selectedFlowIds];
       this.selectedServiceIds = [...selection.selectedServiceIds];
@@ -460,6 +500,21 @@ export default {
 .summary-card small { margin-left: 6px; color: #52627b; font-size: 0.76rem; font-weight: 600; }
 
 .credits-card { background: #f8fafc; }
+.credits-input {
+  width: 100%;
+  max-width: 200px;
+  margin-top: 6px;
+  padding: 4px 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: #fff;
+  color: #495057;
+  font-size: clamp(1.5rem, 3vw, 2.25rem);
+  font-weight: 700;
+  line-height: 1.2;
+}
+.credits-input:focus { outline: none; border-color: #405b78; }
+.credits-input + small { display: block; margin: 6px 0 0; }
 .credits-card .summary-icon { background: #f1f5f9; }
 .credits-card .summary-icon .v-icon,
 .credits-card strong { color: #495057; }
