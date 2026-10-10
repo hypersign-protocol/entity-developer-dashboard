@@ -1,20 +1,12 @@
 <template>
-  <v-dialog
-    v-model="isOpen"
-    max-width="1040"
-    content-class="kyc-credit-dialog"
-    :retain-focus="true"
+  <hf-pop-up
+    :id="popupId"
+    Header="Credit Calculator"
+    size="xl"
+    @hidden="isOpen = false"
   >
-    <section class="calculator-modal" role="dialog" aria-modal="true" aria-labelledby="credit-calculator-title">
-      <header class="calculator-header">
-        <div>
-          <h2 id="credit-calculator-title">Credit Calculator</h2>
-          <p>See how many verifications your remaining credits can cover.</p>
-        </div>
-        <button class="close-button" type="button" aria-label="Close credit calculator" @click="close">
-          <v-icon>mdi-close</v-icon>
-        </button>
-      </header>
+    <section class="calculator-modal">
+      <p class="calculator-subtitle">See how many verifications your remaining credits can cover.</p>
 
       <div class="calculator-layout">
         <VerificationFlowConfigurator
@@ -72,12 +64,13 @@
       </div>
 
     </section>
-  </v-dialog>
+  </hf-pop-up>
 </template>
 
 <script>
 import creditCatalog from '../../catalogs/catalog.kyc.json';
 import VerificationFlowConfigurator from './VerificationFlowConfigurator.vue';
+import HfPopUp from '../element/hfPopup.vue';
 
 const flows = [
   {
@@ -194,7 +187,7 @@ const flows = [
 
 export default {
   name: 'KycCreditCalculator',
-  components: { VerificationFlowConfigurator },
+  components: { VerificationFlowConfigurator, HfPopUp },
   props: {
     value: { type: Boolean, default: false },
     remainingCredits: { type: Number, default: 0 },
@@ -203,6 +196,7 @@ export default {
   data() {
     return {
       flows,
+      popupId: 'kyc-credit-calculator-popup',
       selectedFlowIds: [],
       selectedServiceIds: [],
       serviceQuantities: {}
@@ -296,6 +290,9 @@ export default {
       immediate: true,
       handler(isOpen) {
         if (isOpen) this.loadSavedConfiguration();
+        this.$nextTick(() => {
+          this.$root.$emit(isOpen ? 'bv::show::modal' : 'bv::hide::modal', this.popupId);
+        });
       }
     }
   },
@@ -406,51 +403,19 @@ export default {
   position: relative;
   display: flex;
   width: 100%;
-  height: min(760px, calc(100vh - 48px));
-  max-height: 90vh;
+  height: min(640px, calc(100vh - 180px));
   flex-direction: column;
   overflow: hidden;
-  border-radius: 16px;
-  background: #fff;
   color: #12213d;
 }
 
-.calculator-header {
-  display: flex;
-  flex: 0 0 auto;
-  align-items: flex-start;
-  justify-content: space-between;
-  padding: 28px 32px 16px;
-}
-
-.calculator-header h2 {
-  margin: 0;
-  color: #12213d;
-  font-weight: 700;
-}
-
-.calculator-header h2 { font-size: 1.75rem; }
-.calculator-header p { margin: 3px 0 0; color: #64748b; }
-
-.close-button {
-  display: inline-flex;
-  width: 40px;
-  height: 40px;
-  align-items: center;
-  justify-content: center;
-  border: 0;
-  border-radius: 50%;
-  background: transparent;
-}
-
-.close-button:hover { background: #f1f5f9; }
+.calculator-subtitle { flex: 0 0 auto; margin: 0 0 16px; color: #64748b; }
 
 .calculator-layout {
   display: grid;
   grid-template-columns: minmax(0, 1.7fr) minmax(300px, 1fr);
   min-height: 0;
   flex: 1 1 auto;
-  padding: 0 32px 28px;
 }
 
 .configuration-panel {
@@ -574,26 +539,6 @@ export default {
 }
 
 @media (max-width: 640px) {
-  .calculator-modal {
-    height: calc(100vh - 24px);
-    max-height: none;
-    border-radius: 12px;
-  }
-  .calculator-header { padding: 20px 18px 10px; }
-  .calculator-header h2 { font-size: 1.35rem; }
-  .calculator-layout { padding: 0 18px 20px; }
   .summary-card { min-height: 120px; }
-}
-</style>
-
-<style>
-.v-dialog.kyc-credit-dialog { overflow: hidden; }
-
-@media (max-width: 640px) {
-  .v-dialog.kyc-credit-dialog {
-    width: calc(100% - 24px);
-    max-height: calc(100vh - 24px);
-    margin: 12px;
-  }
 }
 </style>
