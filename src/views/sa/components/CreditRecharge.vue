@@ -127,6 +127,41 @@
           </div>
         </template>
 
+        <hf-pop-up :id="confirmPopupId" Header="Confirm Credit Recharge" size="md">
+          <p class="small text-muted mb-3">
+            Please review the details below. Credits cannot be taken back once recharged.
+          </p>
+          <table class="confirm-summary">
+            <tbody>
+              <tr>
+                <th>Service Type</th>
+                <td>{{ selectedServiceType && selectedServiceType.label }}</td>
+              </tr>
+              <tr>
+                <th>Application ID</th>
+                <td class="mono-text">{{ form.serviceId }}</td>
+              </tr>
+              <tr>
+                <th># Of Credits</th>
+                <td><strong>{{ formattedAmount }}</strong></td>
+              </tr>
+              <tr>
+                <th>Validity</th>
+                <td>
+                  {{ validityLabel }}
+                  <div class="field-hint text-muted">= {{ validityInDays }} days, expires on {{ validityExpiryDate }}</div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="d-flex justify-end mt-4" style="gap: 8px;">
+            <v-btn outlined depressed @click="closeConfirm">Cancel</v-btn>
+            <v-btn color="#111827" depressed @click="confirmRecharge">
+              <span style="color: white;">Confirm &amp; Recharge</span>
+            </v-btn>
+          </div>
+        </hf-pop-up>
+
         <v-fade-transition></v-fade-transition>
       </div>
     </div>
@@ -253,6 +288,33 @@
   color: #111827;
 }
 
+.confirm-summary {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.confirm-summary th,
+.confirm-summary td {
+  padding: 10px 8px;
+  border-bottom: 1px solid #e5e7eb;
+  vertical-align: top;
+  text-align: left;
+}
+
+.confirm-summary th {
+  width: 40%;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+}
+
+.confirm-summary td {
+  color: #111827;
+  word-break: break-all;
+}
+
 .field-hint {
   font-size: 0.75rem;
 }
@@ -263,6 +325,7 @@ import loadIng from '../../../components/element/LoadIng.vue';
 import UtilsMixin from '../../../mixins/utils.js';
 import AccessDenied from '../../AccessDenied.vue';
 import KycCreditCalculator from '../../../components/credit/KycCreditCalculator.vue';
+import HfPopUp from '../../../components/element/hfPopup.vue';
 
 const defaultForm = () => ({
   serviceId: '',
@@ -274,7 +337,7 @@ const defaultForm = () => ({
 
 export default {
   name: 'CreditRecharge',
-  components: { loadIng, AccessDenied, KycCreditCalculator },
+  components: { loadIng, AccessDenied, KycCreditCalculator, HfPopUp },
   mixins: [UtilsMixin],
   data() {
     return {
@@ -287,6 +350,7 @@ export default {
         { value: 'SSI_SERVICE', label: 'SSI Service', description: 'Recharge credits for an SSI application.' },
       ],
       showCreditInfo: false,
+      confirmPopupId: 'credit-recharge-confirm-popup',
       form: defaultForm(),
     };
   },
@@ -314,6 +378,17 @@ export default {
     validityExpiryDate() {
       return this.validityRange.end.toDateString();
     },
+    validityLabel() {
+      const months = Number(this.form.validityMonths) || 0;
+      const days = Number(this.form.validityDays) || 0;
+      const parts = [];
+      if (months) parts.push(`${months} month${months === 1 ? '' : 's'}`);
+      if (days) parts.push(`${days} day${days === 1 ? '' : 's'}`);
+      return parts.join(' ');
+    },
+    formattedAmount() {
+      return new Intl.NumberFormat().format(Number(this.form.amount) || 0);
+    },
   },
   methods: {
     ...mapActions('mainStore', ['creditRecharge']),
@@ -322,7 +397,7 @@ export default {
       this.serviceType = type;
       this.form = defaultForm();
     },
-    async handleRecharge() {
+    handleRecharge() {
       if (!this.form.serviceId) {
         this.notifyErr("Please provide a Application ID.");
         return;
@@ -342,6 +417,15 @@ export default {
         return;
       }
 
+      this.$root.$emit('bv::show::modal', this.confirmPopupId);
+    },
+    closeConfirm() {
+      this.$root.$emit('bv::hide::modal', this.confirmPopupId);
+    },
+    async confirmRecharge() {
+      // Guards a double click landing during the popup's close animation
+      if (this.loading) return;
+      this.closeConfirm();
       this.loading = true;
       this.isLoading = true;
 
