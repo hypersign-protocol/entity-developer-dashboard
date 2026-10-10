@@ -317,12 +317,12 @@
   color: #4a4a5a !important;
 }
 
-.v-sidebar-menu.vsm_white-theme .vsm--mobile-bg {
-  background: #ffffff !important;
-}
-
+/* Collapsed-mode hover: the library draws the hovered item on this layer.
+   Solid equivalent of the expanded hover (rgba(0,0,0,0.05) over white), since it
+   overlaps page content where a translucent tint would show through. */
+.v-sidebar-menu.vsm_white-theme .vsm--mobile-bg,
 .vsm--mobile-bg {
-  background: #ffffff !important;
+  background: #f2f2f2 !important;
 }
 
 
