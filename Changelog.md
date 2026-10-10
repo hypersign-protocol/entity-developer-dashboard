@@ -7,7 +7,8 @@
 - Added new document type  `TaxRegistrationDocument`in kyb widget
 - Made all document relatedf ield configurable
 - Added configurable company fields so businesses are asked to provide only the information selected for verification.
-
+- Made compliance check configurable
+- Approve and reject button is always visible
 ## [3.15.6] - 2026-10-2
 
 ### Changed

@@ -103,8 +103,18 @@
             <div class="col-md-6 p-2">
               <div class="config-card h-100">
                 <div class="d-flex justify-content-between align-items-start">
+                  <label class="font-weight-bold mb-0">{{ kybWidgetConfigUI.checkAmlPep.label }}</label>
+                  <b-form-checkbox switch v-model="kybWidgetConfigTemp.checkAmlPep"></b-form-checkbox>
+                </div>
+                <small class="text-muted d-block mt-1" v-html="kybWidgetConfigUI.checkAmlPep.description"></small>
+              </div>
+            </div>
+
+            <div class="col-md-6 p-2">
+              <div class="config-card h-100">
+                <div class="d-flex justify-content-between align-items-start">
                   <label class="font-weight-bold mb-0">{{ kybWidgetConfigUI.checkAmlSanction.label }}</label>
-                  <b-form-checkbox switch v-model="kybWidgetConfigTemp.checkAmlSanction" disabled></b-form-checkbox>
+                  <b-form-checkbox switch v-model="kybWidgetConfigTemp.checkAmlSanction"></b-form-checkbox>
                 </div>
                 <small class="text-muted d-block mt-1" v-html="kybWidgetConfigUI.checkAmlSanction.description"></small>
                 <div class="sanction-badge-row mt-2">
@@ -119,7 +129,7 @@
               <div class="config-card h-100">
                 <div class="d-flex justify-content-between align-items-start">
                   <label class="font-weight-bold mb-0">{{ kybWidgetConfigUI.checkAmlAdversemedia.label }}</label>
-                  <b-form-checkbox switch v-model="kybWidgetConfigTemp.checkAmlAdversemedia" disabled></b-form-checkbox>
+                  <b-form-checkbox switch v-model="kybWidgetConfigTemp.checkAmlAdversemedia"></b-form-checkbox>
                 </div>
                 <small class="text-muted d-block mt-1" v-html="kybWidgetConfigUI.checkAmlAdversemedia.description"></small>
               </div>
@@ -129,7 +139,7 @@
               <div class="config-card h-100">
                 <div class="d-flex justify-content-between align-items-start">
                   <label class="font-weight-bold mb-0">{{ kybWidgetConfigUI.checkBusinessRegistry.label }}</label>
-                  <b-form-checkbox switch v-model="kybWidgetConfigTemp.checkBusinessRegistry" disabled></b-form-checkbox>
+                  <b-form-checkbox switch v-model="kybWidgetConfigTemp.checkBusinessRegistry"></b-form-checkbox>
                 </div>
                 <small class="text-muted d-block mt-1" v-html="kybWidgetConfigUI.checkBusinessRegistry.description"></small>
               </div>
@@ -317,6 +327,7 @@ export default {
           ...this.kybWidgetConfigTemp,
           ...this.kybWidgetConfig
         }
+        this.normalizeCompanyFields()
       }
       
       this.appId = this.$route.params.appId;
@@ -472,8 +483,24 @@ export default {
     ...mapMutations('mainStore', ['setKybWidgetConfig']),
     ...mapActions('mainStore', ['createAppsKybWidgetConfig', 'fetchAppsKybWidgetConfig', 'updateAppsKybWidgetConfig']),
 
+    normalizeCompanyFields() {
+      // Older KYB widget configs predate companyFields. An empty array is also
+      // treated as legacy data because the editor requires the core company
+      // fields and otherwise presents an unusable all-off configuration.
+      if (!Array.isArray(this.kybWidgetConfigTemp.companyFields) || this.kybWidgetConfigTemp.companyFields.length === 0) {
+        this.kybWidgetConfigTemp.companyFields = [
+          { fieldName: 'name', type: 'text', isMandatory: true },
+          { fieldName: 'domain', type: 'text', isMandatory: true },
+          { fieldName: 'region', type: 'text', isMandatory: true },
+          { fieldName: 'countryOfRegistration', type: 'country', isMandatory: true },
+          { fieldName: 'registrationNumber', type: 'text', isMandatory: true },
+          { fieldName: 'registrationNumberType', type: 'registration-type', isMandatory: true }
+        ]
+      }
+    },
+
     isCompanyFieldSelected(fieldName) {
-      return this.kybWidgetConfigTemp.companyFields.some(field => field.fieldName === fieldName)
+      return (this.kybWidgetConfigTemp.companyFields || []).some(field => field.fieldName === fieldName)
     },
 
     isCompanyFieldMandatory(fieldName) {
@@ -588,6 +615,7 @@ export default {
     async saveConfiguration() {
       try {
         this.isLoading = true;
+        this.normalizeCompanyFields()
         this.validateField()
         this.setKybWidgetConfig(this.kybWidgetConfigTemp)
         await this.createAppsKybWidgetConfig()
@@ -604,6 +632,7 @@ export default {
     async updateConfiguration() {
       try {
         this.isLoading = true;
+        this.normalizeCompanyFields()
         this.validateField()
         this.setKybWidgetConfig(this.kybWidgetConfigTemp)
         await this.updateAppsKybWidgetConfig()
