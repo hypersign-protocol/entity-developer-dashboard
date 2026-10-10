@@ -12,7 +12,7 @@
   
   <v-col cols="12" md="6" class="d-flex justify-md-end justify-start">
     <div class="d-flex flex-sm-row flex-column gap-3 align-center">
-      <div class="search-wrap search-wrap--business">
+      <div v-if="companies && companies.length" class="search-wrap search-wrap--business">
         <input 
           type="text" 
           placeholder="Search company..." 
@@ -35,11 +35,7 @@
   </v-col>
 </v-row>
 
-    <div v-if="isLoading" class="d-flex justify-center py-12">
-      <v-progress-circular indeterminate color="primary"></v-progress-circular>
-    </div>
-
-    <div v-else-if="error" class="warning-box mb-6">
+    <div v-if="error" class="warning-box mb-6">
       <div class="d-flex align-center">
         <v-icon color="orange darken-2" class="mr-2">mdi-alert</v-icon>
         <span class="text-orange font-weight-bold">{{ error }}</span>
@@ -128,7 +124,7 @@
       </v-col>
     </v-row>
 
-    <div v-else>
+    <div v-else-if="!isLoading">
       <empty-container title="No Business Found" icon="fa fa-building" />
     </div>
     </template>
