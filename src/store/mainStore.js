@@ -1162,6 +1162,8 @@ const mainStore = {
                                 region: company.region || 'Unknown',
                                 domain: company.domain || 'N/A',
                                 registrationNumberType: company.registrationNumberType || 'Unknown',
+                                taxIdType: company.taxIdType,
+                                taxIdNumber: company.taxIdNumber,
                                 address: company.address || {},
                                 documents: company.documents || [],
                                 createdAt: company.createdAt,

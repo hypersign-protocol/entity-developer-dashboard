@@ -197,10 +197,10 @@
           </template>
         </template>
 
-        <!-- Step 2: review & submit -->
+        <!-- Step 2: Terms & condition -->
         <template v-else>
           <header class="panel-header">
-            <h3>Review &amp; submit</h3>
+            <h3>Terms &amp; conditions</h3>
             <p>Confirm your details to send them to our compliance team.</p>
           </header>
 
@@ -356,7 +356,7 @@ export default {
     steps() {
       return [
         { value: 'company', label: 'Company & documents', hint: 'Details and uploads', complete: this.companyDetailsComplete },
-        { value: 'review', label: 'Review & submit', hint: 'Confirm and send', complete: false },
+        { value: 'review', label: 'Terms & conditions', hint: 'Confirm and send', complete: false },
       ];
     },
     activeStepIndex() {
