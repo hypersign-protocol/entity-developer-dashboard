@@ -1,17 +1,25 @@
 // Compliance review state of the company details submitted for production access,
-// derived from the onboarding record's documents[].status (PENDING | APPROVED | REJECTED).
+// derived from the onboarding record's companyVerificationStatus (Completed | Approved | Rejected).
 export const COMPANY_REVIEW = {
   NOT_SUBMITTED: 'NOT_SUBMITTED',
-  UNDER_REVIEW: 'UNDER_REVIEW',
-  VERIFIED: 'VERIFIED',
-  ACTION_NEEDED: 'ACTION_NEEDED',
+  UNDER_REVIEW: 'UNDER_REVIEW', // Completed: submitted, compliance review still in progress
+  VERIFIED: 'VERIFIED', // Approved by compliance
+  REJECTED: 'REJECTED', // Rejected by compliance; reason in companyStatusReason
+};
+
+const BACKEND_STATUS = {
+  Completed: COMPANY_REVIEW.UNDER_REVIEW,
+  Approved: COMPANY_REVIEW.VERIFIED,
+  Rejected: COMPANY_REVIEW.REJECTED,
 };
 
 export function companyReviewStatus(onboarding) {
-  const documents = Array.isArray(onboarding && onboarding.documents) ? onboarding.documents : [];
-  if (!documents.length) return COMPANY_REVIEW.NOT_SUBMITTED;
-  const statuses = documents.map(doc => String(doc.status || 'PENDING').toUpperCase());
-  if (statuses.includes('REJECTED')) return COMPANY_REVIEW.ACTION_NEEDED;
-  if (statuses.every(status => status === 'APPROVED')) return COMPANY_REVIEW.VERIFIED;
-  return COMPANY_REVIEW.UNDER_REVIEW;
+  const status = onboarding && onboarding.companyVerificationStatus;
+  return BACKEND_STATUS[status] || COMPANY_REVIEW.NOT_SUBMITTED;
+}
+
+// Mirrors the backend go-live rule: submitted (Completed) or Approved is enough for production
+export function companyAllowsProduction(onboarding) {
+  const status = companyReviewStatus(onboarding);
+  return status === COMPANY_REVIEW.UNDER_REVIEW || status === COMPANY_REVIEW.VERIFIED;
 }

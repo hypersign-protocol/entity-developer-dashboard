@@ -12,7 +12,7 @@
               </span>
             </div>
           </div>
-          <button v-if="!isEditing" type="button" class="secondary-button" :disabled="busy" @click="startEdit">Change</button>
+          <button v-if="!isEditing && !app.hasDomainVerified" type="button" class="secondary-button" :disabled="busy" @click="startEdit">Change</button>
         </div>
 
         <div v-if="isEditing" class="domain-editor">
@@ -174,6 +174,8 @@ export default {
   },
   methods: {
     startEdit() {
+      // A verified domain is locked
+      if (this.app.hasDomainVerified) return;
       this.newDomain = this.app.domain || '';
       this.isEditing = true;
     },

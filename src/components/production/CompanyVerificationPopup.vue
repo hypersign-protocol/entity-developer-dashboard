@@ -256,7 +256,7 @@ import countries from 'i18n-iso-countries';
 import enLocale from 'i18n-iso-countries/langs/en.json';
 import { COUNTRY_OPTIONS, CALLING_CODES, countryName, detectCountryFromIp } from '../../utils/countries.js';
 import { getIdentifierRule, validateIdentifier } from '../../utils/companyIdentifiers.js';
-import { COMPANY_REVIEW, companyReviewStatus } from './companyReview.js';
+import { companyAllowsProduction } from './companyReview.js';
 
 countries.registerLocale(enLocale);
 
@@ -340,8 +340,7 @@ export default {
     },
     // Already with compliance (or approved); a rejected submission can be resent
     alreadySubmitted() {
-      const status = companyReviewStatus(this.onboarding);
-      return status === COMPANY_REVIEW.UNDER_REVIEW || status === COMPANY_REVIEW.VERIFIED;
+      return companyAllowsProduction(this.onboarding);
     },
     companyDetailsComplete() {
       if (this.alreadySubmitted) return true;
@@ -516,10 +515,10 @@ export default {
       if (!this.canSubmit || this.submitting) return;
       this.submitting = true;
       try {
-        await this.$store.dispatch('mainStore/submitProductionDetails', this.buildPayload());
+        const updated = await this.$store.dispatch('mainStore/submitProductionDetails', this.buildPayload());
         this.close();
         this.notifySuccess('Company details submitted for review.');
-        this.$emit('submitted');
+        this.$emit('submitted', updated);
       } catch (error) {
         this.notifyErr(error.message || 'Could not submit your details. Please try again.');
       } finally {
