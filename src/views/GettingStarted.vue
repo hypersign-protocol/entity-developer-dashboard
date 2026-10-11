@@ -195,8 +195,8 @@ export default {
           title: "Ready for Production?",
           icon: "mdi-rocket-launch-outline",
           description:
-            "Once you’re satisfied with testing, verify your domain and switch from the Development to Production environment. This step ensures real user verification in a secure, compliant setting.",
-          link: `#/studio/service-config/${this.appId()}?tab=domain`,
+            "Once you’re satisfied with testing, complete the go-live checklist: verify your domain, turn on MFA and verify your company. Then switch to Production to start verifying real users.",
+          link: `#/studio/service-config/${this.appId()}?tab=go-live`,
           anchorText: "Get production access →",
           openInNewTab: false,
         },
