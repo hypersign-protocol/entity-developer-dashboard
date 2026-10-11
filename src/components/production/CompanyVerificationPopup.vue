@@ -252,9 +252,13 @@
 <script>
 import HfPopUp from '../element/hfPopup.vue';
 import UtilsMixin from '../../mixins/utils';
+import countries from 'i18n-iso-countries';
+import enLocale from 'i18n-iso-countries/langs/en.json';
 import { COUNTRY_OPTIONS, CALLING_CODES, countryName, detectCountryFromIp } from '../../utils/countries.js';
 import { getIdentifierRule, validateIdentifier } from '../../utils/companyIdentifiers.js';
 import { COMPANY_REVIEW, companyReviewStatus } from './companyReview.js';
+
+countries.registerLocale(enLocale);
 
 const MAX_FILE_SIZE_MB = 5;
 const ACCEPTED_TYPES = ['application/pdf', 'image/png', 'image/jpeg'];
@@ -454,24 +458,59 @@ export default {
       if (bytes < 1024 * 1024) return `${Math.max(1, Math.round(bytes / 1024))} KB`;
       return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
     },
+    dataUrlToBlob(dataUrl, mimeType) {
+      const [metadata, encoded] = String(dataUrl || '').split(',');
+      if (!metadata || !encoded || !metadata.includes(';base64')) throw new Error('The selected document could not be prepared for upload.');
+      const binary = window.atob(encoded);
+      const bytes = new Uint8Array(binary.length);
+      for (let index = 0; index < binary.length; index += 1) bytes[index] = binary.charCodeAt(index);
+      return new Blob([bytes], { type: mimeType || metadata.slice(5, metadata.indexOf(';')) });
+    },
     buildPayload() {
       const { documents } = this.form;
-      const toDocument = (documentType, doc) => ({
-        documentType, fileName: doc.fileName, mimeType: doc.mimeType, data: doc.data,
-      });
-      return {
-        ...this.form.basic,
-        registrationNumber: this.form.registrationNumber.toUpperCase(),
-        registeredAddress: { ...this.form.address, country: this.form.basic.country },
-        isTaxApplicable: this.form.taxApplicable,
-        taxIdType: this.form.taxApplicable ? 'COMPANY' : 'PERSONAL',
-        taxId: this.form.taxId.toUpperCase(),
-        documents: [
-          toDocument(this.form.taxApplicable ? 'TAX_REGISTRATION' : 'PERSONAL_TAX_ID', documents.tax),
-          ...(documents.incorporation ? [toDocument('INCORPORATION_CERTIFICATE', documents.incorporation)] : []),
-        ],
-        declarationAccepted: true,
+      if (!this.form.taxApplicable) {
+        throw new Error('The dashboard service does not currently support personal tax ID document types.');
+      }
+      const countryCode = countries.alpha3ToAlpha2(this.form.basic.country);
+      if (!countryCode) throw new Error('This country is not supported for company verification.');
+      const normalizedTaxId = this.form.taxId.toUpperCase();
+      const isIndia = countryCode === 'IN';
+      const registrationNumber = this.form.registrationNumber.toUpperCase().replace(/[\s-]/g, '');
+      const registrationNumberType = registrationNumber
+        ? (isIndia ? (/^[LU]\d{5}[A-Z]{2}\d{4}[A-Z]{3}\d{6}$/.test(registrationNumber) ? 'CIN' : 'LLPIN') : 'OTHER')
+        : undefined;
+      const taxIdType = isIndia
+        ? (/^[A-Z]{5}\d{4}[A-Z]$/.test(normalizedTaxId) ? 'PAN' : 'GSTIN')
+        : 'OTHER';
+      const company = {
+        name: this.form.basic.companyName,
+        domain: this.form.basic.domain,
+        region: this.form.address.state,
+        countryOfRegistration: countryCode,
+        ...(registrationNumber ? { registrationNumber, registrationNumberType } : {}),
+        taxIdType,
+        taxIdNumber: normalizedTaxId,
+        address: {
+          street: [this.form.address.line1, this.form.address.line2].filter(Boolean).join(', '),
+          province: this.form.address.state,
+          postalCode: this.form.address.postalCode,
+          city: this.form.address.city,
+          country: countryCode,
+        },
       };
+      const documentEntries = [
+        { type: 'TaxRegistration', doc: documents.tax },
+        ...(documents.incorporation ? [{ type: 'CertificateOfIncorporation', doc: documents.incorporation }] : []),
+      ];
+      const formData = new FormData();
+      formData.append('onboardingID', this.onboarding._id);
+      formData.append('company', JSON.stringify(company));
+      formData.append('documents', JSON.stringify(documentEntries.map(({ type }) => ({ type }))));
+      documentEntries.forEach(({ doc }, index) => {
+        const file = this.dataUrlToBlob(doc.data, doc.mimeType);
+        formData.append(`documents[${index}][file]`, file, doc.fileName);
+      });
+      return formData;
     },
     async submit() {
       if (!this.canSubmit || this.submitting) return;

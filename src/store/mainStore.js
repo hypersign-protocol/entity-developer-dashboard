@@ -1454,7 +1454,8 @@ const mainStore = {
         // app is switched to production.
         submitProductionDetails: ({ getters }, payload) => {
             return new Promise((resolve, reject) => {
-                const url = `${studioServer.BASE_URL}api/v1/customer-onboarding`;
+                const onboardingID = payload.get('onboardingID');
+                const url = `${studioServer.BASE_URL}api/v1/customer-onboarding/${onboardingID}`;
                 const headers = UtilsMixin.methods.getHeader(getters.getAuthToken);
                 RequestHandler(url, 'PATCH', payload, headers).then(json => {
                     if (json && json.error) {
