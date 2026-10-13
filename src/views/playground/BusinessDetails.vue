@@ -4,17 +4,11 @@
 
     <v-row align="center" class="mb-6">
   <v-col cols="12" md="8">
-    <div class="d-flex align-center">
-      <a 
-        @click.prevent="goBack" 
-        class="breadcrumb-link font-weight-bold mb-0"
-      >
-        Business Verifications
-      </a>
-      
-      <v-icon class="mx-2" color="grey lighten-1">mdi-chevron-right</v-icon>
-      <span class="company-title text-h6 font-weight-bold">{{ companyName }}</span>
-    </div>
+    <nav class="page-breadcrumb" aria-label="Breadcrumb">
+      <a href="#" class="breadcrumb-link" @click.prevent="goBack">Business Verifications</a>
+      <v-icon small class="breadcrumb-separator" aria-hidden="true">mdi-chevron-right</v-icon>
+      <span class="company-title" :title="companyName" aria-current="page">{{ companyName }}</span>
+    </nav>
     <p class="text-subtitle-2 text-muted mb-0 mt-1">
       Review business documentation and regulatory status
     </p>
@@ -27,11 +21,11 @@
 >
     <div class="d-flex justify-md-end justify-start align-center gap-3 w-100">
 
-        <hf-buttons name="Approve" iconClass=""
-                                    @executeAction="approveCompany"></hf-buttons>
+        <hf-buttons name="Reject" iconClass="mdi mdi-close-circle-outline" customClass="btn btn-outline-danger"
+          @executeAction="rejectCompany"></hf-buttons>
+        <hf-buttons name="Approve" iconClass="mdi mdi-check-circle-outline"
+          @executeAction="approveCompany"></hf-buttons>
 
-        <v-btn color="error" text @click="rejectCompany"><v-icon small left color="white">mdi-close-circle-outline</v-icon>Reject</v-btn>
-        
         <!-- <button @click="approveCompany" class="theme-btn btn-approve">
             <v-icon small left color="white">mdi-check-decagram</v-icon>
             Approve
@@ -95,12 +89,22 @@
             type="success" confirmText="Approve" cancelText="Cancel" iconClass="fas fa-check-circle"
             confirmIconClass="fas fa-check" @confirm="handleApproveConfirm" @cancel="showApproveConfirm = false" />
 
-        <CustomPromptModal :isVisible="showRejectPrompt" title="Reject Company"
-            :message="`Please provide a reason for rejecting ${companyName}:`" type="danger" inputType="textarea"
-            inputLabel=""
-            placeholder="Enter the reason for rejection (e.g., incomplete documentation, compliance issues, etc.)"
-            submitText="Reject" cancelText="Cancel" iconClass="fas fa-times-circle" submitIconClass="fas fa-times"
-            @submit="handleRejectSubmit" @cancel="showRejectPrompt = false" />
+        <hf-pop-up id="reject-company-popup" Header="Reject Company">
+          <div class="reject-form">
+            <label for="reject-reason" class="reject-label">Reason for rejecting {{ companyName }}</label>
+            <b-form-textarea
+              id="reject-reason"
+              v-model.trim="rejectReason"
+              rows="4"
+              max-rows="8"
+              placeholder="e.g. incomplete documentation, details don't match the registry, compliance concerns"
+            ></b-form-textarea>
+            <div class="reject-actions">
+              <hf-buttons name="Submit" :disabled="!rejectReason"
+                @executeAction="handleRejectSubmit"></hf-buttons>
+            </div>
+          </div>
+        </hf-pop-up>
   </b-container>
 </template>
 
@@ -141,17 +145,42 @@
   letter-spacing: 0.05em;
 }
 
-/* Breadcrumb Styling */
+/* Breadcrumb: every item shares one line box so they sit on the same centre line */
+.page-breadcrumb {
+  align-items: center;
+  display: flex;
+  gap: 6px;
+  line-height: 28px;
+  min-width: 0;
+}
+
 .breadcrumb-link {
-  font-size: 0.75rem;
-  color: #3b82f6;
+  color: #64748b;
+  flex: 0 0 auto;
+  font-size: 0.875rem;
+  font-weight: 600;
   text-decoration: none;
-  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.breadcrumb-link:hover {
+  color: #111827;
+  text-decoration: underline;
+}
+
+.page-breadcrumb .breadcrumb-separator {
+  color: #94a3b8 !important;
+  flex: 0 0 auto;
 }
 
 .company-title {
-  font-size: 1.25rem;
   color: #111827;
+  font-size: 1.25rem;
+  font-weight: 700;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* Sidebar Tabs */
@@ -213,23 +242,6 @@
 }
 
 
-/* Ensure the breadcrumb link doesn't look like a standard tiny link */
-.breadcrumb-link {
-  color: #64748b; /* Muted slate to distinguish from the active name */
-  text-decoration: none;
-  transition: color 0.2s;
-  line-height: 1.2;
-}
-
-.breadcrumb-link:hover {
-  color: #00000078; /* Bright blue on hover for clarity it's clickable */
-}
-
-.company-title {
-  color: #111827;
-  line-height: 1.2;
-}
-
 /* Flex gap for buttons */
 .gap-3 {
   gap: 12px;
@@ -239,6 +251,21 @@
 .theme-btn {
   height: 40px;
   white-space: nowrap;
+}
+
+/* Reject popup */
+.reject-label {
+  color: #344054;
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.reject-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 16px;
 }
 
 /* Adjustments for smaller screens */
@@ -261,7 +288,7 @@ import DocumentUploaded from '../../components/business-details/DocumentUploaded
 import UboDetails from '../../components/business-details/UboDetails.vue';
 import ChecksRegulations from '../../components/business-details/ChecksRegulations.vue';
 import CustomConfirmModal from '../../components/element/CustomConfirmModal.vue';
-import CustomPromptModal from '../../components/element/CustomPromptModal.vue';
+import HfPopUp from '../../components/element/hfPopup.vue';
 import UtilsMixin from '../../mixins/utils';
 
 
@@ -274,7 +301,7 @@ export default {
         UboDetails,
         ChecksRegulations,
         CustomConfirmModal,
-        CustomPromptModal
+        HfPopUp
     },
     data() {
         return {
@@ -282,7 +309,7 @@ export default {
             fullPage: true,
             company: null,
             showApproveConfirm: false,
-            showRejectPrompt: false
+            rejectReason: ''
         }
     },
     computed: {
@@ -400,11 +427,17 @@ export default {
         },
 
         async rejectCompany() {
-            this.showRejectPrompt = true;
+            this.rejectReason = '';
+            this.$root.$emit('bv::show::modal', 'reject-company-popup');
         },
 
-        async handleRejectSubmit(reason) {
-            this.showRejectPrompt = false;
+        async handleRejectSubmit() {
+            const reason = this.rejectReason;
+            if (!reason) {
+                this.notifyErr('Please enter a reason for rejecting this company.');
+                return;
+            }
+            this.$root.$emit('bv::hide::modal', 'reject-company-popup');
             this.isLoading = true;
             try {
                 await this.approveOrRejectVerification({ companyId: this.companyId, status: 'Rejected', reason });

@@ -35,9 +35,7 @@
   </v-col>
 </v-row>
 
-    <div v-if="isLoading" class="d-flex justify-center py-12">
-      <v-progress-circular indeterminate color="primary"></v-progress-circular>
-    </div>
+    <SectionLoader v-if="isLoading" label="Loading businesses" />
 
     <div v-else-if="error" class="warning-box mb-6">
       <div class="d-flex align-center">
@@ -70,8 +68,8 @@
 
           <div class="mb-4">
             <div class="detail-row">
-              <label class="input-label mb-0">Registration #</label>
-              <span class="detail-value mono">{{ company.registrationNumber  }}</span>
+              <label class="input-label mb-0">{{ companyIdentifier(company).label }}</label>
+              <span class="detail-value mono">{{ companyIdentifier(company).value }}</span>
             </div>
             <div class="detail-row">
               <label class="input-label mb-0">Country</label>
@@ -470,9 +468,10 @@ import { mapState, mapActions, mapMutations } from "vuex";
 import loadIng from '../../components/element/LoadIng.vue';
 import config from '@/config.js';
 import AccessDenied from '../AccessDenied.vue';
+import SectionLoader from '../../components/element/SectionLoader.vue';
 export default {
   name: "BusinessVerification",
-  components: { loadIng, AccessDenied },
+  components: { loadIng, AccessDenied, SectionLoader },
   data() {
     return {
       searchQuery: '',
@@ -551,6 +550,12 @@ export default {
       }
     },
 
+    // A company may have a registration number, a tax ID, or both; show whichever it has
+    companyIdentifier(company) {
+      if (company.registrationNumber) return { label: 'Registration #', value: company.registrationNumber }
+      if (company.taxIdNumber) return { label: company.taxIdType ? `Tax ID (${company.taxIdType})` : 'Tax ID', value: company.taxIdNumber }
+      return { label: 'Registration #', value: 'N/A' }
+    },
     countryCodeToFlag(countryCode) {
       if (!countryCode) return '';
       return countryCode

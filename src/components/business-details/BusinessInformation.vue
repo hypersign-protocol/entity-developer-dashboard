@@ -1,192 +1,81 @@
 <template>
   <div class="business-information">
-    <!-- <div class="section-header">
-      <h2 class="section-title">Business Information</h2>
-      <p class="section-description">Complete business details and registration information</p>
-    </div> -->
-
-    <div class="info-grid">
-      <!-- Basic Information Card -->
-      <div class="info-card">
-        <h3 class="card-title">
-          <i class="fas fa-building"></i>
-          Basic Information
-        </h3>
-        <div class="info-rows">
-          <div class="info-row">
-            <span class="label">Company Name:</span>
-            <span class="value">{{ company?.companyName || 'N/A' }}</span>
-          </div>
-          <div class="info-row">
-            <span class="label">ID:</span>
-            <span class="value mono id-with-copy">
-              <span class="id-text">{{ company?.companyId || 'N/A' }}</span>
-
-              <v-btn
-                v-if="company?.companyId"
-                icon
-                x-small
-                class="copy-btn"
-                @click="copyToClipboard(company.companyId)"
-                title="Copy Company ID"
-              >
-                <v-icon small>mdi-content-copy</v-icon>
-                
-              </v-btn>
-
-            </span>
-            
-          </div>
-          <div class="info-row">
-            <span class="label">Registration Number:</span>
-            <span class="value mono">{{ company?.registrationNumber || 'N/A' }}</span>
-          </div>
-
-          <div class="info-row">
-            <span class="label">Registration Type:</span>
-            <span class="value">{{ company?.registrationNumberType || 'N/A' }}</span>
-          </div>
-          <div class="info-row">
-            <span class="label">Representative:</span>
-            <span class="value">{{ company?.representative || 'N/A' }}</span>
-          </div>
-          <div class="info-row">
-            <span class="label">Domain:</span>
-            <span class="value">{{ company?.domain || 'N/A' }}</span>
-          </div>
-          <div class="info-row">
-            <span class="label">Country:</span>
-            <span class="value">
-             {{ countryCodeToName(company?.countryCode) || 'N/A' }}  {{ countryCodeToFlag(company?.countryCode) }} 
-            </span>
-          </div>
-          <div class="info-row">
-            <span class="label">Region:</span>
-            <span class="value">{{ company?.region || 'N/A' }}</span>
-          </div>
-        </div>
+    <!-- Status overview -->
+    <section class="overview">
+      <div class="overview-item">
+        <span class="field-label">Status</span>
+        <span class="status-badge" :class="statusBadge.className">
+          <v-icon x-small>{{ statusBadge.icon }}</v-icon>
+          {{ statusBadge.label }}
+        </span>
       </div>
-
-
-
-      <!-- Status Information -->
-      <div class="info-card">
-        <h3 class="card-title">
-          <i class="fas fa-info-circle"></i>
-          Timeline & Status
-        </h3>
-        <div class="info-rows">
-          <div class="info-row">
-            <span class="label">Current Status:</span>
-            <span class="value">
-              <span class="status-badge" :class="getStatusBadgeClass(company?.status, company?.statusReasons)">
-                <i :class="getCompanyStatusIcon(company?.status, company?.statusReasons)"></i>
-                {{ company?.status === 'InProgress' ? 'In Progress' : company?.status || 'N/A' }}
-              </span>
-            </span>
-          </div>
-          <div class="info-row">
-            <span class="label">Created Date:</span>
-            <span class="value">{{ formatDate(company?.createdAt) }}</span>
-          </div>
-          <div class="info-row">
-            <span class="label">Last Updated:</span>
-            <span class="value">{{ formatDate(company?.updatedAt) }}</span>
-          </div>
-
-        </div>
+      <div class="overview-item">
+        <span class="field-label">Submitted</span>
+        <span class="field-value">{{ formatDate(company?.createdAt) }}</span>
       </div>
-
-      <!-- Address Information -->
-      <div class="info-card" v-if="company?.address">
-        <h3 class="card-title">
-          <i class="fas fa-map-marker-alt"></i>
-          Address Information
-        </h3>
-        <div class="info-rows">
-          <div class="info-row">
-            <span class="label">Street:</span>
-            <span class="value">{{ company.address.street || 'N/A' }}</span>
-          </div>
-          <div class="info-row">
-            <span class="label">City:</span>
-            <span class="value">{{ company.address.city || 'N/A' }}</span>
-          </div>
-          <div class="info-row">
-            <span class="label">State/Province:</span>
-            <span class="value">{{ company.address.province || 'N/A' }}</span>
-          </div>
-          <div class="info-row">
-            <span class="label">Postal Code:</span>
-            <span class="value">{{ company.address.postalCode || 'N/A' }}</span>
-          </div>
-          <div class="info-row">
-            <span class="label">Country:</span>
-            <span class="value">  {{ countryCodeToName(company?.address?.country) || 'N/A' }} {{ countryCodeToFlag(company?.address?.country) }}</span>
-          </div>
-        </div>
+      <div class="overview-item">
+        <span class="field-label">Last updated</span>
+        <span class="field-value">{{ formatDate(company?.updatedAt) }}</span>
       </div>
+    </section>
 
-      <!-- Verification Steps -->
-      <div class="info-card full-width" style="display: none;">
-        <h3 class="card-title">
-          <i class="fas fa-tasks"></i>
-          Verification Progress
-        </h3>
-        <div class="verification-progress">
-          <div class="step-item" :class="{ completed: company?.steps?.flag }">
-            <div class="step-icon">
-              <i class="fas fa-flag"></i>
-            </div>
-            <div class="step-info">
-              <span class="step-name">Country/Region</span>
-              <span class="step-status">{{ company?.steps?.flag ? 'Completed' : 'Pending' }}</span>
-            </div>
-          </div>
-          <div class="step-item" :class="{ completed: company?.steps?.building }">
-            <div class="step-icon">
-              <i class="fas fa-building"></i>
-            </div>
-            <div class="step-info">
-              <span class="step-name">Company Information</span>
-              <span class="step-status">{{ company?.steps?.building ? 'Completed' : 'Pending' }}</span>
-            </div>
-          </div>
-          <div class="step-item" :class="{ completed: company?.steps?.document }">
-            <div class="step-icon">
-              <i class="fas fa-file"></i>
-            </div>
-            <div class="step-info">
-              <span class="step-name">Document Upload</span>
-              <span class="step-status">{{ company?.steps?.document ? 'Completed' : 'Pending' }}</span>
-            </div>
-          </div>
-          <div class="step-item" :class="{ completed: company?.steps?.user }">
-            <div class="step-icon">
-              <i class="fas fa-user"></i>
-            </div>
-            <div class="step-info">
-              <span class="step-name">Representative</span>
-              <span class="step-status">{{ company?.steps?.user ? 'Completed' : 'Pending' }}</span>
-            </div>
-          </div>
-          <div class="step-item" :class="{ completed: company?.steps?.verification }">
-            <div class="step-icon">
-              <i class="fas fa-check-circle"></i>
-            </div>
-            <div class="step-info">
-              <span class="step-name">Final Verification</span>
-              <span class="step-status">{{ company?.steps?.verification ? 'Completed' : 'Pending' }}</span>
-            </div>
-          </div>
-        </div>
+    <div v-if="statusReasons.length" class="status-reasons" role="note">
+      <v-icon small>mdi-alert-outline</v-icon>
+      <div>
+        <strong>Issues found during verification</strong>
+        <ul>
+          <li v-for="reason in statusReasons" :key="reason">{{ reason }}</li>
+        </ul>
       </div>
     </div>
+
+    <section v-for="section in sections" :key="section.title" class="info-section">
+      <header class="section-header">
+        <v-icon small>{{ section.icon }}</v-icon>
+        <h3>{{ section.title }}</h3>
+      </header>
+
+      <dl class="field-grid">
+        <div v-for="field in section.fields" :key="field.label" class="field" :class="{ 'span-2': field.wide }">
+          <dt class="field-label">{{ field.label }}</dt>
+          <dd v-if="!hasValue(field.value)" class="field-value is-missing">Not provided</dd>
+          <dd v-else-if="field.kind === 'copy'" class="field-value mono copy-value">
+            <span class="truncate" :title="field.value">{{ field.value }}</span>
+            <button type="button" class="copy-btn" :aria-label="`Copy ${field.label}`" @click="copyToClipboard(field.value)">
+              <v-icon x-small>mdi-content-copy</v-icon>
+            </button>
+          </dd>
+          <dd v-else-if="field.kind === 'link'" class="field-value">
+            <a :href="toUrl(field.value)" target="_blank" rel="noopener noreferrer" class="field-link">
+              {{ field.value }} <v-icon x-small>mdi-open-in-new</v-icon>
+            </a>
+          </dd>
+          <dd v-else-if="field.kind === 'country'" class="field-value">
+            <span class="country-flag" aria-hidden="true">{{ countryCodeToFlag(field.value) }}</span>
+            {{ countryCodeToName(field.value) }}
+          </dd>
+          <dd v-else class="field-value" :class="{ mono: field.mono }">{{ field.value }}</dd>
+        </div>
+      </dl>
+    </section>
   </div>
 </template>
 
 <script>
 import UtilsMixin from "../../mixins/utils.js";
+import config from '@/config.js';
+
+// Placeholders the store uses for missing values
+const EMPTY_VALUES = ['', 'N/A', 'Unknown'];
+
+const STATUS_BADGES = {
+  Submitted: { label: 'Submitted', icon: 'mdi-clock-outline', className: 'status-submitted' },
+  InProgress: { label: 'In progress', icon: 'mdi-progress-clock', className: 'status-inprogress' },
+  Completed: { label: 'Completed', icon: 'mdi-check-all', className: 'status-completed' },
+  Approved: { label: 'Approved', icon: 'mdi-check-circle', className: 'status-approved' },
+  Rejected: { label: 'Rejected', icon: 'mdi-close-circle', className: 'status-rejected' },
+};
+
 export default {
   name: "BusinessInformation",
   props: {
@@ -196,9 +85,71 @@ export default {
     }
   },
   mixins: [UtilsMixin],
+  computed: {
+    statusReasons() {
+      const reasons = this.company?.statusReasons || [];
+      return reasons.map(reason => config.COMPLIANCE_CHECK_FAILURE_REASONS[reason] || reason);
+    },
+    statusBadge() {
+      const status = this.company?.status;
+      // Completed with open issues reads as a warning, matching the business list
+      if (status === 'Completed' && this.statusReasons.length) {
+        return { label: 'Completed with issues', icon: 'mdi-alert', className: 'status-warning' };
+      }
+      return STATUS_BADGES[status] || { label: status || 'Unknown', icon: 'mdi-information-outline', className: 'status-submitted' };
+    },
+    sections() {
+      const company = this.company || {};
+      const address = company.address || {};
+      return [
+        {
+          title: 'Company',
+          icon: 'mdi-office-building-outline',
+          fields: [
+            { label: 'Legal name', value: company.companyName },
+            { label: 'Company ID', value: company.companyId, kind: 'copy' },
+            { label: 'Website', value: company.domain, kind: 'link' },
+            { label: 'Representative', value: company.representative },
+            { label: 'Country of registration', value: company.countryCode, kind: 'country' },
+            { label: 'Region', value: company.region },
+          ]
+        },
+        {
+          title: 'Identifiers',
+          icon: 'mdi-card-account-details-outline',
+          fields: [
+            { label: 'Registration number', value: company.registrationNumber, mono: true },
+            { label: 'Registration type', value: company.registrationNumberType },
+            { label: 'Tax ID', value: company.taxIdNumber, mono: true },
+            { label: 'Tax ID type', value: company.taxIdType },
+          ]
+        },
+        {
+          title: 'Registered address',
+          icon: 'mdi-map-marker-outline',
+          fields: [
+            { label: 'Street', value: address.street, wide: true },
+            { label: 'City', value: address.city },
+            { label: 'State / Province', value: address.province },
+            { label: 'Postal code', value: address.postalCode },
+            { label: 'Country', value: address.country, kind: 'country' },
+          ]
+        }
+      ];
+    }
+  },
   methods: {
+    hasValue(value) {
+      if (value === undefined || value === null) return false;
+      return !EMPTY_VALUES.includes(String(value).trim());
+    },
+
+    toUrl(domain) {
+      return /^https?:\/\//i.test(domain) ? domain : `https://${domain}`;
+    },
+
     countryCodeToFlag(countryCode) {
-      if (!countryCode) return '';
+      if (!countryCode || countryCode.length !== 2) return '';
       return countryCode
         .toUpperCase()
         .replace(/./g, char =>
@@ -206,53 +157,6 @@ export default {
         );
     },
 
-    getStatusBadgeClass(status, statusReasons) {
-      if (status === 'Completed' && statusReasons && statusReasons.length) {
-        return 'status-warning';
-      }
-      const statusMap = {
-        "Submitted":  'status-submitted',
-        "InProgress": 'status-inprogress',
-        "Approved":   'status-approved',
-        "Rejected":   'status-rejected',
-        "Completed":  'status-completed'
-      };
-      return statusMap[status] || 'status-submitted';
-    },
-
-    getCompanyStatusIcon(status, statusReasons) {
-      if (status === 'Completed' && statusReasons && statusReasons.length) {
-        return 'fas fa-exclamation-triangle';
-      }
-      const iconMap = {
-        "Approved":   'fas fa-check-circle',
-        "Rejected":   'fas fa-times-circle',
-        "Completed":  'fas fa-check-double',
-        "InProgress": 'fas fa-spinner fa-spin',
-        "Submitted":  'fas fa-clock'
-      };
-      return iconMap[status] || 'fas fa-info-circle';
-    },
-
-    formatDate(dateString) {
-      if (!dateString) return 'N/A';
-      return new Date(dateString).toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-      });
-    }
-    ,
-    copyToClipboard(value) {
-      if (!value) return;
-      try {
-        navigator.clipboard.writeText(value);
-        if (this.notifySuccess) this.notifySuccess('Copied to clipboard!');
-      } catch (e) {
-        console.error('Clipboard copy failed', e);
-      }
-    }
-    ,
     countryCodeToName(countryCode) {
       if (!countryCode) return '';
       try {
@@ -264,6 +168,22 @@ export default {
         // fall through to fallback
       }
       return countryCode.toUpperCase();
+    },
+
+    formatDate(dateString) {
+      if (!dateString) return 'Not available';
+      return new Date(dateString).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      });
+    },
+
+    copyToClipboard(value) {
+      if (!value) return;
+      navigator.clipboard.writeText(value)
+        .then(() => this.notifySuccess('Copied to clipboard!'))
+        .catch(() => this.notifyErr('Could not copy to clipboard.'));
     }
   }
 }
@@ -271,254 +191,203 @@ export default {
 
 <style scoped>
 .business-information {
-  max-width: 1200px;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-}
-
-.section-header {
-  margin-bottom: 2rem;
-}
-
-.section-title {
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: #111827;
-  margin: 0 0 0.5rem 0;
-}
-
-.section-description {
-  color: #6b7280;
-  font-size: 0.875rem;
-  margin: 0;
-  line-height: 1.5;
-}
-
-.info-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-  gap: 1rem;
-}
-
-.info-card {
-  background-color: white;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  padding: 1rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-.info-card.full-width {
-  grid-column: 1 / -1;
-}
-
-.card-title {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 1rem;
-  font-weight: 600;
-  color: #111827;
-  margin: 0 0 1rem 0;
-  padding-bottom: 0.75rem;
-  border-bottom: 1px solid #f3f4f6;
-}
-
-.card-title i {
-  color: #66666a  !important;
-  font-size: 0.9rem;
-}
-
-.info-rows {
   display: flex;
   flex-direction: column;
-  gap: 0.375rem;
+  gap: 28px;
+  max-width: 1100px;
 }
 
-.info-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 0.375rem;
-  gap: 1rem;
+/* Shared label / value styles */
+.field-label {
+  color: #64748b;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
 }
 
-.info-row:last-child {
-  margin-bottom: 0;
-}
-
-.label {
-  font-size: 0.875rem;
-  color: #6b7280;
-  font-weight: 500;
-  flex-shrink: 0;
-  min-width: 120px;
-}
-
-.value {
-  font-size: 0.875rem;
+.field-value {
   color: #111827;
+  font-size: 0.875rem;
   font-weight: 500;
-  text-align: right;
-  word-wrap: break-word;
+  margin: 0;
+  overflow-wrap: anywhere;
 }
 
-.value.mono {
-  font-family: 'Courier New', monospace;
-  font-size: 0.8rem;
-  color: #4b5563;
+.field-value.mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.8125rem;
 }
 
-.id-with-copy {
-  display: inline-flex;
+.field-value.is-missing {
+  color: #94a3b8;
+  font-style: italic;
+  font-weight: 400;
+}
+
+/* Status overview */
+.overview {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  padding: 16px 20px;
+}
+
+.overview-item {
+  align-items: flex-start;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.status-badge {
   align-items: center;
+  border-radius: 999px;
+  display: inline-flex;
+  font-size: 0.75rem;
+  font-weight: 600;
+  gap: 4px;
+  padding: 3px 10px;
+}
+
+.status-badge >>> .v-icon {
+  color: inherit !important;
+}
+
+.status-submitted { background-color: #f1f5f9; color: #475569; }
+.status-inprogress { background-color: #eff6ff; color: #1e3a8a; }
+.status-completed { background-color: #f0fdfa; color: #0d9488; }
+.status-approved { background-color: #f0fdf4; color: #166534; }
+.status-rejected { background-color: #fef2f2; color: #dc2626; }
+.status-warning { background-color: #fef3c7; color: #92400e; }
+
+.status-reasons {
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  border-radius: 10px;
+  color: #92400e;
+  display: flex;
+  font-size: 0.8125rem;
+  gap: 10px;
+  margin-top: -12px;
+  padding: 12px 16px;
+}
+
+.status-reasons >>> .v-icon {
+  align-self: flex-start;
+  color: inherit !important;
+  margin-top: 1px;
+}
+
+.status-reasons ul {
+  margin: 4px 0 0;
+  padding-left: 18px;
+}
+
+/* Sections */
+.section-header {
+  align-items: center;
+  border-bottom: 1px solid #f1f5f9;
+  display: flex;
   gap: 8px;
+  margin-bottom: 16px;
+  padding-bottom: 10px;
+}
+
+.section-header >>> .v-icon {
+  color: #64748b !important;
+}
+
+.section-header h3 {
+  color: #111827;
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.field-grid {
+  display: grid;
+  gap: 18px 24px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin: 0;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.field.span-2 {
+  grid-column: span 2;
+}
+
+.copy-value {
+  align-items: center;
+  display: flex;
+  gap: 6px;
+  min-width: 0;
+}
+
+.truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .copy-btn {
-  padding: 0;
-  border: none;
-  color: #475569;
-  opacity: 10;
-  transition: opacity 0.12s ease, color 0.12s ease;
-  min-width: 0;
+  background: transparent;
+  border: 0;
+  border-radius: 4px;
+  color: #64748b;
+  flex: 0 0 auto;
+  line-height: 1;
+  padding: 4px;
 }
-.id-with-copy:hover .copy-btn {
-  opacity: 1;
-}
+
 .copy-btn:hover {
+  background: #f1f5f9;
   color: #111827;
 }
 
-.id-text {
-  max-width: 220px;
-  display: inline-block;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  vertical-align: middle;
+.copy-btn >>> .v-icon {
+  color: inherit !important;
 }
 
-/* Status badges */
-.status-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.375rem;
-  padding: 0.375rem 0.75rem;
-  border-radius: 20px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: capitalize;
+.field-link {
+  color: #2563eb;
+  text-decoration: none;
 }
 
-.status-submitted {
-  background-color: #f8fafc;
-  color: #475569;
+.field-link:hover {
+  text-decoration: underline;
 }
 
-.status-inprogress {
-  background-color: #eff6ff;
-  color: #1e3a8a;
+.field-link >>> .v-icon {
+  color: inherit !important;
 }
 
-.status-completed {
-  background-color: #f0fdfa;
-  color: #0d9488;
+.country-flag {
+  margin-right: 4px;
 }
 
-.status-approved {
-  background-color: #f0fdf4;
-  color: #166534;
+@media (max-width: 960px) {
+  .field-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
-.status-rejected {
-  background-color: #fef2f2;
-  color: #dc2626;
-}
-
-/* Completed with issues — amber warning, mirrors Business.vue */
-.status-warning {
-  background-color: #fef3c7;
-  color: #92400e;
-}
-
-/* Verification Progress */
-.verification-progress {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 0.75rem;
-}
-
-.step-item {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 1rem;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  background-color: white;
-}
-
-.step-item.completed {
-  background-color: #f0fdf4;
-  border-color: #bbf7d0;
-}
-
-.step-icon {
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.25rem;
-  background-color: #f3f4f6;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  color: #6b7280;
-  flex-shrink: 0;
-}
-
-.step-item.completed .step-icon {
-  background-color: #f0fdf4;
-  border-color: #bbf7d0;
-  color: #16a34a;
-}
-
-.step-info {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-
-.step-name {
-  font-size: 1rem;
-  font-weight: 600;
-  color: #111827;
-}
-
-.step-status {
-  font-size: 0.875rem;
-  color: #6b7280;
-}
-
-.step-item.completed .step-status {
-  color: #16a34a;
-  font-weight: 500;
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-  .info-grid {
-    grid-template-columns: 1fr;
+@media (max-width: 600px) {
+  .field-grid {
+    grid-template-columns: minmax(0, 1fr);
   }
 
-  .info-row {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.25rem;
-  }
-
-  .value {
-    text-align: left;
+  .field.span-2 {
+    grid-column: auto;
   }
 }
 </style>
