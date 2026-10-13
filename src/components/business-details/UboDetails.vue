@@ -113,8 +113,8 @@ export default {
   watch: {
     'company.id': {
       async handler(newId, oldId) {
-        if (newId !== oldId) {
-          // Clear stale data from previous company immediately
+        if (oldId && newId !== oldId) {
+          // Clear stale data from previous company immediately (the header summary clears it on page load)
           this.$store.commit('mainStore/clearCompanyExecutives');
         }
         if (newId) {

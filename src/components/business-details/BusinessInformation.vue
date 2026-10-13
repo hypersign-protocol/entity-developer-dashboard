@@ -1,34 +1,5 @@
 <template>
   <div class="business-information">
-    <!-- Status overview -->
-    <section class="overview">
-      <div class="overview-item">
-        <span class="field-label">Status</span>
-        <span class="status-badge" :class="statusBadge.className">
-          <v-icon x-small>{{ statusBadge.icon }}</v-icon>
-          {{ statusBadge.label }}
-        </span>
-      </div>
-      <div class="overview-item">
-        <span class="field-label">Submitted</span>
-        <span class="field-value">{{ formatDate(company?.createdAt) }}</span>
-      </div>
-      <div class="overview-item">
-        <span class="field-label">Last updated</span>
-        <span class="field-value">{{ formatDate(company?.updatedAt) }}</span>
-      </div>
-    </section>
-
-    <div v-if="statusReasons.length" class="status-reasons" role="note">
-      <v-icon small>mdi-alert-outline</v-icon>
-      <div>
-        <strong>Issues found during verification</strong>
-        <ul>
-          <li v-for="reason in statusReasons" :key="reason">{{ reason }}</li>
-        </ul>
-      </div>
-    </div>
-
     <section v-for="section in sections" :key="section.title" class="info-section">
       <header class="section-header">
         <v-icon small>{{ section.icon }}</v-icon>
@@ -63,18 +34,9 @@
 
 <script>
 import UtilsMixin from "../../mixins/utils.js";
-import config from '@/config.js';
 
 // Placeholders the store uses for missing values
 const EMPTY_VALUES = ['', 'N/A', 'Unknown'];
-
-const STATUS_BADGES = {
-  Submitted: { label: 'Submitted', icon: 'mdi-clock-outline', className: 'status-submitted' },
-  InProgress: { label: 'In progress', icon: 'mdi-progress-clock', className: 'status-inprogress' },
-  Completed: { label: 'Completed', icon: 'mdi-check-all', className: 'status-completed' },
-  Approved: { label: 'Approved', icon: 'mdi-check-circle', className: 'status-approved' },
-  Rejected: { label: 'Rejected', icon: 'mdi-close-circle', className: 'status-rejected' },
-};
 
 export default {
   name: "BusinessInformation",
@@ -86,18 +48,6 @@ export default {
   },
   mixins: [UtilsMixin],
   computed: {
-    statusReasons() {
-      const reasons = this.company?.statusReasons || [];
-      return reasons.map(reason => config.COMPLIANCE_CHECK_FAILURE_REASONS[reason] || reason);
-    },
-    statusBadge() {
-      const status = this.company?.status;
-      // Completed with open issues reads as a warning, matching the business list
-      if (status === 'Completed' && this.statusReasons.length) {
-        return { label: 'Completed with issues', icon: 'mdi-alert', className: 'status-warning' };
-      }
-      return STATUS_BADGES[status] || { label: status || 'Unknown', icon: 'mdi-information-outline', className: 'status-submitted' };
-    },
     sections() {
       const company = this.company || {};
       const address = company.address || {};
@@ -223,68 +173,6 @@ export default {
   color: #94a3b8;
   font-style: italic;
   font-weight: 400;
-}
-
-/* Status overview */
-.overview {
-  background: #f9fafb;
-  border: 1px solid #e5e7eb;
-  border-radius: 10px;
-  display: grid;
-  gap: 16px;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  padding: 16px 20px;
-}
-
-.overview-item {
-  align-items: flex-start;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.status-badge {
-  align-items: center;
-  border-radius: 999px;
-  display: inline-flex;
-  font-size: 0.75rem;
-  font-weight: 600;
-  gap: 4px;
-  padding: 3px 10px;
-}
-
-.status-badge >>> .v-icon {
-  color: inherit !important;
-}
-
-.status-submitted { background-color: #f1f5f9; color: #475569; }
-.status-inprogress { background-color: #eff6ff; color: #1e3a8a; }
-.status-completed { background-color: #f0fdfa; color: #0d9488; }
-.status-approved { background-color: #f0fdf4; color: #166534; }
-.status-rejected { background-color: #fef2f2; color: #dc2626; }
-.status-warning { background-color: #fef3c7; color: #92400e; }
-
-.status-reasons {
-  background: #fffbeb;
-  border: 1px solid #fde68a;
-  border-radius: 10px;
-  color: #92400e;
-  display: flex;
-  font-size: 0.8125rem;
-  gap: 10px;
-  margin-top: -12px;
-  padding: 12px 16px;
-}
-
-.status-reasons >>> .v-icon {
-  align-self: flex-start;
-  color: inherit !important;
-  margin-top: 1px;
-}
-
-.status-reasons ul {
-  margin: 4px 0 0;
-  padding-left: 18px;
 }
 
 /* Sections */

@@ -236,8 +236,8 @@ export default {
     'company.companyId': {
       immediate: true,
       async handler(newCompanyId, oldCompanyId) {
-        if (newCompanyId !== oldCompanyId) {
-          // Clear stale data from previous company immediately
+        if (oldCompanyId && newCompanyId !== oldCompanyId) {
+          // Clear stale data from previous company immediately (the header summary clears it on page load)
           this.$store.commit('mainStore/clearComplianceData');
         }
         if (newCompanyId) {
