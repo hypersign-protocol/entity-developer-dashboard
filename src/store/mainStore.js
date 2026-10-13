@@ -2823,7 +2823,12 @@ const mainStore = {
                 }).then((token) => {
                     let headers = UtilsMixin.methods.getKycServiceHeader(token);
 
-                    const requestBody = { status };
+                    const requestBody = {
+                        status,
+                        ...(status === 'Rejected' && reason?.trim() && {
+                            rejectReason: reason.trim()
+                        })
+                    };
 
                     const dependentServiceId = getters.getSelectedService.dependentServices[0];
                     const ssiService = getters.getAppsWithSSIServices.find(s => s.appId === dependentServiceId);

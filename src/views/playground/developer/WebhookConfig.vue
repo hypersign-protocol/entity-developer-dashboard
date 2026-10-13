@@ -28,17 +28,11 @@
           </div>
 
           <div class="mb-6">
-            <label class="input-label">Verification type</label>
-            <v-select v-model="webhookType" :items="webhookTypes" item-text="label" item-value="value"
-              outlined dense hide-details background-color="white" @change="loadConfiguration"></v-select>
-          </div>
-
-          <div class="mb-6">
             <label class="input-label">Destination URL <span class="text-danger">*</span></label>
-            <v-text-field v-model="webhookUrl" placeholder="https://your-api.com/webhooks/kyc" outlined dense
+            <v-text-field v-model="webhookUrl" placeholder="https://your-api.com/webhooks/verification" outlined dense
               hide-details background-color="white" class="custom-field"></v-text-field>
             <p class="small text-muted mt-2">
-              We will send a POST request to this URL whenever a verification status changes.
+              User and business verification events are sent to this URL. Use the payload type to identify the event.
             </p>
           </div>
 
@@ -177,7 +171,7 @@ export default {
   async mounted() {
     try {
       this.isLoading = true
-      await this.fetchAppWebhookConfig({ type: this.webhookType })
+      await this.fetchAppWebhookConfig()
       this.isLoading = false
     } catch (e) {
       this.isLoading = false
@@ -198,29 +192,12 @@ export default {
         { key: "", value: "" }, // Initial header
       ],
       webhookUrl: "",
-      webhookType: "access_service_kyc",
-      webhookTypes: [
-        { label: "KYC", value: "access_service_kyc" },
-        { label: "KYB", value: "access_service_kyb" },
-      ],
       appId: "",
       app: {},
     }
   },
   methods: {
     ...mapActions('mainStore', ['fetchAppWebhookConfig', 'createAppWebhookConfig', 'deleteAppWebhookConfig', 'updateAppWebhookConfig']),
-    async loadConfiguration() {
-      this.isLoading = true
-      this.clearAll()
-      try {
-        await this.fetchAppWebhookConfig({ type: this.webhookType })
-        this.formatConfig()
-      } catch (e) {
-        this.handleApiError(e, 'GET')
-      } finally {
-        this.isLoading = false
-      }
-    },
     handleApiError(error, method = 'GET') {
       const message = typeof error === 'string' ? error : error?.message || 'Something went wrong';
       if (method.toUpperCase() === 'GET' && isAccessDeniedError(error)) {
@@ -275,7 +252,6 @@ export default {
         this.isLoading = true;
         this.validateField()
         await this.createAppWebhookConfig({
-          "type": this.webhookType,
           "webhookUrl": this.webhookUrl.trim(),
           "header": this.getHeadersForSave()
         })
@@ -307,7 +283,6 @@ export default {
         this.validateField()
         await this.updateAppWebhookConfig({
           _id: this.getWebhookConfig._id,
-          "type": this.webhookType,
           "webhookUrl": this.webhookUrl,
           "header": this.getHeadersForSave()
         })
