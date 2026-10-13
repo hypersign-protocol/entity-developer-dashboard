@@ -29,10 +29,10 @@
 
           <div class="mb-6">
             <label class="input-label">Destination URL <span class="text-danger">*</span></label>
-            <v-text-field v-model="webhookUrl" placeholder="https://your-api.com/webhooks/kyc" outlined dense
+            <v-text-field v-model="webhookUrl" placeholder="https://your-api.com/webhooks/verification" outlined dense
               hide-details background-color="white" class="custom-field"></v-text-field>
             <p class="small text-muted mt-2">
-              We will send a POST request to this URL whenever a verification status changes.
+              User and business verification events are sent to this URL. Use the payload type to identify the event.
             </p>
           </div>
 

@@ -12,7 +12,7 @@
   
   <v-col cols="12" md="6" class="d-flex justify-md-end justify-start">
     <div class="d-flex flex-sm-row flex-column gap-3 align-center">
-      <div class="search-wrap search-wrap--business">
+      <div v-if="companies && companies.length" class="search-wrap search-wrap--business">
         <input 
           type="text" 
           placeholder="Search company..." 
@@ -126,7 +126,7 @@
       </v-col>
     </v-row>
 
-    <div v-else>
+    <div v-else-if="!isLoading">
       <empty-container title="No Business Found" icon="fa fa-building" />
     </div>
     </template>
