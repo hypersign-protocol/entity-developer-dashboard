@@ -27,6 +27,16 @@
                 <span>{{ item.note.text }}</span>
               </div>
             </div>
+            <!-- Rejection: the compliance team's note, with the fix-it action right under it -->
+            <div v-if="item.rejection" class="rejection-note">
+              <span class="rejection-label">
+                Rejection reason
+              </span>
+              <p class="rejection-text">{{ item.rejection.text }}</p>
+              <button type="button" class="rejection-action" @click="item.rejection.action">
+                Update company details <v-icon x-small>mdi-arrow-right</v-icon>
+              </button>
+            </div>
           </div>
           <span v-if="item.pill" class="status-pill" :class="item.state">{{ item.pill }}</span>
           <button v-if="item.actionLabel" type="button" class="link-button" @click="item.action">
@@ -160,12 +170,11 @@ export default {
         case COMPANY_REVIEW.REJECTED:
           return {
             ...base, state: 'attention', icon: 'mdi-close-circle-outline', pill: 'Rejected',
-            description: "Our compliance team couldn't verify your company. Please fix the issue below and resubmit.",
-            note: {
-              tone: 'error', icon: 'mdi-alert-circle-outline', title: 'Reason',
+            description: "We couldn't verify your company. Update your details based on the note below and resubmit.",
+            rejection: {
               text: this.onboarding.companyStatusReason || 'No reason was given. Please contact support for details.',
+              action: openPopup,
             },
-            actionLabel: 'Manage', action: openPopup,
           };
         default:
           return {
@@ -252,7 +261,7 @@ export default {
 .check-icon >>> .v-icon { color: #c08a2e !important; }
 .check-item.done .check-icon >>> .v-icon { color: #2daf78 !important; }
 .check-item.pending .check-icon >>> .v-icon { color: #d99833 !important; }
-.check-item.attention { border-color: #f3c9c9; background: #fff8f8; }
+.check-item.attention { border-color: #f3c9c9; }
 .check-item.attention .check-icon >>> .v-icon { color: #c94a4a !important; }
 
 .check-body { flex: 1; min-width: 0; }
@@ -280,6 +289,48 @@ export default {
 .check-note span { overflow-wrap: anywhere; white-space: pre-line; }
 .check-note.info { border-color: #f1dcb4; background: #fffaf0; color: #85591d; }
 .check-note.error { border-color: #f1c4c4; background: #fff1f1; color: #9f3434; }
+
+/* Rejection note: quote-style block so the reason reads as a message, not another alert */
+.rejection-note {
+  margin-top: 10px;
+  padding: 10px 14px 12px;
+  border-left: 3px solid #d65252;
+  border-radius: 0 8px 8px 0;
+  background: #f8fafc;
+}
+.rejection-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: #b03a3a;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+.rejection-label >>> .v-icon { color: inherit !important; }
+.check-body .rejection-text {
+  margin: 4px 0 0;
+  color: #273448;
+  font-size: 13px;
+  line-height: 1.55;
+  white-space: pre-line;
+}
+.rejection-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 10px;
+  padding: 6px 12px;
+  border: 1px solid #cfd8e3;
+  border-radius: 6px;
+  background: #fff;
+  color: #2563dc;
+  font-size: 12px;
+  font-weight: 700;
+}
+.rejection-action:hover { border-color: #2563dc; background: #edf3ff; }
+.rejection-action >>> .v-icon { color: inherit !important; }
 
 .link-button {
   display: inline-flex;
