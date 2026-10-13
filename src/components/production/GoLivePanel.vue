@@ -68,7 +68,7 @@
     </section>
 
     <DomainVerificationPopup v-model="showDomainPopup" :app="app" @updated="onAppUpdated" />
-    <CompanyVerificationPopup v-model="showCompanyPopup" :domain="app.domain || ''" @submitted="onCompanySubmitted" />
+    <CompanyVerificationPopup v-model="showCompanyPopup" :domain="app.domain || ''" :onboarding-record="onboarding" :onboarding-loading="loadingOnboarding" @submitted="onCompanySubmitted" />
   </div>
 </template>
 
