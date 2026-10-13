@@ -13,7 +13,10 @@
                     <i :class="getDocumentIcon(document.type)"></i>
                 </div>
                 <div class="document-content">
-                    <p class="document-type">{{ formatDocumentType(document.type) }}</p>
+                    <div class="document-title-row">
+                        <p class="document-type">{{ formatDocumentType(document.type) }}</p>
+                        <span class="type-chip" :class="`type-chip-${document.type}`">{{ formatTypeChip(document.type) }}</span>
+                    </div>
                     <p class="document-name" :title="document.name || `Document ${index + 1}`">{{ document.name || `Document ${index + 1}` }}</p>
                     <p class="document-description">{{ document.description }}</p>
                 </div>
@@ -74,6 +77,7 @@ export default {
                 incorporation: 'fas fa-building',
                 address: 'fas fa-map-marker-alt',
                 attorney: 'fas fa-gavel',
+                tax: 'fas fa-file-invoice',
                 other: 'fas fa-file-alt'
             };
             return iconMap[type] || 'fas fa-file-alt';
@@ -83,7 +87,8 @@ export default {
             const typeMap = {
                 'CertificateOfIncorporation': 'incorporation',
                 'ProofOfAddress': 'address',
-                'PowerOfAttorney': 'attorney'
+                'PowerOfAttorney': 'attorney',
+                'TaxRegistration': 'tax'
             };
             return typeMap[apiType] || 'other';
         },
@@ -104,7 +109,8 @@ export default {
             const descriptions = {
                 'CertificateOfIncorporation': 'Business incorporation document',
                 'ProofOfAddress': 'Address verification document',
-                'PowerOfAttorney': 'Legal authorization document'
+                'PowerOfAttorney': 'Legal authorization document',
+                'TaxRegistration': 'Tax registration document'
             };
             return descriptions[documentType] || 'Business document';
         },
@@ -113,9 +119,20 @@ export default {
             const typeMap = {
                 incorporation: 'Certificate of Incorporation',
                 address: 'Proof of Address',
-                attorney: 'Power of Attorney'
+                attorney: 'Power of Attorney',
+                tax: 'Tax Registration'
             };
             return typeMap[type] || 'Document';
+        },
+
+        formatTypeChip(type) {
+            const chipMap = {
+                incorporation: 'Incorporation',
+                address: 'Address',
+                attorney: 'Authorization',
+                tax: 'Tax'
+            };
+            return chipMap[type] || 'Other';
         },
 
 
@@ -243,6 +260,38 @@ export default {
     margin: 0 0 0.25rem 0;
     line-height: 1.25;
 }
+
+.document-title-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 0.25rem;
+}
+
+.document-title-row .document-type {
+    margin: 0;
+}
+
+.type-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.125rem 0.5rem;
+    border: 1px solid;
+    border-radius: 999px;
+    font-size: 0.65rem;
+    font-weight: 600;
+    line-height: 1.4;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.type-chip-incorporation { background: #eff6ff; border-color: #bfdbfe; color: #1d4ed8; }
+.type-chip-address { background: #f0fdf4; border-color: #bbf7d0; color: #15803d; }
+.type-chip-attorney { background: #faf5ff; border-color: #e9d5ff; color: #7e22ce; }
+.type-chip-tax { background: #fff7ed; border-color: #fed7aa; color: #c2410c; }
+.type-chip-other { background: #f3f4f6; border-color: #e5e7eb; color: #4b5563; }
 
 .document-name {
     font-size: 0.75rem;

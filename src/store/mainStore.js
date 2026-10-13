@@ -1162,6 +1162,8 @@ const mainStore = {
                                 region: company.region || 'Unknown',
                                 domain: company.domain || 'N/A',
                                 registrationNumberType: company.registrationNumberType || 'Unknown',
+                                taxIdType: company.taxIdType,
+                                taxIdNumber: company.taxIdNumber,
                                 address: company.address || {},
                                 documents: company.documents || [],
                                 createdAt: company.createdAt,
@@ -1447,6 +1449,28 @@ const mainStore = {
                 }).catch((error) => {
                     return reject(`Error while onboarding customer: ` + error.message);
                 });
+            })
+        },
+        // Go-live compliance details: registered address, tax applicability and
+        // business documents (base64 data URLs). Compliance reviews them after the
+        // app is switched to production.
+        submitProductionDetails: ({ getters }, payload) => {
+            return new Promise((resolve, reject) => {
+                const onboardingID = payload.get('onboardingID');
+                const url = `${studioServer.BASE_URL}api/v1/customer-onboarding/${onboardingID}`;
+                const headers = UtilsMixin.methods.getHeader(getters.getAuthToken);
+                RequestHandler(url, 'PATCH', payload, headers).then(json => {
+                    if (json && json.error) {
+                        const err = json.error;
+                        let errorMessage = 'Unknown error';
+                        if (typeof err === 'string') errorMessage = err;
+                        else if (Array.isArray(err.details)) errorMessage = err.details.join(' ');
+                        else if (Array.isArray(err)) errorMessage = err.join(' ');
+                        else if (err.message) errorMessage = err.message;
+                        return reject(new Error(errorMessage));
+                    }
+                    resolve(json && json.data);
+                }).catch(reject);
             })
         },
         checkIfAlreadyExistOnBoarding: ({ commit, getters }, payload) => {
@@ -2799,7 +2823,12 @@ const mainStore = {
                 }).then((token) => {
                     let headers = UtilsMixin.methods.getKycServiceHeader(token);
 
-                    const requestBody = { status };
+                    const requestBody = {
+                        status,
+                        ...(status === 'Rejected' && reason?.trim() && {
+                            rejectReason: reason.trim()
+                        })
+                    };
 
                     const dependentServiceId = getters.getSelectedService.dependentServices[0];
                     const ssiService = getters.getAppsWithSSIServices.find(s => s.appId === dependentServiceId);

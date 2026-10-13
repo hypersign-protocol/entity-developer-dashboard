@@ -4,6 +4,7 @@ import playgroundStore from './playgroundStore';
 import mainStore from './mainStore';
 import globalStore from './globalStore';
 import walletStore from './walletStore'
+import creditCalculatorStore from './creditCalculatorStore'
 import createPersistedState from 'vuex-persistedstate';
 Vue.use(Vuex)
 
@@ -12,8 +13,8 @@ export default new Vuex.Store({
         playgroundStore,
         mainStore,
         globalStore,
-        walletStore
+        walletStore,
+        creditCalculatorStore
     },
     plugins: [createPersistedState()]
 })
-

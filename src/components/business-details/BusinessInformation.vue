@@ -47,6 +47,14 @@
             <span class="value">{{ company?.registrationNumberType || 'N/A' }}</span>
           </div>
           <div class="info-row">
+            <span class="label">Tax ID Number:</span>
+            <span class="value mono">{{ company?.taxIdNumber || 'N/A' }}</span>
+          </div>
+          <div class="info-row">
+            <span class="label">Tax ID Type:</span>
+            <span class="value">{{ company?.taxIdType || 'N/A' }}</span>
+          </div>
+          <div class="info-row">
             <span class="label">Representative:</span>
             <span class="value">{{ company?.representative || 'N/A' }}</span>
           </div>

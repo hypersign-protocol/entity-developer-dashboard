@@ -5,8 +5,12 @@
   "scripts": {
     "serve": "vue-cli-service serve --mode production",
     "dev": "vue-cli-service serve --mode staging",
+    "catalog:cache": "node scripts/cache-kyc-catalog.js",
+    "catalog:refresh": "node scripts/cache-kyc-catalog.js --refresh",
+    "prebuild": "npm run catalog:cache",
     "setEnv": "cp .env.staging .env",
     "build": "vue-cli-service build",
+    "prebuild-stage": "npm run catalog:cache",
     "build-stage": "vue-cli-service build --mode staging",
     "lint": "vue-cli-service lint",
     "test:unit": "vue-cli-service test:unit",
