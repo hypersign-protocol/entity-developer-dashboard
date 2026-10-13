@@ -284,6 +284,8 @@ export default {
     value: { type: Boolean, default: false },
     // Used to prefill the company domain when onboarding has none
     domain: { type: String, default: '' },
+    onboardingRecord: { type: Object, default: () => ({}) },
+    onboardingLoading: { type: Boolean, default: false },
   },
   data() {
     return {
@@ -376,6 +378,9 @@ export default {
         });
       },
     },
+    onboardingRecord(record) {
+      if (this.value) this.populateOnboarding(record);
+    },
   },
   methods: {
     reset() {
@@ -384,41 +389,31 @@ export default {
       this.declarationAccepted = false;
       this.loadOnboarding();
     },
-    async loadOnboarding() {
-      this.loadingOnboarding = true;
-      try {
-        const data = await this.$store.dispatch('mainStore/checkIfAlreadyExistOnBoarding');
-        this.onboarding = data || {};
-        const saved = this.onboarding.registeredAddress || {};
-        const onboardingCountry = this.normalizeCountry(this.onboarding.country);
-        this.form.basic = {
-          companyName: this.onboarding.companyName || '',
-          domain: this.onboarding.domain || this.domain || '',
-          customerEmail: this.onboarding.customerEmail || '',
-          phoneNumber: this.onboarding.phoneNumber || '',
-          country: onboardingCountry,
-        };
-        this.form.registrationNumber = this.onboarding.registrationNumber || '';
-        this.form.address = {
-          ...this.form.address,
-          ...saved,
-          line1: saved.line1 || this.onboarding.billingAddress || '',
-        };
-        if (typeof this.onboarding.isTaxApplicable === 'boolean') this.form.taxApplicable = this.onboarding.isTaxApplicable;
-        this.form.taxId = this.onboarding.taxId || '';
-        if (this.onboarding.companyId) {
-          const serviceId = this.onboarding.companyIDPAppId || this.onboarding.kycServiceId;
-          const company = await this.$store.dispatch('mainStore/fetchAppKybById', {
-            companyId: this.onboarding.companyId,
-            serviceId,
-          });
-          this.populateCompany(company);
-        }
-      } catch (error) {
-        this.notifyErr(error.message || 'Could not load your company details.');
-      } finally {
-        this.loadingOnboarding = false;
-      }
+    loadOnboarding() {
+      this.loadingOnboarding = this.onboardingLoading;
+      this.populateOnboarding(this.onboardingRecord);
+    },
+    populateOnboarding(onboarding) {
+      this.onboarding = onboarding || {};
+      const saved = this.onboarding.registeredAddress || {};
+      const onboardingCountry = this.normalizeCountry(this.onboarding.country);
+      this.form.basic = {
+        companyName: this.onboarding.companyName || '',
+        domain: this.onboarding.domain || this.domain || '',
+        customerEmail: this.onboarding.customerEmail || '',
+        phoneNumber: this.onboarding.phoneNumber || '',
+        country: onboardingCountry,
+      };
+      this.form.registrationNumber = this.onboarding.registrationNumber || '';
+      this.form.address = {
+        ...this.form.address,
+        ...saved,
+        line1: saved.line1 || this.onboarding.billingAddress || '',
+      };
+      if (typeof this.onboarding.isTaxApplicable === 'boolean') this.form.taxApplicable = this.onboarding.isTaxApplicable;
+      this.form.taxId = this.onboarding.taxId || '';
+      if (this.onboarding.companyDetail) this.populateCompany(this.onboarding.companyDetail);
+      this.loadingOnboarding = this.onboardingLoading;
       if (!this.form.basic.country) this.detectCountry();
     },
     normalizeCountry(country) {
@@ -432,7 +427,7 @@ export default {
       const findDocument = type => (company.documents || []).find(document => document.documentType === type);
       const toFormDocument = document => document && {
         id: document.id,
-        fileName: document.fileName,
+        fileName: document.fileName || document.file_name || document.originalName || document.originalname || document.filename || document.name,
       };
       Object.assign(this.form, {
         basic: {
@@ -455,11 +450,6 @@ export default {
           incorporation: toFormDocument(findDocument('CertificateOfIncorporation')),
         },
       });
-      this.onboarding = {
-        ...this.onboarding,
-        companyVerificationStatus: company.status,
-        companyStatusReason: (company.statusReason || []).join(', '),
-      };
     },
     async detectCountry() {
       this.detectingCountry = true;
