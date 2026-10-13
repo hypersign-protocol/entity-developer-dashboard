@@ -17,6 +17,10 @@
       <div class="bs-stat">
         <label>Current Status</label>
         <span class="bs-status" :class="statusBadge.tone">{{ statusBadge.label }}</span>
+        <!-- Rejected / needs review: the link opens the reasons popup -->
+        <button v-if="reasonDetails" type="button" class="bs-reason-link" @click="openReasons">
+          {{ reasonDetails.linkLabel }}
+        </button>
       </div>
 
       <button
@@ -42,23 +46,21 @@
       </div>
     </section>
 
-    <!-- Only when there is something to act on -->
-    <div v-if="banner" class="bs-banner" :class="banner.tone" role="note">
-      <i class="mdi" :class="banner.icon" aria-hidden="true"></i>
-      <div>
-        <strong>{{ banner.title }}</strong>
-        <ul v-if="banner.reasons.length">
-          <li v-for="reason in banner.reasons" :key="reason">{{ reason }}</li>
+    <hf-pop-up :id="reasonPopupId" :Header="reasonDetails ? reasonDetails.title : ''">
+      <template v-if="reasonDetails">
+        <ul v-if="reasonDetails.reasons.length" class="bs-reason-list">
+          <li v-for="reason in reasonDetails.reasons" :key="reason">{{ reason }}</li>
         </ul>
-        <span v-else class="bs-banner-text">{{ banner.text }}</span>
-      </div>
-    </div>
+        <p v-else class="bs-reason-empty">{{ reasonDetails.emptyText }}</p>
+      </template>
+    </hf-pop-up>
   </div>
 </template>
 
 <script>
 import config from '@/config.js';
 import UtilsMixin from '../../mixins/utils';
+import HfPopUp from '../element/hfPopup.vue';
 
 // Status pill tones reuse the User Detail page's colours
 const STATUS_BADGES = {
@@ -79,6 +81,7 @@ const EMPTY_VALUES = ['', 'N/A', 'Unknown'];
 // data the tabs also show, so the numbers are there whichever tab is open.
 export default {
   name: 'BusinessSummary',
+  components: { HfPopUp },
   mixins: [UtilsMixin],
   props: {
     company: {
@@ -92,6 +95,7 @@ export default {
       loadingCompliance: false,
       uboError: false,
       complianceError: false,
+      reasonPopupId: 'business-status-reasons-popup',
     };
   },
   computed: {
@@ -112,17 +116,18 @@ export default {
       const status = this.company?.status;
       return STATUS_BADGES[status] || { label: status || 'Unknown', tone: '' };
     },
-    banner() {
+    // Why the business was rejected or needs review; shown in a popup from the status pill
+    reasonDetails() {
       if (this.company?.status === 'Rejected') {
         return {
-          tone: 'failed', icon: 'mdi-close-circle-outline', title: 'Rejection reason',
-          reasons: this.statusReasons, text: 'No reason was recorded for this rejection.',
+          title: 'Rejection Reason', linkLabel: 'View reason',
+          reasons: this.statusReasons, emptyText: 'No reason was recorded for this rejection.',
         };
       }
       if (this.hasIssues) {
         return {
-          tone: 'review', icon: 'mdi-alert-outline', title: 'Issues found during verification',
-          reasons: this.statusReasons, text: '',
+          title: 'Issues Found During Verification', linkLabel: 'View issues',
+          reasons: this.statusReasons, emptyText: '',
         };
       }
       return null;
@@ -207,6 +212,10 @@ export default {
       } finally {
         this.loadingCompliance = false;
       }
+    },
+
+    openReasons() {
+      this.$root.$emit('bv::show::modal', this.reasonPopupId);
     },
 
     hasValue(value) {
@@ -418,36 +427,41 @@ export default {
 .bs-status.review { background: rgba(255, 193, 7, 0.14); color: #856404; }
 .bs-status.info { background: #eff6ff; color: #1d4ed8; }
 
-/* Banner */
-.bs-banner {
-  border: 1px solid;
-  border-radius: 9px;
-  display: flex;
-  font-size: 13px;
-  gap: 10px;
-  padding: 12px 18px;
+/* Link under the status that opens the reasons popup */
+.bs-reason-link {
+  background: none;
+  border: 0;
+  color: #2563eb;
+  font-size: 12px;
+  font-weight: 600;
+  margin-top: 6px;
+  padding: 0;
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
 
-.bs-banner > .mdi {
-  font-size: 18px;
-  line-height: 1.1;
+.bs-reason-link:hover {
+  color: #1d4ed8;
 }
 
-.bs-banner.failed { background: #fef2f2; border-color: #fecaca; color: #b91c1c; }
-.bs-banner.review { background: #fffbeb; border-color: #fde68a; color: #92400e; }
-
-.bs-banner ul {
+/* Popup content */
+.bs-reason-list {
   color: #1f2937;
-  line-height: 1.5;
-  margin: 4px 0 0;
+  font-size: 14px;
+  line-height: 1.6;
+  margin: 0;
   padding-left: 18px;
   white-space: pre-line;
 }
 
-.bs-banner-text {
-  color: #1f2937;
-  display: block;
-  margin-top: 2px;
+.bs-reason-list li + li {
+  margin-top: 6px;
+}
+
+.bs-reason-empty {
+  color: #64748b;
+  font-size: 14px;
+  margin: 0;
 }
 
 @media (max-width: 1100px) {
