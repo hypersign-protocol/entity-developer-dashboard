@@ -74,13 +74,8 @@
     </div>
 
     <!-- Empty State -->
-    <div v-else class="empty-state">
-      <div class="empty-icon">
-        <i class="fas fa-users"></i>
-      </div>
-      <h3 class="empty-title">No UBO Information</h3>
-      <p class="empty-description">No Ultimate Beneficial Owner information has been provided for this business yet.</p>
-    </div>
+    <empty-container v-else title="No UBO Information" icon="mdi mdi-account-group-outline"
+      description="No Ultimate Beneficial Owner information has been provided for this business yet." />
 
   </div>
 </template>
@@ -417,21 +412,6 @@ export default {
 </script>
 
 <style scoped>
-/* Empty state (match ChecksRegulations) */
-.empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 3rem 1rem;
-  text-align: center;
-}
-
-.empty-description { color: #6b7280; font-size: 0.875rem; margin: 0; line-height: 1.5; }
-
-.empty-icon { font-size: 3rem; color: #d1d5db; margin-bottom: 1rem; }
-.empty-title { font-size: 1.25rem; font-weight: 600; color: #374151; margin: 0 0 0.5rem 0; }
-
 /* ── grid — one column, full-width horizontal cards ──── */
 .ubo-grid {
   display: flex;

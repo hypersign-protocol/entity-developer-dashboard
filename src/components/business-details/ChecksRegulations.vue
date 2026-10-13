@@ -5,13 +5,8 @@
     <SectionLoader v-if="isLoading" label="Loading compliance data" min-height="calc(70vh - 4rem)" />
 
     <!-- Empty State -->
-    <div v-else-if="!getComplianceData" class="empty-state">
-      <div class="empty-icon">
-        <i class="fas fa-shield-alt"></i>
-      </div>
-      <h3 class="empty-title">No Compliance Data Available</h3>
-      <p class="empty-description">Compliance checks have not been performed for this company yet.</p>
-    </div>
+    <empty-container v-else-if="!getComplianceData" title="No Compliance Data Available" icon="mdi mdi-shield-check-outline"
+      description="Compliance checks have not been performed for this company yet." />
 
     <!-- Content when data is available -->
     <div v-else>
@@ -341,36 +336,6 @@ export default {
 }
 
 .section-description {
-  color: #6b7280;
-  font-size: 0.875rem;
-  margin: 0;
-  line-height: 1.5;
-}
-
-/* Empty State */
-.empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 3rem 1rem;
-  text-align: center;
-}
-
-.empty-icon {
-  font-size: 3rem;
-  color: #d1d5db;
-  margin-bottom: 1rem;
-}
-
-.empty-title {
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: #374151;
-  margin: 0 0 0.5rem 0;
-}
-
-.empty-description {
   color: #6b7280;
   font-size: 0.875rem;
   margin: 0;

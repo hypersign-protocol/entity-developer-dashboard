@@ -31,11 +31,8 @@
             </ul>
         </template>
 
-        <div v-else class="empty-state">
-            <span class="empty-icon" aria-hidden="true"><v-icon>mdi-file-document-outline</v-icon></span>
-            <h3 class="empty-title">No documents uploaded</h3>
-            <p class="empty-description">This business hasn't uploaded any documents yet.</p>
-        </div>
+        <empty-container v-else title="No Documents Uploaded" icon="mdi mdi-file-document-outline"
+            description="This business hasn't uploaded any documents yet." />
     </div>
 </template>
 
@@ -236,37 +233,4 @@ export default {
     color: inherit !important;
 }
 
-/* Empty state */
-.empty-state {
-    padding: 48px 16px;
-    text-align: center;
-}
-
-.empty-icon {
-    align-items: center;
-    background: #f1f5f9;
-    border-radius: 50%;
-    display: inline-flex;
-    height: 48px;
-    justify-content: center;
-    margin-bottom: 12px;
-    width: 48px;
-}
-
-.empty-icon >>> .v-icon {
-    color: #94a3b8 !important;
-}
-
-.empty-title {
-    color: #111827;
-    font-size: 1rem;
-    font-weight: 600;
-    margin: 0 0 4px;
-}
-
-.empty-description {
-    color: #64748b;
-    font-size: 0.875rem;
-    margin: 0;
-}
 </style>
