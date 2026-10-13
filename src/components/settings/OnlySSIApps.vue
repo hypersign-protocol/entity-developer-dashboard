@@ -251,9 +251,7 @@
                       )
                     }}</v-list-item-subtitle>
                   </v-list-item-content>
-                  <v-list-item-avatar class="logo-container" size="60" color="grey">
-                    <v-img  :src="eachOrg.logoUrl || getProfileIcon(formattedAppName(eachOrg.appId))"></v-img>
-                  </v-list-item-avatar>
+                  <v-list-item-avatar class="logo-container" size="60"><AppLogo :src="eachOrg.logoUrl" :name="eachOrg.appName" :seed="formattedAppName(eachOrg.appId)" :size="60" /></v-list-item-avatar>
                 </v-list-item>
 
                 <v-list-item-content style="padding: 10px">
@@ -500,6 +498,7 @@ import { sanitizeUrl } from "../../utils/common";
 import DomainLinkage from "@hypersign-protocol/domain-linkage-verifier";
 import config from "../../config";
 import LogoUploader from "../element/LogoUploader.vue";
+import AppLogo from "../element/AppLogo.vue";
 import CorsChipsInput from "../element/CorsChips.vue";
 import {normalizeCorsOrigin} from '../../utils/utils.js';
 export default {
@@ -632,6 +631,7 @@ export default {
     };
   },
   components: {
+    AppLogo,
     HfPopUp,
     StudioSideBar,
     HfButtons,

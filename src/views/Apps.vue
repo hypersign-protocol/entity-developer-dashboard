@@ -431,9 +431,7 @@
                         )
                       }}</v-list-item-subtitle>
                     </v-list-item-content>
-                    <v-list-item-avatar class="logo-container" size="60" color="grey">
-                      <v-img :src="eachOrg.logoUrl || getProfileIcon(formattedAppName(eachOrg.appId))"></v-img>
-                    </v-list-item-avatar>
+                    <v-list-item-avatar class="logo-container" size="60"><AppLogo :src="eachOrg.logoUrl" :name="eachOrg.appName" :seed="formattedAppName(eachOrg.appId)" :size="60" /></v-list-item-avatar>
                   </v-list-item>
 
                   <v-list-item-content style="padding: 10px">
@@ -525,8 +523,7 @@
                         )
                       }}</v-list-item-subtitle>
                     </v-list-item-content>
-                    <v-list-item-avatar class="logo-container" size="60" color="grey"><v-img
-                        :src="eachOrg.logoUrl || getProfileIcon(formattedAppName(eachOrg.appId))"></v-img></v-list-item-avatar>
+                    <v-list-item-avatar class="logo-container" size="60"><AppLogo :src="eachOrg.logoUrl" :name="eachOrg.appName" :seed="formattedAppName(eachOrg.appId)" :size="60" /></v-list-item-avatar>
                   </v-list-item>
 
                   <v-list-item-content style="padding: 10px">
@@ -629,8 +626,7 @@
                         )
                       }}</v-list-item-subtitle>
                     </v-list-item-content>
-                    <v-list-item-avatar class="logo-container" size="60" color="grey"><v-img
-                        :src="eachOrg.logoUrl || getProfileIcon(formattedAppName(eachOrg.appId))"></v-img></v-list-item-avatar>
+                    <v-list-item-avatar class="logo-container" size="60"><AppLogo :src="eachOrg.logoUrl" :name="eachOrg.appName" :seed="formattedAppName(eachOrg.appId)" :size="60" /></v-list-item-avatar>
                   </v-list-item>
 
                   <v-list-item-content style="padding: 10px">
@@ -937,6 +933,7 @@
 
 <script>
 import HfPopUp from "../components/element/hfPopup.vue";
+import AppLogo from "../components/element/AppLogo.vue";
 import StudioSideBar from "../components/element/StudioSideBar.vue";
 import UtilsMixin from "../mixins/utils";
 import { isEmpty } from "../mixins/fieldValidation";
@@ -1147,6 +1144,7 @@ export default {
   },
   components: {
     LogoUploader,
+    AppLogo,
     HfPopUp,
     StudioSideBar,
     HfButtons,
