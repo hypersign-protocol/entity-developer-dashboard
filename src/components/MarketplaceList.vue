@@ -1,7 +1,7 @@
 <template>
   <div class="row marketplace-list" :class="{ horizontal: horizontal }">
-    <div v-if="isLoading" class="col-12 d-flex justify-center py-8">
-      <v-progress-circular indeterminate color="primary"></v-progress-circular>
+    <div v-if="isLoading" class="col-12">
+      <SectionLoader label="Loading services" />
     </div>
     <div v-else class="col-12">
       <div class="row issuer-grid">
@@ -157,9 +157,11 @@
 <script>
 import UtilsMixin from "../mixins/utils";
 import { mapGetters, mapActions } from "vuex/dist/vuex.common.js";
+import SectionLoader from "./element/SectionLoader.vue";
 
 export default {
   name: "MarketplaceList",
+  components: { SectionLoader },
   props: {
     isSelection: {
       type: Boolean,

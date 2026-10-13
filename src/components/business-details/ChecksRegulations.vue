@@ -2,13 +2,7 @@
   <div class="checks-regulations">
 
 
-    <!-- Loading State -->
-    <div v-if="isLoading" class="loading-state">
-      <div class="loading-spinner">
-        <i class="fas fa-spinner fa-spin"></i>
-      </div>
-      <p class="loading-text">Loading compliance data...</p>
-    </div>
+    <SectionLoader v-if="isLoading" label="Loading compliance data" min-height="calc(70vh - 4rem)" />
 
     <!-- Empty State -->
     <div v-else-if="!getComplianceData" class="empty-state">
@@ -130,9 +124,11 @@
 import { marked } from 'marked';
 import { mapGetters, mapActions } from 'vuex';
 import config from '../../config.js';
+import SectionLoader from '../element/SectionLoader.vue';
 
 export default {
   name: "ChecksRegulations",
+  components: { SectionLoader },
   props: {
     company: {
       type: Object,
@@ -349,28 +345,6 @@ export default {
   font-size: 0.875rem;
   margin: 0;
   line-height: 1.5;
-}
-
-/* Loading State */
-.loading-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 3rem 1rem;
-  text-align: center;
-}
-
-.loading-spinner {
-  font-size: 2rem;
-  color: #3b82f6;
-  margin-bottom: 1rem;
-}
-
-.loading-text {
-  color: #6b7280;
-  font-size: 0.875rem;
-  margin: 0;
 }
 
 /* Empty State */
