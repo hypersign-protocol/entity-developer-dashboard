@@ -556,6 +556,7 @@ export default {
       ].filter(({ doc }) => doc?.data);
       const formData = new FormData();
       formData.append('onboardingID', this.onboarding._id);
+      formData.append('phoneNumber', this.form.basic.phoneNumber || '');
       formData.append('company', JSON.stringify(company));
       formData.append('documents', JSON.stringify(documentEntries.map(({ type }) => ({ type }))));
       documentEntries.forEach(({ doc }, index) => {
