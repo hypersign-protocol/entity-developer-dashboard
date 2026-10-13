@@ -23,7 +23,6 @@
   <v-col 
     cols="12" 
     md="4" 
-    v-if="company?.status === 'Completed'"
     class="d-flex align-center"
 >
     <div class="d-flex justify-md-end justify-start align-center gap-3 w-100">
