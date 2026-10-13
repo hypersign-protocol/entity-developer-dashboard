@@ -141,7 +141,7 @@
                   <div v-if="form.documents.tax" class="file-chip">
                     <v-icon small>mdi-file-document-outline</v-icon>
                     <span class="file-name">{{ form.documents.tax.fileName }}</span>
-                    <small>{{ formatSize(form.documents.tax.size) }}</small>
+                    <small v-if="form.documents.tax.size">{{ formatSize(form.documents.tax.size) }}</small>
                     <button type="button" class="file-remove" aria-label="Remove file" @click="form.documents.tax = null">
                       <v-icon x-small>mdi-close</v-icon>
                     </button>
@@ -180,7 +180,7 @@
                   <div v-if="form.documents.incorporation" class="file-chip">
                     <v-icon small>mdi-file-document-outline</v-icon>
                     <span class="file-name">{{ form.documents.incorporation.fileName }}</span>
-                    <small>{{ formatSize(form.documents.incorporation.size) }}</small>
+                    <small v-if="form.documents.incorporation.size">{{ formatSize(form.documents.incorporation.size) }}</small>
                     <button type="button" class="file-remove" aria-label="Remove file" @click="form.documents.incorporation = null">
                       <v-icon x-small>mdi-close</v-icon>
                     </button>
@@ -390,23 +390,76 @@ export default {
         const data = await this.$store.dispatch('mainStore/checkIfAlreadyExistOnBoarding');
         this.onboarding = data || {};
         const saved = this.onboarding.registeredAddress || {};
+        const onboardingCountry = this.normalizeCountry(this.onboarding.country);
         this.form.basic = {
           companyName: this.onboarding.companyName || '',
           domain: this.onboarding.domain || this.domain || '',
           customerEmail: this.onboarding.customerEmail || '',
           phoneNumber: this.onboarding.phoneNumber || '',
-          country: this.onboarding.country || '',
+          country: onboardingCountry,
         };
         this.form.registrationNumber = this.onboarding.registrationNumber || '';
-        this.form.address = { ...this.form.address, ...saved };
+        this.form.address = {
+          ...this.form.address,
+          ...saved,
+          line1: saved.line1 || this.onboarding.billingAddress || '',
+        };
         if (typeof this.onboarding.isTaxApplicable === 'boolean') this.form.taxApplicable = this.onboarding.isTaxApplicable;
         this.form.taxId = this.onboarding.taxId || '';
+        if (this.onboarding.companyId) {
+          const serviceId = this.onboarding.companyIDPAppId || this.onboarding.kycServiceId;
+          const company = await this.$store.dispatch('mainStore/fetchAppKybById', {
+            companyId: this.onboarding.companyId,
+            serviceId,
+          });
+          this.populateCompany(company);
+        }
       } catch (error) {
         this.notifyErr(error.message || 'Could not load your company details.');
       } finally {
         this.loadingOnboarding = false;
       }
       if (!this.form.basic.country) this.detectCountry();
+    },
+    normalizeCountry(country) {
+      return country?.length === 2 ? countries.alpha2ToAlpha3(country) : country || '';
+    },
+    populateCompany(company) {
+      if (!company) return;
+      const address = company.address || {};
+      const countryCode = company.countryOfRegistration || address.country;
+      const country = this.normalizeCountry(countryCode);
+      const findDocument = type => (company.documents || []).find(document => document.documentType === type);
+      const toFormDocument = document => document && {
+        id: document.id,
+        fileName: document.fileName,
+      };
+      Object.assign(this.form, {
+        basic: {
+          ...this.form.basic,
+          companyName: company.name,
+          domain: company.domain,
+          country: country || this.form.basic.country,
+        },
+        registrationNumber: company.registrationNumber || '',
+        address: {
+          line1: address.street || '',
+          line2: '',
+          city: address.city || '',
+          state: address.province || company.region || '',
+          postalCode: address.postalCode || '',
+        },
+        taxId: company.taxIdNumber || '',
+        documents: {
+          tax: toFormDocument(findDocument('TaxRegistration')),
+          incorporation: toFormDocument(findDocument('CertificateOfIncorporation')),
+        },
+      });
+      this.onboarding = {
+        ...this.onboarding,
+        companyVerificationStatus: company.status,
+        companyStatusReason: (company.statusReason || []).join(', '),
+      };
     },
     async detectCountry() {
       this.detectingCountry = true;
@@ -499,8 +552,8 @@ export default {
       };
       const documentEntries = [
         { type: 'TaxRegistration', doc: documents.tax },
-        ...(documents.incorporation ? [{ type: 'CertificateOfIncorporation', doc: documents.incorporation }] : []),
-      ];
+        { type: 'CertificateOfIncorporation', doc: documents.incorporation },
+      ].filter(({ doc }) => doc?.data);
       const formData = new FormData();
       formData.append('onboardingID', this.onboarding._id);
       formData.append('company', JSON.stringify(company));

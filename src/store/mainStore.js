@@ -1178,32 +1178,39 @@ const mainStore = {
                     })
             })
         },
-        fetchAppKybById: ({ getters, dispatch }, payload) => {
-            return new Promise((resolve, reject) => {
-                const { companyId, accessToken, serviceId } = payload
-                dispatch('getValidToken', {
-                    token: accessToken,
-                    serviceId: serviceId,
-                    grant_type: config.GRANT_TYPES_ENUM.CAVACH_KYB_API,
-                    tokenStorageKey: 'kyb_access_token'
-                }).then((token) => {
-                    const headers = UtilsMixin.methods.getKycServiceHeader(token);
-                    const url = `${sanitizeUrl(config.KYC_SERVER_BASE_URL)}/api/v1/e-kyb/verification/company/${companyId}`;
-                    // const url = `http://localhost:3001/api/v1/e-kyb/verification/company/${companyId}`;
-                    return fetch(url, {
-                        method: 'GET',
-                        headers,
+        fetchAppKybById: async ({ getters, dispatch }, payload) => {
+            try {
+                const { companyId, accessToken } = payload
+                const serviceId = payload.serviceId || getters.getSelectedService?.appId
+                if (!companyId || !serviceId) {
+                    throw new Error('Company and service IDs are required')
+                }
+                let token = accessToken || getters.getAppByAppId(serviceId)?.kyb_access_token
+                if (!token || UtilsMixin.methods.isTokenExpired(token)) {
+                    const response = await dispatch('keepAccessTokenReadyForApp', {
+                        serviceId,
+                        grant_type: config.GRANT_TYPES_ENUM.CAVACH_KYB_API
                     })
-                }).then(response => response.json()).then(json => {
-                    if (json.error) {
-                        return reject(new Error(json.error?.details?.join(' ') || json.error?.join?.(' ') || json.error || 'Unknown error'))
-                    }
-                    const companiesData = json.data;
-                    resolve(companiesData);
-                }).catch((e) => {
-                    return reject(new Error(`Error while fetching KYB companies: ${e.message}`));
+                    token = response?.access_token
+                }
+                if (!token) {
+                    throw new Error('Could not prepare the KYB access token')
+                }
+                const headers = { 'x-kyb-access-token': token }
+                const url = `${sanitizeUrl(config.KYC_SERVER_BASE_URL)}/api/v1/e-kyb/verification/company/${companyId}`;
+                // const url = `http://localhost:3001/api/v1/e-kyb/verification/company/${companyId}`;
+                const response = await fetch(url, {
+                    method: 'GET',
+                    headers,
                 })
-            })
+                const json = await response.json()
+                if (json.error) {
+                    throw new Error(json.error?.details?.join(' ') || json.error?.join?.(' ') || json.error || 'Unknown error')
+                }
+                return json.data
+            } catch (e) {
+                throw new Error(`Error while fetching KYB company: ${e.message}`)
+            }
         },
         fetchAppsUsersSessions: ({ commit, getters, dispatch }, payload) => {
             return new Promise((resolve, reject) => {
