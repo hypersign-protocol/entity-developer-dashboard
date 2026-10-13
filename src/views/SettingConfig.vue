@@ -47,7 +47,7 @@
         <b-tab>
           <template #title>
             <b-icon icon="envelope" aria-hidden="true" small></b-icon>
-            <strong> My Invitions</strong>
+            <strong> My Invitations</strong>
           </template>
           <MyInvitions />
         </b-tab>

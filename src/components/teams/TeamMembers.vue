@@ -39,7 +39,8 @@
       </table>
     </div>
     <div v-else>
-      <empty-container title="No Member Found" icon="fa fa-user-friends" />
+      <empty-container title="No Member Found" icon="fa fa-user-friends"
+        description="Invite teammates to give them access to your dashboard." />
     </div>
 
     <!-- <div class="row mb-3" style="padding: 20px">No member found, please invite a member to your account!</div> -->
@@ -219,7 +220,7 @@ export default {
         }
         this.isLoading = true;
         this.invitionData = await this.inviteMember({emailId: email.trim(), roleId: this.selectedRoleId});
-        this.notifySuccess('Invition successfully generated')
+        this.notifySuccess('Invitation generated successfully')
         this.isLoading = false;
         // this.inviteMemberPopDown();
         // this.getPeopleMembers()

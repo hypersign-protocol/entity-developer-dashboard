@@ -309,7 +309,8 @@
             </v-col>
           </v-row>
           <div class="new-service-popup" v-else>
-            <empty-container title="No SSI Service Found" icon="fa fa-user-shield" />
+            <empty-container title="No SSI Service Found" icon="fa fa-user-shield"
+          description="SSI services you create for issuing and verifying credentials will appear here." />
             <!-- <h3 class="" style="text-align: left">Spin up your SSI service!</h3>
             <hf-buttons name=" Create" iconClass="fa fa-plus" style="text-align: right" class="ml-auto mt-2"
               @executeAction="openSlider('SSI_API')">
@@ -320,7 +321,8 @@
     </v-row>
     <v-row v-else class="mt-2">
       <v-col>
-        <empty-container title="No SSI Service Found" icon="fa fa-user-shield" />
+        <empty-container title="No SSI Service Found" icon="fa fa-user-shield"
+          description="SSI services you create for issuing and verifying credentials will appear here." />
       </v-col>
     </v-row>
   </div>

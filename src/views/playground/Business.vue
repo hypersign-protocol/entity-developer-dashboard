@@ -127,7 +127,12 @@
     </v-row>
 
     <div v-else-if="!isLoading">
-      <empty-container title="No Business Found" icon="fa fa-building" />
+      <empty-container
+        :title="searchQuery ? 'No Matching Business' : 'No Business Found'"
+        icon="fa fa-building"
+        :description="searchQuery
+          ? `No business matches “${searchQuery}”. Try a different name or ID.`
+          : 'Businesses appear here once they start a verification through your KYB widget or API.'" />
     </div>
     </template>
   </b-container>

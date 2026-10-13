@@ -13,12 +13,14 @@
         </div>
       </div>
 
-      <div v-if="!isLoading && widgetConfigs.length === 0" class="empty-state">
-        <v-icon size="48" color="#94a3b8">mdi-widgets-outline</v-icon>
-        <h5>No widget configurations found</h5>
-        <p>Create your first configuration to get started.</p>
+      <empty-container
+        v-if="!isLoading && widgetConfigs.length === 0"
+        title="No Widget Configuration Found"
+        icon="mdi mdi-widgets-outline"
+        description="Create your first configuration to get started."
+      >
         <HfButtons name="New Configuration" iconClass="mdi mdi-plus" @executeAction="createConfiguration" />
-      </div>
+      </empty-container>
 
       <div v-else class="table-shell">
         <b-table :items="widgetConfigs" :fields="tableFields" responsive show-empty class="configuration-table">
@@ -302,9 +304,6 @@ export default {
 .compact { min-width: 0; }
 .list-footer { color: #64748b; font-size: 12px; justify-content: space-between; padding: 18px 2px 0; }
 .list-footer .pagination { margin: 0; }
-.empty-state { border: 1px dashed #cbd5e1; border-radius: 8px; padding: 70px 20px; text-align: center; }
-.empty-state h5 { border: 0; color: #334155; line-height: normal; margin: 14px 0 6px; }
-.empty-state p { color: #64748b; }
 ::v-deep(.configuration-table thead th) { background: #f8fafc; border-bottom: 1px solid #dfe6ef; color: #64748b; font-size: 11px; padding: 16px; text-transform: uppercase; }
 ::v-deep(.configuration-table td) { color: #475569; padding: 16px; vertical-align: middle; }
 ::v-deep(.configuration-column) { width: 32%; }
