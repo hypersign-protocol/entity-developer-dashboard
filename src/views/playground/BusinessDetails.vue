@@ -84,10 +84,14 @@
     </v-row>
 
      <!-- Custom Modals -->
-        <CustomConfirmModal :isVisible="showApproveConfirm" title="Approve Company"
-            :message="`Are you sure you want to approve ${companyName}? This action will mark the company as approved and allow them to proceed.`"
-            type="success" confirmText="Approve" cancelText="Cancel" iconClass="fas fa-check-circle"
-            confirmIconClass="fas fa-check" @confirm="handleApproveConfirm" @cancel="showApproveConfirm = false" />
+        <hf-pop-up id="approve-company-popup" Header="Approve Company">
+          <p class="popup-message">
+            Approve <strong>{{ companyName }}</strong>? The business will be marked as approved and allowed to proceed.
+          </p>
+          <div class="popup-actions">
+            <hf-buttons name="Approve" @executeAction="handleApproveConfirm"></hf-buttons>
+          </div>
+        </hf-pop-up>
 
         <hf-pop-up id="reject-company-popup" Header="Reject Company">
           <div class="reject-form">
@@ -99,7 +103,7 @@
               max-rows="8"
               placeholder="e.g. incomplete documentation, details don't match the registry, compliance concerns"
             ></b-form-textarea>
-            <div class="reject-actions">
+            <div class="popup-actions">
               <hf-buttons name="Submit" :disabled="!rejectReason"
                 @executeAction="handleRejectSubmit"></hf-buttons>
             </div>
@@ -253,7 +257,7 @@
   white-space: nowrap;
 }
 
-/* Reject popup */
+/* Approve / Reject popups */
 .reject-label {
   color: #344054;
   display: block;
@@ -262,7 +266,14 @@
   margin-bottom: 6px;
 }
 
-.reject-actions {
+.popup-message {
+  color: #344054;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.popup-actions {
   display: flex;
   justify-content: flex-end;
   margin-top: 16px;
@@ -287,7 +298,6 @@ import BusinessInformation from '../../components/business-details/BusinessInfor
 import DocumentUploaded from '../../components/business-details/DocumentUploaded.vue';
 import UboDetails from '../../components/business-details/UboDetails.vue';
 import ChecksRegulations from '../../components/business-details/ChecksRegulations.vue';
-import CustomConfirmModal from '../../components/element/CustomConfirmModal.vue';
 import HfPopUp from '../../components/element/hfPopup.vue';
 import UtilsMixin from '../../mixins/utils';
 
@@ -300,7 +310,6 @@ export default {
         DocumentUploaded,
         UboDetails,
         ChecksRegulations,
-        CustomConfirmModal,
         HfPopUp
     },
     data() {
@@ -308,7 +317,6 @@ export default {
             isLoading: false,
             fullPage: true,
             company: null,
-            showApproveConfirm: false,
             rejectReason: ''
         }
     },
@@ -406,11 +414,11 @@ export default {
         },
 
         async approveCompany() {
-            this.showApproveConfirm = true;
+            this.$root.$emit('bv::show::modal', 'approve-company-popup');
         },
 
         async handleApproveConfirm() {
-            this.showApproveConfirm = false;
+            this.$root.$emit('bv::hide::modal', 'approve-company-popup');
             this.isLoading = true;
             try {
                 await this.approveOrRejectVerification({ companyId: this.companyId, status: 'Approved' });
