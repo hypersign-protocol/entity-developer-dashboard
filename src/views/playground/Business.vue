@@ -35,7 +35,7 @@
   </v-col>
 </v-row>
 
-    <SectionLoader v-if="isLoading" label="Loading businesses" />
+    <div v-if="isLoading"></div>
 
     <div v-else-if="error" class="warning-box mb-6">
       <div class="d-flex align-center">
@@ -470,13 +470,12 @@
 
 <script>
 import { mapState, mapActions, mapMutations } from "vuex";
-import loadIng from '../../components/element/LoadIng.vue';
 import config from '@/config.js';
 import AccessDenied from '../AccessDenied.vue';
-import SectionLoader from '../../components/element/SectionLoader.vue';
+import loadIng from '../../components/element/LoadIng.vue';
 export default {
   name: "BusinessVerification",
-  components: { loadIng, AccessDenied, SectionLoader },
+  components: { loadIng, AccessDenied },
   data() {
     return {
       searchQuery: '',

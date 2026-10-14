@@ -1,5 +1,5 @@
 <template>
-  <hf-pop-up :id="popupId" Header="Company verification" size="xl" @hidden="isOpen = false">
+  <hf-pop-up :id="popupId" Header="Company verification" size="xl" :hide-header-close="submitting" @hidden="isOpen = false">
     <div class="company-verification">
       <nav class="step-rail" aria-label="Company verification steps">
         <button
@@ -225,7 +225,22 @@
             </div>
           </div>
 
-          <label class="declaration" :class="{ disabled: !companyDetailsComplete }">
+          <!-- Submission progress. The steps are paced in the UI (the API is a single request);
+               the last step stays in progress until the request really finishes. -->
+          <div v-if="submitProgress.length" class="submit-progress" role="status" aria-live="polite">
+            <ul>
+              <li v-for="(step, index) in submitProgress" :key="step.key" :class="`is-${progressState(index)}`">
+                <span class="progress-marker" aria-hidden="true">
+                  <v-icon v-if="progressState(index) === 'done'" x-small>mdi-check</v-icon>
+                  <v-progress-circular v-else-if="progressState(index) === 'active'" indeterminate size="12" width="2"></v-progress-circular>
+                </span>
+                {{ step.label }}
+              </li>
+            </ul>
+            <small v-if="!submitFinished">This can take up to 30 seconds. Please keep this window open.</small>
+          </div>
+
+          <label v-else class="declaration" :class="{ disabled: !companyDetailsComplete }">
             <input v-model="declarationAccepted" type="checkbox" :disabled="!companyDetailsComplete" />
             <span>
               I confirm that the information and documents provided for
@@ -297,6 +312,11 @@ export default {
       form: emptyForm(),
       declarationAccepted: false,
       submitting: false,
+      // Simulated progress shown while the submit request runs
+      submitProgress: [],
+      submitProgressIndex: 0,
+      submitFinished: false,
+      submitProgressTimer: null,
       maxFileSizeMb: MAX_FILE_SIZE_MB,
       acceptedTypes: '.pdf,.png,.jpg,.jpeg',
     };
@@ -367,6 +387,9 @@ export default {
     canSubmit() {
       return this.companyDetailsComplete && !this.alreadySubmitted && this.declarationAccepted;
     },
+  },
+  beforeDestroy() {
+    clearTimeout(this.submitProgressTimer);
   },
   watch: {
     value: {
@@ -559,7 +582,12 @@ export default {
       if (!this.canSubmit || this.submitting) return;
       this.submitting = true;
       try {
-        const updated = await this.$store.dispatch('mainStore/submitProductionDetails', this.buildPayload());
+        const payload = this.buildPayload();
+        this.startSubmitProgress();
+        const updated = await this.$store.dispatch('mainStore/submitProductionDetails', payload);
+        // Only now is it really done: tick every step, let the user see it, then close
+        this.finishSubmitProgress();
+        await new Promise(resolve => setTimeout(resolve, 700));
         this.close();
         this.notifySuccess('Company details submitted for review.');
         this.$emit('submitted', updated);
@@ -567,7 +595,56 @@ export default {
         this.notifyErr(error.message || 'Could not submit your details. Please try again.');
       } finally {
         this.submitting = false;
+        this.resetSubmitProgress();
       }
+    },
+
+    // One upload step per document being sent, then the submission itself.
+    // Durations add up to roughly the usual request time; the last step has none, so it
+    // keeps spinning until the real response arrives (it never claims success early).
+    startSubmitProgress() {
+      const { documents } = this.form;
+      const uploads = [
+        documents.tax && documents.tax.data && { key: 'upload-tax', label: 'Uploading tax registration document', duration: 4000 },
+        documents.incorporation && documents.incorporation.data && { key: 'upload-incorporation', label: 'Uploading certificate of incorporation', duration: 4000 },
+      ].filter(Boolean);
+      this.submitProgress = [
+        ...uploads,
+        { key: 'submit', label: 'Submitting company details for verification', duration: 9000 },
+        { key: 'status', label: 'Updating your verification status', duration: null },
+      ];
+      this.submitProgressIndex = 0;
+      this.submitFinished = false;
+      this.scheduleNextProgressStep();
+    },
+
+    scheduleNextProgressStep() {
+      const step = this.submitProgress[this.submitProgressIndex];
+      if (!step || !step.duration) return;
+      this.submitProgressTimer = setTimeout(() => {
+        this.submitProgressIndex += 1;
+        this.scheduleNextProgressStep();
+      }, step.duration);
+    },
+
+    finishSubmitProgress() {
+      clearTimeout(this.submitProgressTimer);
+      this.submitProgressIndex = this.submitProgress.length;
+      this.submitFinished = true;
+    },
+
+    resetSubmitProgress() {
+      clearTimeout(this.submitProgressTimer);
+      this.submitProgressTimer = null;
+      this.submitProgress = [];
+      this.submitProgressIndex = 0;
+      this.submitFinished = false;
+    },
+
+    // done | active | pending
+    progressState(index) {
+      if (index < this.submitProgressIndex) return 'done';
+      return index === this.submitProgressIndex ? 'active' : 'pending';
     },
     close() {
       this.isOpen = false;
@@ -845,6 +922,33 @@ export default {
 
 .declaration input { margin-top: 2px; }
 .declaration.disabled { cursor: not-allowed; opacity: .6; }
+
+/* Submission progress */
+.submit-progress {
+  margin-top: 14px;
+  padding: 14px 16px;
+  border: 1px solid #dbe6f5;
+  border-radius: 10px;
+  background: #f8fafd;
+}
+.submit-progress ul { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
+.submit-progress li { display: flex; align-items: center; gap: 10px; color: #94a3b8; font-size: 13px; }
+.submit-progress li.is-active { color: #1d4ed8; font-weight: 600; }
+.submit-progress li.is-done { color: #344054; }
+.progress-marker {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 50%;
+}
+.is-active .progress-marker { border-color: transparent; color: #2563eb; }
+.is-done .progress-marker { border-color: #2daf78; background: #2daf78; }
+.is-done .progress-marker >>> .v-icon { color: #fff !important; }
+.submit-progress small { display: block; margin-top: 12px; color: #718198; font-size: 12px; }
 
 /* Footer & buttons (match ServiceConfig) */
 .panel-footer {
