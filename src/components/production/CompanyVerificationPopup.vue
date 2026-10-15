@@ -8,7 +8,7 @@
           type="button"
           class="step-rail-item"
           :class="{ active: activeStep === step.value, complete: step.complete }"
-          @click="activeStep = step.value"
+          @click="goToStep(index)"
         >
           <span class="step-rail-marker">
             <v-icon v-if="step.complete" x-small>mdi-check</v-icon>
@@ -41,34 +41,44 @@
             </div>
 
             <template v-else>
+              <div v-if="visibleErrorCount" class="notice notice-error" role="alert">
+                <v-icon small>mdi-alert-circle-outline</v-icon>
+                <div>
+                  <strong>Fix {{ visibleErrorCount }} {{ visibleErrorCount === 1 ? 'field' : 'fields' }} to continue</strong>
+                  <p>The highlighted fields are missing or in the wrong format.</p>
+                </div>
+              </div>
+
               <section class="form-section">
                 <header class="form-section-header">
                   <h4>Basic details</h4>
                   <p>Prefilled from onboarding. Update anything that has changed.</p>
                 </header>
                 <div class="field-grid">
-                  <div class="field span-2">
+                  <div class="field span-2" :class="{ 'has-error': fieldErrors.companyName }" data-field="companyName">
                     <label>Legal company name <span class="required-marker">*</span></label>
                     <input v-model.trim="form.basic.companyName" type="text" autocomplete="organization" />
+                    <small v-if="fieldErrors.companyName" class="field-error">{{ fieldErrors.companyName }}</small>
                   </div>
-                  <div class="field">
+                  <div class="field" :class="{ 'has-error': fieldErrors.domain }" data-field="domain">
                     <label>Website domain <span class="required-marker">*</span></label>
-                    <input v-model.trim="form.basic.domain" type="text" placeholder="example.com" />
+                    <input v-model.trim="form.basic.domain" type="text" placeholder="example.com" @blur="form.basic.domain = normalizeDomain(form.basic.domain)" />
+                    <small v-if="fieldErrors.domain" class="field-error">{{ fieldErrors.domain }}</small>
                   </div>
-                  <div class="field">
+                  <div class="field" :class="{ 'has-error': fieldErrors.customerEmail }" data-field="customerEmail">
                     <label>Contact email <span class="required-marker">*</span></label>
                     <input v-model.trim="form.basic.customerEmail" type="email" autocomplete="email" />
-                    <small v-if="form.basic.customerEmail && !isEmailValid" class="field-error">Enter a valid email address.</small>
+                    <small v-if="fieldErrors.customerEmail" class="field-error">{{ fieldErrors.customerEmail }}</small>
                   </div>
-                  <div class="field">
+                  <div class="field" :class="{ 'has-error': fieldErrors.phoneNumber }" data-field="phoneNumber">
                     <label>Phone number</label>
                     <div class="phone-control">
                       <span v-if="callingCode">{{ callingCode }}</span>
                       <input v-model.trim="form.basic.phoneNumber" type="tel" placeholder="9876543210" autocomplete="tel-national" />
                     </div>
-                    <small v-if="phoneError" class="field-error">{{ phoneError }}</small>
+                    <small v-if="fieldErrors.phoneNumber" class="field-error">{{ fieldErrors.phoneNumber }}</small>
                   </div>
-                  <div class="field">
+                  <div class="field" :class="{ 'has-error': fieldErrors.country }" data-field="country">
                     <label>Country of registration <span class="required-marker">*</span></label>
                     <div class="select-control">
                       <select v-model="form.basic.country" autocomplete="country">
@@ -77,6 +87,7 @@
                       </select>
                       <i class="mdi mdi-chevron-down" aria-hidden="true"></i>
                     </div>
+                    <small v-if="fieldErrors.country" class="field-error">{{ fieldErrors.country }}</small>
                   </div>
                 </div>
               </section>
@@ -87,25 +98,30 @@
                   <p>The official address on your incorporation documents.</p>
                 </header>
                 <div class="field-grid">
-                  <div class="field span-2">
+                  <div class="field span-2" :class="{ 'has-error': fieldErrors.line1 }" data-field="line1">
                     <label>Address line 1 <span class="required-marker">*</span></label>
                     <input v-model.trim="form.address.line1" type="text" autocomplete="address-line1" />
+                    <small v-if="fieldErrors.line1" class="field-error">{{ fieldErrors.line1 }}</small>
                   </div>
-                  <div class="field span-2">
+                  <div class="field span-2" :class="{ 'has-error': fieldErrors.line2 }" data-field="line2">
                     <label>Address line 2</label>
                     <input v-model.trim="form.address.line2" type="text" autocomplete="address-line2" />
+                    <small v-if="fieldErrors.line2" class="field-error">{{ fieldErrors.line2 }}</small>
                   </div>
-                  <div class="field">
+                  <div class="field" :class="{ 'has-error': fieldErrors.city }" data-field="city">
                     <label>City <span class="required-marker">*</span></label>
                     <input v-model.trim="form.address.city" type="text" autocomplete="address-level2" />
+                    <small v-if="fieldErrors.city" class="field-error">{{ fieldErrors.city }}</small>
                   </div>
-                  <div class="field">
+                  <div class="field" :class="{ 'has-error': fieldErrors.state }" data-field="state">
                     <label>State / Province <span class="required-marker">*</span></label>
                     <input v-model.trim="form.address.state" type="text" autocomplete="address-level1" />
+                    <small v-if="fieldErrors.state" class="field-error">{{ fieldErrors.state }}</small>
                   </div>
-                  <div class="field">
+                  <div class="field" :class="{ 'has-error': fieldErrors.postalCode }" data-field="postalCode">
                     <label>Postal code <span class="required-marker">*</span></label>
-                    <input v-model.trim="form.address.postalCode" type="text" autocomplete="postal-code" />
+                    <input v-model.trim="form.address.postalCode" type="text" autocomplete="postal-code" :placeholder="postalCodePlaceholder" />
+                    <small v-if="fieldErrors.postalCode" class="field-error">{{ fieldErrors.postalCode }}</small>
                   </div>
                   <div class="field">
                     <label>Country</label>
@@ -131,12 +147,12 @@
                 <p v-if="form.taxApplicable === false" class="section-note">
                   As your business isn't registered for tax, please provide the personal tax ID of the business owner or authorised representative.
                 </p>
-                <div class="field">
+                <div class="field" :class="{ 'has-error': fieldErrors.taxId }" data-field="taxId">
                   <label>{{ taxRule.label }} <span class="required-marker">*</span></label>
                   <input v-model.trim="form.taxId" type="text" :placeholder="taxRule.example ? `e.g. ${taxRule.example}` : ''" />
-                  <small v-if="taxIdError" class="field-error">{{ taxIdError }}</small>
+                  <small v-if="fieldErrors.taxId" class="field-error">{{ fieldErrors.taxId }}</small>
                 </div>
-                <div class="field">
+                <div class="field" :class="{ 'has-error': fieldErrors.taxDocument }" data-field="taxDocument">
                   <label>{{ taxRule.document }} <span class="required-marker">*</span></label>
                   <div v-if="form.documents.tax" class="file-chip">
                     <v-icon small>mdi-file-document-outline</v-icon>
@@ -152,6 +168,7 @@
                     <span>Upload file</span>
                     <small>PDF, PNG or JPG, up to {{ maxFileSizeMb }} MB</small>
                   </label>
+                  <small v-if="fieldErrors.taxDocument" class="field-error">{{ fieldErrors.taxDocument }}</small>
                   <small v-if="form.taxApplicable === false">
                     A copy that shows your {{ taxRule.label }}. If your business has a tax exemption certificate, you can upload that instead.
                   </small>
@@ -170,10 +187,10 @@
                   <v-icon x-small>mdi-lightbulb-on-outline</v-icon>
                   <span>The more information you provide, the faster and easier it is for us to verify your business.</span>
                 </div>
-                <div class="field">
+                <div class="field" :class="{ 'has-error': fieldErrors.registrationNumber }" data-field="registrationNumber">
                   <label>{{ registrationRule.label }}</label>
                   <input v-model.trim="form.registrationNumber" type="text" :placeholder="registrationRule.example ? `e.g. ${registrationRule.example}` : ''" />
-                  <small v-if="registrationError" class="field-error">{{ registrationError }}</small>
+                  <small v-if="fieldErrors.registrationNumber" class="field-error">{{ fieldErrors.registrationNumber }}</small>
                 </div>
                 <div class="field">
                   <label>Certificate of incorporation</label>
@@ -269,9 +286,26 @@ import HfPopUp from '../element/hfPopup.vue';
 import UtilsMixin from '../../mixins/utils';
 import countries from 'i18n-iso-countries';
 import enLocale from 'i18n-iso-countries/langs/en.json';
-import { COUNTRY_OPTIONS, CALLING_CODES, countryName, detectCountryFromIp } from '../../utils/countries.js';
-import { getIdentifierRule, validateIdentifier } from '../../utils/companyIdentifiers.js';
+import { COUNTRY_OPTIONS, CALLING_CODES, countryName, countryOptionLabel, detectCountryFromIp } from '../../utils/countries.js';
+import {
+  OTHER_COUNTRY,
+  detectIdentifierType,
+  getIdentifierRule,
+  isSupportedCountry,
+  normalizeIdentifier,
+  postalCodeExample,
+  validateIdentifier,
+  validatePostalCode,
+} from '../../utils/companyIdentifiers.js';
 import { companyAllowsProduction } from './companyReview.js';
+import {
+  joinStreet,
+  normalizeDomain,
+  validateCompanyName,
+  validateDomain,
+  validateStreet,
+  validateStreetLine,
+} from '../../utils/companyFieldRules.js';
 
 countries.registerLocale(enLocale);
 
@@ -306,6 +340,8 @@ export default {
     return {
       popupId: 'company-verification-popup',
       activeStep: 'company',
+      // Set once the user tries to leave the company step; then empty required fields show too
+      showRequiredErrors: false,
       loadingOnboarding: false,
       detectingCountry: false,
       onboarding: {},
@@ -329,10 +365,28 @@ export default {
     countryLabel() {
       return countryName(this.form.basic.country);
     },
+    // Only countries the backend accepts for company verification, plus "Other"
     countryOptions() {
       return Object.entries(COUNTRY_OPTIONS)
-        .map(([value, text]) => ({ value, text }))
-        .sort((left, right) => left.text.localeCompare(right.text));
+        .filter(([value]) => isSupportedCountry(this.toCountryCode(value)))
+        .sort(([, left], [, right]) => left.localeCompare(right))
+        .map(([value, name]) => ({ value, text: countryOptionLabel(value, name) }));
+    },
+    // ISO alpha-2 code the backend uses ('XX' for "Other")
+    countryCode() {
+      return this.toCountryCode(this.form.basic.country);
+    },
+    countryError() {
+      const country = this.form.basic.country;
+      if (!country || isSupportedCountry(this.countryCode)) return '';
+      return `${countryName(country)} isn't supported for company verification yet. Choose "Other" if your country isn't listed.`;
+    },
+    postalCodeError() {
+      return validatePostalCode(this.countryCode, this.form.address.postalCode);
+    },
+    postalCodePlaceholder() {
+      const example = postalCodeExample(this.countryCode);
+      return example ? `e.g. ${example}` : '';
     },
     isEmailValid() {
       return EMAIL_PATTERN.test(this.form.basic.customerEmail);
@@ -345,35 +399,71 @@ export default {
       return phone && !PHONE_PATTERN.test(phone) ? 'Enter a valid phone number.' : '';
     },
     registrationRule() {
-      return getIdentifierRule('registration', this.form.basic.country);
+      return getIdentifierRule('registration', this.countryCode);
     },
     // Business registered for tax -> company tax ID; otherwise the owner's personal tax ID
     taxIdKind() {
       return this.form.taxApplicable === false ? 'personalTax' : 'tax';
     },
     taxRule() {
-      return getIdentifierRule(this.taxIdKind, this.form.basic.country);
+      return getIdentifierRule(this.taxIdKind, this.countryCode);
     },
     registrationError() {
-      return validateIdentifier('registration', this.form.basic.country, this.form.registrationNumber);
+      return validateIdentifier('registration', this.countryCode, this.form.registrationNumber);
     },
     taxIdError() {
-      return validateIdentifier(this.taxIdKind, this.form.basic.country, this.form.taxId);
+      return validateIdentifier(this.taxIdKind, this.countryCode, this.form.taxId);
     },
     // Already with compliance (or approved); a rejected submission can be resent
     alreadySubmitted() {
       return companyAllowsProduction(this.onboarding);
     },
+    // Wrong-format problems: shown as soon as a field has a value. Same rules the backend applies.
+    formatErrors() {
+      const { basic, address } = this.form;
+      return {
+        companyName: validateCompanyName(basic.companyName),
+        domain: validateDomain(basic.domain),
+        customerEmail: basic.customerEmail && !this.isEmailValid ? 'Enter a valid email address.' : '',
+        phoneNumber: this.phoneError,
+        country: this.countryError,
+        line1: validateStreetLine(address.line1) || validateStreet(address.line1, address.line2),
+        line2: validateStreetLine(address.line2),
+        postalCode: this.postalCodeError,
+        taxId: this.taxIdError,
+        registrationNumber: this.registrationError,
+      };
+    },
+    // Missing required values: only shown after the user tries to continue
+    requiredErrors() {
+      const { basic, address, documents } = this.form;
+      const required = {
+        companyName: [basic.companyName, 'Enter your legal company name.'],
+        domain: [basic.domain, 'Enter your website domain.'],
+        customerEmail: [basic.customerEmail, 'Enter a contact email.'],
+        country: [basic.country, 'Select your country of registration.'],
+        line1: [address.line1, 'Enter your street address.'],
+        city: [address.city, 'Enter your city.'],
+        state: [address.state, 'Enter your state or province.'],
+        postalCode: [address.postalCode, 'Enter your postal code.'],
+        taxId: [this.form.taxId, `Enter your ${this.taxRule.label}.`],
+        taxDocument: [documents.tax, 'Upload the document.'],
+      };
+      return Object.fromEntries(Object.entries(required).map(([key, [value, message]]) => [key, value ? '' : message]));
+    },
+    fieldErrors() {
+      const errors = { ...this.formatErrors };
+      Object.entries(this.requiredErrors).forEach(([key, message]) => {
+        if (message && !errors[key]) errors[key] = this.showRequiredErrors ? message : '';
+      });
+      return errors;
+    },
+    visibleErrorCount() {
+      return this.showRequiredErrors ? Object.values(this.fieldErrors).filter(Boolean).length : 0;
+    },
     companyDetailsComplete() {
       if (this.alreadySubmitted) return true;
-      const { basic, address, documents } = this.form;
-      const basicComplete = [basic.companyName, basic.domain, basic.country].every(Boolean)
-        && this.isEmailValid && !this.phoneError;
-      // Registration is optional, but a number that is filled in must still be valid
-      const registrationComplete = !this.registrationError;
-      const addressComplete = [address.line1, address.city, address.state, address.postalCode].every(Boolean);
-      const taxComplete = Boolean(this.form.taxId) && !this.taxIdError && Boolean(documents.tax);
-      return basicComplete && addressComplete && taxComplete && registrationComplete;
+      return [...Object.values(this.formatErrors), ...Object.values(this.requiredErrors)].every(error => !error);
     },
     steps() {
       return [
@@ -408,6 +498,7 @@ export default {
   methods: {
     reset() {
       this.activeStep = 'company';
+      this.showRequiredErrors = false;
       this.form = emptyForm();
       this.declarationAccepted = false;
       this.loadOnboarding();
@@ -487,10 +578,25 @@ export default {
       this.form.documents.tax = null;
       this.form.taxApplicable = value;
     },
+    // Moving forward from the company step checks it first and points at what's wrong
     goToStep(index) {
       const step = this.steps[index];
-      if (step) this.activeStep = step.value;
+      if (!step) return;
+      if (index > this.activeStepIndex && this.activeStep === 'company' && !this.companyDetailsComplete) {
+        this.showRequiredErrors = true;
+        this.$nextTick(this.scrollToFirstError);
+        return;
+      }
+      this.activeStep = step.value;
     },
+    scrollToFirstError() {
+      const field = this.$el && this.$el.querySelector && this.$el.querySelector('.field.has-error');
+      if (!field) return;
+      field.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      const input = field.querySelector('input, select');
+      if (input) input.focus({ preventScroll: true });
+    },
+    normalizeDomain,
     async pickFile(kind, event) {
       const input = event.target;
       const file = input.files && input.files[0];
@@ -531,32 +637,38 @@ export default {
       for (let index = 0; index < binary.length; index += 1) bytes[index] = binary.charCodeAt(index);
       return new Blob([bytes], { type: mimeType || metadata.slice(5, metadata.indexOf(';')) });
     },
+    toCountryCode(alpha3) {
+      if (!alpha3) return '';
+      if (alpha3 === 'XXX') return OTHER_COUNTRY;
+      return countries.alpha3ToAlpha2(alpha3) || '';
+    },
     buildPayload() {
       const { documents } = this.form;
       if (!this.form.taxApplicable) {
         throw new Error('The dashboard service does not currently support personal tax ID document types.');
       }
-      const countryCode = countries.alpha3ToAlpha2(this.form.basic.country);
-      if (!countryCode) throw new Error('This country is not supported for company verification.');
-      const normalizedTaxId = this.form.taxId.toUpperCase();
-      const isIndia = countryCode === 'IN';
-      const registrationNumber = this.form.registrationNumber.toUpperCase().replace(/[\s-]/g, '');
+      const { countryCode } = this;
+      if (!isSupportedCountry(countryCode)) throw new Error('This country is not supported for company verification.');
+      // Same normalisation and type detection the backend validates against
+      const normalizedTaxId = normalizeIdentifier(this.form.taxId);
+      const taxIdType = detectIdentifierType('tax', countryCode, normalizedTaxId);
+      const registrationNumber = normalizeIdentifier(this.form.registrationNumber);
       const registrationNumberType = registrationNumber
-        ? (isIndia ? (/^[LU]\d{5}[A-Z]{2}\d{4}[A-Z]{3}\d{6}$/.test(registrationNumber) ? 'CIN' : 'LLPIN') : 'OTHER')
+        ? detectIdentifierType('registration', countryCode, registrationNumber)
         : undefined;
-      const taxIdType = isIndia
-        ? (/^[A-Z]{5}\d{4}[A-Z]$/.test(normalizedTaxId) ? 'PAN' : 'GSTIN')
-        : 'OTHER';
+      if (!taxIdType || (registrationNumber && !registrationNumberType)) {
+        throw new Error('Check the format of your tax ID and registration number.');
+      }
       const company = {
         name: this.form.basic.companyName,
-        domain: this.form.basic.domain,
+        domain: normalizeDomain(this.form.basic.domain),
         region: this.form.address.state,
         countryOfRegistration: countryCode,
         ...(registrationNumber ? { registrationNumber, registrationNumberType } : {}),
         taxIdType,
         taxIdNumber: normalizedTaxId,
         address: {
-          street: [this.form.address.line1, this.form.address.line2].filter(Boolean).join(', '),
+          street: joinStreet(this.form.address.line1, this.form.address.line2),
           province: this.form.address.state,
           postalCode: this.form.address.postalCode,
           city: this.form.address.city,
@@ -761,6 +873,12 @@ export default {
 .field input:focus, .field select:focus { border-color: #2f6fec; box-shadow: 0 0 0 2px rgba(47,111,236,.12); }
 .field > small { display: block; margin-top: 4px; color: #8793a5; font-size: 11px; }
 .field > small.field-error { color: #b42318; }
+.field.has-error input[type="text"],
+.field.has-error input[type="email"],
+.field.has-error input[type="tel"],
+.field.has-error select,
+.field.has-error .phone-control,
+.field.has-error .dropzone { border-color: #f04438; }
 
 /* Same dropdown affordance as the onboarding country field */
 .select-control { position: relative; }
@@ -906,6 +1024,8 @@ export default {
 .notice-info > .v-icon { color: #4a6fa5 !important; }
 .notice-warning { border: 1px solid #f3e1bd; background: #fff8e8; color: #8a611d; }
 .notice-warning > .v-icon { color: #c08a2e !important; }
+.notice-error { margin-bottom: 14px; border: 1px solid #fecdca; background: #fef3f2; color: #b42318; }
+.notice-error > .v-icon { color: #d92d20 !important; }
 
 .declaration {
   display: flex;
