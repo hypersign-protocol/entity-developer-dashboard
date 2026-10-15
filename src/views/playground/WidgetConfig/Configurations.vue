@@ -9,16 +9,18 @@
           <p class="text-subtitle-2 text-muted">Create and manage widget configurations for your verification use cases</p>
         </div>
         <div class="header-actions">
-          <HfButtons name="New Configuration" iconClass="mdi mdi-plus" @executeAction="createConfiguration" />
+          <HfButtons v-if="$can('CAVACH_API', 'WRITE_WIDGET_CONFIG')" name="New Configuration" iconClass="mdi mdi-plus" @executeAction="createConfiguration" />
         </div>
       </div>
 
-      <div v-if="!isLoading && widgetConfigs.length === 0" class="empty-state">
-        <v-icon size="48" color="#94a3b8">mdi-widgets-outline</v-icon>
-        <h5>No widget configurations found</h5>
-        <p>Create your first configuration to get started.</p>
-        <HfButtons name="New Configuration" iconClass="mdi mdi-plus" @executeAction="createConfiguration" />
-      </div>
+      <empty-container
+        v-if="!isLoading && widgetConfigs.length === 0"
+        title="No Widget Configuration Found"
+        icon="mdi mdi-widgets-outline"
+        description="Create your first configuration to get started."
+      >
+        <HfButtons v-if="$can('CAVACH_API', 'WRITE_WIDGET_CONFIG')" name="New Configuration" iconClass="mdi mdi-plus" @executeAction="createConfiguration" />
+      </empty-container>
 
       <div v-else class="table-shell">
         <b-table :items="widgetConfigs" :fields="tableFields" responsive show-empty class="configuration-table">
@@ -60,9 +62,9 @@
             <b-dropdown right no-caret size="sm" variant="link" boundary="viewport" toggle-class="action-menu" menu-class="configuration-actions-menu" class="configuration-actions ml-1">
               <template #button-content><v-icon small>mdi-dots-vertical</v-icon></template>
               <b-dropdown-item @click="viewConfiguration(item)"><v-icon small>mdi-pencil-outline</v-icon> Edit</b-dropdown-item>
-              <b-dropdown-item v-if="!item.isDefault" @click="setDefaultConfiguration(item)"><v-icon small>mdi-star-outline</v-icon> Set as default</b-dropdown-item>
-              <b-dropdown-divider v-if="!item.isDefault" />
-              <b-dropdown-item v-if="!item.isDefault" class="delete-action" @click="removeConfiguration(item)"><v-icon small>mdi-trash-can-outline</v-icon> Delete</b-dropdown-item>
+              <b-dropdown-item v-if="!item.isDefault && $can('CAVACH_API', 'UPDATE_WIDGET_CONFIG')" @click="setDefaultConfiguration(item)"><v-icon small>mdi-star-outline</v-icon> Set as default</b-dropdown-item>
+              <b-dropdown-divider v-if="!item.isDefault && $can('CAVACH_API', 'DELETE_WIDGET_CONFIG')" />
+              <b-dropdown-item v-if="!item.isDefault && $can('CAVACH_API', 'DELETE_WIDGET_CONFIG')" class="delete-action" @click="removeConfiguration(item)"><v-icon small>mdi-trash-can-outline</v-icon> Delete</b-dropdown-item>
             </b-dropdown>
           </template>
         </b-table>
@@ -302,9 +304,6 @@ export default {
 .compact { min-width: 0; }
 .list-footer { color: #64748b; font-size: 12px; justify-content: space-between; padding: 18px 2px 0; }
 .list-footer .pagination { margin: 0; }
-.empty-state { border: 1px dashed #cbd5e1; border-radius: 8px; padding: 70px 20px; text-align: center; }
-.empty-state h5 { border: 0; color: #334155; line-height: normal; margin: 14px 0 6px; }
-.empty-state p { color: #64748b; }
 ::v-deep(.configuration-table thead th) { background: #f8fafc; border-bottom: 1px solid #dfe6ef; color: #64748b; font-size: 11px; padding: 16px; text-transform: uppercase; }
 ::v-deep(.configuration-table td) { color: #475569; padding: 16px; vertical-align: middle; }
 ::v-deep(.configuration-column) { width: 32%; }

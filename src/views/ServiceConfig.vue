@@ -18,7 +18,7 @@
         :key="tab.value"
         type="button"
         :class="{ active: activeTab === tab.value }"
-        :disabled="(isEditing || isEditingDomain) && activeTab !== tab.value"
+        :disabled="isEditing && activeTab !== tab.value"
         @click="selectTab(tab.value)"
       >
         {{ tab.label }}
@@ -102,71 +102,8 @@
           </section>
         </template>
 
-        <template v-else-if="activeTab === 'domain'">
-          <section class="config-card">
-            <div class="card-header-row compact">
-              <div>
-                <div class="domain-title-row">
-                  <h2>Verify domain</h2>
-                  <span class="verification-badge" :class="displayDomainVerified ? 'verified' : 'unverified'">
-                    {{ displayDomainVerified ? '✓ Verified' : 'Unverified' }}
-                  </span>
-                </div>
-                <p>Verify domain ownership to unlock Production access.</p>
-              </div>
-              <div class="edit-actions">
-                <button v-if="!isEditing && !isEditingDomain" type="button" class="icon-button" title="Edit domain" aria-label="Edit domain" @click="startDomainEdit">
-                  <v-icon small>mdi-pencil-outline</v-icon>
-                </button>
-              </div>
-            </div>
-
-            <div v-if="isEditingDomain" class="domain-editor">
-              <strong class="current-domain">{{ currentDomain || 'No domain configured' }}</strong>
-              <div class="detail-field domain-field">
-                <label>New domain <span class="required-marker" aria-hidden="true">*</span></label>
-                <input v-model.trim="formData.domain" type="text" placeholder="example.com" required />
-                <small>Changing the domain starts a new ownership check. The new domain will be unverified after it is saved.</small>
-              </div>
-            </div>
-            <div v-else class="domain-summary detail-field">
-              <label>Domain <span class="required-marker" aria-hidden="true">*</span></label>
-              <strong>{{ formData.domain || 'No domain configured' }}</strong>
-            </div>
-            <div v-if="isEditingDomain" class="card-footer-actions domain-footer-actions">
-              <button type="button" class="secondary-button" @click="cancelDomainEdit">Cancel</button>
-              <button type="button" class="primary-button" @click="saveDomainChange">Save domain</button>
-            </div>
-          </section>
-
-          <section class="config-card">
-            <div class="card-header-row">
-              <div>
-                <h2>TXT record</h2>
-                <p>Add this record to your DNS provider before verifying the domain.</p>
-              </div>
-            </div>
-            <div v-if="txtRecord" class="dns-record domain-record">
-              <div>
-                <label>DNS TXT value</label>
-                <code>{{ txtRecord }}</code>
-              </div>
-              <button type="button" class="copy-icon-button bordered" title="Copy TXT record" aria-label="Copy TXT record" @click="copyToClip(txtRecord, 'TXT Record')">
-                <i class="mdi mdi-content-copy"></i>
-              </button>
-            </div>
-            <div v-else class="domain-prerequisite">
-              Configure an Issuer DID first to generate the domain verification TXT record.
-            </div>
-            <ol class="verification-guide-list inline-guide">
-              <li>Add the TXT record above in your domain provider's DNS settings.</li>
-              <li>Wait for DNS propagation, which may take 5–30 minutes.</li>
-              <li>Return here and verify the domain.</li>
-            </ol>
-            <div v-if="!displayDomainVerified" class="card-footer-actions">
-              <button type="button" class="primary-button" :disabled="!txtRecord || !formData.domain" @click="verifyDomain">Verify domain</button>
-            </div>
-          </section>
+        <template v-else-if="activeTab === 'go-live'">
+          <GoLivePanel :app="formData" @updated="onAppUpdated" />
         </template>
 
         <template v-else>
@@ -226,10 +163,19 @@
           <h2>About this app</h2>
           <dl>
             <div><dt>App name</dt><dd>{{ formData.appName || '—' }}</dd></div>
+            <div>
+              <dt>Application ID</dt>
+              <dd class="copy-value">
+                <code :title="formData.appId">{{ formData.appId || '—' }}</code>
+                <button v-if="formData.appId" type="button" class="copy-icon-button" title="Copy application ID" aria-label="Copy application ID" @click="copyToClip(formData.appId, 'App ID')">
+                  <i class="mdi mdi-content-copy"></i>
+                </button>
+              </dd>
+            </div>
             <div><dt>Description</dt><dd>{{ formData.description || '—' }}</dd></div>
             <div>
               <dt>Domain</dt>
-              <dd>{{ currentDomain || '—' }} <span v-if="displayDomainVerified" class="inline-verified">✓ Verified</span></dd>
+              <dd>{{ formData.domain || '—' }} <span v-if="formData.hasDomainVerified" class="inline-verified">✓ Verified</span></dd>
             </div>
           </dl>
           <div class="about-note">Changes are saved to Hypersign only after you select Save changes.</div>
@@ -241,7 +187,7 @@
               <p>Choose an environment the app uses.</p>
             </div>
             <button
-              v-if="!isEditing && !isEditingDomain"
+              v-if="!isEditing && savedEnv === 'prod'"
               type="button"
               class="side-edit-button"
               title="Edit environment"
@@ -251,19 +197,27 @@
               <v-icon small>mdi-pencil-outline</v-icon>
             </button>
           </div>
-          <div class="environment-toggle side-environment-toggle" :class="{ disabled: !(isEditing && editingSection === 'environment') }">
-            <button type="button" :class="{ active: !isProd }" :disabled="!(isEditing && editingSection === 'environment')" @click="setEnv(false)">Development</button>
-            <button type="button" :class="{ active: isProd }" :disabled="!(isEditing && editingSection === 'environment')" @click="setEnv(true)">Production</button>
-          </div>
-          <p class="environment-help">Switching environments can affect credentials, integrations, and available services.</p>
-          <p class="production-requirement">Your domain must be verified before moving to Production.</p>
+          <!-- Dev -> prod only goes through the Go live checklist; the toggle is for switching back -->
+          <template v-if="savedEnv === 'prod'">
+            <div class="environment-toggle side-environment-toggle" :class="{ disabled: !(isEditing && editingSection === 'environment') }">
+              <button type="button" :class="{ active: !isProd }" :disabled="!(isEditing && editingSection === 'environment')" @click="setEnv(false)">Development</button>
+              <button type="button" :class="{ active: isProd }" :disabled="!(isEditing && editingSection === 'environment')" @click="setEnv(true)">Production</button>
+            </div>
+            <p class="environment-help">Switching environments can affect credentials, integrations, and available services.</p>
+          </template>
+          <template v-else>
+            <p class="production-requirement">This app is in Development. Complete the go-live checklist to move it to Production.</p>
+            <button v-if="activeTab !== 'go-live'" type="button" class="secondary-button go-live-link" :disabled="isEditing" @click="selectTab('go-live')">
+              Go live <v-icon x-small>mdi-arrow-right</v-icon>
+            </button>
+          </template>
           <p v-if="isEditing && editingSection === 'environment'" class="pending-message">The environment change will be applied when you save.</p>
           <div v-if="isEditing && editingSection === 'environment'" class="side-card-actions">
             <button type="button" class="secondary-button" @click="cancelEdit">Cancel</button>
             <button type="button" class="primary-button" @click="saveChanges">Save environment</button>
           </div>
         </section>
-        <section class="side-card danger-card">
+        <section v-if="canDeleteApp" class="side-card danger-card">
           <h2>Danger zone</h2>
           <p>Remove this application and its associated metadata.</p>
           <button type="button" class="danger-button" @click="openDeleteServicePopUp">Delete application</button>
@@ -329,7 +283,7 @@
 .danger-button:hover { background: #dc3545; color: #fff; }
 .details-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 27px 56px; margin-top: 27px; }
 .detail-field { min-width: 0; }
-.detail-field label, .origins-editor > label, .dns-record label { display: block; margin-bottom: 9px; color: #718096; font-size: 11px; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; }
+.detail-field label, .origins-editor > label { display: block; margin-bottom: 9px; color: #718096; font-size: 11px; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; }
 .detail-field > p { margin: 0; color: #344054; font-size: 13px; line-height: 1.45; }
 .detail-field input, .detail-field textarea, .detail-field select { width: 100%; border: 1px solid #d5dde7; border-radius: 6px; background: #fff; color: #27364a; font-size: 13px; outline: none; }
 .detail-field input, .detail-field select { height: 38px; padding: 0 11px; }
@@ -341,25 +295,16 @@
 .required-marker { color: #dc3545; }
 .copy-icon-button { display: inline-flex; flex: 0 0 auto; width: 30px; height: 30px; align-items: center; justify-content: center; padding: 0; border: 0; border-radius: 5px; background: transparent; color: #2563dc; font-size: 16px; }
 .copy-icon-button:hover { background: #edf3ff; color: #1d4fc4; }
-.copy-icon-button.bordered { border: 1px solid #d5dde7; background: #fff; }
 .read-only-value { min-height: 38px; padding: 0 6px 0 10px; border: 1px solid #e1e6ed; border-radius: 6px; background: #f8fafc; }
 .logo-row { display: flex; align-items: center; gap: 12px; color: #657287; font-size: 12px; }
 .logo-row >>> .logo-upload-circle, .logo-row >>> .logo-preview-circle { width: 56px; height: 56px; border-radius: 9px; }
 .logo-row >>> .logo-preview-circle img { border-radius: 9px; }
-.domain-editor { display: grid; gap: 14px; }
-.current-domain { color: #344054; font-size: 13px; }
-.domain-title-row { display: flex; align-items: center; gap: 8px; }
-.domain-title-row h2 { margin-bottom: 0; }
 .verification-help-button { display: inline-flex; width: 24px; height: 24px; align-items: center; justify-content: center; padding: 0; border: 0; border-radius: 50%; background: transparent; color: #9a641c; }
 .verification-help-button:hover { background: #fff4e5; }
 .verification-help-button >>> .v-icon { color: inherit !important; }
-.domain-summary { width: 100%; }
-.domain-summary strong { font-size: 13px; }
 .card-footer-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 22px; padding-top: 18px; border-top: 1px solid #e8edf3; }
-.verification-badge, .inline-verified, .key-type { display: inline-flex; align-items: center; border-radius: 14px; font-size: 11px; font-weight: 700; }
-.verification-badge { padding: 5px 10px; }
+.inline-verified, .key-type { display: inline-flex; align-items: center; border-radius: 14px; font-size: 11px; font-weight: 700; }
 .verified, .inline-verified { background: #eaf8f0; color: #218459; }
-.unverified { background: #fff4e5; color: #9a641c; }
 .inline-verified { margin-left: 5px; padding: 3px 7px; }
 .environment-toggle { display: inline-flex; padding: 4px; border: 1px solid #d8e0ea; border-radius: 9px; background: #edf2f7; }
 .environment-toggle button { min-width: 126px; height: 37px; border: 1px solid transparent; border-radius: 6px; background: transparent; color: #64748b; font-size: 12px; font-weight: 700; }
@@ -367,14 +312,11 @@
 .environment-toggle button:disabled { cursor: default; opacity: 1; }
 .environment-help { margin: 14px 0 0; color: #7b8798; font-size: 11px; }
 .pending-message { margin: 12px 0 0; color: #218459; font-size: 12px; }
+.go-live-link { display: inline-flex; align-items: center; gap: 4px; margin-top: 12px; }
+.go-live-link:hover >>> .v-icon { color: #fff !important; }
 .production-requirement { margin: 10px 0 0; padding: 9px 10px; border-radius: 6px; background: #fff8e8; color: #8a611d; font-size: 11px; line-height: 1.45; }
 .identity-fields { display: grid; gap: 22px; margin-top: 24px; }
 .key-type { margin-top: 7px; padding: 4px 8px; background: #f0f4ff; color: #315fba; }
-.dns-record { display: flex; align-items: center; justify-content: space-between; gap: 15px; padding: 14px; border: 1px solid #dfe6ef; border-radius: 7px; background: #f8fafc; }
-.dns-record code { color: #3e4b5e; font-size: 12px; overflow-wrap: anywhere; }
-.domain-record { margin-top: 22px; }
-.domain-prerequisite { margin-top: 22px; padding: 13px 14px; border: 1px solid #dfe6ef; border-radius: 7px; background: #f8fafc; color: #657287; font-size: 12px; }
-.inline-guide { margin: 18px 0 0; color: #657287; line-height: 1.65; }
 .origins-editor { margin-top: 22px; }
 .origins-editor > p { margin: 9px 0 0; color: #7c899a; font-size: 11px; }
 .side-card dl { margin: 20px 0 0; }
@@ -393,7 +335,6 @@
 .side-card-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 17px; padding-top: 16px; border-top: 1px solid #e8edf3; }
 .danger-card p { margin-bottom: 16px; }
 .modal-error { color: #b42318; }
-.verification-guide-list { padding-left: 20px; font-size: 13px; }
 .modal-record { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px; border: 1px solid #dfe6ef; border-radius: 6px; background: #f8fafc; }
 .modal-record code { overflow-wrap: anywhere; }
 .modal-info { padding: 10px; border-radius: 5px; background: #f1f6ff; color: #52627a; font-size: 12px; }
@@ -406,8 +347,6 @@
   .page-header { align-items: flex-start; flex-wrap: wrap; }
   .config-tabs { gap: 16px; overflow-x: auto; }
   .details-grid, .config-sidebar { grid-template-columns: 1fr; }
-  .domain-editor { grid-template-columns: 1fr; }
-  .dns-record { align-items: flex-start; flex-direction: column; }
   .card-header-row { align-items: flex-start; flex-direction: column; }
 }
 </style>
@@ -421,25 +360,24 @@ import LogoUploader from '../components/element/LogoUploader.vue';
 import CorsChipsInput from '../components/element/CorsChips.vue';
 import LoadIng from '../components/element/LoadIng.vue';
 import { normalizeCorsOrigin } from '../utils/utils.js';
+import GoLivePanel from '../components/production/GoLivePanel.vue';
 
 export default {
   name: 'ServiceConfig',
-  components: { HfPopUp, LogoUploader, CorsChipsInput, LoadIng },
+  components: { HfPopUp, LogoUploader, CorsChipsInput, LoadIng, GoLivePanel },
   mixins: [UtilsMixin],
   data() {
     return {
       activeTab: 'general',
       tabs: [
         { value: 'general', label: 'General' },
-        { value: 'domain', label: 'Domain Verification' },
+        { value: 'go-live', label: 'Go live' },
         { value: 'issuer', label: 'Issuer Configuration' },
       ],
       isLoading: false,
       fullPage: true,
       isEditing: false,
       editingSection: null,
-      isEditingDomain: false,
-      domainBackup: null,
       isProd: false,
       appIdToGenerateSecret: '',
       linkedAppErrorMessage: '',
@@ -450,6 +388,10 @@ export default {
     };
   },
   computed: {
+    // Hidden for team members whose role can't delete apps (owners can always delete)
+    canDeleteApp() {
+      return this.$store.getters['mainStore/hasAccess']('DASHBOARD', 'DELETE_SERVICE');
+    },
     ...mapGetters('mainStore', ['getSelectedService', 'getAppsWithSSIServices']),
     ...mapState({
       widgetConfig: state => state.mainStore.widgetConfig,
@@ -458,18 +400,9 @@ export default {
     formattedErrorMessage() {
       return this.linkedAppErrorMessage.replace(/\n/g, '<br>');
     },
-    currentDomain() {
-      if (this.isEditingDomain && this.domainBackup) return this.domainBackup.domain;
-      if (this.isEditing && this.backupData) return this.backupData.domain;
-      return this.formData.domain;
-    },
-    displayDomainVerified() {
-      if (this.isEditingDomain && this.domainBackup) return Boolean(this.domainBackup.hasDomainVerified);
-      if (this.isEditing && this.backupData) return Boolean(this.backupData.hasDomainVerified);
-      return Boolean(this.formData.hasDomainVerified);
-    },
-    txtRecord() {
-      return this.formData.issuerDid ? `hypersign-domain-verification.did=${this.formData.issuerDid}` : null;
+    // Environment as saved on the server (ignores an unsaved toggle while editing)
+    savedEnv() {
+      return (this.isEditing && this.backupData ? this.backupData : this.formData).env;
     },
     selectedVerificationMethodType() {
       if (!this.formData.issuerVerificationMethodId || !this.issuerVerificationMethodIds.length) return null;
@@ -485,12 +418,12 @@ export default {
       .map(value => normalizeCorsOrigin(value))
       .filter(Boolean)
       .filter((origin, index, all) => all.indexOf(origin) === index);
-    this.activeTab = this.isValidTab(this.$route.query.tab) ? this.$route.query.tab : 'general';
+    this.activeTab = this.resolveTab(this.$route.query.tab);
   },
   watch: {
     '$route.query.tab'(tab) {
-      if (this.isEditing || this.isEditingDomain) return;
-      this.activeTab = this.isValidTab(tab) ? tab : 'general';
+      if (this.isEditing) return;
+      this.activeTab = this.resolveTab(tab);
     },
   },
   methods: {
@@ -519,6 +452,10 @@ export default {
     },
     isValidTab(tab) {
       return this.tabs.some(item => item.value === tab);
+    },
+    resolveTab(tab) {
+      if (tab === 'domain') return 'go-live'; // old links to the Domain Verification tab
+      return this.isValidTab(tab) ? tab : 'general';
     },
     async prepareIdentityEditor() {
       await this.ensureWidgetConfigsLoaded();
@@ -571,39 +508,15 @@ export default {
       this.isProd = this.formData.env === 'prod';
       this.isEditing = false;
       this.editingSection = null;
-      this.isEditingDomain = false;
-      this.domainBackup = null;
     },
     setEnv(isProduction) {
       this.isProd = Boolean(isProduction);
       this.formData.env = this.isProd ? 'prod' : 'dev';
     },
-    startDomainEdit() {
-      this.domainBackup = { domain: this.formData.domain, hasDomainVerified: this.formData.hasDomainVerified };
-      this.isEditingDomain = true;
-    },
-    cancelDomainEdit() {
-      if (this.domainBackup) Object.assign(this.formData, this.domainBackup);
-      this.domainBackup = null;
-      this.isEditingDomain = false;
-    },
-    async saveDomainChange() {
-      if (!this.formData.domain?.trim()) return this.notifyErr('Domain cannot be empty.');
-      const previousDomain = (this.domainBackup?.domain || String()).trim();
-      const domainChanged = this.formData.domain.trim() !== previousDomain;
-      if (domainChanged) this.formData.hasDomainVerified = false;
-      try {
-        this.isLoading = true;
-        await this.updateAnAppOnServer({ ...this.formData });
-        this.isEditingDomain = false;
-        this.domainBackup = null;
-        this.notifySuccess('Domain updated. Please verify the domain to re-enable verification.');
-      } catch (error) {
-        if (this.domainBackup) Object.assign(this.formData, this.domainBackup);
-        this.notifyErr(error.message || error);
-      } finally {
-        this.isLoading = false;
-      }
+    // GoLivePanel saved the app (domain, verification or environment)
+    onAppUpdated(app) {
+      this.formData = { ...this.formData, ...app };
+      this.isProd = this.formData.env === 'prod';
     },
     async saveChanges() {
       if (this.editingSection === 'details' && !this.formData.appName?.trim()) {
@@ -661,45 +574,12 @@ export default {
         }
         this.isEditing = false;
         this.editingSection = null;
-        this.isEditingDomain = false;
-        this.domainBackup = null;
         this.backupData = JSON.parse(JSON.stringify(this.formData));
         this.notifySuccess('Service configuration updated successfully!');
       } catch (error) {
         if (this.backupData) this.formData = JSON.parse(JSON.stringify(this.backupData));
         this.isProd = this.formData.env === 'prod';
         this.notifyErr(error.message || error);
-      } finally {
-        this.isLoading = false;
-      }
-    },
-    async verifyDomain() {
-      try {
-        if (!this.formData.domain) throw new Error('Please enter a domain');
-        if (!this.txtRecord) throw new Error('Please set an Issuer DID first');
-        if (this.formData.domain.includes('localhost') || this.formData.domain.includes('127.0.0.1')) throw new Error('Domain cannot be localhost or 127.0.0.1');
-        this.isLoading = true;
-        let domainUrl = this.formData.domain.trim();
-        if (!/^https?:\/\//.test(domainUrl)) domainUrl = `https://${domainUrl}`;
-        const parsed = new URL(domainUrl);
-        const hostname = parsed.hostname.startsWith('www.') ? parsed.hostname.substring(4) : parsed.hostname;
-        const cleanDomainUrl = `${parsed.protocol}//${hostname}`;
-        const DomainLinkage = (await import('@hypersign-protocol/domain-linkage-verifier')).default;
-        let result;
-        try {
-          result = await new DomainLinkage(cleanDomainUrl).verifyDnsTxtRecord(new URL(cleanDomainUrl), this.txtRecord);
-        } catch {
-          throw new Error('No TXT record found for this domain. Add the TXT record and try again after DNS propagation.');
-        }
-        if (result?.error) throw new Error(`${result.error.message}. DNS changes may take time to propagate.`);
-        if (!result?.verified) throw new Error('Domain verification failed. Check your DNS records and try again.');
-        this.formData.hasDomainVerified = true;
-        await this.updateAnAppOnServer({ ...this.formData });
-        this.isEditingDomain = false;
-        this.domainBackup = null;
-        this.notifySuccess('Domain verified successfully!');
-      } catch (error) {
-        this.notifyErr(error.message);
       } finally {
         this.isLoading = false;
       }

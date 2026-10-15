@@ -317,7 +317,8 @@
       <hf-upgrade-plan></hf-upgrade-plan>
     </div>
     <div v-else>
-      <empty-container title="No User Found" icon="fa fa-users" />
+      <empty-container title="No User Found" icon="fa fa-users"
+        description="Users appear here once they start a verification through your KYC widget or API." />
     </div>
     </div><!-- end v-if !accessDenied -->
   </b-container>

@@ -2,53 +2,35 @@
     <div>
         <load-ing :active.sync="isLoading" :can-cancel="true" :is-full-page="true"></load-ing>
 
-        <div class="row">
-            <div class="col-md-4">
-            </div>
-            <div class="col-md-8">
-                <hf-buttons name="" title="Reload" class="mx-1" :bIcon="true"  style="float: inline-end"  iconClass="fas fa-sync-alt" @executeAction="getMyRolesAction">
-                </hf-buttons>
-                <hf-buttons name="Create Custom Role" title="Reload" style="float: inline-end"  iconClass="fa fa-gamepad" @executeAction="openSlider('add')">
-                </hf-buttons>
-            </div>
-        </div>
-        <div class="row" v-if="getAllRoles.length > 0">
-            <table class="table">
-                <tbody>
-                    <tr v-for="role in getAllRoles" v-bind:key="role.roleName">                        
-                        
-                            <div class="list-group-item list-group-item-action align-items-start d-flex align-items-center ">
-                            <b-avatar size="4em" rounded="lg" variant="info" :text="role.roleName.charAt(0)"></b-avatar>
-                            <div class="w-100 mx-3 mt-3 align-items-center">
-                                <h5 class="mb-1">{{ role.roleName }}</h5>
-                                <p>
-                                    {{ role.roleDescription }}
-                                </p>
-                            </div>
-                            <div class="d-flex  align-items-center">
-                                <b-badge pill variant="warning">{{ role.permissions.length }}
-                                    permissions</b-badge>
-                                <b-dropdown size="sm" variant="link" toggle-class="text-decoration-none" menu-class="dropDownPopup"
-                                    dropleft>
-                                    <template #button-content>
-                                        <b-icon style="color:grey" icon="list" aria-hidden="true"></b-icon>
-                                    </template>
-                                    <b-dropdown-item-button style="text-align: left;" @click="openSliderForEdit(role)">
-                                        <b-icon icon="pencil-square" aria-hidden="true"></b-icon>
-                                        Edit</b-dropdown-item-button>
-                                    <b-dropdown-item-button style="text-align: left;"
-                                        @click="promptDeleteRole(role._id, role.roleName)"><i class="fa fa-trash"></i>
-                                        Delete</b-dropdown-item-button>
-                                </b-dropdown>
-                            </div>
-                            </div> 
-                        
-                    </tr> 
-                </tbody>
-            </table>
-        </div>
+        <SectionHeader title="Roles &amp; Permissions" description="Roles decide what a teammate can see and do. Assign one to each member.">
+            <hf-buttons name="Create Custom Role" title="Create a custom role" iconClass="fa fa-plus" @executeAction="openSlider('add')"></hf-buttons>
+            <hf-buttons name="" title="Reload" :bIcon="true" iconClass="fas fa-sync-alt" @executeAction="getMyRolesAction"></hf-buttons>
+        </SectionHeader>
+
+        <ul v-if="getAllRoles.length > 0" class="settings-list">
+            <li v-for="role in getAllRoles" :key="role._id || role.roleName" class="role-row">
+                <span class="role-icon" aria-hidden="true"><i class="mdi mdi-shield-account-outline"></i></span>
+                <div class="role-main">
+                    <strong>{{ role.roleName }}</strong>
+                    <p v-if="role.roleDescription">{{ role.roleDescription }}</p>
+                </div>
+                <span class="role-tag">{{ role.permissions.length }} {{ role.permissions.length === 1 ? 'permission' : 'permissions' }}</span>
+                <b-dropdown class="role-menu" size="sm" variant="link" toggle-class="text-decoration-none role-menu-btn" menu-class="dropDownPopup" no-caret dropleft>
+                    <template #button-content>
+                        <i class="mdi mdi-dots-vertical" aria-label="Role actions"></i>
+                    </template>
+                    <b-dropdown-item-button style="text-align: left;" @click="openSliderForEdit(role)">
+                        <i class="mdi mdi-pencil-outline mr-1" aria-hidden="true"></i> Edit
+                    </b-dropdown-item-button>
+                    <b-dropdown-item-button style="text-align: left;" @click="promptDeleteRole(role._id, role.roleName)">
+                        <i class="mdi mdi-delete-outline mr-1" aria-hidden="true"></i> Delete
+                    </b-dropdown-item-button>
+                </b-dropdown>
+            </li>
+        </ul>
         <div v-else>
-            <empty-container title="No Role Found" icon="fa fa-shield-alt" />
+            <empty-container title="No Role Found" icon="fa fa-shield-alt"
+                description="Create a role to control what teammates can see and do." />
         </div>
 
         <!-- Delete confirmation dialog -->
@@ -226,6 +208,7 @@
 // import HfPopUp from "../element/hfPopup.vue";
 import { mapGetters, mapActions } from "vuex/dist/vuex.common.js";
 import StudioSideBar from "../element/StudioSideBar.vue";
+import SectionHeader from "../element/SectionHeader.vue";
 import UtilsMixin from "../../mixins/utils";
 import config from "../../config";
 
@@ -249,7 +232,7 @@ const PREDEFINED_ROLES = [
         description: "Minimal read-only access for business stakeholders.",
         badge: "Limited view",
         recommendedFor: "Founders, management, or external auditors",
-        permissions: ["READ_ANALYTICS", "READ_USAGE", "READ_COMPANY", "READ_COMPLIANCE", "READ_SERVICE"]
+        permissions: ["READ_ANALYTICS","READ_SESSION", "READ_USAGE", "READ_COMPANY", "READ_COMPLIANCE", "READ_SERVICE"]
     },
     {
         key: "analyst",
@@ -258,7 +241,7 @@ const PREDEFINED_ROLES = [
         description: "Read-only access to verification, compliance, company, analytics, and usage data.",
         badge: "Read-only",
         recommendedFor: "Audit, support, or monitoring team",
-        permissions: ["READ_VERIFIED_USER", "READ_ANALYTICS", "READ_USAGE", "READ_COMPANY", "READ_COMPANY_EXECUTIVES", "READ_DOCUMENT", "READ_COMPLIANCE"]
+        permissions: ["READ_VERIFIED_USER","READ_SESSION", "READ_ANALYTICS", "READ_USAGE", "READ_COMPANY", "READ_COMPANY_EXECUTIVES", "READ_DOCUMENT", "READ_COMPLIANCE", DASHBOARD_ROLE_SERVICE.accessList.READ_SERVICE]
     },
     {
         key: "finance",
@@ -267,7 +250,7 @@ const PREDEFINED_ROLES = [
         description: "Can view usage, analytics, credits, and company billing-related information.",
         badge: "Billing access",
         recommendedFor: "Finance or accounts team",
-        permissions: ["READ_ANALYTICS", "READ_USAGE", "READ_CREDIT", "READ_COMPANY"]
+        permissions: ["READ_ANALYTICS", "READ_SESSION", "READ_USAGE", "READ_CREDIT", "READ_COMPANY", DASHBOARD_ROLE_SERVICE.accessList.READ_SERVICE]
     },
     {
         key: "developer",
@@ -276,7 +259,7 @@ const PREDEFINED_ROLES = [
         description: "Can configure widgets and webhooks for technical integration.",
         badge: "Integration access",
         recommendedFor: "Engineering team",
-        permissions: ["READ_WIDGET_CONFIG", "WRITE_WIDGET_CONFIG", "UPDATE_WIDGET_CONFIG", "READ_WEBHOOK_CONFIG", "WRITE_WEBHOOK_CONFIG", "UPDATE_WEBHOOK_CONFIG", "DELETE_WEBHOOK_CONFIG", "READ_USAGE"]
+        permissions: ["READ_WIDGET_CONFIG", "READ_SESSION", "WRITE_WIDGET_CONFIG", "UPDATE_WIDGET_CONFIG", "READ_WEBHOOK_CONFIG", "WRITE_WEBHOOK_CONFIG", "UPDATE_WEBHOOK_CONFIG", "DELETE_WEBHOOK_CONFIG", "READ_USAGE", DASHBOARD_ROLE_SERVICE.accessList.READ_SERVICE]
     },
     {
         key: "compliance_manager",
@@ -285,7 +268,7 @@ const PREDEFINED_ROLES = [
         description: "Can review KYC/KYB cases, verify documents, and access compliance data.",
         badge: "KYC/KYB review",
         recommendedFor: "Compliance or operations team",
-        permissions: ["READ_VERIFIED_USER", "READ_ANALYTICS", "READ_USAGE", "READ_COMPANY", "UPDATE_COMPANY_STATUS", "READ_COMPANY_EXECUTIVES", "READ_DOCUMENT", "VERIFY_DOCUMENT", "READ_COMPLIANCE"]
+        permissions: ["READ_VERIFIED_USER", "READ_ANALYTICS", "READ_USAGE", "READ_COMPANY", "UPDATE_COMPANY_STATUS", "READ_COMPANY_EXECUTIVES", "READ_DOCUMENT", "VERIFY_DOCUMENT", "READ_COMPLIANCE", DASHBOARD_ROLE_SERVICE.accessList.READ_SERVICE]
     },
     {
         key: "admin",
@@ -315,7 +298,7 @@ const SSI_PREDEFINED_ROLES = [
         description: "Read-only access to SSI operations and verification records.",
         badge: "Read-only",
         recommendedFor: "Audit and compliance teams",
-        permissions: ["READ_DID", "READ_SCHEMA", "READ_CREDENTIAL", "READ_USAGE", "READ_TX"]
+        permissions: ["READ_DID", "READ_SCHEMA", "READ_CREDENTIAL", "READ_USAGE", "READ_TX", DASHBOARD_ROLE_SERVICE.accessList.READ_SERVICE]
     },
     {
         key: "developer",
@@ -324,7 +307,7 @@ const SSI_PREDEFINED_ROLES = [
         description: "Technical integration and transaction monitoring access.",
         badge: "Developer access",
         recommendedFor: "Engineering teams",
-        permissions: ["READ_DID", "READ_SCHEMA", "READ_CREDENTIAL", "READ_USAGE", "READ_TX", "CHECK_LIVE_STATUS"]
+        permissions: ["READ_DID", "READ_SCHEMA", "READ_CREDENTIAL", "READ_USAGE", "READ_TX", "CHECK_LIVE_STATUS", DASHBOARD_ROLE_SERVICE.accessList.READ_SERVICE]
     },
     {
         key: "verifier",
@@ -333,7 +316,7 @@ const SSI_PREDEFINED_ROLES = [
         description: "Can verify credentials, presentations, and DID signatures.",
         badge: "Verification access",
         recommendedFor: "Verification services",
-        permissions: ["READ_DID", "VERIFY_DID_SIGNATURE", "READ_SCHEMA", "READ_CREDENTIAL", "VERIFY_CREDENTIAL", "VERIFY_PRESENTATION", "READ_USAGE", "CHECK_LIVE_STATUS"]
+        permissions: ["READ_DID", "VERIFY_DID_SIGNATURE", "READ_SCHEMA", "READ_CREDENTIAL", "VERIFY_CREDENTIAL", "VERIFY_PRESENTATION", "READ_USAGE", "CHECK_LIVE_STATUS", DASHBOARD_ROLE_SERVICE.accessList.READ_SERVICE]
     },
     {
         key: "credential_issuer",
@@ -342,7 +325,7 @@ const SSI_PREDEFINED_ROLES = [
         description: "Can issue and manage credentials and presentations.",
         badge: "Credential issuance",
         recommendedFor: "Issuing authorities",
-        permissions: ["READ_DID", "VERIFY_DID_SIGNATURE", "READ_SCHEMA", "READ_CREDENTIAL", "WRITE_CREDENTIAL", "WRITE_PRESENTATION", "READ_USAGE", "CHECK_LIVE_STATUS"]
+        permissions: ["READ_DID", "VERIFY_DID_SIGNATURE", "READ_SCHEMA", "READ_CREDENTIAL", "WRITE_CREDENTIAL", "WRITE_PRESENTATION", "READ_USAGE", "CHECK_LIVE_STATUS", DASHBOARD_ROLE_SERVICE.accessList.READ_SERVICE]
     },
     {
         key: "billing_manager",
@@ -351,7 +334,7 @@ const SSI_PREDEFINED_ROLES = [
         description: "Manage SSI credits and monitor service usage.",
         badge: "Billing access",
         recommendedFor: "Finance teams",
-        permissions: ["READ_CREDIT", "WRITE_CREDIT", "READ_USAGE", "CHECK_LIVE_STATUS"]
+        permissions: ["READ_CREDIT", "WRITE_CREDIT", "READ_USAGE", "CHECK_LIVE_STATUS", DASHBOARD_ROLE_SERVICE.accessList.READ_SERVICE]
     },
     {
         key: "ssi_admin",
@@ -369,7 +352,7 @@ const SSI_PREDEFINED_ROLES = [
         description: "Manage decentralized identifiers, schemas, and credential lifecycle.",
         badge: "Identity management",
         recommendedFor: "SSI operations teams",
-        permissions: ["READ_DID", "WRITE_DID", "VERIFY_DID_SIGNATURE", "ISSUE_DID_JWT", "READ_SCHEMA", "WRITE_SCHEMA", "READ_CREDENTIAL", "WRITE_CREDENTIAL", "VERIFY_CREDENTIAL", "WRITE_PRESENTATION", "VERIFY_PRESENTATION", "READ_USAGE", "READ_TX", "CHECK_LIVE_STATUS"]
+        permissions: ["READ_DID", "WRITE_DID", "VERIFY_DID_SIGNATURE", "ISSUE_DID_JWT", "READ_SCHEMA", "WRITE_SCHEMA", "READ_CREDENTIAL", "WRITE_CREDENTIAL", "VERIFY_CREDENTIAL", "WRITE_PRESENTATION", "VERIFY_PRESENTATION", "READ_USAGE", "READ_TX", "CHECK_LIVE_STATUS", DASHBOARD_ROLE_SERVICE.accessList.READ_SERVICE]
     },
     {
         key: "custom",
@@ -387,6 +370,7 @@ const SSI_PREDEFINED_ROLES = [
 export default {
     name: "AdminTeams",
     components: {
+        SectionHeader,
         // HfPopUp,
         StudioSideBar
     },
@@ -802,6 +786,84 @@ export default {
 </script>
 
 <style scoped>
+/* Bordered list with dividers, aligned with the tabs and header above */
+.settings-list {
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.settings-list > li + li {
+  border-top: 1px solid #f1f5f9;
+}
+
+.role-row {
+  align-items: center;
+  display: flex;
+  gap: 12px;
+  padding: 12px 16px;
+}
+
+.role-icon {
+  align-items: center;
+  background: #eff6ff;
+  border-radius: 8px;
+  color: #2563eb;
+  display: inline-flex;
+  flex: 0 0 auto;
+  font-size: 18px;
+  height: 36px;
+  justify-content: center;
+  width: 36px;
+}
+
+.role-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.role-main strong {
+  color: #111827;
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.role-main p {
+  color: #64748b;
+  font-size: 12px;
+  margin: 2px 0 0;
+}
+
+.role-tag {
+  background: #f1f5f9;
+  border-radius: 5px;
+  color: #475569;
+  flex: 0 0 auto;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 3px 8px;
+}
+
+.role-menu >>> .role-menu-btn {
+  align-items: center;
+  border-radius: 6px;
+  color: #64748b;
+  display: inline-flex;
+  font-size: 18px;
+  height: 32px;
+  justify-content: center;
+  padding: 0;
+  width: 32px;
+}
+
+.role-menu >>> .role-menu-btn:hover {
+  background: #f1f5f9;
+  color: #111827;
+}
+
 .perm-scroll-box {
     border: 1px solid #dee2e6;
     border-radius: 4px;

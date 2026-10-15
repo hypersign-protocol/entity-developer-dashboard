@@ -1,5 +1,5 @@
 <template>
-  <v-container pa-0>
+  <v-container fluid pa-0>
     <load-ing :active.sync="isLoading" :can-cancel="false" :is-full-page="false"></load-ing>
     <div class="overview-container">
       <div class="header-row">

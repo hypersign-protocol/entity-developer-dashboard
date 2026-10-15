@@ -163,7 +163,7 @@
                                                 class="font-weight-bold">ACTIVE</v-chip>
                                         </div>
                                         <hf-buttons
-                                            v-else-if="eachRow.used < eachRow.totalCredits && !(Date.now() > new Date(eachRow.expiresAt))"
+                                            v-else-if="$can('CAVACH_API', 'WRITE_CREDIT') && eachRow.used < eachRow.totalCredits && !(Date.now() > new Date(eachRow.expiresAt))"
                                             name="Activate" size="sm"
                                             @executeAction="activateThisCredit(eachRow)"></hf-buttons>
                                         <span v-else class="text-muted small">—</span>

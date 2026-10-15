@@ -4,6 +4,8 @@ import Vuex from 'vuex';
 import config from '../config'
 import UtilsMixin from '../mixins/utils.js'
 import { sanitizeUrl } from '../utils/common.js'
+import { normalizeStatusReasons, currentStatusReasonCodes } from '../utils/statusReasons.js'
+import { hasAccess as checkAccess, canOpenPage as checkPage } from '../utils/permissions.js'
 import { RequestHandler, JWTExpiredErrorMessageHandling } from '../utils/utils.js'
 
 const { apiServer, studioServer } = config;
@@ -121,6 +123,14 @@ const mainStore = {
         },
 
         // eslint-disable-next-line 
+        // Team-member permissions (see utils/permissions.js): everything in your own account;
+        // in a team account only what the role allows
+        accessContext: (state) => ({
+            isTeamAccount: Boolean(state.tenantAccount),
+            accessList: (state.userDetails && state.userDetails.accessList) || [],
+        }),
+        hasAccess: (state, getters) => (serviceType, access) => checkAccess(getters.accessContext, serviceType, access),
+        canOpenPage: (state, getters) => (path) => checkPage(getters.accessContext, path),
         getUserAccessList: (state) => (service) => {
             return state.userDetails.accessList ? state.userDetails.accessList.filter(access => access.serviceType === service) : []
         },
@@ -1147,11 +1157,14 @@ const mainStore = {
                                 companyId: company._id || company.id,
                                 countryCode: company.countryOfRegistration || company.address?.country || 'IN',
                                 companyName: company.name || 'Unknown Company',
-                                registrationNumber: company.registrationNumber || 'N/A',
+                                registrationNumber: company.registrationNumber,
                                 representative: company.representative?.name || 'N/A',
                                 startDate: company.createdAt ? new Date(company.createdAt).toISOString().split('T')[0] : 'N/A',
                                 status: company.status || 'Submitted',
-                                statusReasons: company.statusReason || [],
+                                // statusReason is the company's status history ({ status, reason, owner, time },
+                                // old records: plain reason strings). statusReasons = what's wrong right now.
+                                statusReasons: currentStatusReasonCodes(company.statusReason),
+                                statusReasonHistory: normalizeStatusReasons(company.statusReason),
                                 steps: {
                                     flag: true,
                                     building: true,
@@ -1161,7 +1174,9 @@ const mainStore = {
                                 },
                                 region: company.region || 'Unknown',
                                 domain: company.domain || 'N/A',
-                                registrationNumberType: company.registrationNumberType || 'Unknown',
+                                registrationNumberType: company.registrationNumberType,
+                                taxIdType: company.taxIdType,
+                                taxIdNumber: company.taxIdNumber,
                                 address: company.address || {},
                                 documents: company.documents || [],
                                 createdAt: company.createdAt,
@@ -1176,32 +1191,39 @@ const mainStore = {
                     })
             })
         },
-        fetchAppKybById: ({ getters, dispatch }, payload) => {
-            return new Promise((resolve, reject) => {
-                const { companyId, accessToken, serviceId } = payload
-                dispatch('getValidToken', {
-                    token: accessToken,
-                    serviceId: serviceId,
-                    grant_type: config.GRANT_TYPES_ENUM.CAVACH_KYB_API,
-                    tokenStorageKey: 'kyb_access_token'
-                }).then((token) => {
-                    const headers = UtilsMixin.methods.getKycServiceHeader(token);
-                    const url = `${sanitizeUrl(config.KYC_SERVER_BASE_URL)}/api/v1/e-kyb/verification/company/${companyId}`;
-                    // const url = `http://localhost:3001/api/v1/e-kyb/verification/company/${companyId}`;
-                    return fetch(url, {
-                        method: 'GET',
-                        headers,
+        fetchAppKybById: async ({ getters, dispatch }, payload) => {
+            try {
+                const { companyId, accessToken } = payload
+                const serviceId = payload.serviceId || getters.getSelectedService?.appId
+                if (!companyId || !serviceId) {
+                    throw new Error('Company and service IDs are required')
+                }
+                let token = accessToken || getters.getAppByAppId(serviceId)?.kyb_access_token
+                if (!token || UtilsMixin.methods.isTokenExpired(token)) {
+                    const response = await dispatch('keepAccessTokenReadyForApp', {
+                        serviceId,
+                        grant_type: config.GRANT_TYPES_ENUM.CAVACH_KYB_API
                     })
-                }).then(response => response.json()).then(json => {
-                    if (json.error) {
-                        return reject(new Error(json.error?.details?.join(' ') || json.error?.join?.(' ') || json.error || 'Unknown error'))
-                    }
-                    const companiesData = json.data;
-                    resolve(companiesData);
-                }).catch((e) => {
-                    return reject(new Error(`Error while fetching KYB companies: ${e.message}`));
+                    token = response?.access_token
+                }
+                if (!token) {
+                    throw new Error('Could not prepare the KYB access token')
+                }
+                const headers = { 'x-kyb-access-token': token }
+                const url = `${sanitizeUrl(config.KYC_SERVER_BASE_URL)}/api/v1/e-kyb/verification/company/${companyId}`;
+                // const url = `http://localhost:3001/api/v1/e-kyb/verification/company/${companyId}`;
+                const response = await fetch(url, {
+                    method: 'GET',
+                    headers,
                 })
-            })
+                const json = await response.json()
+                if (json.error) {
+                    throw new Error(json.error?.details?.join(' ') || json.error?.join?.(' ') || json.error || 'Unknown error')
+                }
+                return json.data
+            } catch (e) {
+                throw new Error(`Error while fetching KYB company: ${e.message}`)
+            }
         },
         fetchAppsUsersSessions: ({ commit, getters, dispatch }, payload) => {
             return new Promise((resolve, reject) => {
@@ -1447,6 +1469,28 @@ const mainStore = {
                 }).catch((error) => {
                     return reject(`Error while onboarding customer: ` + error.message);
                 });
+            })
+        },
+        // Go-live compliance details: registered address, tax applicability and
+        // business documents (base64 data URLs). Compliance reviews them after the
+        // app is switched to production.
+        submitProductionDetails: ({ getters }, payload) => {
+            return new Promise((resolve, reject) => {
+                const onboardingID = payload.get('onboardingID');
+                const url = `${studioServer.BASE_URL}api/v1/customer-onboarding/${onboardingID}`;
+                const headers = UtilsMixin.methods.getHeader(getters.getAuthToken);
+                RequestHandler(url, 'PATCH', payload, headers).then(json => {
+                    if (json && json.error) {
+                        const err = json.error;
+                        let errorMessage = 'Unknown error';
+                        if (typeof err === 'string') errorMessage = err;
+                        else if (Array.isArray(err.details)) errorMessage = err.details.join(' ');
+                        else if (Array.isArray(err)) errorMessage = err.join(' ');
+                        else if (err.message) errorMessage = err.message;
+                        return reject(new Error(errorMessage));
+                    }
+                    resolve(json && json.data);
+                }).catch(reject);
             })
         },
         checkIfAlreadyExistOnBoarding: ({ commit, getters }, payload) => {
@@ -2799,7 +2843,12 @@ const mainStore = {
                 }).then((token) => {
                     let headers = UtilsMixin.methods.getKycServiceHeader(token);
 
-                    const requestBody = { status };
+                    const requestBody = {
+                        status,
+                        ...(status === 'Rejected' && reason?.trim() && {
+                            rejectReason: reason.trim()
+                        })
+                    };
 
                     const dependentServiceId = getters.getSelectedService.dependentServices[0];
                     const ssiService = getters.getAppsWithSSIServices.find(s => s.appId === dependentServiceId);

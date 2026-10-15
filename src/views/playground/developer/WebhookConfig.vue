@@ -11,12 +11,12 @@
       </v-col>
       <v-col cols="12" md="6" class="d-flex justify-end align-center">
         <template v-if="getWebhookConfig._id">
-          <v-btn icon color="error" class="mr-2" @click="deleteConfig" title="Delete Configuration">
+          <v-btn v-if="$can('CAVACH_API', 'DELETE_WEBHOOK_CONFIG')" icon color="error" class="mr-2" @click="deleteConfig" title="Delete Configuration">
             <v-icon>mdi-trash-can-outline</v-icon>
           </v-btn>
-          <hf-buttons name="Update Configuration" @executeAction="updateConfiguration()"></hf-buttons>
+          <hf-buttons v-if="$can('CAVACH_API', 'UPDATE_WEBHOOK_CONFIG')" name="Update Configuration" @executeAction="updateConfiguration()"></hf-buttons>
         </template>
-        <hf-buttons v-else name="Save Configuration" @executeAction="saveConfiguration()"></hf-buttons>
+        <hf-buttons v-else-if="$can('CAVACH_API', 'WRITE_WEBHOOK_CONFIG')" name="Save Configuration" @executeAction="saveConfiguration()"></hf-buttons>
       </v-col>
     </v-row>
 
@@ -29,10 +29,10 @@
 
           <div class="mb-6">
             <label class="input-label">Destination URL <span class="text-danger">*</span></label>
-            <v-text-field v-model="webhookUrl" placeholder="https://your-api.com/webhooks/kyc" outlined dense
+            <v-text-field v-model="webhookUrl" placeholder="https://your-api.com/webhooks/verification" outlined dense
               hide-details background-color="white" class="custom-field"></v-text-field>
             <p class="small text-muted mt-2">
-              We will send a POST request to this URL whenever a verification status changes.
+              User and business verification events are sent to this URL. Use the payload type to identify the event.
             </p>
           </div>
 

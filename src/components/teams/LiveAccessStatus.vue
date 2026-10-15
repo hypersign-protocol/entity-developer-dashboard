@@ -2,22 +2,12 @@
   <div>
     <load-ing :active.sync="isLoading" :can-cancel="false" :is-full-page="false"></load-ing>
 
-    <div class="d-flex justify-content-between align-items-center mb-3">
-      <div>
-        <h5 class="mb-1">Live Access Status</h5>
-        <small class="text-muted">Shows teammates currently accessing your admin dashboard profile.</small>
-      </div>
-      <hf-buttons
-        name=""
-        title="Refresh"
-        :bIcon="true"
-        iconClass="fas fa-sync-alt"
-        @executeAction="fetchAccessUsers"
-      />
-    </div>
+    <SectionHeader title="Live Access" description="Teammates who are currently signed in to your admin dashboard.">
+      <hf-buttons name="" title="Refresh" :bIcon="true" iconClass="fas fa-sync-alt" @executeAction="fetchAccessUsers" />
+    </SectionHeader>
 
-    <div v-if="accessUsers.length > 0">
-      <table class="table table-hover">
+    <div v-if="accessUsers.length > 0" class="access-table-wrap">
+      <table class="access-table">
         <thead>
           <tr>
             <th>Name</th>
@@ -33,14 +23,15 @@
             <td>{{ user.email || '-' }}</td>
             <td>{{ user.role || '-' }}</td>
             <td>{{ formatDate(user.accessActiveSince) }}</td>
-            <td><b-badge pill variant="success">Active</b-badge></td>
+            <td><span class="access-status"><i class="mdi mdi-circle" aria-hidden="true"></i> Active</span></td>
           </tr>
         </tbody>
       </table>
     </div>
 
     <div v-else class="text-center no-access-wrapper">
-      <empty-container title="No Active Teammate Access" icon="fa fa-user-shield" />
+      <empty-container title="No Active Teammate Access" icon="fa fa-user-shield"
+        description="No teammate is accessing your dashboard profile right now." />
     </div>
   </div>
 </template>
@@ -48,9 +39,11 @@
 <script>
 import { mapActions } from "vuex/dist/vuex.common.js";
 import UtilsMixin from "../../mixins/utils";
+import SectionHeader from "../element/SectionHeader.vue";
 
 export default {
   name: "LiveAccessStatus",
+  components: { SectionHeader },
   mixins: [UtilsMixin],
   data() {
     return {
@@ -83,6 +76,57 @@ export default {
 </script>
 
 <style scoped>
+/* Same bordered, rounded look as the member and role lists */
+.access-table-wrap {
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  overflow-x: auto;
+}
+
+.access-table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.access-table th {
+  background: #f8fafc;
+  border-bottom: 1px solid #e5e7eb;
+  color: #64748b;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  padding: 10px 16px;
+  text-align: left;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.access-table td {
+  color: #1f2937;
+  font-size: 13px;
+  padding: 12px 16px;
+}
+
+.access-table tbody tr + tr td {
+  border-top: 1px solid #f1f5f9;
+}
+
+.access-status {
+  align-items: center;
+  background: rgba(78, 201, 107, 0.12);
+  border-radius: 5px;
+  color: #2f9e4f;
+  display: inline-flex;
+  font-size: 12px;
+  font-weight: 700;
+  gap: 4px;
+  padding: 3px 8px;
+}
+
+.access-status .mdi {
+  font-size: 8px;
+}
+
 .no-access-wrapper {
   padding-top: 4px;
 }
