@@ -22,11 +22,12 @@
       </nav>
 
       <section class="step-panel">
-        <!-- Step 1: company details & documents -->
-        <template v-if="activeStep === 'company'">
+        <!-- Steps 1 and 2: company details, then legal documents -->
+        <template v-if="activeStep !== 'review'">
           <header class="panel-header">
-            <h3>Company details &amp; documents</h3>
-            <p>Our compliance team uses these details to verify your business.</p>
+            <h3>{{ activeStep === 'details' ? 'Company details' : 'Legal documents' }}</h3>
+            <p v-if="activeStep === 'details'">Our compliance team uses these details to verify your business.</p>
+            <p v-else>Your tax and registration details, with the documents that prove them.</p>
           </header>
 
           <p v-if="loadingOnboarding" class="muted-note">Loading your company details…</p>
@@ -49,6 +50,7 @@
                 </div>
               </div>
 
+              <template v-if="activeStep === 'details'">
               <section class="form-section">
                 <header class="form-section-header">
                   <h4>Basic details</h4>
@@ -130,7 +132,9 @@
                   </div>
                 </div>
               </section>
+              </template>
 
+              <template v-else>
               <section class="form-section">
                 <header class="form-section-header">
                   <h4>Tax details</h4>
@@ -210,11 +214,12 @@
                   </label>
                 </div>
               </section>
+              </template>
             </template>
           </template>
         </template>
 
-        <!-- Step 2: Terms & condition -->
+        <!-- Step 3: Terms & condition -->
         <template v-else>
           <header class="panel-header">
             <h3>Terms &amp; conditions</h3>
@@ -238,7 +243,7 @@
             <v-icon small>mdi-alert-outline</v-icon>
             <div>
               <strong>Not ready yet</strong>
-              <p>Fill in all required company details and documents in the previous step first.</p>
+              <p>Fill in all required fields in Company details and Legal documents first.</p>
             </div>
           </div>
 
@@ -298,6 +303,15 @@ import {
   validatePostalCode,
 } from '../../utils/companyIdentifiers.js';
 import { companyAllowsProduction } from './companyReview.js';
+
+// Fields checked on each form step
+const STEP_FIELDS = {
+  details: ['companyName', 'domain', 'customerEmail', 'phoneNumber', 'country', 'line1', 'line2', 'city', 'state', 'postalCode'],
+  documents: ['taxId', 'taxDocument', 'registrationNumber'],
+};
+const STEP_OF_FIELD = Object.fromEntries(
+  Object.entries(STEP_FIELDS).flatMap(([step, fields]) => fields.map(field => [field, step]))
+);
 import {
   joinStreet,
   normalizeDomain,
@@ -339,9 +353,9 @@ export default {
   data() {
     return {
       popupId: 'company-verification-popup',
-      activeStep: 'company',
-      // Set once the user tries to leave the company step; then empty required fields show too
-      showRequiredErrors: false,
+      activeStep: 'details',
+      // Per step: set once the user tries to leave it; then its empty required fields show too
+      showRequiredErrors: { details: false, documents: false },
       loadingOnboarding: false,
       detectingCountry: false,
       onboarding: {},
@@ -454,20 +468,28 @@ export default {
     fieldErrors() {
       const errors = { ...this.formatErrors };
       Object.entries(this.requiredErrors).forEach(([key, message]) => {
-        if (message && !errors[key]) errors[key] = this.showRequiredErrors ? message : '';
+        if (message && !errors[key]) errors[key] = this.showRequiredErrors[STEP_OF_FIELD[key]] ? message : '';
       });
       return errors;
     },
+    // Errors highlighted on the current step (for the "Fix N fields" box)
     visibleErrorCount() {
-      return this.showRequiredErrors ? Object.values(this.fieldErrors).filter(Boolean).length : 0;
+      if (!this.showRequiredErrors[this.activeStep]) return 0;
+      return (STEP_FIELDS[this.activeStep] || []).filter(key => this.fieldErrors[key]).length;
+    },
+    detailsComplete() {
+      return this.isStepComplete('details');
+    },
+    documentsComplete() {
+      return this.isStepComplete('documents');
     },
     companyDetailsComplete() {
-      if (this.alreadySubmitted) return true;
-      return [...Object.values(this.formatErrors), ...Object.values(this.requiredErrors)].every(error => !error);
+      return this.detailsComplete && this.documentsComplete;
     },
     steps() {
       return [
-        { value: 'company', label: 'Company & documents', hint: 'Details and uploads', complete: this.companyDetailsComplete },
+        { value: 'details', label: 'Company details', hint: 'Business and address', complete: this.detailsComplete },
+        { value: 'documents', label: 'Legal documents', hint: 'Tax and registration', complete: this.documentsComplete },
         { value: 'review', label: 'Terms & conditions', hint: 'Confirm and send', complete: false },
       ];
     },
@@ -497,8 +519,8 @@ export default {
   },
   methods: {
     reset() {
-      this.activeStep = 'company';
-      this.showRequiredErrors = false;
+      this.activeStep = 'details';
+      this.showRequiredErrors = { details: false, documents: false };
       this.form = emptyForm();
       this.declarationAccepted = false;
       this.loadOnboarding();
@@ -578,14 +600,25 @@ export default {
       this.form.documents.tax = null;
       this.form.taxApplicable = value;
     },
-    // Moving forward from the company step checks it first and points at what's wrong
+    isStepComplete(step) {
+      if (this.alreadySubmitted) return true;
+      return (STEP_FIELDS[step] || []).every(key => !this.formatErrors[key] && !this.requiredErrors[key]);
+    },
+    // Moving forward checks every step on the way; it stops at the first one with problems
+    // and points at what's wrong. Going back is always allowed.
     goToStep(index) {
       const step = this.steps[index];
       if (!step) return;
-      if (index > this.activeStepIndex && this.activeStep === 'company' && !this.companyDetailsComplete) {
-        this.showRequiredErrors = true;
-        this.$nextTick(this.scrollToFirstError);
-        return;
+      if (index > this.activeStepIndex) {
+        const blocking = this.steps
+          .slice(this.activeStepIndex, index)
+          .find(({ value }) => STEP_FIELDS[value] && !this.isStepComplete(value));
+        if (blocking) {
+          this.showRequiredErrors = { ...this.showRequiredErrors, [blocking.value]: true };
+          this.activeStep = blocking.value;
+          this.$nextTick(this.scrollToFirstError);
+          return;
+        }
       }
       this.activeStep = step.value;
     },
