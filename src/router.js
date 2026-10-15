@@ -381,6 +381,12 @@ router.beforeEach(async (to, from, next) => {
     store.commit('mainStore/setSelectedAppId', to.params.appId)
   }
 
+  // Team members only reach pages their role allows (the menu hides the rest too)
+  if (isAuthenticated && !store.getters["mainStore/canOpenPage"](to.path)) {
+    EventBus.$emit("permissionDenied", "Your role doesn't give you access to that page.");
+    return next(from.matched.length ? false : { name: 'dashboard' });
+  }
+
   next();
 });
 

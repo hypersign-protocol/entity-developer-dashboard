@@ -719,6 +719,7 @@ export default {
     ...mapGetters("playgroundStore", ["getSelectedOrg"]),
     ...mapGetters("mainStore", [
       "getSwitchedTenantAccount",
+      "canOpenPage",
       "getSelectedService",
       "getAllServices",
       "getIfAuthenticated",
@@ -979,7 +980,11 @@ export default {
         }
       }
 
-      return menu;
+      // Hide pages the current team member's role doesn't allow, and groups left empty
+      const allowed = item => !item.href || this.canOpenPage(item.href);
+      return menu
+        .map(item => (item.child ? { ...item, child: item.child.filter(allowed) } : item))
+        .filter(item => (item.child ? item.child.length > 0 : allowed(item)));
     },
 
     fetchAllOrgs() {

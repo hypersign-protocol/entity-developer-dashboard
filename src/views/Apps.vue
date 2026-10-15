@@ -481,7 +481,7 @@
                       <b-dropdown-item-button style="text-align: left" @click.stop="editOrg(eachOrg.appId)"><i
                           class="fas fa-pencil-alt mt-1" aria-hidden="true"></i> Edit Service
                       </b-dropdown-item-button>
-                      <b-dropdown-item-button style="text-align: left"
+                      <b-dropdown-item-button v-if="canDeleteApp" style="text-align: left"
                         @click.stop="openDeleteServicePopUp(eachOrg.appId)"><i class="fa fa-trash-alt mt-1"></i> Delete
                         Service</b-dropdown-item-button>
                     </b-dropdown>
@@ -583,7 +583,7 @@
                       <b-dropdown-item-button style="text-align: left" @click.stop="editOrg(eachOrg.appId)"><i
                           class="fas fa-pencil-alt mt-1" aria-hidden="true"></i> Edit Service
                       </b-dropdown-item-button>
-                      <b-dropdown-item-button style="text-align: left"
+                      <b-dropdown-item-button v-if="canDeleteApp" style="text-align: left"
                         @click.stop="openDeleteServicePopUp(eachOrg.appId)"><i class="fa fa-trash-alt mt-1"></i> Delete
                         Service</b-dropdown-item-button>
                     </b-dropdown>
@@ -687,7 +687,7 @@
                       <b-dropdown-item-button style="text-align: left" @click.stop="editOrg(eachOrg.appId)"><i
                           class="fas fa-pencil-alt mt-1" aria-hidden="true"></i> Edit Service
                       </b-dropdown-item-button>
-                      <b-dropdown-item-button style="text-align: left"
+                      <b-dropdown-item-button v-if="canDeleteApp" style="text-align: left"
                         @click.stop="openDeleteServicePopUp(eachOrg.appId)"><i class="fa fa-trash-alt mt-1"></i> Delete
                         Service</b-dropdown-item-button>
                     </b-dropdown>
@@ -948,6 +948,10 @@ import {normalizeCorsOrigin} from '../utils/utils.js'
 export default {
   name: "AppList",
   computed: {
+    // Hidden for team members whose role can't delete apps (owners can always delete)
+    canDeleteApp() {
+      return this.$store.getters['mainStore/hasAccess']('DASHBOARD', 'DELETE_SERVICE');
+    },
     ...mapState({
       appList: (state) => state.mainStore.appList,
       totalAppCount: (state) => state.mainStore.totalAppCount,
