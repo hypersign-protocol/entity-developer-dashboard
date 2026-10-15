@@ -1,104 +1,105 @@
 <template>
-  <div>
-    <div no-body v-if="isFeatureImplemented">
-      <b-tabs  v-model="activeMainTab">
-        <!-- Profile Tab -->
-        <b-tab>
-          <template #title>
-            <b-icon icon="person-square" aria-hidden="true" small></b-icon>
-            <strong> Profile</strong>
-          </template>
-          <UserProfile></UserProfile>
-        </b-tab>
+  <div class="settings-page">
+    <template v-if="isFeatureImplemented">
+      <header class="app-page-header">
+        <h1 class="app-page-title">Settings</h1>
+        <p class="app-page-subtitle">Manage your profile, team members, invitations and workspace access.</p>
+      </header>
 
+      <nav class="config-tabs" aria-label="Settings sections">
+        <button
+          v-for="tab in visibleTabs"
+          :key="tab.value"
+          type="button"
+          :class="{ active: activeMainTab === tab.value }"
+          @click="selectTab(tab.value)"
+        >
+          {{ tab.label }}
+        </button>
+      </nav>
 
+      <div class="settings-content">
+        <!-- v-show keeps every section mounted, as the previous b-tabs did -->
+        <section v-show="activeMainTab === 'profile'">
+          <UserProfile />
+        </section>
 
-        <!-- Members & Roles Tab -->
-        <b-tab>
-          <template #title>
-            <b-icon icon="sliders" aria-hidden="true" small></b-icon>
-            <strong> Members & Roles</strong>
-          </template>
-          <b-tabs card vertical justified small v-model="activeMembersSubTab">
-            <b-tab>
-              <template #title>
-                <b-icon icon="people-fill" aria-hidden="true" small></b-icon>
-                All Members
-              </template>
-              <TeamMembers />
-            </b-tab>
-            <b-tab>
-              <template #title>
-                <i class="fa fa-gamepad" aria-hidden="true"></i> Roles & Permissions
-              </template>
-              <AdminTeams />
-            </b-tab>
-            <b-tab>
-              <template #title>
-                <i class="fa fa-signal" aria-hidden="true"></i>
-                Live Access
-              </template>
-              <LiveAccessStatus />
-            </b-tab>
-          </b-tabs>
-        </b-tab>
+        <section v-show="activeMainTab === 'members'">
+          <div class="sub-tabs" role="tablist" aria-label="Members and roles sections">
+            <button
+              v-for="sub in memberSubTabs"
+              :key="sub.value"
+              type="button"
+              :class="{ active: activeMembersSubTab === sub.value }"
+              @click="selectTab('members', sub.value)"
+            >
+              {{ sub.label }}
+            </button>
+          </div>
+          <TeamMembers v-show="activeMembersSubTab === 'members'" />
+          <AdminTeams v-show="activeMembersSubTab === 'roles'" />
+          <LiveAccessStatus v-show="activeMembersSubTab === 'live-access'" />
+        </section>
 
-
-        <b-tab>
-          <template #title>
-            <b-icon icon="envelope" aria-hidden="true" small></b-icon>
-            <strong> My Invitations</strong>
-          </template>
+        <section v-show="activeMainTab === 'invitions'">
           <MyInvitions />
-        </b-tab>
+        </section>
 
-        <!-- SSI Services -->
-        <b-tab>
-          <template #title>
-            <b-icon icon="shield-check" aria-hidden="true" small></b-icon>
-            <strong> SSI</strong>
-          </template>
+        <section v-show="activeMainTab === 'ssi'">
           <OnlySSIApps />
-        </b-tab>
+        </section>
 
-        <b-tab v-if="isSuperAdminUser">
-          <template #title>
-            <b-icon icon="cpu" aria-hidden="true" small></b-icon>
-            <strong>Super Admin Toolings</strong>
-          </template>
-          <b-tabs card vertical justified small v-model="activeSuperAdminSubTab">
-            <b-tab>
-              <template #title>
-                <b-icon icon="clipboard-check" aria-hidden="true" small></b-icon>
-                Approve Onboarding
-              </template>
-               <ApproveCustomerOnboarding />
-            </b-tab>
-            <b-tab>
-              <template #title>
-                <b-icon icon="piggy-bank" aria-hidden="true" small></b-icon> Credit Recharge
-              </template>
-              <CreditRecharge />
-            </b-tab>
-            <b-tab>
-              <template #title>
-                <b-icon icon="shield-check" aria-hidden="true" small></b-icon> KYB Compliance
-              </template>
-              <ComplianceCheck />
-            </b-tab>
-          </b-tabs>
-        </b-tab>
-
-        
-
-      </b-tabs>
-    </div>
+        <section v-if="isSuperAdminUser" v-show="activeMainTab === 'super-admin'">
+          <div class="sub-tabs" role="tablist" aria-label="Super admin tools">
+            <button
+              v-for="sub in superAdminSubTabs"
+              :key="sub.value"
+              type="button"
+              :class="{ active: activeSuperAdminSubTab === sub.value }"
+              @click="selectTab('super-admin', sub.value)"
+            >
+              {{ sub.label }}
+            </button>
+          </div>
+          <ApproveCustomerOnboarding v-show="activeSuperAdminSubTab === 'onboarding'" />
+          <CreditRecharge v-show="activeSuperAdminSubTab === 'credit-recharge'" />
+          <ComplianceCheck v-show="activeSuperAdminSubTab === 'kyb-compliance'" />
+        </section>
+      </div>
+    </template>
 
     <div v-else>
       <hf-feature-soon></hf-feature-soon>
     </div>
   </div>
 </template>
+
+<style scoped>
+/* Same page header and tab bar as the App configuration page */
+.settings-page { padding: 16px 15px 64px; color: #273448; background: #fff; }
+.app-page-header { margin-bottom: 24px; }
+.app-page-title { margin: 0 0 4px; color: #263244; font-size: 24px; font-weight: 700; letter-spacing: -.02em; line-height: 1.25; }
+.app-page-subtitle { margin: 0; color: #718198; font-size: 13px; line-height: 1.45; }
+
+.config-tabs { display: flex; gap: 31px; border-bottom: 1px solid #dce4ed; }
+.config-tabs button { padding: 12px 2px; border: 0; border-bottom: 2px solid transparent; background: transparent; color: #5e6d82; font-size: 13px; font-weight: 700; white-space: nowrap; }
+.config-tabs button:hover { color: #263244; }
+.config-tabs button.active { border-color: #2563dc; color: #2563dc; }
+
+.settings-content { margin-top: 24px; }
+
+/* Secondary tabs: same segmented style as the Environment toggle */
+.sub-tabs { display: inline-flex; flex-wrap: wrap; gap: 2px; margin-bottom: 20px; padding: 4px; border: 1px solid #d8e0ea; border-radius: 9px; background: #edf2f7; }
+.sub-tabs button { min-width: 126px; height: 34px; padding: 0 14px; border: 1px solid transparent; border-radius: 6px; background: transparent; color: #64748b; font-size: 12px; font-weight: 700; }
+.sub-tabs button:hover:not(.active) { color: #344054; }
+.sub-tabs button.active { border-color: #c7d5e8; background: #fff; color: #2563dc; box-shadow: 0 1px 3px rgba(15,23,42,.08); }
+
+@media (max-width: 650px) {
+  .config-tabs { gap: 16px; overflow-x: auto; }
+  .sub-tabs { display: flex; }
+  .sub-tabs button { min-width: 0; flex: 1 1 auto; }
+}
+</style>
 
 <script>
 import TeamMembers from '../components/teams/TeamMembers.vue';
@@ -133,15 +134,33 @@ export default {
     isSuperAdminUser() {
       return this.getUserDetails?.role === "SUPER_ADMIN";
     },
-    
+    visibleTabs() {
+      return this.tabs.filter(tab => !tab.superAdminOnly || this.isSuperAdminUser);
+    },
   },
   data() {
     return {
       isFeatureImplemented: true,
-      activeMainTab: 0, // Default to Members tab
-      activeProfileSubTab: 0,
-      activeMembersSubTab: 0,
-      activeSuperAdminSubTab: 0,
+      tabs: [
+        { value: 'profile', label: 'Profile' },
+        { value: 'members', label: 'Members & roles' },
+        { value: 'invitions', label: 'My invitations' },
+        { value: 'ssi', label: 'SSI' },
+        { value: 'super-admin', label: 'Super admin tools', superAdminOnly: true },
+      ],
+      memberSubTabs: [
+        { value: 'members', label: 'All members' },
+        { value: 'roles', label: 'Roles & permissions' },
+        { value: 'live-access', label: 'Live access' },
+      ],
+      superAdminSubTabs: [
+        { value: 'onboarding', label: 'Approve onboarding' },
+        { value: 'credit-recharge', label: 'Credit recharge' },
+        { value: 'kyb-compliance', label: 'KYB compliance' },
+      ],
+      activeMainTab: 'members', // Default to Members tab
+      activeMembersSubTab: 'members',
+      activeSuperAdminSubTab: 'onboarding',
       sentInvitiationCode: ""
     };
   },
@@ -153,29 +172,26 @@ export default {
   methods: {
     ...mapMutations("mainStore", ["setMainSideNavBar"]),
     ...mapActions('mainStore', ['getMyRolesAction', 'getPeopleMembers',]),
+    // ?ref= deep links: a main tab, a sub-tab, or an alias.
+    // Existing links use mfa, members, roles and invitions.
     applyRouteRef(ref) {
-      if (ref === 'invitions') {
-        this.$nextTick(() => {
-          this.activeMainTab = 2;
-        })
-      } else if (ref === 'roles') {
-        this.activeMainTab = 1;
-        this.$nextTick(() => {
-          this.activeMembersSubTab = 1;
-        });
-      } else if (ref === 'mfa') {
-        this.activeMainTab = 0;
-        this.$nextTick(() => {
-          this.activeProfileSubTab = 0;
-        });
-      } else if (ref === 'members') {
-        this.activeMainTab = 1;
-        this.$nextTick(() => {
-          this.activeMembersSubTab = 0;
-        });
-      } else {
-        this.activeMainTab = 1;
-        this.activeMembersSubTab = 0;
+      const target = this.resolveRef(ref);
+      this.activeMainTab = target.main;
+      if (target.main === 'members' && target.sub) this.activeMembersSubTab = target.sub;
+      if (target.main === 'super-admin' && target.sub) this.activeSuperAdminSubTab = target.sub;
+    },
+    resolveRef(ref) {
+      if (ref === 'mfa') return { main: 'profile' };
+      if (this.memberSubTabs.some(sub => sub.value === ref)) return { main: 'members', sub: ref };
+      if (this.isSuperAdminUser && this.superAdminSubTabs.some(sub => sub.value === ref)) return { main: 'super-admin', sub: ref };
+      if (this.visibleTabs.some(tab => tab.value === ref)) return { main: ref };
+      return { main: 'members', sub: 'members' };
+    },
+    selectTab(main, sub) {
+      const ref = sub || main;
+      this.applyRouteRef(ref);
+      if (this.$route.query.ref !== ref) {
+        this.$router.replace({ query: { ...this.$route.query, ref } }).catch(() => {});
       }
     }
   },

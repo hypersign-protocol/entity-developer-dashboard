@@ -126,61 +126,52 @@
     </v-row>
 
     <!-- Popups -->
-    <hf-pop-up id="setup-mfa-popup" Header="MFA">
+    <hf-pop-up id="setup-mfa-popup" Header="Set up MFA">
       <SetupMFA @closePopup="onPopupClose" />
     </hf-pop-up>
 
-  <hf-pop-up id="confirm-remove-auth" Header="Remove Authenticator">
-  <div class="confirm-body">
-  <div class="card remove-auth-card">
-      <div class="card-body">
-        <!-- Authenticator Selection -->
-        <div class="form-group">
+  <hf-pop-up id="confirm-remove-auth" Header="Remove authenticator">
+    <div class="mfa-remove">
+      <p class="mfa-remove-intro">
+        To remove an authenticator, confirm with a current code from that app. You can set it up again at any time.
+      </p>
 
-          <div class="d-flex align-items-center mb-2">
-            <tool-tip infoMessage="Select An Authentication App"></tool-tip>
-            <label class="mb-0 ml-1">
-              <strong>
-                Select An Authentication App
-                <span style="color:red">*</span>:
-              </strong>
-            </label>
-          </div>
-          <select class="custom-select"  v-model="removeAuthType" @change="onRemoveAuthTypeChange">
-            <option
-              v-for="method in authenticationMethodsList"
-              :value="method.value"
-              :key="method.name"
-            >
-              {{ method.name.toUpperCase() }}
-            </option>
-          </select>
-        </div>
-        <!-- MFA Code -->
-        <div class="form-group mt-4">
-          <div class="d-flex align-items-center mb-2">
-            <tool-tip infoMessage="Enter the 6-digit code from your authentication app"></tool-tip>
-            <label class="mb-0 ml-1">
-              <strong> Enter Authenticator Code<span style="color: red">*</span>:</strong>
-            </label>
-          </div>
-          <div class="pin-wrapper">
-            <PIN :key="removeAuthPinKey"  inputType="number"  @pinTakenEvent="pinTakenEventHandler" />
-          </div>
-          <small v-if="removeAuthError" class="remove-auth-error" >
-            {{ removeAuthError }}
-          </small>
-        </div>
-        <div class="confirm-actions">
-          <v-btn outlined @click="hideConfirmModal">
-            Cancel
-          </v-btn>
-          <v-btn color="error" dark class="ml-2" @click="removeAuth"> Remove</v-btn>
+      <div class="mfa-field">
+        <label>Authenticator app <span class="required-marker">*</span></label>
+        <div class="app-options">
+          <button
+            v-for="method in removableAuthenticators"
+            :key="method.value"
+            type="button"
+            class="app-option"
+            :class="{ active: removeAuthType === method.value }"
+            @click="selectRemoveAuthType(method.value)"
+          >
+            <v-icon small>mdi-cellphone-key</v-icon>
+            <span>{{ method.name }}</span>
+          </button>
         </div>
       </div>
+
+      <div class="mfa-field">
+        <label>6-digit code from the app <span class="required-marker">*</span></label>
+        <div class="pin-wrapper">
+          <PIN :key="removeAuthPinKey" inputType="number" @pinTakenEvent="pinTakenEventHandler" />
+        </div>
+        <small v-if="removeAuthError" class="remove-auth-error">{{ removeAuthError }}</small>
+      </div>
+
+      <div class="mfa-remove-warning">
+        <v-icon x-small>mdi-alert-outline</v-icon>
+        <span>If this is your only authenticator, MFA will be turned off for your account.</span>
+      </div>
+
+      <div class="confirm-actions">
+        <button type="button" class="ghost-button" @click="hideConfirmModal">Cancel</button>
+        <button type="button" class="danger-button" @click="removeAuth">Remove authenticator</button>
+      </div>
     </div>
-  </div>
-</hf-pop-up>
+  </hf-pop-up>
   </v-container>
 </template>
  
@@ -298,96 +289,79 @@
   justify-content: flex-end;
 }
 
-/* confirm modal */
-.confirm-body {
-  padding: 0;
+/* Remove authenticator popup (matches the app configuration popups) */
+.mfa-remove { color: #273448; }
+.mfa-remove-intro { margin: 0 0 18px; color: #718198; font-size: 13px; line-height: 1.5; }
+
+.mfa-field { margin-bottom: 16px; }
+.mfa-field > label { display: block; margin-bottom: 6px; color: #475467; font-size: 12px; font-weight: 600; }
+.required-marker { color: #dc3545; }
+
+/* Same app cards as the Set up MFA popup */
+.app-options { display: flex; flex-wrap: wrap; gap: 10px; }
+
+.app-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 200px;
+  padding: 10px 14px;
+  border: 1px solid #d5dde7;
+  border-radius: 8px;
+  background: #fff;
+  color: #344054;
+  font-size: 13px;
+  font-weight: 600;
 }
 
-.confirm-text {
-  font-size: 14px;
-  color: #374151;
-  line-height: 1.6;
-  margin-bottom: 20px;
+.app-option:hover { border-color: #94a3b8; }
+.app-option >>> .v-icon { color: #718198 !important; }
+.app-option.active { border-color: #2563dc; background: #f1f6ff; color: #2563dc; }
+.app-option.active >>> .v-icon { color: #2563dc !important; }
+
+.pin-wrapper { max-width: 320px; }
+.pin-wrapper >>> form { margin: 0; }
+.pin-wrapper >>> div { margin-top: 0; }
+
+.remove-auth-error { display: block; margin-top: 6px; color: #b42318; font-size: 12px; }
+
+.mfa-remove-warning {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 4px;
+  padding: 10px 12px;
+  border: 1px solid #f3e1bd;
+  border-radius: 6px;
+  background: #fff8e8;
+  color: #8a611d;
+  font-size: 12px;
+  line-height: 1.5;
 }
+
+.mfa-remove-warning > .v-icon { margin-top: 2px; color: #c08a2e !important; }
 
 .confirm-actions {
   display: flex;
   justify-content: flex-end;
   align-items: center;
   gap: 8px;
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid #e8edf3;
 }
 
-.remove-auth-label {
-  display: block;
-  font-size: 14px;
-  color: #374151;
-  margin-bottom: 8px;
+.ghost-button, .danger-button {
+  min-height: 36px;
+  padding: 0 14px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 700;
 }
 
-.remove-auth-error {
-  color: red;
-}
-
-.form-group label {
-  margin-bottom: 8px;
-  display: inline-block;
-}
-.remove-auth-card {
-  width: 100%;
-  margin: 0;
-  border-radius: 14px;
-  border: 1px solid #e5e7eb;
-  box-shadow: none;
-}
-.remove-auth-card .card-body {
-  padding: 20px;
-}
-
-.form-group .tool-tip,
-.form-group .tooltip-wrapper {
-  display: inline-flex;
-  align-items: center;
-  vertical-align: middle;
-  margin-right: 4px;
-}
-
-.form-group {
-  margin-bottom: 20px;
-}
-
-/* Ensure select and PIN inputs inside the confirm modal have equal left/right spacing */
-.confirm-body .form-group > select.custom-select,
-.confirm-body .form-group .pin-wrapper {
-  width: 100%;
-  box-sizing: border-box;
-  padding-left: 12px;
-  padding-right: 12px;
-}
-
-
-.confirm-body .form-group .pin-wrapper {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding-top: 6px; /* small top padding to match vertical rhythm */
-  padding-bottom: 6px;
-}
-
-/* Limit only the Remove Auth popup card width and center it (scoped) */
-.confirm-body .remove-auth-card {
-  max-width: 480px;
-  width: 100%;
-  margin: 0 auto;
-  box-sizing: border-box;
-}
-
-
-
-/* Ensure images inside the confirm body are responsive */
-.confirm-body img {
-  max-width: 100%;
-  height: auto;
-}
+.ghost-button { border: 1px solid transparent; background: transparent; color: #6c757d; }
+.ghost-button:hover { background: #f1f5f9; }
+.danger-button { border: 1px solid #dc3545; background: #fff; color: #dc3545; }
+.danger-button:hover { background: #dc3545; color: #fff; }
 
 /* RESPONSIVE ADJUSTMENTS */
 @media (max-width: 960px) {
@@ -410,7 +384,6 @@
 import SetupMFA from '../../components/login/mfa/SetupMfa.vue';
 import PIN from '../../components/login/mfa/PIN.vue';
 import HfPopUp from '../element/hfPopup.vue';
-import ToolTip from "../element/ToolTip.vue";
 import EventBus from '../../eventbus';
 import { mapActions, mapGetters } from 'vuex/dist/vuex.common.js';
 import config from '../../config';
@@ -423,7 +396,6 @@ export default {
     SetupMFA,
     PIN,
     HfPopUp,
-    ToolTip
   },
   data() {
     return {
@@ -456,6 +428,14 @@ export default {
   },
   computed: {
     ...mapGetters('mainStore', ['getUserDetails', 'isMFAEnabled']),
+    // Only the authenticators this user has actually set up can be removed
+    removableAuthenticators() {
+      const active = (this.user?.authenticators || []).filter(auth => auth.isTwoFactorAuthenticated);
+      return active.map(auth => {
+        const known = this.authenticationMethodsList.find(method => method.value === auth.type);
+        return { value: auth.type, name: known ? known.name : auth.type };
+      });
+    },
     profileSrc() {
       if (this.hasImageError) {
         return this.fallbackImage
@@ -586,6 +566,11 @@ export default {
       this.$root.$emit('bv::hide::modal', 'confirm-remove-auth');
     },
     ...mapActions('mainStore', ['removeMfaAuthenticator', 'getMyUserDetails']),
+    selectRemoveAuthType(type) {
+      if (type === this.removeAuthType) return;
+      this.removeAuthType = type;
+      this.onRemoveAuthTypeChange();
+    },
     onRemoveAuthTypeChange() {
       this.removeAuthCode = '';
       this.removeAuthError = '';
