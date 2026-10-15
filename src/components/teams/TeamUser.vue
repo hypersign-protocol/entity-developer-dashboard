@@ -1,53 +1,47 @@
 <template>
 <div>
-    <b-list-group-item class="d-flex align-items-center" style="min-height: 70px">
+    <div class="member-row">
       <load-ing :active.sync="isLoading" :can-cancel="true" :is-full-page="true"></load-ing>
 
-      <b-avatar variant="secondary" :text="email.charAt(0).toUpperCase()" class="mr-2"></b-avatar>
-      <span class="mr-auto">{{ email }}</span>
-
-
-      <span class="mx-1" style="color: grey" v-if="createdAt">
-        <b-icon icon="clock" aria-hidden="true" variant="secondary"></b-icon>
-        {{ createdAt }}
-      </span>
-
-      <span class="mx-1" style="color: grey" v-if="twoFactor"><b-icon icon="check-circle" aria-hidden="true"
-          variant="success"></b-icon>
-        2FA</span>
-      <!-- <b-badge pill variant="info" class="mx-1">{{ numberOfTeams }} teams</b-badge> -->
-      <b-badge pill variant="warning" class="mx-1" v-if="assignedRoleId && getAllRoles.length > 0">
-        <span class="mx-1"><b-icon icon="person-fill" variant=" light"></b-icon> Role:{{
-          getYourRole().roleName
-          }}
+      <span class="member-avatar" aria-hidden="true">{{ email.charAt(0).toUpperCase() }}</span>
+      <div class="member-main">
+        <strong class="member-email" :title="email">{{ email }}</strong>
+        <span class="member-sub">
+          <template v-if="createdAt">
+            <i class="mdi mdi-clock-outline" aria-hidden="true"></i>{{ mode === 'Admin' ? 'Invited you' : 'Invited' }} {{ createdAt }}
+          </template>
+          <template v-if="twoFactor">
+            <span class="member-sep" aria-hidden="true">·</span>
+            <i class="mdi mdi-shield-check-outline is-good" aria-hidden="true"></i>2FA on
+          </template>
         </span>
-      </b-badge>
-      <b-badge pill variant="warning" class="mx-1" v-if="assignedRoleId && getAllRoles.length > 0">
-        {{
-          getYourRole().permissions.length
-        }} permissions
-      </b-badge>
+      </div>
 
-      <b-badge pill variant="success" class="mx-1" v-if="invitationStatus">
-        <span class="mx-1" style="color: white"><b-icon icon="check" variant=" light"></b-icon>Accepted
-        </span></b-badge>
-      <b-badge pill variant="warning" class="mx-1" v-else>
-        <span class="mx-1" style="color: white">Pending </span></b-badge>
+      <div class="member-tags">
+        <template v-if="assignedRoleId && getAllRoles.length > 0 && getYourRole()">
+          <span class="member-tag"><i class="mdi mdi-account-key-outline" aria-hidden="true"></i>{{ getYourRole().roleName }}</span>
+          <span class="member-tag is-muted">{{ getYourRole().permissions.length }} permissions</span>
+        </template>
+        <span class="member-status" :class="invitationStatus ? 'is-accepted' : 'is-pending'">
+          <i class="mdi" :class="invitationStatus ? 'mdi-check-circle' : 'mdi-clock-outline'" aria-hidden="true"></i>
+          {{ invitationStatus ? 'Accepted' : 'Pending' }}
+        </span>
+      </div>
 
-      <b-button
+      <button
         v-if="mode == 'Admin' && invitationStatus"
-        size="sm"
-        variant="link"
-        class="p-0 ml-2 switch-icon-btn"
-        title="Switch Account"
+        type="button"
+        class="member-icon-btn"
+        title="Switch to this account"
+        aria-label="Switch to this account"
         @click="switchToAdminAccount()"
       >
-        <b-icon icon="box-arrow-in-right" aria-hidden="true"></b-icon>
-      </b-button>
-      
-      <b-dropdown class="m-2" size="sm" variant="link" toggle-class="text-decoration-none" menu-class="dropDownPopup" no-caret dropleft>
+        <i class="mdi mdi-login-variant" aria-hidden="true"></i>
+      </button>
+
+      <b-dropdown class="member-menu" size="sm" variant="link" toggle-class="text-decoration-none member-icon-btn" menu-class="dropDownPopup" no-caret dropleft>
         <template #button-content>
-          <b-icon style="color: grey" icon="list" aria-hidden="true"></b-icon>
+          <i class="mdi mdi-dots-vertical" aria-label="More actions"></i>
         </template>
         <b-dropdown-group id="dropdown-group-1" header="Assign Role" style="text-align: left;"
           v-if="invitationStatus && mode == 'Member'">
@@ -79,7 +73,7 @@
           Account</b-dropdown-item-button>
 
       </b-dropdown>
-    </b-list-group-item>
+    </div>
     <hf-pop-up
      v-show="showDeleteConfirm"
       :id="`delete-member-confirm-popup_${email}`"
@@ -268,11 +262,138 @@ export default {
 </script>
 
 <style scoped>
-.switch-icon-btn {
-  color: #6c757d;
+/* One member / invitation row inside the bordered list (see TeamMembers, MyInvitions) */
+.member-row {
+  align-items: center;
+  display: flex;
+  gap: 12px;
+  padding: 12px 16px;
 }
 
-.switch-icon-btn:hover {
-  color: #0d6efd;
+/* Same avatar as the Business Detail summary card */
+.member-avatar {
+  align-items: center;
+  background: #e8edf5;
+  border-radius: 50%;
+  color: #52658a;
+  display: inline-flex;
+  flex: 0 0 auto;
+  font-size: 14px;
+  font-weight: 700;
+  height: 36px;
+  justify-content: center;
+  width: 36px;
+}
+
+.member-main {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.member-email {
+  color: #111827;
+  font-size: 14px;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.member-sub {
+  align-items: center;
+  color: #64748b;
+  display: flex;
+  flex-wrap: wrap;
+  font-size: 12px;
+  gap: 4px;
+}
+
+.member-sub .mdi {
+  font-size: 13px;
+}
+
+.member-sub .is-good {
+  color: #2f9e4f;
+}
+
+.member-sep {
+  color: #cbd5e1;
+  margin: 0 2px;
+}
+
+.member-tags {
+  align-items: center;
+  display: flex;
+  flex: 0 0 auto;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: flex-end;
+}
+
+.member-tag {
+  align-items: center;
+  background: #eff6ff;
+  border-radius: 5px;
+  color: #1d4ed8;
+  display: inline-flex;
+  font-size: 12px;
+  font-weight: 600;
+  gap: 4px;
+  padding: 3px 8px;
+}
+
+.member-tag.is-muted {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+/* Status pill: same tones as elsewhere in the dashboard */
+.member-status {
+  align-items: center;
+  border-radius: 5px;
+  display: inline-flex;
+  font-size: 12px;
+  font-weight: 700;
+  gap: 4px;
+  padding: 3px 8px;
+}
+
+.member-status.is-accepted { background: rgba(78, 201, 107, 0.12); color: #2f9e4f; }
+.member-status.is-pending { background: rgba(255, 193, 7, 0.16); color: #856404; }
+
+.member-icon-btn,
+.member-menu >>> .member-icon-btn {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  border-radius: 6px;
+  color: #64748b;
+  display: inline-flex;
+  font-size: 18px;
+  height: 32px;
+  justify-content: center;
+  padding: 0;
+  width: 32px;
+}
+
+.member-icon-btn:hover,
+.member-menu >>> .member-icon-btn:hover {
+  background: #f1f5f9;
+  color: #111827;
+}
+
+@media (max-width: 760px) {
+  .member-row {
+    flex-wrap: wrap;
+  }
+
+  .member-tags {
+    justify-content: flex-start;
+    order: 3;
+    width: 100%;
+  }
 }
 </style>

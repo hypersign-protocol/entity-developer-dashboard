@@ -1,129 +1,85 @@
 <template>
-  <v-container fluid class="pa-6 profile-page">
-    <!-- Banner (full-width area) -->
-    <div class="banner" :style="bannerStyle"></div>
+  <div class="profile-page">
+    <!-- Profile card: same layout as the summary cards on the detail pages -->
+    <section class="profile-card">
+      <span class="profile-avatar">
+        <img v-if="showPhoto" :src="user.profileUrl" alt="" @error="onImageError" />
+        <template v-else>{{ initials }}</template>
+      </span>
+      <div class="profile-main">
+        <h2 :title="user.name">{{ user.name || 'Your profile' }}</h2>
+        <button type="button" class="profile-email" title="Copy email" @click="copyToClip(user.email, 'Email Id')">
+          {{ user.email }} <i class="mdi mdi-content-copy" aria-hidden="true"></i>
+        </button>
+      </div>
 
-    <v-row class="mt-6" align="start">
-      <!-- LEFT: Name, Email, Account Info -->
-      <v-col cols="12" md="8" class="left-section">
+      <div class="profile-stat">
+        <label>Role</label>
+        <span class="profile-pill is-info">{{ roleLabel }}</span>
+      </div>
+      <div class="profile-stat">
+        <label>Multi-factor auth</label>
+        <span class="profile-pill" :class="isMFAEnabled ? 'is-good' : 'is-warn'">
+          <i class="mdi" :class="isMFAEnabled ? 'mdi-shield-check' : 'mdi-shield-alert-outline'" aria-hidden="true"></i>
+          {{ isMFAEnabled ? 'Enabled' : 'Off' }}
+        </span>
+      </div>
+      <div class="profile-stat">
+        <label>Member since</label>
+        <strong>{{ formatDay(user.createdAt) }}</strong>
+        <span class="profile-muted">Updated {{ formatDay(user.updatedAt) }}</span>
+      </div>
 
-        <!-- Name + Email + Chips -->
-        <div class="user-header">
-          <h1 class="user-name">{{ user.name }}</h1>
-          <div class="user-email" style="cursor: pointer;" @click="copyToClip(user.email, 'Email Id')">{{ user.email }} <i class="far fa-copy mt-1" style="color: lightgray;" >
-                </i></div> 
+      <div class="profile-actions">
+        <hf-buttons v-if="!isMFAEnabled" name="Set up MFA" iconClass="mdi mdi-shield-key-outline" @executeAction="onSetupMFA"></hf-buttons>
+        <hf-buttons name="Log out" iconClass="mdi mdi-logout" customClass="btn btn-outline-danger" @executeAction="onLogout"></hf-buttons>
+      </div>
+    </section>
 
-          <div class="chips-row">
-            <!-- <v-chip :color="user.isTwoFactorEnabled ? 'success' : 'grey lighten-2'"
-                    :text-color="user.isTwoFactorEnabled ? 'white' : 'black'">
-              MFA {{ user.isTwoFactorEnabled ? 'Enabled' : 'Disabled' }}
-            </v-chip> -->
-
-            <!-- <v-chip color="grey lighten-3" text-color="black">
-              {{ user.role || 'ADMIN' }}
-            </v-chip> -->
+    <div class="profile-grid">
+      <!-- Security: the authenticator apps protecting this account -->
+      <section class="profile-section">
+        <SectionHeader title="Security" description="Authenticator apps that protect your sign-in." />
+        <ul v-if="activeAuthenticators.length" class="settings-list">
+          <li v-for="auth in activeAuthenticators" :key="auth.type" class="auth-row">
+            <span class="auth-icon" aria-hidden="true"><i class="mdi" :class="auth.icon"></i></span>
+            <div class="auth-main">
+              <strong>{{ auth.name }}</strong>
+              <span>Used for multi-factor authentication</span>
+            </div>
+            <button type="button" class="link-danger" @click="confirmRemoveAuth(auth.raw)">Remove</button>
+          </li>
+        </ul>
+        <div v-else class="mfa-callout">
+          <i class="mdi mdi-shield-alert-outline" aria-hidden="true"></i>
+          <div>
+            <strong>Multi-factor authentication is off</strong>
+            <p>Add an authenticator app so a password alone isn't enough to sign in. It's required to take an app live.</p>
+            <hf-buttons name="Set up MFA" iconClass="mdi mdi-shield-key-outline" @executeAction="onSetupMFA"></hf-buttons>
           </div>
         </div>
+      </section>
 
-        <!-- Account Info rounded card -->
-        <div class="section-card">
-          <h5>Permissions ({{ totalPermissionsCount }})</h5>
-
-          <v-row dense>
-            <v-col v-for="(items, serviceType) in groupedAccess" :key="serviceType" cols="12" class="mb-3">
-              <div class="permission-header">
-                <v-icon color="green" small>mdi-shield-check</v-icon>
-                <span class="ml-2">{{ formatServiceType(serviceType) }} ({{ items.length }})</span>
-              </div>
-
-              <div class="mt-2">
-                <span v-for="access in items" :key="access.access" class="access-pill">
-                  {{ access.access }}
-                </span>
-              </div>
-            </v-col>
-          </v-row>
-        </div>
-      </v-col>
-
-      <!-- RIGHT: Profile avatar (over banner), Permissions, Actions -->
-      <v-col cols="12" md="4" class="right-section">
-        <!-- Avatar container is absolutely positioned relative to .profile-page -->
-        <div class="avatar-wrapper">
-          <v-avatar size="140" class="profile-avatar">
-            <!-- <v-img src="" alt="Profile" /> -->
-            <v-img
-              :src="profileSrc"
-              alt="Profile"
-              @error="onImageError"
-            />
-          </v-avatar>
-        </div>
-
-        <!-- Permissions box -->
-        <div class="section-card permissions-card">
-          <h5>Account Information</h5>
-
-
-          <v-list dense style="background-color: transparent;">
-            <v-list-item>
-              <v-list-item-content>
-                <v-list-item-title>Created At</v-list-item-title>
-                <v-list-item-subtitle>{{ formatDate(user.createdAt) }}</v-list-item-subtitle>
-              </v-list-item-content>
-            </v-list-item>
-
-            <v-list-item>
-              <v-list-item-content>
-                <v-list-item-title>Last Updated</v-list-item-title>
-                <v-list-item-subtitle>{{ formatDate(user.updatedAt) }}</v-list-item-subtitle>
-              </v-list-item-content>
-            </v-list-item>
-
-            <v-list-item>
-              <v-list-item-content>
-                <v-list-item-title>Role</v-list-item-title>
-                <v-list-item-subtitle>
-                  <v-chip color="grey lighten-3" small text-color="black">
-                    {{ user.role || 'Admin' }}
-                  </v-chip>
-                </v-list-item-subtitle>
-              </v-list-item-content>
-            </v-list-item>
-
-            <v-list-item v-if="user.authenticators?.length">
-              <v-list-item-content>
-                <v-list-item-title>Authentication Methods</v-list-item-title>
-                <v-list-item-subtitle>
-                  <v-chip v-for="auth in user.authenticators.filter(a => a.isTwoFactorAuthenticated)" :key="auth.type"
-                          small class="ma-1"
-                          color="grey lighten-3"
-                          text-color="black"
-                          close
-                          close-icon="mdi-close-circle"
-                          @click:close="confirmRemoveAuth(auth)">
-                    {{ auth.type }}
-                  </v-chip>
-                </v-list-item-subtitle>
-              </v-list-item-content>
-            </v-list-item>
-          </v-list>
-
-          
-        </div>
-
-        <!-- Action buttons pinned below permissions -->
-        <div class="action-buttons">
-          <v-btn v-if="!isMFAEnabled" color="success" outlined class="mr-3" @click="onSetupMFA">
-            <v-icon left>mdi-shield-key</v-icon> Setup MFA
-          </v-btn>
-
-          <v-btn color="error" outlined @click="onLogout">
-            <v-icon left>mdi-logout</v-icon> Logout
-          </v-btn>
-        </div>
-      </v-col>
-    </v-row>
+      <!-- Permissions, grouped by service -->
+      <section class="profile-section">
+        <SectionHeader title="Permissions" :description="`${totalPermissionsCount} ${totalPermissionsCount === 1 ? 'permission' : 'permissions'} across your services.`" />
+        <ul v-if="totalPermissionsCount" class="settings-list">
+          <li v-for="(items, serviceType) in groupedAccess" :key="serviceType" class="perm-group">
+            <div class="perm-head">
+              <i class="mdi" :class="serviceIcon(serviceType)" aria-hidden="true"></i>
+              <strong>{{ formatServiceType(serviceType) }}</strong>
+              <span class="perm-count">{{ items.length }}</span>
+            </div>
+            <div class="perm-pills">
+              <span v-for="access in items" :key="access.access" class="perm-pill" :class="{ 'is-all': access.access === 'ALL' }" :title="access.access">
+                {{ formatAccess(access.access) }}
+              </span>
+            </div>
+          </li>
+        </ul>
+        <p v-else class="profile-muted">No permissions assigned.</p>
+      </section>
+    </div>
 
     <!-- Popups -->
     <hf-pop-up id="setup-mfa-popup" Header="Set up MFA">
@@ -172,124 +128,228 @@
       </div>
     </div>
   </hf-pop-up>
-  </v-container>
+  </div>
 </template>
  
 
 <style scoped>
-/* Page container must be position: relative so avatar (absolute) can overlap the banner */
-.profile-page {
-  position: relative;
+/* Profile page: summary card on top, then Security and Permissions side by side */
+.profile-page { color: #172554; }
+
+.profile-card {
+  align-items: stretch;
+  background: #fff;
+  border: 1px solid #dbe3ef;
+  border-radius: 9px;
+  display: flex;
+  gap: 0;
+  margin-bottom: 24px;
+  padding: 18px;
 }
 
-/* Top banner area */
-.banner {
-  width: 100%;
-  height: 160px;            /* tweak height to match your wireframe */
-  border-radius: 12px;
-  box-shadow: none;
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: cover;
+/* Same avatar as the Business Detail / User Detail cards */
+.profile-avatar {
+  align-items: center;
+  align-self: center;
+  background: #e8edf5;
+  border-radius: 50%;
+  color: #52658a;
+  display: flex;
+  flex: 0 0 58px;
+  font-size: 20px;
+  font-weight: 700;
+  height: 58px;
+  justify-content: center;
+  overflow: hidden;
 }
 
-/* layout spacing */
-.left-section { padding-right: 32px; }
+.profile-avatar img { height: 100%; object-fit: cover; width: 100%; }
 
-/* Header area */
-.user-header {
-  margin-top: 8px;
-  margin-bottom: 18px;
+.profile-main {
+  align-self: center;
+  border-right: 1px solid #e2e8f0;
+  display: flex;
+  flex: 1 1 240px;
+  flex-direction: column;
+  margin-left: 16px;
+  min-width: 180px;
+  padding-right: 20px;
 }
 
-.user-name {
-  font-size: 28px;
+.profile-main h2 {
+  color: #14214a;
+  font-size: 16px;
   font-weight: 700;
   margin: 0;
-  letter-spacing: 0.6px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.user-email {
-  color: #6b6b6b;
-  margin-top: 6px;
-  margin-bottom: 12px;
-}
-
-/* chips */
-.chips-row { display: flex; gap: 10px; margin-top: 8px; }
-
-/* rounded section cards (grey background) */
-.section-card {
-  background: #eeeeee3d;
-  padding: 22px;
-  border-radius: 18px;
-  margin-top: 18px;
-  min-height: 300px;
-}
-
-/* avatar overlap — placed near top-right, overlapping the banner */
-.avatar-wrapper {
-  position: absolute;
-  right: 56px;
-  top: 43px;      /* 20px below banner */
-  /* transform: translateY(-50%); */
-  z-index: 30;
-  display: flex;
+.profile-email {
   align-items: center;
-  justify-content: center;
-
-  
-  
-  transform: translateY(-60%);
-}
- 
-
-/* .avatar-wrapper {
-  position: absolute;
-  right: 56px;
-  top: 160px;       
-  transform: translateY(-50%);
-  z-index: 30;
-} */
-
-/* visible avatar styling */
-.profile-avatar {
-  border: 6px solid #fff;     /* white ring */
-  box-shadow: 0 8px 22px rgba(18, 20, 24, 0.12);
-}
-
-/* permissions card separate styling to match wireframe */
-.permissions-card {
-  margin-top: 99px;
-}
-
-/* permission header */
-.permission-header {
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-}
-
-/* pill style for each permission */
-.access-pill {
-  display: inline-block;
-  padding: 8px 14px;
-  border-radius: 20px;
-  margin: 6px 6px 6px 0;
-  background: #6d6d6d;
-  color: #fff;
+  align-self: flex-start;
+  background: none;
+  border: 0;
+  color: #7180a5;
+  display: inline-flex;
   font-size: 12px;
-  letter-spacing: 0.6px;
+  gap: 4px;
+  margin-top: 4px;
+  padding: 0;
 }
 
-/* action buttons container: push to bottom area of right column */
-.action-buttons {
-  margin-top: 20px;
+.profile-email:hover { color: #1d4ed8; }
+
+.profile-stat {
+  border-right: 1px solid #e2e8f0;
   display: flex;
-  justify-content: flex-end;
+  flex: 1 1 130px;
+  flex-direction: column;
+  padding: 4px 22px 0;
 }
 
-/* Remove authenticator popup (matches the app configuration popups) */
+.profile-stat label { color: #7180a5; font-size: 11px; margin: 0 0 8px; }
+.profile-stat strong { color: #172554; font-size: 14px; }
+.profile-muted { color: #7180a5; font-size: 12px; margin-top: 4px; }
+
+.profile-pill {
+  align-items: center;
+  align-self: flex-start;
+  border-radius: 5px;
+  display: inline-flex;
+  font-size: 13px;
+  font-weight: 700;
+  gap: 4px;
+  padding: 4px 9px;
+}
+
+.profile-pill.is-info { background: #eff6ff; color: #1d4ed8; }
+.profile-pill.is-good { background: rgba(78, 201, 107, 0.12); color: #2f9e4f; }
+.profile-pill.is-warn { background: rgba(255, 193, 7, 0.16); color: #856404; }
+
+.profile-actions {
+  align-items: center;
+  align-self: center;
+  display: flex;
+  flex: 0 0 auto;
+  gap: 8px;
+  padding-left: 22px;
+}
+
+.profile-grid {
+  display: grid;
+  gap: 24px;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
+}
+
+/* Lists: same bordered list as the Members & roles tabs */
+.settings-list {
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.settings-list > li + li { border-top: 1px solid #f1f5f9; }
+
+.auth-row {
+  align-items: center;
+  display: flex;
+  gap: 12px;
+  padding: 12px 16px;
+}
+
+.auth-icon {
+  align-items: center;
+  background: #eff6ff;
+  border-radius: 8px;
+  color: #2563eb;
+  display: inline-flex;
+  flex: 0 0 auto;
+  font-size: 18px;
+  height: 36px;
+  justify-content: center;
+  width: 36px;
+}
+
+.auth-main { display: flex; flex: 1; flex-direction: column; min-width: 0; }
+.auth-main strong { color: #111827; font-size: 14px; font-weight: 600; }
+.auth-main span { color: #64748b; font-size: 12px; }
+
+.link-danger {
+  background: none;
+  border: 0;
+  border-radius: 6px;
+  color: #c81e1e;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 6px 10px;
+}
+
+.link-danger:hover { background: #fef2f2; }
+
+.mfa-callout {
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  border-radius: 10px;
+  color: #92400e;
+  display: flex;
+  gap: 10px;
+  padding: 14px 16px;
+}
+
+.mfa-callout > .mdi { font-size: 20px; line-height: 1.1; }
+.mfa-callout strong { display: block; font-size: 14px; }
+.mfa-callout p { color: #78350f; font-size: 13px; margin: 2px 0 12px; }
+
+.perm-group { padding: 12px 16px; }
+
+.perm-head {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.perm-head .mdi { color: #64748b; font-size: 16px; }
+.perm-head strong { color: #111827; font-size: 13px; font-weight: 600; }
+
+.perm-count {
+  background: #f1f5f9;
+  border-radius: 999px;
+  color: #475569;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 0 7px;
+}
+
+.perm-pills { display: flex; flex-wrap: wrap; gap: 6px; }
+
+.perm-pill {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 5px;
+  color: #344054;
+  font-size: 12px;
+  padding: 2px 8px;
+}
+
+.perm-pill.is-all { background: #eff6ff; border-color: #bfdbfe; color: #1d4ed8; font-weight: 600; }
+
+@media (max-width: 1100px) {
+  .profile-card { flex-wrap: wrap; }
+  .profile-stat { border-top: 1px solid #e2e8f0; margin-top: 16px; padding-top: 14px; }
+  .profile-actions { padding: 16px 0 0; width: 100%; }
+  .profile-grid { grid-template-columns: minmax(0, 1fr); }
+}
+
+@media (max-width: 700px) {
+  .profile-main { border-right: 0; }
+  .profile-stat { border-right: 0; flex-basis: 50%; padding: 12px 8px 0; }
+}
+
 .mfa-remove { color: #273448; }
 .mfa-remove-intro { margin: 0 0 18px; color: #718198; font-size: 13px; line-height: 1.5; }
 
@@ -384,6 +444,7 @@
 import SetupMFA from '../../components/login/mfa/SetupMfa.vue';
 import PIN from '../../components/login/mfa/PIN.vue';
 import HfPopUp from '../element/hfPopup.vue';
+import SectionHeader from '../element/SectionHeader.vue';
 import EventBus from '../../eventbus';
 import { mapActions, mapGetters } from 'vuex/dist/vuex.common.js';
 import config from '../../config';
@@ -393,6 +454,7 @@ import { AUTHENTICATION_METHODS_LIST } from "../../constants/authenticators";
 export default {
   name: "UserProfileCard",
   components: {
+    SectionHeader,
     SetupMFA,
     PIN,
     HfPopUp,
@@ -407,7 +469,6 @@ export default {
       removeAuthCode: '',
       removeAuthError: '',
       removeAuthPinKey: 0,
-      fallbackImage: "data:image/png;base64,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"
     };
   },
   mounted() {
@@ -436,18 +497,31 @@ export default {
         return { value: auth.type, name: known ? known.name : auth.type };
       });
     },
-    profileSrc() {
-      if (this.hasImageError) {
-        return this.fallbackImage
-      }
-      return this.user?.profileUrl || this.fallbackImage
+    showPhoto() {
+      return Boolean(this.user && this.user.profileUrl) && !this.hasImageError;
     },
-    bannerStyle() {
-      // Uses user.bannerImage if present, otherwise a soft gradient fallback
-      if (this.user?.bannerImage) {
-        return `background-image: url('${this.user.bannerImage}'); background-size: cover; background-position: center;`;
-      }
-      return 'background: linear-gradient(90deg,#f5f5f7,#e9e9eb);';
+    initials() {
+      const source = (this.user && (this.user.name || this.user.email)) || '';
+      const words = source.split('@')[0].split(/[\s._-]+/).filter(Boolean);
+      return (words.slice(0, 2).map(word => word[0]).join('') || '?').toUpperCase();
+    },
+    roleLabel() {
+      const role = (this.user && this.user.role) || 'ADMIN';
+      return role.toLowerCase().split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+    },
+    // Authenticator apps that are set up, with their display name
+    activeAuthenticators() {
+      return ((this.user && this.user.authenticators) || [])
+        .filter(auth => auth.isTwoFactorAuthenticated)
+        .map(auth => {
+          const known = this.authenticationMethodsList.find(method => method.value === auth.type);
+          return {
+            type: auth.type,
+            name: known ? known.name : auth.type,
+            icon: auth.type === 'google' ? 'mdi-google' : auth.type === 'okta' ? 'mdi-shield-key-outline' : 'mdi-cellphone-key',
+            raw: auth,
+          };
+        });
     },
     groupedAccess() {
       const groups = {};
@@ -504,6 +578,23 @@ export default {
     formatDate(date) {
       return new Date(date).toLocaleString();
     },
+    formatDay(date) {
+      if (!date) return 'Not available';
+      return new Date(date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+    },
+    // "READ_SESSION" -> "Read session"; "ALL" -> "Full access"
+    formatAccess(access) {
+      if (access === 'ALL') return 'Full access';
+      const text = String(access || '').toLowerCase().replace(/_/g, ' ');
+      return text.charAt(0).toUpperCase() + text.slice(1);
+    },
+    serviceIcon(serviceType) {
+      return {
+        [config.SERVICE_TYPES.SSI_API]: 'mdi-badge-account-horizontal-outline',
+        [config.SERVICE_TYPES.CAVACH_API]: 'mdi-account-check-outline',
+        DASHBOARD: 'mdi-view-dashboard-outline',
+      }[serviceType] || 'mdi-shield-check-outline';
+    },
 
     onImageError() {
       this.hasImageError = true
@@ -521,6 +612,10 @@ export default {
         }
         case config.SERVICE_TYPES.QUEST: {
           text = "Quest Service";
+          break;
+        }
+        case 'DASHBOARD': {
+          text = "App management";
           break;
         }
         default: text = "ID Service";

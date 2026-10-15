@@ -1,43 +1,30 @@
 <template>
-  <div class="my-3">
+  <div>
     <load-ing :active.sync="isLoading" :can-cancel="true" :is-full-page="true"></load-ing>
-    <div class="row">
-      <div class="col-md-4">
-      </div>
-      <div class="col-md-8">
-        <hf-buttons name="" title="Reload" class="mx-1" :bIcon="true"  style="float: inline-end"  iconClass="fas fa-sync-alt" @executeAction="getInvitions">
-                </hf-buttons>
-                <hf-buttons name="Accept Invition" title="Reload" style="float: inline-end"  iconClass="fa fa-gamepad" @executeAction="acceptInvitePopup">
-                </hf-buttons>
+    <SectionHeader title="My Invitations" description="Invitations you've received to join other teams. Accept one to switch into that team's dashboard.">
+      <hf-buttons name="Accept Invitation" iconClass="fa fa-envelope-open" @executeAction="acceptInvitePopup"></hf-buttons>
+      <hf-buttons name="" title="Reload" :bIcon="true" iconClass="fas fa-sync-alt" @executeAction="getInvitions"></hf-buttons>
+    </SectionHeader>
 
-      </div>
-    </div>
-    <div class="row mb-1" v-if="getMyInvitions.length > 0">
-      <table class="table">
-        <tbody>
-          <tr v-for="person in getMyInvitions" :key="person.adminId">
-            
-            <TeamUser :email="person.adminEmailId" :twoFactor="person.authenticatorEnabled"
-              :invitationStatus="person.accepted" :createdAt="toDateTime(person.createdAt)" :acceptInvitionMenu="true"
-              :inviteCode="person.inviteCode" :userId="person.adminId" :numberOfTeams="0" :mode="'Admin'" />
-              
-
-          </tr>
-        </tbody>
-      </table>
-    </div>
+    <ul v-if="getMyInvitions.length > 0" class="settings-list">
+      <li v-for="person in getMyInvitions" :key="person.adminId">
+        <TeamUser :email="person.adminEmailId" :twoFactor="person.authenticatorEnabled"
+          :invitationStatus="person.accepted" :createdAt="toDateTime(person.createdAt)" :acceptInvitionMenu="true"
+          :inviteCode="person.inviteCode" :userId="person.adminId" :numberOfTeams="0" :mode="'Admin'" />
+      </li>
+    </ul>
     <div v-else>
       <empty-container title="No Invitation Found" icon="fa fa-envelope"
         description="Invitations to join other teams will appear here." />
     </div>
 
     <!-- <div class="row mb-3" style="padding: 20px">No member found, please invite a member to your account!</div> -->
-    <hf-pop-up id="accept-invition" Header="Accept Invition">
+    <hf-pop-up id="accept-invition" Header="Accept Invitation">
       <form>
         <div class="form-group mb-3">
-          <label for="exampleInputEmail1">Invition Code:</label>
+          <label for="exampleInputEmail1">Invitation code</label>
           <div class="input-group">
-            <input type="email" class="form-control" placeholder="Enter invition code" v-model="invitionCodeToAccept" />
+            <input type="email" class="form-control" placeholder="Enter invitation code" v-model="invitionCodeToAccept" />
             <div class="input-group-append">
               <button type="submit" class="btn btn-outline-secondary" @click="acceptedInvition">
                  Accept
@@ -54,10 +41,12 @@
 import { mapActions, mapGetters } from "vuex/dist/vuex.common.js";
 import HfPopUp from "../element/hfPopup.vue";
 import TeamUser from "./TeamUser.vue";
+import SectionHeader from "../element/SectionHeader.vue";
 import UtilsMixin from "../../mixins/utils";
 export default {
   name: "TeamsMembers",
   components: {
+    SectionHeader,
     HfPopUp,
     TeamUser
   },
@@ -146,3 +135,18 @@ export default {
   mixins: [UtilsMixin],
 };
 </script>
+
+<style scoped>
+/* Bordered list with dividers, aligned with the tabs and header above */
+.settings-list {
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.settings-list > li + li {
+  border-top: 1px solid #f1f5f9;
+}
+</style>

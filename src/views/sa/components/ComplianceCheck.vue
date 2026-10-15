@@ -1,6 +1,6 @@
 <template>
 
-    <v-container>
+    <v-container fluid pa-0>
 
         <load-ing :active.sync="isLoading" :can-cancel="true" :is-full-page="true"></load-ing>
 

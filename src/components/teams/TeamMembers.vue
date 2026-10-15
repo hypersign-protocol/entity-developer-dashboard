@@ -1,43 +1,19 @@
 <template>
   <div>
     <load-ing :active.sync="isLoading" :can-cancel="true" :is-full-page="true"></load-ing>
-    <div class="row">
-      <div class="col-md-4">        
-      </div>
-      <div class="col-md-8">
-        <!-- <v-btn variant="link" class="btn btn-outline-secondary mx-1" style="float: inline-end"
-          @click="getPeopleMembers()" title="Reload">
-          <b-icon icon="arrow-clockwise"></b-icon>
-        </v-btn> -->
+    <SectionHeader title="All Members" description="Teammates you've invited to your admin dashboard, and the role each one has.">
+      <hf-buttons name="Invite Member" iconClass="fa fa-user-plus" @executeAction="inviteMemberPopup"></hf-buttons>
+      <hf-buttons name="" title="Reload" :bIcon="true" iconClass="fas fa-sync-alt" @executeAction="getPeopleMembers"></hf-buttons>
+    </SectionHeader>
 
-        <hf-buttons name="" title="Reload" class="mx-1" :bIcon="true"  style="float: inline-end"  iconClass="fas fa-sync-alt" @executeAction="getPeopleMembers">
-        </hf-buttons>
-
-        <hf-buttons name="Invite Member" class="ml-auto"  style="float: inline-end"  iconClass="fa fa-user-plus" @executeAction="inviteMemberPopup">
-        </hf-buttons>
-
-        <!-- <v-btn type="button" class="btn btn-secondary" style="float: inline-end" @click="inviteMemberPopup()">
-          <b-icon icon="person-plus-fill"></b-icon> Invite Member
-        </v-btn> -->
-      </div>
-    </div>
-    <div class="row" v-if="getAdminMembersgetter.length > 0">
-      <table class="table">
-        <!-- <thead class="thead-light">
-          <tr>
-            <th scope="col">Members</th>
-          </tr>
-        </thead> -->
-        <tbody>
-          <tr v-for="person in getAdminMembersgetter" :key="person.userId">
-            <TeamUser :email="person.userEmailId" :twoFactor="person.authenticatorEnabled"
-              :invitationStatus="person.accepted" :createdAt="toDateTime(person.createdAt)" :deleteMemberMenu="true"
-              :inviteCode="person.inviteCode" :numberOfTeams="0" :userId="person.userId" :assignedRoleId="person.roleId"
-              :mode="'Member'" />
-          </tr>
-        </tbody>
-      </table>
-    </div>
+    <ul v-if="getAdminMembersgetter.length > 0" class="settings-list">
+      <li v-for="person in getAdminMembersgetter" :key="person.userId">
+        <TeamUser :email="person.userEmailId" :twoFactor="person.authenticatorEnabled"
+          :invitationStatus="person.accepted" :createdAt="toDateTime(person.createdAt)" :deleteMemberMenu="true"
+          :inviteCode="person.inviteCode" :numberOfTeams="0" :userId="person.userId" :assignedRoleId="person.roleId"
+          :mode="'Member'" />
+      </li>
+    </ul>
     <div v-else>
       <empty-container title="No Member Found" icon="fa fa-user-friends"
         description="Invite teammates to give them access to your dashboard." />
@@ -134,6 +110,7 @@
 import { mapActions, mapGetters } from "vuex/dist/vuex.common.js";
 import HfPopUp from "../element/hfPopup.vue";
 import TeamUser from "./TeamUser.vue";
+import SectionHeader from "../element/SectionHeader.vue";
 import HfFlashNotification from "../element/HfFlashNotification.vue";
 import UtilsMixin from "../../mixins/utils";
 
@@ -142,6 +119,7 @@ import { isValidEmail } from '../../mixins/fieldValidation'
 export default {
   name: "TeamsMembers",
   components: {
+    SectionHeader,
     HfPopUp,
     TeamUser,
     HfFlashNotification
@@ -254,3 +232,18 @@ export default {
   mixins: [UtilsMixin],
 };
 </script>
+
+<style scoped>
+/* Bordered list with dividers, aligned with the tabs and header above */
+.settings-list {
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.settings-list > li + li {
+  border-top: 1px solid #f1f5f9;
+}
+</style>

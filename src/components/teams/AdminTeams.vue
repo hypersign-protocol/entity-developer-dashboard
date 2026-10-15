@@ -2,51 +2,32 @@
     <div>
         <load-ing :active.sync="isLoading" :can-cancel="true" :is-full-page="true"></load-ing>
 
-        <div class="row">
-            <div class="col-md-4">
-            </div>
-            <div class="col-md-8">
-                <hf-buttons name="" title="Reload" class="mx-1" :bIcon="true"  style="float: inline-end"  iconClass="fas fa-sync-alt" @executeAction="getMyRolesAction">
-                </hf-buttons>
-                <hf-buttons name="Create Custom Role" title="Reload" style="float: inline-end"  iconClass="fa fa-gamepad" @executeAction="openSlider('add')">
-                </hf-buttons>
-            </div>
-        </div>
-        <div class="row" v-if="getAllRoles.length > 0">
-            <table class="table">
-                <tbody>
-                    <tr v-for="role in getAllRoles" v-bind:key="role.roleName">                        
-                        
-                            <div class="list-group-item list-group-item-action align-items-start d-flex align-items-center ">
-                            <b-avatar size="4em" rounded="lg" variant="info" :text="role.roleName.charAt(0)"></b-avatar>
-                            <div class="w-100 mx-3 mt-3 align-items-center">
-                                <h5 class="mb-1">{{ role.roleName }}</h5>
-                                <p>
-                                    {{ role.roleDescription }}
-                                </p>
-                            </div>
-                            <div class="d-flex  align-items-center">
-                                <b-badge pill variant="warning">{{ role.permissions.length }}
-                                    permissions</b-badge>
-                                <b-dropdown size="sm" variant="link" toggle-class="text-decoration-none" menu-class="dropDownPopup"
-                                    dropleft>
-                                    <template #button-content>
-                                        <b-icon style="color:grey" icon="list" aria-hidden="true"></b-icon>
-                                    </template>
-                                    <b-dropdown-item-button style="text-align: left;" @click="openSliderForEdit(role)">
-                                        <b-icon icon="pencil-square" aria-hidden="true"></b-icon>
-                                        Edit</b-dropdown-item-button>
-                                    <b-dropdown-item-button style="text-align: left;"
-                                        @click="promptDeleteRole(role._id, role.roleName)"><i class="fa fa-trash"></i>
-                                        Delete</b-dropdown-item-button>
-                                </b-dropdown>
-                            </div>
-                            </div> 
-                        
-                    </tr> 
-                </tbody>
-            </table>
-        </div>
+        <SectionHeader title="Roles &amp; Permissions" description="Roles decide what a teammate can see and do. Assign one to each member.">
+            <hf-buttons name="Create Custom Role" title="Create a custom role" iconClass="fa fa-plus" @executeAction="openSlider('add')"></hf-buttons>
+            <hf-buttons name="" title="Reload" :bIcon="true" iconClass="fas fa-sync-alt" @executeAction="getMyRolesAction"></hf-buttons>
+        </SectionHeader>
+
+        <ul v-if="getAllRoles.length > 0" class="settings-list">
+            <li v-for="role in getAllRoles" :key="role._id || role.roleName" class="role-row">
+                <span class="role-icon" aria-hidden="true"><i class="mdi mdi-shield-account-outline"></i></span>
+                <div class="role-main">
+                    <strong>{{ role.roleName }}</strong>
+                    <p v-if="role.roleDescription">{{ role.roleDescription }}</p>
+                </div>
+                <span class="role-tag">{{ role.permissions.length }} {{ role.permissions.length === 1 ? 'permission' : 'permissions' }}</span>
+                <b-dropdown class="role-menu" size="sm" variant="link" toggle-class="text-decoration-none role-menu-btn" menu-class="dropDownPopup" no-caret dropleft>
+                    <template #button-content>
+                        <i class="mdi mdi-dots-vertical" aria-label="Role actions"></i>
+                    </template>
+                    <b-dropdown-item-button style="text-align: left;" @click="openSliderForEdit(role)">
+                        <i class="mdi mdi-pencil-outline mr-1" aria-hidden="true"></i> Edit
+                    </b-dropdown-item-button>
+                    <b-dropdown-item-button style="text-align: left;" @click="promptDeleteRole(role._id, role.roleName)">
+                        <i class="mdi mdi-delete-outline mr-1" aria-hidden="true"></i> Delete
+                    </b-dropdown-item-button>
+                </b-dropdown>
+            </li>
+        </ul>
         <div v-else>
             <empty-container title="No Role Found" icon="fa fa-shield-alt"
                 description="Create a role to control what teammates can see and do." />
@@ -227,6 +208,7 @@
 // import HfPopUp from "../element/hfPopup.vue";
 import { mapGetters, mapActions } from "vuex/dist/vuex.common.js";
 import StudioSideBar from "../element/StudioSideBar.vue";
+import SectionHeader from "../element/SectionHeader.vue";
 import UtilsMixin from "../../mixins/utils";
 import config from "../../config";
 
@@ -388,6 +370,7 @@ const SSI_PREDEFINED_ROLES = [
 export default {
     name: "AdminTeams",
     components: {
+        SectionHeader,
         // HfPopUp,
         StudioSideBar
     },
@@ -803,6 +786,84 @@ export default {
 </script>
 
 <style scoped>
+/* Bordered list with dividers, aligned with the tabs and header above */
+.settings-list {
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.settings-list > li + li {
+  border-top: 1px solid #f1f5f9;
+}
+
+.role-row {
+  align-items: center;
+  display: flex;
+  gap: 12px;
+  padding: 12px 16px;
+}
+
+.role-icon {
+  align-items: center;
+  background: #eff6ff;
+  border-radius: 8px;
+  color: #2563eb;
+  display: inline-flex;
+  flex: 0 0 auto;
+  font-size: 18px;
+  height: 36px;
+  justify-content: center;
+  width: 36px;
+}
+
+.role-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.role-main strong {
+  color: #111827;
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.role-main p {
+  color: #64748b;
+  font-size: 12px;
+  margin: 2px 0 0;
+}
+
+.role-tag {
+  background: #f1f5f9;
+  border-radius: 5px;
+  color: #475569;
+  flex: 0 0 auto;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 3px 8px;
+}
+
+.role-menu >>> .role-menu-btn {
+  align-items: center;
+  border-radius: 6px;
+  color: #64748b;
+  display: inline-flex;
+  font-size: 18px;
+  height: 32px;
+  justify-content: center;
+  padding: 0;
+  width: 32px;
+}
+
+.role-menu >>> .role-menu-btn:hover {
+  background: #f1f5f9;
+  color: #111827;
+}
+
 .perm-scroll-box {
     border: 1px solid #dee2e6;
     border-radius: 4px;
