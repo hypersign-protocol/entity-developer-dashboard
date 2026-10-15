@@ -52,7 +52,7 @@
         </div>
       </v-col>
 
-      <v-col cols="12" md="9" lg="10">
+      <v-col cols="12" md="9" lg="7">
         <div class="content-view-panel">
           <div v-if="activeTab === 'business-info'" class="tab-fade-in">
             <BusinessInformation :company="company" />
@@ -67,6 +67,12 @@
             <ChecksRegulations :company="company" />
           </div>
         </div>
+      </v-col>
+
+      <!-- Status history: always visible on the right, like the tabs on the left.
+           Below lg it drops under the content, aligned with it. -->
+      <v-col cols="12" md="9" offset-md="3" lg="3" offset-lg="0">
+        <StatusHistory v-if="company" :company="company" class="history-panel" />
       </v-col>
     </v-row>
 
@@ -231,6 +237,15 @@
   top: 24px;
 }
 
+/* In the right column it also stays in view while the tab content scrolls
+   (the panel itself scrolls its timeline; see StatusHistory) */
+@media (min-width: 1264px) {
+  .history-panel {
+    position: sticky;
+    top: 24px;
+  }
+}
+
 /* Animations */
 .tab-fade-in {
   animation: fadeIn 0.3s ease-in-out;
@@ -283,6 +298,7 @@
 import { mapState, mapActions } from "vuex";
 import loadIng from '../../components/element/LoadIng.vue';
 import BusinessSummary from '../../components/business-details/BusinessSummary.vue';
+import StatusHistory from '../../components/business-details/StatusHistory.vue';
 import BusinessInformation from '../../components/business-details/BusinessInformation.vue';
 import DocumentUploaded from '../../components/business-details/DocumentUploaded.vue';
 import UboDetails from '../../components/business-details/UboDetails.vue';
@@ -298,6 +314,7 @@ export default {
     components: {
         loadIng,
         BusinessSummary,
+        StatusHistory,
         BusinessInformation,
         DocumentUploaded,
         UboDetails,

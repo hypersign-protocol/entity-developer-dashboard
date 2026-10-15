@@ -17,10 +17,6 @@
       <div class="bs-stat">
         <label>Current Status</label>
         <span class="bs-status" :class="statusBadge.tone">{{ statusBadge.label }}</span>
-        <!-- Rejected / needs review: the link opens the reasons popup -->
-        <button v-if="reasonDetails" type="button" class="bs-reason-link" @click="openReasons">
-          {{ reasonDetails.linkLabel }}
-        </button>
       </div>
 
       <button
@@ -46,21 +42,12 @@
       </div>
     </section>
 
-    <hf-pop-up :id="reasonPopupId" :Header="reasonDetails ? reasonDetails.title : ''">
-      <template v-if="reasonDetails">
-        <ul v-if="reasonDetails.reasons.length" class="bs-reason-list">
-          <li v-for="reason in reasonDetails.reasons" :key="reason">{{ reason }}</li>
-        </ul>
-        <p v-else class="bs-reason-empty">{{ reasonDetails.emptyText }}</p>
-      </template>
-    </hf-pop-up>
   </div>
 </template>
 
 <script>
-import config from '@/config.js';
+import { describeStatusReason } from '../../utils/statusReasons.js';
 import UtilsMixin from '../../mixins/utils';
-import HfPopUp from '../element/hfPopup.vue';
 
 // Status pill tones reuse the User Detail page's colours
 const STATUS_BADGES = {
@@ -81,7 +68,6 @@ const EMPTY_VALUES = ['', 'N/A', 'Unknown'];
 // data the tabs also show, so the numbers are there whichever tab is open.
 export default {
   name: 'BusinessSummary',
-  components: { HfPopUp },
   mixins: [UtilsMixin],
   props: {
     company: {
@@ -95,7 +81,6 @@ export default {
       loadingCompliance: false,
       uboError: false,
       complianceError: false,
-      reasonPopupId: 'business-status-reasons-popup',
     };
   },
   computed: {
@@ -106,7 +91,7 @@ export default {
     },
     statusReasons() {
       const reasons = (this.company && this.company.statusReasons) || [];
-      return reasons.map(reason => config.COMPLIANCE_CHECK_FAILURE_REASONS[reason] || reason);
+      return reasons.map(describeStatusReason);
     },
     hasIssues() {
       return this.company?.status === 'Completed' && this.statusReasons.length > 0;
@@ -115,22 +100,6 @@ export default {
       if (this.hasIssues) return { label: 'Needs Review', tone: 'review' };
       const status = this.company?.status;
       return STATUS_BADGES[status] || { label: status || 'Unknown', tone: '' };
-    },
-    // Why the business was rejected or needs review; shown in a popup from the status pill
-    reasonDetails() {
-      if (this.company?.status === 'Rejected') {
-        return {
-          title: 'Rejection Reason', linkLabel: 'View reason',
-          reasons: this.statusReasons, emptyText: 'No reason was recorded for this rejection.',
-        };
-      }
-      if (this.hasIssues) {
-        return {
-          title: 'Issues Found During Verification', linkLabel: 'View issues',
-          reasons: this.statusReasons, emptyText: '',
-        };
-      }
-      return null;
     },
     uboStat() {
       const ubos = this.$store.getters['mainStore/getCompanyExecutives'] || [];
@@ -212,10 +181,6 @@ export default {
       } finally {
         this.loadingCompliance = false;
       }
-    },
-
-    openReasons() {
-      this.$root.$emit('bv::show::modal', this.reasonPopupId);
     },
 
     hasValue(value) {
@@ -426,43 +391,6 @@ export default {
 .bs-status.failed { background: rgba(243, 6, 6, 0.1); color: var(--bs-danger); }
 .bs-status.review { background: rgba(255, 193, 7, 0.14); color: #856404; }
 .bs-status.info { background: #eff6ff; color: #1d4ed8; }
-
-/* Link under the status that opens the reasons popup */
-.bs-reason-link {
-  background: none;
-  border: 0;
-  color: #2563eb;
-  font-size: 12px;
-  font-weight: 600;
-  margin-top: 6px;
-  padding: 0;
-  text-decoration: underline;
-  text-underline-offset: 2px;
-}
-
-.bs-reason-link:hover {
-  color: #1d4ed8;
-}
-
-/* Popup content */
-.bs-reason-list {
-  color: #1f2937;
-  font-size: 14px;
-  line-height: 1.6;
-  margin: 0;
-  padding-left: 18px;
-  white-space: pre-line;
-}
-
-.bs-reason-list li + li {
-  margin-top: 6px;
-}
-
-.bs-reason-empty {
-  color: #64748b;
-  font-size: 14px;
-  margin: 0;
-}
 
 @media (max-width: 1100px) {
   .bs-profile-card {

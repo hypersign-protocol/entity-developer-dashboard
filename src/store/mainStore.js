@@ -4,6 +4,7 @@ import Vuex from 'vuex';
 import config from '../config'
 import UtilsMixin from '../mixins/utils.js'
 import { sanitizeUrl } from '../utils/common.js'
+import { normalizeStatusReasons, currentStatusReasonCodes } from '../utils/statusReasons.js'
 import { RequestHandler, JWTExpiredErrorMessageHandling } from '../utils/utils.js'
 
 const { apiServer, studioServer } = config;
@@ -1151,7 +1152,10 @@ const mainStore = {
                                 representative: company.representative?.name || 'N/A',
                                 startDate: company.createdAt ? new Date(company.createdAt).toISOString().split('T')[0] : 'N/A',
                                 status: company.status || 'Submitted',
-                                statusReasons: company.statusReason || [],
+                                // statusReason is the company's status history ({ status, reason, owner, time },
+                                // old records: plain reason strings). statusReasons = what's wrong right now.
+                                statusReasons: currentStatusReasonCodes(company.statusReason),
+                                statusReasonHistory: normalizeStatusReasons(company.statusReason),
                                 steps: {
                                     flag: true,
                                     building: true,
