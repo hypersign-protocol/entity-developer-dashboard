@@ -2,13 +2,8 @@
     <b-container fluid class="py-3">
     <template v-if="!accessDenied">
       <header class="page-header">
-        <div>
-          <h4 class="font-weight-bold mb-0">API Usage Analytics</h4>
-          <p class="text-subtitle-2 text-muted mb-0">Monitor consumption and service costs</p>
-        </div>
-        <router-link class="view-transactions" :to="`/studio/usage/${$route.params.appId}/transactions`">
-          View transactions <i class="mdi mdi-arrow-right" aria-hidden="true"></i>
-        </router-link>
+        <h4 class="font-weight-bold mb-0">API Usage Analytics</h4>
+        <p class="text-subtitle-2 text-muted mb-0">Monitor consumption and service costs</p>
       </header>
 
       <!-- Date range: presets first, custom range behind "Custom"; scopes every chart below -->
@@ -128,11 +123,10 @@
             <table class="usage-table">
               <thead>
                 <tr>
-                  <th>Method</th>
-                  <th>API Endpoint</th>
-                  <th class="text-right">Quantity</th>
-                  <th class="text-right">Unit Cost</th>
-                  <th class="text-right">Total Amount</th>
+                  <th scope="col">Endpoint</th>
+                  <th scope="col" class="text-right">Quantity</th>
+                  <th scope="col" class="text-right">Unit cost</th>
+                  <th scope="col" class="text-right">Total amount</th>
                 </tr>
               </thead>
               <tbody>
@@ -140,39 +134,21 @@
                   v-for="(item, index) in usageSummary"
                   :key="(item.method || '') + '_' + item.apiPath + '_' + index"
                 >
-                  <td>
-                    <code
-                      :class="[
-                        'api-method',
-                        'api-method-' + (item.method || '').toLowerCase(),
-                      ]"
-                      >{{ item.method }}</code
-                    >
+                  <td class="usage-endpoint">
+                    <span v-if="item.method" class="method" :class="'method-' + item.method.toLowerCase()">{{ item.method }}</span>
+                    <code :title="item.apiPath">{{ item.apiPath }}</code>
                   </td>
-                  <td>
-                    <code
-                      class="endpoint-code"
-                      :title="item.apiPath"
-                    >
-                      {{ truncate(item.apiPath, 70) }}
-                    </code>
-                  </td>
-                  <td class="text-right font-weight-bold">
-                    {{ formatNumber(item.quantity) }}
-                  </td>
-                  <td class="text-right text-muted">{{ item.unit_cost }}</td>
-                  <td class="text-right color-blue font-weight-bold">
-                    {{ formatNumber(item.amount) }}
-                  </td>
+                  <td class="text-right num strong">{{ formatNumber(item.quantity) }}</td>
+                  <td class="text-right num">{{ item.unit_cost }}</td>
+                  <td class="text-right num amount">{{ formatNumber(item.amount) }}</td>
                 </tr>
               </tbody>
               <tfoot>
-                <tr class="total-row">
-                  <td>Total Consumption</td>
+                <tr>
+                  <td>Total</td>
+                  <td class="text-right num strong">{{ formatNumber(totalCalls) }}</td>
                   <td></td>
-                  <td class="text-right">{{ formatNumber(totalCalls) }}</td>
-                  <td></td>
-                  <td class="text-right color-blue">{{ totalAmount }}</td>
+                  <td class="text-right num amount">{{ totalAmount }}</td>
                 </tr>
               </tfoot>
             </table>
@@ -265,11 +241,6 @@ export default {
   },
   methods: {
     ...mapActions("mainStore", ["fetchUsageDetailsForAService", "fetchUsageForAService"]),
-
-    truncate(str, maxLen = 50) {
-      if (!str) return '';
-      return str.length > maxLen ? str.slice(0, maxLen) + '…' : str;
-    },
 
     formatNumber(val) {
       return Number(val || 0).toLocaleString();
@@ -552,29 +523,7 @@ export default {
   width: 80vw !important;
 }
 .page-header {
-  align-items: center;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  justify-content: space-between;
   margin-bottom: 16px;
-}
-.view-transactions {
-  align-items: center;
-  background: #fff;
-  border: 1px solid #d0d9e6;
-  border-radius: 8px;
-  color: #1d4ed8;
-  display: inline-flex;
-  font-size: 13px;
-  font-weight: 700;
-  gap: 4px;
-  padding: 8px 14px;
-  text-decoration: none;
-}
-.view-transactions:hover {
-  background: #eff6ff;
-  border-color: #bfdbfe;
 }
 
 /* Date range bar */
@@ -672,86 +621,94 @@ export default {
   width: 100%;
   height: 100%;
 }
+/* Same table design as the API Transactions page */
 .usage-table-wrapper {
-  background: white;
-  border-radius: 0.5rem;
-  overflow: hidden;
-  border: 1px solid #f3f4f6;
+  background: #fff;
+  border: 1px solid #dbe3ef;
+  border-radius: 10px;
+  overflow-x: auto;
 }
 .usage-table {
-  width: 100%;
   border-collapse: collapse;
+  width: 100%;
 }
 .usage-table th {
   background: #f8fafc;
-  padding: 1rem;
-  font-size: 0.75rem;
-  text-transform: uppercase;
+  border-bottom: 1px solid #e5e7eb;
   color: #64748b;
-  border-bottom: 1px solid #e2e8f0;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  padding: 10px 14px;
+  text-align: left;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.usage-table th.text-right {
+  text-align: right;
 }
 .usage-table td {
-  padding: 1rem;
-  font-size: 0.875rem;
   border-bottom: 1px solid #f1f5f9;
+  color: #1f2937;
+  font-size: 13px;
+  padding: 10px 14px;
+  vertical-align: middle;
 }
-.endpoint-code {
-  background: #f1f5f9;
-  color: #475569;
-  padding: 0.2rem 0.4rem;
-  border-radius: 4px;
-  font-family: monospace;
-  font-size: 0.75rem;
+.usage-table tbody tr {
+  transition: background-color 0.1s ease;
 }
-.api-method {
-  padding: 0.2rem 0.5rem;
-  border-radius: 4px;
-  font-family: monospace;
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: #22c55e;
-  background: rgba(34, 197, 94, 0.1);
-  display: inline-block;
-}
-.api-method-get {
-  color: #22c55e;
-  background: rgba(34, 197, 94, 0.1);
-}
-.api-method-post {
-  color: #3b82f6;
-  background: rgba(59, 130, 246, 0.1);
-}
-.api-method-patch {
-  color: #f59e42;
-  background: rgba(245, 158, 66, 0.1);
-}
-.api-method-delete {
-  color: #ef4444;
-  background: rgba(239, 68, 68, 0.1);
-}
-.api-method-put {
-  color: #a855f7;
-  background: rgba(168, 85, 247, 0.1);
-}
-.api-method-options {
-  color: #64748b;
-  background: rgba(100, 116, 139, 0.1);
-}
-.api-method-head {
-  color: #0ea5e9;
-  background: rgba(14, 165, 233, 0.1);
-}
-.api-method-default {
-  color: #6b7280;
-  background: rgba(107, 114, 128, 0.1);
-}
-.total-row {
+.usage-table tbody tr:hover {
   background: #f8fafc;
-  font-weight: 800;
 }
-.color-blue {
-  color: #2563eb;
+.usage-table tfoot td {
+  background: #f8fafc;
+  border-bottom: 0;
+  border-top: 1px solid #e5e7eb;
+  color: #111827;
+  font-weight: 700;
 }
+.usage-endpoint {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+  max-width: 640px;
+  min-width: 0;
+}
+.usage-endpoint code {
+  background: none;
+  color: #344054;
+  font-size: 12px;
+  overflow: hidden;
+  padding: 0;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.num {
+  color: #475569;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.num.strong {
+  color: #111827;
+  font-weight: 700;
+}
+.num.amount {
+  color: #1d4ed8;
+  font-weight: 700;
+}
+.method {
+  border-radius: 4px;
+  display: inline-block;
+  flex: 0 0 auto;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 1px 6px;
+}
+.method-get { background: rgba(34, 197, 94, 0.1); color: #15803d; }
+.method-post { background: rgba(59, 130, 246, 0.1); color: #1d4ed8; }
+.method-put, .method-patch { background: rgba(245, 158, 66, 0.12); color: #b45309; }
+.method-delete { background: rgba(239, 68, 68, 0.1); color: #b91c1c; }
 .skeleton-chart {
   height: 320px;
   background: #e5e7eb;
