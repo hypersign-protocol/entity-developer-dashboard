@@ -63,8 +63,26 @@
                     <small v-if="fieldErrors.companyName" class="field-error">{{ fieldErrors.companyName }}</small>
                   </div>
                   <div class="field" :class="{ 'has-error': fieldErrors.domain }" data-field="domain">
-                    <label>Website domain <span class="required-marker">*</span></label>
-                    <input v-model.trim="form.basic.domain" type="text" placeholder="example.com" @blur="form.basic.domain = normalizeDomain(form.basic.domain)" />
+                    <label>
+                      Website domain <span class="required-marker">*</span>
+                      <span v-if="verifiedDomain" class="verified-tag"><v-icon x-small>mdi-check-decagram</v-icon> Verified</span>
+                    </label>
+                    <!-- A verified domain is locked: the company is verified against that domain -->
+                    <input
+                      v-if="verifiedDomain"
+                      :value="verifiedDomain"
+                      type="text"
+                      disabled
+                      aria-describedby="verified-domain-note"
+                    />
+                    <input
+                      v-else
+                      v-model.trim="form.basic.domain"
+                      type="text"
+                      placeholder="example.com"
+                      @blur="form.basic.domain = normalizeDomain(form.basic.domain)"
+                    />
+                    <small v-if="verifiedDomain" id="verified-domain-note">Verified for this app, so it can't be changed here.</small>
                     <small v-if="fieldErrors.domain" class="field-error">{{ fieldErrors.domain }}</small>
                   </div>
                   <div class="field" :class="{ 'has-error': fieldErrors.customerEmail }" data-field="customerEmail">
@@ -345,8 +363,9 @@ export default {
   mixins: [UtilsMixin],
   props: {
     value: { type: Boolean, default: false },
-    // Used to prefill the company domain when onboarding has none
+    // The app's domain: prefills the field, and is the only allowed value once verified
     domain: { type: String, default: '' },
+    domainVerified: { type: Boolean, default: false },
     onboardingRecord: { type: Object, default: () => ({}) },
     onboardingLoading: { type: Boolean, default: false },
   },
@@ -493,6 +512,10 @@ export default {
         { value: 'review', label: 'Terms & conditions', hint: 'Confirm and send', complete: false },
       ];
     },
+    // Set when the app's domain is verified; the field is then locked to it
+    verifiedDomain() {
+      return this.domainVerified ? normalizeDomain(this.domain) : '';
+    },
     activeStepIndex() {
       return this.steps.findIndex(step => step.value === this.activeStep);
     },
@@ -504,6 +527,9 @@ export default {
     clearTimeout(this.submitProgressTimer);
   },
   watch: {
+    verifiedDomain() {
+      this.applyVerifiedDomain();
+    },
     value: {
       immediate: true,
       handler(open) {
@@ -550,7 +576,12 @@ export default {
       this.form.taxId = this.onboarding.taxId || '';
       if (this.onboarding.companyDetail) this.populateCompany(this.onboarding.companyDetail);
       this.loadingOnboarding = this.onboardingLoading;
+      this.applyVerifiedDomain();
       if (!this.form.basic.country) this.detectCountry();
+    },
+    // Whatever onboarding or a previous submission saved, a verified domain wins
+    applyVerifiedDomain() {
+      if (this.verifiedDomain) this.form.basic.domain = this.verifiedDomain;
     },
     normalizeCountry(country) {
       return country?.length === 2 ? countries.alpha2ToAlpha3(country) : country || '';
@@ -586,6 +617,7 @@ export default {
           incorporation: toFormDocument(findDocument('CertificateOfIncorporation')),
         },
       });
+      this.applyVerifiedDomain();
     },
     async detectCountry() {
       this.detectingCountry = true;
@@ -694,7 +726,7 @@ export default {
       }
       const company = {
         name: this.form.basic.companyName,
-        domain: normalizeDomain(this.form.basic.domain),
+        domain: this.verifiedDomain || normalizeDomain(this.form.basic.domain),
         region: this.form.address.state,
         countryOfRegistration: countryCode,
         ...(registrationNumber ? { registrationNumber, registrationNumberType } : {}),
@@ -927,6 +959,20 @@ export default {
 }
 
 .section-note { margin: 0 0 12px; color: #52627a; font-size: 12px; line-height: 1.5; }
+
+.verified-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  margin-left: 6px;
+  padding: 1px 8px;
+  border-radius: 10px;
+  background: #eaf8f0;
+  color: #218459;
+  font-size: 10px;
+  font-weight: 700;
+}
+.verified-tag >>> .v-icon { color: inherit !important; }
 
 .optional-tag {
   margin-left: 6px;
