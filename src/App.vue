@@ -216,21 +216,6 @@
 
 .sidebar-app-avatar {
   flex-shrink: 0;
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
-  border: 1px solid #eef0f2;
-  overflow: hidden;
-  background: #f9f7fc;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.sidebar-app-logo {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
 }
 
 .sidebar-app-name {
@@ -704,16 +689,14 @@ color: #1a1a2e !important;
       :menu="getSideMenu()"
     >
       <div slot="header" class="sidebar-app-header">
-        <div class="sidebar-app-avatar">
-          <img
-            :src="
-              getSelectedService.logoUrl ||
-              getProfileIcon(formattedAppName(getSelectedService.appName))
-            "
-            class="sidebar-app-logo"
-            alt="App logo"
-          />
-        </div>
+        <AppLogo
+          class="sidebar-app-avatar"
+          :src="getSelectedService ? getSelectedService.logoUrl : ''"
+          :name="getSelectedService ? getSelectedService.appName : ''"
+          :seed="getSelectedService ? formattedAppName(getSelectedService.appName) : ''"
+          :size="32"
+          shape="rounded"
+        />
         <span class="sidebar-app-name">
           {{ getSelectedService ? getSelectedService.appName : "" }}
         </span>
@@ -729,7 +712,9 @@ import { mapActions, mapMutations, mapGetters, mapState } from "vuex";
 import { RequestHandler } from "./utils/utils";
 import config from "./config";
 import * as EN from "./language/en";
+import AppLogo from "./components/element/AppLogo.vue";
 export default {
+  components: { AppLogo },
   computed: {
     ...mapGetters("playgroundStore", ["getSelectedOrg"]),
     ...mapGetters("mainStore", [

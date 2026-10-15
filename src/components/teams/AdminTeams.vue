@@ -48,7 +48,8 @@
             </table>
         </div>
         <div v-else>
-            <empty-container title="No Role Found" icon="fa fa-shield-alt" />
+            <empty-container title="No Role Found" icon="fa fa-shield-alt"
+                description="Create a role to control what teammates can see and do." />
         </div>
 
         <!-- Delete confirmation dialog -->

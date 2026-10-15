@@ -1,9 +1,16 @@
 # Changelog
 
 ## [Unreleased]
+## [3.16.1] - 2026-10-13
+### Changed
+
+- Added new document type  `TaxRegistrationDocument`in kyb widget
+- Made all document related field configurable
+- Added configurable company fields so businesses are asked to provide only the information selected for verification.
+- Made compliance check configurable
+- Approve and reject button is always visible
 
 ## [3.16.0] - 2026-10-09
-### Added
 - Added Id service credit calculator
 
 ## [3.15.6] - 2026-10-2

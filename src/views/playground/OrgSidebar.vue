@@ -97,7 +97,7 @@
         <b-card :title="truncate(eachOrg.name, 20)" tag="article"
           style="max-width: 30rem; margin-top: 10px; height:13rem" class="mb-2 eventCard" img-top>
           <ul style="list-style-type: none;padding-left: 0px;min-height: 80px;">
-            <img style="float:right;" :src="`${getProfileIcon(eachOrg.name)}`" class="mr-2" alt="center" width="70px" />
+            <AppLogo style="float:right;" class="mr-2" :name="eachOrg.name" :seed="eachOrg.name" :size="70" />
             <li class="" v-if="eachOrg.status === 'Registered'" style="">
               <i class="fa fa-user mr-2"></i>
               <span class=""><a target="_blank" :href="`${$config.explorer.BASE_URL}/identity/${eachOrg.orgDid}`">{{
@@ -208,6 +208,7 @@ import { isEmpty, isValidURL } from '../../mixins/fieldValidation'
 import validator from 'validator';
 import HfButtons from '../../components/element/HfButtons.vue'
 import ToolTip from '../../components/element/ToolTip.vue'
+import AppLogo from '../../components/element/AppLogo.vue'
 import messages from '../../mixins/messages';
 import { mapGetters, mapState, mapActions, mapMutations } from 'vuex'
 export default {
@@ -245,7 +246,7 @@ export default {
       }
     }
   },
-  components: { StudioSideBar, HfButtons, ToolTip },
+  components: { StudioSideBar, HfButtons, ToolTip, AppLogo },
   methods: {
     ...mapActions('playgroundStore', ['fetchAllOrgDataOnOrgSelect']),
     ...mapMutations('playgroundStore', ['shiftContainer', 'updateSideNavStatus', 'increaseOrgCount', 'selectAnOrg', 'insertAnOrg', 'updateAnOrg']),

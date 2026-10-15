@@ -30,14 +30,12 @@
       </v-row>
       <v-row v-else>
         <v-col v-if="!isLoading">
-          <div class="no-apps-container mb-1">
-            <h3 style="text-align: center;">You have no services yet!</h3>
-            <p style="max-width: 500px; margin: 0 auto; text-align: center;">
-              Services help you manage your applications and APIs. Create your first
-              service to get started.
-            </p>
-
-            <div style="text-align:center; margin-top:12px;">
+          <empty-container
+            title="No Services Yet"
+            icon="mdi mdi-apps"
+            description="Services help you manage your applications and APIs. Create your first service to get started."
+          >
+            <div>
               <b-dropdown split text="Create Service" variant="outline-dark" class="unified-action-btn"
                 menu-class="dropDownPopup"
                 style="margin-right:10px;"
@@ -50,7 +48,7 @@
         Seamless Onboarding
       </b-button>
     </div>
-  </div>
+          </empty-container>
 </v-col>
       </v-row>
     </div>
@@ -431,9 +429,7 @@
                         )
                       }}</v-list-item-subtitle>
                     </v-list-item-content>
-                    <v-list-item-avatar class="logo-container" size="60" color="grey">
-                      <v-img :src="eachOrg.logoUrl || getProfileIcon(formattedAppName(eachOrg.appId))"></v-img>
-                    </v-list-item-avatar>
+                    <v-list-item-avatar class="logo-container" size="60"><AppLogo :src="eachOrg.logoUrl" :name="eachOrg.appName" :seed="formattedAppName(eachOrg.appId)" :size="60" /></v-list-item-avatar>
                   </v-list-item>
 
                   <v-list-item-content style="padding: 10px">
@@ -525,8 +521,7 @@
                         )
                       }}</v-list-item-subtitle>
                     </v-list-item-content>
-                    <v-list-item-avatar class="logo-container" size="60" color="grey"><v-img
-                        :src="eachOrg.logoUrl || getProfileIcon(formattedAppName(eachOrg.appId))"></v-img></v-list-item-avatar>
+                    <v-list-item-avatar class="logo-container" size="60"><AppLogo :src="eachOrg.logoUrl" :name="eachOrg.appName" :seed="formattedAppName(eachOrg.appId)" :size="60" /></v-list-item-avatar>
                   </v-list-item>
 
                   <v-list-item-content style="padding: 10px">
@@ -629,8 +624,7 @@
                         )
                       }}</v-list-item-subtitle>
                     </v-list-item-content>
-                    <v-list-item-avatar class="logo-container" size="60" color="grey"><v-img
-                        :src="eachOrg.logoUrl || getProfileIcon(formattedAppName(eachOrg.appId))"></v-img></v-list-item-avatar>
+                    <v-list-item-avatar class="logo-container" size="60"><AppLogo :src="eachOrg.logoUrl" :name="eachOrg.appName" :seed="formattedAppName(eachOrg.appId)" :size="60" /></v-list-item-avatar>
                   </v-list-item>
 
                   <v-list-item-content style="padding: 10px">
@@ -928,15 +922,12 @@
   border-radius: 10px;
 }
 
-.no-apps-container {
-  text-align: center;
-  padding: 40px 20px;
-}
 
 </style>
 
 <script>
 import HfPopUp from "../components/element/hfPopup.vue";
+import AppLogo from "../components/element/AppLogo.vue";
 import StudioSideBar from "../components/element/StudioSideBar.vue";
 import UtilsMixin from "../mixins/utils";
 import { isEmpty } from "../mixins/fieldValidation";
@@ -1147,6 +1138,7 @@ export default {
   },
   components: {
     LogoUploader,
+    AppLogo,
     HfPopUp,
     StudioSideBar,
     HfButtons,

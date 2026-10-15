@@ -1,7 +1,9 @@
+import isoCountries from 'i18n-iso-countries';
+
 // ISO 3166-1 alpha-3 code -> display name. Shared by onboarding and go-live flows.
 export const COUNTRY_OPTIONS = {
   AFG: 'Afghanistan', DZA: 'Algeria', AGO: 'Angola', ARG: 'Argentina', ARM: 'Armenia', AUS: 'Australia',
-  AUT: 'Austria', AZE: 'Azerbaijan', BHR: 'Bahrain', BGD: 'Bangladesh', BEL: 'Belgium', BWA: 'Botswana',
+  AUT: 'Austria', AZE: 'Azerbaijan', BHS: 'Bahamas', BHR: 'Bahrain', BGD: 'Bangladesh', BEL: 'Belgium', BWA: 'Botswana',
   BRA: 'Brazil', BRN: 'Brunei', BGR: 'Bulgaria', KHM: 'Cambodia', CMR: 'Cameroon', CAN: 'Canada',
   CHL: 'Chile', CHN: 'China', COL: 'Colombia', CRI: 'Costa Rica', HRV: 'Croatia', CUB: 'Cuba',
   CYP: 'Cyprus', CZE: 'Czech Republic', DNK: 'Denmark', DOM: 'Dominican Republic', ECU: 'Ecuador',
@@ -16,7 +18,7 @@ export const COUNTRY_OPTIONS = {
   PHL: 'Philippines', POL: 'Poland', PRT: 'Portugal', QAT: 'Qatar', ROU: 'Romania', RWA: 'Rwanda',
   SAU: 'Saudi Arabia', SEN: 'Senegal', SGP: 'Singapore', SVK: 'Slovakia', SVN: 'Slovenia',
   ZAF: 'South Africa', KOR: 'South Korea', ESP: 'Spain', LKA: 'Sri Lanka', SWE: 'Sweden',
-  CHE: 'Switzerland', TWN: 'Taiwan', TZA: 'Tanzania', THA: 'Thailand', TUN: 'Tunisia', TUR: 'Turkey',
+  CHE: 'Switzerland', TWN: 'Taiwan', TZA: 'Tanzania', THA: 'Thailand', TLS: 'Timor-Leste', TUN: 'Tunisia', TUR: 'Turkey',
   UGA: 'Uganda', UKR: 'Ukraine', ARE: 'United Arab Emirates', GBR: 'United Kingdom', USA: 'United States',
   URY: 'Uruguay', UZB: 'Uzbekistan', VEN: 'Venezuela', VNM: 'Vietnam', ZMB: 'Zambia', ZWE: 'Zimbabwe',
   XXX: 'Other',
@@ -29,6 +31,22 @@ export const CALLING_CODES = {
   NLD: '+31', NZL: '+64', PAK: '+92', PHL: '+63', SGP: '+65', THA: '+66', TUR: '+90',
   USA: '+1', ARE: '+971', ZAF: '+27',
 };
+
+// Flag emoji for an alpha-3 code ("IND" -> 🇮🇳), the same regional-indicator approach the
+// business list uses. "Other" gets a globe. Native <select> options can only hold text,
+// so an emoji is the way to show a flag there.
+export function countryFlag(alpha3) {
+  if (alpha3 === 'XXX') return '🌐';
+  const alpha2 = isoCountries.alpha3ToAlpha2(alpha3);
+  if (!alpha2) return '';
+  return alpha2.toUpperCase().replace(/./g, char => String.fromCodePoint(127397 + char.charCodeAt(0)));
+}
+
+// "🇮🇳  India" for dropdown options
+export function countryOptionLabel(alpha3, name) {
+  const flag = countryFlag(alpha3);
+  return flag ? `${flag}  ${name}` : name;
+}
 
 export function countryName(code) {
   return COUNTRY_OPTIONS[code] || code || '';

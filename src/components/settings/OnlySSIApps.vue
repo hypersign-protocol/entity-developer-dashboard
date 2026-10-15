@@ -251,9 +251,7 @@
                       )
                     }}</v-list-item-subtitle>
                   </v-list-item-content>
-                  <v-list-item-avatar class="logo-container" size="60" color="grey">
-                    <v-img  :src="eachOrg.logoUrl || getProfileIcon(formattedAppName(eachOrg.appId))"></v-img>
-                  </v-list-item-avatar>
+                  <v-list-item-avatar class="logo-container" size="60"><AppLogo :src="eachOrg.logoUrl" :name="eachOrg.appName" :seed="formattedAppName(eachOrg.appId)" :size="60" /></v-list-item-avatar>
                 </v-list-item>
 
                 <v-list-item-content style="padding: 10px">
@@ -311,7 +309,8 @@
             </v-col>
           </v-row>
           <div class="new-service-popup" v-else>
-            <empty-container title="No SSI Service Found" icon="fa fa-user-shield" />
+            <empty-container title="No SSI Service Found" icon="fa fa-user-shield"
+          description="SSI services you create for issuing and verifying credentials will appear here." />
             <!-- <h3 class="" style="text-align: left">Spin up your SSI service!</h3>
             <hf-buttons name=" Create" iconClass="fa fa-plus" style="text-align: right" class="ml-auto mt-2"
               @executeAction="openSlider('SSI_API')">
@@ -322,7 +321,8 @@
     </v-row>
     <v-row v-else class="mt-2">
       <v-col>
-        <empty-container title="No SSI Service Found" icon="fa fa-user-shield" />
+        <empty-container title="No SSI Service Found" icon="fa fa-user-shield"
+          description="SSI services you create for issuing and verifying credentials will appear here." />
       </v-col>
     </v-row>
   </div>
@@ -500,6 +500,7 @@ import { sanitizeUrl } from "../../utils/common";
 import DomainLinkage from "@hypersign-protocol/domain-linkage-verifier";
 import config from "../../config";
 import LogoUploader from "../element/LogoUploader.vue";
+import AppLogo from "../element/AppLogo.vue";
 import CorsChipsInput from "../element/CorsChips.vue";
 import {normalizeCorsOrigin} from '../../utils/utils.js';
 export default {
@@ -632,6 +633,7 @@ export default {
     };
   },
   components: {
+    AppLogo,
     HfPopUp,
     StudioSideBar,
     HfButtons,

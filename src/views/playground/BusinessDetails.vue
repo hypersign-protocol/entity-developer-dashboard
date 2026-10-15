@@ -2,49 +2,29 @@
   <b-container fluid class="py-3">
     <load-ing :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></load-ing>
 
-    <v-row align="center" class="mb-6">
-  <v-col cols="12" md="8">
-    <div class="d-flex align-center">
-      <a 
-        @click.prevent="goBack" 
-        class="breadcrumb-link font-weight-bold mb-0"
-      >
-        Business Verifications
-      </a>
-      
-      <v-icon class="mx-2" color="grey lighten-1">mdi-chevron-right</v-icon>
-      <span class="company-title text-h6 font-weight-bold">{{ companyName }}</span>
-    </div>
-    <p class="text-subtitle-2 text-muted mb-0 mt-1">
-      Review business documentation and regulatory status
-    </p>
-  </v-col>
+    <!-- Header follows the User Detail page: breadcrumb, title + actions, then the summary card -->
+    <nav class="bd-breadcrumb" aria-label="Breadcrumb">
+      <button type="button" @click="goBack">
+        <i class="mdi mdi-arrow-left" aria-hidden="true"></i>Business Verifications
+      </button>
+      <i class="mdi mdi-chevron-right" aria-hidden="true"></i>
+      <span :title="companyName" aria-current="page">{{ companyName }}</span>
+    </nav>
 
-  <v-col 
-    cols="12" 
-    md="4" 
-    v-if="company?.status === 'Completed'"
-    class="d-flex align-center"
->
-    <div class="d-flex justify-md-end justify-start align-center gap-3 w-100">
+    <header class="bd-header">
+      <div>
+        <h1>Business Detail</h1>
+        <p>Review company information, documents, ownership and compliance record</p>
+      </div>
+      <div class="bd-actions">
+        <hf-buttons name="Reject" iconClass="mdi mdi-close-circle-outline" customClass="btn btn-outline-danger"
+          @executeAction="rejectCompany"></hf-buttons>
+        <hf-buttons name="Approve" iconClass="mdi mdi-check-circle-outline"
+          @executeAction="approveCompany"></hf-buttons>
+      </div>
+    </header>
 
-        <hf-buttons name="Approve" iconClass=""
-                                    @executeAction="approveCompany"></hf-buttons>
-
-        <v-btn color="error" text @click="rejectCompany"><v-icon small left color="white">mdi-close-circle-outline</v-icon>Reject</v-btn>
-        
-        <!-- <button @click="approveCompany" class="theme-btn btn-approve">
-            <v-icon small left color="white">mdi-check-decagram</v-icon>
-            Approve
-        </button>
-
-        <button @click="rejectCompany" class="theme-btn btn-reject">
-            <v-icon small left color="white">mdi-close-circle-outline</v-icon>
-            Reject
-        </button> -->
-    </div>
-</v-col>
-</v-row>
+    <BusinessSummary v-if="company" :company="company" class="bd-summary" @navigate="setActiveTab" />
     <v-row>
       <v-col cols="12" md="3" lg="2">
         <div class="overview-container pa-0 sticky-sidebar">
@@ -72,7 +52,7 @@
         </div>
       </v-col>
 
-      <v-col cols="12" md="9" lg="10">
+      <v-col cols="12" md="9" lg="7">
         <div class="content-view-panel">
           <div v-if="activeTab === 'business-info'" class="tab-fade-in">
             <BusinessInformation :company="company" />
@@ -88,42 +68,46 @@
           </div>
         </div>
       </v-col>
+
+      <!-- Status history: always visible on the right, like the tabs on the left.
+           Below lg it drops under the content, aligned with it. -->
+      <v-col cols="12" md="9" offset-md="3" lg="3" offset-lg="0">
+        <StatusHistory v-if="company" :company="company" class="history-panel" />
+      </v-col>
     </v-row>
 
      <!-- Custom Modals -->
-        <CustomConfirmModal :isVisible="showApproveConfirm" title="Approve Company"
-            :message="`Are you sure you want to approve ${companyName}? This action will mark the company as approved and allow them to proceed.`"
-            type="success" confirmText="Approve" cancelText="Cancel" iconClass="fas fa-check-circle"
-            confirmIconClass="fas fa-check" @confirm="handleApproveConfirm" @cancel="showApproveConfirm = false" />
+        <hf-pop-up id="approve-company-popup" Header="Approve Company">
+          <p class="popup-message">
+            Approve <strong>{{ companyName }}</strong>? The business will be marked as approved and allowed to proceed.
+          </p>
+          <div class="popup-actions">
+            <hf-buttons name="Approve" @executeAction="handleApproveConfirm"></hf-buttons>
+          </div>
+        </hf-pop-up>
 
-        <CustomPromptModal :isVisible="showRejectPrompt" title="Reject Company"
-            :message="`Please provide a reason for rejecting ${companyName}:`" type="danger" inputType="textarea"
-            inputLabel=""
-            placeholder="Enter the reason for rejection (e.g., incomplete documentation, compliance issues, etc.)"
-            submitText="Reject" cancelText="Cancel" iconClass="fas fa-times-circle" submitIconClass="fas fa-times"
-            @submit="handleRejectSubmit" @cancel="showRejectPrompt = false" />
+        <hf-pop-up id="reject-company-popup" Header="Reject Company">
+          <div class="reject-form">
+            <label for="reject-reason" class="reject-label">Reason for rejecting {{ companyName }}</label>
+            <b-form-textarea
+              id="reject-reason"
+              v-model.trim="rejectReason"
+              rows="4"
+              max-rows="8"
+              placeholder="e.g. incomplete documentation, details don't match the registry, compliance concerns"
+            ></b-form-textarea>
+            <div class="popup-actions">
+              <hf-buttons name="Submit" :disabled="!rejectReason"
+                @executeAction="handleRejectSubmit"></hf-buttons>
+            </div>
+          </div>
+        </hf-pop-up>
   </b-container>
 </template>
 
 <style scoped>
 .py-3 {
   width: 80vw !important;
-}
-
-.w-100 {
-    width: 100%;
-}
-
-.gap-3 {
-    gap: 12px;
-}
-
-/* Optional: In case of older Vuetify/CSS versions, 
-   this ensures the flex container respects the right alignment */
-.justify-md-end {
-    @media (min-width: 960px) {
-        justify-content: flex-end !important;
-    }
 }
 
 /* Theme Consistency */
@@ -142,17 +126,71 @@
   letter-spacing: 0.05em;
 }
 
-/* Breadcrumb Styling */
-.breadcrumb-link {
-  font-size: 0.75rem;
-  color: #3b82f6;
-  text-decoration: none;
-  cursor: pointer;
+/* Breadcrumb and header match the User Detail page (SessionsDetails .sd-breadcrumb / .sd-header) */
+.bd-breadcrumb {
+  align-items: center;
+  color: #7180a5;
+  display: flex;
+  font-size: 12px;
+  gap: 10px;
+  margin-bottom: 22px;
+  min-width: 0;
 }
 
-.company-title {
-  font-size: 1.25rem;
+.bd-breadcrumb button {
+  background: none;
+  border: 0;
+  color: #52658f;
+  flex: 0 0 auto;
+  padding: 0;
+}
+
+.bd-breadcrumb button:hover {
+  color: #1d4ed8;
+}
+
+.bd-breadcrumb button i {
+  margin-right: 8px;
+}
+
+.bd-breadcrumb span {
+  max-width: 70vw;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bd-header {
+  align-items: center;
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.bd-header h1 {
   color: #111827;
+  font-size: 25px;
+  font-weight: 750;
+  line-height: 1.2;
+  margin: 0;
+}
+
+.bd-header p {
+  color: #7180a5;
+  font-size: 13px;
+  margin: 4px 0 0;
+}
+
+.bd-summary {
+  margin-bottom: 20px;
+}
+
+.bd-actions {
+  align-items: center;
+  display: flex;
+  flex: 0 0 auto;
+  gap: 12px;
 }
 
 /* Sidebar Tabs */
@@ -199,6 +237,15 @@
   top: 24px;
 }
 
+/* In the right column it also stays in view while the tab content scrolls
+   (the panel itself scrolls its timeline; see StatusHistory) */
+@media (min-width: 1264px) {
+  .history-panel {
+    position: sticky;
+    top: 24px;
+  }
+}
+
 /* Animations */
 .tab-fade-in {
   animation: fadeIn 0.3s ease-in-out;
@@ -214,40 +261,33 @@
 }
 
 
-/* Ensure the breadcrumb link doesn't look like a standard tiny link */
-.breadcrumb-link {
-  color: #64748b; /* Muted slate to distinguish from the active name */
-  text-decoration: none;
-  transition: color 0.2s;
-  line-height: 1.2;
+/* Approve / Reject popups */
+.reject-label {
+  color: #344054;
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin-bottom: 6px;
 }
 
-.breadcrumb-link:hover {
-  color: #00000078; /* Bright blue on hover for clarity it's clickable */
+.popup-message {
+  color: #344054;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  margin: 0;
 }
 
-.company-title {
-  color: #111827;
-  line-height: 1.2;
-}
-
-/* Flex gap for buttons */
-.gap-3 {
-  gap: 12px;
-}
-
-/* Ensure the theme-btn has a fixed height for vertical alignment */
-.theme-btn {
-  height: 40px;
-  white-space: nowrap;
+.popup-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 16px;
 }
 
 /* Adjustments for smaller screens */
-@media (max-width: 960px) {
-  .gap-3 {
-    margin-top: 1rem;
-    width: 100%;
-    justify-content: flex-start;
+@media (max-width: 700px) {
+  .bd-header {
+    align-items: flex-start;
+    flex-direction: column;
   }
 }
 
@@ -257,33 +297,36 @@
 <script>
 import { mapState, mapActions } from "vuex";
 import loadIng from '../../components/element/LoadIng.vue';
+import BusinessSummary from '../../components/business-details/BusinessSummary.vue';
+import StatusHistory from '../../components/business-details/StatusHistory.vue';
 import BusinessInformation from '../../components/business-details/BusinessInformation.vue';
 import DocumentUploaded from '../../components/business-details/DocumentUploaded.vue';
 import UboDetails from '../../components/business-details/UboDetails.vue';
 import ChecksRegulations from '../../components/business-details/ChecksRegulations.vue';
-import CustomConfirmModal from '../../components/element/CustomConfirmModal.vue';
-import CustomPromptModal from '../../components/element/CustomPromptModal.vue';
+import HfPopUp from '../../components/element/hfPopup.vue';
 import UtilsMixin from '../../mixins/utils';
+
+const VALID_TABS = ['business-info', 'documents', 'ubo-details', 'checks-regulations'];
 
 
 export default {
     name: "BusinessDetails",
     components: {
         loadIng,
+        BusinessSummary,
+        StatusHistory,
         BusinessInformation,
         DocumentUploaded,
         UboDetails,
         ChecksRegulations,
-        CustomConfirmModal,
-        CustomPromptModal
+        HfPopUp
     },
     data() {
         return {
             isLoading: false,
             fullPage: true,
             company: null,
-            showApproveConfirm: false,
-            showRejectPrompt: false
+            rejectReason: ''
         }
     },
     computed: {
@@ -297,7 +340,9 @@ export default {
             return this.$route.params.companyId;
         },
         activeTab() {
-            return this.$route.params.tab || 'business-info';
+            // Unknown tabs (e.g. the removed Overview) fall back to Business Info
+            const tab = this.$route.params.tab;
+            return VALID_TABS.includes(tab) ? tab : 'business-info';
         }
     },
     async mounted() {
@@ -318,8 +363,7 @@ export default {
     watch: {
         '$route.params.tab'(newTab) {
             // Validate tab exists
-            const validTabs = ['business-info', 'documents', 'ubo-details', 'checks-regulations'];
-            if (newTab && !validTabs.includes(newTab)) {
+            if (newTab && !VALID_TABS.includes(newTab)) {
                 this.$router.replace({
                     name: 'BusinessDetails',
                     params: {
@@ -380,11 +424,11 @@ export default {
         },
 
         async approveCompany() {
-            this.showApproveConfirm = true;
+            this.$root.$emit('bv::show::modal', 'approve-company-popup');
         },
 
         async handleApproveConfirm() {
-            this.showApproveConfirm = false;
+            this.$root.$emit('bv::hide::modal', 'approve-company-popup');
             this.isLoading = true;
             try {
                 await this.approveOrRejectVerification({ companyId: this.companyId, status: 'Approved' });
@@ -401,11 +445,17 @@ export default {
         },
 
         async rejectCompany() {
-            this.showRejectPrompt = true;
+            this.rejectReason = '';
+            this.$root.$emit('bv::show::modal', 'reject-company-popup');
         },
 
-        async handleRejectSubmit(reason) {
-            this.showRejectPrompt = false;
+        async handleRejectSubmit() {
+            const reason = this.rejectReason;
+            if (!reason) {
+                this.notifyErr('Please enter a reason for rejecting this company.');
+                return;
+            }
+            this.$root.$emit('bv::hide::modal', 'reject-company-popup');
             this.isLoading = true;
             try {
                 await this.approveOrRejectVerification({ companyId: this.companyId, status: 'Rejected', reason });

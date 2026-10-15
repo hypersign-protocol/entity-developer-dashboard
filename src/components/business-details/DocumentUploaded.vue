@@ -1,161 +1,114 @@
 <template>
     <div class="document-uploaded">
-        <!-- <div class="section-header">
-            <h2 class="section-title">Document Uploaded</h2>
-            <p class="section-description">View and manage uploaded business documents</p>
-        </div> -->
+        <template v-if="documents.length">
+            <header class="section-header">
+                <v-icon small>mdi-file-document-multiple-outline</v-icon>
+                <h3>Uploaded documents</h3>
+                <span class="count-pill">{{ documents.length }}</span>
+            </header>
 
-        <!-- Documents Grid -->
-
-        <div v-if="documents && documents.length > 0" class="documents-grid">
-            <div v-for="(document, index) in documents" :key="index" class="document-card">
-                <div class="document-icon">
-                    <i :class="getDocumentIcon(document.type)"></i>
-                </div>
-                <div class="document-content">
-                    <p class="document-type">{{ formatDocumentType(document.type) }}</p>
-                    <p class="document-name" :title="document.name || `Document ${index + 1}`">{{ document.name || `Document ${index + 1}` }}</p>
-                    <p class="document-description">{{ document.description }}</p>
-                </div>
-                <div class="document-actions">
-                    <button class="download-btn" @click="downloadDocument(document)" title="Download Document">
-                        <i class="fas fa-download"></i>
+            <ul class="document-list">
+                <li v-for="doc in documents" :key="doc.id" class="document-row">
+                    <span class="document-icon" aria-hidden="true">
+                        <v-icon small>{{ doc.meta.icon }}</v-icon>
+                    </span>
+                    <div class="document-content">
+                        <span class="document-type">{{ doc.meta.label }}</span>
+                        <span class="document-name" :title="doc.name">{{ doc.name }}</span>
+                    </div>
+                    <button
+                        type="button"
+                        class="download-btn"
+                        :disabled="downloadingId === doc.id"
+                        :aria-label="`Download ${doc.meta.label}`"
+                        title="Download"
+                        @click="downloadDocument(doc)"
+                    >
+                        <v-progress-circular v-if="downloadingId === doc.id" indeterminate size="14" width="2"></v-progress-circular>
+                        <v-icon v-else small>mdi-download</v-icon>
                     </button>
-                </div>
-            </div>
-        </div>
+                </li>
+            </ul>
+        </template>
 
-        <!-- Empty State -->
-        <div v-else class="empty-state">
-            <div class="empty-icon">
-                <i class="fas fa-file-upload"></i>
-            </div>
-            <h3 class="empty-title">No Documents Uploaded</h3>
-            <p class="empty-description">
-                No documents have been uploaded for this business verification yet.
-            </p>
-
-        </div>
+        <empty-container v-else title="No Documents Uploaded" icon="mdi mdi-file-document-outline"
+            description="This business hasn't uploaded any documents yet." />
     </div>
 </template>
 
 <script>
+import UtilsMixin from '../../mixins/utils';
+
+// Labels and icons match the Document Collection tab of the KYB widget configuration;
+// the order here is also the order documents are listed in.
+const DOCUMENT_TYPES = {
+    CertificateOfIncorporation: { label: 'Certificate of Incorporation', icon: 'mdi-domain' },
+    TaxRegistration: { label: 'Tax Registration Document', icon: 'mdi-receipt-text-outline' },
+    ProofOfAddress: { label: 'Address Proof Document', icon: 'mdi-map-marker-outline' },
+    PowerOfAttorney: { label: 'Power of Attorney Document', icon: 'mdi-file-sign' },
+};
+const OTHER_DOCUMENT = { label: 'Other document', icon: 'mdi-file-document-outline' };
+const TYPE_ORDER = Object.keys(DOCUMENT_TYPES);
+
 export default {
     name: "DocumentUploaded",
+    mixins: [UtilsMixin],
     props: {
         company: {
             type: Object,
             default: () => ({})
         }
     },
+    data() {
+        return {
+            downloadingId: null
+        };
+    },
     computed: {
         documents() {
-            // Use actual company documents from the API
-            if (!this.company?.documents || this.company.documents.length === 0) {
-                return [];
-            }
-
-            // Transform API data to component format
-            return this.company.documents.map(doc => ({
-                id: doc.id,
-                name: doc.fileName,
-                type: this.getDocumentTypeFromAPI(doc.documentType),
-                documentType: doc.documentType,
-                size: null,
-                uploadDate: this.company.createdAt,
-                status: this.getDocumentStatus(),
-                description: this.getDocumentDescription(doc.documentType)
-            }));
+            const docs = (this.company && this.company.documents) || [];
+            const rank = type => {
+                const index = TYPE_ORDER.indexOf(type);
+                return index === -1 ? TYPE_ORDER.length : index;
+            };
+            return docs
+                .map((doc, index) => ({
+                    id: doc.id,
+                    name: doc.fileName || `Document ${index + 1}`,
+                    documentType: doc.documentType,
+                    meta: DOCUMENT_TYPES[doc.documentType] || OTHER_DOCUMENT
+                }))
+                .sort((a, b) => rank(a.documentType) - rank(b.documentType));
         }
     },
     methods: {
-        getDocumentIcon(type) {
-            const iconMap = {
-                incorporation: 'fas fa-building',
-                address: 'fas fa-map-marker-alt',
-                attorney: 'fas fa-gavel',
-                other: 'fas fa-file-alt'
-            };
-            return iconMap[type] || 'fas fa-file-alt';
-        },
-
-        getDocumentTypeFromAPI(apiType) {
-            const typeMap = {
-                'CertificateOfIncorporation': 'incorporation',
-                'ProofOfAddress': 'address',
-                'PowerOfAttorney': 'attorney'
-            };
-            return typeMap[apiType] || 'other';
-        },
-
-        getDocumentStatus() {
-            if (!this.company?.status) return 'pending';
-            
-            const statusMap = {
-                'Approved': 'verified',
-                'Rejected': 'rejected',
-                'InProgress': 'pending',
-                'Submitted': 'pending'
-            };
-            return statusMap[this.company.status] || 'pending';
-        },
-
-        getDocumentDescription(documentType) {
-            const descriptions = {
-                'CertificateOfIncorporation': 'Business incorporation document',
-                'ProofOfAddress': 'Address verification document',
-                'PowerOfAttorney': 'Legal authorization document'
-            };
-            return descriptions[documentType] || 'Business document';
-        },
-
-        formatDocumentType(type) {
-            const typeMap = {
-                incorporation: 'Certificate of Incorporation',
-                address: 'Proof of Address',
-                attorney: 'Power of Attorney'
-            };
-            return typeMap[type] || 'Document';
-        },
-
-
-
-
-        async downloadDocument(docData) {
+        async downloadDocument(doc) {
+            this.downloadingId = doc.id;
             try {
                 const blob = await this.$store.dispatch('mainStore/downloadKybUploadedFile', {
-                    fileId: docData.id
+                    fileId: doc.id
                 });
 
-                // Determine file extension based on blob type
-                let fileName = docData.fileName || docData.name || `document_${docData.id}`;
-                
+                // Add an extension from the file type when the name has none
+                let fileName = doc.name;
                 if (!fileName.includes('.')) {
-                    if (blob.type === 'application/pdf') {
-                        fileName += '.pdf';
-                    } else if (blob.type.startsWith('image/')) {
-                        const ext = blob.type.split('/')[1];
-                        fileName += `.${ext}`;
-                    } else {
-                        fileName += '.pdf';
-                    }
+                    fileName += blob.type.startsWith('image/') ? `.${blob.type.split('/')[1]}` : '.pdf';
                 }
 
-                // Create download link and trigger download
                 const url = URL.createObjectURL(blob);
-                const a = window.document.createElement('a');
-                a.href = url;
-                a.download = fileName;
-                a.style.display = 'none';
-                
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                
+                const link = window.document.createElement('a');
+                link.href = url;
+                link.download = fileName;
+                link.style.display = 'none';
+                window.document.body.appendChild(link);
+                link.click();
+                window.document.body.removeChild(link);
                 URL.revokeObjectURL(url);
-                
             } catch (error) {
                 console.error('Error downloading document:', error);
+                this.notifyErr('Could not download the document. Please try again.');
+            } finally {
+                this.downloadingId = null;
             }
         }
     }
@@ -164,184 +117,120 @@ export default {
 
 <style scoped>
 .document-uploaded {
-    max-width: 1200px;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+    max-width: 1100px;
 }
 
 .section-header {
-    margin-bottom: 2rem;
-}
-
-.section-title {
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: #111827;
-    margin: 0 0 0.5rem 0;
-}
-
-.section-description {
-    color: #6b7280;
-    font-size: 0.875rem;
-    margin: 0;
-    line-height: 1.5;
-}
-
-/* Documents Grid */
-.documents-grid {
+    align-items: center;
+    border-bottom: 1px solid #f1f5f9;
     display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-    margin-bottom: 2rem;
-    width: 100%;
+    gap: 8px;
+    margin-bottom: 16px;
+    padding-bottom: 10px;
 }
 
-.document-card {
-    background: #ffffff;
+.section-header >>> .v-icon {
+    color: #64748b !important;
+}
+
+.section-header h3 {
+    color: #111827;
+    font-size: 0.95rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+.count-pill {
+    background: #f1f5f9;
+    border-radius: 999px;
+    color: #475569;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 1px 8px;
+}
+
+.document-list {
     border: 1px solid #e5e7eb;
     border-radius: 8px;
-    padding: 1rem;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s ease;
-    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.document-row {
     align-items: center;
-    gap: 0.75rem;
-    min-height: 4rem;
-    width: 100%;
-    box-sizing: border-box;
+    display: flex;
+    gap: 12px;
+    padding: 12px 16px;
 }
 
-.document-card:hover {
-    border-color: #66666a;
-    box-shadow: 0 4px 12px rgba(102, 102, 106, 0.15);
+.document-row + .document-row {
+    border-top: 1px solid #f1f5f9;
 }
 
+/* Same icon tile as the KYB widget configuration toggle cards */
 .document-icon {
-    width: 2.5rem;
-    height: 2.5rem;
-    background: #f3f4f6;
-    border-radius: 6px;
-    display: flex;
     align-items: center;
+    background: #eff6ff;
+    border-radius: 8px;
+    display: inline-flex;
+    flex: 0 0 auto;
+    height: 36px;
     justify-content: center;
-    flex-shrink: 0;
+    width: 36px;
 }
 
-.document-icon i {
-    font-size: 1rem;
-    color: #66666a  !important;
+.document-icon >>> .v-icon {
+    color: #2563eb !important;
 }
 
 .document-content {
+    display: flex;
     flex: 1;
+    flex-direction: column;
     min-width: 0;
 }
 
 .document-type {
+    color: #111827;
     font-size: 0.875rem;
     font-weight: 600;
-    color: #111827;
-    margin: 0 0 0.25rem 0;
-    line-height: 1.25;
 }
 
 .document-name {
+    color: #64748b;
     font-size: 0.75rem;
-    color: #6b7280;
-    margin: 0;
-    line-height: 1.2;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
     overflow: hidden;
     text-overflow: ellipsis;
-    word-break: break-word;
-}
-
-.document-description {
-    font-size: 0.7rem;
-    color: #9ca3af;
-    margin: 0.25rem 0 0 0;
-    line-height: 1.25;
-    font-style: italic;
-}
-
-.document-actions {
-    display: flex;
-    align-items: center;
-    flex-shrink: 0;
+    white-space: nowrap;
 }
 
 .download-btn {
-    display: flex;
     align-items: center;
-    justify-content: center;
-    width: 2rem;
-    height: 2rem;
-    background: #f3f4f6;
+    background: #ffffff;
     border: 1px solid #e5e7eb;
     border-radius: 6px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    color: #6b7280;
-    font-size: 0.875rem;
+    color: #475569;
+    display: inline-flex;
+    flex: 0 0 auto;
+    height: 32px;
+    justify-content: center;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
+    width: 32px;
 }
 
-.download-btn:hover {
-    background: #66666a;
-    border-color: #66666a;
-    color: white;
-    transform: translateY(-1px);
-    box-shadow: 0 2px 4px rgba(102, 102, 106, 0.2);
-}
-
-/* Empty State */
-.empty-state {
-    text-align: center;
-    padding: 2rem;
-}
-
-.empty-icon {
-    font-size: 2rem;
-    color: #9ca3af;
-    margin-bottom: 1rem;
-}
-
-.empty-title {
-    font-size: 1.125rem;
-    font-weight: 600;
+.download-btn:hover:not(:disabled) {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
     color: #111827;
-    margin: 0 0 0.5rem 0;
 }
 
-.empty-description {
-    color: #6b7280;
-    margin: 0 0 1.5rem 0;
-    line-height: 1.5;
+.download-btn:disabled {
+    cursor: wait;
 }
-/* Responsive Design */
-@media (max-width: 768px) {
-    .documents-grid {
-        grid-template-columns: 1fr;
-    }
 
-    .document-card {
-        min-height: 3.5rem;
-        padding: 0.875rem;
-    }
-
-    .document-icon {
-        width: 2rem;
-        height: 2rem;
-    }
-
-    .document-icon i {
-        font-size: 0.875rem;
-    }
-
-    .download-btn {
-        width: 1.75rem;
-        height: 1.75rem;
-        font-size: 0.75rem;
-    }
+.download-btn >>> .v-icon {
+    color: inherit !important;
 }
+
 </style>

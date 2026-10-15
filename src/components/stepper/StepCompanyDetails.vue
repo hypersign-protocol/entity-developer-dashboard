@@ -96,7 +96,7 @@
 <script>
 import { mapGetters } from 'vuex/dist/vuex.common.js';
 import LogoUploader from '../element/LogoUploader.vue';
-import { COUNTRY_OPTIONS, CALLING_CODES, detectCountryFromIp } from '../../utils/countries.js';
+import { COUNTRY_OPTIONS, CALLING_CODES, countryOptionLabel, detectCountryFromIp } from '../../utils/countries.js';
 
 const CONSUMER_EMAIL_DOMAINS = new Set([
   'gmail.com', 'googlemail.com', 'yahoo.com', 'yahoo.co.in', 'hotmail.com', 'outlook.com',
@@ -121,8 +121,8 @@ export default {
     selectedCallingCode() { return CALLING_CODES[this.localCompany.country] || ''; },
     countryOptions() {
       return Object.entries(COUNTRY_OPTIONS)
-        .map(([value, text]) => ({ value, text }))
-        .sort((left, right) => left.text.localeCompare(right.text));
+        .sort(([, left], [, right]) => left.localeCompare(right))
+        .map(([value, name]) => ({ value, text: countryOptionLabel(value, name) }));
     },
     emailDomain() {
       const parts = (this.localCompany.contact_email || '').trim().toLowerCase().split('@');

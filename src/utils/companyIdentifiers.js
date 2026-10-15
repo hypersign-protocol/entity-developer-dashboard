@@ -1,105 +1,198 @@
-// Format rules for company registration numbers and company/personal tax IDs, keyed by the
-// ISO-3 country codes used in COUNTRY_OPTIONS.
+// Company registration number / tax ID / postal code rules for the company verification
+// form. Types and patterns come from kybIdentifierTypes.js (a copy of the backend lists),
+// and values are checked the same way the dashboard service checks them:
+//   - the type must be one listed for the country of registration ('OTHER' when the
+//     country has none)
+//   - the number must match that type's pattern, tested on exactly the value we send
 //
-// These are format checks only (no checksum or registry lookup); compliance still
-// verifies the documents. Patterns are matched against the value upper-cased with
-// whitespace removed. Countries or fields without a rule fall back to GENERIC.
-// When a country accepts several identifiers (e.g. CIN or LLPIN), list them all.
+// Countries are ISO 3166-1 alpha-2 codes ('XX' = other country).
 
-const GENERIC = {
-  label: '',
-  example: '',
-  patterns: [/^[A-Z0-9][A-Z0-9./-]{2,29}$/],
-  hint: '3–30 letters, digits, dots, slashes or hyphens',
+import {
+  SUPPORTED_COUNTRY_CODES,
+  REGISTRATION_NUMBER_TYPES,
+  TAX_ID_TYPES,
+  POSTAL_CODE_PATTERNS,
+} from './kybIdentifierTypes';
+
+export const OTHER_COUNTRY = 'XX';
+export const OTHER_TYPE = 'OTHER';
+
+// One sample value per type, shown as the placeholder and in error messages.
+// Every example matches its backend pattern (checked in tests/unit/companyIdentifiers.spec.js).
+export const EXAMPLES = {
+  // Registration numbers
+  'IN:CIN': 'U72900KA2021PTC123456',
+  'IN:LLPIN': 'AAB1234',
+  'SG:UEN': '201912345K',
+  'CN:USCC': '91310000MA1FL1234X',
+  'JP:HOJIN_BANGO': '1234567890123',
+  'ID:NIB': '1234567890123',
+  'VN:ERC': '0123456789',
+  'TH:CRN_TH': '0105551234567',
+  'MY:ROC': '201901000005',
+  'PH:SEC_REG_NO': '2019123456',
+  'KR:CRN_KR': '1101111234567',
+  'AU:ACN': '123456789',
+  'NZ:NZBN': '9429041234567',
+  'PK:SECP_REG': 'AB123456',
+  'LK:BRN_LK': '123456789',
+  'NP:CRN_NP': '1234567',
+  'MM:BRN_MM': '123456789',
+  'BN:ROCN': '1234567',
+  'LA:ERN_LA': '12345678',
+  'MN:CRN_MN': '1234567',
+  'TL:NIPC_TL': '123456789',
+  'GB:CRN_UK': '01234567',
+  'DE:HRB': 'HRB123456',
+  'FR:SIREN': '123456789',
+  'FR:SIRET': '12345678900012',
+  'NL:KVK': '12345678',
+  'IE:CRO_IE': '123456',
+  'CH:CHE_CH': 'CHE-123.456.789',
+  'BE:CBE_BE': '0123.456.789',
+  'AT:FN_AT': 'FN123456A',
+  'SE:ORG_SE': '556123-4567',
+  'NO:ORG_NO': '923456789',
+  'DK:CVR_DK': '12345678',
+  'PL:KRS_PL': '0000123456',
+  'SA:CR_SA': '1010123456',
+  'QA:CR_QA': '123456',
+  'KW:CR_KW': '123456',
+  'BH:CR_BH': '12345678',
+  'OM:CR_OM': '1234567',
+  'ZA:CIPC': '2019/123456/07',
+  'NG:RCN': '1234567',
+  // Tax IDs
+  'IN:PAN': 'ABCDE1234F',
+  'IN:GSTIN': '29ABCDE1234F1Z5',
+  'HK:BRN': '12345678',
+  'US:EIN': '12-3456789',
+  'CA:BN': '123456789',
+  'AU:ABN': '12345678901',
+  'AU:TFN': '123456789',
+  'TH:TIN': '0105551234567',
+  'MY:TIN': 'C1234567890',
+  'PH:TIN': '123456789000',
+  'KR:BRN': '1234567890',
+  'NZ:IRD': '12345678',
+  'BD:BIN': '123456789',
+  'BD:e-TIN': '123456789012',
+  'PK:NTN': '1234567',
+  'PK:STRN': '1234567890123',
+  'NP:PAN': '123456789',
+  'KH:TRN': '123456789',
+  'GB:VAT': 'GB123456789',
+  'DE:USTID': 'DE123456789',
+  'ES:NIF': 'B12345678',
+  'IT:Partita IVA': '12345678901',
+  'PT:NIF': '123456789',
+  'AR:CUIT': '30-12345678-9',
+  'CL:RUT': '76123456-7',
+  'CO:NIT': '900123456-7',
+  'PE:RUC': '20123456789',
+  'VE:RIF': 'J-12345678-9',
+  'AE:TRN': '100123456700003',
+  'BR:CNPJ': '12345678000190',
+  'MX:RFC': 'ABC123456XY1',
+  'BS:TRN': '123456789',
+  'JM:TRN': '123456789',
+  'GT:NIT': '1234567-8',
+  'DO:RNC': '123456789',
+  'CR:NITE': '3101123456',
+  'PA:RUC': '1-123-456',
+  // Postal codes
+  'IN:postal': '560001',
+  'SG:postal': '018956',
+  'JP:postal': '100-0001',
+  'CN:postal': '100000',
+  'GB:postal': 'SW1A 1AA',
+  'US:postal': '94105',
+  'CA:postal': 'K1A 0B1',
+  'NL:postal': '1012 AB',
+  'IE:postal': 'D02 X285',
+  'BR:postal': '01310-100',
+  'PL:postal': '00-950',
+  'PT:postal': '1000-001',
+  'SE:postal': '114 55',
+  'AR:postal': 'C1425ABC',
+  'BN:postal': 'BS8811',
 };
 
-const RULES = {
-  IND: {
-    registration: { label: 'CIN or LLPIN', example: 'U72900KA2021PTC123456', patterns: [/^[LU]\d{5}[A-Z]{2}\d{4}[A-Z]{3}\d{6}$/, /^[A-Z]{3}-\d{4}$/] },
-    tax: { label: 'GSTIN or PAN', example: '29ABCDE1234F1Z5', document: 'GST certificate or PAN card', patterns: [/^\d{2}[A-Z]{5}\d{4}[A-Z][1-9A-Z]Z[0-9A-Z]$/, /^[A-Z]{5}\d{4}[A-Z]$/] },
-    personalTax: { label: 'PAN', example: 'ABCPE1234F', document: 'PAN card', patterns: [/^[A-Z]{5}\d{4}[A-Z]$/] },
-  },
-  USA: {
-    tax: { label: 'EIN', example: '12-3456789', document: 'IRS EIN letter (CP 575 or 147C)', patterns: [/^\d{2}-?\d{7}$/] },
-    personalTax: { label: 'SSN or ITIN', example: '123-45-6789', document: 'SSN card or ITIN letter', patterns: [/^\d{3}-?\d{2}-?\d{4}$/] },
-  },
-  GBR: {
-    registration: { label: 'Companies House number', example: '01234567', patterns: [/^(\d{8}|[A-Z]{2}\d{6})$/] },
-    tax: { label: 'VAT number or UTR', example: 'GB123456789', document: 'VAT registration certificate or UTR letter', patterns: [/^(GB)?(\d{9}|\d{12})$/, /^\d{10}$/] },
-    personalTax: { label: 'National Insurance number or UTR', example: 'AB123456C', document: 'National Insurance or UTR letter', patterns: [/^[A-CEGHJ-PR-TW-Z]{2}\d{6}[A-D]$/, /^\d{10}$/] },
-  },
-  SGP: {
-    registration: { label: 'UEN', example: '201912345K', patterns: [/^(\d{8}[A-Z]|\d{9}[A-Z]|[TSR]\d{2}[A-Z]{2}\d{4}[A-Z])$/] },
-    tax: { label: 'GST registration number', example: 'M90312345A', document: 'GST registration letter', patterns: [/^(M\d{8}[A-Z]|\d{8,9}[A-Z]|[TSR]\d{2}[A-Z]{2}\d{4}[A-Z])$/] },
-    personalTax: { label: 'NRIC or FIN', example: 'S1234567D', document: 'NRIC or FIN card', patterns: [/^[STFGM]\d{7}[A-Z]$/] },
-  },
-  AUS: {
-    registration: { label: 'ACN', example: '123 456 789', patterns: [/^\d{9}$/] },
-    tax: { label: 'ABN', example: '12 345 678 901', document: 'ABN registration extract', patterns: [/^\d{11}$/] },
-    personalTax: { label: 'Tax File Number (TFN)', example: '123 456 782', document: 'ATO letter showing your TFN', patterns: [/^\d{8,9}$/] },
-  },
-  CAN: {
-    tax: { label: 'Business Number (BN)', example: '123456789RT0001', document: 'CRA Business Number confirmation', patterns: [/^\d{9}(RT\d{4})?$/] },
-    personalTax: { label: 'Social Insurance Number (SIN)', example: '123 456 789', document: 'SIN confirmation letter', patterns: [/^\d{9}$/] },
-  },
-  DEU: {
-    registration: { label: 'Handelsregister number', example: 'HRB 123456', patterns: [/^HR[AB]\d{1,6}[A-Z]{0,2}$/] },
-    tax: { label: 'VAT ID (USt-IdNr.)', example: 'DE123456789', document: 'VAT ID confirmation', patterns: [/^(DE)?\d{9}$/] },
-    personalTax: { label: 'Tax ID (Steuer-ID)', example: '12345678901', document: 'Steuer-ID letter', patterns: [/^\d{11}$/] },
-  },
-  FRA: {
-    registration: { label: 'SIREN or SIRET', example: '123 456 789', patterns: [/^\d{9}$/, /^\d{14}$/] },
-    tax: { label: 'VAT number', example: 'FR12345678901', document: 'VAT registration certificate', patterns: [/^(FR)?[0-9A-Z]{2}\d{9}$/] },
-    personalTax: { label: 'Tax number (numéro fiscal)', example: '1234567890123', document: 'Tax notice (avis d\'imposition)', patterns: [/^[0-3]\d{12}$/] },
-  },
-  NLD: {
-    registration: { label: 'KvK number', example: '12345678', patterns: [/^\d{8}$/] },
-    tax: { label: 'VAT number', example: 'NL123456789B01', document: 'VAT number confirmation', patterns: [/^(NL)?\d{9}B\d{2}$/] },
-    personalTax: { label: 'BSN', example: '123456789', document: 'Document showing your BSN', patterns: [/^\d{9}$/] },
-  },
-  ARE: {
-    tax: { label: 'Tax Registration Number (TRN)', example: '100123456700003', document: 'TRN certificate', patterns: [/^\d{15}$/] },
-    personalTax: { label: 'Emirates ID', example: '784-1990-1234567-1', document: 'Emirates ID', patterns: [/^784-?\d{4}-?\d{7}-?\d$/] },
-  },
-  ZAF: {
-    registration: { label: 'CIPC registration number', example: '2019/123456/07', patterns: [/^\d{4}\/\d{6}\/\d{2}$/] },
-    tax: { label: 'VAT number', example: '4123456789', document: 'VAT registration certificate', patterns: [/^4\d{9}$/] },
-    personalTax: { label: 'Income tax reference number', example: '0123456789', document: 'SARS tax registration notice', patterns: [/^\d{10}$/] },
-  },
-  BRA: {
-    registration: { label: 'CNPJ', example: '12.345.678/0001-90', patterns: [/^\d{2}\.?\d{3}\.?\d{3}\/?\d{4}-?\d{2}$/] },
-    tax: { label: 'CNPJ', example: '12.345.678/0001-90', document: 'CNPJ registration card', patterns: [/^\d{2}\.?\d{3}\.?\d{3}\/?\d{4}-?\d{2}$/] },
-    personalTax: { label: 'CPF', example: '123.456.789-09', document: 'CPF registration proof', patterns: [/^\d{3}\.?\d{3}\.?\d{3}-?\d{2}$/] },
-  },
-  JPN: {
-    registration: { label: 'Corporate Number', example: '1234567890123', patterns: [/^\d{13}$/] },
-    tax: { label: 'Invoice registration number', example: 'T1234567890123', document: 'Invoice registration notice', patterns: [/^T?\d{13}$/] },
-    personalTax: { label: 'My Number', example: '123456789012', document: 'My Number card or notification', patterns: [/^\d{12}$/] },
-  },
-};
-
+const TYPE_LISTS = { registration: REGISTRATION_NUMBER_TYPES, tax: TAX_ID_TYPES };
 const DEFAULT_LABELS = { registration: 'Company registration number', tax: 'Company tax ID', personalTax: 'Personal tax ID' };
-// Name of the supporting document for each identifier, when the country has no specific one
 const DEFAULT_DOCUMENTS = { registration: 'Certificate of incorporation', tax: 'Tax registration certificate', personalTax: 'Personal tax ID document' };
 
-// kind: 'registration' | 'tax' (company) | 'personalTax' (owner / representative)
-export function getIdentifierRule(kind, country) {
-  const rule = (RULES[country] || {})[kind];
-  const fallback = { document: DEFAULT_DOCUMENTS[kind] };
-  return rule ? { ...fallback, ...rule, hint: '' } : { ...GENERIC, ...fallback, label: DEFAULT_LABELS[kind] };
+export function isSupportedCountry(country) {
+  return SUPPORTED_COUNTRY_CODES.includes(country);
 }
 
+// Value as sent to the backend: upper-case, no whitespace. Hyphens, dots and slashes are
+// kept because some formats require them (e.g. Panama RUC, South Africa CIPC).
 export function normalizeIdentifier(value) {
   return String(value || '').toUpperCase().replace(/\s+/g, '');
 }
 
-// Returns an error message, or '' when the value matches the country's format.
-export function validateIdentifier(kind, country, value) {
+// Identifier types the backend accepts for this country, excluding the OTHER fallback.
+// kind: 'registration' | 'tax'
+export function identifierTypesFor(kind, country) {
+  return (TYPE_LISTS[kind] || []).filter(type => type.country === country && type.code !== OTHER_TYPE);
+}
+
+function shortName(type) {
+  // Short codes read better in a field label ("CIN or LLPIN"); internal-looking codes don't
+  return /^[A-Za-z-]{2,6}$/.test(type.code) ? type.code : type.label;
+}
+
+function fullName(type) {
+  const short = shortName(type);
+  return short === type.label ? type.label : `${type.label} (${short})`;
+}
+
+// Label, example and document name for the field, based on the country's accepted types.
+export function getIdentifierRule(kind, country) {
+  const types = identifierTypesFor(kind, country);
+  if (!types.length) {
+    return { label: DEFAULT_LABELS[kind], example: '', document: DEFAULT_DOCUMENTS[kind], types };
+  }
+  const label = types.length === 1 ? fullName(types[0]) : types.map(shortName).join(' or ');
+  const examples = types.map(type => EXAMPLES[`${country}:${type.code}`]).filter(Boolean);
+  const document = kind === 'tax'
+    ? `Document showing your ${types.map(shortName).join(' or ')}`
+    : DEFAULT_DOCUMENTS[kind];
+  return { label, example: examples[0] || '', examples, document, types };
+}
+
+// The backend type code for a value: the first of the country's types whose pattern
+// matches, OTHER when the country has no types, or '' when nothing matches.
+export function detectIdentifierType(kind, country, value) {
   const normalized = normalizeIdentifier(value);
   if (!normalized) return '';
+  const types = identifierTypesFor(kind, country);
+  if (!types.length) return OTHER_TYPE;
+  const match = types.find(type => !type.regex || type.regex.test(normalized));
+  return match ? match.code : '';
+}
+
+// Returns an error message, or '' when the backend would accept the value.
+export function validateIdentifier(kind, country, value) {
+  if (!normalizeIdentifier(value)) return '';
+  if (kind === 'personalTax') return '';
+  if (detectIdentifierType(kind, country, value)) return '';
   const rule = getIdentifierRule(kind, country);
-  if (rule.patterns.some(pattern => pattern.test(normalized))) return '';
-  return rule.example
-    ? `This doesn't look like a valid ${rule.label}. Expected format: ${rule.example}`
-    : `Enter a valid ${rule.label.toLowerCase()} (${GENERIC.hint}).`;
+  const examples = rule.examples && rule.examples.length ? ` For example: ${rule.examples.join(' or ')}` : '';
+  return `This doesn't look like a valid ${rule.label}.${examples}`;
+}
+
+export function postalCodeExample(country) {
+  return EXAMPLES[`${country}:postal`] || '';
+}
+
+// Returns an error message, or '' when the backend would accept the postal code.
+export function validatePostalCode(country, value) {
+  const postalCode = String(value || '').trim();
+  if (!postalCode) return '';
+  const pattern = POSTAL_CODE_PATTERNS[country];
+  if (!pattern || pattern.test(postalCode)) return '';
+  const example = postalCodeExample(country);
+  return `Enter a valid postal code for this country${example ? `, for example ${example}` : ''}.`;
 }

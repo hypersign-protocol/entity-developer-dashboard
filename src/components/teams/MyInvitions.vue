@@ -27,7 +27,8 @@
       </table>
     </div>
     <div v-else>
-      <empty-container title="No Invitition Found" icon="fa fa-envelope" />
+      <empty-container title="No Invitation Found" icon="fa fa-envelope"
+        description="Invitations to join other teams will appear here." />
     </div>
 
     <!-- <div class="row mb-3" style="padding: 20px">No member found, please invite a member to your account!</div> -->

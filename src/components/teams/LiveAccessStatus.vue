@@ -40,7 +40,8 @@
     </div>
 
     <div v-else class="text-center no-access-wrapper">
-      <empty-container title="No Active Teammate Access" icon="fa fa-user-shield" />
+      <empty-container title="No Active Teammate Access" icon="fa fa-user-shield"
+        description="No teammate is accessing your dashboard profile right now." />
     </div>
   </div>
 </template>

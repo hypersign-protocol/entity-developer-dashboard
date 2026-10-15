@@ -1,16 +1,9 @@
 <template>
   <div class="ubo-details">
-
-    <!-- Loading State -->
-    <div v-if="loading" class="loading-state">
-      <div class="loading-spinner">
-        <i class="fas fa-spinner fa-spin"></i>
-      </div>
-      <p class="loading-text">Loading UBO details...</p>
-    </div>
+    <SectionLoader v-if="loading" label="Loading UBO details" min-height="calc(70vh - 4rem)" />
 
     <!-- Individual UBO Cards -->
-    <div v-else-if="ubos && ubos.length > 0" class="ubo-grid">
+    <div v-else-if="ubos.length > 0" class="ubo-grid">
       <div
         v-for="(ubo, index) in ubos"
         :key="index"
@@ -44,15 +37,11 @@
             </div>
             <div class="meta-item">
               <span class="meta-label">Email</span>
-              <span class="meta-value">{{ ubo.email || 'N/A' }}</span>
+              <span class="meta-value" :title="ubo.email">{{ ubo.email || 'N/A' }}</span>
             </div>
             <div class="meta-item">
               <span class="meta-label">Ownership</span>
               <span class="meta-value">{{ ubo.ownershipPercentage }}%</span>
-            </div>
-            <div class="meta-item">
-              <span class="meta-label">Progress</span>
-              <span class="meta-value">{{ getUboProgress(ubo) }}%</span>
             </div>
             <div class="meta-item">
               <span class="meta-label">Retries</span>
@@ -61,30 +50,23 @@
           </div>
 
           <!-- Bottom: KYC step track -->
-          <div class="step-track">
-            <div class="step-item" :class="{ done: isStepCompleted('start', ubo.kycSteps) }">
-              <div class="step-dot" title="Session Started"><i class="fas fa-flag"></i></div>
-              <span class="step-label">Start</span>
-            </div>
-            <div class="step-line" :class="{ done: isStepCompleted('start', ubo.kycSteps) }"></div>
-            <div class="step-item" :class="{ done: isStepCompleted('liveliness', ubo.kycSteps) }">
-              <div class="step-dot" title="Liveness Check"><i class="fas fa-user"></i></div>
-              <span class="step-label">Liveness</span>
-            </div>
-            <div class="step-line" :class="{ done: isStepCompleted('liveliness', ubo.kycSteps) }"></div>
-            <div class="step-item" :class="{ done: isStepCompleted('document', ubo.kycSteps) }">
-              <div class="step-dot" title="Document Verification"><i class="fas fa-id-card"></i></div>
-              <span class="step-label">Document</span>
-            </div>
-            <div class="step-line" :class="{ done: isStepCompleted('document', ubo.kycSteps) }"></div>
-            <div class="step-item" :class="{ done: isStepCompleted('consent', ubo.kycSteps) }">
-              <div class="step-dot" title="User Consent"><i class="fas fa-check-square"></i></div>
-              <span class="step-label">Consent</span>
-            </div>
-            <div class="step-line" :class="{ done: isStepCompleted('consent', ubo.kycSteps) }"></div>
-            <div class="step-item" :class="{ done: isStepCompleted('finish', ubo.kycSteps) }">
-              <div class="step-dot" title="Completed"><i class="fas fa-check"></i></div>
-              <span class="step-label">Done</span>
+          <div class="step-row">
+            <ol class="step-track" :aria-label="`KYC progress for ${ubo.name}`">
+              <li
+                v-for="step in getStepStates(ubo.kycSteps)"
+                :key="step.key"
+                class="step-item"
+                :class="`is-${step.state}`"
+                :title="`${step.title}: ${stepStateText[step.state]}`"
+              >
+                <span class="step-bar" aria-hidden="true"></span>
+                <span class="step-label">{{ step.label }}</span>
+                <span class="sr-only">: {{ stepStateText[step.state] }}</span>
+              </li>
+            </ol>
+            <div class="step-summary">
+              <strong>{{ getStepSummary(ubo.kycSteps).count }}</strong>
+              <span :class="`summary-${getStepSummary(ubo.kycSteps).tone}`">{{ getStepSummary(ubo.kycSteps).text }}</span>
             </div>
           </div>
         </div>
@@ -92,19 +74,17 @@
     </div>
 
     <!-- Empty State -->
-    <div v-else class="empty-state">
-      <div class="empty-icon">
-        <i class="fas fa-users"></i>
-      </div>
-      <h3 class="empty-title">No UBO Information</h3>
-      <p class="empty-description">No Ultimate Beneficial Owner information has been provided for this business yet.</p>
-    </div>
+    <empty-container v-else title="No UBO Information" icon="mdi mdi-account-group-outline"
+      description="No Ultimate Beneficial Owner information has been provided for this business yet." />
 
   </div>
 </template>
 <script>
+import SectionLoader from '../element/SectionLoader.vue';
+
 export default {
   name: "UboDetails",
+  components: { SectionLoader },
   props: {
     company: {
       type: Object,
@@ -114,13 +94,22 @@ export default {
   data() {
     return {
       loading: false,
+      // KYC steps in order, keyed by their kycSteps property
+      kycStepDefinitions: [
+        { key: 'step_start', label: 'Start', title: 'Session started' },
+        { key: 'step_liveliness', label: 'Liveness', title: 'Liveness check' },
+        { key: 'step_ocrIdVerification', label: 'Document', title: 'Document verification' },
+        { key: 'step_userConsent', label: 'Consent', title: 'User consent' },
+        { key: 'step_finish', label: 'Done', title: 'Completed' },
+      ],
+      stepStateText: { done: 'completed', current: 'in progress', failed: 'stopped here', todo: 'not started' },
     };
   },
   watch: {
     'company.id': {
       async handler(newId, oldId) {
-        if (newId !== oldId) {
-          // Clear stale data from previous company immediately
+        if (oldId && newId !== oldId) {
+          // Clear stale data from previous company immediately (the header summary clears it on page load)
           this.$store.commit('mainStore/clearCompanyExecutives');
         }
         if (newId) {
@@ -214,6 +203,37 @@ export default {
         'Expired': 'rejected'
       };
       return statusMap[kycSteps.status] || 'pending';
+    },
+
+    // done | current | failed | todo for each step. The first unfinished step is where the
+    // person is: in progress while KYC is pending, failed once it failed or expired.
+    getStepStates(kycSteps) {
+      const status = kycSteps && kycSteps.status;
+      const stopped = ['Failed', 'Failure', 'Expired'].includes(status);
+      const firstOpen = kycSteps
+        ? this.kycStepDefinitions.findIndex(step => kycSteps[step.key] !== 1)
+        : 0;
+      return this.kycStepDefinitions.map((step, index) => {
+        let state = 'todo';
+        if (kycSteps && (status === 'Success' || kycSteps[step.key] === 1)) state = 'done';
+        else if (kycSteps && index === firstOpen) state = stopped ? 'failed' : (status === 'Pending' ? 'current' : 'todo');
+        return { ...step, state };
+      });
+    },
+
+    getStepSummary(kycSteps) {
+      const states = this.getStepStates(kycSteps);
+      const total = states.length;
+      const done = states.filter(step => step.state === 'done').length;
+      const failed = states.find(step => step.state === 'failed');
+      const current = states.find(step => step.state === 'current');
+      const count = `${done} of ${total} steps`;
+      if (!kycSteps) return { count, text: 'Not started', tone: 'muted' };
+      if (failed) return { count, text: `${this.getKycStatusText(kycSteps)} at ${failed.label}`, tone: 'danger' };
+      if (['Failed', 'Failure', 'Expired'].includes(kycSteps.status)) return { count, text: this.getKycStatusText(kycSteps), tone: 'danger' };
+      if (done === total) return { count, text: 'All steps complete', tone: 'success' };
+      if (current) return { count, text: `At ${current.label}`, tone: 'info' };
+      return { count, text: this.getKycStatusText(kycSteps), tone: 'muted' };
     },
 
     getInitials(name) {
@@ -392,23 +412,6 @@ export default {
 </script>
 
 <style scoped>
-/* Loading & Empty states (match ChecksRegulations) */
-.loading-state,
-.empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 3rem 1rem;
-  text-align: center;
-}
-
-.loading-spinner { font-size: 2rem; color: #3b82f6; margin-bottom: 1rem; }
-.loading-text, .empty-description { color: #6b7280; font-size: 0.875rem; margin: 0; line-height: 1.5; }
-
-.empty-icon { font-size: 3rem; color: #d1d5db; margin-bottom: 1rem; }
-.empty-title { font-size: 1.25rem; font-weight: 600; color: #374151; margin: 0 0 0.5rem 0; }
-
 /* ── grid — one column, full-width horizontal cards ──── */
 .ubo-grid {
   display: flex;
@@ -516,16 +519,23 @@ export default {
 .status-rejected { background-color: #fef2f2; color: #991b1b; }
 
 /* ── meta row: key stats ─────────────────────────────────── */
+/* Fixed column template so every UBO card lines its fields up in the same columns */
 .card-meta {
-  display: flex;
-  gap: 24px;
-  flex-wrap: wrap;
+  display: grid;
+  gap: 8px 24px;
+  grid-template-columns:
+    minmax(0, 1fr)    /* Type */
+    minmax(0, 1.2fr)  /* Designation */
+    minmax(0, 2.2fr)  /* Email */
+    minmax(0, 0.8fr)  /* Ownership */
+    minmax(0, 0.7fr); /* Retries */
 }
 
 .meta-item {
   display: flex;
   flex-direction: column;
   gap: 1px;
+  min-width: 0;
 }
 
 .meta-label {
@@ -540,76 +550,117 @@ export default {
   font-size: 12px;
   font-weight: 600;
   color: #6b7280;
-  word-break: break-all;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-/* ── KYC step track ─────────────────────────────────────── */
+/* ── KYC step track: one segment per step ───────────────── */
+.step-row {
+  align-items: center;
+  border-top: 1px solid #f3f4f6;
+  display: flex;
+  gap: 24px;
+  padding-top: 10px;
+}
+
 .step-track {
   display: flex;
-  align-items: center;
-  padding-top: 8px;
-  border-top: 1px solid #f3f4f6;
+  flex: 1;
+  gap: 4px;
+  list-style: none;
+  margin: 0;
+  max-width: 520px;
+  padding: 0;
 }
 
 .step-item {
   display: flex;
+  flex: 1;
   flex-direction: column;
-  align-items: center;
-  gap: 3px;
-  flex-shrink: 0;
+  gap: 5px;
+  min-width: 0;
 }
 
-.step-dot {
-  width: 26px;
-  height: 26px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 10px;
-  background: #f3f4f6;
-  border: 2px solid #e5e7eb;
-  color: #d1d5db;
-  transition: all 0.2s;
-}
-
-.step-item.done .step-dot {
-  background: #6b7280;
-  border-color: #6b7280;
-  color: #fff;
+.step-bar {
+  background: #e2e8f0;
+  border-radius: 3px;
+  display: block;
+  height: 6px;
 }
 
 .step-label {
-  font-size: 9px;
+  color: #64748b;
+  font-size: 11px;
   font-weight: 500;
-  color: #d1d5db;
-  letter-spacing: 0.02em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.step-item.done .step-label {
-  color: #646e7d;
+.step-item.is-done .step-bar { background: #16a34a; }
+.step-item.is-done .step-label { color: #166534; }
+
+.step-item.is-current .step-bar { background: #2563eb; }
+.step-item.is-current .step-label { color: #1d4ed8; font-weight: 600; }
+
+.step-item.is-failed .step-bar { background: #dc2626; }
+.step-item.is-failed .step-label { color: #b91c1c; font-weight: 600; }
+
+.sr-only {
+  border: 0;
+  clip: rect(0, 0, 0, 0);
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  white-space: nowrap;
+  width: 1px;
 }
 
-.step-line {
-  flex: 1;
-  height: 2px;
-  background: #e5e7eb;
-  border-radius: 1px;
-  margin: 0 2px;
-  margin-bottom: 14px;
-  transition: background 0.2s;
+.step-summary {
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  font-size: 12px;
+  gap: 1px;
+  margin-left: auto;
+  text-align: right;
 }
 
-.step-line.done {
-  background: #6b7280;
+.step-summary strong {
+  color: #111827;
+  font-weight: 600;
 }
 
-
+.summary-success { color: #166534; }
+.summary-danger { color: #b91c1c; }
+.summary-info { color: #1d4ed8; }
+.summary-muted { color: #64748b; }
 
 /* ── responsive ─────────────────────────────────────────── */
-@media (max-width: 600px) {
+@media (max-width: 960px) {
   .card-meta {
-    gap: 12px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 600px) {
+  .step-row {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .step-summary {
+    margin-left: 0;
+    text-align: left;
+  }
+
+  .card-meta {
+    gap: 8px 12px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 </style>

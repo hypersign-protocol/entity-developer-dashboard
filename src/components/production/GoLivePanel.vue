@@ -20,6 +20,23 @@
           <div class="check-body">
             <strong>{{ item.title }}</strong>
             <p>{{ item.description }}</p>
+            <div v-if="item.note" class="check-note" :class="item.note.tone">
+              <v-icon x-small>{{ item.note.icon }}</v-icon>
+              <div>
+                <strong v-if="item.note.title">{{ item.note.title }}</strong>
+                <span>{{ item.note.text }}</span>
+              </div>
+            </div>
+            <!-- Rejection: the compliance team's note, with the fix-it action right under it -->
+            <div v-if="item.rejection" class="rejection-note">
+              <span class="rejection-label">
+                Rejection reason
+              </span>
+              <p class="rejection-text">{{ item.rejection.text }}</p>
+              <button type="button" class="rejection-action" @click="item.rejection.action">
+                Update company details <v-icon x-small>mdi-arrow-right</v-icon>
+              </button>
+            </div>
           </div>
           <span v-if="item.pill" class="status-pill" :class="item.state">{{ item.pill }}</span>
           <button v-if="item.actionLabel" type="button" class="link-button" @click="item.action">
@@ -51,7 +68,7 @@
     </section>
 
     <DomainVerificationPopup v-model="showDomainPopup" :app="app" @updated="onAppUpdated" />
-    <CompanyVerificationPopup v-model="showCompanyPopup" :domain="app.domain || ''" @submitted="loadOnboarding" />
+    <CompanyVerificationPopup v-model="showCompanyPopup" :domain="app.domain || ''" :domain-verified="domainVerified" :onboarding-record="onboarding" :onboarding-loading="loadingOnboarding" @submitted="onCompanySubmitted" />
   </div>
 </template>
 
@@ -60,7 +77,7 @@ import { mapGetters } from 'vuex';
 import UtilsMixin from '../../mixins/utils';
 import DomainVerificationPopup from './DomainVerificationPopup.vue';
 import CompanyVerificationPopup from './CompanyVerificationPopup.vue';
-import { COMPANY_REVIEW, companyReviewStatus } from './companyReview.js';
+import { COMPANY_REVIEW, companyReviewStatus, companyAllowsProduction } from './companyReview.js';
 
 // Self-contained go-live checklist for one app. Needs only the app object, so it can
 // live in the app configuration page or on a standalone page. Emits `updated` with the
@@ -92,9 +109,9 @@ export default {
     companyStatus() {
       return companyReviewStatus(this.onboarding);
     },
-    // Submitting is enough for production access; compliance reviews in parallel
+    // Submitting (Completed) is enough for production access; compliance reviews in parallel
     companySubmitted() {
-      return [COMPANY_REVIEW.UNDER_REVIEW, COMPANY_REVIEW.VERIFIED].includes(this.companyStatus);
+      return companyAllowsProduction(this.onboarding);
     },
     checklist() {
       return [this.mfaItem(), this.domainItem(),  this.companyItem()];
@@ -113,7 +130,6 @@ export default {
         ? {
           key: 'domain', state: 'done', icon: 'mdi-check-circle', pill: 'Verified',
           title: 'Verify your domain', description: `${this.app.domain} is verified.`,
-          actionLabel: 'Manage', action: openPopup,
         }
         : {
           key: 'domain', state: 'todo', icon: 'mdi-alert-circle-outline',
@@ -143,12 +159,22 @@ export default {
         case COMPANY_REVIEW.VERIFIED:
           return { ...base, state: 'done', icon: 'mdi-check-circle', pill: 'Verified', description: 'Your company details and documents have been verified.' };
         case COMPANY_REVIEW.UNDER_REVIEW:
-          return { ...base, state: 'done', icon: 'mdi-check-circle', pill: 'Under review', description: 'Submitted. Our compliance team is reviewing your details.' };
-        case COMPANY_REVIEW.ACTION_NEEDED:
           return {
-            ...base, state: 'attention', icon: 'mdi-alert-outline', pill: 'Action needed',
-            description: "Some documents couldn't be verified. Please review and resubmit.",
-            actionLabel: 'Resubmit', action: openPopup,
+            ...base, state: 'pending', icon: 'mdi-progress-check', pill: 'Under review',
+            description: 'Your company details and documents have been submitted.',
+            note: {
+              tone: 'info', icon: 'mdi-information-outline',
+              text: "Our compliance team is still verifying your company. You don't need to wait for it, you can go live now.",
+            },
+          };
+        case COMPANY_REVIEW.REJECTED:
+          return {
+            ...base, state: 'attention', icon: 'mdi-close-circle-outline', pill: 'Rejected',
+            description: "We couldn't verify your company. Update your details based on the note below and resubmit.",
+            rejection: {
+              text: this.onboarding.companyStatusReason || 'No reason was given. Please contact support for details.',
+              action: openPopup,
+            },
           };
         default:
           return {
@@ -166,6 +192,14 @@ export default {
         this.notifyErr(error.message || 'Could not load your company verification status.');
       } finally {
         this.loadingOnboarding = false;
+      }
+    },
+    // Use the PATCH response right away; fall back to refetching if it lacks the status
+    onCompanySubmitted(updated) {
+      if (updated && updated.companyVerificationStatus) {
+        this.onboarding = { ...this.onboarding, ...updated };
+      } else {
+        this.loadOnboarding();
       }
     },
     onAppUpdated(app) {
@@ -226,7 +260,9 @@ export default {
 
 .check-icon >>> .v-icon { color: #c08a2e !important; }
 .check-item.done .check-icon >>> .v-icon { color: #2daf78 !important; }
-.check-item.attention { border-color: #f3e1bd; background: #fffcf5; }
+.check-item.pending .check-icon >>> .v-icon { color: #d99833 !important; }
+.check-item.attention { border-color: #f3c9c9; }
+.check-item.attention .check-icon >>> .v-icon { color: #c94a4a !important; }
 
 .check-body { flex: 1; min-width: 0; }
 .check-body strong { display: block; color: #344054; font-size: 13px; }
@@ -234,7 +270,67 @@ export default {
 
 .status-pill { flex: 0 0 auto; padding: 4px 10px; border-radius: 14px; font-size: 11px; font-weight: 700; white-space: nowrap; }
 .status-pill.done { background: #eaf8f0; color: #218459; }
-.status-pill.attention { background: #fff4e5; color: #9a641c; }
+.status-pill.pending { background: #fff4e5; color: #9a641c; }
+.status-pill.attention { background: #fdecec; color: #b03a3a; }
+
+.check-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-top: 8px;
+  padding: 8px 10px;
+  border: 1px solid;
+  border-radius: 8px;
+  font-size: 12px;
+  line-height: 1.45;
+}
+.check-note > .v-icon { margin-top: 2px; color: inherit !important; }
+.check-note strong { display: inline; margin-right: 4px; color: inherit; font-size: 12px; }
+.check-note span { overflow-wrap: anywhere; white-space: pre-line; }
+.check-note.info { border-color: #f1dcb4; background: #fffaf0; color: #85591d; }
+.check-note.error { border-color: #f1c4c4; background: #fff1f1; color: #9f3434; }
+
+/* Rejection note: quote-style block so the reason reads as a message, not another alert */
+.rejection-note {
+  margin-top: 10px;
+  padding: 10px 14px 12px;
+  border-left: 3px solid #d65252;
+  border-radius: 0 8px 8px 0;
+  background: #f8fafc;
+}
+.rejection-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: #b03a3a;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+.rejection-label >>> .v-icon { color: inherit !important; }
+.check-body .rejection-text {
+  margin: 4px 0 0;
+  color: #273448;
+  font-size: 13px;
+  line-height: 1.55;
+  white-space: pre-line;
+}
+.rejection-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 10px;
+  padding: 6px 12px;
+  border: 1px solid #cfd8e3;
+  border-radius: 6px;
+  background: #fff;
+  color: #2563dc;
+  font-size: 12px;
+  font-weight: 700;
+}
+.rejection-action:hover { border-color: #2563dc; background: #edf3ff; }
+.rejection-action >>> .v-icon { color: inherit !important; }
 
 .link-button {
   display: inline-flex;

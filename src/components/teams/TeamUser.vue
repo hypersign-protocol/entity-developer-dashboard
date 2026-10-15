@@ -66,13 +66,13 @@
         <b-dropdown-item-button v-if="mode !== 'Admin'" style="text-align: left" @click="copyToClip(`${$config.app.url}/#/studio/settings?ref=invitions`, 'Invitation Url')"><i
             class="far fa-copy mt-1" aria-hidden="true"></i> Invite Url
         </b-dropdown-item-button>
-         <b-dropdown-item-button v-if="mode == 'Admin'" style="text-align: left" @click="copyToClip(inviteCode, 'Invition Code')"><i
-          class="far fa-copy mt-1" aria-hidden="true"></i> Invition Code
+         <b-dropdown-item-button v-if="mode == 'Admin'" style="text-align: left" @click="copyToClip(inviteCode, 'Invitation Code')"><i
+          class="far fa-copy mt-1" aria-hidden="true"></i> Invitation Code
       </b-dropdown-item-button>
         <b-dropdown-item-button v-if="deleteMemberMenu" style="text-align: left" @click="deleteAMember()"><i
             class="fa fa-trash mt-1"></i> Delete Member</b-dropdown-item-button>
         <b-dropdown-item-button v-if="mode == 'Admin'" style="text-align: left" @click="acceptedInvition()"><b-icon
-            icon="hand-thumbs-up"></b-icon> Accept Invition</b-dropdown-item-button>
+            icon="hand-thumbs-up"></b-icon> Accept Invitation</b-dropdown-item-button>
 
         <b-dropdown-item-button v-if="mode == 'Admin' && invitationStatus" style="text-align:left"
           @click="switchToAdminAccount()"><b-icon icon="box-arrow-in-right"></b-icon> Switch
@@ -215,7 +215,7 @@ export default {
       try {
         this.isLoading = true;
         await this.acceptInvition(this.inviteCode.trim());
-        this.notifySuccess(`The Invition successfully accepted, now you can access the team`)
+        this.notifySuccess(`Invitation accepted. You can now access the team.`)
         this.isLoading = false;
       } catch (e) {
         this.notifyErr(e.message)
