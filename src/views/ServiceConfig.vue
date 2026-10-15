@@ -217,7 +217,7 @@
             <button type="button" class="primary-button" @click="saveChanges">Save environment</button>
           </div>
         </section>
-        <section class="side-card danger-card">
+        <section v-if="canDeleteApp" class="side-card danger-card">
           <h2>Danger zone</h2>
           <p>Remove this application and its associated metadata.</p>
           <button type="button" class="danger-button" @click="openDeleteServicePopUp">Delete application</button>
@@ -388,6 +388,10 @@ export default {
     };
   },
   computed: {
+    // Hidden for team members whose role can't delete apps (owners can always delete)
+    canDeleteApp() {
+      return this.$store.getters['mainStore/hasAccess']('DASHBOARD', 'DELETE_SERVICE');
+    },
     ...mapGetters('mainStore', ['getSelectedService', 'getAppsWithSSIServices']),
     ...mapState({
       widgetConfig: state => state.mainStore.widgetConfig,

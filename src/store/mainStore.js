@@ -5,6 +5,7 @@ import config from '../config'
 import UtilsMixin from '../mixins/utils.js'
 import { sanitizeUrl } from '../utils/common.js'
 import { normalizeStatusReasons, currentStatusReasonCodes } from '../utils/statusReasons.js'
+import { hasAccess as checkAccess, canOpenPage as checkPage } from '../utils/permissions.js'
 import { RequestHandler, JWTExpiredErrorMessageHandling } from '../utils/utils.js'
 
 const { apiServer, studioServer } = config;
@@ -122,6 +123,14 @@ const mainStore = {
         },
 
         // eslint-disable-next-line 
+        // Team-member permissions (see utils/permissions.js): everything in your own account;
+        // in a team account only what the role allows
+        accessContext: (state) => ({
+            isTeamAccount: Boolean(state.tenantAccount),
+            accessList: (state.userDetails && state.userDetails.accessList) || [],
+        }),
+        hasAccess: (state, getters) => (serviceType, access) => checkAccess(getters.accessContext, serviceType, access),
+        canOpenPage: (state, getters) => (path) => checkPage(getters.accessContext, path),
         getUserAccessList: (state) => (service) => {
             return state.userDetails.accessList ? state.userDetails.accessList.filter(access => access.serviceType === service) : []
         },
