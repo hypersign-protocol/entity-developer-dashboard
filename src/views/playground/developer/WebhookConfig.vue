@@ -11,12 +11,12 @@
       </v-col>
       <v-col cols="12" md="6" class="d-flex justify-end align-center">
         <template v-if="getWebhookConfig._id">
-          <v-btn icon color="error" class="mr-2" @click="deleteConfig" title="Delete Configuration">
+          <v-btn v-if="$can('CAVACH_API', 'DELETE_WEBHOOK_CONFIG')" icon color="error" class="mr-2" @click="deleteConfig" title="Delete Configuration">
             <v-icon>mdi-trash-can-outline</v-icon>
           </v-btn>
-          <hf-buttons name="Update Configuration" @executeAction="updateConfiguration()"></hf-buttons>
+          <hf-buttons v-if="$can('CAVACH_API', 'UPDATE_WEBHOOK_CONFIG')" name="Update Configuration" @executeAction="updateConfiguration()"></hf-buttons>
         </template>
-        <hf-buttons v-else name="Save Configuration" @executeAction="saveConfiguration()"></hf-buttons>
+        <hf-buttons v-else-if="$can('CAVACH_API', 'WRITE_WEBHOOK_CONFIG')" name="Save Configuration" @executeAction="saveConfiguration()"></hf-buttons>
       </v-col>
     </v-row>
 

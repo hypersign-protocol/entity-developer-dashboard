@@ -2773,7 +2773,7 @@
             </p>
           </div>
           <button
-            v-if="!isSessionDetailView && latestReviewSessionId"
+            v-if="!isSessionDetailView && latestReviewSessionId && $can('CAVACH_API', 'WRITE_SESSION')"
             type="button"
             class="sd-review-btn"
             @click="openManualReviewModal"

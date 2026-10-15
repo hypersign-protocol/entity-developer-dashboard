@@ -9,7 +9,7 @@
           <p class="text-subtitle-2 text-muted">Create and manage widget configurations for your verification use cases</p>
         </div>
         <div class="header-actions">
-          <HfButtons name="New Configuration" iconClass="mdi mdi-plus" @executeAction="createConfiguration" />
+          <HfButtons v-if="$can('CAVACH_API', 'WRITE_WIDGET_CONFIG')" name="New Configuration" iconClass="mdi mdi-plus" @executeAction="createConfiguration" />
         </div>
       </div>
 
@@ -19,7 +19,7 @@
         icon="mdi mdi-widgets-outline"
         description="Create your first configuration to get started."
       >
-        <HfButtons name="New Configuration" iconClass="mdi mdi-plus" @executeAction="createConfiguration" />
+        <HfButtons v-if="$can('CAVACH_API', 'WRITE_WIDGET_CONFIG')" name="New Configuration" iconClass="mdi mdi-plus" @executeAction="createConfiguration" />
       </empty-container>
 
       <div v-else class="table-shell">
@@ -62,9 +62,9 @@
             <b-dropdown right no-caret size="sm" variant="link" boundary="viewport" toggle-class="action-menu" menu-class="configuration-actions-menu" class="configuration-actions ml-1">
               <template #button-content><v-icon small>mdi-dots-vertical</v-icon></template>
               <b-dropdown-item @click="viewConfiguration(item)"><v-icon small>mdi-pencil-outline</v-icon> Edit</b-dropdown-item>
-              <b-dropdown-item v-if="!item.isDefault" @click="setDefaultConfiguration(item)"><v-icon small>mdi-star-outline</v-icon> Set as default</b-dropdown-item>
-              <b-dropdown-divider v-if="!item.isDefault" />
-              <b-dropdown-item v-if="!item.isDefault" class="delete-action" @click="removeConfiguration(item)"><v-icon small>mdi-trash-can-outline</v-icon> Delete</b-dropdown-item>
+              <b-dropdown-item v-if="!item.isDefault && $can('CAVACH_API', 'UPDATE_WIDGET_CONFIG')" @click="setDefaultConfiguration(item)"><v-icon small>mdi-star-outline</v-icon> Set as default</b-dropdown-item>
+              <b-dropdown-divider v-if="!item.isDefault && $can('CAVACH_API', 'DELETE_WIDGET_CONFIG')" />
+              <b-dropdown-item v-if="!item.isDefault && $can('CAVACH_API', 'DELETE_WIDGET_CONFIG')" class="delete-action" @click="removeConfiguration(item)"><v-icon small>mdi-trash-can-outline</v-icon> Delete</b-dropdown-item>
             </b-dropdown>
           </template>
         </b-table>

@@ -232,7 +232,7 @@ const PREDEFINED_ROLES = [
         description: "Minimal read-only access for business stakeholders.",
         badge: "Limited view",
         recommendedFor: "Founders, management, or external auditors",
-        permissions: ["READ_ANALYTICS", "READ_USAGE", "READ_COMPANY", "READ_COMPLIANCE", "READ_SERVICE"]
+        permissions: ["READ_ANALYTICS","READ_SESSION", "READ_USAGE", "READ_COMPANY", "READ_COMPLIANCE", "READ_SERVICE"]
     },
     {
         key: "analyst",
@@ -241,7 +241,7 @@ const PREDEFINED_ROLES = [
         description: "Read-only access to verification, compliance, company, analytics, and usage data.",
         badge: "Read-only",
         recommendedFor: "Audit, support, or monitoring team",
-        permissions: ["READ_VERIFIED_USER", "READ_ANALYTICS", "READ_USAGE", "READ_COMPANY", "READ_COMPANY_EXECUTIVES", "READ_DOCUMENT", "READ_COMPLIANCE"]
+        permissions: ["READ_VERIFIED_USER","READ_SESSION", "READ_ANALYTICS", "READ_USAGE", "READ_COMPANY", "READ_COMPANY_EXECUTIVES", "READ_DOCUMENT", "READ_COMPLIANCE", DASHBOARD_ROLE_SERVICE.accessList.READ_SERVICE]
     },
     {
         key: "finance",
@@ -250,7 +250,7 @@ const PREDEFINED_ROLES = [
         description: "Can view usage, analytics, credits, and company billing-related information.",
         badge: "Billing access",
         recommendedFor: "Finance or accounts team",
-        permissions: ["READ_ANALYTICS", "READ_USAGE", "READ_CREDIT", "READ_COMPANY"]
+        permissions: ["READ_ANALYTICS", "READ_SESSION", "READ_USAGE", "READ_CREDIT", "READ_COMPANY", DASHBOARD_ROLE_SERVICE.accessList.READ_SERVICE]
     },
     {
         key: "developer",
@@ -259,7 +259,7 @@ const PREDEFINED_ROLES = [
         description: "Can configure widgets and webhooks for technical integration.",
         badge: "Integration access",
         recommendedFor: "Engineering team",
-        permissions: ["READ_WIDGET_CONFIG", "WRITE_WIDGET_CONFIG", "UPDATE_WIDGET_CONFIG", "READ_WEBHOOK_CONFIG", "WRITE_WEBHOOK_CONFIG", "UPDATE_WEBHOOK_CONFIG", "DELETE_WEBHOOK_CONFIG", "READ_USAGE"]
+        permissions: ["READ_WIDGET_CONFIG", "READ_SESSION", "WRITE_WIDGET_CONFIG", "UPDATE_WIDGET_CONFIG", "READ_WEBHOOK_CONFIG", "WRITE_WEBHOOK_CONFIG", "UPDATE_WEBHOOK_CONFIG", "DELETE_WEBHOOK_CONFIG", "READ_USAGE", DASHBOARD_ROLE_SERVICE.accessList.READ_SERVICE]
     },
     {
         key: "compliance_manager",
@@ -268,7 +268,7 @@ const PREDEFINED_ROLES = [
         description: "Can review KYC/KYB cases, verify documents, and access compliance data.",
         badge: "KYC/KYB review",
         recommendedFor: "Compliance or operations team",
-        permissions: ["READ_VERIFIED_USER", "READ_ANALYTICS", "READ_USAGE", "READ_COMPANY", "UPDATE_COMPANY_STATUS", "READ_COMPANY_EXECUTIVES", "READ_DOCUMENT", "VERIFY_DOCUMENT", "READ_COMPLIANCE"]
+        permissions: ["READ_VERIFIED_USER", "READ_ANALYTICS", "READ_USAGE", "READ_COMPANY", "UPDATE_COMPANY_STATUS", "READ_COMPANY_EXECUTIVES", "READ_DOCUMENT", "VERIFY_DOCUMENT", "READ_COMPLIANCE", DASHBOARD_ROLE_SERVICE.accessList.READ_SERVICE]
     },
     {
         key: "admin",
@@ -298,7 +298,7 @@ const SSI_PREDEFINED_ROLES = [
         description: "Read-only access to SSI operations and verification records.",
         badge: "Read-only",
         recommendedFor: "Audit and compliance teams",
-        permissions: ["READ_DID", "READ_SCHEMA", "READ_CREDENTIAL", "READ_USAGE", "READ_TX"]
+        permissions: ["READ_DID", "READ_SCHEMA", "READ_CREDENTIAL", "READ_USAGE", "READ_TX", DASHBOARD_ROLE_SERVICE.accessList.READ_SERVICE]
     },
     {
         key: "developer",
@@ -307,7 +307,7 @@ const SSI_PREDEFINED_ROLES = [
         description: "Technical integration and transaction monitoring access.",
         badge: "Developer access",
         recommendedFor: "Engineering teams",
-        permissions: ["READ_DID", "READ_SCHEMA", "READ_CREDENTIAL", "READ_USAGE", "READ_TX", "CHECK_LIVE_STATUS"]
+        permissions: ["READ_DID", "READ_SCHEMA", "READ_CREDENTIAL", "READ_USAGE", "READ_TX", "CHECK_LIVE_STATUS", DASHBOARD_ROLE_SERVICE.accessList.READ_SERVICE]
     },
     {
         key: "verifier",
@@ -316,7 +316,7 @@ const SSI_PREDEFINED_ROLES = [
         description: "Can verify credentials, presentations, and DID signatures.",
         badge: "Verification access",
         recommendedFor: "Verification services",
-        permissions: ["READ_DID", "VERIFY_DID_SIGNATURE", "READ_SCHEMA", "READ_CREDENTIAL", "VERIFY_CREDENTIAL", "VERIFY_PRESENTATION", "READ_USAGE", "CHECK_LIVE_STATUS"]
+        permissions: ["READ_DID", "VERIFY_DID_SIGNATURE", "READ_SCHEMA", "READ_CREDENTIAL", "VERIFY_CREDENTIAL", "VERIFY_PRESENTATION", "READ_USAGE", "CHECK_LIVE_STATUS", DASHBOARD_ROLE_SERVICE.accessList.READ_SERVICE]
     },
     {
         key: "credential_issuer",
@@ -325,7 +325,7 @@ const SSI_PREDEFINED_ROLES = [
         description: "Can issue and manage credentials and presentations.",
         badge: "Credential issuance",
         recommendedFor: "Issuing authorities",
-        permissions: ["READ_DID", "VERIFY_DID_SIGNATURE", "READ_SCHEMA", "READ_CREDENTIAL", "WRITE_CREDENTIAL", "WRITE_PRESENTATION", "READ_USAGE", "CHECK_LIVE_STATUS"]
+        permissions: ["READ_DID", "VERIFY_DID_SIGNATURE", "READ_SCHEMA", "READ_CREDENTIAL", "WRITE_CREDENTIAL", "WRITE_PRESENTATION", "READ_USAGE", "CHECK_LIVE_STATUS", DASHBOARD_ROLE_SERVICE.accessList.READ_SERVICE]
     },
     {
         key: "billing_manager",
@@ -334,7 +334,7 @@ const SSI_PREDEFINED_ROLES = [
         description: "Manage SSI credits and monitor service usage.",
         badge: "Billing access",
         recommendedFor: "Finance teams",
-        permissions: ["READ_CREDIT", "WRITE_CREDIT", "READ_USAGE", "CHECK_LIVE_STATUS"]
+        permissions: ["READ_CREDIT", "WRITE_CREDIT", "READ_USAGE", "CHECK_LIVE_STATUS", DASHBOARD_ROLE_SERVICE.accessList.READ_SERVICE]
     },
     {
         key: "ssi_admin",
@@ -352,7 +352,7 @@ const SSI_PREDEFINED_ROLES = [
         description: "Manage decentralized identifiers, schemas, and credential lifecycle.",
         badge: "Identity management",
         recommendedFor: "SSI operations teams",
-        permissions: ["READ_DID", "WRITE_DID", "VERIFY_DID_SIGNATURE", "ISSUE_DID_JWT", "READ_SCHEMA", "WRITE_SCHEMA", "READ_CREDENTIAL", "WRITE_CREDENTIAL", "VERIFY_CREDENTIAL", "WRITE_PRESENTATION", "VERIFY_PRESENTATION", "READ_USAGE", "READ_TX", "CHECK_LIVE_STATUS"]
+        permissions: ["READ_DID", "WRITE_DID", "VERIFY_DID_SIGNATURE", "ISSUE_DID_JWT", "READ_SCHEMA", "WRITE_SCHEMA", "READ_CREDENTIAL", "WRITE_CREDENTIAL", "VERIFY_CREDENTIAL", "WRITE_PRESENTATION", "VERIFY_PRESENTATION", "READ_USAGE", "READ_TX", "CHECK_LIVE_STATUS", DASHBOARD_ROLE_SERVICE.accessList.READ_SERVICE]
     },
     {
         key: "custom",

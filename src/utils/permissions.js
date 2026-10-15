@@ -29,6 +29,8 @@ const PAGE_ACCESS = [
   { prefix: '/studio/widget-config/', service: SERVICE.KYC, access: 'READ_WIDGET_CONFIG' },
   { prefix: '/studio/business/', service: SERVICE.KYC, access: 'READ_COMPANY' },
   { prefix: '/studio/kyb-widget-config/', service: SERVICE.KYC, access: 'READ_WIDGET_CONFIG' },
+  // The ID verifier page starts by loading the KYC widget configurations
+  { prefix: '/studio/kyc-webpage-generator/', service: SERVICE.KYC, access: 'READ_WIDGET_CONFIG' },
   { prefix: '/studio/developer/webhook/', service: SERVICE.KYC, access: 'READ_WEBHOOK_CONFIG' },
   { prefix: '/studio/onchainkyc/credit/', service: SERVICE.KYC, access: 'READ_CREDIT' },
   { prefix: '/studio/usage/', service: SERVICE.KYC, access: 'READ_USAGE' },
