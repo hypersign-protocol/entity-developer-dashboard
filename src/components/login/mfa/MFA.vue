@@ -1,5 +1,5 @@
 <template>
-    <div class="mt-3">
+    <div>
         <VerifyMFA :setAuthenticatorType="setAuthenticatorType" :sessionId="sessionId" />
     </div>
 </template>

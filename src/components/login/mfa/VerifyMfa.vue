@@ -2,10 +2,13 @@
     <div class="mfa-page">
         <load-ing :active.sync="isLoading" :can-cancel="true" :is-full-page="true"></load-ing>
 
-        <!-- Same card language as the login page -->
+        <!-- Same logo, frame and card as the login page (PKIIdLogin), so moving from
+             sign-in to MFA feels like the same page with a new step in the card -->
+        <img class="mfa-logo" height="60px" src="../../../assets/Entity_full.png" alt="Hypersign" />
+
         <section class="mfa-card">
             <header class="mfa-header">
-                <span class="mfa-icon" aria-hidden="true"><i class="mdi mdi-shield-lock-outline"></i></span>
+                <span class="mfa-step"><i class="mdi mdi-shield-lock-outline" aria-hidden="true"></i> Two-step verification</span>
                 <h1>Verify your identity</h1>
                 <p>Enter the 6-digit code from your authenticator app to continue.</p>
             </header>
@@ -31,10 +34,13 @@
         </section>
 
         <footer class="mfa-footer">
-            <span>Lost access to your authenticator app?</span>
-            <a :href="supportMailto" target="_blank" rel="noopener noreferrer">Contact support</a>
-            <span class="mfa-dot" aria-hidden="true">·</span>
-            <button type="button" @click="logout()">Log out</button>
+            <p>
+                Lost access to your authenticator app?
+                <a :href="supportMailto" target="_blank" rel="noopener noreferrer">Contact support</a>
+            </p>
+            <button type="button" class="mfa-back" @click="logout()">
+                <i class="mdi mdi-arrow-left" aria-hidden="true"></i> Sign in with a different account
+            </button>
         </footer>
     </div>
 </template>
@@ -162,43 +168,65 @@ export default {
 
 <style scoped>
 .mfa-page {
+    /* Same frame as .login-page-container on the login page */
     align-items: center;
     display: flex;
     flex-direction: column;
-    padding: 40px 16px;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.mfa-logo {
+    margin-bottom: 24px;
 }
 
 .mfa-card {
+    /* Same size and look as .auth-portal-card on the login page */
+    animation: mfa-card-in 0.25s ease-out;
     background: #ffffff;
     border: 1px solid #e2e8f0;
     border-radius: 12px;
     box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.04), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
-    max-width: 420px;
-    padding: 32px 28px;
+    max-width: 400px;
+    padding: 40px 30px;
     width: 100%;
 }
 
+/* The card's content changes, the frame doesn't: a short fade marks the new step */
+@keyframes mfa-card-in {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .mfa-card { animation: none; }
+}
+
 .mfa-header {
-    margin-bottom: 24px;
+    margin-bottom: 28px;
     text-align: center;
 }
 
-.mfa-icon {
+.mfa-step {
     align-items: center;
     background: #eff6ff;
-    border-radius: 50%;
-    color: #2563eb;
+    border-radius: 999px;
+    color: #1d4ed8;
     display: inline-flex;
-    font-size: 26px;
-    height: 52px;
-    justify-content: center;
-    margin-bottom: 14px;
-    width: 52px;
+    font-size: 11px;
+    font-weight: 700;
+    gap: 4px;
+    letter-spacing: 0.02em;
+    margin-bottom: 12px;
+    padding: 3px 10px;
 }
 
+
 .mfa-header h1 {
+    /* Same as .portal-title on the login page */
     color: #111827;
-    font-size: 1.375rem;
+    font-size: 1.5rem;
     font-weight: 800;
     margin: 0 0 4px;
 }
@@ -248,14 +276,26 @@ export default {
 }
 
 .mfa-footer {
+    /* Same spot and text style as the login page's terms line */
     align-items: center;
-    color: #64748b;
+    color: #94a3b8;
     display: flex;
-    flex-wrap: wrap;
-    font-size: 0.8125rem;
-    gap: 6px;
-    justify-content: center;
-    margin-top: 20px;
+    flex-direction: column;
+    font-size: 0.75rem;
+    gap: 8px;
+    margin-top: 24px;
+    max-width: 320px;
+    text-align: center;
+}
+
+.mfa-footer p {
+    margin: 0;
+}
+
+.mfa-back {
+    align-items: center;
+    display: inline-flex;
+    gap: 4px;
 }
 
 .mfa-footer a,
@@ -273,7 +313,4 @@ export default {
     text-decoration: underline;
 }
 
-.mfa-dot {
-    color: #cbd5e1;
-}
 </style>
