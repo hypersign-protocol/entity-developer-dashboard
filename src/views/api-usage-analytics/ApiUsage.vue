@@ -2,8 +2,13 @@
     <b-container fluid class="py-3">
     <template v-if="!accessDenied">
       <header class="page-header">
-        <h4 class="font-weight-bold mb-0">API Usage Analytics</h4>
-        <p class="text-subtitle-2 text-muted mb-0">Monitor consumption and service costs</p>
+        <div>
+          <h4 class="font-weight-bold mb-0">API Usage Analytics</h4>
+          <p class="text-subtitle-2 text-muted mb-0">Monitor consumption and service costs</p>
+        </div>
+        <router-link class="view-transactions" :to="`/studio/usage/${$route.params.appId}/transactions`">
+          View transactions <i class="mdi mdi-arrow-right" aria-hidden="true"></i>
+        </router-link>
       </header>
 
       <!-- Date range: presets first, custom range behind "Custom"; scopes every chart below -->
@@ -547,7 +552,29 @@ export default {
   width: 80vw !important;
 }
 .page-header {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: space-between;
   margin-bottom: 16px;
+}
+.view-transactions {
+  align-items: center;
+  background: #fff;
+  border: 1px solid #d0d9e6;
+  border-radius: 8px;
+  color: #1d4ed8;
+  display: inline-flex;
+  font-size: 13px;
+  font-weight: 700;
+  gap: 4px;
+  padding: 8px 14px;
+  text-decoration: none;
+}
+.view-transactions:hover {
+  background: #eff6ff;
+  border-color: #bfdbfe;
 }
 
 /* Date range bar */

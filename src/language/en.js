@@ -27,5 +27,6 @@ export const NAV = {
         TITLE: "Billing & Usage",
         CREDIT: "Credits",
         USAGES: "API Usages",
+        TRANSACTIONS: "API Transactions",
     }
 }

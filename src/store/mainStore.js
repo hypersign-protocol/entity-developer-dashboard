@@ -2646,6 +2646,29 @@ const mainStore = {
         },
 
 
+        // GET a KYC service usage endpoint (e.g. 'usage/transactions') for the selected app,
+        // with the same token as the usage page. Used by utils/apiTransactions.js.
+        async fetchKycUsageEndpoint({ getters, dispatch }, { path, query = {} }) {
+            if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
+                throw new Error('Tenant url is null or empty, service is not selected')
+            }
+            const params = new URLSearchParams({ serviceId: getters.getSelectedService.appId })
+            Object.entries(query).forEach(([key, value]) => {
+                if (value !== undefined && value !== null && value !== '') params.set(key, value)
+            })
+            const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/${path}?${params.toString()}`
+            const token = await dispatch('getValidToken', {
+                serviceId: getters.getSelectedService.appId,
+                grant_type: config.GRANT_TYPES_ENUM.CAVACH_API,
+                tokenStorageKey: "access_token"
+            })
+            const resp = await fetch(url, { method: 'GET', headers: UtilsMixin.methods.getKycServiceHeader(token) })
+            const json = await resp.json()
+            if (json.error) {
+                throw new Error(JWTExpiredErrorMessageHandling(json))
+            }
+            return json?.data ?? json
+        },
         async fetchUsageForAService({ getters, dispatch }, payload) {
             const { startDate, endDate, env } = payload
             let envVal = env
