@@ -448,7 +448,7 @@ ul {
       </div>
       <div>
         <b-button variant="outline-secondary" class="mr-2" @click="goBack">Cancel</b-button>
-        <HfButtons :name="widgetConfigTemp._id ? 'Update Configuration' : 'Save Configuration'"
+        <HfButtons v-if="$can('CAVACH_API', widgetConfigTemp._id ? 'UPDATE_WIDGET_CONFIG' : 'WRITE_WIDGET_CONFIG')" :name="widgetConfigTemp._id ? 'Update Configuration' : 'Save Configuration'"
           @executeAction="widgetConfigTemp._id ? updateConfiguration() : saveConfiguration()" />
       </div>
     </div>

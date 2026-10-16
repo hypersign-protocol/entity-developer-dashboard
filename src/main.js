@@ -27,6 +27,10 @@ Vue.use(BootstrapVueIcons);
 Vue.use(Notifications)
 Vue.config.devtools = true;
 Vue.prototype.$config = config
+// $can(service, access): whether the signed-in user may do something. Always true in your own
+// account; in a team account it follows the role (see utils/permissions.js). Used to hide
+// actions a teammate can't use; the backend still enforces every one of them.
+Vue.prototype.$can = (service, access) => store.getters['mainStore/hasAccess'](service, access)
 Vue.component("loadIng", LoadIng);
 Vue.component("hf-buttons", HfButtons);
 Vue.component("hf-upgrade-plan", HFUpgradePlan)

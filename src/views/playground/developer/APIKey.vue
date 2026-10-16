@@ -51,12 +51,12 @@
 
             <div class="generate-section w-100">
               <hf-buttons
-                v-if="getSelectedService"
+                v-if="getSelectedService && $can('DASHBOARD', 'UPDATE_SERVICE')"
                 name="Generate New Secret"
                 @executeAction="reGenerateSecretKey"
               ></hf-buttons>
 
-              <v-btn v-else disabled block depressed height="44">
+              <v-btn v-else-if="!getSelectedService" disabled block depressed height="44">
                 Generate New Secret
               </v-btn>
             </div>

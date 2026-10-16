@@ -16,9 +16,15 @@ export async function RequestHandler(url, method = 'GET', body = {}, headers = {
 
     // headers
     const finalHeaders = { ...headers };
+    const isFormData = typeof FormData !== 'undefined' && body instanceof FormData;
+    if (isFormData) {
+        Object.keys(finalHeaders).forEach((key) => {
+            if (key.toLowerCase() === 'content-type') delete finalHeaders[key];
+        });
+    }
     const normalizedKeys = Object.keys(finalHeaders).map(key => key.toLowerCase());
 
-    if (!normalizedKeys.includes('content-type')) {
+    if (!isFormData && !normalizedKeys.includes('content-type')) {
         finalHeaders['Content-Type'] = 'application/json';
     }
     if (!normalizedKeys.includes('origin')) {
@@ -27,8 +33,8 @@ export async function RequestHandler(url, method = 'GET', body = {}, headers = {
     options['headers'] = finalHeaders;
 
     // body
-    if (body && Object.keys(body).length > 0) {
-        options['body'] = JSON.stringify(body);
+    if (body && (isFormData || Object.keys(body).length > 0)) {
+        options['body'] = isFormData ? body : JSON.stringify(body);
     }
 
     const response = await fetch(url, options);

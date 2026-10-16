@@ -1,0 +1,558 @@
+{
+  "serviceType": "CAVACH_API",
+  "version": "3.23.0",
+  "globalPrefix": "api",
+  "versioning": "URI",
+  "uriVersionPrefix": "v",
+  "defaultVersion": "1",
+  "routes": [
+    {
+      "method": "POST",
+      "path": "/api/v1/aadhaar/face/match",
+      "charges": [
+        {
+          "id": "api",
+          "creditType": "API_CREDIT",
+          "amount": 8
+        }
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/aadhaar/otp/generate",
+      "charges": [
+        {
+          "id": "api",
+          "creditType": "API_CREDIT",
+          "amount": 2
+        }
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/aadhaar/otp/verify",
+      "charges": [
+        {
+          "id": "api",
+          "creditType": "API_CREDIT",
+          "amount": 5
+        }
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/aadhaar/qr/verify",
+      "charges": [
+        {
+          "id": "api",
+          "creditType": "API_CREDIT",
+          "amount": 7
+        }
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/compliance",
+      "charges": []
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/compliance",
+      "charges": [
+        {
+          "id": "api",
+          "creditType": "API_CREDIT",
+          "amount": 100
+        }
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/credit",
+      "charges": []
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/credit",
+      "charges": []
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/credit/:creditId",
+      "charges": []
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/credit/:creditId/activate",
+      "charges": []
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/document/:id",
+      "charges": []
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/document/:id/verification",
+      "charges": [
+        {
+          "id": "api",
+          "creditType": "API_CREDIT",
+          "amount": 20
+        }
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/document/download/:id",
+      "charges": []
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/document/upload",
+      "charges": [
+        {
+          "id": "api",
+          "creditType": "API_CREDIT",
+          "amount": 10
+        }
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/e-kyb/verification/company",
+      "charges": []
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/e-kyb/verification/company",
+      "charges": [
+        {
+          "id": "api",
+          "creditType": "API_CREDIT",
+          "amount": 100
+        }
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/e-kyb/verification/company/:companyId/company-executives",
+      "charges": []
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/e-kyb/verification/company/:companyId/company-executives",
+      "charges": []
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/e-kyb/verification/company/:companyId/company-executives",
+      "charges": [
+        {
+          "id": "api",
+          "creditType": "API_CREDIT",
+          "amount": 1
+        }
+      ]
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/e-kyb/verification/company/:companyId/company-executives/:id",
+      "charges": []
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/e-kyb/verification/company/:companyId/company-executives/:id",
+      "charges": []
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/e-kyb/verification/company/:companyId/company-executives/resend-mail",
+      "charges": []
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/e-kyb/verification/company/:id",
+      "charges": []
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/e-kyb/verification/company/:id",
+      "charges": []
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/e-kyb/verification/company/:id",
+      "charges": []
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/e-kyb/verification/company/:id/status",
+      "charges": []
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/e-kyb/verification/widget-config",
+      "charges": []
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/e-kyb/verification/widget-config",
+      "charges": []
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/e-kyb/verification/widget-config",
+      "charges": []
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/e-kyb/verification/widget-config",
+      "charges": []
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/e-kyc/analytics/demographic-stats",
+      "charges": []
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/e-kyc/analytics/device-stats",
+      "charges": []
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/e-kyc/analytics/overview",
+      "charges": []
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/e-kyc/verification/asset-metadata",
+      "charges": []
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/e-kyc/verification/auth",
+      "charges": [
+        {
+          "id": "api",
+          "creditType": "API_CREDIT",
+          "amount": 1
+        }
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/e-kyc/verification/doc-ocr",
+      "charges": [
+        {
+          "id": "api",
+          "creditType": "API_CREDIT",
+          "amount": 30
+        }
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/e-kyc/verification/doc-ocr/extract",
+      "charges": [
+        {
+          "id": "api",
+          "creditType": "API_CREDIT",
+          "amount": 30
+        }
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/e-kyc/verification/doc-ocr/status/:sessionId",
+      "charges": []
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/e-kyc/verification/mobile-flow",
+      "charges": []
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/e-kyc/verification/mobile-flow/:flowId",
+      "charges": [
+        {
+          "id": "api",
+          "creditType": "API_CREDIT",
+          "amount": 10
+        }
+      ]
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/e-kyc/verification/mobile-flow/:flowId",
+      "charges": []
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/e-kyc/verification/mobile-flow/:flowId/status",
+      "charges": []
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/e-kyc/verification/onchainkyc-config",
+      "charges": []
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/e-kyc/verification/onchainkyc-config",
+      "charges": []
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/e-kyc/verification/onchainkyc-config",
+      "charges": []
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/e-kyc/verification/onchainkyc-config/:onchainConfigId",
+      "charges": []
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/e-kyc/verification/onchainkyc-config/:onchainConfigId",
+      "charges": []
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/e-kyc/verification/passive-liveliness",
+      "charges": [
+        {
+          "id": "api",
+          "creditType": "API_CREDIT",
+          "amount": 15
+        }
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/e-kyc/verification/passive-liveliness/status/:sessionId",
+      "charges": []
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/e-kyc/verification/sbt-mint",
+      "charges": []
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/e-kyc/verification/session",
+      "charges": []
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/e-kyc/verification/session",
+      "charges": [
+        {
+          "id": "api",
+          "creditType": "API_CREDIT",
+          "amount": 4
+        }
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/e-kyc/verification/session/:sessionId",
+      "charges": []
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/e-kyc/verification/sessions/:sessionId/decision",
+      "charges": [
+        {
+          "id": "api",
+          "creditType": "API_CREDIT",
+          "amount": 4
+        }
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/e-kyc/verification/user-consent",
+      "charges": []
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/e-kyc/verification/user-consent",
+      "charges": [
+        {
+          "id": "api",
+          "creditType": "API_CREDIT",
+          "amount": 5
+        }
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/e-kyc/verification/webhook-config",
+      "charges": []
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/e-kyc/verification/webhook-config",
+      "charges": []
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/e-kyc/verification/webhook-config/:id",
+      "charges": []
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/e-kyc/verification/webhook-config/:id",
+      "charges": []
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/e-kyc/verification/widget-config",
+      "charges": []
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/e-kyc/verification/widget-config",
+      "charges": []
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/e-kyc/verification/widget-config/:widgetConfigId",
+      "charges": []
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/e-kyc/verification/widget-config/:widgetConfigId",
+      "charges": []
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v1/e-kyc/verification/widget-config/:widgetConfigId",
+      "charges": []
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/e-kyc/verification/widget-config/all",
+      "charges": []
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/e-kyc/verification/zk-proof",
+      "charges": [
+        {
+          "id": "api",
+          "creditType": "API_CREDIT",
+          "amount": 10
+        }
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/mail-client/add-job",
+      "charges": []
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/proof",
+      "charges": []
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/usage",
+      "charges": []
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/usage/detail",
+      "charges": []
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/usage/invoice",
+      "charges": []
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/user",
+      "charges": []
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/user/:userId",
+      "charges": []
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/wallet",
+      "charges": []
+    },
+    {
+      "method": "POST",
+      "path": "/api/v2/auth/exchange",
+      "charges": [
+        {
+          "id": "api",
+          "creditType": "API_CREDIT",
+          "amount": 1
+        }
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/v2/biometrics/verify",
+      "charges": [
+        {
+          "id": "api",
+          "creditType": "API_CREDIT",
+          "amount": 45
+        }
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/claims/consent",
+      "charges": []
+    },
+    {
+      "method": "POST",
+      "path": "/api/v2/consents",
+      "charges": [
+        {
+          "id": "api",
+          "creditType": "API_CREDIT",
+          "amount": 5
+        }
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/consents/:sessionId",
+      "charges": []
+    },
+    {
+      "method": "POST",
+      "path": "/api/v2/documents/extract",
+      "charges": [
+        {
+          "id": "api",
+          "creditType": "API_CREDIT",
+          "amount": 20
+        }
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/v2/session",
+      "charges": [
+        {
+          "id": "api",
+          "creditType": "API_CREDIT",
+          "amount": 4
+        }
+      ]
+    }
+  ]
+}

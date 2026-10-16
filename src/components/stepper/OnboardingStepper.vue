@@ -79,7 +79,7 @@
         <footer class="workspace-confirmation-footer">
           <button type="button" class="secondary-button" :disabled="isProcessingCredit" @click="closeConfirmation">Cancel</button>
           <button type="button" class="primary-button" :disabled="isProcessingCredit" @click="processCreditRequest">
-            {{ isProcessingCredit ? 'Creating…' : 'Create My Workspace & Request Credits' }} <span v-if="!isProcessingCredit" aria-hidden="true">→</span>
+            {{ isProcessingCredit ? 'Creating…' : 'Create My Workspace & Request Free Credits' }} <span v-if="!isProcessingCredit" aria-hidden="true">→</span>
           </button>
         </footer>
       </section>

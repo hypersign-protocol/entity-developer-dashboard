@@ -2,7 +2,7 @@
   <div class="overview-container">
     <div class="header-row">
       <h2 class="title">Overview</h2>
-      <span class="badge">Real-time</span>
+      <span class="hm-badge">Real-time</span>
     </div>
 
     <div v-if="loading" class="grid-layout">
@@ -152,14 +152,7 @@ export default {
   margin: 0;
 }
 
-.badge {
-  font-size: 0.75rem;
-  font-weight: 500;
-  padding: 0.125rem 0.625rem;
-  background-color: #dbeafe;
-  color: #1e40af;
-  border-radius: 9999px;
-}
+
 
 .grid-layout {
   display: grid;

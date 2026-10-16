@@ -1,12 +1,32 @@
 # Changelog
 
 ## [Unreleased]
-## [3.15.6] - 2026-10-1
+## [3.18.0]
 
 ### Changed
 
 - Added a retry action for failed workspace setup tasks using the onboarding approval API without a request body.
 - Hide the  credit detail inputs on the Superadmin onboarding approval page.
+- 
+## [3.17.0] - 2026-10-15
+### Changed
+
+- Added new document type  `TaxRegistrationDocument`in kyb widget
+- Made all document related field configurable
+- Added configurable company fields so businesses are asked to provide only the information selected for verification.
+- Made compliance check configurable
+- Approve and reject button is always visible
+
+## [3.16.0] - 2026-10-09
+- Added Id service credit calculator
+
+## [3.15.6] - 2026-10-2
+
+### Changed
+- Made website mandatory field in onoarding form 
+- Added badges in getting started page 
+- Fixed loader design while login
+
 
 ## [3.15.5] - 2026-10-1
 

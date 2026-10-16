@@ -62,7 +62,7 @@
   align-items: center;
   gap: 8px;
   padding: 6px 10px;
-  background-color: #f8f9fa;
+  background-color: #f1f3f4;
   border: 1px solid #e9ecef;
   border-radius: 4px;
   margin-bottom: 0;
@@ -72,8 +72,10 @@
 .link-text {
   flex: 1;
   font-family: 'Courier New', monospace;
-  font-size: 12px;
-  color: #495057;
+  font-size: 15px;
+  font-weight: 500;
+  color: #202124;
+  letter-spacing: 0.2px;
   word-break: break-all;
 }
 

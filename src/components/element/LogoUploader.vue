@@ -34,7 +34,7 @@
         :class="{ 'no-pointer': !allowReupload }"
         @click="triggerUpload"
     >
-      <img :src="value" alt="Logo" />
+      <AppLogo :src="value" :size="90" alt="Logo" />
       <div v-if="allowReupload" class="hover-text">Re-upload</div>
     </div>
 
@@ -51,8 +51,11 @@
 </template>
 
 <script>
+import AppLogo from "./AppLogo.vue";
+
 export default {
   name: "LogoUploader",
+  components: { AppLogo },
 
   // Support v-model
   props: {
@@ -248,12 +251,6 @@ export default {
   overflow: hidden;
 }
 
-.logo-preview-circle img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: 50%;
-}
 
 /* hover overlay */
 .hover-overlay .hover-text {

@@ -1,6 +1,6 @@
 <template>
 
-    <v-container>
+    <v-container fluid pa-0>
 
         <load-ing :active.sync="isLoading" :can-cancel="true" :is-full-page="true"></load-ing>
 
@@ -13,46 +13,53 @@
                     </div>
                     <div>
                         <p class="text-subtitle-2 text-muted mb-2">
-                            Enter <strong>Service ID</strong> and Authenticate.
+                            Enter the <strong>Application ID</strong> and authenticate to continue.
                         </p>
-                        <v-row align="start" no-gutters class="mb-4">
-                             <v-col cols="12" sm="8" md="8">
-                                <v-text-field v-model="serviceId" label="Service ID"
-                                    placeholder="e.g. 68afa3d8a4975d9c9e4671a7..." outlined dense color="primary"
-                                    class="mono-text mr-sm-4" @keyup.enter="authenticateService" hide-details></v-text-field>
-                            </v-col>
+                        <div class="auth-row mb-4">
+                            <v-text-field
+                                v-model="serviceId"
+                                placeholder="e.g. 69afa3d8a4976d9c9e4671a7"
+                                outlined
+                                dense
+                                hide-details
+                                color="primary"
+                                class="mono-text auth-input"
+                                @keyup.enter="authenticateService"
+                            ></v-text-field>
 
-                            <v-col cols="12" sm="2" md="2" class="d-flex mt-2 mt-sm-0">
-                                <hf-buttons name="Authenticate" style="width: 100%"
-                                    @executeAction="authenticateService"></hf-buttons>
-                            </v-col>
-
-                            <v-col cols="12" sm="2" md="2">
-                                <!-- this should be link button -->
-                                 <v-btn color="error" text style="width: 100%" @click="logout">Logout</v-btn>
-                            </v-col>
-                        </v-row>
+                            <div class="auth-actions">
+                                <v-btn depressed height="40" color="#111827" class="auth-btn" @click="authenticateService">
+                                    <v-icon small left style="color: white !important;">mdi-shield-key-outline</v-icon>
+                                    <span style="color: white;">Authenticate</span>
+                                </v-btn>
+                                <v-btn depressed outlined height="40" color="error" class="auth-btn" @click="logout">
+                                    <v-icon small left>mdi-logout</v-icon>
+                                    Logout
+                                </v-btn>
+                            </div>
+                        </div>
                         
-                        <v-row align="start" no-gutters v-if="accessToken != ''">
-                            <p class="text-subtitle-2 text-muted mb-2">
-                                Enter a valid <strong>Company ID</strong> to initiate the KYB verification workflow.
-                            </p>
-                            <v-col cols="12" sm="8" md="8">
-                                <v-text-field v-model="companyId" label="Company ID"
-                                    placeholder="e.g. 69afa3d8a4976d9c9e4671a7..." outlined dense color="primary"
-                                    class="mono-text mr-sm-4" @keyup.enter="fetchCompany" hide-details></v-text-field>
-                            </v-col>
+                        <p class="text-subtitle-2 text-muted mb-2" v-if="accessToken != ''">
+                            Enter a valid <strong>Company ID</strong> to initiate the KYB verification workflow.
+                        </p>
+                        <div class="auth-row mb-4" v-if="accessToken != ''">
+                                    <v-text-field
+                                v-model="companyId"
+                                placeholder="e.g. 69afa3d8a4976d9c9e4671a7"
+                                outlined
+                                dense
+                                hide-details
+                                color="primary"
+                                class="mono-text auth-input"
+                                @keyup.enter="fetchCompany"
+                            ></v-text-field>
 
-                            <v-col cols="12" sm="2" md="2" class="d-flex mt-2 mt-sm-0">
-                                <hf-buttons name="Fetch Details" style="width: 100%"
-                                    @executeAction="fetchCompany"></hf-buttons>
-                            </v-col>
-
-                            <v-col cols="12" sm="2" md="2">
-                                <!-- this should be link button -->
-                                 <v-btn color="error" text style="width: 100%" @click="clearCompany">Clear</v-btn>
-                            </v-col>
-                        </v-row>
+                            
+                            <div class="auth-actions">
+                                <hf-buttons name="Fetch Details"  class="auth-btn" @executeAction="fetchCompany"></hf-buttons>
+                                 <v-btn color="error" depressed outlined height="36"   class="auth-btn" @click="clearCompany">Clear</v-btn>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </v-col>
@@ -415,6 +422,50 @@
 
 .x-small {
     font-size: 0.7rem;
+}
+
+.auth-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+}
+
+.auth-input {
+    flex: 1 1 320px;
+}
+
+/* Authenticate + Logout joined as one button group */
+.auth-actions {
+    display: flex;
+    flex: 0 0 auto;
+}
+
+.auth-actions .auth-btn {
+    text-transform: none;
+    font-weight: 600;
+    letter-spacing: normal;
+}
+
+.auth-actions .auth-btn:first-child {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.auth-actions .auth-btn:last-child {
+    margin-left: -1px;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+@media (max-width: 599px) {
+    .auth-actions {
+        flex-basis: 100%;
+    }
+
+    .auth-actions .auth-btn {
+        flex: 1 1 0;
+    }
 }
 </style>
 <script>

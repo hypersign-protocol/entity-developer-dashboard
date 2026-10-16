@@ -12,7 +12,7 @@
   
   <v-col cols="12" md="6" class="d-flex justify-md-end justify-start">
     <div class="d-flex flex-sm-row flex-column gap-3 align-center">
-      <div class="search-wrap search-wrap--business">
+      <div v-if="companies && companies.length" class="search-wrap search-wrap--business">
         <input 
           type="text" 
           placeholder="Search company..." 
@@ -35,9 +35,7 @@
   </v-col>
 </v-row>
 
-    <div v-if="isLoading" class="d-flex justify-center py-12">
-      <v-progress-circular indeterminate color="primary"></v-progress-circular>
-    </div>
+    <div v-if="isLoading"></div>
 
     <div v-else-if="error" class="warning-box mb-6">
       <div class="d-flex align-center">
@@ -70,8 +68,8 @@
 
           <div class="mb-4">
             <div class="detail-row">
-              <label class="input-label mb-0">Registration #</label>
-              <span class="detail-value mono">{{ company.registrationNumber  }}</span>
+              <label class="input-label mb-0">{{ companyIdentifier(company).label }}</label>
+              <span class="detail-value mono">{{ companyIdentifier(company).value }}</span>
             </div>
             <div class="detail-row">
               <label class="input-label mb-0">Country</label>
@@ -128,8 +126,13 @@
       </v-col>
     </v-row>
 
-    <div v-else>
-      <empty-container title="No Business Found" icon="fa fa-building" />
+    <div v-else-if="!isLoading">
+      <empty-container
+        :title="searchQuery ? 'No Matching Business' : 'No Business Found'"
+        icon="fa fa-building"
+        :description="searchQuery
+          ? `No business matches “${searchQuery}”. Try a different name or ID.`
+          : 'Businesses appear here once they start a verification through your KYB widget or API.'" />
     </div>
     </template>
   </b-container>
@@ -467,9 +470,9 @@
 
 <script>
 import { mapState, mapActions, mapMutations } from "vuex";
-import loadIng from '../../components/element/LoadIng.vue';
 import config from '@/config.js';
 import AccessDenied from '../AccessDenied.vue';
+import loadIng from '../../components/element/LoadIng.vue';
 export default {
   name: "BusinessVerification",
   components: { loadIng, AccessDenied },
@@ -551,6 +554,12 @@ export default {
       }
     },
 
+    // A company may have a registration number, a tax ID, or both; show whichever it has
+    companyIdentifier(company) {
+      if (company.registrationNumber) return { label: 'Registration #', value: company.registrationNumber }
+      if (company.taxIdNumber) return { label: company.taxIdType ? `Tax ID (${company.taxIdType})` : 'Tax ID', value: company.taxIdNumber }
+      return { label: 'Registration #', value: 'N/A' }
+    },
     countryCodeToFlag(countryCode) {
       if (!countryCode) return '';
       return countryCode

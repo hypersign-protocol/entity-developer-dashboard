@@ -4,12 +4,12 @@ export const NAV = {
         TITLE: "User",
         USERS: "Verifications",
         USER_ANALYTICS: "Analytics",
-        KYC_WIDGET: "Widget",
+        KYC_WIDGET: "Widget Config",
     },
     BUSINESS_VERIFICATION: {
         TITLE: "Business",
         BUSINESSES: "Verifications",
-        KYB_WIDGET: "Widget",
+        KYB_WIDGET: "Widget Config",
     },
     DEVELOPERS_HUB: {
         TITLE: "Developer Hub",

@@ -178,7 +178,8 @@ h5 span {
         <div class="form-group">
           <h3 v-if="usageDetails.serviceDetails && usageDetails.serviceDetails.length > 0" style="text-align: left;">
             API Consumptions </h3>
-          <h3 v-else style="text-align: left;">No usage found!</h3>
+          <empty-container v-else title="No Usage Found" icon="mdi mdi-chart-bar"
+            description="API usage appears here once your services start making requests." />
         </div>
       </div>
     </div>

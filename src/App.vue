@@ -216,21 +216,6 @@
 
 .sidebar-app-avatar {
   flex-shrink: 0;
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
-  border: 1px solid #eef0f2;
-  overflow: hidden;
-  background: #f9f7fc;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.sidebar-app-logo {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
 }
 
 .sidebar-app-name {
@@ -317,12 +302,12 @@
   color: #4a4a5a !important;
 }
 
-.v-sidebar-menu.vsm_white-theme .vsm--mobile-bg {
-  background: #ffffff !important;
-}
-
+/* Collapsed-mode hover: the library draws the hovered item on this layer.
+   Solid equivalent of the expanded hover (rgba(0,0,0,0.05) over white), since it
+   overlaps page content where a translucent tint would show through. */
+.v-sidebar-menu.vsm_white-theme .vsm--mobile-bg,
 .vsm--mobile-bg {
-  background: #ffffff !important;
+  background: #f2f2f2 !important;
 }
 
 
@@ -704,16 +689,14 @@ color: #1a1a2e !important;
       :menu="getSideMenu()"
     >
       <div slot="header" class="sidebar-app-header">
-        <div class="sidebar-app-avatar">
-          <img
-            :src="
-              getSelectedService.logoUrl ||
-              getProfileIcon(formattedAppName(getSelectedService.appName))
-            "
-            class="sidebar-app-logo"
-            alt="App logo"
-          />
-        </div>
+        <AppLogo
+          class="sidebar-app-avatar"
+          :src="getSelectedService ? getSelectedService.logoUrl : ''"
+          :name="getSelectedService ? getSelectedService.appName : ''"
+          :seed="getSelectedService ? formattedAppName(getSelectedService.appName) : ''"
+          :size="32"
+          shape="rounded"
+        />
         <span class="sidebar-app-name">
           {{ getSelectedService ? getSelectedService.appName : "" }}
         </span>
@@ -729,11 +712,14 @@ import { mapActions, mapMutations, mapGetters, mapState } from "vuex";
 import { RequestHandler } from "./utils/utils";
 import config from "./config";
 import * as EN from "./language/en";
+import AppLogo from "./components/element/AppLogo.vue";
 export default {
+  components: { AppLogo },
   computed: {
     ...mapGetters("playgroundStore", ["getSelectedOrg"]),
     ...mapGetters("mainStore", [
       "getSwitchedTenantAccount",
+      "canOpenPage",
       "getSelectedService",
       "getAllServices",
       "getIfAuthenticated",
@@ -994,7 +980,11 @@ export default {
         }
       }
 
-      return menu;
+      // Hide pages the current team member's role doesn't allow, and groups left empty
+      const allowed = item => !item.href || this.canOpenPage(item.href);
+      return menu
+        .map(item => (item.child ? { ...item, child: item.child.filter(allowed) } : item))
+        .filter(item => (item.child ? item.child.length > 0 : allowed(item)));
     },
 
     fetchAllOrgs() {
