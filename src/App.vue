@@ -961,6 +961,8 @@ export default {
           const devChildren = [
             { href: "/studio/developer/api-key/" + appId, title: EN.NAV.DEVELOPERS_HUB.API_KEY, icon: "mdi mdi-key-outline" },
             { href: "/studio/developer/webhook/" + appId, title: EN.NAV.DEVELOPERS_HUB.WEBHOOK, icon: "mdi mdi-webhook" },
+            // exactPath: stay highlighted while a transaction is open (?txn=...)
+            { href: "/studio/developer/transactions/" + appId, title: EN.NAV.DEVELOPERS_HUB.TRANSACTIONS, icon: "mdi mdi-swap-horizontal", exactPath: true },
             { href: "/studio/service-config/" + appId, title: EN.NAV.DEVELOPERS_HUB.SERVICE_CONFIGURATION, icon: "mdi mdi-cog-outline" },
           ];
           menu.push({ href: "", title: EN.NAV.DEVELOPERS_HUB.TITLE, icon: "mdi mdi-code-tags", child: devChildren });

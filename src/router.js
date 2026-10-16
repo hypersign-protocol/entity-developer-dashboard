@@ -17,6 +17,7 @@ const SSIDashboardCredit = () => import('./views/playground/SSIDashboardCredit.v
 const SSIDashboardUsage = () => import('./views/playground/SSIDashboardUsages.vue')
 const KYCCreditDashboard = () => import('./views/playground/KYCDashboardCredit.vue')
 const UsageS = () => import('./views/api-usage-analytics/ApiUsage.vue')
+const ApiTransactions = () => import('./views/api-usage-analytics/ApiTransactions.vue')
 const OnChainKycSystems = () => import('./views/playground/OnChainKycSystems.vue')
 const WidgetConfigurations = () => import('./views/playground/WidgetConfig/Configurations.vue')
 const WidgetConfig = () => import('./views/playground/WidgetConfig/Index.vue')
@@ -217,6 +218,15 @@ const router = new Router({
       meta: {
         requiresAuth: true,
         title: `${config.app.name} - Usages`
+      }
+    },
+    {
+      path: '/studio/developer/transactions/:appId',
+      name: 'ApiTransactions',
+      component: ApiTransactions,
+      meta: {
+        requiresAuth: true,
+        title: `${config.app.name} - API Transactions`
       }
     },
     {
