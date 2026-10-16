@@ -51,7 +51,14 @@
                 <p>{{ item.description }}</p>
                 <time v-if="item.time" :datetime="item.time">{{ formatDate(item.time) }}</time>
               </div>
-              <span class="status-label">{{ item.statusLabel }}</span>
+              <button
+                v-if="item.state === 'failed'"
+                type="button"
+                class="status-label retry-button"
+                :disabled="isRetrying"
+                @click="$emit('retry-onboarding')"
+              >{{ isRetrying ? 'Retrying…' : 'Retry' }}</button>
+              <span v-else class="status-label">{{ item.statusLabel }}</span>
             </div>
 
             <div v-if="item.failureReason" class="failure-row">
@@ -100,6 +107,7 @@ export default {
   props: {
     company: { type: Object, required: true },
     isRefreshing: { type: Boolean, default: false },
+    isRetrying: { type: Boolean, default: false },
   },
   computed: {
     supportMailto() {
@@ -296,6 +304,9 @@ export default {
 .complete .status-label { background: #e3f8ed; color: #159a68; }
 .active .status-label { background: #e2e4e6; color: #5a6268; }
 .failed .status-label { background: #ffe1e1; color: #dc3c3c; }
+.retry-button { border: 0; cursor: pointer; font: inherit; }
+.retry-button:hover:not(:disabled) { background: #dc3c3c; color: #fff; }
+.retry-button:disabled { cursor: wait; opacity: .65; }
 .failure-row { display: flex; gap: 12px; align-items: center; margin-top: 6px; }
 .failure-row > span { min-width: 0; flex: 1; padding: 7px 10px; border-radius: 4px; background: #fff0f0; color: #d74848; font-size: 11px; line-height: 1.35; }
 .status-footer { display: flex; gap: 12px; align-items: center; justify-content: space-between; margin-top: 2px; }
