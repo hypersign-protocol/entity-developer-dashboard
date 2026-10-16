@@ -6,7 +6,7 @@
         <p class="text-subtitle-2 text-muted mb-0">Monitor consumption and service costs</p>
       </header>
 
-      <!-- Date range: presets first, custom range behind "Custom"; scopes every chart below -->
+      <!-- Date range presets (logs are kept 90 days); scopes every chart below -->
       <div class="range-bar">
         <div class="range-presets" role="radiogroup" aria-label="Date range">
           <button
@@ -21,34 +21,7 @@
           >{{ preset.label }}</button>
         </div>
 
-        <div v-if="activePreset === 'custom'" class="range-custom">
-          <b-form-datepicker
-            v-model="customStart"
-            size="sm"
-            locale="en"
-            placeholder="Start date"
-            :max="customEnd || today"
-            :date-format-options="{ year: 'numeric', month: 'short', day: 'numeric' }"
-            class="range-input"
-            aria-label="Start date"
-            @input="applyCustomRange"
-          ></b-form-datepicker>
-          <span class="range-separator">to</span>
-          <b-form-datepicker
-            v-model="customEnd"
-            size="sm"
-            locale="en"
-            placeholder="End date"
-            :min="customStart"
-            :max="today"
-            :date-format-options="{ year: 'numeric', month: 'short', day: 'numeric' }"
-            class="range-input"
-            aria-label="End date"
-            @input="applyCustomRange"
-          ></b-form-datepicker>
-        </div>
-
-        <span v-else class="range-summary">{{ rangeLabel }}</span>
+        <span class="range-summary">{{ rangeLabel }}</span>
       </div>
     </template>
 
@@ -91,9 +64,9 @@
           <empty-container
             v-else-if="!usageSummaryByEndpoint.length"
             class="chart-empty"
-            title="No Endpoint Usage"
+            title="No API Calls"
             icon="mdi mdi-chart-bar"
-            description="Endpoints appear here once they receive calls in the selected period."
+            description="No API calls were made between the selected dates."
           />
           <div v-else class="chart-wrapper">
             <div ref="barChart" class="chart-canvas"></div>
@@ -115,9 +88,9 @@
           <!-- No billable calls in the period: an empty table with a 0 total says nothing -->
           <empty-container
             v-else-if="!usageSummary.length"
-            title="No Billable Usage"
+            title="No API Calls"
             icon="mdi mdi-receipt-text-outline"
-            description="No API calls were charged between the selected dates. Try a wider date range."
+            description="No API calls were made between the selected dates."
           />
           <div v-else class="usage-table-wrapper">
             <table class="usage-table">
@@ -189,7 +162,8 @@ export default {
       accessDenied: false,
       accessDeniedMsg: '',
       errorMessage: '',
-      startDate: moment().subtract(30, "days").format("YYYY-MM-DD"),
+      // Ranges include today, so "Last 30 days" starts 29 days back
+      startDate: moment().subtract(29, "days").format("YYYY-MM-DD"),
       endDate: moment().format("YYYY-MM-DD"),
       today: moment().format("YYYY-MM-DD"),
       activePreset: "30d",
@@ -197,10 +171,7 @@ export default {
         { key: "7d", label: "Last 7 days", days: 7 },
         { key: "30d", label: "Last 30 days", days: 30 },
         { key: "90d", label: "Last 90 days", days: 90 },
-        { key: "custom", label: "Custom" },
       ],
-      customStart: "",
-      customEnd: "",
       usageSummary: [],
       usageSummaryByEndpoint: [],
       dailyData: [],
@@ -264,11 +235,12 @@ export default {
           }),
         ]);
 
-        this.dailyData = dailyRes.serviceDetails || [];
-        this.usageSummary = (summaryRes.serviceDetails || [])
+        // A period with no calls can come back without serviceDetails; that's "no data", not an error
+        this.dailyData = dailyRes?.serviceDetails || [];
+        this.usageSummary = (summaryRes?.serviceDetails || []).filter((item) => Number(item.quantity) > 0)
         // for same endpoint with diffrent query params club them together
         this.usageSummaryByEndpoint = this.usageSummary.reduce((acc, curr) => {
-          const basePath = curr.apiPath.split("?")[0]; // Get path without query params
+          const basePath = (curr.apiPath || "").split("?")[0]; // Get path without query params
           const existing = acc.find((item) => item.apiPath === basePath);
           if (existing) {
             existing.quantity += curr.quantity;
@@ -487,21 +459,8 @@ export default {
 
     selectPreset(key) {
       this.activePreset = key;
-      if (key === "custom") {
-        // Start the custom pickers from the range currently shown
-        this.customStart = this.startDate;
-        this.customEnd = this.endDate;
-        return;
-      }
       const preset = this.rangePresets.find((item) => item.key === key);
-      this.setRange(moment().subtract(preset.days, "days").format("YYYY-MM-DD"), this.today);
-    },
-
-    // Only reload once both ends are set and in order (the pickers' min/max also enforce this)
-    applyCustomRange() {
-      if (!this.customStart || !this.customEnd) return;
-      if (moment(this.customStart).isAfter(this.customEnd)) return;
-      this.setRange(this.customStart, this.customEnd);
+      this.setRange(moment().subtract(preset.days - 1, "days").format("YYYY-MM-DD"), this.today);
     },
 
     setRange(start, end) {
@@ -564,19 +523,6 @@ export default {
 }
 .range-preset:focus-visible {
   box-shadow: 0 0 0 2px #bfdbfe;
-}
-.range-custom {
-  align-items: center;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-.range-input {
-  width: 170px;
-}
-.range-separator {
-  color: #64748b;
-  font-size: 12px;
 }
 .range-summary {
   color: #64748b;
@@ -705,10 +651,10 @@ export default {
   font-weight: 700;
   padding: 1px 6px;
 }
-.method-get { background: rgba(34, 197, 94, 0.1); color: #15803d; }
-.method-post { background: rgba(59, 130, 246, 0.1); color: #1d4ed8; }
-.method-put, .method-patch { background: rgba(245, 158, 66, 0.12); color: #b45309; }
-.method-delete { background: rgba(239, 68, 68, 0.1); color: #b91c1c; }
+.method-get { background: #eef4fd; color: #2f5f9e; }
+.method-post { background: #dbe8fd; color: #1d4ed8; }
+.method-put, .method-patch { background: #e2e8f0; color: #334155; }
+.method-delete { background: #e0e7f5; color: #1e3a8a; }
 .skeleton-chart {
   height: 320px;
   background: #e5e7eb;

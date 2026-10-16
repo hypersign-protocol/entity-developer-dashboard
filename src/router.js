@@ -221,7 +221,7 @@ const router = new Router({
       }
     },
     {
-      path: '/studio/usage/:appId/transactions',
+      path: '/studio/developer/transactions/:appId',
       name: 'ApiTransactions',
       component: ApiTransactions,
       meta: {

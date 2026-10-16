@@ -15,6 +15,7 @@ export const NAV = {
         TITLE: "Developer Hub",
         API_KEY: "API Keys",
         WEBHOOK: "Webhooks",
+        TRANSACTIONS: "API Transactions",
         SERVICE_CONFIGURATION: "App Config",
     },
     SOLUTIONS: {
@@ -27,6 +28,5 @@ export const NAV = {
         TITLE: "Billing & Usage",
         CREDIT: "Credits",
         USAGES: "API Usages",
-        TRANSACTIONS: "API Transactions",
     }
 }

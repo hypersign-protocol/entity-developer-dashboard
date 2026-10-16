@@ -961,6 +961,8 @@ export default {
           const devChildren = [
             { href: "/studio/developer/api-key/" + appId, title: EN.NAV.DEVELOPERS_HUB.API_KEY, icon: "mdi mdi-key-outline" },
             { href: "/studio/developer/webhook/" + appId, title: EN.NAV.DEVELOPERS_HUB.WEBHOOK, icon: "mdi mdi-webhook" },
+            // exactPath: stay highlighted while a transaction is open (?txn=...)
+            { href: "/studio/developer/transactions/" + appId, title: EN.NAV.DEVELOPERS_HUB.TRANSACTIONS, icon: "mdi mdi-swap-horizontal", exactPath: true },
             { href: "/studio/service-config/" + appId, title: EN.NAV.DEVELOPERS_HUB.SERVICE_CONFIGURATION, icon: "mdi mdi-cog-outline" },
           ];
           menu.push({ href: "", title: EN.NAV.DEVELOPERS_HUB.TITLE, icon: "mdi mdi-code-tags", child: devChildren });
@@ -969,8 +971,6 @@ export default {
           const billingChildren = [
             { href: "/studio/onchainkyc/credit/" + appId, title: EN.NAV.BILLING_AND_USAGE.CREDIT, icon: "mdi mdi-cash-multiple" },
             { href: "/studio/usage/" + appId, title: EN.NAV.BILLING_AND_USAGE.USAGES, icon: "mdi mdi-chart-bar" },
-            // exactPath: stay highlighted while a transaction is open (?txn=...)
-            { href: "/studio/usage/" + appId + "/transactions", title: EN.NAV.BILLING_AND_USAGE.TRANSACTIONS, icon: "mdi mdi-swap-horizontal", exactPath: true },
           ];
           menu.push({ href: "", title: EN.NAV.BILLING_AND_USAGE.TITLE, icon: "mdi mdi-credit-card-outline", child: billingChildren });
         } else if (id === "SSI_API") {

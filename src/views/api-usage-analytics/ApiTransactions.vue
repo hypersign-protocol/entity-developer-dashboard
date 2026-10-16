@@ -1,19 +1,10 @@
 <template>
   <div class="tx-page">
-    <nav class="tx-breadcrumb" aria-label="Breadcrumb">
-      <router-link :to="`/studio/usage/${appId}`"><i class="mdi mdi-arrow-left" aria-hidden="true"></i>API Usage Analytics</router-link>
-      <i class="mdi mdi-chevron-right" aria-hidden="true"></i>
-      <span aria-current="page">Transactions</span>
-    </nav>
-
     <header class="tx-header">
-      <div>
-        <h1>
-          API Transactions
-          <span v-if="usingSampleData" class="sample-badge" title="The transactions API isn't connected yet">Sample data</span>
-        </h1>
-        <p>Every API call your app made, with its status, latency and what happened. Kept for {{ retentionDays }} days.</p>
-      </div>
+      <h1>
+        API Transactions
+      </h1>
+      <p>Every API call your app made, with its status, latency and what happened. Kept for {{ retentionDays }} days.</p>
     </header>
 
     <!-- Date range (same control as the API Usage page) -->
@@ -33,111 +24,154 @@
       <span class="range-summary">{{ rangeLabel }}</span>
     </div>
 
-    <!-- Status tiles; clicking one filters the list -->
-    <div class="tx-tiles">
-      <button
-        v-for="tile in tiles"
-        :key="tile.key"
-        type="button"
-        class="tx-tile"
-        :class="[`tone-${tile.key}`, { active: filters.status === tile.filter }]"
-        :aria-pressed="filters.status === tile.filter ? 'true' : 'false'"
-        @click="setStatusFilter(tile.filter)"
-      >
-        <span class="tile-label"><span v-if="tile.key !== 'all'" class="tile-swatch" aria-hidden="true"></span>{{ tile.label }}</span>
-        <span class="tile-value">
-          <v-progress-circular v-if="loadingSummary" indeterminate color="primary" size="16" width="2"></v-progress-circular>
-          <template v-else>{{ formatCount(tile.count) }}</template>
-          <small v-if="!loadingSummary && tile.key !== 'all'">{{ percent(tile.count) }}</small>
-        </span>
-        <span v-if="tile.key === 'all'" class="tile-sub">across all endpoints</span>
-      </button>
-    </div>
+    <!-- Calls per day (or hour), split by status -->
+    <section class="tx-card activity-card">
+      <div class="tx-stats">
+        <div v-for="stat in stats" :key="stat.key" class="tx-stat" :class="`tone-${stat.key}`">
+          <span class="stat-label"><span v-if="stat.key !== 'all'" class="stat-swatch" aria-hidden="true"></span>{{ stat.label }}</span>
+          <span class="stat-value">
+            <v-progress-circular v-if="loadingSummary" indeterminate color="primary" size="16" width="2"></v-progress-circular>
+            <template v-else>{{ formatCount(stat.count) }}</template>
+            <small v-if="!loadingSummary && stat.key !== 'all'">{{ percent(stat.count) }}</small>
+          </span>
+          <span v-if="stat.key === 'all'" class="stat-scope" :class="{ picked: selectedBucket }">{{ scopeLabel }}</span>
+        </div>
+      </div>
 
-    <!-- Filters -->
-    <form class="tx-toolbar" @submit.prevent="applySearch">
-      <div class="tx-search">
-        <i class="mdi mdi-magnify" aria-hidden="true"></i>
-        <input
-          v-model.trim="searchInput"
-          type="search"
-          placeholder="Search by transaction ID, session ID or provider transaction ID"
-          aria-label="Search by transaction ID, session ID or provider transaction ID"
-        />
-      </div>
-      <div class="tx-select">
-        <select v-model="filters.route" aria-label="Endpoint" @change="reloadList">
-          <option value="">All endpoints</option>
-          <option v-for="endpoint in endpointOptions" :key="endpoint.key" :value="endpoint.route">{{ endpoint.method }} {{ endpoint.route }}</option>
-        </select>
-        <i class="mdi mdi-chevron-down" aria-hidden="true"></i>
-      </div>
-      <div class="tx-select">
-        <select v-model="filters.product" aria-label="Product" @change="reloadList">
-          <option value="">All products</option>
-          <option v-for="product in productOptions" :key="product" :value="product">{{ product }}</option>
-        </select>
-        <i class="mdi mdi-chevron-down" aria-hidden="true"></i>
-      </div>
-      <button v-if="hasFilters" type="button" class="tx-clear" @click="clearFilters">Clear filters</button>
-    </form>
-
-    <div class="tx-layout" :class="{ 'has-detail': selectedId }">
-      <!-- Transaction list -->
-      <section class="tx-list-card">
-        <SectionLoader v-if="loadingList && !items.length" label="Loading transactions" />
+      <div class="activity-body">
+        <div class="activity-head">
+          <h2>{{ hourly ? 'API calls per hour' : 'API calls per day' }}</h2>
+          <span v-if="hasCalls" class="activity-hint">Click a bar to see that {{ hourly ? "hour's" : "day's" }} calls</span>
+        </div>
+        <SectionLoader v-if="loadingSummary && !summary" label="Loading API calls" min-height="260px" />
         <empty-container
-          v-else-if="!items.length"
-          :title="hasFilters ? 'No Matching Transactions' : 'No API Calls'"
-          icon="mdi mdi-swap-horizontal"
-          :description="hasFilters ? 'Nothing matches these filters in the selected period. Try clearing a filter or a wider date range.' : 'No API calls were made between the selected dates.'"
+          v-else-if="!hasCalls"
+          title="No API Calls"
+          icon="mdi mdi-chart-bar"
+          description="No API calls were made between the selected dates."
         />
-        <template v-else>
-          <div class="tx-table-wrap">
-            <table class="tx-table">
+        <div v-show="hasCalls" ref="chart" class="activity-chart"></div>
+      </div>
+    </section>
+
+    <div class="tx-layout" :class="{ 'has-detail': showDetail }">
+      <section class="tx-card tx-tabs-card">
+        <div class="tx-tabs-bar">
+          <nav class="tx-tabs" role="tablist" aria-label="API transaction views">
+            <button
+              v-for="tab in tabs"
+              :key="tab.key"
+              type="button"
+              role="tab"
+              class="tx-tab"
+              :class="{ active: activeTab === tab.key }"
+              :aria-selected="activeTab === tab.key ? 'true' : 'false'"
+              @click="activeTab = tab.key"
+            >{{ tab.label }}</button>
+          </nav>
+          <span v-if="selectedBucket" class="bucket-chip">
+            {{ bucketLabel(selectedBucket) }}
+            <button type="button" aria-label="Show the whole period" title="Show the whole period" @click="selectBucket(null)">
+              <i class="mdi mdi-close" aria-hidden="true"></i>
+            </button>
+          </span>
+        </div>
+
+        <!-- Every call, newest first -->
+        <div v-show="activeTab === 'transactions'" role="tabpanel">
+          <SectionLoader v-if="loadingList && !items.length" label="Loading transactions" />
+          <empty-container
+            class="tab-empty"
+            v-else-if="!items.length"
+            title="No API Calls"
+            icon="mdi mdi-swap-horizontal"
+            :description="selectedBucket ? 'No API calls were made in this period.' : 'No API calls were made between the selected dates.'"
+          />
+          <template v-else>
+            <div class="tx-table-wrap">
+              <table class="tx-table">
+                <thead>
+                  <tr>
+                    <th scope="col">Time</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Endpoint</th>
+                    <th scope="col" class="text-right">Latency</th>
+                    <th scope="col"><span class="sr-only">Open</span></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr
+                    v-for="item in items"
+                    :key="item.id"
+                    class="clickable"
+                    :class="{ selected: item.id === selectedId }"
+                    tabindex="0"
+                    @click="openDetail(item)"
+                    @keydown.enter="openDetail(item)"
+                  >
+                    <td class="tx-time" :title="item.createdAt">{{ formatTime(item.createdAt) }}</td>
+                    <td><span class="status-pill" :class="`tone-${statusClass(item.statusCode)}`">{{ formatStatus(item.statusCode) }}</span></td>
+                    <td class="tx-endpoint">
+                      <span class="method" :class="methodClass(item.method)">{{ item.method || '—' }}</span>
+                      <code :title="item.route">{{ item.route }}</code>
+                    </td>
+                    <td class="text-right num" :class="{ slow: item.durationMs >= 3000 }">{{ formatDuration(item.durationMs) }}</td>
+                    <td class="tx-chevron"><i class="mdi mdi-chevron-right" aria-hidden="true"></i></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <footer class="tx-list-footer">
+              <span>Showing {{ items.length }} {{ items.length === 1 ? 'call' : 'calls' }}</span>
+              <button v-if="nextCursor" type="button" class="load-more" :disabled="loadingList" @click="loadMore">
+                {{ loadingList ? 'Loading…' : 'Load more' }}
+              </button>
+            </footer>
+          </template>
+        </div>
+
+        <!-- Per-endpoint breakdown for the whole period -->
+        <div v-show="activeTab === 'endpoints'" role="tabpanel">
+          <SectionLoader v-if="(loadingSummary || loadingBucketSummary) && !endpoints.length" label="Loading endpoints" />
+          <empty-container
+            class="tab-empty"
+            v-else-if="!endpoints.length"
+            title="No API Calls"
+            icon="mdi mdi-api"
+            :description="selectedBucket ? 'No API calls were made in this period.' : 'No API calls were made between the selected dates.'"
+          />
+          <div v-else class="tx-table-wrap" :class="{ refreshing: loadingBucketSummary }">
+            <table class="tx-table endpoint-table">
               <thead>
                 <tr>
-                  <th scope="col">Time</th>
-                  <th scope="col">Status</th>
-                  <th scope="col">Product</th>
                   <th scope="col">Endpoint</th>
-                  <th scope="col" class="text-right">Latency</th>
-                  <th scope="col"><span class="sr-only">Open</span></th>
+                  <th scope="col" class="text-right">Calls</th>
+                  <th scope="col" class="text-right">2xx</th>
+                  <th scope="col" class="text-right">4xx</th>
+                  <th scope="col" class="text-right">5xx</th>
+                  <th scope="col" class="text-right">Avg latency</th>
                 </tr>
               </thead>
               <tbody>
-                <tr
-                  v-for="item in items"
-                  :key="item.id"
-                  :class="{ selected: item.id === selectedId }"
-                  tabindex="0"
-                  @click="openDetail(item)"
-                  @keydown.enter="openDetail(item)"
-                >
-                  <td class="tx-time" :title="item.createdAt">{{ formatTime(item.createdAt) }}</td>
-                  <td><span class="status-pill" :class="`tone-${statusClass(item.statusCode)}`">{{ item.statusCode }}</span></td>
-                  <td><span class="product-tag">{{ item.product }}</span></td>
+                <tr v-for="endpoint in endpoints" :key="`${endpoint.method} ${endpoint.route}`">
                   <td class="tx-endpoint">
-                    <span class="method" :class="`method-${item.method.toLowerCase()}`">{{ item.method }}</span>
-                    <code :title="item.route">{{ item.route }}</code>
+                    <span class="method" :class="methodClass(endpoint.method)">{{ endpoint.method || '—' }}</span>
+                    <code :title="endpoint.route">{{ endpoint.route }}</code>
                   </td>
-                  <td class="text-right tx-latency" :class="{ slow: item.durationMs >= 3000 }">{{ formatDuration(item.durationMs) }}</td>
-                  <td class="tx-chevron"><i class="mdi mdi-chevron-right" aria-hidden="true"></i></td>
+                  <td class="text-right num strong">{{ formatCount(endpoint.total) }}</td>
+                  <td class="text-right num">{{ formatCount(endpoint['2xx']) }}</td>
+                  <td class="text-right num" :class="{ 'count-4xx': endpoint['4xx'] }">{{ formatCount(endpoint['4xx']) }}</td>
+                  <td class="text-right num" :class="{ 'count-5xx': endpoint['5xx'] }">{{ formatCount(endpoint['5xx']) }}</td>
+                  <td class="text-right num" :class="{ slow: endpoint.avgDurationMs >= 3000 }">{{ formatDuration(endpoint.avgDurationMs) }}</td>
                 </tr>
               </tbody>
             </table>
           </div>
-          <footer class="tx-list-footer">
-            <span>Showing {{ items.length }} {{ items.length === 1 ? 'call' : 'calls' }}</span>
-            <button v-if="nextCursor" type="button" class="load-more" :disabled="loadingList" @click="loadMore">
-              {{ loadingList ? 'Loading…' : 'Load more' }}
-            </button>
-          </footer>
-        </template>
+        </div>
       </section>
 
       <!-- Transaction detail -->
-      <aside v-if="selectedId" class="tx-detail" aria-label="Transaction details">
+      <aside v-if="showDetail" class="tx-detail" aria-label="Transaction details">
         <header class="detail-head">
           <h2>API request</h2>
           <button type="button" class="icon-btn" aria-label="Close details" @click="closeDetail"><i class="mdi mdi-close" aria-hidden="true"></i></button>
@@ -148,11 +182,11 @@
         <template v-else-if="detail">
           <div class="detail-title">
             <div>
-              <span class="method" :class="`method-${detail.method.toLowerCase()}`">{{ detail.method }}</span>
+              <span class="method" :class="methodClass(detail.method)">{{ detail.method || '—' }}</span>
               <code class="detail-route">{{ detail.route }}</code>
               <p class="detail-time">{{ formatFullTime(detail.createdAt) }}</p>
             </div>
-            <span class="status-pill large" :class="`tone-${statusClass(detail.statusCode)}`">{{ detail.statusCode }}</span>
+            <span class="status-pill large" :class="`tone-${statusClass(detail.statusCode)}`">{{ formatStatus(detail.statusCode) }}</span>
           </div>
 
           <!-- What happened -->
@@ -168,46 +202,24 @@
             <div>
               <dt>Transaction ID</dt>
               <dd class="mono copyable">
-                <span :title="detail.requestId">{{ detail.requestId }}</span>
-                <button type="button" title="Copy transaction ID" @click="copyToClip(detail.requestId, 'Transaction ID')"><i class="mdi mdi-content-copy" aria-hidden="true"></i></button>
+                <span :title="detail.id">{{ detail.id }}</span>
+                <button type="button" title="Copy transaction ID" @click="copyToClip(detail.id, 'Transaction ID')"><i class="mdi mdi-content-copy" aria-hidden="true"></i></button>
               </dd>
             </div>
-            <div><dt>Product</dt><dd>{{ detail.product }}</dd></div>
+            <!-- x-request-id the caller sent (or one we generated); missing on very old logs -->
+            <div v-if="detail.requestId">
+              <dt>Request ID</dt>
+              <dd class="mono copyable">
+                <span :title="detail.requestId">{{ detail.requestId }}</span>
+                <button type="button" title="Copy request ID" @click="copyToClip(detail.requestId, 'Request ID')"><i class="mdi mdi-content-copy" aria-hidden="true"></i></button>
+              </dd>
+            </div>
             <div><dt>Environment</dt><dd>{{ detail.env === 'prod' ? 'Production' : 'Development' }}</dd></div>
             <div><dt>Latency</dt><dd :class="{ slow: detail.durationMs >= 3000 }">{{ formatDuration(detail.durationMs) }}</dd></div>
-            <div><dt>Credits charged</dt><dd>{{ detail.credits ? detail.credits : 'None' }}</dd></div>
             <div><dt>IP address</dt><dd class="mono">{{ detail.ip || '—' }}</dd></div>
             <div><dt>User agent</dt><dd class="wrap">{{ detail.userAgent || '—' }}</dd></div>
-            <div v-if="detail.path !== detail.route"><dt>Path</dt><dd class="mono wrap">{{ detail.path }}</dd></div>
+            <div v-if="detail.path && detail.path !== detail.route"><dt>Path</dt><dd class="mono wrap">{{ detail.path }}</dd></div>
           </dl>
-
-          <!-- Third-party provider -->
-          <section v-if="detail.upstream" class="detail-section">
-            <h3>Provider response</h3>
-            <dl class="detail-list">
-              <div v-if="detail.upstream.provider"><dt>Provider</dt><dd>{{ detail.upstream.provider }}</dd></div>
-              <div><dt>Status</dt><dd><span class="status-pill" :class="`tone-${statusClass(detail.upstream.status)}`">{{ detail.upstream.status }}</span></dd></div>
-              <div v-if="detail.upstream.txnId">
-                <dt>Provider transaction ID</dt>
-                <dd class="mono copyable">
-                  <span>{{ detail.upstream.txnId }}</span>
-                  <button type="button" title="Copy provider transaction ID" @click="copyToClip(detail.upstream.txnId, 'Provider transaction ID')"><i class="mdi mdi-content-copy" aria-hidden="true"></i></button>
-                </dd>
-              </div>
-              <div v-if="detail.upstream.message"><dt>Message</dt><dd class="wrap">{{ detail.upstream.message }}</dd></div>
-            </dl>
-          </section>
-
-          <!-- Linked verification -->
-          <section v-if="detail.refId" class="detail-section">
-            <h3>Linked verification</h3>
-            <router-link v-if="detail.product === 'KYC'" class="session-link" :to="`/studio/sessions/${appId}/${detail.refId}`">
-              <i class="mdi mdi-account-check-outline" aria-hidden="true"></i>
-              <span>Open session <code>{{ detail.refId }}</code></span>
-              <i class="mdi mdi-arrow-right" aria-hidden="true"></i>
-            </router-link>
-            <p v-else class="mono">{{ detail.refId }}</p>
-          </section>
 
           <p class="detail-privacy">
             <i class="mdi mdi-lock-outline" aria-hidden="true"></i>
@@ -220,11 +232,12 @@
 </template>
 
 <script>
+import * as echarts from 'echarts';
+import moment from 'moment';
 import UtilsMixin from '../../mixins/utils';
 import SectionLoader from '../../components/element/SectionLoader.vue';
 import {
   RETENTION_DAYS,
-  USE_MOCK,
   fetchTransaction,
   fetchTransactionSummary,
   fetchTransactions,
@@ -232,6 +245,20 @@ import {
 } from '../../utils/apiTransactions';
 
 const PAGE_SIZE = 25;
+const STATUS_GROUPS = ['2xx', '4xx', '5xx'];
+
+// One blue ramp, light to dark as the status gets more serious (checked with the dataviz
+// palette validator: monotone lightness, single hue, light end clears the white surface).
+// The middle step is the dashboard's primary blue.
+const CHART = {
+  '2xx': '#86b6ef',
+  '4xx': '#2563eb',
+  '5xx': '#1e3a8a',
+  grid: '#eef2f6',
+  axis: '#e2e8f0',
+  textMuted: '#64748b',
+  textStrong: '#111827',
+};
 
 export default {
   name: 'ApiTransactions',
@@ -240,18 +267,26 @@ export default {
   data() {
     return {
       retentionDays: RETENTION_DAYS,
-      usingSampleData: USE_MOCK,
       rangePresets: [
-        { key: '24h', label: 'Last 24 hours', hours: 24 },
-        { key: '7d', label: 'Last 7 days', hours: 24 * 7 },
-        { key: '30d', label: 'Last 30 days', hours: 24 * 30 },
-        { key: '90d', label: 'Last 90 days', hours: 24 * 90 },
+        { key: '24h', label: 'Last 24 hours' },
+        { key: '7d', label: 'Last 7 days', days: 7 },
+        { key: '30d', label: 'Last 30 days', days: 30 },
+        { key: '90d', label: 'Last 90 days', days: 90 },
       ],
       activePreset: '7d',
       range: { from: '', to: '' },
-      filters: { status: '', route: '', product: '', search: '' },
-      searchInput: '',
+      // A bar picked on the chart ('YYYY-MM-DD' or 'YYYY-MM-DDTHH:00'); narrows the list to it
+      selectedBucket: null,
+      tabs: [
+        { key: 'transactions', label: 'Transactions' },
+        { key: 'endpoints', label: 'Endpoints' },
+      ],
+      activeTab: 'transactions',
       summary: null,
+      // Summary of just the picked bar, for the Endpoints tab
+      bucketSummary: null,
+      loadingBucketSummary: false,
+      bucketToken: 0,
       loadingSummary: false,
       items: [],
       nextCursor: null,
@@ -260,6 +295,7 @@ export default {
       loadingDetail: false,
       detailError: '',
       requestToken: 0,
+      chart: null,
     };
   },
   computed: {
@@ -270,37 +306,74 @@ export default {
       const service = this.$store.getters['mainStore/getSelectedService'];
       return service && service.env === 'prod' ? 'prod' : 'dev';
     },
+    hourly() {
+      return this.activePreset === '24h';
+    },
     selectedId() {
       return this.$route.query.txn || '';
+    },
+    // The detail panel belongs to the Transactions tab
+    showDetail() {
+      return Boolean(this.selectedId) && this.activeTab === 'transactions';
     },
     totals() {
       return (this.summary && this.summary.totals) || { total: 0, '2xx': 0, '4xx': 0, '5xx': 0 };
     },
-    tiles() {
+    hasCalls() {
+      return this.totals.total > 0;
+    },
+    // Totals for the picked bar (straight from the chart data), else the whole period
+    scopeTotals() {
+      const bucket = this.selectedBucket && this.buckets.find(row => row.bucket === this.selectedBucket);
+      if (!bucket) return this.totals;
+      return { total: bucket['2xx'] + bucket['4xx'] + bucket['5xx'], '2xx': bucket['2xx'], '4xx': bucket['4xx'], '5xx': bucket['5xx'] };
+    },
+    scopeLabel() {
+      if (this.selectedBucket) return this.bucketLabel(this.selectedBucket);
+      const preset = this.rangePresets.find(item => item.key === this.activePreset);
+      return preset ? `in the ${preset.label.toLowerCase()}` : '';
+    },
+    stats() {
+      const totals = this.scopeTotals;
       return [
-        { key: 'all', label: 'Total API calls', count: this.totals.total, filter: '' },
-        { key: '2xx', label: '2xx Success', count: this.totals['2xx'], filter: '2xx' },
-        { key: '4xx', label: '4xx Client errors', count: this.totals['4xx'], filter: '4xx' },
-        { key: '5xx', label: '5xx Server errors', count: this.totals['5xx'], filter: '5xx' },
+        { key: 'all', label: 'API calls', count: totals.total },
+        { key: '2xx', label: '2xx Success', count: totals['2xx'] },
+        { key: '4xx', label: '4xx Client errors', count: totals['4xx'] },
+        { key: '5xx', label: '5xx Server errors', count: totals['5xx'] },
       ];
     },
-    endpointOptions() {
-      return ((this.summary && this.summary.endpoints) || [])
-        .map(endpoint => ({ ...endpoint, key: `${endpoint.method} ${endpoint.route}` }));
+    endpoints() {
+      const summary = this.selectedBucket ? this.bucketSummary : this.summary;
+      return (summary && summary.endpoints) || [];
     },
-    productOptions() {
-      return [...new Set(this.endpointOptions.map(endpoint => endpoint.product))].sort();
+    // Time span of the picked bar
+    bucketRange() {
+      if (!this.selectedBucket) return null;
+      const start = moment(this.selectedBucket);
+      return { startDate: start.toISOString(), endDate: start.clone().endOf(this.hourly ? 'hour' : 'day').toISOString() };
     },
-    hasFilters() {
-      return Boolean(this.filters.status || this.filters.route || this.filters.product || this.filters.search);
+    // Every day (or hour) in the range, including ones without calls, so gaps show as gaps
+    buckets() {
+      if (!this.range.from) return [];
+      const unit = this.hourly ? 'hour' : 'day';
+      const format = this.hourly ? 'YYYY-MM-DDTHH:00' : 'YYYY-MM-DD';
+      const byBucket = new Map(((this.summary && this.summary.series) || []).map(row => [row.bucket, row]));
+      const buckets = [];
+      for (let cursor = moment(this.range.from).startOf(unit); !cursor.isAfter(this.range.to); cursor.add(1, unit)) {
+        const key = cursor.format(format);
+        const row = byBucket.get(key) || {};
+        buckets.push({ bucket: key, '2xx': row['2xx'] || 0, '4xx': row['4xx'] || 0, '5xx': row['5xx'] || 0 });
+      }
+      return buckets;
     },
     rangeLabel() {
       if (!this.range.from) return '';
-      const options = { day: 'numeric', month: 'short', year: 'numeric' };
-      return `${new Date(this.range.from).toLocaleDateString('en-GB', options)} – ${new Date(this.range.to).toLocaleDateString('en-GB', options)}`;
+      const format = this.hourly ? 'D MMM, HH:mm' : 'D MMM YYYY';
+      return `${moment(this.range.from).format(format)} – ${moment(this.range.to).format(format)}`;
     },
-    queryParams() {
-      return { from: this.range.from, to: this.range.to, env: this.env };
+    listParams() {
+      // Same parameter names as the API Usage endpoints
+      return { ...(this.bucketRange || { startDate: this.range.from, endDate: this.range.to }), env: this.env };
     },
   },
   watch: {
@@ -315,18 +388,27 @@ export default {
   mounted() {
     this.selectPreset(this.activePreset);
     window.addEventListener('keydown', this.onKeydown);
+    window.addEventListener('resize', this.resizeChart);
   },
   beforeDestroy() {
     window.removeEventListener('keydown', this.onKeydown);
+    window.removeEventListener('resize', this.resizeChart);
+    if (this.chart) this.chart.dispose();
   },
   methods: {
     statusClass,
 
     selectPreset(key) {
       const preset = this.rangePresets.find(item => item.key === key);
-      const now = new Date();
+      const now = moment();
       this.activePreset = key;
-      this.range = { from: new Date(now.getTime() - preset.hours * 3600000).toISOString(), to: now.toISOString() };
+      // Whole days for the daily views, so the first bar isn't a partial day
+      const from = preset.days ? now.clone().subtract(preset.days - 1, 'days').startOf('day') : now.clone().subtract(24, 'hours');
+      this.range = { from: from.toISOString(), to: now.toISOString() };
+      this.selectedBucket = null;
+      this.bucketSummary = null;
+      this.bucketToken += 1;
+      this.loadingBucketSummary = false;
       this.loadSummary();
       this.reloadList();
     },
@@ -335,13 +417,126 @@ export default {
       this.loadingSummary = true;
       try {
         this.summary = await fetchTransactionSummary(this.$store, {
-          ...this.queryParams,
-          interval: this.activePreset === '24h' ? 'hour' : 'day',
+          startDate: this.range.from,
+          endDate: this.range.to,
+          env: this.env,
+          interval: this.hourly ? 'hour' : 'day',
+          tz: Intl.DateTimeFormat().resolvedOptions().timeZone,
         });
       } catch (error) {
         this.notifyErr(error.message || 'Could not load the API call summary.');
       } finally {
         this.loadingSummary = false;
+        this.$nextTick(this.renderChart);
+      }
+    },
+
+    // Stacked bars: 2xx at the bottom, errors on top where they catch the eye
+    renderChart() {
+      const element = this.$refs.chart;
+      if (!element || !this.hasCalls) return;
+      if (!this.chart) {
+        this.chart = echarts.init(element);
+        this.chart.on('click', params => this.selectBucket(this.buckets[params.dataIndex].bucket));
+      }
+      const fontFamily = getComputedStyle(document.body).fontFamily;
+      // The chart was hidden while a range had no calls; pick up its current size
+      this.chart.resize();
+      const buckets = this.buckets;
+      const dim = bucket => this.selectedBucket && bucket.bucket !== this.selectedBucket;
+      this.chart.setOption({
+        textStyle: { fontFamily },
+        animationDuration: 300,
+        grid: { left: 8, right: 8, top: 12, bottom: 4, containLabel: true },
+        tooltip: {
+          trigger: 'axis',
+          axisPointer: { type: 'shadow', shadowStyle: { color: 'rgba(148, 163, 184, 0.12)' } },
+          backgroundColor: '#ffffff',
+          borderColor: CHART.axis,
+          borderWidth: 1,
+          padding: [8, 12],
+          extraCssText: 'box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08); border-radius: 8px;',
+          textStyle: { fontFamily, color: CHART.textStrong },
+          formatter: points => this.tooltipHtml(buckets[points[0].dataIndex]),
+        },
+        xAxis: {
+          type: 'category',
+          data: buckets.map(bucket => bucket.bucket),
+          axisLine: { lineStyle: { color: CHART.axis } },
+          axisTick: { show: false },
+          axisLabel: {
+            color: CHART.textMuted,
+            fontSize: 11,
+            hideOverlap: true,
+            formatter: value => moment(value).format(this.hourly ? 'HH:mm' : 'D MMM'),
+          },
+        },
+        yAxis: {
+          type: 'value',
+          minInterval: 1,
+          axisLabel: { color: CHART.textMuted, fontSize: 11 },
+          splitLine: { lineStyle: { color: CHART.grid } },
+        },
+        series: STATUS_GROUPS.map(group => ({
+          name: group,
+          type: 'bar',
+          stack: 'calls',
+          barMaxWidth: 40,
+          cursor: 'pointer',
+          // White seam between stacked segments keeps neighbouring shades apart
+          itemStyle: { color: CHART[group], borderColor: '#ffffff', borderWidth: 1 },
+          emphasis: { disabled: true },
+          data: buckets.map(bucket => ({ value: bucket[group], itemStyle: { opacity: dim(bucket) ? 0.3 : 1 } })),
+        })),
+      }, true);
+    },
+
+    resizeChart() {
+      if (this.chart) this.chart.resize();
+    },
+
+    tooltipHtml(bucket) {
+      const total = STATUS_GROUPS.reduce((sum, group) => sum + bucket[group], 0);
+      const rows = STATUS_GROUPS.map(group =>
+        `<div style="display:flex;align-items:center;gap:8px;justify-content:space-between;min-width:140px">`
+        + `<span><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:${CHART[group]};margin-right:6px"></span>${group}</span>`
+        + `<strong>${this.formatCount(bucket[group])}</strong></div>`
+      ).join('');
+      return `<div style="font-size:12px;color:${CHART.textMuted};margin-bottom:4px">${this.bucketLabel(bucket.bucket)}</div>`
+        + `<div style="font-size:14px;font-weight:700;margin-bottom:4px">${this.formatCount(total)} ${total === 1 ? 'call' : 'calls'}</div>`
+        + `<div style="font-size:12px">${rows}</div>`;
+    },
+
+    bucketLabel(bucket) {
+      const start = moment(bucket);
+      if (!this.hourly) return start.format('ddd, D MMM YYYY');
+      return `${start.format('D MMM, HH:mm')}–${start.clone().add(1, 'hour').format('HH:mm')}`;
+    },
+
+    // Clicking the selected bar again (or the chip's ×) shows the whole period
+    selectBucket(bucket) {
+      this.selectedBucket = bucket && bucket !== this.selectedBucket ? bucket : null;
+      this.bucketSummary = null;
+      this.renderChart();
+      this.reloadList();
+      if (this.selectedBucket) this.loadBucketSummary();
+    },
+
+    async loadBucketSummary() {
+      // Ignore a response for a bar that's no longer picked
+      const token = ++this.bucketToken;
+      this.loadingBucketSummary = true;
+      try {
+        const summary = await fetchTransactionSummary(this.$store, {
+          ...this.listParams,
+          interval: this.hourly ? 'hour' : 'day',
+          tz: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        });
+        if (token === this.bucketToken) this.bucketSummary = summary;
+      } catch (error) {
+        if (token === this.bucketToken) this.notifyErr(error.message || 'Could not load the endpoint summary.');
+      } finally {
+        if (token === this.bucketToken) this.loadingBucketSummary = false;
       }
     },
 
@@ -356,11 +551,11 @@ export default {
     },
 
     async loadPage(cursor) {
-      // Ignore responses that arrive after the filters changed again
+      // Ignore responses that arrive after the range changed again
       const token = ++this.requestToken;
       this.loadingList = true;
       try {
-        const page = await fetchTransactions(this.$store, { ...this.queryParams, ...this.filters, cursor, limit: PAGE_SIZE });
+        const page = await fetchTransactions(this.$store, { ...this.listParams, cursor, limit: PAGE_SIZE });
         if (token !== this.requestToken) return;
         this.items = cursor ? [...this.items, ...page.items] : page.items;
         this.nextCursor = page.nextCursor;
@@ -369,22 +564,6 @@ export default {
       } finally {
         if (token === this.requestToken) this.loadingList = false;
       }
-    },
-
-    setStatusFilter(status) {
-      this.filters.status = this.filters.status === status ? '' : status;
-      this.reloadList();
-    },
-
-    applySearch() {
-      this.filters.search = this.searchInput;
-      this.reloadList();
-    },
-
-    clearFilters() {
-      this.filters = { status: '', route: '', product: '', search: '' };
-      this.searchInput = '';
-      this.reloadList();
     },
 
     // Selected transaction lives in the URL (?txn=) so a call can be shared or bookmarked
@@ -419,18 +598,29 @@ export default {
 
     outcomeTitle(code) {
       const group = statusClass(code);
+      if (group === 'none') return 'Status not recorded';
       if (group === '2xx') return 'Completed successfully';
       if (group === '4xx') return 'Rejected: problem with the request';
       return 'Failed: server or provider error';
     },
 
     outcomeIcon(code) {
-      return { '2xx': 'mdi-check-circle', '4xx': 'mdi-alert-circle-outline', '5xx': 'mdi-close-circle' }[statusClass(code)];
+      return { '2xx': 'mdi-check-circle', '4xx': 'mdi-alert-circle-outline', '5xx': 'mdi-close-circle', none: 'mdi-help-circle-outline' }[statusClass(code)];
+    },
+
+    // Very old logs can be missing the method or status code
+    methodClass(method) {
+      return method ? `method-${method.toLowerCase()}` : '';
+    },
+
+    formatStatus(code) {
+      return typeof code === 'number' ? code : '—';
     },
 
     percent(count) {
-      if (!this.totals.total) return '0%';
-      return `${((count / this.totals.total) * 100).toFixed(1)}%`;
+      const total = this.scopeTotals.total;
+      if (!total) return '0%';
+      return `${((count / total) * 100).toFixed(1)}%`;
     },
 
     formatCount(value) {
@@ -457,23 +647,9 @@ export default {
 <style scoped>
 .tx-page { color: #172554; padding: 16px 15px 64px; }
 
-.tx-breadcrumb { align-items: center; color: #7180a5; display: flex; font-size: 12px; gap: 10px; margin-bottom: 18px; }
-.tx-breadcrumb a { color: #52658f; text-decoration: none; }
-.tx-breadcrumb a:hover { color: #1d4ed8; }
-.tx-breadcrumb a .mdi { margin-right: 6px; }
-
 .tx-header { margin-bottom: 16px; }
 .tx-header h1 { align-items: center; color: #111827; display: flex; font-size: 24px; font-weight: 700; gap: 10px; margin: 0 0 4px; }
 .tx-header p { color: #718198; font-size: 13px; margin: 0; }
-
-.sample-badge {
-  background: rgba(255, 193, 7, 0.16);
-  border-radius: 999px;
-  color: #856404;
-  font-size: 11px;
-  font-weight: 700;
-  padding: 2px 9px;
-}
 
 /* Date range (same as the API Usage page) */
 .range-bar { align-items: center; display: flex; flex-wrap: wrap; gap: 10px 16px; margin-bottom: 18px; }
@@ -483,71 +659,42 @@ export default {
 .range-preset.active { background: #fff; box-shadow: 0 1px 2px rgba(15, 23, 42, 0.12); color: #111827; }
 .range-summary { color: #64748b; font-size: 13px; }
 
-/* Tiles */
-.tx-tiles { display: grid; gap: 12px; grid-template-columns: repeat(4, minmax(0, 1fr)); margin-bottom: 18px; }
-.tx-tile {
-  align-items: flex-start;
-  background: #fff;
-  border: 1px solid #dbe3ef;
-  border-radius: 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  padding: 14px 16px;
-  text-align: left;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
-}
-.tx-tile:hover { border-color: #b8c6dc; }
-.tx-tile.active { border-color: #2563eb; box-shadow: 0 0 0 1px #2563eb; }
-.tx-tile:focus { outline: none; }
-.tx-tile:focus-visible { box-shadow: 0 0 0 2px #bfdbfe; }
-.tile-label { align-items: center; color: #7180a5; display: inline-flex; font-size: 12px; gap: 6px; }
-.tile-swatch { border-radius: 2px; height: 9px; width: 9px; }
-.tone-2xx .tile-swatch { background: #4ec96b; }
-.tone-4xx .tile-swatch { background: #f59e0b; }
-.tone-5xx .tile-swatch { background: #dc2626; }
-.tile-value { align-items: baseline; color: #111827; display: flex; font-size: 24px; font-weight: 700; gap: 6px; min-height: 30px; }
-.tile-value small { color: #64748b; font-size: 12px; font-weight: 600; }
-.tile-sub { color: #94a3b8; font-size: 11px; }
+/* Cards */
+.tx-card { background: #fff; border: 1px solid #dbe3ef; border-radius: 10px; margin-bottom: 16px; min-width: 0; overflow: hidden; }
+.activity-head h2 { color: #111827; font-size: 14px; font-weight: 700; margin: 0; }
 
-/* Toolbar */
-.tx-toolbar { align-items: center; display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 14px; }
-.tx-search { align-items: center; display: flex; flex: 1 1 340px; position: relative; }
-.tx-search .mdi { color: #94a3b8; font-size: 18px; left: 12px; position: absolute; }
-.tx-search input {
-  background: #fff;
-  border: 1px solid #d0d9e6;
-  border-radius: 8px;
-  color: #111827;
-  font-size: 13px;
-  height: 38px;
-  padding: 0 12px 0 38px;
-  width: 100%;
-}
-.tx-search input:focus, .tx-select select:focus { border-color: #2563eb; box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.12); outline: none; }
-.tx-select { position: relative; }
-.tx-select select {
-  appearance: none;
-  -webkit-appearance: none;
-  background: #fff;
-  border: 1px solid #d0d9e6;
-  border-radius: 8px;
-  color: #344054;
-  cursor: pointer;
-  font-size: 13px;
-  height: 38px;
-  max-width: 320px;
-  padding: 0 34px 0 12px;
-}
-.tx-select .mdi { color: #64748b; pointer-events: none; position: absolute; right: 10px; top: 9px; }
-.tx-clear { background: none; border: 0; color: #2563eb; font-size: 12px; font-weight: 700; padding: 6px 4px; }
-.tx-clear:hover { text-decoration: underline; }
+/* Stats along the top of the chart card; the swatches double as the chart legend */
+.tx-stats { border-bottom: 1px solid #eef2f6; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.tx-stat { display: flex; flex-direction: column; gap: 6px; padding: 14px 18px; }
+.tx-stat + .tx-stat { border-left: 1px solid #eef2f6; }
+.stat-label { align-items: center; color: #7180a5; display: inline-flex; font-size: 12px; gap: 6px; }
+.stat-swatch { border-radius: 2px; height: 9px; width: 9px; }
+.tone-2xx .stat-swatch { background: #86b6ef; }
+.tone-4xx .stat-swatch { background: #2563eb; }
+.tone-5xx .stat-swatch { background: #1e3a8a; }
+.stat-value { align-items: baseline; color: #111827; display: flex; font-size: 24px; font-weight: 700; gap: 6px; min-height: 30px; }
+.stat-value small { color: #64748b; font-size: 12px; font-weight: 600; }
+.stat-scope { color: #94a3b8; font-size: 11px; }
+.stat-scope.picked { color: #1d4ed8; font-weight: 600; }
+.refreshing { opacity: 0.5; transition: opacity 0.15s ease; }
 
-/* List + detail side by side */
-.tx-layout { align-items: start; display: grid; gap: 16px; grid-template-columns: minmax(0, 1fr); }
-.tx-layout.has-detail { grid-template-columns: minmax(0, 1fr) 420px; }
+.activity-body { padding: 14px 16px 12px; }
+.activity-head { align-items: baseline; display: flex; flex-wrap: wrap; gap: 4px 12px; justify-content: space-between; margin-bottom: 8px; }
+.activity-hint { color: #94a3b8; font-size: 12px; }
+.activity-chart { height: 280px; width: 100%; }
 
-.tx-list-card { background: #fff; border: 1px solid #dbe3ef; border-radius: 10px; min-width: 0; overflow: hidden; }
+/* Tabs (same as the KYB widget configuration page) */
+.tx-tabs-bar { align-items: center; border-bottom: 1px solid #e5e7eb; display: flex; gap: 12px; justify-content: space-between; padding: 0 18px; }
+.tx-tabs { display: flex; gap: 28px; overflow-x: auto; }
+.tx-tab { background: transparent; border: 0; border-bottom: 2px solid transparent; color: #64748b; cursor: pointer; font-size: 13px; padding: 14px 2px 12px; white-space: nowrap; }
+.tx-tab.active { border-bottom-color: #2563eb; color: #2563eb; font-weight: 600; }
+.tx-tab:focus { outline: none; }
+.tx-tab:focus-visible { border-radius: 4px; box-shadow: 0 0 0 2px #bfdbfe; }
+
+/* Tab panels have no padding of their own, so inset the empty state from the card edges */
+.tx-tabs-card .tab-empty { margin: 16px; width: auto; }
+
+/* Tables */
 .tx-table-wrap { overflow-x: auto; }
 .tx-table { border-collapse: collapse; width: 100%; }
 .tx-table th {
@@ -563,37 +710,51 @@ export default {
   white-space: nowrap;
 }
 .tx-table td { border-bottom: 1px solid #f1f5f9; color: #1f2937; font-size: 13px; padding: 10px 14px; vertical-align: middle; }
-.tx-table tbody tr { cursor: pointer; transition: background-color 0.1s ease; }
-.tx-table tbody tr:hover { background: #f8fafc; }
+.tx-table tbody tr:last-child td { border-bottom: 0; }
+.tx-table tbody tr.clickable { cursor: pointer; transition: background-color 0.1s ease; }
+.tx-table tbody tr.clickable:hover { background: #f8fafc; }
 .tx-table tbody tr.selected { background: #eff6ff; }
 .tx-table tbody tr:focus { outline: none; }
 .tx-table tbody tr:focus-visible { box-shadow: inset 0 0 0 2px #bfdbfe; }
+.tx-table th.text-right { text-align: right; }
 .tx-time { color: #475569 !important; font-variant-numeric: tabular-nums; white-space: nowrap; }
-.tx-endpoint { align-items: center; display: flex; gap: 8px; max-width: 520px; min-width: 0; }
+.tx-endpoint { align-items: center; display: flex; gap: 8px; max-width: 560px; min-width: 0; }
 .tx-endpoint code { background: none; color: #344054; font-size: 12px; overflow: hidden; padding: 0; text-overflow: ellipsis; white-space: nowrap; }
-.tx-latency { color: #475569 !important; font-variant-numeric: tabular-nums; white-space: nowrap; }
-.slow { color: #b45309 !important; font-weight: 600; }
+.num { color: #475569 !important; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.num.strong { color: #111827 !important; font-weight: 700; }
+.count-4xx { color: #1d4ed8 !important; font-weight: 600; }
+.count-5xx { color: #1e3a8a !important; font-weight: 700; }
+.slow { color: #1e3a8a !important; font-weight: 600; }
 .tx-chevron { color: #94a3b8 !important; width: 28px; }
 .text-right { text-align: right; }
 
 .status-pill { border-radius: 5px; display: inline-block; font-size: 12px; font-variant-numeric: tabular-nums; font-weight: 700; min-width: 42px; padding: 2px 7px; text-align: center; }
 .status-pill.large { font-size: 14px; padding: 4px 10px; }
-.status-pill.tone-2xx { background: rgba(78, 201, 107, 0.14); color: #2f9e4f; }
-.status-pill.tone-4xx { background: rgba(245, 158, 11, 0.16); color: #92400e; }
-.status-pill.tone-5xx { background: rgba(220, 38, 38, 0.1); color: #b91c1c; }
-
-.product-tag { background: #f1f5f9; border-radius: 5px; color: #475569; font-size: 11px; font-weight: 700; padding: 2px 7px; }
+.status-pill.tone-2xx { background: #eef4fd; color: #2f5f9e; }
+.status-pill.tone-4xx { background: #dbe8fd; color: #1d4ed8; }
+.status-pill.tone-5xx { background: #1e3a8a; color: #ffffff; }
+.status-pill.tone-none { background: #f1f5f9; color: #64748b; }
 
 .method { border-radius: 4px; display: inline-block; flex: 0 0 auto; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; font-weight: 700; padding: 1px 6px; }
-.method-get { background: rgba(34, 197, 94, 0.1); color: #15803d; }
-.method-post { background: rgba(59, 130, 246, 0.1); color: #1d4ed8; }
-.method-put, .method-patch { background: rgba(245, 158, 66, 0.12); color: #b45309; }
-.method-delete { background: rgba(239, 68, 68, 0.1); color: #b91c1c; }
+.method-get { background: #eef4fd; color: #2f5f9e; }
+.method-post { background: #dbe8fd; color: #1d4ed8; }
+.method-put, .method-patch { background: #e2e8f0; color: #334155; }
+.method-delete { background: #e0e7f5; color: #1e3a8a; }
 
-.tx-list-footer { align-items: center; color: #64748b; display: flex; font-size: 12px; justify-content: space-between; padding: 10px 14px; }
+/* Day/hour picked on the chart */
+.bucket-chip { align-items: center; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 999px; color: #1d4ed8; display: inline-flex; font-size: 12px; font-weight: 600; gap: 4px; padding: 2px 4px 2px 10px; }
+.bucket-chip button { align-items: center; background: none; border: 0; border-radius: 999px; color: #1d4ed8; display: inline-flex; height: 20px; justify-content: center; padding: 0; width: 20px; }
+.bucket-chip button:hover { background: #dbeafe; }
+
+.tx-list-footer { align-items: center; border-top: 1px solid #f1f5f9; color: #64748b; display: flex; font-size: 12px; justify-content: space-between; padding: 10px 14px; }
 .load-more { background: #fff; border: 1px solid #d0d9e6; border-radius: 6px; color: #344054; font-size: 12px; font-weight: 700; padding: 6px 14px; }
 .load-more:hover:not(:disabled) { background: #f8fafc; }
 .load-more:disabled { cursor: wait; opacity: 0.6; }
+
+/* List + detail side by side */
+.tx-layout { align-items: start; display: grid; gap: 16px; grid-template-columns: minmax(0, 1fr); scroll-margin-top: 16px; }
+.tx-layout.has-detail { grid-template-columns: minmax(0, 1fr) 420px; }
+.tx-layout .tx-card { margin-bottom: 0; }
 
 /* Detail panel */
 .tx-detail {
@@ -619,9 +780,10 @@ export default {
 .detail-outcome > .mdi { font-size: 18px; line-height: 1.2; }
 .detail-outcome strong { display: block; font-size: 13px; }
 .detail-outcome p { color: #1f2937; font-size: 13px; margin: 2px 0 0; overflow-wrap: anywhere; }
-.detail-outcome.tone-2xx { background: #f3fbf6; border-color: #c9ecd6; color: #1f7a43; }
-.detail-outcome.tone-4xx { background: #fffbeb; border-color: #fde68a; color: #92400e; }
-.detail-outcome.tone-5xx { background: #fef6f6; border-color: #f6cfcf; color: #b42318; }
+.detail-outcome.tone-2xx { background: #f5f9ff; border-color: #d6e4fb; color: #2f5f9e; }
+.detail-outcome.tone-4xx { background: #eef4ff; border-color: #bfd4fb; color: #1d4ed8; }
+.detail-outcome.tone-5xx { background: #eef1f9; border-color: #b9c6e6; color: #1e3a8a; }
+.detail-outcome.tone-none { background: #f8fafc; border-color: #e2e8f0; color: #475569; }
 
 .detail-list { margin: 0; }
 .detail-list > div { border-bottom: 1px solid #f1f5f9; display: flex; gap: 12px; justify-content: space-between; padding: 8px 0; }
@@ -634,13 +796,7 @@ export default {
 .copyable button { background: none; border: 0; color: #64748b; flex: 0 0 auto; padding: 0; }
 .copyable button:hover { color: #1d4ed8; }
 
-.detail-section { margin-top: 18px; }
-.detail-section h3 { color: #64748b; font-size: 11px; font-weight: 700; letter-spacing: 0.05em; margin: 0 0 6px; text-transform: uppercase; }
 
-.session-link { align-items: center; border: 1px solid #dbe3ef; border-radius: 8px; color: #1d4ed8; display: flex; font-size: 13px; font-weight: 600; gap: 8px; padding: 10px 12px; text-decoration: none; }
-.session-link:hover { background: #eff6ff; border-color: #bfdbfe; }
-.session-link span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.session-link code { background: none; color: #475569; font-size: 11px; font-weight: 500; padding: 0; }
 
 .detail-privacy { align-items: center; color: #94a3b8; display: flex; font-size: 11px; gap: 6px; margin: 18px 0 0; }
 .detail-error { color: #b42318; font-size: 13px; }
@@ -653,6 +809,8 @@ export default {
 }
 
 @media (max-width: 760px) {
-  .tx-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .tx-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .tx-stat:nth-child(3) { border-left: 0; }
+  .tx-stat:nth-child(n + 3) { border-top: 1px solid #eef2f6; }
 }
 </style>

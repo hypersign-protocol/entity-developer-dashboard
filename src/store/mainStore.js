@@ -2663,7 +2663,11 @@ const mainStore = {
                 tokenStorageKey: "access_token"
             })
             const resp = await fetch(url, { method: 'GET', headers: UtilsMixin.methods.getKycServiceHeader(token) })
-            const json = await resp.json()
+            // A proxy or gateway error can come back as HTML rather than the usual JSON envelope
+            const json = await resp.json().catch(() => null)
+            if (!json) {
+                throw new Error(`Request failed with status ${resp.status}`)
+            }
             if (json.error) {
                 throw new Error(JWTExpiredErrorMessageHandling(json))
             }
