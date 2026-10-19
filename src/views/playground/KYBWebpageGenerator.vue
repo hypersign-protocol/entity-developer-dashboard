@@ -1033,15 +1033,20 @@ textarea.form-control {
         <h4 class="font-weight-bold mb-0">Business Verifier Page Configuration</h4>
         <p class="text-subtitle-2 text-muted">Host a landing page for Business Entity verification</p>
       </v-col>
-      <v-col>
-        <HfButtons name="Save Configuration" @executeAction="saveConfiguration()" v-if="!this.kybWebpageConfigTemp._id"
-          style="float:right"></HfButtons>
-        <div v-else>
-          <b-button variant="link" class="danger" @click="openDeleteModal()" style="float:right;"
-            title="Delete Configuration"><i class="fa fa-trash"></i></b-button>
-          <HfButtons name="Update Configuration" @executeAction="updateConfiguration()" style="float:right" class="mx-1">
-          </HfButtons>
-        </div>
+      <v-col class="hf-btn-group">
+        <HfButtons
+          v-if="kybWebpageConfigTemp._id"
+          title="Delete configuration"
+          variant="danger-outline"
+          iconClass="mdi mdi-trash-can-outline"
+          @executeAction="openDeleteModal()"
+        />
+        <HfButtons
+          variant="primary"
+          iconClass="mdi mdi-content-save-outline"
+          :name="kybWebpageConfigTemp._id ? 'Update Configuration' : 'Save Configuration'"
+          @executeAction="kybWebpageConfigTemp._id ? updateConfiguration() : saveConfiguration()"
+        />
       </v-col>
     </v-row>
 

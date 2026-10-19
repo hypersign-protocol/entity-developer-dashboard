@@ -1070,15 +1070,20 @@ textarea.form-control {
         <h4 class="font-weight-bold mb-0">ID Verifier Page Configuration</h4>
         <p class="text-subtitle-2 text-muted">Create a hosted landing page for your ID verification flow</p>
       </v-col>
-      <v-col>
-        <HfButtons name="Save Configuration" @executeAction="saveConfiguration()" v-if="!this.kycWebpageConfigTemp._id"
-          style="float:right"></HfButtons>
-        <div v-else>
-          <b-button variant="link" class="danger" @click="openDeleteModal()" style="float:right;"
-            title="Delete Configuration"><i class="fa fa-trash"></i></b-button>
-          <HfButtons name="Update Configuration" @executeAction="updateConfiguration()" style="float:right" class="mx-1">
-          </HfButtons>
-        </div>
+      <v-col class="hf-btn-group">
+        <HfButtons
+          v-if="kycWebpageConfigTemp._id"
+          title="Delete configuration"
+          variant="danger-outline"
+          iconClass="mdi mdi-trash-can-outline"
+          @executeAction="openDeleteModal()"
+        />
+        <HfButtons
+          variant="primary"
+          iconClass="mdi mdi-content-save-outline"
+          :name="kycWebpageConfigTemp._id ? 'Update Configuration' : 'Save Configuration'"
+          @executeAction="kycWebpageConfigTemp._id ? updateConfiguration() : saveConfiguration()"
+        />
       </v-col>
     </v-row>
 

@@ -446,9 +446,9 @@ ul {
         <h4 class="mb-1 font-weight-bold">{{ widgetConfigTemp.name || 'New Widget Configuration' }}</h4>
         <p class="text-muted small mb-0">Configure the ID widget for your application.</p>
       </div>
-      <div>
-        <b-button variant="outline-secondary" class="mr-2" @click="goBack">Cancel</b-button>
-        <HfButtons v-if="$can('CAVACH_API', widgetConfigTemp._id ? 'UPDATE_WIDGET_CONFIG' : 'WRITE_WIDGET_CONFIG')" :name="widgetConfigTemp._id ? 'Update Configuration' : 'Save Configuration'"
+      <div class="hf-btn-group">
+        <HfButtons name="Cancel" @executeAction="goBack" />
+        <HfButtons v-if="$can('CAVACH_API', widgetConfigTemp._id ? 'UPDATE_WIDGET_CONFIG' : 'WRITE_WIDGET_CONFIG')" variant="primary" iconClass="mdi mdi-content-save-outline" :name="widgetConfigTemp._id ? 'Update Configuration' : 'Save Configuration'"
           @executeAction="widgetConfigTemp._id ? updateConfiguration() : saveConfiguration()" />
       </div>
     </div>

@@ -9,7 +9,7 @@
           <p class="text-subtitle-2 text-muted">Create and manage widget configurations for your verification use cases</p>
         </div>
         <div class="header-actions">
-          <HfButtons v-if="$can('CAVACH_API', 'WRITE_WIDGET_CONFIG')" name="New Configuration" iconClass="mdi mdi-plus" @executeAction="createConfiguration" />
+          <HfButtons v-if="$can('CAVACH_API', 'WRITE_WIDGET_CONFIG')" name="New Configuration" variant="primary" iconClass="mdi mdi-plus" @executeAction="createConfiguration" />
         </div>
       </div>
 
@@ -19,7 +19,7 @@
         icon="mdi mdi-widgets-outline"
         description="Create your first configuration to get started."
       >
-        <HfButtons v-if="$can('CAVACH_API', 'WRITE_WIDGET_CONFIG')" name="New Configuration" iconClass="mdi mdi-plus" @executeAction="createConfiguration" />
+        <HfButtons v-if="$can('CAVACH_API', 'WRITE_WIDGET_CONFIG')" name="New Configuration" variant="primary" iconClass="mdi mdi-plus" @executeAction="createConfiguration" />
       </empty-container>
 
       <div v-else class="table-shell">
@@ -56,9 +56,7 @@
             </div>
           </template>
           <template #cell(actions)="{ item }">
-            <b-button variant="outline-secondary" size="sm" @click="viewConfiguration(item)">
-              <v-icon x-small>mdi-eye-outline</v-icon> View
-            </b-button>
+            <HfButtons name="View" size="sm" iconClass="mdi mdi-eye-outline" @executeAction="viewConfiguration(item)" />
             <b-dropdown right no-caret size="sm" variant="link" boundary="viewport" toggle-class="action-menu" menu-class="configuration-actions-menu" class="configuration-actions ml-1">
               <template #button-content><v-icon small>mdi-dots-vertical</v-icon></template>
               <b-dropdown-item @click="viewConfiguration(item)"><v-icon small>mdi-pencil-outline</v-icon> Edit</b-dropdown-item>

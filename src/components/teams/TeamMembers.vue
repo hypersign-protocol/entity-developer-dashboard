@@ -2,7 +2,7 @@
   <div>
     <load-ing :active.sync="isLoading" :can-cancel="true" :is-full-page="true"></load-ing>
     <SectionHeader title="All Members" description="Teammates you've invited to your admin dashboard, and the role each one has.">
-      <hf-buttons name="Invite Member" iconClass="fa fa-user-plus" @executeAction="inviteMemberPopup"></hf-buttons>
+      <hf-buttons name="Invite Member" variant="primary" iconClass="fa fa-user-plus" @executeAction="inviteMemberPopup"></hf-buttons>
       <hf-buttons name="" title="Reload" :bIcon="true" iconClass="fas fa-sync-alt" @executeAction="getPeopleMembers"></hf-buttons>
     </SectionHeader>
 
@@ -68,14 +68,13 @@
 
       <!-- INVITE BUTTON -->
       <div class="input-group-append mt-3" v-if="invitionData.inviteCode === ''">
-        <v-btn
-          type="submit"
-          class="btn btn-secondary"
+        <hf-buttons
+          name="Invite"
+          variant="primary"
+          iconClass="mdi mdi-send-outline"
           :disabled="!checkIfValidEmail || !selectedRoleId"
-          @click="sendInvite"
-        >
-          <b-icon icon="share"></b-icon> Invite
-        </v-btn>
+          @executeAction="sendInvite"
+        />
       </div>
 
       <!-- AFTER INVITATION SENT BLOCK -->
