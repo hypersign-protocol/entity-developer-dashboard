@@ -2,7 +2,7 @@ const fs = require('fs');
 const https = require('https');
 const path = require('path');
 
-const catalogUrl = 'https://raw.githubusercontent.com/hypersign-protocol/hypersign-credits-middleware/refs/heads/ADR000/src/catalogs/catalog.kyc.json';
+const catalogUrl = 'https://raw.githubusercontent.com/hypersign-protocol/hypersign-credits-middleware/refs/heads/main/src/catalogs/catalog.kyc.json';
 const catalogPath = path.resolve(__dirname, '../src/catalogs/catalog.kyc.json');
 const shouldRefresh = process.argv.includes('--refresh');
 

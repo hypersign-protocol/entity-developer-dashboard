@@ -90,7 +90,7 @@ const flows = [
   {
     id: 'india',
     title: 'India Identity Verification',
-    description: 'Verify individuals in India using Aadhaar-based services.',
+    description: 'Verify individuals in India using Aadhaar and PAN services.',
     icon: 'mdi-account-outline',
     services: [
       {
@@ -108,6 +108,22 @@ const flows = [
         icon: 'mdi-card-account-details-outline',
         routes: ['/api/v1/aadhaar/otp/generate', '/api/v1/aadhaar/otp/verify'],
         defaultSelected: true
+      },
+      {
+        id: 'pan-verification',
+        title: 'PAN Verification',
+        description: 'Verify a PAN and the name registered against it.',
+        icon: 'mdi-card-text-outline',
+        routes: ['/api/v1/pan/verify'],
+        defaultSelected: false
+      },
+      {
+        id: 'pan-aadhaar-link-status',
+        title: 'PAN–Aadhaar Link Status',
+        description: 'Check whether a PAN is linked to an Aadhaar number.',
+        icon: 'mdi-link-variant',
+        routes: ['/api/v1/pan/aadhaar/link-status'],
+        defaultSelected: false
       }
     ]
   },
