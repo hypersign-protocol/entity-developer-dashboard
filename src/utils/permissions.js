@@ -34,6 +34,7 @@ const PAGE_ACCESS = [
   { prefix: '/studio/developer/webhook/', service: SERVICE.KYC, access: 'READ_WEBHOOK_CONFIG' },
   { prefix: '/studio/onchainkyc/credit/', service: SERVICE.KYC, access: 'READ_CREDIT' },
   { prefix: '/studio/usage/', service: SERVICE.KYC, access: 'READ_USAGE' },
+  { prefix: '/studio/developer/transactions/', service: SERVICE.KYC, access: 'READ_USAGE' },
   // App settings (dashboard service)
   { prefix: '/studio/service-config/', service: SERVICE.DASHBOARD, access: 'READ_SERVICE' },
   // SSI app

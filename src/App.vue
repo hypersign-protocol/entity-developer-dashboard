@@ -50,64 +50,96 @@
   border-color: #fde047;
 }
 
-/* Avatar Container Fixes */
-.avatar-container {
-  display: flex;
+/* Profile menu: avatar button, identity header, items (dashboard theme) */
+.profile-avatar {
   align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
   border-radius: 50%;
-  border: 1px solid #e5e7eb;
+  color: #1d4ed8;
+  display: inline-flex;
+  flex: 0 0 auto;
+  font-size: 12px;
+  font-weight: 700;
+  height: 32px;
+  justify-content: center;
+  letter-spacing: 0.02em;
   overflow: hidden;
-  background-color: #f9fafb;
+  width: 32px;
 }
+.profile-avatar.large { font-size: 14px; height: 40px; width: 40px; }
+.profile-avatar img { height: 100%; object-fit: cover; width: 100%; }
 
-.profile-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
+::v-deep .profile-toggle { padding-bottom: 4px !important; padding-top: 4px !important; }
+::v-deep .profile-toggle:focus-visible .profile-avatar { box-shadow: 0 0 0 2px #bfdbfe; }
 
-/* Dropdown Menu Cleanups */
-.profile-dropdown-menu {
-  border: 1px solid #e5e7eb !important;
-  border-radius: 8px !important;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.03) !important;
-  padding: 4px 0 !important;
-  min-width: 220px !important;
-}
-
-/* Force the user header block and text to align left */
-/* Ensure the dropdown container and all items align strictly left */
-::v-deep .profile-dropdown-menu.dropdown-menu {
+::v-deep .profile-dropdown-menu {
+  border: 1px solid #dbe3ef !important;
+  border-radius: 10px !important;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.12) !important;
+  margin-top: 6px !important;
+  min-width: 260px !important;
+  padding: 6px !important;
   text-align: left !important;
 }
+::v-deep .profile-dropdown-menu .dropdown-divider { border-color: #eef2f6; margin: 6px 0; }
 
-/* Align text and icons inside dropdown links to the left */
-::v-deep .profile-dropdown-menu .dropdown-item {
-  text-align: left !important;
+::v-deep .profile-header {
+  align-items: center;
+  display: flex;
+  gap: 10px;
+  margin: 0;
+  padding: 6px 6px 4px;
+}
+.profile-identity { display: flex; flex-direction: column; min-width: 0; }
+.profile-identity strong {
+  color: #111827;
+  font-size: 14px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.profile-email { align-items: center; color: #64748b; display: flex; font-size: 12px; gap: 4px; min-width: 0; }
+.profile-email > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.profile-copy {
+  align-items: center;
+  background: none;
+  border: 0;
+  border-radius: 4px;
+  color: #94a3b8;
+  display: inline-flex;
+  flex: 0 0 auto;
+  height: 22px;
+  justify-content: center;
+  padding: 0;
+  width: 22px;
+}
+.profile-copy:hover { background: #f1f5f9; color: #1d4ed8; }
+
+::v-deep .profile-item {
+  align-items: center;
+  border-radius: 6px;
+  color: #334155 !important;
   display: flex !important;
-  align-items: center !important;
-  justify-content: flex-start !important;
+  font-size: 13px;
+  gap: 10px;
+  padding: 8px 10px !important;
+  transition: background-color 0.1s ease, color 0.1s ease;
 }
-
-/* User header section alignment */
-.dropdown-user-header {
-  text-align: left !important;
-}
-
-/* Ensure dropdown menu items and icons align left */
-.profile-dropdown-menu .b-dropdown-text,
-.profile-dropdown-menu .dropdown-item {
-  text-align: left !important;
-  justify-content: flex-start !important;
-}
-
-.x-small {
-  font-size: 0.68rem;
-  letter-spacing: 0.05em;
-}
+::v-deep .profile-item .mdi { color: #64748b; font-size: 17px; line-height: 1; }
+::v-deep .profile-item:hover,
+::v-deep .profile-item:focus { background: #f1f5f9 !important; color: #111827 !important; outline: none; }
+/* Pressed: the theme's light-blue selected state instead of Bootstrap's dark blue */
+::v-deep .profile-item:active,
+::v-deep .profile-item.active { background: #eff6ff !important; color: #1d4ed8 !important; }
+::v-deep .profile-item:active .mdi { color: #1d4ed8; }
+/* Log out is plain until hovered, then red */
+::v-deep .profile-logout:hover,
+::v-deep .profile-logout:focus,
+::v-deep .profile-logout:active { background: #fef2f2 !important; color: #dc2626 !important; }
+::v-deep .profile-logout:hover .mdi,
+::v-deep .profile-logout:focus .mdi,
+::v-deep .profile-logout:active .mdi { color: #dc2626; }
 
 .nav-logo-img {
   height: 28px;
@@ -127,23 +159,6 @@
   height: 28px !important;
 }
 
-/* Avatar Styling */
-.avatar-container {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  border: 1px solid #e2e8f0;
-  overflow: hidden;
-}
-
-.profile-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
 
 .logo {
   padding-top: 1.5%;
@@ -601,57 +616,51 @@ color: #1a1a2e !important;
           <b-nav-item-dropdown
             right
             no-caret
-            menu-class="profile-dropdown-menu shadow-sm"
+            toggle-class="profile-toggle"
+            menu-class="profile-dropdown-menu"
           >
             <template #button-content>
-              <div class="avatar-container">
-                <img
-                  v-if="userDetails?.profileIcon"
-                  :src="userDetails?.profileIcon"
-                  class="profile-img"
-                />
-                <b-icon
-                  v-else
-                  icon="person-circle"
-                  font-scale="1.3"
-                  class="text-secondary"
-                ></b-icon>
-              </div>
+              <span class="profile-avatar" :title="displayName">
+                <img v-if="userDetails.profileIcon && !avatarFailed" :src="userDetails.profileIcon" alt="" @error="avatarFailed = true" />
+                <span v-else aria-hidden="true">{{ userInitials }}</span>
+                <span class="sr-only">Account menu for {{ displayName }}</span>
+              </span>
             </template>
 
-            <!-- Left-aligned Header -->
-            <div class="px-3 py-2 bg-light border-bottom dropdown-user-header text-left">
-              <p class="mb-0 x-small text-muted text-uppercase font-weight-bold">Signed in as</p>
-              <p class="mb-0 font-weight-bold text-dark text-truncate" style="max-width: 200px">
-                {{ userDetails.name || "User" }}
-              </p>
-            </div>
+            <!-- Who is signed in; the email has its own copy button -->
+            <b-dropdown-text text-class="profile-header">
+              <span class="profile-avatar large" aria-hidden="true">
+                <img v-if="userDetails.profileIcon && !avatarFailed" :src="userDetails.profileIcon" alt="" />
+                <span v-else>{{ userInitials }}</span>
+              </span>
+              <span class="profile-identity">
+                <strong :title="displayName">{{ displayName }}</strong>
+                <span v-if="userDetails.email" class="profile-email">
+                  <span :title="userDetails.email">{{ userDetails.email }}</span>
+                  <button
+                    type="button"
+                    class="profile-copy"
+                    title="Copy email"
+                    aria-label="Copy email"
+                    @click.stop="copyToClip(userDetails.email, 'Email')"
+                  ><i class="mdi mdi-content-copy" aria-hidden="true"></i></button>
+                </span>
+              </span>
+            </b-dropdown-text>
 
-            <!-- Left-aligned Email -->
-            <b-dropdown-item
-              @click="copyToClip(userDetails.email, 'Email')"
-              class="py-2"
-            >
-              <b-icon icon="envelope" class="mr-2 text-muted"></b-icon>
-              {{ shorten(userDetails.email) }}
+            <b-dropdown-divider />
+
+            <b-dropdown-item link-class="profile-item" @click="goTo('/studio/dashboard')">
+              <i class="mdi mdi-home-outline" aria-hidden="true"></i> Home
+            </b-dropdown-item>
+            <b-dropdown-item link-class="profile-item" @click="goTo('/studio/settings?ref=profile')">
+              <i class="mdi mdi-cog-outline" aria-hidden="true"></i> Settings
             </b-dropdown-item>
 
-            <b-dropdown-divider class="my-1"></b-dropdown-divider>
+            <b-dropdown-divider />
 
-            <!-- Left-aligned Nav Links -->
-            <b-dropdown-item @click="goTo('/studio/dashboard')">
-              <b-icon icon="house" class="mr-2 text-muted"></b-icon> Home
-            </b-dropdown-item>
-
-            <b-dropdown-item @click="goTo('/studio/settings')">
-              <b-icon icon="gear" class="mr-2 text-muted"></b-icon> Settings
-            </b-dropdown-item>
-
-            <b-dropdown-divider class="my-1"></b-dropdown-divider>
-
-            <!-- Left-aligned Logout -->
-            <b-dropdown-item @click="logoutAll()" variant="danger">
-              <b-icon icon="power" class="mr-2"></b-icon> Logout
+            <b-dropdown-item link-class="profile-item profile-logout" @click="logoutAll()">
+              <i class="mdi mdi-logout" aria-hidden="true"></i> Log out
             </b-dropdown-item>
           </b-nav-item-dropdown>
         </b-navbar-nav>
@@ -726,6 +735,17 @@ export default {
       "getUserDetails",
       "isMFAEnabled",
     ]),
+    displayName() {
+      const details = this.userDetails || {};
+      return details.name || (details.email ? details.email.split('@')[0] : '') || 'User';
+    },
+    // Up to two initials from the name, else the first letter of the email
+    userInitials() {
+      const details = this.userDetails || {};
+      const words = String(details.name || '').trim().split(/\s+/).filter(Boolean);
+      if (words.length) return words.slice(0, 2).map(word => word[0]).join('').toUpperCase();
+      return (details.email || 'U')[0].toUpperCase();
+    },
     ...mapState({
       showMainSideNavBar: (state) => state.mainStore.showMainSideNavBar,
       selectedDashboard: (state) => state.globalStore.selectedDashboard,
@@ -747,6 +767,8 @@ export default {
       schema_page: 1,
       authRoutes: ["register", "PKIIdLogin"],
       userDetails: {},
+      // Profile photo failed to load: fall back to initials
+      avatarFailed: false,
       loggedInUserEmailId: "",
       parseAuthToken: null,
       authToken: null,
@@ -796,6 +818,10 @@ export default {
     });
   },
   watch: {
+    // A new photo gets a fresh chance to load
+    'userDetails.profileIcon'() {
+      this.avatarFailed = false;
+    },
     // Re-mount the sidebar on every navigation so that only the active
     // category stays open and all others collapse.
     $route() {
@@ -851,8 +877,9 @@ export default {
       if (this.$route.path !== "/login") this.$router.push("/login");
     },
 
+    // Compare the full path so a query (e.g. a Settings tab) still navigates
     goTo(path) {
-      if (this.$route.path !== path) this.$router.push(path);
+      if (this.$route.fullPath !== path) this.$router.push(path).catch(() => {});
     },
 
     onToggleCollapse(collapsed) {
@@ -961,6 +988,8 @@ export default {
           const devChildren = [
             { href: "/studio/developer/api-key/" + appId, title: EN.NAV.DEVELOPERS_HUB.API_KEY, icon: "mdi mdi-key-outline" },
             { href: "/studio/developer/webhook/" + appId, title: EN.NAV.DEVELOPERS_HUB.WEBHOOK, icon: "mdi mdi-webhook" },
+            // exactPath: stay highlighted while a transaction is open (?txn=...)
+            { href: "/studio/developer/transactions/" + appId, title: EN.NAV.DEVELOPERS_HUB.TRANSACTIONS, icon: "mdi mdi-swap-horizontal", exactPath: true },
             { href: "/studio/service-config/" + appId, title: EN.NAV.DEVELOPERS_HUB.SERVICE_CONFIGURATION, icon: "mdi mdi-cog-outline" },
           ];
           menu.push({ href: "", title: EN.NAV.DEVELOPERS_HUB.TITLE, icon: "mdi mdi-code-tags", child: devChildren });

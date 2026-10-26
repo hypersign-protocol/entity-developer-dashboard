@@ -158,7 +158,7 @@ export default {
         { value: 'credit-recharge', label: 'Credit recharge' },
         { value: 'kyb-compliance', label: 'KYB compliance' },
       ],
-      activeMainTab: 'members', // Default to Members tab
+      activeMainTab: 'profile', // Default to Profile tab
       activeMembersSubTab: 'members',
       activeSuperAdminSubTab: 'onboarding',
       sentInvitiationCode: ""
@@ -185,7 +185,8 @@ export default {
       if (this.memberSubTabs.some(sub => sub.value === ref)) return { main: 'members', sub: ref };
       if (this.isSuperAdminUser && this.superAdminSubTabs.some(sub => sub.value === ref)) return { main: 'super-admin', sub: ref };
       if (this.visibleTabs.some(tab => tab.value === ref)) return { main: ref };
-      return { main: 'members', sub: 'members' };
+      // No or unknown ref: open the first tab
+      return { main: 'profile' };
     },
     selectTab(main, sub) {
       const ref = sub || main;

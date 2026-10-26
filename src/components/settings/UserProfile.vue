@@ -31,7 +31,7 @@
       </div>
 
       <div class="profile-actions">
-        <hf-buttons v-if="!isMFAEnabled" name="Set up MFA" iconClass="mdi mdi-shield-key-outline" @executeAction="onSetupMFA"></hf-buttons>
+        <hf-buttons v-if="!isMFAEnabled" name="Set up MFA" variant="primary" iconClass="mdi mdi-shield-key-outline" @executeAction="onSetupMFA"></hf-buttons>
         <hf-buttons name="Log out" iconClass="mdi mdi-logout" customClass="btn btn-outline-danger" @executeAction="onLogout"></hf-buttons>
       </div>
     </section>
@@ -55,7 +55,7 @@
           <div>
             <strong>Multi-factor authentication is off</strong>
             <p>Add an authenticator app so a password alone isn't enough to sign in. It's required to take an app live.</p>
-            <hf-buttons name="Set up MFA" iconClass="mdi mdi-shield-key-outline" @executeAction="onSetupMFA"></hf-buttons>
+            <hf-buttons name="Set up MFA" variant="primary" iconClass="mdi mdi-shield-key-outline" @executeAction="onSetupMFA"></hf-buttons>
           </div>
         </div>
       </section>

@@ -3,7 +3,7 @@
         <load-ing :active.sync="isLoading" :can-cancel="true" :is-full-page="true"></load-ing>
 
         <SectionHeader title="Roles &amp; Permissions" description="Roles decide what a teammate can see and do. Assign one to each member.">
-            <hf-buttons name="Create Custom Role" title="Create a custom role" iconClass="fa fa-plus" @executeAction="openSlider('add')"></hf-buttons>
+            <hf-buttons name="Create Custom Role" variant="primary" title="Create a custom role" iconClass="fa fa-plus" @executeAction="openSlider('add')"></hf-buttons>
             <hf-buttons name="" title="Reload" :bIcon="true" iconClass="fas fa-sync-alt" @executeAction="getMyRolesAction"></hf-buttons>
         </SectionHeader>
 
@@ -46,10 +46,14 @@
             </v-card-text>
             <v-card-actions>
               <v-spacer></v-spacer>
-              <v-btn text @click="confirmDialog = false">Cancel</v-btn>
-              <v-btn color="red darken-1" depressed dark :loading="isLoading" @click="confirmDeleteRole">
-                Delete
-              </v-btn>
+              <hf-buttons name="Cancel" @executeAction="confirmDialog = false" />
+              <hf-buttons
+                class="ml-2"
+                :name="isLoading ? 'Deleting…' : 'Delete'"
+                variant="danger"
+                :disabled="isLoading"
+                @executeAction="confirmDeleteRole"
+              />
             </v-card-actions>
           </v-card>
         </v-dialog>
@@ -197,7 +201,7 @@
                     </b-tabs>
                 </b-form-group>
 
-                <hf-buttons name="Save" @executeAction="saveRole()">Save</hf-buttons>
+                <hf-buttons name="Save" variant="primary" @executeAction="saveRole()" />
             </div>
         </StudioSideBar>
     </div>

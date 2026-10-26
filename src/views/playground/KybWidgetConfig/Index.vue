@@ -10,6 +10,8 @@
         <p class="text-muted small mb-0">Configure the business widget for your application</p>
       </div>
       <HfButtons
+        variant="primary"
+        iconClass="mdi mdi-content-save-outline"
         :name="kybWidgetConfigTemp._id ? 'Update Configuration' : 'Save Configuration'"
         @executeAction="kybWidgetConfigTemp._id ? updateConfiguration() : saveConfiguration()"
       />

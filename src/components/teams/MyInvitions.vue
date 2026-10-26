@@ -2,7 +2,7 @@
   <div>
     <load-ing :active.sync="isLoading" :can-cancel="true" :is-full-page="true"></load-ing>
     <SectionHeader title="My Invitations" description="Invitations you've received to join other teams. Accept one to switch into that team's dashboard.">
-      <hf-buttons name="Accept Invitation" iconClass="fa fa-envelope-open" @executeAction="acceptInvitePopup"></hf-buttons>
+      <hf-buttons name="Accept Invitation" variant="primary" iconClass="fa fa-envelope-open" @executeAction="acceptInvitePopup"></hf-buttons>
       <hf-buttons name="" title="Reload" :bIcon="true" iconClass="fas fa-sync-alt" @executeAction="getInvitions"></hf-buttons>
     </SectionHeader>
 
@@ -26,7 +26,7 @@
           <div class="input-group">
             <input type="email" class="form-control" placeholder="Enter invitation code" v-model="invitionCodeToAccept" />
             <div class="input-group-append">
-              <button type="submit" class="btn btn-outline-secondary" @click="acceptedInvition">
+              <button type="submit" class="hf-btn hf-btn--primary" style="height: 38px" @click="acceptedInvition">
                  Accept
               </button>
             </div>

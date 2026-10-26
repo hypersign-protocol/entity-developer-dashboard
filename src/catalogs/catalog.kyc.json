@@ -276,13 +276,7 @@
     {
       "method": "GET",
       "path": "/api/v1/e-kyc/verification/mobile-flow/:flowId",
-      "charges": [
-        {
-          "id": "api",
-          "creditType": "API_CREDIT",
-          "amount": 10
-        }
-      ]
+      "charges": []
     },
     {
       "method": "PATCH",
@@ -439,6 +433,11 @@
       "charges": []
     },
     {
+      "method": "PATCH",
+      "path": "/api/v1/e-kyc/verification/widget-config/all",
+      "charges": []
+    },
+    {
       "method": "POST",
       "path": "/api/v1/e-kyc/verification/zk-proof",
       "charges": [
@@ -453,6 +452,28 @@
       "method": "POST",
       "path": "/api/v1/mail-client/add-job",
       "charges": []
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/pan/aadhaar/link-status",
+      "charges": [
+        {
+          "id": "api",
+          "creditType": "API_CREDIT",
+          "amount": 2
+        }
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/pan/verify",
+      "charges": [
+        {
+          "id": "api",
+          "creditType": "API_CREDIT",
+          "amount": 5
+        }
+      ]
     },
     {
       "method": "POST",
@@ -472,6 +493,21 @@
     {
       "method": "GET",
       "path": "/api/v1/usage/invoice",
+      "charges": []
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/usage/transactions",
+      "charges": []
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/usage/transactions/summary",
+      "charges": []
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/usage/transactions/:id",
       "charges": []
     },
     {

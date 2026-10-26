@@ -6,7 +6,7 @@
         <p class="text-subtitle-2 text-muted mb-0">Monitor consumption and service costs</p>
       </header>
 
-      <!-- Date range: presets first, custom range behind "Custom"; scopes every chart below -->
+      <!-- Date range presets (logs are kept 90 days); scopes every chart below -->
       <div class="range-bar">
         <div class="range-presets" role="radiogroup" aria-label="Date range">
           <button
@@ -21,34 +21,7 @@
           >{{ preset.label }}</button>
         </div>
 
-        <div v-if="activePreset === 'custom'" class="range-custom">
-          <b-form-datepicker
-            v-model="customStart"
-            size="sm"
-            locale="en"
-            placeholder="Start date"
-            :max="customEnd || today"
-            :date-format-options="{ year: 'numeric', month: 'short', day: 'numeric' }"
-            class="range-input"
-            aria-label="Start date"
-            @input="applyCustomRange"
-          ></b-form-datepicker>
-          <span class="range-separator">to</span>
-          <b-form-datepicker
-            v-model="customEnd"
-            size="sm"
-            locale="en"
-            placeholder="End date"
-            :min="customStart"
-            :max="today"
-            :date-format-options="{ year: 'numeric', month: 'short', day: 'numeric' }"
-            class="range-input"
-            aria-label="End date"
-            @input="applyCustomRange"
-          ></b-form-datepicker>
-        </div>
-
-        <span v-else class="range-summary">{{ rangeLabel }}</span>
+        <span class="range-summary">{{ rangeLabel }}</span>
       </div>
     </template>
 
@@ -91,9 +64,9 @@
           <empty-container
             v-else-if="!usageSummaryByEndpoint.length"
             class="chart-empty"
-            title="No Endpoint Usage"
+            title="No API Calls"
             icon="mdi mdi-chart-bar"
-            description="Endpoints appear here once they receive calls in the selected period."
+            description="No API calls were made between the selected dates."
           />
           <div v-else class="chart-wrapper">
             <div ref="barChart" class="chart-canvas"></div>
@@ -115,19 +88,18 @@
           <!-- No billable calls in the period: an empty table with a 0 total says nothing -->
           <empty-container
             v-else-if="!usageSummary.length"
-            title="No Billable Usage"
+            title="No API Calls"
             icon="mdi mdi-receipt-text-outline"
-            description="No API calls were charged between the selected dates. Try a wider date range."
+            description="No API calls were made between the selected dates."
           />
           <div v-else class="usage-table-wrapper">
             <table class="usage-table">
               <thead>
                 <tr>
-                  <th>Method</th>
-                  <th>API Endpoint</th>
-                  <th class="text-right">Quantity</th>
-                  <th class="text-right">Unit Cost</th>
-                  <th class="text-right">Total Amount</th>
+                  <th scope="col">Endpoint</th>
+                  <th scope="col" class="text-right">Quantity</th>
+                  <th scope="col" class="text-right">Unit cost</th>
+                  <th scope="col" class="text-right">Total amount</th>
                 </tr>
               </thead>
               <tbody>
@@ -135,39 +107,21 @@
                   v-for="(item, index) in usageSummary"
                   :key="(item.method || '') + '_' + item.apiPath + '_' + index"
                 >
-                  <td>
-                    <code
-                      :class="[
-                        'api-method',
-                        'api-method-' + (item.method || '').toLowerCase(),
-                      ]"
-                      >{{ item.method }}</code
-                    >
+                  <td class="usage-endpoint">
+                    <span v-if="item.method" class="method" :class="'method-' + item.method.toLowerCase()">{{ item.method }}</span>
+                    <code :title="item.apiPath">{{ item.apiPath }}</code>
                   </td>
-                  <td>
-                    <code
-                      class="endpoint-code"
-                      :title="item.apiPath"
-                    >
-                      {{ truncate(item.apiPath, 70) }}
-                    </code>
-                  </td>
-                  <td class="text-right font-weight-bold">
-                    {{ formatNumber(item.quantity) }}
-                  </td>
-                  <td class="text-right text-muted">{{ item.unit_cost }}</td>
-                  <td class="text-right color-blue font-weight-bold">
-                    {{ formatNumber(item.amount) }}
-                  </td>
+                  <td class="text-right num strong">{{ formatNumber(item.quantity) }}</td>
+                  <td class="text-right num">{{ item.unit_cost }}</td>
+                  <td class="text-right num amount">{{ formatNumber(item.amount) }}</td>
                 </tr>
               </tbody>
               <tfoot>
-                <tr class="total-row">
-                  <td>Total Consumption</td>
+                <tr>
+                  <td>Total</td>
+                  <td class="text-right num strong">{{ formatNumber(totalCalls) }}</td>
                   <td></td>
-                  <td class="text-right">{{ formatNumber(totalCalls) }}</td>
-                  <td></td>
-                  <td class="text-right color-blue">{{ totalAmount }}</td>
+                  <td class="text-right num amount">{{ totalAmount }}</td>
                 </tr>
               </tfoot>
             </table>
@@ -208,7 +162,8 @@ export default {
       accessDenied: false,
       accessDeniedMsg: '',
       errorMessage: '',
-      startDate: moment().subtract(30, "days").format("YYYY-MM-DD"),
+      // Ranges include today, so "Last 30 days" starts 29 days back
+      startDate: moment().subtract(29, "days").format("YYYY-MM-DD"),
       endDate: moment().format("YYYY-MM-DD"),
       today: moment().format("YYYY-MM-DD"),
       activePreset: "30d",
@@ -216,10 +171,7 @@ export default {
         { key: "7d", label: "Last 7 days", days: 7 },
         { key: "30d", label: "Last 30 days", days: 30 },
         { key: "90d", label: "Last 90 days", days: 90 },
-        { key: "custom", label: "Custom" },
       ],
-      customStart: "",
-      customEnd: "",
       usageSummary: [],
       usageSummaryByEndpoint: [],
       dailyData: [],
@@ -261,11 +213,6 @@ export default {
   methods: {
     ...mapActions("mainStore", ["fetchUsageDetailsForAService", "fetchUsageForAService"]),
 
-    truncate(str, maxLen = 50) {
-      if (!str) return '';
-      return str.length > maxLen ? str.slice(0, maxLen) + '…' : str;
-    },
-
     formatNumber(val) {
       return Number(val || 0).toLocaleString();
     },
@@ -288,11 +235,12 @@ export default {
           }),
         ]);
 
-        this.dailyData = dailyRes.serviceDetails || [];
-        this.usageSummary = (summaryRes.serviceDetails || [])
+        // A period with no calls can come back without serviceDetails; that's "no data", not an error
+        this.dailyData = dailyRes?.serviceDetails || [];
+        this.usageSummary = (summaryRes?.serviceDetails || []).filter((item) => Number(item.quantity) > 0)
         // for same endpoint with diffrent query params club them together
         this.usageSummaryByEndpoint = this.usageSummary.reduce((acc, curr) => {
-          const basePath = curr.apiPath.split("?")[0]; // Get path without query params
+          const basePath = (curr.apiPath || "").split("?")[0]; // Get path without query params
           const existing = acc.find((item) => item.apiPath === basePath);
           if (existing) {
             existing.quantity += curr.quantity;
@@ -511,21 +459,8 @@ export default {
 
     selectPreset(key) {
       this.activePreset = key;
-      if (key === "custom") {
-        // Start the custom pickers from the range currently shown
-        this.customStart = this.startDate;
-        this.customEnd = this.endDate;
-        return;
-      }
       const preset = this.rangePresets.find((item) => item.key === key);
-      this.setRange(moment().subtract(preset.days, "days").format("YYYY-MM-DD"), this.today);
-    },
-
-    // Only reload once both ends are set and in order (the pickers' min/max also enforce this)
-    applyCustomRange() {
-      if (!this.customStart || !this.customEnd) return;
-      if (moment(this.customStart).isAfter(this.customEnd)) return;
-      this.setRange(this.customStart, this.customEnd);
+      this.setRange(moment().subtract(preset.days - 1, "days").format("YYYY-MM-DD"), this.today);
     },
 
     setRange(start, end) {
@@ -589,19 +524,6 @@ export default {
 .range-preset:focus-visible {
   box-shadow: 0 0 0 2px #bfdbfe;
 }
-.range-custom {
-  align-items: center;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-.range-input {
-  width: 170px;
-}
-.range-separator {
-  color: #64748b;
-  font-size: 12px;
-}
 .range-summary {
   color: #64748b;
   font-size: 13px;
@@ -645,86 +567,94 @@ export default {
   width: 100%;
   height: 100%;
 }
+/* Same table design as the API Transactions page */
 .usage-table-wrapper {
-  background: white;
-  border-radius: 0.5rem;
-  overflow: hidden;
-  border: 1px solid #f3f4f6;
+  background: #fff;
+  border: 1px solid #dbe3ef;
+  border-radius: 10px;
+  overflow-x: auto;
 }
 .usage-table {
-  width: 100%;
   border-collapse: collapse;
+  width: 100%;
 }
 .usage-table th {
   background: #f8fafc;
-  padding: 1rem;
-  font-size: 0.75rem;
-  text-transform: uppercase;
+  border-bottom: 1px solid #e5e7eb;
   color: #64748b;
-  border-bottom: 1px solid #e2e8f0;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  padding: 10px 14px;
+  text-align: left;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.usage-table th.text-right {
+  text-align: right;
 }
 .usage-table td {
-  padding: 1rem;
-  font-size: 0.875rem;
   border-bottom: 1px solid #f1f5f9;
+  color: #1f2937;
+  font-size: 13px;
+  padding: 10px 14px;
+  vertical-align: middle;
 }
-.endpoint-code {
-  background: #f1f5f9;
-  color: #475569;
-  padding: 0.2rem 0.4rem;
-  border-radius: 4px;
-  font-family: monospace;
-  font-size: 0.75rem;
+.usage-table tbody tr {
+  transition: background-color 0.1s ease;
 }
-.api-method {
-  padding: 0.2rem 0.5rem;
-  border-radius: 4px;
-  font-family: monospace;
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: #22c55e;
-  background: rgba(34, 197, 94, 0.1);
-  display: inline-block;
-}
-.api-method-get {
-  color: #22c55e;
-  background: rgba(34, 197, 94, 0.1);
-}
-.api-method-post {
-  color: #3b82f6;
-  background: rgba(59, 130, 246, 0.1);
-}
-.api-method-patch {
-  color: #f59e42;
-  background: rgba(245, 158, 66, 0.1);
-}
-.api-method-delete {
-  color: #ef4444;
-  background: rgba(239, 68, 68, 0.1);
-}
-.api-method-put {
-  color: #a855f7;
-  background: rgba(168, 85, 247, 0.1);
-}
-.api-method-options {
-  color: #64748b;
-  background: rgba(100, 116, 139, 0.1);
-}
-.api-method-head {
-  color: #0ea5e9;
-  background: rgba(14, 165, 233, 0.1);
-}
-.api-method-default {
-  color: #6b7280;
-  background: rgba(107, 114, 128, 0.1);
-}
-.total-row {
+.usage-table tbody tr:hover {
   background: #f8fafc;
-  font-weight: 800;
 }
-.color-blue {
-  color: #2563eb;
+.usage-table tfoot td {
+  background: #f8fafc;
+  border-bottom: 0;
+  border-top: 1px solid #e5e7eb;
+  color: #111827;
+  font-weight: 700;
 }
+.usage-endpoint {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+  max-width: 640px;
+  min-width: 0;
+}
+.usage-endpoint code {
+  background: none;
+  color: #344054;
+  font-size: 12px;
+  overflow: hidden;
+  padding: 0;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.num {
+  color: #475569;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.num.strong {
+  color: #111827;
+  font-weight: 700;
+}
+.num.amount {
+  color: #1d4ed8;
+  font-weight: 700;
+}
+.method {
+  border-radius: 4px;
+  display: inline-block;
+  flex: 0 0 auto;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 1px 6px;
+}
+.method-get { background: #eef4fd; color: #2f5f9e; }
+.method-post { background: #dbe8fd; color: #1d4ed8; }
+.method-put, .method-patch { background: #e2e8f0; color: #334155; }
+.method-delete { background: #e0e7f5; color: #1e3a8a; }
 .skeleton-chart {
   height: 320px;
   background: #e5e7eb;

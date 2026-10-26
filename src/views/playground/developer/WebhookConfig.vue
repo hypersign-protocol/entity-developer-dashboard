@@ -9,14 +9,30 @@
         <h4 class="font-weight-bold mb-0">Webhook Configuration</h4>
         <p class="text-subtitle-2 text-muted">Receive real-time notifications for verification events</p>
       </v-col>
-      <v-col cols="12" md="6" class="d-flex justify-end align-center">
+      <v-col cols="12" md="6" class="hf-btn-group">
         <template v-if="getWebhookConfig._id">
-          <v-btn v-if="$can('CAVACH_API', 'DELETE_WEBHOOK_CONFIG')" icon color="error" class="mr-2" @click="deleteConfig" title="Delete Configuration">
-            <v-icon>mdi-trash-can-outline</v-icon>
-          </v-btn>
-          <hf-buttons v-if="$can('CAVACH_API', 'UPDATE_WEBHOOK_CONFIG')" name="Update Configuration" @executeAction="updateConfiguration()"></hf-buttons>
+          <hf-buttons
+            v-if="$can('CAVACH_API', 'DELETE_WEBHOOK_CONFIG')"
+            title="Delete configuration"
+            variant="danger-outline"
+            iconClass="mdi mdi-trash-can-outline"
+            @executeAction="deleteConfig"
+          />
+          <hf-buttons
+            v-if="$can('CAVACH_API', 'UPDATE_WEBHOOK_CONFIG')"
+            name="Update Configuration"
+            variant="primary"
+            iconClass="mdi mdi-content-save-outline"
+            @executeAction="updateConfiguration()"
+          />
         </template>
-        <hf-buttons v-else-if="$can('CAVACH_API', 'WRITE_WEBHOOK_CONFIG')" name="Save Configuration" @executeAction="saveConfiguration()"></hf-buttons>
+        <hf-buttons
+          v-else-if="$can('CAVACH_API', 'WRITE_WEBHOOK_CONFIG')"
+          name="Save Configuration"
+          variant="primary"
+          iconClass="mdi mdi-content-save-outline"
+          @executeAction="saveConfiguration()"
+        />
       </v-col>
     </v-row>
 
