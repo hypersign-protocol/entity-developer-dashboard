@@ -94,6 +94,7 @@ import StepCompanyPreview from './StepCompanyPreview.vue';
 import StepCreateSSIService from './StepCreateSSIService.vue';
 import { mapGetters } from 'vuex';
 import config from '../../config';
+import { countryCodeForApi, countryCodeForUi } from '../../utils/countries.js';
 
 export default {
   name: 'OnboardingStepper',
@@ -144,7 +145,7 @@ export default {
           this.populateCompanyFromOnboarding(existing);
           if (this.redirectToDashboardIfApproved(existing)) return;
           const status = (existing.onboardingStatus || existing.status || '').toUpperCase();
-          if (['INITIATED', 'FAILED'].includes(status)) {
+          if (['INITIATED', 'PROCESSING', 'FAILED'].includes(status)) {
             this.hasSubmitted = true;
             this.currentStep = 4;
           }
@@ -161,7 +162,7 @@ export default {
         name: data.companyName || '', logo: data.companyLogo || '',
         contact_email: data.customerEmail || '', domain: data.domain || '',
         type: data.type === 2 || data.type === 'COMMUNITY' ? 'COMMUNITY' : 'BUSINESS',
-        country: data.country || '', registration_number: data.registrationNumber || '',
+        country: countryCodeForUi(data.country || ''), registration_number: data.registrationNumber || '',
         billing_address: data.billingAddress || '', twitterUrl: data.twitterUrl || '',
         linkedinUrl: data.linkedinUrl || '', telegramUrl: data.telegramUrl || '',
         phone_no: data.phoneNumber || '', interests: data.interestedService || [],
@@ -272,7 +273,7 @@ export default {
       return {
         companyName: this.company.name, companyLogo: this.company.logo,
         customerEmail: this.company.contact_email, domain: this.company.domain,
-        type: this.company.type, country: this.company.country || '',
+        type: this.company.type, country: countryCodeForApi(this.company.country || ''),
         registrationNumber: this.company.registration_number || '', billingAddress: this.company.billing_address || '',
         twitterUrl: this.company.twitterUrl || '', linkedinUrl: this.company.linkedinUrl || '',
         telegramUrl: this.company.telegramUrl || '', phoneNumber: this.company.phone_no || '',

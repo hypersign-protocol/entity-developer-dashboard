@@ -52,6 +52,22 @@ export function countryName(code) {
   return COUNTRY_OPTIONS[code] || code || '';
 }
 
+// Convert the alpha-3 codes used by the dashboard UI to the backend's alpha-2 codes.
+export function countryCodeForApi(code) {
+  const normalized = String(code || '').trim().toUpperCase();
+  if (normalized === 'XXX' || normalized === 'XX') return 'XX';
+  if (normalized.length === 2) return normalized;
+  return isoCountries.alpha3ToAlpha2(normalized)?.toUpperCase() || normalized;
+}
+
+// Keep the UI's country selector, phone calling codes, and India-specific options alpha-3.
+export function countryCodeForUi(code) {
+  const normalized = String(code || '').trim().toUpperCase();
+  if (normalized === 'XX' || normalized === 'XXX') return 'XXX';
+  if (normalized.length === 3) return normalized;
+  return isoCountries.alpha2ToAlpha3(normalized)?.toUpperCase() || normalized;
+}
+
 // Best-effort country guess from the visitor's IP. Resolves to a COUNTRY_OPTIONS
 // code, or '' if the lookup fails, times out (4s) or the country isn't listed.
 export async function detectCountryFromIp() {
