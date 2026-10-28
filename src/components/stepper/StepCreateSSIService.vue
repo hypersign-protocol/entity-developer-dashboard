@@ -206,7 +206,8 @@ export default {
           state,
           statusLabel: isApproved ? 'Completed' : this.getStatusLabel(status, state),
           time: log.normalizedTime,
-          failureReason: isApproved ? '' : log.failureReason || '',
+          // Never render backend exception text in the customer timeline.
+          failureReason: !isApproved && state === 'failed' ? step.failureMessage : '',
         });
         return items;
       }, []);
@@ -215,19 +216,19 @@ export default {
   data() {
     return {
       onboardingSteps: [
-        { key: 'GIVE_DASHBOARD_ACCESS', title: 'Dashboard access', description: 'Grant access to the identity-verification dashboard.' },
-        { key: 'CREATE_TEAM_ROLE', title: 'Team and roles setup', description: 'Create the default workspace team and access roles.' },
-        { key: 'CREATE_SSI_SERVICE', title: 'SSI service creation', description: 'Create the organization’s SSI service.' },
-        { key: 'CREDIT_SSI_SERVICE', title: 'SSI credit allocation', description: 'Allocate the approved SSI service credits.' },
-        { key: 'CREATE_DID', title: 'Business identity creation', description: 'Create the organization’s decentralized identity.' },
-        { key: 'REGISTER_DID', title: 'Blockchain registration', description: 'Register the business identity on the blockchain.' },
-        { key: 'CREATE_KYC_SERVICE', title: 'ID service creation', description: 'Create the requested identity-verification service.', serviceType: 'KYC' },
-        { key: 'CREDIT_KYC_SERVICE', title: 'ID service credit allocation', description: 'Allocate the approved identity-service credits.', serviceType: 'KYC' },
-        { key: 'SETUP_KYC_WIDGET', title: 'KYC widget setup', description: 'Prepare the default verification widget.', serviceType: 'KYC' },
-        { key: 'SETUP_KYB_WIDGET', title: 'KYB widget setup', description: 'Prepare the default business-verification widget.', serviceType: 'KYB' },
-        { key: 'CONFIGURE_KYC_VERIFIER_PAGE', title: 'KYC verifier page configuration', description: 'Configure the default identity-verification experience.', serviceType: 'KYC' },
-        { key: 'CONFIGURE_KYB_VERIFIER_PAGE', title: 'KYB verifier page configuration', description: 'Configure the default business-verification experience.', serviceType: 'KYB' },
-        { key: 'COMPLETED', title: 'Workspace activation', description: 'Finish workspace activation and make the services available.' },
+        { key: 'GIVE_DASHBOARD_ACCESS', title: 'Workspace access', description: 'Prepare access to your verification workspace.', failureMessage: 'We could not finish setting up your workspace access. Please try again later.' },
+        { key: 'CREATE_TEAM_ROLE', title: 'Team setup', description: 'Prepare your default team and access roles.', failureMessage: 'We could not finish setting up your workspace access. Please try again later.' },
+        { key: 'CREATE_SSI_SERVICE', title: 'Business identity setup', description: 'Prepare your organization’s digital identity.', failureMessage: 'We could not complete your business identity setup. Please try again later.' },
+        { key: 'CREDIT_SSI_SERVICE', title: 'Business identity preparation', description: 'Prepare your business identity for use.', failureMessage: 'We could not complete your business identity setup. Please try again later.' },
+        { key: 'CREATE_DID', title: 'Business identity creation', description: 'Create your organization’s digital identity.', failureMessage: 'We could not complete your business identity setup. Please try again later.' },
+        { key: 'REGISTER_DID', title: 'Business identity activation', description: 'Activate your organization’s business identity.', failureMessage: 'We could not complete your business identity setup. Please try again later.' },
+        { key: 'CREATE_KYC_SERVICE', title: 'Identity verification setup', description: 'Prepare identity verification for your workspace.', failureMessage: 'We could not finish setting up identity verification. Please try again later.', serviceType: 'KYC' },
+        { key: 'CREDIT_KYC_SERVICE', title: 'Identity verification preparation', description: 'Prepare identity verification for use.', failureMessage: 'We could not finish setting up identity verification. Please try again later.', serviceType: 'KYC' },
+        { key: 'SETUP_KYC_WIDGET', title: 'Verification experience setup', description: 'Prepare the default identity-verification experience.', failureMessage: 'We could not finish setting up identity verification. Please try again later.', serviceType: 'KYC' },
+        { key: 'SETUP_KYB_WIDGET', title: 'Business verification setup', description: 'Prepare the default business-verification experience.', failureMessage: 'We could not finish setting up business verification. Please try again later.', serviceType: 'KYB' },
+        { key: 'CONFIGURE_KYC_VERIFIER_PAGE', title: 'Verification page setup', description: 'Configure the default identity-verification page.', failureMessage: 'We could not finish setting up identity verification. Please try again later.', serviceType: 'KYC' },
+        { key: 'CONFIGURE_KYB_VERIFIER_PAGE', title: 'Business verification page setup', description: 'Configure the default business-verification page.', failureMessage: 'We could not finish setting up business verification. Please try again later.', serviceType: 'KYB' },
+        { key: 'COMPLETED', title: 'Workspace activation', description: 'Finish workspace activation and make it available.', failureMessage: 'Workspace setup could not be completed. Please try again later.' },
       ],
     };
   },
