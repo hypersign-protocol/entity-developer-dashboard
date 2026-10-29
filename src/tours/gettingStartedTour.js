@@ -33,10 +33,10 @@ export function startGettingStartedTour({
         popover: {
           title,
           description: isCurrentPage
-            ? 'This is the Getting Started page you are viewing now. Use it as the launch roadmap for this service.'
+            ? 'You’re viewing Getting Started, the launch roadmap for this service.'
             : isGroup
-              ? `This section groups the ${title} tools and pages shown underneath it.`
-              : `Open ${title} from this navigation item.`,
+              ? `Explore the ${title} tools and pages in this section.`
+              : `Open ${title} from here.`,
           side: "right",
           align: "center",
         },
@@ -82,8 +82,8 @@ export function startGettingStartedTour({
       {
         element: '[data-tour="current-service"]',
         popover: {
-          title: "Current service",
-          description: "This identifies the service you are currently configuring. The roadmap and links on this page apply to this service.",
+          title: "Selected service",
+          description: "Every step in this guide applies to the service shown here.",
           side: "right",
           align: "start",
         },
@@ -92,7 +92,7 @@ export function startGettingStartedTour({
         element: '[data-tour="service-navigation"]',
         popover: {
           title: "Service navigation",
-          description: "Use this menu to move between verification tools, solutions, developer settings, billing, and usage for the selected service.",
+          description: "Navigate verification workflows, integrations, developer settings, usage, and billing.",
           side: "right",
           align: "center",
         },
@@ -101,8 +101,8 @@ export function startGettingStartedTour({
       {
         element: '[data-tour="getting-started-header"]',
         popover: {
-          title: "Your launch roadmap",
-          description: "This page brings together the main steps for testing, integrating, and launching your verification flow.",
+          title: "Launch roadmap",
+          description: "Follow these steps to test, integrate, and launch your verification flow.",
           side: "bottom",
           align: "start",
           onPrevClick: (_, __, { driver: activeDriver }) => {
@@ -115,7 +115,7 @@ export function startGettingStartedTour({
         element: '[data-tour="getting-started-magic-link"]',
         popover: {
           title: "1. Test with a Magic Link",
-          description: "Create a hosted, branded verification page and test the experience before writing integration code.",
+          description: "Create a hosted, branded verification page and validate the experience before you integrate.",
           side: "right",
           align: "start",
         },
@@ -123,8 +123,8 @@ export function startGettingStartedTour({
       {
         element: '[data-tour="getting-started-integration"]',
         popover: {
-          title: "2. Choose an integration",
-          description: "Decide whether to embed the ID Widget or connect directly through the KYC APIs.",
+          title: "2. Choose your integration",
+          description: "Embed the ID Widget for a ready-made experience, or use the KYC APIs for greater control.",
           side: "right",
           align: "start",
         },
@@ -132,8 +132,8 @@ export function startGettingStartedTour({
       {
         element: '[data-tour="getting-started-team"]',
         popover: {
-          title: "3. Bring in your team",
-          description: "Invite developers, compliance members, and collaborators so each person can work with the appropriate access.",
+          title: "3. Invite your team",
+          description: "Give developers, compliance teams, and collaborators the access they need.",
           side: "right",
           align: "start",
         },
@@ -142,7 +142,7 @@ export function startGettingStartedTour({
         element: '[data-tour="getting-started-production"]',
         popover: {
           title: "4. Prepare for Production",
-          description: "When testing is complete, use the go-live checklist to verify your domain, enable MFA, and submit company details.",
+          description: "Use the go-live checklist to secure your account, verify your domain, and submit company details.",
           side: "right",
           align: "start",
         },
@@ -150,8 +150,8 @@ export function startGettingStartedTour({
       {
         element: '[data-tour="getting-started-help"]',
         popover: {
-          title: "5. Get help when needed",
-          description: "Contact support for setup, integration, or compliance guidance. You can also restart this walkthrough here.",
+          title: "5. Get support",
+          description: "Contact our team for guidance on setup, integration, or compliance.",
           side: "right",
           align: "start",
         },
@@ -159,8 +159,8 @@ export function startGettingStartedTour({
       {
         element: '[data-tour="getting-started-resources"]',
         popover: {
-          title: "Integration resources",
-          description: "Open the API integration guide, browse hands-on tutorials, or contact the support team.",
+          title: "Developer resources",
+          description: "Use the integration guide and tutorials to plan and build your implementation.",
           side: "left",
           align: "start",
         },
@@ -169,7 +169,7 @@ export function startGettingStartedTour({
         element: '[data-tour="getting-started-business"]',
         popover: {
           title: "Business verification",
-          description: "Configure a Business Verifier Page when your workflow needs to onboard companies and stakeholders.",
+          description: "Create a Business Verifier Page to onboard companies and their stakeholders.",
           side: "left",
           align: "start",
         },
@@ -177,8 +177,8 @@ export function startGettingStartedTour({
       {
         element: '[data-tour="getting-started-case-studies"]',
         popover: {
-          title: "Learn from real implementations",
-          description: "Explore case studies to see how other teams structure identity and onboarding experiences.",
+          title: "Customer stories",
+          description: "See how other organizations use Hypersign to build verification and onboarding experiences.",
           side: "left",
           align: "start",
         },

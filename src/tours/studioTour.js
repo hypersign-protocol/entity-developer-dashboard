@@ -43,7 +43,7 @@ export function startStudioTour(user) {
       {
         popover: {
           title: "Welcome to Entity Studio",
-          description: "Here is a quick look at the controls you will use to manage your service.",
+          description: "Take a quick tour of the tools you’ll use to configure and manage your service.",
           side: "bottom",
           align: "center",
         },
@@ -51,8 +51,8 @@ export function startStudioTour(user) {
       {
         element: '[data-tour="current-service"]',
         popover: {
-          title: "Current service",
-          description: "This shows the service you are currently managing.",
+          title: "Selected service",
+          description: "Navigation and configuration changes apply to this service.",
           side: "right",
           align: "start",
         },
@@ -61,7 +61,7 @@ export function startStudioTour(user) {
         element: '[data-tour="service-navigation"]',
         popover: {
           title: "Service navigation",
-          description: "Access verification tools, solutions, developer settings, billing, and usage from here.",
+          description: "Access verification workflows, integration settings, usage, and billing.",
           side: "right",
           align: "center",
         },
@@ -69,8 +69,8 @@ export function startStudioTour(user) {
       {
         element: '[data-tour="environment-status"]',
         popover: {
-          title: "Environment status",
-          description: "Always check the active environment before changing credentials or integrations.",
+          title: "Active environment",
+          description: "Confirm whether you’re working in Development or Production before updating credentials or integrations.",
           side: "bottom",
           align: "end",
         },
@@ -78,8 +78,8 @@ export function startStudioTour(user) {
       {
         element: '[data-tour="workspace"]',
         popover: {
-          title: "Your workspace",
-          description: "The page selected from the navigation opens here.",
+          title: "Workspace",
+          description: "The page you select from the navigation opens here.",
           side: "top",
           align: "center",
         },
@@ -87,8 +87,8 @@ export function startStudioTour(user) {
       {
         element: '[data-tour="account-menu"]',
         popover: {
-          title: "Account and help",
-          description: "Manage your profile and settings, or restart this tour whenever you need it.",
+          title: "Account settings",
+          description: "Manage your profile, security settings, and workspace access.",
           side: "bottom",
           align: "end",
         },

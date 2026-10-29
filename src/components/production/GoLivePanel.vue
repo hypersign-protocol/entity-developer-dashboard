@@ -71,10 +71,10 @@
       <div>
         <h3>How the company review works</h3>
         <ul>
-          <li>You get production access as soon as you submit your company details. You don't have to wait for the review.</li>
-          <li>Our compliance team reviews your details and documents in parallel.</li>
-          <li>If something is missing or doesn't match, we'll contact you for clarification.</li>
-          <li>We reserve the right to revoke production access if the details or documents can't be verified.</li>
+          <li>Production access is available as soon as you submit your company details.</li>
+          <li>Our compliance team reviews the submitted details and documents.</li>
+          <li>We’ll contact you if additional information is required.</li>
+          <li>Production access may be revoked if the submitted information cannot be verified.</li>
         </ul>
       </div>
     </section>
@@ -123,7 +123,7 @@ export default {
     companyStatus() {
       return companyReviewStatus(this.onboarding);
     },
-    // Submitting (Completed) is enough for production access; compliance reviews in parallel
+    // A submitted company record is enough for production access; review happens separately.
     companySubmitted() {
       return companyAllowsProduction(this.onboarding);
     },
@@ -147,7 +147,6 @@ export default {
         this.activeHelpTour = startGoingLiveTour({
           allRequirementsMet: this.allRequirementsMet,
           companySubmitted: this.companySubmitted,
-          domain: this.app.domain,
           domainVerified: this.domainVerified,
           mfaEnabled: Boolean(this.isMFAEnabled),
         });
@@ -193,7 +192,7 @@ export default {
             description: 'Your company details and documents have been submitted.',
             note: {
               tone: 'info', icon: 'mdi-information-outline',
-              text: "Our compliance team is still verifying your company. You don't need to wait for it, you can go live now.",
+              text: "Your submission is under review. Production access is available now.",
             },
           };
         case COMPANY_REVIEW.REJECTED:

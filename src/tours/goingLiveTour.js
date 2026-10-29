@@ -9,7 +9,6 @@ function stepTitle(number, title, complete) {
 export function startGoingLiveTour({
   allRequirementsMet = false,
   companySubmitted = false,
-  domain = "",
   domainVerified = false,
   mfaEnabled = false,
 } = {}) {
@@ -35,8 +34,8 @@ export function startGoingLiveTour({
       {
         element: '[data-tour="go-live-overview"]',
         popover: {
-          title: "Move your app to Production",
-          description: "Production apps process real verifications. Complete the readiness checks below before switching environments.",
+          title: "Prepare for Production",
+          description: "Secure your account, verify your domain, and submit your company details before processing live verifications.",
           side: "bottom",
           align: "start",
         },
@@ -44,10 +43,10 @@ export function startGoingLiveTour({
       {
         element: '[data-tour="go-live-mfa"]',
         popover: {
-          title: stepTitle(1, "Secure your account", mfaEnabled),
+          title: stepTitle(1, "Enable multi-factor authentication", mfaEnabled),
           description: mfaEnabled
-            ? "Multi-factor authentication is enabled on your account."
-            : "Multi-factor authentication protects production access. Use Set up MFA here to complete this step.",
+            ? "Multi-factor authentication is enabled for your account."
+            : "Enable multi-factor authentication to protect access to production data and settings.",
           side: "bottom",
           align: "start",
         },
@@ -57,8 +56,8 @@ export function startGoingLiveTour({
         popover: {
           title: stepTitle(2, "Verify your domain", domainVerified),
           description: domainVerified
-            ? `${domain || "Your application domain"} is verified.`
-            : "Add the provided DNS TXT record to prove that your organization controls the application domain.",
+            ? "Your application domain is verified."
+            : "Add the provided DNS TXT record to confirm ownership of your application domain.",
           side: "bottom",
           align: "start",
         },
@@ -68,8 +67,8 @@ export function startGoingLiveTour({
         popover: {
           title: stepTitle(3, "Submit company details", companySubmitted),
           description: companySubmitted
-            ? "Your company details were submitted and the compliance review can continue in parallel."
-            : "Provide your registered company information and supporting documents. You can go live as soon as they are submitted.",
+            ? "Your company details have been submitted. You can continue while they are reviewed."
+            : "Provide your registered company information and supporting documents to request production access.",
           side: "bottom",
           align: "start",
         },
@@ -77,8 +76,8 @@ export function startGoingLiveTour({
       {
         element: '[data-tour="go-live-review"]',
         popover: {
-          title: "Review continues in parallel",
-          description: "Our compliance team reviews the submitted information after access is enabled and will contact you if clarification is needed.",
+          title: "Company review",
+          description: "Production access is available after submission. We’ll contact you only if more information is required.",
           side: "top",
           align: "start",
         },
@@ -86,10 +85,10 @@ export function startGoingLiveTour({
       {
         element: '[data-tour="switch-production"]',
         popover: {
-          title: allRequirementsMet ? "Ready to go live" : "Complete the remaining checks",
+          title: allRequirementsMet ? "Ready for Production" : "Production requirements",
           description: allRequirementsMet
-            ? "All requirements are complete. Select this button when you are ready to process real verifications."
-            : "This button becomes available after all three readiness checks are complete.",
+            ? "Your app is ready. Switch to Production when you’re prepared to process live verifications."
+            : "Switch to Production becomes available after all three requirements are met.",
           side: "top",
           align: "end",
         },
