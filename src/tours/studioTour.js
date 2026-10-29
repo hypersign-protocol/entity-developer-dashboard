@@ -12,6 +12,10 @@ export function hasCompletedStudioTour(user) {
   return localStorage.getItem(tourStorageKey(user)) === "complete";
 }
 
+export function markStudioTourCompleted(user) {
+  localStorage.setItem(tourStorageKey(user), "complete");
+}
+
 export function startStudioTour(user) {
   const tour = driver({
     animate: true,
@@ -33,7 +37,7 @@ export function startStudioTour(user) {
     prevBtnText: "Back",
     doneBtnText: "Finish",
     onDestroyed: () => {
-      localStorage.setItem(tourStorageKey(user), "complete");
+      markStudioTourCompleted(user);
     },
     steps: [
       {

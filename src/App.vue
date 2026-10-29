@@ -562,6 +562,21 @@ color: #1a1a2e !important;
   opacity: 0.5;
 }
 
+/* Tour-only accordion view. show-child renders the submenus without changing the
+   sidebar items' own open state; these rules reveal only the current section. */
+.sidebar-tour-mode > .vsm--scroll-wrapper > .vsm--list > .vsm--item:not(.tour-sidebar-item-active) > .vsm--dropdown {
+  display: none !important;
+}
+
+.sidebar-tour-mode > .vsm--scroll-wrapper > .vsm--list > .vsm--item.tour-sidebar-item-active > .vsm--dropdown {
+  display: block !important;
+  height: auto !important;
+}
+
+.sidebar-tour-mode > .vsm--scroll-wrapper > .vsm--list > .vsm--item:not(.tour-sidebar-item-active) > .vsm--link .vsm--arrow {
+  transform: rotate(0deg) !important;
+}
+
 </style>
 <template>
   <div id="app" data-app>
@@ -686,6 +701,7 @@ color: #1a1a2e !important;
       :key="sidebarKey"
       :relative="false"
       class="sidebar-wrapper"
+      :class="{ 'sidebar-tour-mode': tourSidebarExpanded }"
       data-tour="service-navigation"
       v-if="
         userDetails &&
@@ -695,6 +711,7 @@ color: #1a1a2e !important;
       "
       @toggle-collapse="onToggleCollapse"
       :collapsed="isSidebarCollapsed"
+      :show-child="tourSidebarExpanded"
       :theme="'white-theme'"
       width="200px"
       :menu="getSideMenu()"
@@ -724,7 +741,8 @@ import { RequestHandler } from "./utils/utils";
 import config from "./config";
 import * as EN from "./language/en";
 import AppLogo from "./components/element/AppLogo.vue";
-import { hasCompletedStudioTour, startStudioTour } from "./tours/studioTour";
+import { hasCompletedStudioTour, markStudioTourCompleted, startStudioTour } from "./tours/studioTour";
+import { startGettingStartedTour } from "./tours/gettingStartedTour";
 export default {
   components: { AppLogo },
   computed: {
@@ -774,6 +792,8 @@ export default {
       avatarFailed: false,
       activeTour: null,
       tourStartTimer: null,
+      tourSidebarExpanded: false,
+      sidebarWasCollapsedBeforeTour: null,
       loggedInUserEmailId: "",
       parseAuthToken: null,
       authToken: null,
@@ -821,6 +841,8 @@ export default {
     EventBus.$on("permissionDenied", (message) => {
       this.notifyErr(message || "You don't have permission to perform this action.");
     });
+
+    this.$root.$on("startGettingStartedTour", this.startGettingStartedProductTour);
 
     this.scheduleProductTour();
   },
@@ -881,9 +903,42 @@ export default {
     },
     startProductTour() {
       clearTimeout(this.tourStartTimer);
+      if (this.$route.name === "GettingStarted") {
+        this.startGettingStartedProductTour();
+        return;
+      }
       this.$nextTick(() => {
         if (this.activeTour && this.activeTour.isActive()) this.activeTour.destroy();
         this.activeTour = startStudioTour(this.userDetails);
+      });
+    },
+    startGettingStartedProductTour() {
+      clearTimeout(this.tourStartTimer);
+      if (this.activeTour && this.activeTour.isActive()) this.activeTour.destroy();
+
+      this.sidebarWasCollapsedBeforeTour = this.isSidebarCollapsed;
+      this.tourSidebarExpanded = true;
+      if (this.isSidebarCollapsed) this.onToggleCollapse(false);
+
+      this.$nextTick(() => {
+        this.tourStartTimer = setTimeout(() => {
+          this.activeTour = startGettingStartedTour({
+            onSidebarComplete: () => {
+              this.tourSidebarExpanded = false;
+              this.onToggleCollapse(true);
+            },
+            onSidebarStart: () => {
+              this.onToggleCollapse(false);
+              this.tourSidebarExpanded = true;
+            },
+            onDestroyed: () => {
+              markStudioTourCompleted(this.userDetails);
+              this.tourSidebarExpanded = false;
+              this.onToggleCollapse(Boolean(this.sidebarWasCollapsedBeforeTour));
+              this.sidebarWasCollapsedBeforeTour = null;
+            },
+          });
+        }, 250);
       });
     },
     route(name) {
@@ -1046,9 +1101,27 @@ export default {
 
       // Hide pages the current team member's role doesn't allow, and groups left empty
       const allowed = item => !item.href || this.canOpenPage(item.href);
-      return menu
+      const visibleMenu = menu
         .map(item => (item.child ? { ...item, child: item.child.filter(allowed) } : item))
         .filter(item => (item.child ? item.child.length > 0 : allowed(item)));
+
+      const addTourAttributes = (items, prefix = 'sidebar', level = 1) => items.map((item, index) => {
+        const tourId = `${prefix}-${index}`;
+        const child = item.child ? addTourAttributes(item.child, tourId, level + 1) : item.child;
+        return {
+          ...item,
+          ...(child ? { child } : {}),
+          attributes: {
+            ...(item.attributes || {}),
+            'data-tour-sidebar-item': tourId,
+            'data-tour-sidebar-group': child && child.length ? 'true' : 'false',
+            'data-tour-sidebar-level': String(level),
+            'data-tour-title': item.title,
+          },
+        };
+      });
+
+      return addTourAttributes(visibleMenu);
     },
 
     fetchAllOrgs() {

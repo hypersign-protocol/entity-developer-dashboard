@@ -1,7 +1,7 @@
 <template>
   <b-container fluid class="px-6 py-4">
     <!-- Header Title Section -->
-    <v-row align="center" class="mb-3">
+    <v-row align="center" class="mb-3" data-tour="getting-started-header">
       <v-col cols="12">
         <h4 class="font-weight-bold mb-1 text-slate-800">Getting Started</h4>
         <p class="text-subtitle-2 text-muted mb-0">
@@ -18,6 +18,7 @@
             v-for="(item, i) in guideItems" 
             :key="i" 
             class="step-card mb-4"
+            :data-tour="`getting-started-${item.key}`"
           >
             <!-- Connecting line between steps -->
             <div class="step-line" v-if="i !== guideItems.length - 1"></div>
@@ -83,7 +84,7 @@
       <!-- Right Sidebar Cards -->
       <v-col cols="12" lg="4">
         <!-- Helpful Links Card -->
-        <div class="overview-container mb-4">
+        <div class="overview-container mb-4" data-tour="getting-started-resources">
           <h6 class="input-label mb-3">
             <v-icon x-small class="mr-1" color="grey darken-1">mdi-lifebuoy</v-icon> Helpful Links
           </h6>
@@ -124,7 +125,7 @@
         </div> -->
 
         <!-- Business Verification Card -->
-        <div class="overview-container mb-4">
+        <div class="overview-container mb-4" data-tour="getting-started-business">
           <h6 class="input-label mb-2">
             <v-icon x-small class="mr-1" color="grey darken-1">mdi-domain</v-icon> Business Verification
           </h6>
@@ -147,7 +148,7 @@
         </div>
 
         <!-- Case Studies Card -->
-        <div class="overview-container">
+        <div class="overview-container" data-tour="getting-started-case-studies">
           <h6 class="input-label mb-2">
             <v-icon x-small class="mr-1" color="grey darken-1">mdi-file-chart-outline</v-icon> Case Studies
           </h6>
@@ -166,7 +167,6 @@
 <script>
 import { mapMutations, mapGetters } from "vuex";
 import config from "../config";
-import { startStudioTour } from "../tours/studioTour";
 
 export default {
   name: "GettingStarted",
@@ -174,6 +174,7 @@ export default {
     return {
       guideItems: [
         {
+          key: "magic-link",
           title: "Try the Magic Link",
           icon: "mdi-web-check",
           description:
@@ -184,6 +185,7 @@ export default {
           openInNewTab: false,
         },
         {
+          key: "integration",
           title: "Choose Your Integration Mode",
           icon: "mdi-code-tags",
           description:
@@ -194,6 +196,7 @@ export default {
           openInNewTab: true,
         },
         {
+          key: "team",
           title: "Invite Your Team",
           icon: "mdi-account-multiple-plus",
           description:
@@ -203,6 +206,7 @@ export default {
           openInNewTab: false,
         },
         {
+          key: "production",
           title: "Ready for Production?",
           icon: "mdi-rocket-launch-outline",
           description:
@@ -212,6 +216,7 @@ export default {
           openInNewTab: false,
         },
         {
+          key: "help",
           title: "Need Help?",
           icon: "mdi-email-outline",
           description:
@@ -222,17 +227,13 @@ export default {
           showProductTour: true,
         },
       ],
-      activeProductTour: null,
     };
   },
   created() {
     this.updateSideNavStatus(true);
   },
-  beforeDestroy() {
-    if (this.activeProductTour && this.activeProductTour.isActive()) this.activeProductTour.destroy();
-  },
   computed: {
-    ...mapGetters('mainStore', ['getSelectedService', 'getUserDetails']),
+    ...mapGetters('mainStore', ['getSelectedService']),
     supportMailto() {
       return `mailto:${config.app.supportEmails}`;
     }
@@ -244,10 +245,7 @@ export default {
       return this.getSelectedService ? this.getSelectedService.appId : this.$route.params.appId;
     },
     startProductTour() {
-      this.$nextTick(() => {
-        if (this.activeProductTour && this.activeProductTour.isActive()) this.activeProductTour.destroy();
-        this.activeProductTour = startStudioTour(this.getUserDetails);
-      });
+      this.$root.$emit('startGettingStartedTour');
     },
   }
 };
