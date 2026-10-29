@@ -43,14 +43,24 @@
                 <p class="text-muted mb-3 lh-lg">{{ item.description }}</p>
                 
                 <div class="d-flex justify-content-between align-items-center mb-2">
-                <a 
-                  :href="item.link" 
-                  :target="item.openInNewTab ? '_blank' : '_self'" 
-                  class="step-action-link d-inline-flex align-center"
-                >
-                  {{ item.anchorText || "Read Documentation" }}
-                  <!-- <v-icon x-small color="primary" class="ml-1">mdi-arrow-right</v-icon> -->
- </a>
+                  <div class="step-actions">
+                    <a
+                      :href="item.link"
+                      :target="item.openInNewTab ? '_blank' : '_self'"
+                      class="step-action-link d-inline-flex align-center"
+                    >
+                      {{ item.anchorText || "Read Documentation" }}
+                    </a>
+                    <button
+                      v-if="item.showProductTour"
+                      type="button"
+                      class="product-tour-link"
+                      @click="startProductTour"
+                    >
+                      <v-icon small>mdi-map-marker-path</v-icon>
+                      Take a product tour
+                    </button>
+                  </div>
                   <!-- Container for multiple badges with gap spacing -->
                   <div v-if="item.badges && item.badges.length" class="d-flex align-items-center gap-1">
                     <span 
@@ -156,6 +166,7 @@
 <script>
 import { mapMutations, mapGetters } from "vuex";
 import config from "../config";
+import { startStudioTour } from "../tours/studioTour";
 
 export default {
   name: "GettingStarted",
@@ -208,15 +219,20 @@ export default {
           link: `mailto:${config.app.supportEmails}`,
           anchorText: "Contact support ↗",
           openInNewTab: true,
+          showProductTour: true,
         },
-      ]
+      ],
+      activeProductTour: null,
     };
   },
   created() {
     this.updateSideNavStatus(true);
   },
+  beforeDestroy() {
+    if (this.activeProductTour && this.activeProductTour.isActive()) this.activeProductTour.destroy();
+  },
   computed: {
-    ...mapGetters('mainStore', ['getSelectedService']),
+    ...mapGetters('mainStore', ['getSelectedService', 'getUserDetails']),
     supportMailto() {
       return `mailto:${config.app.supportEmails}`;
     }
@@ -226,7 +242,13 @@ export default {
     ...mapMutations('playgroundStore', ['updateSideNavStatus', 'shiftContainer']),
     appId() {
       return this.getSelectedService ? this.getSelectedService.appId : this.$route.params.appId;
-    }
+    },
+    startProductTour() {
+      this.$nextTick(() => {
+        if (this.activeProductTour && this.activeProductTour.isActive()) this.activeProductTour.destroy();
+        this.activeProductTour = startStudioTour(this.getUserDetails);
+      });
+    },
   }
 };
 </script>
@@ -321,6 +343,21 @@ export default {
 .step-action-link:hover {
   text-decoration: underline;
 }
+
+.step-actions { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+.product-tour-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #2563eb;
+  font-size: .85rem;
+  font-weight: 600;
+}
+.product-tour-link:hover, .product-tour-link:focus { color: #1d4ed8; text-decoration: underline; outline: none; }
+.product-tour-link >>> .v-icon { color: inherit !important; }
 
 /* Links */
 .resource-nav {

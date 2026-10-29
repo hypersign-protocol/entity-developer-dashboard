@@ -11,6 +11,8 @@ import 'bootstrap-vue/dist/bootstrap-vue.css'
 import "@mdi/font/css/materialdesignicons.css";
 import "@mdi/light-font/css/materialdesignicons-light.css";
 import './assets/css/gblStyle.css';
+import 'driver.js/dist/driver.css';
+import './assets/css/studioTour.css';
 import store from './store';
 import HfButtons from './components/element/HfButtons.vue'
 import HFUpgradePlan from './components/element/UpgradePlan.vue'

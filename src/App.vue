@@ -582,7 +582,7 @@ color: #1a1a2e !important;
         <b-navbar-nav class="ml-auto align-items-center">
           
           <!-- Dev Environment Badge -->
-          <b-nav-item v-if="getSelectedService && getSelectedService.env !== 'prod'" class="px-1">
+          <b-nav-item v-if="getSelectedService && getSelectedService.env !== 'prod'" class="px-1" data-tour="environment-status">
             <div class="env-banner env-banner--dev" title="Development Mode">
               <span class="env-banner__dot"></span>
               <span class="env-banner__label">Development</span>
@@ -620,7 +620,7 @@ color: #1a1a2e !important;
             menu-class="profile-dropdown-menu"
           >
             <template #button-content>
-              <span class="profile-avatar" :title="displayName">
+              <span class="profile-avatar" :title="displayName" data-tour="account-menu">
                 <img v-if="userDetails.profileIcon && !avatarFailed" :src="userDetails.profileIcon" alt="" @error="avatarFailed = true" />
                 <span v-else aria-hidden="true">{{ userInitials }}</span>
                 <span class="sr-only">Account menu for {{ displayName }}</span>
@@ -677,6 +677,7 @@ color: #1a1a2e !important;
       <router-view
         :key="$route.params.appId || $route.name"
         class="container containerData"
+        data-tour="workspace"
       />
     </div>
     <notifications group="foo" />
@@ -685,6 +686,7 @@ color: #1a1a2e !important;
       :key="sidebarKey"
       :relative="false"
       class="sidebar-wrapper"
+      data-tour="service-navigation"
       v-if="
         userDetails &&
         Object.keys(userDetails).length > 0 &&
@@ -697,7 +699,7 @@ color: #1a1a2e !important;
       width="200px"
       :menu="getSideMenu()"
     >
-      <div slot="header" class="sidebar-app-header">
+      <div slot="header" class="sidebar-app-header" data-tour="current-service">
         <AppLogo
           class="sidebar-app-avatar"
           :src="getSelectedService ? getSelectedService.logoUrl : ''"
@@ -722,6 +724,7 @@ import { RequestHandler } from "./utils/utils";
 import config from "./config";
 import * as EN from "./language/en";
 import AppLogo from "./components/element/AppLogo.vue";
+import { hasCompletedStudioTour, startStudioTour } from "./tours/studioTour";
 export default {
   components: { AppLogo },
   computed: {
@@ -769,6 +772,8 @@ export default {
       userDetails: {},
       // Profile photo failed to load: fall back to initials
       avatarFailed: false,
+      activeTour: null,
+      tourStartTimer: null,
       loggedInUserEmailId: "",
       parseAuthToken: null,
       authToken: null,
@@ -816,6 +821,12 @@ export default {
     EventBus.$on("permissionDenied", (message) => {
       this.notifyErr(message || "You don't have permission to perform this action.");
     });
+
+    this.scheduleProductTour();
+  },
+  beforeDestroy() {
+    clearTimeout(this.tourStartTimer);
+    if (this.activeTour && this.activeTour.isActive()) this.activeTour.destroy();
   },
   watch: {
     // A new photo gets a fresh chance to load
@@ -826,6 +837,13 @@ export default {
     // category stays open and all others collapse.
     $route() {
       this.sidebarKey++;
+      this.scheduleProductTour();
+    },
+    getSelectedService() {
+      this.scheduleProductTour();
+    },
+    getIfAuthenticated() {
+      this.scheduleProductTour();
     },
   },
   methods: {
@@ -851,6 +869,23 @@ export default {
       "shiftContainer",
       "resetStore",
     ]),
+    scheduleProductTour() {
+      clearTimeout(this.tourStartTimer);
+      if (!this.getIfAuthenticated || !this.getSelectedService || hasCompletedStudioTour(this.userDetails)) return;
+
+      this.tourStartTimer = setTimeout(() => {
+        this.$nextTick(() => {
+          if (document.querySelector('[data-tour="service-navigation"]')) this.startProductTour();
+        });
+      }, 700);
+    },
+    startProductTour() {
+      clearTimeout(this.tourStartTimer);
+      this.$nextTick(() => {
+        if (this.activeTour && this.activeTour.isActive()) this.activeTour.destroy();
+        this.activeTour = startStudioTour(this.userDetails);
+      });
+    },
     route(name) {
       if (this.$route.path !== name) {
         this.$router.push({ name });

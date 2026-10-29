@@ -1,0 +1,104 @@
+.driver-popover.studio-tour-popover {
+  background: #ffffff;
+  border: 1px solid #dbe3ef;
+  border-radius: 12px;
+  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.18);
+  color: #334155;
+  font-family: Roboto, sans-serif;
+  max-width: 340px;
+  padding: 20px;
+}
+
+.studio-tour-popover .driver-popover-title {
+  color: #111827;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.studio-tour-complete-badge {
+  float: right;
+  display: inline-flex;
+  width: 22px;
+  height: 22px;
+  align-items: center;
+  justify-content: center;
+  margin: 0 24px 0 12px;
+  border-radius: 50%;
+  background: #eaf8f0;
+  color: #218459;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.studio-tour-popover .driver-popover-description {
+  color: #64748b;
+  font-size: 13px;
+  line-height: 1.55;
+  margin-top: 7px;
+}
+
+.studio-tour-popover .driver-popover-progress-text {
+  color: #94a3b8;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.studio-tour-popover .driver-popover-navigation-btns {
+  gap: 8px;
+}
+
+.studio-tour-popover .driver-popover-next-btn,
+.studio-tour-popover .driver-popover-prev-btn {
+  border: 1px solid #dbe3ef;
+  border-radius: 6px;
+  box-shadow: none;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  min-width: 64px;
+  padding: 7px 13px;
+  text-shadow: none;
+}
+
+.studio-tour-popover .driver-popover-next-btn {
+  background: #1d4ed8;
+  border-color: #1d4ed8;
+  color: #ffffff;
+}
+
+.studio-tour-popover .driver-popover-next-btn:hover,
+.studio-tour-popover .driver-popover-next-btn:focus {
+  background: #1e40af;
+  border-color: #1e40af;
+}
+
+.studio-tour-popover .driver-popover-prev-btn {
+  background: #ffffff;
+  color: #475569;
+}
+
+.studio-tour-popover .driver-popover-prev-btn:hover,
+.studio-tour-popover .driver-popover-prev-btn:focus {
+  background: #f8fafc;
+  color: #1d4ed8;
+}
+
+.studio-tour-popover .driver-popover-close-btn {
+  color: #94a3b8;
+  height: 32px;
+  width: 32px;
+}
+
+.studio-tour-popover .driver-popover-close-btn:hover,
+.studio-tour-popover .driver-popover-close-btn:focus {
+  color: #334155;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .driver-active-element,
+  .driver-popover {
+    transition: none !important;
+  }
+}
+

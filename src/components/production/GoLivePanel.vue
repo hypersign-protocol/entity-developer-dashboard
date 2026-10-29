@@ -1,7 +1,7 @@
 <template>
   <div class="go-live-panel">
     <section class="panel-card">
-      <header class="panel-card-header">
+      <header class="panel-card-header" data-tour="go-live-overview">
         <div>
           <h2>Go live</h2>
           <p v-if="isProduction">This app is live in Production.</p>
@@ -13,7 +13,13 @@
       </header>
 
       <ul class="checklist">
-        <li v-for="item in checklist" :key="item.key" class="check-item" :class="item.state">
+        <li
+          v-for="item in checklist"
+          :key="item.key"
+          class="check-item"
+          :class="item.state"
+          :data-tour="`go-live-${item.key}`"
+        >
           <span class="check-icon">
             <v-icon small>{{ item.icon }}</v-icon>
           </span>
@@ -48,13 +54,19 @@
       <footer v-if="!isProduction" class="panel-card-footer">
         <p v-if="!allRequirementsMet" class="footer-note">Complete all three steps to switch this app to Production.</p>
         <p v-else class="footer-note ready">You're all set. Switching makes this app process real verifications.</p>
-        <button type="button" class="primary-button" :disabled="!allRequirementsMet || switching" @click="switchToProduction">
-          {{ switching ? 'Switching…' : 'Switch to production' }}
-        </button>
+        <div class="footer-actions">
+          <button type="button" class="tour-help-button" :disabled="loadingOnboarding" @click="startHelpTour">
+            <v-icon small>{{ loadingOnboarding ? 'mdi-progress-clock' : 'mdi-help-circle-outline' }}</v-icon>
+            {{ loadingOnboarding ? 'Checking status…' : 'Need help?' }}
+          </button>
+          <button data-tour="switch-production" type="button" class="primary-button" :disabled="!allRequirementsMet || switching" @click="switchToProduction">
+            {{ switching ? 'Switching…' : 'Switch to production' }}
+          </button>
+        </div>
       </footer>
     </section>
 
-    <section v-if="!isProduction" class="panel-card review-card">
+    <section v-if="!isProduction" class="panel-card review-card" data-tour="go-live-review">
       <v-icon small>mdi-shield-check-outline</v-icon>
       <div>
         <h3>How the company review works</h3>
@@ -78,6 +90,7 @@ import UtilsMixin from '../../mixins/utils';
 import DomainVerificationPopup from './DomainVerificationPopup.vue';
 import CompanyVerificationPopup from './CompanyVerificationPopup.vue';
 import { COMPANY_REVIEW, companyReviewStatus, companyAllowsProduction } from './companyReview.js';
+import { startGoingLiveTour } from '../../tours/goingLiveTour.js';
 
 // Self-contained go-live checklist for one app. Needs only the app object, so it can
 // live in the app configuration page or on a standalone page. Emits `updated` with the
@@ -96,6 +109,7 @@ export default {
       onboarding: {},
       loadingOnboarding: false,
       switching: false,
+      activeHelpTour: null,
     };
   },
   computed: {
@@ -123,7 +137,22 @@ export default {
   mounted() {
     this.loadOnboarding();
   },
+  beforeDestroy() {
+    if (this.activeHelpTour && this.activeHelpTour.isActive()) this.activeHelpTour.destroy();
+  },
   methods: {
+    startHelpTour() {
+      this.$nextTick(() => {
+        if (this.activeHelpTour && this.activeHelpTour.isActive()) this.activeHelpTour.destroy();
+        this.activeHelpTour = startGoingLiveTour({
+          allRequirementsMet: this.allRequirementsMet,
+          companySubmitted: this.companySubmitted,
+          domain: this.app.domain,
+          domainVerified: this.domainVerified,
+          mfaEnabled: Boolean(this.isMFAEnabled),
+        });
+      });
+    },
     domainItem() {
       const openPopup = () => { this.showDomainPopup = true; };
       return this.domainVerified
@@ -363,6 +392,24 @@ export default {
 .footer-note { margin: 0; color: #8793a5; font-size: 12px; }
 .footer-note.ready { color: #218459; }
 
+.footer-actions { display: flex; flex: 0 0 auto; align-items: center; gap: 8px; }
+.tour-help-button {
+  display: inline-flex;
+  min-height: 36px;
+  align-items: center;
+  gap: 6px;
+  padding: 0 12px;
+  border: 1px solid #cfd8e3;
+  border-radius: 6px;
+  background: #fff;
+  color: #2563dc;
+  font-size: 12px;
+  font-weight: 700;
+}
+.tour-help-button:hover, .tour-help-button:focus { border-color: #2563dc; background: #edf3ff; outline: none; }
+.tour-help-button:disabled { cursor: wait; opacity: .6; }
+.tour-help-button >>> .v-icon { color: inherit !important; }
+
 .primary-button {
   flex: 0 0 auto;
   min-height: 36px;
@@ -377,6 +424,11 @@ export default {
 
 .primary-button:hover:not(:disabled) { border-color: #545b62; background: #5a6268; }
 .primary-button:disabled { cursor: not-allowed; opacity: .55; }
+
+@media (max-width: 650px) {
+  .panel-card-footer { align-items: flex-start; flex-direction: column; }
+  .footer-actions { width: 100%; flex-wrap: wrap; }
+}
 
 /* Review explanation */
 .review-card {
