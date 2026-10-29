@@ -51,11 +51,19 @@
                 <p>{{ item.description }}</p>
                 <time v-if="item.time" :datetime="item.time">{{ formatDate(item.time) }}</time>
               </div>
-              <span class="status-label">{{ item.statusLabel }}</span>
+              <span v-if="item.state === 'failed'" class="status-label failed-label">Action required</span>
+              <span v-else class="status-label">{{ item.statusLabel }}</span>
             </div>
 
             <div v-if="item.failureReason" class="failure-row">
               <span>{{ item.failureReason }}</span>
+              <button
+                v-if="item.state === 'failed'"
+                type="button"
+                class="retry-button"
+                :disabled="isRetrying"
+                @click="$emit('retry-onboarding')"
+              >{{ isRetrying ? 'Retrying…' : 'Retry' }}</button>
             </div>
           </div>
         </div>
@@ -100,6 +108,7 @@ export default {
   props: {
     company: { type: Object, required: true },
     isRefreshing: { type: Boolean, default: false },
+    isRetrying: { type: Boolean, default: false },
   },
   computed: {
     supportMailto() {
@@ -197,7 +206,8 @@ export default {
           state,
           statusLabel: isApproved ? 'Completed' : this.getStatusLabel(status, state),
           time: log.normalizedTime,
-          failureReason: isApproved ? '' : log.failureReason || '',
+          // Never render backend exception text in the customer timeline.
+          failureReason: !isApproved && state === 'failed' ? step.failureMessage : '',
         });
         return items;
       }, []);
@@ -206,19 +216,19 @@ export default {
   data() {
     return {
       onboardingSteps: [
-        { key: 'GIVE_DASHBOARD_ACCESS', title: 'Dashboard access', description: 'Grant access to the identity-verification dashboard.' },
-        { key: 'CREATE_TEAM_ROLE', title: 'Team and roles setup', description: 'Create the default workspace team and access roles.' },
-        { key: 'CREATE_SSI_SERVICE', title: 'SSI service creation', description: 'Create the organization’s SSI service.' },
-        { key: 'CREDIT_SSI_SERVICE', title: 'SSI credit allocation', description: 'Allocate the approved SSI service credits.' },
-        { key: 'CREATE_DID', title: 'Business identity creation', description: 'Create the organization’s decentralized identity.' },
-        { key: 'REGISTER_DID', title: 'Blockchain registration', description: 'Register the business identity on the blockchain.' },
-        { key: 'CREATE_KYC_SERVICE', title: 'ID service creation', description: 'Create the requested identity-verification service.', serviceType: 'KYC' },
-        { key: 'CREDIT_KYC_SERVICE', title: 'ID service credit allocation', description: 'Allocate the approved identity-service credits.', serviceType: 'KYC' },
-        { key: 'SETUP_KYC_WIDGET', title: 'KYC widget setup', description: 'Prepare the default verification widget.', serviceType: 'KYC' },
-        { key: 'SETUP_KYB_WIDGET', title: 'KYB widget setup', description: 'Prepare the default business-verification widget.', serviceType: 'KYB' },
-        { key: 'CONFIGURE_KYC_VERIFIER_PAGE', title: 'KYC verifier page configuration', description: 'Configure the default identity-verification experience.', serviceType: 'KYC' },
-        { key: 'CONFIGURE_KYB_VERIFIER_PAGE', title: 'KYB verifier page configuration', description: 'Configure the default business-verification experience.', serviceType: 'KYB' },
-        { key: 'COMPLETED', title: 'Workspace activation', description: 'Finish workspace activation and make the services available.' },
+        { key: 'GIVE_DASHBOARD_ACCESS', title: 'Workspace access', description: 'Prepare access to your verification workspace.', failureMessage: 'We could not finish setting up your workspace access. Please try again later.' },
+        { key: 'CREATE_TEAM_ROLE', title: 'Team setup', description: 'Prepare your default team and access roles.', failureMessage: 'We could not finish setting up your workspace access. Please try again later.' },
+        { key: 'CREATE_SSI_SERVICE', title: 'Business identity setup', description: 'Prepare your organization’s digital identity.', failureMessage: 'We could not complete your business identity setup. Please try again later.' },
+        { key: 'CREDIT_SSI_SERVICE', title: 'Business identity preparation', description: 'Prepare your business identity for use.', failureMessage: 'We could not complete your business identity setup. Please try again later.' },
+        { key: 'CREATE_DID', title: 'Business identity creation', description: 'Create your organization’s digital identity.', failureMessage: 'We could not complete your business identity setup. Please try again later.' },
+        { key: 'REGISTER_DID', title: 'Business identity activation', description: 'Activate your organization’s business identity.', failureMessage: 'We could not complete your business identity setup. Please try again later.' },
+        { key: 'CREATE_KYC_SERVICE', title: 'Identity verification setup', description: 'Prepare identity verification for your workspace.', failureMessage: 'We could not finish setting up identity verification. Please try again later.', serviceType: 'KYC' },
+        { key: 'CREDIT_KYC_SERVICE', title: 'Identity verification preparation', description: 'Prepare identity verification for use.', failureMessage: 'We could not finish setting up identity verification. Please try again later.', serviceType: 'KYC' },
+        { key: 'SETUP_KYC_WIDGET', title: 'Verification experience setup', description: 'Prepare the default identity-verification experience.', failureMessage: 'We could not finish setting up identity verification. Please try again later.', serviceType: 'KYC' },
+        { key: 'SETUP_KYB_WIDGET', title: 'Business verification setup', description: 'Prepare the default business-verification experience.', failureMessage: 'We could not finish setting up business verification. Please try again later.', serviceType: 'KYB' },
+        { key: 'CONFIGURE_KYC_VERIFIER_PAGE', title: 'Verification page setup', description: 'Configure the default identity-verification page.', failureMessage: 'We could not finish setting up identity verification. Please try again later.', serviceType: 'KYC' },
+        { key: 'CONFIGURE_KYB_VERIFIER_PAGE', title: 'Business verification page setup', description: 'Configure the default business-verification page.', failureMessage: 'We could not finish setting up business verification. Please try again later.', serviceType: 'KYB' },
+        { key: 'COMPLETED', title: 'Workspace activation', description: 'Finish workspace activation and make it available.', failureMessage: 'Workspace setup could not be completed. Please try again later.' },
       ],
     };
   },
@@ -296,8 +306,12 @@ export default {
 .complete .status-label { background: #e3f8ed; color: #159a68; }
 .active .status-label { background: #e2e4e6; color: #5a6268; }
 .failed .status-label { background: #ffe1e1; color: #dc3c3c; }
-.failure-row { display: flex; gap: 12px; align-items: center; margin-top: 6px; }
-.failure-row > span { min-width: 0; flex: 1; padding: 7px 10px; border-radius: 4px; background: #fff0f0; color: #d74848; font-size: 11px; line-height: 1.35; }
+.failed .failed-label { min-width: auto; min-height: 16px; padding: 0 7px; border-radius: 3px; font-size: 9px; }
+.retry-button { box-sizing: border-box; flex: 0 0 53px; width: 53px; height: 24px; padding: 0; border: 1px solid #64748b; border-radius: 4px; background: #fff; color: #475569; cursor: pointer; font-family: inherit; font-size: 10px; font-weight: 500; line-height: 22px; }
+.retry-button:hover:not(:disabled) { background: #f8fafc; }
+.retry-button:disabled { cursor: wait; opacity: .65; }
+.failure-row { display: flex; gap: 9px; align-items: center; margin-top: 6px; }
+.failure-row > span { min-width: 0; flex: 1; padding: 6px 9px; border-radius: 4px; background: #fff0f0; color: #d74848; font-size: 9px; line-height: 1.35; }
 .status-footer { display: flex; gap: 12px; align-items: center; justify-content: space-between; margin-top: 2px; }
 .progress-note { display: flex; min-width: 0; flex: 1; gap: 8px; align-items: center; min-height: 40px; padding: 9px 11px; border-radius: 4px; background: #f3f4f5; color: #626b73; font-size: 11px; line-height: 1.4; }
 .progress-note i { flex: 0 0 auto; color: #6c757d; font-size: 14px; }

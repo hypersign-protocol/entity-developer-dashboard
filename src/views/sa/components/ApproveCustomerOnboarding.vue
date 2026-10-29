@@ -24,6 +24,7 @@
 
       <v-divider class="mb-6"></v-divider>
 
+      <!-- Credit detail inputs are hidden while onboarding processing no longer requires them.
       <v-row>
         <v-col cols="12" md="6">
           <div class="warning-box h-100">
@@ -75,9 +76,9 @@
           </div>
         </v-col>
       </v-row>
+      -->
 
       <div class="mt-8 d-flex flex-column align-center">
-        <p class="x-small text-muted mb-4">Review all credit details carefully before clicking approve.</p>
         <v-btn
           :loading="loading"
           :disabled="loading"
@@ -201,11 +202,7 @@ export default {
         this.loading = true;
         this.isLoading = true;
         try {
-          await this.approveOnboardingRequest({
-            recordId: this.recordId,
-            ssiCreditDetail: this.form.ssiCreditDetail,
-            kycCreditDetail: this.form.kycCreditDetail
-          });
+          await this.approveOnboardingRequest({ recordId: this.recordId });
           this.notifySuccess("Customer onboarded successfully!");
         } catch (e) {
           this.notifyErr(e.message || 'An unexpected error occurred.');
