@@ -225,10 +225,13 @@ export default {
         await this.$store.dispatch('mainStore/approveOnboardingRequest', {
           recordId: this.company.onboardingRecordId,
         });
-        await this.refreshOnboardingStatus();
       } catch (error) {
         console.error(error?.message || error);
       } finally {
+        // Processing returns an error response when a step fails, even though
+        // the backend has saved the latest step log. Refresh in either case so
+        // the timeline does not keep showing the previous failed step.
+        await this.refreshOnboardingStatus();
         this.isRetryingOnboarding = false;
       }
     },
