@@ -2,6 +2,15 @@
   <div class="settings-page">
     <template v-if="isFeatureImplemented">
       <header class="app-page-header">
+        <button
+          type="button"
+          class="page-back-button"
+          :aria-label="backButtonLabel"
+          :title="backButtonLabel"
+          @click="goBack"
+        >
+          <i class="mdi mdi-arrow-left" aria-hidden="true"></i>
+        </button>
         <h1 class="app-page-title">Settings</h1>
         <p class="app-page-subtitle">Manage your profile, team members, invitations and workspace access.</p>
       </header>
@@ -77,7 +86,11 @@
 <style scoped>
 /* Same page header and tab bar as the App configuration page */
 .settings-page { padding: 16px 15px 64px; color: #273448; background: #fff; }
-.app-page-header { margin-bottom: 24px; }
+.page-back-button { position: absolute; top: -1px; left: -40px; display: inline-flex; width: 32px; height: 32px; align-items: center; justify-content: center; padding: 0; border: 0; border-radius: 6px; background: transparent; color: #53657d; }
+.page-back-button:hover { background: #f1f5f9; color: #2563dc; }
+.page-back-button:focus-visible { outline: 2px solid #2563dc; outline-offset: 2px; }
+.page-back-button i { font-size: 18px; line-height: 1; }
+.app-page-header { position: relative; margin-bottom: 24px; }
 .app-page-title { margin: 0 0 4px; color: #263244; font-size: 24px; font-weight: 700; letter-spacing: -.02em; line-height: 1.25; }
 .app-page-subtitle { margin: 0; color: #718198; font-size: 13px; line-height: 1.45; }
 
@@ -95,6 +108,7 @@
 .sub-tabs button.active { border-color: #c7d5e8; background: #fff; color: #2563dc; box-shadow: 0 1px 3px rgba(15,23,42,.08); }
 
 @media (max-width: 650px) {
+  .page-back-button { right: 0; left: auto; }
   .config-tabs { gap: 16px; overflow-x: auto; }
   .sub-tabs { display: flex; }
   .sub-tabs button { min-width: 0; flex: 1 1 auto; }
@@ -118,6 +132,12 @@ import ComplianceCheck from './sa/components/ComplianceCheck.vue';
 
 export default {
   name: "SettingConfig",
+  beforeRouteEnter(to, from, next) {
+    next(vm => {
+      // Keep the return target stable while query-backed settings tabs change.
+      if (from.name && from.name !== to.name) vm.returnRoute = from.fullPath;
+    });
+  },
   components: {
     TeamMembers,
     AdminTeams,
@@ -136,6 +156,9 @@ export default {
     },
     visibleTabs() {
       return this.tabs.filter(tab => !tab.superAdminOnly || this.isSuperAdminUser);
+    },
+    backButtonLabel() {
+      return this.returnRoute ? 'Back' : 'Back to dashboard';
     },
   },
   data() {
@@ -161,6 +184,7 @@ export default {
       activeMainTab: 'profile', // Default to Profile tab
       activeMembersSubTab: 'members',
       activeSuperAdminSubTab: 'onboarding',
+      returnRoute: null,
       sentInvitiationCode: ""
     };
   },
@@ -194,6 +218,13 @@ export default {
       if (this.$route.query.ref !== ref) {
         this.$router.replace({ query: { ...this.$route.query, ref } }).catch(() => {});
       }
+    },
+    goBack() {
+      if (this.returnRoute) {
+        this.$router.go(-1);
+        return;
+      }
+      this.$router.push('/studio/dashboard').catch(() => {});
     }
   },
   async mounted() {
