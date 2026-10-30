@@ -158,6 +158,15 @@ export default {
       switch (this.companyStatus) {
         case COMPANY_REVIEW.VERIFIED:
           return { ...base, state: 'done', icon: 'mdi-check-circle', pill: 'Verified', description: 'Your company details and documents have been verified.' };
+        case COMPANY_REVIEW.PROCESSING:
+          return {
+            ...base, state: 'pending', icon: 'mdi-progress-clock', pill: 'Under verification',
+            description: 'Your company details and documents have been submitted and are being verified.',
+            note: {
+              tone: 'info', icon: 'mdi-information-outline',
+              text: 'You can switch to production as soon as the verification check finishes.',
+            },
+          };
         case COMPANY_REVIEW.UNDER_REVIEW:
           return {
             ...base, state: 'pending', icon: 'mdi-progress-check', pill: 'Under review',

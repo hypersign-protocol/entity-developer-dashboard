@@ -1,28 +1,42 @@
 <template>
   <div>
     <loadIng :active.sync="isLoading" :can-cancel="false" :is-full-page="fullPage"></loadIng>
-    <div>
-      <v-row dense v-if="appList.length > 0 && aSuperAdminUser">
+    <!-- Admins only manage the ID verification (KYC) service of their organization -->
+    <!-- Rendered only once we know the user stays here, so nothing flashes before the onboarding redirect -->
+    <section v-if="!aSuperAdminUser && landingResolved" class="admin-services">
+      <header class="admin-services-header">
+        <h4><i class="mdi mdi-shield-account-outline mr-2" aria-hidden="true"></i>ID Verification Service</h4>
+        <p v-if="getAppsWithKYCServices.length > 0">Manage the ID verification service of your organization.</p>
+      </header>
+      <div v-if="!isLoading && adminServiceCta" class="admin-service-cta" role="status">
+        <span class="admin-service-cta-icon" aria-hidden="true"><i :class="adminServiceCta.icon"></i></span>
+        <div class="admin-service-cta-body">
+          <h5>{{ adminServiceCta.title }}</h5>
+          <p>{{ adminServiceCta.description }}</p>
+        </div>
+        <a v-if="adminServiceCta.href" class="admin-service-cta-button" :href="adminServiceCta.href">
+          {{ adminServiceCta.actionLabel }}
+        </a>
+        <button v-else-if="adminServiceCta.action" type="button" class="admin-service-cta-button"
+          @click="adminServiceCta.action">
+          <i class="fa fa-plus mr-1" v-if="adminServiceCta.showPlus" aria-hidden="true"></i>{{ adminServiceCta.actionLabel }}
+        </button>
+      </div>
+    </section>
+    <div v-else>
+      <v-row dense v-if="appList.length > 0">
         <v-col>
           <h4 style="float: left">
             <i class="fa fa-cogs mr-2" aria-hidden="true"></i>Your Services
           </h4>
-          <b-button
-            variant="outline-dark"
-            class="ml-2 float-right unified-action-btn"
-            @click="goToOnboarding"
-          >
-            Seamless Onboarding
-          </b-button>
-          <b-dropdown split text="Create Service" variant="outline-dark" class="float-right unified-action-btn" menu-class="dropDownPopup"
-             @click="openSlider('SSI_API')">
-            <b-dropdown-item @click="openSlider('SSI_API')">
+          <b-dropdown v-if="canCreateAnyService" text="Create Service" variant="outline-dark" class="float-right unified-action-btn" menu-class="dropDownPopup">
+            <b-dropdown-item v-if="canCreateService('SSI_API')" @click="openSlider('SSI_API')">
               SSI Service
             </b-dropdown-item>
-            <b-dropdown-item @click="openSlider('CAVACH_API')">
+            <b-dropdown-item v-if="canCreateService('CAVACH_API')" @click="openSlider('CAVACH_API')">
               KYC Service
             </b-dropdown-item>
-            <b-dropdown-item @click="openSlider('QUEST')">
+            <b-dropdown-item v-if="canCreateService('QUEST')" @click="openSlider('QUEST')">
               Quest Service
             </b-dropdown-item>
           </b-dropdown>
@@ -40,11 +54,11 @@
                 menu-class="dropDownPopup"
                 style="margin-right:10px;"
               >
-        <b-dropdown-item @click="openSlider('SSI_API')">SSI Service</b-dropdown-item>
-        <b-dropdown-item @click="openSlider('CAVACH_API')">KYC Service</b-dropdown-item>
-        <b-dropdown-item @click="openSlider('QUEST')">Quest Service</b-dropdown-item>
+        <b-dropdown-item v-if="canCreateService('SSI_API')" @click="openSlider('SSI_API')">SSI Service</b-dropdown-item>
+        <b-dropdown-item v-if="canCreateService('CAVACH_API')" @click="openSlider('CAVACH_API')">KYC Service</b-dropdown-item>
+        <b-dropdown-item v-if="canCreateService('QUEST')" @click="openSlider('QUEST')">Quest Service</b-dropdown-item>
       </b-dropdown>
-      <b-button variant="outline-dark" class="unified-action-btn" @click="goToOnboarding">
+      <b-button v-if="hasOnboardingRecord === false" variant="outline-dark" class="unified-action-btn" @click="goToOnboarding">
         Seamless Onboarding
       </b-button>
     </div>
@@ -404,10 +418,11 @@
       </v-form>
     </StudioSideBar>
 
-    <v-row dense v-if="appList.length > 0 && aSuperAdminUser" class="mt-2">
+    <v-row dense v-if="aSuperAdminUser ? appList.length > 0 : getAppsWithKYCServices.length > 0" class="mt-2">
       <v-col>
-        <b-tabs content-class="mt-0">
-          <b-tab active class="bg-white p-2">
+        <!-- Admins see only the KYC tab, so its tab strip is hidden -->
+        <b-tabs content-class="mt-0" :nav-wrapper-class="aSuperAdminUser ? '' : 'd-none'">
+          <b-tab v-if="aSuperAdminUser" active class="bg-white p-2">
             <template #title>
               <b-icon icon="credit-card" aria-hidden="true" small></b-icon><strong> {{ 'Self Sovereign Identity (' +
                 getAppsWithSSIServices.length + ')' }}</strong>
@@ -491,7 +506,7 @@
             </v-row>
             <div class="new-service-popup" v-else>
               <h3 class="" style="text-align: left">Spin up your SSI service!</h3>
-              <hf-buttons name=" Create" iconClass="fa fa-plus" style="text-align: right" class="ml-auto mt-2"
+              <hf-buttons v-if="canCreateService('SSI_API')" name=" Create" iconClass="fa fa-plus" style="text-align: right" class="ml-auto mt-2"
                 @executeAction="openSlider('SSI_API')">
               </hf-buttons>
             </div>
@@ -593,13 +608,13 @@
             </v-row>
             <div class="new-service-popup" v-else>
               <h3 style="text-align: left">Spin up your KYC service!</h3>
-              <hf-buttons name=" Create" iconClass="fa fa-plus" style="text-align: right" class="ml-auto mt-2"
+              <hf-buttons v-if="canCreateService('CAVACH_API')" name=" Create" iconClass="fa fa-plus" style="text-align: right" class="ml-auto mt-2"
                 @executeAction="openSlider('CAVACH_API')">
               </hf-buttons>
             </div>
           </b-tab>
 
-          <b-tab class="bg-white p-2">
+          <b-tab v-if="aSuperAdminUser" class="bg-white p-2">
 
             <template #title>
               <b-icon icon="list-task" aria-hidden="true" small></b-icon><strong> {{ 'Quest (' +
@@ -746,7 +761,7 @@
                 </template>
               </b-skeleton-wrapper>
               <h3 class="" style="text-align: left">Spin up your Quest service!</h3>
-              <hf-buttons name=" Create" iconClass="fa fa-plus" style="text-align: right" class="ml-auto mt-2"
+              <hf-buttons v-if="canCreateService('QUEST')" name=" Create" iconClass="fa fa-plus" style="text-align: right" class="ml-auto mt-2"
                 @executeAction="openSlider('QUEST')">
               </hf-buttons>
             </div>
@@ -759,6 +774,21 @@
 </template>
 
 <style scoped>
+.admin-services { color: #1e293b; }
+.admin-services-header { margin-bottom: 14px; text-align: left; }
+.admin-services-header h4 { margin: 0; }
+.admin-services-header p { margin: 4px 0 0; color: #64748b; font-size: 0.875rem; }
+.admin-service-cta { display: flex; align-items: center; gap: 16px; padding: 22px 24px; border: 1px solid #e5e7eb; border-radius: 7px; background: #f7f9fc; text-align: left; }
+.admin-service-cta-icon { display: inline-flex; flex: 0 0 auto; width: 48px; height: 48px; align-items: center; justify-content: center; border-radius: 50%; background: #eceeef; color: #6c757d; font-size: 24px; }
+.admin-service-cta-body { flex: 1 1 auto; min-width: 0; }
+.admin-service-cta-body h5 { margin: 0; color: #1e293b; font-size: 1rem; font-weight: 600; }
+.admin-service-cta-body p { margin: 4px 0 0; color: #64748b; font-size: 0.875rem; line-height: 1.5; }
+.admin-service-cta-button { display: inline-flex; flex: 0 0 auto; align-items: center; min-height: 36px; padding: 0 16px; border: 1px solid #6c757d; border-radius: 5px; background: #6c757d; color: #fff; font-size: 0.8125rem; font-weight: 700; text-decoration: none; }
+.admin-service-cta-button:hover { border-color: #545b62; background: #5a6268; color: #fff; text-decoration: none; }
+@media (max-width: 640px) {
+  .admin-service-cta { flex-direction: column; align-items: flex-start; }
+}
+
 .serviceCard {
   border-radius: 8px;
   box-shadow: 0 0 2rem 0 rgba(136, 152, 170, .15);
@@ -969,6 +999,41 @@ export default {
     aSuperAdminUser() {
       return this.userDetails.role === "SUPER_ADMIN"
     },
+    // Super admins can create any number of apps; admins can only create a single KYC app
+    // What an admin without a KYC service is told, and the one action they can take
+    adminServiceCta() {
+      if (this.getAppsWithKYCServices.length > 0) return null;
+      const title = 'Create your ID verification service';
+      if (this.getAppsWithSSIServices.length > 0 && this.canCreateService('CAVACH_API')) {
+        return {
+          icon: 'mdi mdi-shield-account-outline', title,
+          description: 'Set up an ID verification service under your organization to start verifying your users.',
+          actionLabel: 'Create Service', showPlus: true, action: () => this.openSlider('CAVACH_API'),
+        };
+      }
+      if (this.hasOnboardingRecord === false) {
+        return {
+          icon: 'mdi mdi-shield-account-outline', title,
+          description: 'Complete your organization onboarding and we will set up your ID verification service.',
+          actionLabel: 'Start Onboarding', action: () => this.goToOnboarding(),
+        };
+      }
+      if (this.hasOnboardingRecord && this.onboardingStatus !== 'APPROVED') {
+        return {
+          icon: 'mdi mdi-clock-outline', title: 'Your workspace is being set up',
+          description: 'Your ID verification service will appear here once your organization onboarding is processed.',
+          actionLabel: 'View Status', action: () => this.goToOnboarding(),
+        };
+      }
+      return {
+        icon: 'mdi mdi-shield-account-outline', title: 'No ID verification service yet',
+        description: 'Reach out to our team to set up an ID verification service under your organization.',
+        actionLabel: 'Contact Support', href: `mailto:${config.app.supportEmails}`,
+      };
+    },
+    canCreateAnyService() {
+      return ['SSI_API', 'CAVACH_API', 'QUEST'].some(type => this.canCreateService(type))
+    },
     domainFromOriginComputed() {
       try {
         const url = new URL(this.appModel.domain);
@@ -1026,47 +1091,30 @@ export default {
       this.userDetails = this.getUserDetails
       this.setMainSideNavBar(false);
 
-      await this.initializeStore();
+      const storeLoaded = await this.initializeStore();
       this.isLoading = true;
-      
-      
-      const firstKycService = this.getAppsWithKYCServices && this.getAppsWithKYCServices.length > 0 ? this.getAppsWithKYCServices[0] : {}
-      
-      // check if super admin user
-      if(!this.aSuperAdminUser){
-        // if not, check if user has kyc service and onboarding is approved
-        if (firstKycService && Object.keys(firstKycService).length > 0) {
-          try {
-            // Check onboarding status before allowing dashboard access
-            const onboardingData = await this.$store.dispatch('mainStore/checkIfAlreadyExistOnBoarding');
-            const hasOnboarding = onboardingData && Object.keys(onboardingData).length > 0;
-            const status = (onboardingData?.onboardingStatus || '').toUpperCase();
-            
-            // Only allow dashboard access if onboarding is APPROVED
-            if (!hasOnboarding || status === 'APPROVED') {
-              this.setSelectedAppId(firstKycService.appId);
-              this.switchOrg(firstKycService.appId, 'CAVACH_API');
-              return
-            } else {
-              // Onboarding not approved yet - redirect to onboarding
-              this.setSelectedAppId("");
-              this.$router.push("/studio/onboarding");
-              return
-            }
-          } catch (error) {
-            console.error('Error checking onboarding status:', error);
-            this.$router.push("/studio/onboarding");
-            return
-          }
-        } else {
+
+      // Admins have a single ID verification service: once it exists, open it instead of the services list
+      if (storeLoaded && this.userDetails && this.userDetails.role === "ADMIN" && this.getAppsWithKYCServices.length > 0) {
+        this.switchOrg(this.getAppsWithKYCServices[0].appId, 'CAVACH_API');
+        return;
+      }
+
+      // Onboarding can be submitted only once per owner, so the onboarding record (not the app list) decides
+      // whether to show the form. Anyone with no apps and no record must go through onboarding first.
+      if (storeLoaded && (this.appList.length < 1 || (!this.aSuperAdminUser && this.getAppsWithSSIServices.length < 1))) {
+        this.hasOnboardingRecord = await this.fetchHasOnboardingRecord();
+        if (this.appList.length < 1 && this.hasOnboardingRecord === false) {
           this.setSelectedAppId("");
           this.$router.push("/studio/onboarding");
-          return 
-        } 
-      } else {
-        this.setSelectedAppId("");
-        this.isLoading = false;
+          return;
+        }
       }
+
+      // Otherwise land on the services list; onboarding status no longer drives a redirect
+      this.setSelectedAppId("");
+      this.landingResolved = true;
+      this.isLoading = false;
       // if (firstKycService && Object.keys(firstKycService).length > 0) {
       //   this.setSelectedAppId(firstKycService.appId);
       //   this.switchOrg(firstKycService.appId, 'CAVACH_API');
@@ -1079,6 +1127,7 @@ export default {
       // }
 
     } catch (e) {
+      this.landingResolved = true;
       this.isLoading = false;
       this.notifyErr(e.message)
     }
@@ -1089,6 +1138,9 @@ export default {
       linkedAppErrorMessage: "",
       issuerConfigVisible: false,
       onboardingCompleted: localStorage.getItem('onboardingCompleted') === 'true',
+      hasOnboardingRecord: null,
+      landingResolved: false,
+      onboardingStatus: '',
       items: [
         {
           src: 'https://cdn.vuetifyjs.com/images/carousel/squirrel.jpg',
@@ -1164,6 +1216,19 @@ export default {
       "fetchServicesList",
       "deleteAnAppOnServer"
     ]),
+    // true: record exists, false: no record, null: could not tell (treated as "don't show the form")
+    async fetchHasOnboardingRecord() {
+      try {
+        const onboardingData = await this.$store.dispatch('mainStore/checkIfAlreadyExistOnBoarding');
+        this.onboardingStatus = ((onboardingData && onboardingData.onboardingStatus) || '').toUpperCase();
+        return !!(onboardingData && onboardingData._id);
+      } catch (e) {
+        const message = (e && e.message) || String(e);
+        if (/no onboarding detail found/i.test(message)) return false;
+        console.error('Error checking onboarding record:', message);
+        return null;
+      }
+    },
     goToOnboarding() {
        this.$router.push('/studio/onboarding');
     },
@@ -1175,6 +1240,7 @@ export default {
           if(!this.getAllServices.length > 0) await this.fetchServicesList();
 
           this.isLoading = false;
+          return true;
         } else {
           throw new Error("No user details found in localStorage");
         }
@@ -1298,7 +1364,15 @@ export default {
           });
       }
     },
+    canCreateService(serviceType) {
+      if (this.aSuperAdminUser) return true;
+      if (serviceType !== 'CAVACH_API') return false;
+      return this.getAppsWithKYCServices.length < 1;
+    },
     openSlider(selectedServiceType = "SSI_API") {
+      if (!this.canCreateService(selectedServiceType)) {
+        return this.notifyErr("You are not allowed to create this service");
+      }
       this.edit = false;
       this.clearAll();
       this.$root.$emit("bv::toggle::collapse", "sidebar-right");
