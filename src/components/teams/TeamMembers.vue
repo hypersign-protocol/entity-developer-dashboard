@@ -1,12 +1,12 @@
 <template>
-  <div>
+  <div data-tour="settings-members-overview">
     <load-ing :active.sync="isLoading" :can-cancel="true" :is-full-page="true"></load-ing>
-    <SectionHeader title="All Members" description="Teammates you've invited to your admin dashboard, and the role each one has.">
+    <SectionHeader data-tour="settings-members-actions" title="All Members" description="Teammates you've invited to your admin dashboard, and the role each one has.">
       <hf-buttons name="Invite Member" variant="primary" iconClass="fa fa-user-plus" @executeAction="inviteMemberPopup"></hf-buttons>
       <hf-buttons name="" title="Reload" :bIcon="true" iconClass="fas fa-sync-alt" @executeAction="getPeopleMembers"></hf-buttons>
     </SectionHeader>
 
-    <ul v-if="getAdminMembersgetter.length > 0" class="settings-list">
+    <ul v-if="getAdminMembersgetter.length > 0" class="settings-list" data-tour="settings-members-list">
       <li v-for="person in getAdminMembersgetter" :key="person.userId">
         <TeamUser :email="person.userEmailId" :twoFactor="person.authenticatorEnabled"
           :invitationStatus="person.accepted" :createdAt="toDateTime(person.createdAt)" :deleteMemberMenu="true"
@@ -14,7 +14,7 @@
           :mode="'Member'" />
       </li>
     </ul>
-    <div v-else>
+    <div v-else data-tour="settings-members-list">
       <empty-container title="No Member Found" icon="fa fa-user-friends"
         description="Invite teammates to give them access to your dashboard." />
     </div>

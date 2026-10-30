@@ -1,13 +1,13 @@
 <template>
-    <div>
+    <div data-tour="settings-roles-overview">
         <load-ing :active.sync="isLoading" :can-cancel="true" :is-full-page="true"></load-ing>
 
-        <SectionHeader title="Roles &amp; Permissions" description="Roles decide what a teammate can see and do. Assign one to each member.">
+        <SectionHeader data-tour="settings-roles-actions" title="Roles &amp; Permissions" description="Roles decide what a teammate can see and do. Assign one to each member.">
             <hf-buttons name="Create Custom Role" variant="primary" title="Create a custom role" iconClass="fa fa-plus" @executeAction="openSlider('add')"></hf-buttons>
             <hf-buttons name="" title="Reload" :bIcon="true" iconClass="fas fa-sync-alt" @executeAction="getMyRolesAction"></hf-buttons>
         </SectionHeader>
 
-        <ul v-if="getAllRoles.length > 0" class="settings-list">
+        <ul v-if="getAllRoles.length > 0" class="settings-list" data-tour="settings-roles-list">
             <li v-for="role in getAllRoles" :key="role._id || role.roleName" class="role-row">
                 <span class="role-icon" aria-hidden="true"><i class="mdi mdi-shield-account-outline"></i></span>
                 <div class="role-main">
@@ -28,7 +28,7 @@
                 </b-dropdown>
             </li>
         </ul>
-        <div v-else>
+        <div v-else data-tour="settings-roles-list">
             <empty-container title="No Role Found" icon="fa fa-shield-alt"
                 description="Create a role to control what teammates can see and do." />
         </div>

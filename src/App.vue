@@ -73,6 +73,46 @@
 ::v-deep .profile-toggle { padding-bottom: 4px !important; padding-top: 4px !important; }
 ::v-deep .profile-toggle:focus-visible .profile-avatar { box-shadow: 0 0 0 2px #bfdbfe; }
 
+.help-trigger {
+  align-items: center;
+  border-radius: 6px;
+  color: #64748b;
+  display: inline-flex;
+  font-size: 20px;
+  height: 32px;
+  justify-content: center;
+  width: 32px;
+}
+::v-deep .help-toggle { padding: 4px !important; }
+::v-deep .help-toggle:hover .help-trigger,
+::v-deep .help-toggle:focus .help-trigger { background: #f1f5f9; color: #1d4ed8; }
+::v-deep .help-toggle:focus-visible .help-trigger { box-shadow: 0 0 0 2px #bfdbfe; }
+::v-deep .help-dropdown-menu {
+  border: 1px solid #dbe3ef !important;
+  border-radius: 10px !important;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.12) !important;
+  margin-top: 6px !important;
+  min-width: 250px !important;
+  padding: 6px !important;
+  text-align: left !important;
+}
+::v-deep .help-menu-heading { margin: 0; padding: 7px 10px 5px; }
+::v-deep .help-menu-heading strong { color: #111827; display: block; font-size: 13px; }
+::v-deep .help-menu-heading span { color: #64748b; display: block; font-size: 11px; margin-top: 2px; }
+::v-deep .help-dropdown-menu .dropdown-divider { border-color: #eef2f6; margin: 6px 0; }
+::v-deep .help-item {
+  align-items: center;
+  border-radius: 6px;
+  color: #334155 !important;
+  display: flex !important;
+  font-size: 13px;
+  gap: 10px;
+  padding: 8px 10px !important;
+}
+::v-deep .help-item .mdi { color: #64748b; font-size: 17px; line-height: 1; width: 18px; }
+::v-deep .help-item:hover,
+::v-deep .help-item:focus { background: #f1f5f9 !important; color: #111827 !important; outline: none; }
+
 ::v-deep .profile-dropdown-menu {
   border: 1px solid #dbe3ef !important;
   border-radius: 10px !important;
@@ -627,6 +667,55 @@ color: #1a1a2e !important;
             </div>
           </b-nav-item>
 
+          <!-- Global help: tours stay discoverable without competing with page actions. -->
+          <b-nav-item-dropdown
+            right
+            no-caret
+            toggle-class="help-toggle"
+            menu-class="help-dropdown-menu"
+          >
+            <template #button-content>
+              <span class="help-trigger" title="Help and tours" data-tour="help-center">
+                <i class="mdi mdi-help-circle-outline" aria-hidden="true"></i>
+                <span class="sr-only">Help and tours</span>
+              </span>
+            </template>
+
+            <b-dropdown-text text-class="help-menu-heading">
+              <strong>Help &amp; guidance</strong>
+              <span>Find the right support for this page.</span>
+            </b-dropdown-text>
+
+            <b-dropdown-item
+              v-if="isSettingsPage"
+              link-class="help-item"
+              @click="openSettingsTours"
+            >
+              <i class="mdi mdi-tune-variant" aria-hidden="true"></i> Settings tours
+            </b-dropdown-item>
+            <b-dropdown-item
+              v-if="hasGettingStartedTour"
+              link-class="help-item"
+              @click="launchGettingStartedTour"
+            >
+              <i class="mdi mdi-map-marker-path" aria-hidden="true"></i> Product tour
+            </b-dropdown-item>
+
+            <b-dropdown-divider />
+
+            <b-dropdown-item
+              href="https://docs.hypersign.id/"
+              target="_blank"
+              rel="noopener noreferrer"
+              link-class="help-item"
+            >
+              <i class="mdi mdi-book-open-page-variant-outline" aria-hidden="true"></i> Documentation
+            </b-dropdown-item>
+            <b-dropdown-item :href="supportMailto" link-class="help-item">
+              <i class="mdi mdi-email-outline" aria-hidden="true"></i> Contact support
+            </b-dropdown-item>
+          </b-nav-item-dropdown>
+
           <!-- User Profile Dropdown -->
           <b-nav-item-dropdown
             right
@@ -741,7 +830,7 @@ import { RequestHandler } from "./utils/utils";
 import config from "./config";
 import * as EN from "./language/en";
 import AppLogo from "./components/element/AppLogo.vue";
-import { hasCompletedStudioTour, markStudioTourCompleted, startStudioTour } from "./tours/studioTour";
+import { hasCompletedStudioTour, markStudioTourCompleted, markStudioTourDismissed, startStudioTour } from "./tours/studioTour";
 import { startGettingStartedTour } from "./tours/gettingStartedTour";
 export default {
   components: { AppLogo },
@@ -774,6 +863,16 @@ export default {
     }),
     selectedOrg() {
       return this.getSelectedOrg;
+    },
+    isSettingsPage() {
+      return this.$route.name === "SettingConfig";
+    },
+    hasGettingStartedTour() {
+      const services = this.getSelectedService?.services || [];
+      return services.some(service => service.id === "CAVACH_API");
+    },
+    supportMailto() {
+      return `mailto:${config.app.supportEmails}`;
     },
     showSideNavbar() {
       return this.$store.state.playgroundStore.showSideNavbar && this.showMainSideNavBar;
@@ -931,8 +1030,9 @@ export default {
               this.onToggleCollapse(false);
               this.tourSidebarExpanded = true;
             },
-            onDestroyed: () => {
-              markStudioTourCompleted(this.userDetails);
+            onDestroyed: (_, __, hook) => {
+              if (hook?.reason === "done") markStudioTourCompleted(this.userDetails);
+              else markStudioTourDismissed(this.userDetails);
               this.tourSidebarExpanded = false;
               this.onToggleCollapse(Boolean(this.sidebarWasCollapsedBeforeTour));
               this.sidebarWasCollapsedBeforeTour = null;
@@ -940,6 +1040,26 @@ export default {
           });
         }, 250);
       });
+    },
+    openSettingsTours() {
+      this.$root.$emit("openSettingsTours");
+    },
+    launchGettingStartedTour() {
+      const appId = this.getSelectedService?.appId;
+      if (!appId) return;
+
+      const launch = () => {
+        this.$nextTick(() => {
+          this.tourStartTimer = setTimeout(() => this.startGettingStartedProductTour(), 350);
+        });
+      };
+
+      if (this.$route.name === "GettingStarted") {
+        launch();
+        return;
+      }
+
+      this.$router.push({ name: "GettingStarted", params: { appId } }).then(launch).catch(() => {});
     },
     route(name) {
       if (this.$route.path !== name) {

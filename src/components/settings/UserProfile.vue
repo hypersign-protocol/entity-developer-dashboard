@@ -1,7 +1,7 @@
 <template>
   <div class="profile-page">
     <!-- Profile card: same layout as the summary cards on the detail pages -->
-    <section class="profile-card">
+    <section class="profile-card" data-tour="settings-profile-summary">
       <span class="profile-avatar">
         <img v-if="showPhoto" :src="user.profileUrl" alt="" @error="onImageError" />
         <template v-else>{{ initials }}</template>
@@ -38,7 +38,7 @@
 
     <div class="profile-grid">
       <!-- Security: the authenticator apps protecting this account -->
-      <section class="profile-section">
+      <section class="profile-section" data-tour="settings-profile-security">
         <SectionHeader title="Security" description="Authenticator apps that protect your sign-in." />
         <ul v-if="activeAuthenticators.length" class="settings-list">
           <li v-for="auth in activeAuthenticators" :key="auth.type" class="auth-row">
@@ -61,7 +61,7 @@
       </section>
 
       <!-- Permissions, grouped by service -->
-      <section class="profile-section">
+      <section class="profile-section" data-tour="settings-profile-permissions">
         <SectionHeader title="Permissions" :description="`${totalPermissionsCount} ${totalPermissionsCount === 1 ? 'permission' : 'permissions'} across your services.`" />
         <ul v-if="totalPermissionsCount" class="settings-list">
           <li v-for="(items, serviceType) in groupedAccess" :key="serviceType" class="perm-group">

@@ -1,19 +1,19 @@
 <template>
-  <div>
+  <div data-tour="settings-invitations-overview">
     <load-ing :active.sync="isLoading" :can-cancel="true" :is-full-page="true"></load-ing>
-    <SectionHeader title="My Invitations" description="Invitations you've received to join other teams. Accept one to switch into that team's dashboard.">
+    <SectionHeader data-tour="settings-invitations-actions" title="My Invitations" description="Invitations you've received to join other teams. Accept one to switch into that team's dashboard.">
       <hf-buttons name="Accept Invitation" variant="primary" iconClass="fa fa-envelope-open" @executeAction="acceptInvitePopup"></hf-buttons>
       <hf-buttons name="" title="Reload" :bIcon="true" iconClass="fas fa-sync-alt" @executeAction="getInvitions"></hf-buttons>
     </SectionHeader>
 
-    <ul v-if="getMyInvitions.length > 0" class="settings-list">
+    <ul v-if="getMyInvitions.length > 0" class="settings-list" data-tour="settings-invitations-list">
       <li v-for="person in getMyInvitions" :key="person.adminId">
         <TeamUser :email="person.adminEmailId" :twoFactor="person.authenticatorEnabled"
           :invitationStatus="person.accepted" :createdAt="toDateTime(person.createdAt)" :acceptInvitionMenu="true"
           :inviteCode="person.inviteCode" :userId="person.adminId" :numberOfTeams="0" :mode="'Admin'" />
       </li>
     </ul>
-    <div v-else>
+    <div v-else data-tour="settings-invitations-list">
       <empty-container title="No Invitation Found" icon="fa fa-envelope"
         description="Invitations to join other teams will appear here." />
     </div>

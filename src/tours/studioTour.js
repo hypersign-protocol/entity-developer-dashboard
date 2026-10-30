@@ -9,11 +9,15 @@ function tourStorageKey(user) {
 }
 
 export function hasCompletedStudioTour(user) {
-  return localStorage.getItem(tourStorageKey(user)) === "complete";
+  return ["complete", "dismissed"].includes(localStorage.getItem(tourStorageKey(user)));
 }
 
 export function markStudioTourCompleted(user) {
   localStorage.setItem(tourStorageKey(user), "complete");
+}
+
+export function markStudioTourDismissed(user) {
+  localStorage.setItem(tourStorageKey(user), "dismissed");
 }
 
 export function startStudioTour(user) {
@@ -36,8 +40,9 @@ export function startStudioTour(user) {
     nextBtnText: "Next",
     prevBtnText: "Back",
     doneBtnText: "Finish",
-    onDestroyed: () => {
-      markStudioTourCompleted(user);
+    onDestroyed: (_, __, hook) => {
+      if (hook?.reason === "done") markStudioTourCompleted(user);
+      else markStudioTourDismissed(user);
     },
     steps: [
       {

@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div data-tour="settings-live-access-overview">
     <load-ing :active.sync="isLoading" :can-cancel="false" :is-full-page="false"></load-ing>
 
     <SectionHeader title="Live Access" description="Teammates who are currently signed in to your admin dashboard.">
