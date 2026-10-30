@@ -709,7 +709,7 @@ color: #1a1a2e !important;
               rel="noopener noreferrer"
               link-class="help-item"
             >
-              <i class="mdi mdi-book-open-page-variant-outline" aria-hidden="true"></i> Documentation
+              <i class="mdi mdi-book-open-page-variant-outline" aria-hidden="true"></i> Help center
             </b-dropdown-item>
             <b-dropdown-item :href="supportMailto" link-class="help-item">
               <i class="mdi mdi-email-outline" aria-hidden="true"></i> Contact support
