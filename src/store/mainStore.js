@@ -1171,7 +1171,6 @@ const mainStore = {
                                 countryCode: company.countryOfRegistration || company.address?.country || 'IN',
                                 companyName: company.name || 'Unknown Company',
                                 registrationNumber: company.registrationNumber,
-                                registrationNumber: company.registrationNumber,
                                 representative: company.representative?.name || 'N/A',
                                 startDate: company.createdAt ? new Date(company.createdAt).toISOString().split('T')[0] : 'N/A',
                                 status: company.status || 'Submitted',
