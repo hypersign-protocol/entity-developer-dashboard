@@ -37,6 +37,8 @@
                 <div class="overview-container h-100">
                     <div class="header-row">
                         <h2 class="title">Balance Overview</h2>
+                        <hf-buttons name="Top up" iconClass="mdi-wallet-plus-outline" variant="primary"
+                            @executeAction="topUpOpen = true"></hf-buttons>
                     </div>
 
                     <div class="d-flex flex-column justify-center">
@@ -114,7 +116,8 @@
                                     <th>Purchase Date</th>
                                     <th class="text-right">Total Credits</th>
                                     <th>Expiration / Status</th>
-                                    <th width="25%">Usage</th>
+                                    <th width="20%">Usage</th>
+                                    <th>Invoice</th>
                                     <th class="text-center">Action</th>
                                 </tr>
                             </thead>
@@ -128,7 +131,11 @@
                                         {{ numberFormat(eachRow.totalCredits) }}
                                     </td>
                                     <td>
-                                        <div v-if="eachRow.used >= eachRow.totalCredits" class="text-muted small">
+                                        <!-- Credits on an unpaid invoice have no expiry yet: validity starts on payment -->
+                                        <div v-if="invoicesById[eachRow._id] && invoicesById[eachRow._id].status === 'UNPAID'" class="text-muted small">
+                                            <v-icon small color="grey">mdi-timer-sand</v-icon> Starts once paid
+                                        </div>
+                                        <div v-else-if="eachRow.used >= eachRow.totalCredits" class="text-muted small">
                                             <v-icon small color="grey">mdi-check-circle</v-icon> Fully Used
                                         </div>
                                         <div v-else-if="Date.now() > new Date(eachRow.expiresAt)"
@@ -156,9 +163,49 @@
                                         </div>
                                     </td>
 
+                                    <td class="invoice-cell">
+                                        <template v-if="invoicesById[eachRow._id]">
+                                            <div class="invoice-ref">
+                                                <span class="invoice-number">{{ invoicesById[eachRow._id].invoiceNumber }}</span>
+                                                <span class="invoice-status" :class="invoiceStatus(invoicesById[eachRow._id]).className">
+                                                    {{ invoiceStatus(invoicesById[eachRow._id]).label }}
+                                                </span>
+                                            </div>
+                                            <div class="invoice-meta">
+                                                {{ formatInvoiceTotal(invoicesById[eachRow._id]) }} · {{ invoiceStatus(invoicesById[eachRow._id]).detail }}
+                                            </div>
+                                            <div class="invoice-actions">
+                                                <button
+                                                    type="button"
+                                                    class="invoice-btn"
+                                                    :disabled="downloadingInvoice === invoicesById[eachRow._id].invoiceNumber"
+                                                    @click="downloadInvoice(invoicesById[eachRow._id])"
+                                                >
+                                                    <v-icon x-small>mdi-tray-arrow-down</v-icon>
+                                                    {{ downloadingInvoice === invoicesById[eachRow._id].invoiceNumber ? 'Preparing…' : 'Download' }}
+                                                </button>
+                                                <a
+                                                    v-if="invoicesById[eachRow._id].status === 'UNPAID'"
+                                                    class="invoice-btn invoice-btn-pay"
+                                                    :href="invoicesById[eachRow._id].paymentLink.url"
+                                                    target="_blank"
+                                                    rel="noopener"
+                                                >
+                                                    <v-icon x-small>mdi-lock-outline</v-icon>
+                                                    Pay now
+                                                </a>
+                                            </div>
+                                        </template>
+                                        <span v-else class="text-muted small">—</span>
+                                    </td>
+
                                     <td class="text-center">
+                                        <span
+                                            v-if="invoicesById[eachRow._id] && invoicesById[eachRow._id].status === 'UNPAID'"
+                                            class="awaiting-payment"
+                                        >Awaiting payment</span>
                                         <div
-                                            v-if="eachRow.status === 'Active' && !(Date.now() > new Date(eachRow.expiresAt))">
+                                            v-else-if="eachRow.status === 'Active' && !(Date.now() > new Date(eachRow.expiresAt))">
                                             <v-chip small color="green lighten-5" text-color="green"
                                                 class="font-weight-bold">ACTIVE</v-chip>
                                         </div>
@@ -181,6 +228,13 @@
             :remaining-credits="myKYCCredits.allRemainingCredits"
             :total-credits="myKYCCredits.allAvailableCredits"
         />
+        <!-- TODO: pass the region from the customer's onboarding (where they are taxed) and drop allow-region-preview -->
+        <CreditTopUpPopup
+            v-model="topUpOpen"
+            region="IN"
+            allow-region-preview
+            @checkout="startTopUpCheckout"
+        />
     </b-container>
 </template>
 
@@ -191,10 +245,14 @@ import UtilsMixin from '../../mixins/utils';
 import HfButtons from "../../components/element/HfButtons.vue";
 import AccessDenied from '../AccessDenied.vue';
 import KycCreditCalculator from '../../components/credit/KycCreditCalculator.vue';
+import { USE_MOCK_INVOICES, mockInvoiceForCredit } from '../../components/credit/invoice/mockInvoices';
+import { formatMinor, formatDate as formatInvoiceDate } from '../../components/credit/invoice/invoiceDocument';
+import { downloadInvoicePdf } from '../../components/credit/invoice/downloadInvoice';
+import CreditTopUpPopup from '../../components/credit/CreditTopUpPopup.vue';
 
 export default {
     name: "KYCDashboardCredit",
-    components: { HfButtons, AccessDenied, KycCreditCalculator },
+    components: { HfButtons, AccessDenied, KycCreditCalculator, CreditTopUpPopup },
     mixins: [UtilsMixin],
     data() {
         return {
@@ -207,10 +265,26 @@ export default {
             fullPage: true,
             doughNutChartLabel: ['Used', 'Remaining'],
             calculatorOpen: false,
+            topUpOpen: false,
+            downloadingInvoice: null,
         }
     },
     computed: {
         ...mapGetters('mainStore', ['getKYCCredits']),
+
+        // TODO: replace the mock with GET /billing/invoices once it exists (ADR §5.1)
+        invoicesById() {
+            if (!USE_MOCK_INVOICES) return {};
+            const app = this.$store.getters['mainStore/getSelectedService'] || {};
+            return this.getSortedKYCCredits.reduce((byId, credit, index) => {
+                byId[credit._id] = mockInvoiceForCredit(credit, index, {
+                    region: 'IN',
+                    appName: app.appName || 'My app',
+                    appId: app.appId
+                });
+                return byId;
+            }, {});
+        },
 
         getSortedKYCCredits() {
             if (!Array.isArray(this.getKYCCredits)) return [];
@@ -278,6 +352,43 @@ export default {
     },
     methods: {
         ...mapActions('mainStore', ['fetchKYCCredits', 'activateCredit']),
+
+        invoiceStatus(invoice) {
+            if (invoice.status === 'UNPAID') {
+                return { label: 'Due', className: 'is-due', detail: `Due ${formatInvoiceDate(invoice.dueAt)}` };
+            }
+            if (invoice.status === 'VOID') return { label: 'Void', className: 'is-void', detail: 'Cancelled' };
+            if (invoice.settlement === 'COMPLIMENTARY') {
+                return { label: 'Complimentary', className: 'is-complimentary', detail: 'No payment due' };
+            }
+            return {
+                label: 'Paid',
+                className: 'is-paid',
+                detail: invoice.settlement === 'OFFLINE' ? 'Paid offline' : `Paid via ${invoice.payment.method}`
+            };
+        },
+
+        formatInvoiceTotal(invoice) {
+            return formatMinor(invoice.totals.totalMinor, invoice.currency);
+        },
+
+        // Invoices are rendered on the fly; nothing is stored or fetched as a file
+        async downloadInvoice(invoice) {
+            if (this.downloadingInvoice) return;
+            this.downloadingInvoice = invoice.invoiceNumber;
+            try {
+                await downloadInvoicePdf(invoice);
+            } catch (e) {
+                this.notifyErr(`Could not prepare the invoice: ${e.message}`);
+            } finally {
+                this.downloadingInvoice = null;
+            }
+        },
+
+        // Payment gateway is not wired up yet; this is where we'll redirect to the checkout link
+        startTopUpCheckout(order) {
+            this.notifySuccess(`Payment gateway coming soon: ${order.totalDue} ${order.currency} for ${order.credits} credits`);
+        },
 
         async reloadData() {
             try {
@@ -569,6 +680,67 @@ export default {
     transition: width .6s ease;
 }
 
+/* Invoice column */
+.invoice-cell { min-width: 210px; }
+.invoice-ref { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+
+.invoice-number {
+    color: #263244;
+    font-size: 0.78rem;
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+}
+
+.invoice-status {
+    padding: 1px 8px;
+    border-radius: 10px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+}
+
+.invoice-status.is-paid { background: #e6efff; color: #2563dc; }
+.invoice-status.is-due { background: #fff4e5; color: #b45309; }
+.invoice-status.is-complimentary,
+.invoice-status.is-void { background: #f1f5f9; color: #64748b; }
+
+.invoice-meta { margin-top: 2px; color: #8793a5; font-size: 0.72rem; font-variant-numeric: tabular-nums; }
+.invoice-actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+
+.invoice-btn {
+    display: inline-flex;
+    height: 26px;
+    align-items: center;
+    gap: 4px;
+    padding: 0 9px;
+    border: 1px solid #d5dde7;
+    border-radius: 6px;
+    background: #fff;
+    color: #344054;
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: border-color .15s ease, background-color .15s ease, color .15s ease;
+}
+
+.invoice-btn:hover:not(:disabled) { border-color: #2f6fec; background: #f7faff; color: #2563dc; text-decoration: none; }
+.invoice-btn:disabled { cursor: progress; opacity: .6; }
+.invoice-btn .v-icon { color: inherit; }
+
+.invoice-btn-pay { border-color: #6c757d; background: #6c757d; color: #fff; }
+.invoice-btn-pay:hover:not(:disabled) { border-color: #545b62; background: #5a6268; color: #fff; }
+
+.awaiting-payment {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 10px;
+    background: #fff4e5;
+    color: #b45309;
+    font-size: 0.7rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
 /* Ensure the table cell doesn't squash the progress bar */
 .usage-table td {
     vertical-align: middle;
@@ -593,7 +765,7 @@ export default {
     }
 
     .usage-table {
-        min-width: 760px;
+        min-width: 960px;
     }
 }
 

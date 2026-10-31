@@ -324,6 +324,7 @@ import enLocale from 'i18n-iso-countries/langs/en.json';
 import { COUNTRY_OPTIONS, CALLING_CODES, countryName, countryOptionLabel, detectCountryFromIp } from '../../utils/countries.js';
 import {
   OTHER_COUNTRY,
+  OTHER_TYPE,
   detectIdentifierType,
   getIdentifierRule,
   isSupportedCountry,
@@ -749,14 +750,15 @@ export default {
     },
     buildPayload() {
       const { documents } = this.form;
-      if (!this.form.taxApplicable) {
-        throw new Error('The dashboard service does not currently support personal tax ID document types.');
-      }
       const { countryCode } = this;
       if (!isSupportedCountry(countryCode)) throw new Error('This country is not supported for company verification.');
-      // Same normalisation and type detection the backend validates against
+      // Same normalisation and type detection the backend validates against.
+      // A personal tax ID has no country-specific type, so it goes as OTHER (accepted for any
+      // country, no format check) and its document as TaxRegistration.
       const normalizedTaxId = normalizeIdentifier(this.form.taxId);
-      const taxIdType = detectIdentifierType('tax', countryCode, normalizedTaxId);
+      const taxIdType = this.form.taxApplicable
+        ? detectIdentifierType('tax', countryCode, normalizedTaxId)
+        : OTHER_TYPE;
       const registrationNumber = normalizeIdentifier(this.form.registrationNumber);
       const registrationNumberType = registrationNumber
         ? detectIdentifierType('registration', countryCode, registrationNumber)
