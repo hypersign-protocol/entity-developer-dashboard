@@ -1171,6 +1171,7 @@ const mainStore = {
                                 countryCode: company.countryOfRegistration || company.address?.country || 'IN',
                                 companyName: company.name || 'Unknown Company',
                                 registrationNumber: company.registrationNumber,
+                                registrationNumber: company.registrationNumber,
                                 representative: company.representative?.name || 'N/A',
                                 startDate: company.createdAt ? new Date(company.createdAt).toISOString().split('T')[0] : 'N/A',
                                 status: company.status || 'Submitted',
@@ -2556,7 +2557,7 @@ const mainStore = {
                 }
                 let url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/user/${sessionId}?env=${encodeURIComponent(envVal)}`;
                 // let url = `http://localhost:3001/api/v1/user/${sessionId}?env=${encodeURIComponent(envVal)}`;
-                if(businessId !== '' && businessId !== null && businessId !== undefined){
+                if (businessId !== '' && businessId !== null && businessId !== undefined) {
                     url += `&businessId=${encodeURIComponent(businessId)}`
                 }
                 const authToken = getters.getSelectedService.access_token
