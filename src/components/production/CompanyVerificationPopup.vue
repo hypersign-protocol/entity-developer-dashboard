@@ -1,6 +1,7 @@
 <template>
-  <hf-pop-up :id="popupId" Header="Company verification" size="xl" :hide-header-close="submitting" @hidden="isOpen = false">
-    <div class="company-verification">
+  <!-- Rendered as a modal (Go live) or, with `inline`, straight in the page (Settings > Organization) -->
+  <component :is="inline ? 'div' : 'HfPopUp'" v-bind="wrapperProps" v-on="wrapperListeners">
+    <div class="company-verification" :class="{ 'is-inline': inline }">
       <nav class="step-rail" aria-label="Company verification steps">
         <button
           v-for="(step, index) in steps"
@@ -33,7 +34,7 @@
           <p v-if="loadingOnboarding" class="muted-note">Loading your company details…</p>
 
           <template v-else>
-            <div v-if="alreadySubmitted" class="notice notice-info">
+            <div v-if="alreadySubmitted && !inline" class="notice notice-info">
               <v-icon small>mdi-file-check-outline</v-icon>
               <div>
                 <strong>Documents already submitted</strong>
@@ -41,7 +42,8 @@
               </div>
             </div>
 
-            <template v-else>
+            <!-- A disabled fieldset locks every input once the details are with compliance -->
+            <fieldset v-else class="form-fieldset" :disabled="readOnly">
               <div v-if="visibleErrorCount" class="notice notice-error" role="alert">
                 <v-icon small>mdi-alert-circle-outline</v-icon>
                 <div>
@@ -180,10 +182,11 @@
                     <v-icon small>mdi-file-document-outline</v-icon>
                     <span class="file-name">{{ form.documents.tax.fileName }}</span>
                     <small v-if="form.documents.tax.size">{{ formatSize(form.documents.tax.size) }}</small>
-                    <button type="button" class="file-remove" aria-label="Remove file" @click="form.documents.tax = null">
+                    <button v-if="!readOnly" type="button" class="file-remove" aria-label="Remove file" @click="form.documents.tax = null">
                       <v-icon x-small>mdi-close</v-icon>
                     </button>
                   </div>
+                  <p v-else-if="readOnly" class="empty-file">No document submitted</p>
                   <label v-else class="dropzone">
                     <input type="file" :accept="acceptedTypes" @change="pickFile('tax', $event)" />
                     <v-icon small>mdi-cloud-upload-outline</v-icon>
@@ -220,10 +223,11 @@
                     <v-icon small>mdi-file-document-outline</v-icon>
                     <span class="file-name">{{ form.documents.incorporation.fileName }}</span>
                     <small v-if="form.documents.incorporation.size">{{ formatSize(form.documents.incorporation.size) }}</small>
-                    <button type="button" class="file-remove" aria-label="Remove file" @click="form.documents.incorporation = null">
+                    <button v-if="!readOnly" type="button" class="file-remove" aria-label="Remove file" @click="form.documents.incorporation = null">
                       <v-icon x-small>mdi-close</v-icon>
                     </button>
                   </div>
+                  <p v-else-if="readOnly" class="empty-file">No document submitted</p>
                   <label v-else class="dropzone">
                     <input type="file" :accept="acceptedTypes" @change="pickFile('incorporation', $event)" />
                     <v-icon small>mdi-cloud-upload-outline</v-icon>
@@ -233,7 +237,7 @@
                 </div>
               </section>
               </template>
-            </template>
+            </fieldset>
           </template>
         </template>
 
@@ -257,7 +261,15 @@
             </div>
           </div>
 
-          <div v-if="!companyDetailsComplete" class="notice notice-warning">
+          <div v-if="alreadySubmitted" class="notice notice-success">
+            <v-icon small>mdi-file-check-outline</v-icon>
+            <div>
+              <strong>{{ submittedNoticeTitle }}</strong>
+              <p>{{ submittedNoticeText }}</p>
+            </div>
+          </div>
+
+          <div v-else-if="!companyDetailsComplete" class="notice notice-warning">
             <v-icon small>mdi-alert-outline</v-icon>
             <div>
               <strong>Not ready yet</strong>
@@ -280,7 +292,7 @@
             <small v-if="!submitFinished">This can take up to 30 seconds. Please keep this window open.</small>
           </div>
 
-          <label v-else class="declaration" :class="{ disabled: !companyDetailsComplete }">
+          <label v-else-if="!alreadySubmitted" class="declaration" :class="{ disabled: !companyDetailsComplete }">
             <input v-model="declarationAccepted" type="checkbox" :disabled="!companyDetailsComplete" />
             <span>
               I confirm that the information and documents provided for
@@ -293,15 +305,15 @@
         <footer class="panel-footer">
           <button v-if="activeStepIndex > 0" type="button" class="secondary-button" :disabled="submitting" @click="goToStep(activeStepIndex - 1)">Back</button>
           <span class="spacer"></span>
-          <button type="button" class="ghost-button" :disabled="submitting" @click="close">Cancel</button>
+          <button v-if="!inline" type="button" class="ghost-button" :disabled="submitting" @click="close">Cancel</button>
           <button v-if="activeStepIndex < steps.length - 1" type="button" class="primary-button" @click="goToStep(activeStepIndex + 1)">Next</button>
-          <button v-else type="button" class="primary-button" :disabled="!canSubmit || submitting" @click="submit">
+          <button v-else-if="!readOnly" type="button" class="primary-button" :disabled="!canSubmit || submitting" @click="submit">
             {{ submitting ? 'Submitting…' : 'Submit for review' }}
           </button>
         </footer>
       </section>
     </div>
-  </hf-pop-up>
+  </component>
 </template>
 
 <script>
@@ -320,7 +332,7 @@ import {
   validateIdentifier,
   validatePostalCode,
 } from '../../utils/companyIdentifiers.js';
-import { companyAllowsProduction } from './companyReview.js';
+import { COMPANY_REVIEW, companyAllowsProduction, companyReviewStatus } from './companyReview.js';
 
 // Fields checked on each form step
 const STEP_FIELDS = {
@@ -368,6 +380,8 @@ export default {
     domainVerified: { type: Boolean, default: false },
     onboardingRecord: { type: Object, default: () => ({}) },
     onboardingLoading: { type: Boolean, default: false },
+    // Render in the page instead of a modal; the form loads on mount and stays open after submitting
+    inline: { type: Boolean, default: false },
   },
   data() {
     return {
@@ -451,6 +465,25 @@ export default {
     alreadySubmitted() {
       return companyAllowsProduction(this.onboarding);
     },
+    // Inline view of details already with compliance (or verified): shown, not editable
+    readOnly() {
+      return this.inline && this.alreadySubmitted;
+    },
+    submittedNoticeTitle() {
+      return companyReviewStatus(this.onboarding) === COMPANY_REVIEW.VERIFIED ? 'Company verified' : 'Documents already submitted';
+    },
+    submittedNoticeText() {
+      return companyReviewStatus(this.onboarding) === COMPANY_REVIEW.VERIFIED
+        ? 'Your company details and documents have been verified.'
+        : 'Your company details and documents are with our compliance team. Nothing more is needed here.';
+    },
+    wrapperProps() {
+      if (this.inline) return {};
+      return { id: this.popupId, Header: 'Company verification', size: 'xl', hideHeaderClose: this.submitting };
+    },
+    wrapperListeners() {
+      return this.inline ? {} : { hidden: () => { this.isOpen = false; } };
+    },
     // Wrong-format problems: shown as soon as a field has a value. Same rules the backend applies.
     formatErrors() {
       const { basic, address } = this.form;
@@ -523,6 +556,9 @@ export default {
       return this.companyDetailsComplete && !this.alreadySubmitted && this.declarationAccepted;
     },
   },
+  mounted() {
+    if (this.inline) this.reset();
+  },
   beforeDestroy() {
     clearTimeout(this.submitProgressTimer);
   },
@@ -533,6 +569,7 @@ export default {
     value: {
       immediate: true,
       handler(open) {
+        if (this.inline) return;
         if (open) this.reset();
         this.$nextTick(() => {
           this.$root.$emit(open ? 'bv::show::modal' : 'bv::hide::modal', this.popupId);
@@ -540,7 +577,10 @@ export default {
       },
     },
     onboardingRecord(record) {
-      if (this.value) this.populateOnboarding(record);
+      if (this.value || this.inline) this.populateOnboarding(record);
+    },
+    onboardingLoading(loading) {
+      if (this.inline) this.loadingOnboarding = loading;
     },
   },
   methods: {
@@ -765,7 +805,8 @@ export default {
         // Only now is it really done: tick every step, let the user see it, then close
         this.finishSubmitProgress();
         await new Promise(resolve => setTimeout(resolve, 700));
-        this.close();
+        if (this.inline) this.activeStep = 'details';
+        else this.close();
         this.notifySuccess('Company details submitted for review.');
         this.$emit('submitted', updated);
       } catch (error) {
@@ -837,6 +878,17 @@ export default {
   min-height: 460px;
   color: #273448;
 }
+
+/* Inline (Settings): the form sits in a card instead of a modal */
+.company-verification.is-inline { padding: 20px 22px; border: 1px solid #e1e6ed; border-radius: 12px; background: #fff; }
+.form-fieldset { min-width: 0; margin: 0; padding: 0; border: 0; }
+.form-fieldset:disabled .segmented button { cursor: default; }
+.field select:disabled { background: #f8fafc; color: #657287; cursor: default; }
+.field input[type="email"]:disabled, .field input[type="tel"]:disabled { background: #f8fafc; color: #657287; }
+.form-fieldset:disabled .phone-control { background: #f8fafc; }
+.empty-file { margin: 0; padding: 10px 12px; border: 1px dashed #d5dde7; border-radius: 8px; background: #f8fafc; color: #8793a5; font-size: 12px; }
+.notice-success { border: 1px solid #b7e2cb; background: #f0faf4; color: #1f6b47; }
+.notice-success > .v-icon { color: #218459 !important; }
 
 /* Vertical step rail */
 .step-rail {

@@ -570,7 +570,7 @@ color: #1a1a2e !important;
     <b-navbar toggleable="lg" class="navStyle" v-if="getIfAuthenticated" sticky>
       <b-navbar-brand
         href="javascript:void(0)"
-        @click="route('dashboard')"
+        @click="goHome"
         class="d-flex align-items-center"
       >
         <img src="./assets/Entity_full.png" alt="Logo" class="nav-logo-img" />
@@ -734,6 +734,7 @@ export default {
       "getIfAuthenticated",
       "getUserDetails",
       "isMFAEnabled",
+      "getAppsWithKYCServices",
     ]),
     displayName() {
       const details = this.userDetails || {};
@@ -855,6 +856,13 @@ export default {
       if (this.$route.path !== name) {
         this.$router.push({ name });
       }
+    },
+    // Admins have a single ID verification service, so the logo takes them straight to it
+    goHome() {
+      const kycApp = this.getUserDetails?.role === "ADMIN" && this.getAppsWithKYCServices[0];
+      if (!kycApp) return this.route("dashboard");
+      if (this.$route.name === "GettingStarted" && this.$route.params.appId === kycApp.appId) return;
+      this.$router.push({ name: "GettingStarted", params: { appId: kycApp.appId } });
     },
     copyToClip(textToCopy, contentType) {
       if (textToCopy) {

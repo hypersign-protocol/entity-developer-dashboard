@@ -604,6 +604,14 @@ const mainStore = {
 
         /// Super admin 
 
+        fetchOnboardingRecordById: async ({ getters }, recordId) => {
+            const url = `${apiServerBaseUrl}/customer-onboarding/${encodeURIComponent(recordId)}`;
+            const resp = await RequestHandler(url, 'GET', {}, UtilsMixin.methods.getHeader(getters.getAuthToken));
+            if (!resp || !resp._id) {
+                throw new Error('Onboarding record not found');
+            }
+            return resp;
+        },
         approveOnboardingRequest: async ({ getters }, payload) => {
             const url = `${apiServerBaseUrl}/customer-onboarding/${payload.recordId}/process`;
             const resp = await RequestHandler(url,
@@ -989,11 +997,16 @@ const mainStore = {
 
                 // Use RequestHandler instead of fetch
                 RequestHandler(url, 'DELETE')
-                    .then(json => {
+                    .then(async json => {
                         if (json.error) {
                             return reject(new Error(json.message.join(' ')));
                         }
-                        dispatch('fetchAppsListFromServer');
+                        // Wait for the refreshed list so pages opened next don't still see the deleted app
+                        try {
+                            await dispatch('fetchAppsListFromServer');
+                        } catch (e) {
+                            console.error('Error while refreshing apps after delete:', e?.message || e);
+                        }
                         resolve(json);
                     })
                     .catch((e) => {

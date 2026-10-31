@@ -599,7 +599,8 @@ export default {
         this.$root.$emit('bv::hide::modal', 'entity-delete-service-confirmation-popup');
         this.isLoading = true;
         await this.deleteAnAppOnServer({ appId: this.formData.appId });
-        await this.$router.push('/studio/onboarding');
+        // The onboarding record survives app deletion, so go back to the services list, not the onboarding form
+        await this.$router.push('/studio/dashboard');
       } catch (error) {
         const message = error?.message || error;
         if (message?.includes('This service is linked with')) {

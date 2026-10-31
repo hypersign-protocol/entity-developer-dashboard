@@ -1,13 +1,15 @@
 // Compliance review state of the company details submitted for production access,
-// derived from the onboarding record's companyVerificationStatus (Completed | Approved | Rejected).
+// derived from the onboarding record's companyVerificationStatus (Submitted | Completed | Approved | Rejected).
 export const COMPANY_REVIEW = {
   NOT_SUBMITTED: 'NOT_SUBMITTED',
+  PROCESSING: 'PROCESSING', // Submitted: details and documents received, verification check not finished yet
   UNDER_REVIEW: 'UNDER_REVIEW', // Completed: submitted, compliance review still in progress
   VERIFIED: 'VERIFIED', // Approved by compliance
   REJECTED: 'REJECTED', // Rejected by compliance; reason in companyStatusReason
 };
 
 const BACKEND_STATUS = {
+  Submitted: COMPANY_REVIEW.PROCESSING,
   Completed: COMPANY_REVIEW.UNDER_REVIEW,
   Approved: COMPANY_REVIEW.VERIFIED,
   Rejected: COMPANY_REVIEW.REJECTED,

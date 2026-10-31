@@ -194,9 +194,14 @@ export default {
 .section-title span { margin-left: 6px; color: #7c8da8; font-size: 10px; font-weight: 400; }
 em, .field-error { color: #e43d4f; font-style: normal; }
 .service-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-.service-option { display: flex; min-height: 40px; align-items: center; gap: 9px; margin: 0; padding: 9px 11px; border: 1px solid #d5dde7; border-radius: 5px; background: #fff; cursor: pointer; color: #1e293b; font-size: 12px; font-weight: 500; }
-.service-option.is-selected { border-color: #94a3b8; background: #f3f4f5; color: #495057; box-shadow: 0 0 0 1px rgba(148,163,184,.18); }
-.service-option input { width: 14px; height: 14px; accent-color: #6c757d; }
+.service-option { display: flex; min-height: 40px; align-items: center; gap: 10px; margin: 0; padding: 9px 11px; border: 1px solid #d5dde7; border-radius: 5px; background: #fff; cursor: pointer; color: #1e293b; font-size: 12px; font-weight: 500; transition: border-color .15s ease, background-color .15s ease; }
+.service-option:hover { border-color: #94a3b8; }
+.service-option.is-selected { border-color: #6c757d; background: #f3f4f5; color: #343a40; box-shadow: 0 0 0 1px rgba(108,117,125,.18); }
+/* Themed checkbox: slate outline, filled grey with a white tick when checked */
+.service-option input { position: relative; display: inline-block; flex: 0 0 auto; width: 16px; height: 16px; margin: 0; border: 1.5px solid #94a3b8; border-radius: 4px; background: #fff center / 11px 11px no-repeat; cursor: pointer; -webkit-appearance: none; appearance: none; transition: border-color .15s ease, background-color .15s ease; }
+.service-option input:checked { border-color: #6c757d; background-color: #6c757d; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2.5 6.2l2.3 2.3 4.7-4.9' fill='none' stroke='%23fff' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); }
+.service-option input:focus { outline: none; }
+.service-option input:focus-visible { box-shadow: 0 0 0 3px rgba(108,117,125,.22); }
 .field-group { display: flex; min-width: 0; flex-direction: column; }
 .volume-field { min-width: 0; margin: 0; padding: 0; border: 0; }
 .volume-field legend { width: auto; margin: 0 0 10px; padding: 0; color: #243453; font-size: 12px; font-weight: 700; }

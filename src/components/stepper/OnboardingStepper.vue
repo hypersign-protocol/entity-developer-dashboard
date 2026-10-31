@@ -90,7 +90,6 @@ import StepCompanyDetails from './StepCompanyDetails.vue';
 import StepIntendedUse from './StepIntendedUse.vue';
 import StepCompanyPreview from './StepCompanyPreview.vue';
 import StepCreateSSIService from './StepCreateSSIService.vue';
-import { mapGetters } from 'vuex';
 import config from '../../config';
 
 export default {
@@ -116,8 +115,6 @@ export default {
     };
   },
   computed: {
-    ...mapGetters('mainStore', ['getUserDetails']),
-    isSuperAdminUser() { return this.getUserDetails?.role === 'SUPER_ADMIN'; },
     supportMailto() { return `mailto:${config.app.supportEmails}`; },
     pageTitle() {
       if (this.currentStep === 4) return 'Your workspace is being set up';
@@ -135,7 +132,6 @@ export default {
     async checkExistingOnboarding() {
       this.isLoading = true;
       try {
-        if (this.isSuperAdminUser) return;
         const existing = await this.$store.dispatch('mainStore/checkIfAlreadyExistOnBoarding');
         if (existing && existing._id) {
           this.populateCompanyFromOnboarding(existing);
@@ -221,12 +217,6 @@ export default {
         const result = await this.$store.dispatch('mainStore/onboardCustomer', this.buildCreditRequestPayload());
         this.company = { ...this.company, onboardingStatus: result?.onboardingStatus || result?.status || 'INITIATED', logs: result?.logs || this.company.logs || [] };
         this.showConfirmation = false;
-        if (this.isSuperAdminUser) {
-          this.hasSubmitted = false;
-          this.currentStep = 1;
-          this.scrollToTop();
-          return;
-        }
         this.hasSubmitted = true;
         this.currentStep = 4;
         let refreshedOnboarding = null;
