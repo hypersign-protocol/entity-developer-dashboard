@@ -37,7 +37,7 @@
                 <div class="overview-container h-100">
                     <div class="header-row">
                         <h2 class="title">Balance Overview</h2>
-                        <hf-buttons name="Top up" iconClass="mdi-wallet-plus-outline" variant="primary"
+                        <hf-buttons v-if="canTopUp" name="Top up" iconClass="mdi-wallet-plus-outline" variant="primary"
                             @executeAction="topUpOpen = true"></hf-buttons>
                     </div>
 
@@ -131,11 +131,7 @@
                                         {{ numberFormat(eachRow.totalCredits) }}
                                     </td>
                                     <td>
-                                        <!-- Credits on an unpaid invoice have no expiry yet: validity starts on payment -->
-                                        <div v-if="invoicesById[eachRow._id] && invoicesById[eachRow._id].status === 'UNPAID'" class="text-muted small">
-                                            <v-icon small color="grey">mdi-timer-sand</v-icon> Starts once paid
-                                        </div>
-                                        <div v-else-if="eachRow.used >= eachRow.totalCredits" class="text-muted small">
+                                        <div v-if="eachRow.used >= eachRow.totalCredits" class="text-muted small">
                                             <v-icon small color="grey">mdi-check-circle</v-icon> Fully Used
                                         </div>
                                         <div v-else-if="Date.now() > new Date(eachRow.expiresAt)"
@@ -178,34 +174,21 @@
                                                 <button
                                                     type="button"
                                                     class="invoice-btn"
-                                                    :disabled="downloadingInvoice === invoicesById[eachRow._id].invoiceNumber"
+                                                    :disabled="downloadingInvoice === invoicesById[eachRow._id].invoiceId"
                                                     @click="downloadInvoice(invoicesById[eachRow._id])"
                                                 >
                                                     <v-icon x-small>mdi-tray-arrow-down</v-icon>
-                                                    {{ downloadingInvoice === invoicesById[eachRow._id].invoiceNumber ? 'Preparing…' : 'Download' }}
+                                                    {{ downloadingInvoice === invoicesById[eachRow._id].invoiceId ? 'Preparing…' : 'Download' }}
                                                 </button>
-                                                <a
-                                                    v-if="invoicesById[eachRow._id].status === 'UNPAID'"
-                                                    class="invoice-btn invoice-btn-pay"
-                                                    :href="invoicesById[eachRow._id].paymentLink.url"
-                                                    target="_blank"
-                                                    rel="noopener"
-                                                >
-                                                    <v-icon x-small>mdi-lock-outline</v-icon>
-                                                    Pay now
-                                                </a>
                                             </div>
                                         </template>
+                                        <!-- Credits granted before invoicing (onboarding, older recharges) have no invoice -->
                                         <span v-else class="text-muted small">—</span>
                                     </td>
 
                                     <td class="text-center">
-                                        <span
-                                            v-if="invoicesById[eachRow._id] && invoicesById[eachRow._id].status === 'UNPAID'"
-                                            class="awaiting-payment"
-                                        >Awaiting payment</span>
                                         <div
-                                            v-else-if="eachRow.status === 'Active' && !(Date.now() > new Date(eachRow.expiresAt))">
+                                            v-if="eachRow.status === 'Active' && !(Date.now() > new Date(eachRow.expiresAt))">
                                             <v-chip small color="green lighten-5" text-color="green"
                                                 class="font-weight-bold">ACTIVE</v-chip>
                                         </div>
@@ -228,11 +211,10 @@
             :remaining-credits="myKYCCredits.allRemainingCredits"
             :total-credits="myKYCCredits.allAvailableCredits"
         />
-        <!-- TODO: pass the region from the customer's onboarding (where they are taxed) and drop allow-region-preview -->
+        <!-- Prices and the region come from GET /billing/catalog -->
         <CreditTopUpPopup
             v-model="topUpOpen"
-            region="IN"
-            allow-region-preview
+            :app-id="selectedAppId"
             @checkout="startTopUpCheckout"
         />
     </b-container>
@@ -245,10 +227,18 @@ import UtilsMixin from '../../mixins/utils';
 import HfButtons from "../../components/element/HfButtons.vue";
 import AccessDenied from '../AccessDenied.vue';
 import KycCreditCalculator from '../../components/credit/KycCreditCalculator.vue';
-import { USE_MOCK_INVOICES, mockInvoiceForCredit } from '../../components/credit/invoice/mockInvoices';
-import { formatMinor, formatDate as formatInvoiceDate } from '../../components/credit/invoice/invoiceDocument';
-import { downloadInvoicePdf } from '../../components/credit/invoice/downloadInvoice';
+import { downloadInvoiceDocument } from '../../components/credit/invoice/downloadInvoice';
 import CreditTopUpPopup from '../../components/credit/CreditTopUpPopup.vue';
+import { getCatalog, getAllInvoices, getInvoice } from '../../utils/billingApi';
+import { formatMinor } from '../../utils/billingFormat';
+
+const PAYMENT_METHOD_LABELS = {
+    BANK_TRANSFER: 'Bank transfer',
+    UPI: 'UPI',
+    CHEQUE: 'Cheque',
+    CARD_OUTSIDE_DASHBOARD: 'Card',
+    OTHER_SYSTEM: 'Other system'
+};
 
 export default {
     name: "KYCDashboardCredit",
@@ -267,21 +257,33 @@ export default {
             calculatorOpen: false,
             topUpOpen: false,
             downloadingInvoice: null,
+            // InvoiceSummary list from GET /billing/invoices?appId; empty when it can't be loaded
+            invoices: [],
+            // Off only when the catalog refuses the account (billing disabled or no permission)
+            billingAvailable: true,
         }
     },
     computed: {
         ...mapGetters('mainStore', ['getKYCCredits']),
 
-        // TODO: replace the mock with GET /billing/invoices once it exists (ADR §5.1)
+        selectedAppId() {
+            const app = this.$store.getters['mainStore/getSelectedService'];
+            return (app && app.appId) || '';
+        },
+
+        // READ_BILLING is a dashboard permission (DASHBOARD.ACCESS_TYPES in the service)
+        canViewBilling() {
+            return this.$store.getters['mainStore/hasAccess']('DASHBOARD', 'READ_BILLING');
+        },
+
+        canTopUp() {
+            return this.canViewBilling && this.billingAvailable;
+        },
+
+        // Each invoice sits on the credit plan it granted (contract §4: creditPlanId = the plan's _id)
         invoicesById() {
-            if (!USE_MOCK_INVOICES) return {};
-            const app = this.$store.getters['mainStore/getSelectedService'] || {};
-            return this.getSortedKYCCredits.reduce((byId, credit, index) => {
-                byId[credit._id] = mockInvoiceForCredit(credit, index, {
-                    region: 'IN',
-                    appName: app.appName || 'My app',
-                    appId: app.appId
-                });
+            return this.invoices.reduce((byId, invoice) => {
+                if (invoice.creditPlanId) byId[invoice.creditPlanId] = invoice;
                 return byId;
             }, {});
         },
@@ -353,46 +355,81 @@ export default {
     methods: {
         ...mapActions('mainStore', ['fetchKYCCredits', 'activateCredit']),
 
+        // Tag and settlement text (contract §4)
         invoiceStatus(invoice) {
             if (invoice.status === 'UNPAID') {
-                return { label: 'Due', className: 'is-due', detail: `Due ${formatInvoiceDate(invoice.dueAt)}` };
+                const due = invoice.dueAt ? new Date(invoice.dueAt).toLocaleDateString(undefined, { day: '2-digit', month: 'short', year: 'numeric' }) : '';
+                return { label: 'Due', className: 'is-due', detail: due ? `Due ${due}` : 'Payment due' };
             }
-            if (invoice.status === 'VOID') return { label: 'Void', className: 'is-void', detail: 'Cancelled' };
+            if (invoice.status === 'VOID') return { label: 'Void', className: 'is-void', detail: 'Void' };
             if (invoice.settlement === 'COMPLIMENTARY') {
                 return { label: 'Complimentary', className: 'is-complimentary', detail: 'No payment due' };
             }
-            return {
-                label: 'Paid',
-                className: 'is-paid',
-                detail: invoice.settlement === 'OFFLINE' ? 'Paid offline' : `Paid via ${invoice.payment.method}`
-            };
+            if (invoice.settlement === 'OFFLINE') return { label: 'Paid', className: 'is-paid', detail: 'Paid offline' };
+            const method = invoice.payment && invoice.payment.method;
+            return { label: 'Paid', className: 'is-paid', detail: method ? `Paid via ${PAYMENT_METHOD_LABELS[method] || method}` : 'Paid' };
         },
 
         formatInvoiceTotal(invoice) {
-            return formatMinor(invoice.totals.totalMinor, invoice.currency);
+            return formatMinor(invoice.totalMinor, invoice.currency);
         },
 
-        // Invoices are rendered on the fly; nothing is stored or fetched as a file
+        // Invoices are rendered here from GET /billing/invoices/:id; nothing is stored as a file
         async downloadInvoice(invoice) {
             if (this.downloadingInvoice) return;
-            this.downloadingInvoice = invoice.invoiceNumber;
+            this.downloadingInvoice = invoice.invoiceId;
             try {
-                await downloadInvoicePdf(invoice);
+                await downloadInvoiceDocument(await getInvoice(invoice.invoiceId));
             } catch (e) {
-                this.notifyErr(`Could not prepare the invoice: ${e.message}`);
+                this.notifyErr(e.code === 'INVOICE_NOT_FOUND' ? 'This invoice could not be found.' : `Could not prepare the invoice: ${e.message}`);
             } finally {
                 this.downloadingInvoice = null;
             }
         },
 
-        // Payment gateway is not wired up yet; this is where we'll redirect to the checkout link
-        startTopUpCheckout(order) {
-            this.notifySuccess(`Payment gateway coming soon: ${order.totalDue} ${order.currency} for ${order.credits} credits`);
+        // Invoices are extra information: if they can't be loaded (no READ_BILLING, an older
+        // backend without billing, a network error) the credit history still shows, with "—"
+        async loadInvoices() {
+            const appId = this.selectedAppId;
+            if (!appId || !this.canViewBilling) {
+                this.invoices = [];
+                return;
+            }
+            try {
+                const invoices = await getAllInvoices({ appId });
+                if (appId === this.selectedAppId) this.invoices = invoices;
+            } catch (e) {
+                this.invoices = [];
+                console.info(`Invoices not shown: ${e.code || e.status || ''} ${e.message}`);
+            }
+        },
+
+        // Pay stays disabled until features.pay is on; stage 2 creates the order here and redirects
+        startTopUpCheckout() {
+            this.notifySuccess('Online payment is coming soon');
+        },
+
+        // Top up is hidden only when the catalog refuses the account: 503 BILLING_DISABLED for the
+        // region, or 403 without READ_BILLING (contract §1.5). Other failures keep the button, and
+        // the popup shows the error with a retry when opened.
+        async checkBillingAvailable() {
+            if (!this.canViewBilling) return;
+            try {
+                await getCatalog();
+                this.billingAvailable = true;
+            } catch (e) {
+                const refused = e.code === 'BILLING_DISABLED' || e.status === 403;
+                this.billingAvailable = !refused;
+                if (refused) console.info(`Top up hidden: ${e.code || e.status} ${e.message}`);
+            }
         },
 
         async reloadData() {
             try {
                 this.isLoading = true;
+                this.checkBillingAvailable();
+                // In parallel with the credits; never blocks or fails the page
+                this.loadInvoices();
                 await this.fetchKYCCredits();
 
                 this.startTimer();
@@ -726,20 +763,6 @@ export default {
 .invoice-btn:hover:not(:disabled) { border-color: #2f6fec; background: #f7faff; color: #2563dc; text-decoration: none; }
 .invoice-btn:disabled { cursor: progress; opacity: .6; }
 .invoice-btn .v-icon { color: inherit; }
-
-.invoice-btn-pay { border-color: #6c757d; background: #6c757d; color: #fff; }
-.invoice-btn-pay:hover:not(:disabled) { border-color: #545b62; background: #5a6268; color: #fff; }
-
-.awaiting-payment {
-    display: inline-block;
-    padding: 2px 10px;
-    border-radius: 10px;
-    background: #fff4e5;
-    color: #b45309;
-    font-size: 0.7rem;
-    font-weight: 700;
-    white-space: nowrap;
-}
 
 /* Ensure the table cell doesn't squash the progress bar */
 .usage-table td {

@@ -1,6 +1,7 @@
-// Builds the pdfmake document for one invoice. Pure: no DOM, no network, no pdfmake import,
-// so the backend can render the same invoice from the same code on request (see the ADR, §8.3).
-// Money is in minor units (paise / cents) throughout, as in the ADR's Invoice model.
+// Template invoice-v1: builds the pdfmake document for one invoice. Pure: no DOM, no network,
+// no pdfmake import. It takes the layout model that invoiceTemplates.js maps from the server's
+// InvoiceDocument (contract §4). Shipped templates never change: a redesign is a new version.
+// Money is in minor units (paise / cents) throughout.
 
 const COLORS = {
   ink: '#172554',
@@ -88,14 +89,21 @@ export function amountInWords(amountMinor, currency) {
 
 const label = text => ({ text: text.toUpperCase(), fontSize: 7, bold: true, color: COLORS.muted, characterSpacing: 0.6, margin: [0, 0, 0, 4] });
 
+// Tax and company identifiers, as [label, value] pairs
+function partyIds(party) {
+  if (Array.isArray(party.ids)) return party.ids;
+  return [['GSTIN', party.gstin], ['PAN', party.pan]].filter(([, value]) => value);
+}
+
 function partyBlock(title, party) {
   return {
     stack: [
       label(title),
       { text: party.legalName, bold: true, fontSize: 10, color: COLORS.ink, margin: [0, 0, 0, 2] },
       ...party.address.map(line => ({ text: line, fontSize: 8.5, color: COLORS.text })),
-      party.gstin ? { text: [{ text: 'GSTIN  ', color: COLORS.muted }, party.gstin], fontSize: 8.5, margin: [0, 4, 0, 0] } : null,
-      party.pan ? { text: [{ text: 'PAN  ', color: COLORS.muted }, party.pan], fontSize: 8.5 } : null,
+      ...partyIds(party).map(([name, value], index) => ({
+        text: [{ text: `${name}  `, color: COLORS.muted }, value], fontSize: 8.5, margin: [0, index === 0 ? 4 : 0, 0, 0]
+      })),
       party.email ? { text: party.email, fontSize: 8.5, color: COLORS.muted, margin: [0, 2, 0, 0] } : null
     ].filter(Boolean)
   };
@@ -216,7 +224,10 @@ function paymentPanel(invoice) {
   let title;
   let lines;
   let qr = null;
-  if (status === 'UNPAID') {
+  if (status === 'VOID') {
+    title = 'Void';
+    lines = [invoice.voidReason || 'This invoice was cancelled. No payment is due.'];
+  } else if (status === 'UNPAID') {
     title = `Payment due by ${formatDate(invoice.dueAt)}`;
     lines = [
       `Pay ${formatMinor(totals.balanceMinor, currency)} securely online. Your credits are activated as soon as the payment is confirmed.`,
@@ -254,7 +265,7 @@ function paymentPanel(invoice) {
 }
 
 /**
- * @param {object} invoice  Invoice snapshot (see mockInvoices.js for the shape)
+ * @param {object} invoice  Layout model (see toInvoiceV1Model in invoiceTemplates.js)
  * @param {object} [options]
  * @param {string} [options.logo]  Hypersign logo as a data URL
  */
@@ -268,7 +279,7 @@ export function buildInvoiceDocument(invoice, { logo } = {}) {
     footer: (currentPage, pageCount) => ({
       margin: [40, 16, 40, 0],
       columns: [
-        { text: `This is a computer-generated invoice and does not need a signature. Questions? ${invoice.supplier.supportEmail}`, fontSize: 7, color: COLORS.faint },
+        { text: `This is a computer-generated invoice and does not need a signature. Questions? ${invoice.supplier.supportEmail || invoice.supplier.email}`, fontSize: 7, color: COLORS.faint },
         { text: `Page ${currentPage} of ${pageCount}`, fontSize: 7, color: COLORS.faint, alignment: 'right', width: 60 }
       ]
     }),
@@ -316,10 +327,6 @@ export function buildInvoiceDocument(invoice, { logo } = {}) {
       } : null
     ].filter(Boolean)
   };
-}
-
-export function invoiceFileName(invoice) {
-  return `Hypersign-Invoice-${invoice.invoiceNumber.replace(/[^A-Za-z0-9-]+/g, '-')}.pdf`;
 }
 
 export { formatPercentBps };

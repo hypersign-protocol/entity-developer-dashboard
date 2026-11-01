@@ -1,9 +1,10 @@
-// Browser side of invoice PDFs: renders an invoice on the fly with pdfmake and downloads or opens it.
-// The layout lives in invoiceDocument.js so the backend can render the same PDF.
+// Browser side of invoice PDFs: renders an invoice on the fly with pdfmake and downloads it.
+// downloadInvoiceDocument takes the server's InvoiceDocument (contract §4); the template is
+// chosen by its templateVersion in invoiceTemplates.js.
 import pdfMake from 'pdfmake';
 import pdfFonts from 'pdfmake/build/vfs_fonts';
 import logoSrc from '@/assets/Entity_full.png';
-import { buildInvoiceDocument, invoiceFileName } from './invoiceDocument';
+import { buildInvoicePdfDefinition, invoiceDocumentFileName } from './invoiceTemplates';
 
 let fontsReady = false;
 let logoDataUrl = null;
@@ -41,18 +42,14 @@ function loadLogo() {
   });
 }
 
-async function createInvoicePdf(invoice) {
+/**
+ * Renders and saves an InvoiceDocument. Throws UnknownInvoiceTemplateError (message:
+ * "Please refresh the dashboard to download this invoice") for a template this build lacks.
+ */
+export async function downloadInvoiceDocument(doc) {
+  // Checked before loading fonts and the logo, so an unknown version fails fast
+  buildInvoicePdfDefinition(doc);
   ensureFonts();
   const logo = await loadLogo();
-  return pdfMake.createPdf(buildInvoiceDocument(invoice, { logo }));
-}
-
-export async function downloadInvoicePdf(invoice) {
-  const pdf = await createInvoicePdf(invoice);
-  await pdf.download(invoiceFileName(invoice));
-}
-
-export async function openInvoicePdf(invoice) {
-  const pdf = await createInvoicePdf(invoice);
-  await pdf.open();
+  await pdfMake.createPdf(buildInvoicePdfDefinition(doc, { logo })).download(invoiceDocumentFileName(doc));
 }

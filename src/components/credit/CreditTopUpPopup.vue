@@ -7,7 +7,7 @@
     scrollable
     hide-footer
     modal-class="credit-topup-modal"
-    @show="reset"
+    @show="open"
     @change="$emit('input', $event)"
   >
     <template #modal-header="{ close }">
@@ -15,7 +15,6 @@
         <span class="topup-header-icon"><v-icon small>mdi-wallet-plus-outline</v-icon></span>
         <div class="topup-header-text">
           <h2>Top up credits</h2>
-          <!-- <p>{{ pricing.label }} pricing · All amounts in {{ pricing.currency }}</p> -->
         </div>
         <button type="button" class="topup-close" aria-label="Close" @click="close()">
           <v-icon small>mdi-close</v-icon>
@@ -23,71 +22,81 @@
       </div>
     </template>
 
-    <div v-if="allowRegionPreview" class="region-preview" role="group" aria-label="Preview pricing region">
-      <span class="region-preview-label">Preview as</span>
-      <button
-        v-for="option in regionOptions"
-        :key="option.value"
-        type="button"
-        class="region-preview-option"
-        :class="{ active: activeRegion === option.value }"
-        :aria-pressed="activeRegion === option.value"
-        @click="setRegion(option.value)"
-      >
-        {{ option.label }}
-      </button>
+    <div v-if="catalogLoading" class="topup-state" aria-live="polite">
+      <b-spinner small variant="secondary" />
+      <span>Loading prices…</span>
     </div>
 
-    <div class="topup-layout">
+    <!-- Errors that stop the top-up: billing off, no permission, no onboarding, app not billable -->
+    <div v-else-if="blocker" class="topup-state" role="alert">
+      <v-icon small>mdi-alert-circle-outline</v-icon>
+      <span>{{ blocker.message }}</span>
+      <button v-if="blocker.action === 'retry'" type="button" class="topup-retry" @click="loadCatalog">Try again</button>
+      <router-link v-else-if="blocker.action === 'onboarding'" class="topup-retry" to="/studio/onboarding">Complete onboarding</router-link>
+    </div>
+
+    <div v-else-if="catalog" class="topup-layout">
       <div class="topup-main">
         <section class="topup-card">
           <header class="topup-card-header">
             <h3>Choose an amount</h3>
-            <p>Bigger plans get a bigger discount.</p>
+            <p>Bigger plans get a bigger discount.<template v-if="taxIncluded"> Prices exclude GST.</template></p>
           </header>
 
-          <div class="plan-grid" :style="{ '--plan-count': planAmounts.length }">
+          <div class="plan-grid" :style="{ '--plan-count': plans.length }">
             <button
-              v-for="amount in planAmounts"
-              :key="amount"
+              v-for="plan in plans"
+              :key="plan.code"
               type="button"
               class="plan-option"
-              :class="{ selected: selectedPlan === amount }"
-              :aria-pressed="selectedPlan === amount"
-              @click="selectPlan(amount)"
+              :class="{ selected: selectedPlanCode === plan.code }"
+              :aria-pressed="selectedPlanCode === plan.code"
+              @click="selectPlan(plan.code)"
             >
-              <span class="plan-amount">{{ formatMoney(amount) }}</span>
-              <span v-if="discountPercentFor(amount)" class="plan-save">Save {{ formatPercent(discountPercentFor(amount)) }}</span>
+              <span class="plan-amount">{{ formatMoney(plan.priceMinor) }}</span>
+              <span v-if="plan.discountBps" class="plan-save">Save {{ formatPercent(plan.discountBps) }}</span>
+              <span class="plan-meta">
+                <span>{{ formatMoney(plan.totalBeforeTaxMinor) }}</span>
+                <span>{{ formatCount(plan.credits) }} credits</span>
+              </span>
               <span class="plan-check" aria-hidden="true"><v-icon x-small>mdi-check</v-icon></span>
             </button>
           </div>
 
-          <button
-            v-if="selectedPlan !== 'custom'"
-            type="button"
-            class="custom-toggle"
-            @click="selectCustom"
-          >
-            <v-icon x-small>mdi-pencil-outline</v-icon>
-            Custom amount
-          </button>
-          <div v-else class="custom-field" :class="{ invalid: customError }">
-            <label :for="customInputId">Custom amount</label>
-            <div class="custom-control">
-              <span class="currency-symbol">{{ currencySymbol }}</span>
-              <input
-                :id="customInputId"
-                ref="customInput"
-                v-model="customInput"
-                type="number"
-                inputmode="decimal"
-                :min="customMin"
-                :max="customMax"
-                placeholder="Enter amount"
-              />
+          <template v-if="customEnabled">
+            <button
+              v-if="selectedPlanCode !== 'custom'"
+              type="button"
+              class="custom-toggle"
+              @click="selectCustom"
+            >
+              <v-icon x-small>mdi-pencil-outline</v-icon>
+              Custom amount
+            </button>
+            <div v-else class="custom-field" :class="{ invalid: customError }">
+              <label :for="customInputId">Custom amount</label>
+              <div class="custom-control">
+                <span class="currency-symbol">{{ currencySymbol }}</span>
+                <input
+                  :id="customInputId"
+                  ref="customInput"
+                  v-model="customInput"
+                  type="number"
+                  inputmode="numeric"
+                  step="1"
+                  :min="customMinMajor"
+                  :max="customMaxMajor"
+                  placeholder="Enter amount"
+                />
+                <span v-if="customHintBps && !customError" class="custom-hint">{{ formatPercent(customHintBps) }} off</span>
+              </div>
+              <small v-if="customError" class="field-error">
+                {{ customError }}
+                <a v-if="customErrorSales" href="mailto:sales@hypersign.id">talk to sales</a>.
+              </small>
+              <small v-else>Between {{ formatMoney(catalog.custom.minMinor) }} and {{ formatMoney(catalog.custom.maxMinor) }}, in whole amounts.</small>
             </div>
-            <small v-if="customError" class="field-error">{{ customError }}</small>
-          </div>
+          </template>
 
           <p class="sales-note">
             Need higher volume?
@@ -95,7 +104,7 @@
           </p>
         </section>
 
-        <section class="topup-card addons-card" :class="{ open: addOnsOpen }">
+        <section v-if="addOns.length" class="topup-card addons-card" :class="{ open: addOnsOpen }">
           <button
             type="button"
             class="addons-toggle"
@@ -107,26 +116,28 @@
               <span class="addons-title">Included with every top-up</span>
               <span class="addons-summary">{{ addOnsSummary }}</span>
             </span>
-            <span class="addon-tag">Free</span>
+            <span v-if="addOnsFree" class="addon-tag">Free</span>
             <v-icon small class="addons-chevron">mdi-chevron-down</v-icon>
           </button>
           <ul v-show="addOnsOpen" id="credit-top-up-addons" class="addon-list">
-            <li v-for="addOn in pricing.addOns" :key="addOn.id" class="addon-item">
-              <span class="addon-icon"><v-icon x-small>{{ addOn.icon }}</v-icon></span>
+            <!-- Add-ons are all included today, so none has a checkbox -->
+            <li v-for="addOn in addOns" :key="addOn.code" class="addon-item">
+              <span class="addon-icon"><v-icon x-small>{{ addOn.icon || 'mdi-check-circle-outline' }}</v-icon></span>
               <span class="addon-copy">
                 <strong>{{ addOn.title }}</strong>
-                <small>{{ addOn.detail }}</small>
+                <small>{{ addOn.description }}</small>
               </span>
+              <span class="addon-price">{{ addOn.priceMinor ? formatMoney(addOn.priceMinor) : 'Free' }}</span>
             </li>
           </ul>
         </section>
       </div>
 
-      <aside class="topup-summary" aria-live="polite">
+      <aside class="topup-summary" :class="{ pending: quoteLoading }" aria-live="polite">
         <div class="credits-highlight">
           <span class="eyebrow">You'll get</span>
           <div class="credits-value">
-            <strong>{{ numberFormat(credits) }}</strong>
+            <strong>{{ credits === null ? '—' : formatCount(credits) }}</strong>
             <small>credits</small>
           </div>
           <button type="button" class="credits-help" :disabled="!credits" @click="calculatorOpen = true">
@@ -135,54 +146,74 @@
           </button>
         </div>
 
-        <dl class="summary-lines">
+        <div v-if="quoteError" class="quote-error" role="alert">
+          <span>{{ quoteError }}</span>
+          <button type="button" class="topup-retry" @click="requestQuote">Try again</button>
+        </div>
+
+        <dl v-if="quote" class="summary-lines">
           <div class="summary-line">
             <dt>Top-up amount</dt>
-            <dd>{{ formatMoney(baseAmount) }}</dd>
+            <dd>{{ formatMoney(quote.subtotalMinor) }}</dd>
           </div>
-          <div v-if="volumeDiscount > 0" class="summary-line saving">
-            <dt>Plan discount · {{ formatPercent(volumePercent) }}</dt>
-            <dd>− {{ formatMoney(volumeDiscount) }}</dd>
+          <div v-if="quote.planDiscount && quote.planDiscount.amountMinor > 0" class="summary-line saving">
+            <dt>Plan discount · {{ formatPercent(quote.planDiscount.percentBps) }}</dt>
+            <dd>− {{ formatMoney(quote.planDiscount.amountMinor) }}</dd>
           </div>
-          <div class="summary-line">
-            <dt>Add-ons · {{ pricing.addOns.length }}</dt>
-            <dd class="saving-text">Free</dd>
+          <div v-if="quote.addOns && quote.addOns.length" class="summary-line">
+            <dt>Add-ons · {{ quote.addOns.length }}</dt>
+            <dd v-if="quote.addOns.every(addOn => !addOn.priceMinor)" class="saving-text">Free</dd>
           </div>
-          <div v-if="appliedCoupon" class="summary-line saving">
+          <div v-for="line in taxLines" :key="line.type" class="summary-line">
+            <dt>{{ taxLabel(line) }}</dt>
+            <dd>{{ formatMoney(line.amountMinor) }}</dd>
+          </div>
+          <div v-if="quote.coupon" class="summary-line saving">
             <dt>
-              <span class="coupon-chip" :title="appliedCoupon.eligibility">
-                {{ appliedCoupon.code }}
+              <span class="coupon-chip">
+                {{ quote.coupon.code }} · {{ formatPercent(quote.coupon.percentBps) }}
                 <button type="button" aria-label="Remove coupon" @click="removeCoupon">
                   <v-icon x-small>mdi-close</v-icon>
                 </button>
               </span>
             </dt>
-            <dd>− {{ formatMoney(couponDiscount) }}</dd>
+            <dd>− {{ formatMoney(quote.coupon.amountMinor) }}</dd>
           </div>
         </dl>
 
-        <div v-if="!appliedCoupon" class="coupon-area">
+        <div v-if="couponsEnabled && !(quote && quote.coupon)" class="coupon-area">
           <button type="button" class="coupon-toggle" @click="openCouponDialog">
             <v-icon x-small>mdi-tag-outline</v-icon>
             Apply coupon
-            <span v-if="listedCoupons.length" class="coupon-count">· {{ listedCoupons.length }} available</span>
+            <span v-if="coupons.length" class="coupon-count">· {{ coupons.length }} available</span>
           </button>
+          <small v-if="couponNotice" class="field-error">{{ couponNotice }}</small>
         </div>
 
         <div class="total-line">
           <span>Total due</span>
-          <strong>{{ formatMoney(totalDue) }}</strong>
+          <strong>
+            {{ quote ? formatMoney(quote.totalMinor) : '—' }}<small v-if="taxAtCheckout && quote" class="plus-tax"> + tax</small>
+          </strong>
         </div>
-        <p v-if="totalSavings > 0" class="savings-note">You save {{ formatMoney(totalSavings) }}</p>
 
-        <button type="button" class="pay-button" :disabled="!canPay" @click="checkout">
-          <v-icon x-small>mdi-lock-outline</v-icon>
-          <span>Pay {{ formatMoney(totalDue) }}</span>
-          <v-icon x-small class="pay-arrow">mdi-arrow-right</v-icon>
-        </button>
+        <span class="pay-button-wrap" :title="payEnabled ? '' : 'Coming soon'">
+          <button type="button" class="pay-button" :disabled="!canPay" @click="checkout">
+            <v-icon x-small>mdi-lock-outline</v-icon>
+            <span>{{ quote ? `Pay ${formatMoney(quote.totalMinor)}` : 'Pay' }}</span>
+            <v-icon x-small class="pay-arrow">mdi-arrow-right</v-icon>
+          </button>
+        </span>
+        <p v-if="!payEnabled" class="pay-soon">Online payment is coming soon.</p>
 
-        <p class="tax-note">
-          Excludes tax. Final tax is calculated on the secure payment page based on your billing jurisdiction.
+        <p v-if="taxAtCheckout" class="tax-note">Tax is calculated on the secure payment page.</p>
+
+        <!-- Invoices need confirmed billing details; required before Pay in stage 2 -->
+        <p v-if="quote && !quote.billingProfileComplete" class="billing-link">
+          <button type="button" @click="billingFormOpen = true">
+            <v-icon x-small>mdi-card-account-details-outline</v-icon>
+            Add billing details
+          </button>
         </p>
       </aside>
     </div>
@@ -220,39 +251,76 @@
             placeholder="Enter code"
             autocomplete="off"
             :class="{ invalid: couponError }"
+            :disabled="applyingCoupon"
             @input="couponError = ''"
           />
-          <button type="submit" :disabled="!couponInput.trim()">Apply</button>
+          <button type="submit" :disabled="!couponInput.trim() || applyingCoupon">Apply</button>
         </div>
         <small v-if="couponError" class="field-error">{{ couponError }}</small>
       </form>
 
-      <template v-if="listedCoupons.length">
+      <div v-if="couponsLoading" class="topup-state compact" aria-live="polite">
+        <b-spinner small variant="secondary" />
+        <span>Loading offers…</span>
+      </div>
+      <div v-else-if="couponsError" class="topup-state compact" role="alert">
+        <v-icon small>mdi-alert-circle-outline</v-icon>
+        <span>{{ couponsError }}</span>
+        <button type="button" class="topup-retry" @click="loadCoupons">Try again</button>
+      </div>
+      <!-- An empty list means no offers: only the code input shows -->
+      <template v-else-if="coupons.length">
         <div class="coupon-divider"><span>Available offers</span></div>
         <ul class="coupon-list">
-          <li v-for="coupon in listedCoupons" :key="coupon.code" class="coupon-offer">
+          <li v-for="coupon in coupons" :key="coupon.code" class="coupon-offer">
             <div class="coupon-offer-main">
               <div class="coupon-offer-top">
                 <span class="coupon-code">{{ coupon.code }}</span>
-                <span class="coupon-percent">{{ formatPercent(coupon.percent) }} off</span>
+                <span class="coupon-percent">{{ formatPercent(coupon.percentBps) }} off</span>
               </div>
               <strong>{{ coupon.title }}</strong>
               <small>{{ coupon.description }}</small>
-              <small v-if="couponSavingFor(coupon) > 0" class="coupon-saving">
-                Saves {{ formatMoney(couponSavingFor(coupon)) }} on this top-up
+              <small v-if="coupon.previewDiscountMinor > 0" class="coupon-saving">
+                Saves {{ formatMoney(coupon.previewDiscountMinor) }} on this top-up
               </small>
             </div>
-            <button type="button" class="coupon-apply" @click="applyCoupon(coupon.code)">Apply</button>
+            <button type="button" class="coupon-apply" :disabled="applyingCoupon" @click="applyCoupon(coupon.code)">Apply</button>
           </li>
         </ul>
       </template>
     </b-modal>
 
+    <b-modal
+      :id="billingDialogId"
+      :visible="billingFormOpen"
+      size="lg"
+      centered
+      scrollable
+      hide-footer
+      modal-class="credit-topup-modal credit-billing-modal"
+      @change="billingFormOpen = $event"
+    >
+      <template #modal-header="{ close }">
+        <div class="topup-header">
+          <span class="topup-header-icon"><v-icon small>mdi-card-account-details-outline</v-icon></span>
+          <div class="topup-header-text">
+            <h2>Billing details</h2>
+            <p>Printed on your invoices.</p>
+          </div>
+          <button type="button" class="topup-close" aria-label="Close" @click="close()">
+            <v-icon small>mdi-close</v-icon>
+          </button>
+        </div>
+      </template>
+      <BillingDetails v-if="billingFormOpen" embedded @saved="onBillingSaved" />
+    </b-modal>
+
     <KycCreditCalculator
+      v-if="catalog"
       v-model="calculatorOpen"
       mode="topup"
-      :remaining-credits="credits"
-      :visible-flow-ids="pricing.calculatorFlowIds"
+      :remaining-credits="credits || 0"
+      :visible-flow-ids="catalog.calculatorFlowIds"
       back-label="Back to Top up credits"
     />
   </b-modal>
@@ -260,192 +328,391 @@
 
 <script>
 import KycCreditCalculator from './KycCreditCalculator.vue';
-import { REGIONS, coupons, getRegionPricing, discountPercentFor } from './creditTopUpPricing';
+import BillingDetails from '../settings/BillingDetails.vue';
+import { getCatalog, getCoupons, createQuote } from '../../utils/billingApi';
+import { formatMinor, formatBps, formatCount } from '../../utils/billingFormat';
 
-const roundMoney = value => Math.round((Number(value) || 0) * 100) / 100;
+const QUOTE_DEBOUNCE_MS = 400;
+const COUPON_INVALID_MESSAGE = 'This coupon code is not valid.';
+const COUPON_RATE_LIMITED_MESSAGE = 'Too many coupon attempts. Please try again later.';
+
+// Errors that stop the top-up altogether (contract §1.5, §2, §3). 403 and 429 carry no code.
+function blockerFor(error) {
+  if (error.code === 'BILLING_DISABLED') return { message: 'Top-ups are not available for your region yet.' };
+  if (error.status === 403) return { message: 'You don\'t have permission to view billing. Ask your account owner for access.' };
+  if (error.code === 'ONBOARDING_NOT_FOUND') return { message: 'Complete onboarding to top up credits.', action: 'onboarding' };
+  if (error.code === 'APP_NOT_FOUND') return { message: 'This app isn\'t in your organisation, so it can\'t be topped up here.' };
+  if (error.code === 'APP_NOT_BILLABLE') return { message: 'Only ID Service apps are topped up here. SSI apps keep their existing credit flow.' };
+  return null;
+}
+
+const TAX_LABELS = { ZERO_RATED_EXPORT: 'Export (zero-rated)', SALES_TAX: 'Sales tax' };
 
 export default {
   name: 'CreditTopUpPopup',
-  components: { KycCreditCalculator },
+  components: { KycCreditCalculator, BillingDetails },
   props: {
     value: { type: Boolean, default: false },
-    // Billing region, taken from where the customer is taxed (onboarding form)
-    region: { type: String, default: REGIONS.IN },
-    // Sign-off builds only: lets reviewers switch between India and Global pricing
-    allowRegionPreview: { type: Boolean, default: false }
+    // The ID Service app being topped up; coupons and quotes are per app
+    appId: { type: String, default: '' }
   },
   data() {
     return {
       popupId: 'credit-top-up-popup',
       customInputId: 'credit-top-up-custom-amount',
-      regionOptions: [
-        { value: REGIONS.IN, label: 'India (₹)' },
-        { value: REGIONS.GLOBAL, label: 'Global ($)' }
-      ],
-      activeRegion: this.region,
-      selectedPlan: null,
-      customInput: '',
       couponDialogId: 'credit-top-up-coupon-popup',
       couponInputId: 'credit-top-up-coupon-code',
+      billingDialogId: 'credit-top-up-billing-popup',
+      billingFormOpen: false,
+      catalog: null,
+      catalogLoading: false,
+      blocker: null,
+      // A plan code, or 'custom'
+      selectedPlanCode: null,
+      customInput: '',
+      customError: '',
+      customErrorSales: false,
+      couponCode: null,
+      quote: null,
+      quoteLoading: false,
+      quoteError: '',
+      // Responses from older requests are dropped
+      quoteRequest: 0,
+      quoteTimer: null,
+      catalogReloaded: false,
+      coupons: [],
+      couponsLoading: false,
+      couponsError: '',
+      couponsRequest: 0,
       couponDialogOpen: false,
-      calculatorOpen: false,
       couponInput: '',
       couponError: '',
-      appliedCoupon: null,
+      couponNotice: '',
+      applyingCoupon: false,
+      calculatorOpen: false,
       addOnsOpen: false
     };
   },
   computed: {
-    pricing() {
-      return getRegionPricing(this.activeRegion);
+    currency() {
+      return this.catalog ? this.catalog.currency : 'INR';
     },
     currencySymbol() {
-      const part = new Intl.NumberFormat(this.pricing.locale, { style: 'currency', currency: this.pricing.currency })
+      const part = new Intl.NumberFormat(this.currency === 'INR' ? 'en-IN' : 'en-US', { style: 'currency', currency: this.currency })
         .formatToParts(0)
         .find(p => p.type === 'currency');
       return part ? part.value : '';
     },
-    listedCoupons() {
-      return Object.entries(coupons)
-        .filter(([, coupon]) => coupon.listed && coupon.region === this.activeRegion)
-        .map(([code, coupon]) => ({ code, ...coupon }));
+    plans() {
+      if (!this.catalog || !Array.isArray(this.catalog.plans)) return [];
+      return [...this.catalog.plans].sort((a, b) => a.displayOrder - b.displayOrder);
+    },
+    selectedPlan() {
+      return this.plans.find(plan => plan.code === this.selectedPlanCode) || null;
+    },
+    customEnabled() {
+      return Boolean(this.catalog && this.catalog.custom && this.catalog.custom.enabled);
+    },
+    customMinMajor() {
+      return this.catalog.custom.minMinor / 100;
+    },
+    customMaxMajor() {
+      return this.catalog.custom.maxMinor / 100;
+    },
+    // The typed amount in minor units, or null when it isn't a whole number of major units
+    customAmountMinor() {
+      const text = String(this.customInput).trim();
+      if (!/^\d+$/.test(text)) return null;
+      return Number(text) * 100;
+    },
+    // "N% off" while typing: display only, the amounts come from the quote
+    customHintBps() {
+      if (this.selectedPlanCode !== 'custom' || this.customAmountMinor === null) return 0;
+      const range = (this.catalog.custom.discountRanges || [])
+        .find(r => this.customAmountMinor >= r.minMinor && this.customAmountMinor <= r.maxMinor);
+      return range ? range.discountBps : 0;
+    },
+    // What the quote is for; coupons are re-fetched when it changes
+    selection() {
+      if (this.selectedPlanCode === 'custom') {
+        return this.customAmountMinor === null || this.customError ? null : { customAmountMinor: this.customAmountMinor };
+      }
+      return this.selectedPlanCode ? { planCode: this.selectedPlanCode } : null;
+    },
+    selectionKey() {
+      return JSON.stringify(this.selection);
+    },
+    addOns() {
+      return (this.catalog && this.catalog.addOns) || [];
+    },
+    addOnsFree() {
+      return this.addOns.every(addOn => !addOn.priceMinor);
     },
     addOnsSummary() {
-      return this.pricing.addOns.map(addOn => addOn.short).join(' · ');
+      return this.addOns.map(addOn => addOn.shortTitle).join(' · ');
     },
-    planAmounts() {
-      return this.pricing.plans.map(plan => plan.amount);
+    couponsEnabled() {
+      return Boolean(this.catalog && this.catalog.features && this.catalog.features.coupons);
     },
-    customMin() {
-      return Math.min(...this.planAmounts);
+    payEnabled() {
+      return Boolean(this.catalog && this.catalog.features && this.catalog.features.pay);
     },
-    customMax() {
-      return Math.max(...this.planAmounts);
-    },
-    customAmount() {
-      return roundMoney(this.customInput);
-    },
-    customError() {
-      if (this.selectedPlan !== 'custom' || this.customInput === '') return '';
-      if (this.customAmount < this.customMin) return `Minimum top-up is ${this.formatMoney(this.customMin)}.`;
-      if (this.customAmount > this.customMax) return `For more than ${this.formatMoney(this.customMax)}, please contact sales.`;
-      return '';
-    },
-    baseAmount() {
-      if (this.selectedPlan === 'custom') return this.customError ? 0 : this.customAmount;
-      return this.selectedPlan || 0;
-    },
+    // Plan credits are server values from the catalog, so they show before the quote lands
     credits() {
-      return this.creditsFor(this.baseAmount);
+      if (this.quote) return this.quote.credits;
+      return this.selectedPlan ? this.selectedPlan.credits : null;
     },
-    volumePercent() {
-      return this.discountPercentFor(this.baseAmount);
+    // India: GST is in the quote. Global: NONE, no tax anywhere. CALCULATED_AT_CHECKOUT is reserved (contract §1.4)
+    taxIncluded() {
+      return Boolean(this.catalog && this.catalog.taxMode === 'INCLUDED_IN_QUOTE');
     },
-    volumeDiscount() {
-      return roundMoney(this.baseAmount * this.volumePercent / 100);
+    taxAtCheckout() {
+      const mode = this.quote && this.quote.tax ? this.quote.tax.mode : this.catalog && this.catalog.taxMode;
+      return mode === 'CALCULATED_AT_CHECKOUT';
     },
-    couponDiscount() {
-      if (!this.appliedCoupon) return 0;
-      return roundMoney((this.baseAmount - this.volumeDiscount) * this.appliedCoupon.percent / 100);
-    },
-    totalSavings() {
-      return roundMoney(this.volumeDiscount + this.couponDiscount);
-    },
-    totalDue() {
-      return Math.max(roundMoney(this.baseAmount - this.totalSavings), 0);
+    taxLines() {
+      if (!this.quote || !this.quote.tax || this.quote.tax.mode !== 'INCLUDED_IN_QUOTE') return [];
+      return this.quote.tax.lines || [];
     },
     canPay() {
-      return this.baseAmount > 0 && this.totalDue > 0;
+      return this.payEnabled && Boolean(this.quote) && !this.quoteLoading;
     }
   },
   watch: {
-    region(region) {
-      this.setRegion(region);
+    customInput() {
+      if (this.selectedPlanCode !== 'custom') return;
+      this.dropCouponForNewAmount();
+      this.validateCustom();
+      this.scheduleQuote();
+    },
+    selectionKey() {
+      // Offers carry previewDiscountMinor for the selection, so refresh them when it changes
+      if (this.couponDialogOpen) this.loadCoupons();
     }
   },
+  beforeDestroy() {
+    clearTimeout(this.quoteTimer);
+  },
   methods: {
-    reset() {
-      this.selectedPlan = this.planAmounts[1] || this.planAmounts[0];
-      this.customInput = '';
-      this.couponDialogOpen = false;
-      this.couponInput = '';
-      this.couponError = '';
-      this.appliedCoupon = null;
+    // Prices load on every open, so a newly published price book shows straight away
+    async open() {
+      clearTimeout(this.quoteTimer);
+      Object.assign(this, {
+        blocker: null,
+        selectedPlanCode: null,
+        customInput: '',
+        customError: '',
+        couponCode: null,
+        quote: null,
+        quoteError: '',
+        coupons: [],
+        couponDialogOpen: false,
+        couponNotice: '',
+        addOnsOpen: false,
+        catalogReloaded: false
+      });
+      await this.loadCatalog();
     },
-    setRegion(region) {
-      if (region === this.activeRegion) return;
-      this.activeRegion = region;
-      // Amounts and coupons are per region, so start over
-      this.reset();
+    async loadCatalog() {
+      this.catalogLoading = true;
+      this.blocker = null;
+      try {
+        this.catalog = await getCatalog();
+        if (!this.appId) {
+          this.blocker = { message: 'Select an ID Service app to top up.' };
+          return;
+        }
+        const plans = this.plans;
+        // Default to the second plan, as in the agreed design
+        this.selectedPlanCode = (plans[1] || plans[0] || {}).code || null;
+        this.requestQuote();
+        if (this.couponsEnabled) this.loadCoupons();
+      } catch (error) {
+        this.catalog = null;
+        this.blocker = blockerFor(error) || {
+          message: error.status === 429 ? 'Please try again in a moment.' : 'We couldn\'t load prices.',
+          action: 'retry'
+        };
+      } finally {
+        this.catalogLoading = false;
+      }
+    },
+    async loadCoupons() {
+      const request = ++this.couponsRequest;
+      this.couponsLoading = true;
+      this.couponsError = '';
+      try {
+        const coupons = await getCoupons({ appId: this.appId, ...(this.selection || {}) });
+        if (request === this.couponsRequest) this.coupons = coupons;
+      } catch (error) {
+        if (request !== this.couponsRequest) return;
+        const blocker = blockerFor(error);
+        if (blocker) {
+          this.blocker = blocker;
+          return;
+        }
+        this.coupons = [];
+        this.couponsError = error.status === 429 ? 'Please try again in a moment.' : 'We couldn\'t load offers.';
+      } finally {
+        if (request === this.couponsRequest) this.couponsLoading = false;
+      }
+    },
+    selectPlan(code) {
+      if (code === this.selectedPlanCode) return;
+      this.dropCouponForNewAmount();
+      this.selectedPlanCode = code;
+      this.customInput = '';
+      this.customError = '';
+      this.requestQuote();
     },
     selectCustom() {
-      this.selectedPlan = 'custom';
+      this.dropCouponForNewAmount();
+      this.selectedPlanCode = 'custom';
+      this.quote = null;
+      this.quoteError = '';
       this.$nextTick(() => this.$refs.customInput && this.$refs.customInput.focus());
     },
-    selectPlan(amount) {
-      this.selectedPlan = amount;
-      this.customInput = '';
+    // Checks the input only; the range and any discount are the server's
+    validateCustom() {
+      this.customErrorSales = false;
+      const text = String(this.customInput).trim();
+      if (!text) {
+        this.customError = '';
+        return;
+      }
+      if (this.customAmountMinor === null) {
+        this.customError = 'Enter a whole amount, without decimals.';
+        return;
+      }
+      const { minMinor, maxMinor } = this.catalog.custom;
+      if (this.customAmountMinor < minMinor || this.customAmountMinor > maxMinor) {
+        this.setRangeError({ minMinor, maxMinor });
+        return;
+      }
+      this.customError = '';
     },
-    discountPercentFor(amount) {
-      return discountPercentFor(amount, this.pricing.plans);
+    setRangeError({ minMinor, maxMinor }) {
+      this.customError = `Enter an amount between ${this.formatMoney(minMinor)} and ${this.formatMoney(maxMinor)}. For larger amounts,`;
+      this.customErrorSales = true;
     },
-    creditsFor(amount) {
-      return Math.floor((Number(amount) || 0) * this.pricing.creditsPerUnit);
+    scheduleQuote() {
+      clearTimeout(this.quoteTimer);
+      if (!this.selection) {
+        // Nothing valid to price: drop the old numbers rather than show them for another amount
+        this.quoteRequest++;
+        this.quote = null;
+        this.quoteLoading = false;
+        return;
+      }
+      this.quoteLoading = true;
+      this.quoteTimer = setTimeout(() => this.requestQuote(), QUOTE_DEBOUNCE_MS);
+    },
+    // Prices the current selection. Resolves once the newest quote (or its error) is in.
+    async requestQuote() {
+      clearTimeout(this.quoteTimer);
+      if (!this.selection || !this.appId) return;
+      const request = ++this.quoteRequest;
+      this.quoteLoading = true;
+      this.quoteError = '';
+      const body = { appId: this.appId, ...this.selection };
+      if (this.couponCode) body.couponCode = this.couponCode;
+      try {
+        const quote = await createQuote(body);
+        if (request !== this.quoteRequest) return;
+        this.quote = quote;
+        this.quoteLoading = false;
+      } catch (error) {
+        if (request !== this.quoteRequest) return;
+        await this.handleQuoteError(error);
+      }
+    },
+    async handleQuoteError(error) {
+      // A rejected code, or too many rejected codes (this 429 carries a code): price again without it
+      const couponMessage = error.code === 'COUPON_INVALID' ? COUPON_INVALID_MESSAGE
+        : error.code === 'RATE_LIMITED' && this.couponCode ? COUPON_RATE_LIMITED_MESSAGE : '';
+      if (couponMessage) {
+        this.couponCode = null;
+        this.couponError = couponMessage;
+        this.couponNotice = this.couponDialogOpen ? '' : couponMessage;
+        return this.requestQuote();
+      }
+      this.quoteLoading = false;
+      this.quote = null;
+      if (error.code === 'AMOUNT_OUT_OF_RANGE') {
+        this.setRangeError(error.details && error.details.minMinor ? error.details : this.catalog.custom);
+        return;
+      }
+      if (error.code === 'PLAN_NOT_FOUND' && !this.catalogReloaded) {
+        // The price book changed under the popup: load it again once
+        this.catalogReloaded = true;
+        return this.loadCatalog();
+      }
+      const blocker = blockerFor(error);
+      if (blocker) {
+        this.blocker = blocker;
+        return;
+      }
+      this.quoteError = error.status === 429 ? 'Please try again in a moment.' : 'We couldn\'t price this top-up.';
     },
     openCouponDialog() {
       this.couponInput = '';
       this.couponError = '';
+      this.couponNotice = '';
       this.couponDialogOpen = true;
+      this.loadCoupons();
     },
     focusCouponInput() {
       if (this.$refs.couponInput) this.$refs.couponInput.focus();
     },
-    couponSavingFor(coupon) {
-      return roundMoney((this.baseAmount - this.volumeDiscount) * coupon.percent / 100);
-    },
-    applyCoupon(input) {
+    // Applying a code means asking for a new quote with it (contract §3.2)
+    async applyCoupon(input) {
       const code = String(input || '').trim().toUpperCase();
-      if (!code) return;
-      const coupon = coupons[code];
-      // A code from the other region gets the same message as an unknown code
-      if (!coupon || coupon.region !== this.activeRegion) {
-        this.couponError = 'This coupon code is not valid.';
-        return;
+      if (!code || this.applyingCoupon || !this.selection) return;
+      this.applyingCoupon = true;
+      this.couponError = '';
+      this.couponCode = code;
+      try {
+        await this.requestQuote();
+        if (this.couponCode === code && this.quote && this.quote.coupon) {
+          this.couponInput = '';
+          this.couponDialogOpen = false;
+        }
+      } finally {
+        this.applyingCoupon = false;
       }
-      this.appliedCoupon = { code, ...coupon };
-      this.couponInput = '';
-      this.couponDialogOpen = false;
+    },
+    // Saving can turn the single GST line into CGST + SGST or IGST, so price again
+    onBillingSaved() {
+      this.billingFormOpen = false;
+      this.requestQuote();
+    },
+    // A coupon is applied to one amount: changing the plan or custom amount removes it,
+    // and the customer applies it again if they want it
+    dropCouponForNewAmount() {
+      this.couponNotice = '';
+      if (!this.couponCode) return;
+      this.couponCode = null;
     },
     removeCoupon() {
-      this.appliedCoupon = null;
+      this.couponCode = null;
+      this.couponNotice = '';
+      this.requestQuote();
     },
     checkout() {
       if (!this.canPay) return;
-      this.$emit('checkout', {
-        region: this.activeRegion,
-        currency: this.pricing.currency,
-        amount: this.baseAmount,
-        credits: this.credits,
-        volumeDiscountPercent: this.volumePercent,
-        volumeDiscount: this.volumeDiscount,
-        couponCode: this.appliedCoupon ? this.appliedCoupon.code : null,
-        couponDiscount: this.couponDiscount,
-        totalDue: this.totalDue
-      });
+      this.$emit('checkout', { quoteId: this.quote.quoteId });
     },
-    formatPercent(value) {
-      return `${new Intl.NumberFormat(this.pricing.locale, { maximumFractionDigits: 1 }).format(value)}%`;
+    taxLabel(line) {
+      return `${TAX_LABELS[line.type] || line.type} (${this.formatPercent(line.rateBps)})`;
     },
-    numberFormat(value) {
-      return new Intl.NumberFormat(this.pricing.locale).format(Number(value || 0));
+    formatMoney(amountMinor) {
+      return formatMinor(amountMinor, this.currency);
     },
-    formatMoney(value) {
-      return new Intl.NumberFormat(this.pricing.locale, {
-        style: 'currency',
-        currency: this.pricing.currency,
-        minimumFractionDigits: Number.isInteger(Number(value)) ? 0 : 2,
-        maximumFractionDigits: 2
-      }).format(Number(value || 0));
+    formatPercent(bps) {
+      return formatBps(bps, this.currency);
+    },
+    formatCount(value) {
+      return formatCount(value, this.currency);
     }
   }
 };
@@ -455,6 +722,7 @@ export default {
 /* Modal chrome: same light header/body treatment as the manual review modal */
 .credit-topup-modal .modal-dialog { max-width: 920px; }
 .credit-topup-modal.credit-coupon-modal .modal-dialog { max-width: 460px; }
+.credit-topup-modal.credit-billing-modal .modal-dialog { max-width: 720px; }
 
 .credit-topup-modal .modal-content {
   overflow: hidden;
@@ -511,38 +779,6 @@ export default {
 .topup-close:hover { background: #f1f5f9; }
 .topup-close .v-icon { color: inherit; }
 
-/* Sign-off preview switch */
-.region-preview {
-  display: flex;
-  width: fit-content;
-  align-items: center;
-  gap: 2px;
-  margin: 0 0 14px auto;
-  padding: 3px;
-  border: 1px dashed #cbd5e1;
-  border-radius: 8px;
-  background: #fff;
-}
-
-.region-preview-label {
-  padding: 0 8px;
-  color: #8793a5;
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-}
-
-.region-preview-option {
-  padding: 4px 10px;
-  border-radius: 6px;
-  color: #718198;
-  font-size: 12px;
-  font-weight: 600;
-}
-
-.region-preview-option.active { background: #f1f6ff; color: #2563dc; }
-
 /* Layout */
 .topup-layout {
   display: grid;
@@ -593,7 +829,7 @@ export default {
 
 .plan-amount {
   color: #172554;
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.01em;
@@ -679,6 +915,23 @@ export default {
 .custom-field small { display: block; margin-top: 4px; color: #8793a5; font-size: 11px; }
 .field-error { display: block; margin-top: 4px; color: #b42318 !important; font-size: 11px; }
 
+
+.custom-hint {
+  flex: 0 0 auto;
+  padding: 1px 7px;
+  border-radius: 10px;
+  background: #e6efff;
+  color: #2563dc;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.field-error a { color: inherit; font-weight: 600; text-decoration: underline; }
+
+/* Plan card details: total before tax and credits, as the catalog returns them */
+.plan-meta { display: flex; flex-direction: column; align-items: flex-start; gap: 1px; color: #718198; font-size: 10px; font-variant-numeric: tabular-nums; }
+.plan-meta span:first-child { color: #344054; font-weight: 600; }
+
 .sales-note {
   margin: 14px 0 0;
   padding-top: 12px;
@@ -715,7 +968,7 @@ export default {
 
 .addon-item {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-columns: auto minmax(0, 1fr) auto;
   gap: 10px;
   align-items: center;
   padding: 9px 0;
@@ -874,8 +1127,11 @@ export default {
 }
 
 .coupon-form button:hover:not(:disabled),
-.coupon-apply:hover { border-color: #545b62; background: #5a6268; }
-.coupon-form button:disabled { cursor: not-allowed; opacity: .55; }
+.coupon-apply:hover:not(:disabled) { border-color: #545b62; background: #5a6268; }
+.coupon-form button:disabled,
+.coupon-apply:disabled { cursor: not-allowed; opacity: .55; }
+.coupon-form input:disabled { background: #f8fafc; cursor: not-allowed; }
+.coupon-hint { display: block; margin-top: 6px; color: #8793a5; font-size: 11px; }
 
 .coupon-divider {
   display: flex;
@@ -987,7 +1243,43 @@ export default {
 .pay-button:focus-visible { outline: 3px solid rgba(108, 117, 125, .3); outline-offset: 2px; }
 .pay-button:disabled { cursor: not-allowed; opacity: .55; }
 
+/* Wrapper so the "coming soon" tooltip shows on the disabled button */
+.pay-button-wrap { display: block; }
+.pay-soon { margin: 6px 0 0; color: #718198; font-size: 11px; font-weight: 600; text-align: center; }
+
 .tax-note { margin: 10px 0 0; color: #8793a5; font-size: 11px; line-height: 1.45; text-align: center; }
+
+.addon-price { margin-left: auto; color: #2563dc; font-size: 11px; font-weight: 600; white-space: nowrap; }
+
+/* Summary while a new quote is on its way */
+.topup-summary.pending .summary-lines,
+.topup-summary.pending .total-line { opacity: .55; transition: opacity .15s ease; }
+
+.quote-error { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; color: #b42318; font-size: 12px; }
+.coupon-area .field-error { margin-top: 2px; }
+.plus-tax { color: #718198; font-size: 12px; font-weight: 600; }
+
+.billing-link { margin: 10px 0 0; text-align: center; }
+.billing-link button { display: inline-flex; align-items: center; gap: 4px; color: #2563dc; font-size: 11px; font-weight: 600; }
+.billing-link button:hover { text-decoration: underline; }
+.billing-link .v-icon { color: inherit; }
+
+/* Loading and error states, in the popup and the coupon dialog */
+.topup-state {
+  display: flex;
+  min-height: 160px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: #718198;
+  font-size: 13px;
+}
+
+.topup-state.compact { min-height: 0; margin-top: 18px; justify-content: flex-start; font-size: 12px; }
+.topup-state .v-icon { color: inherit; }
+
+.topup-retry { color: #2563dc; font-weight: 600; }
+.topup-retry:hover { text-decoration: underline; }
 
 @media (max-width: 767.98px) {
   .topup-layout { grid-template-columns: 1fr; }

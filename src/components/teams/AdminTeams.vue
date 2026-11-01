@@ -130,6 +130,7 @@
                                         >
                                         <label class="form-check-label" :class="{ 'perm-forced': isReadForcedByWrite(perm, dashboardRoleService.id) || isWriteForcedByHigherPerm(perm, dashboardRoleService.id) || isUpdateForcedByDelete(perm, dashboardRoleService.id) }">
                                             <code>{{ perm }}</code>
+                                            <span v-if="dashboardPermissionLabels[perm]" class="perm-label">{{ dashboardPermissionLabels[perm] }}</span>
                                         </label>
                                     </div>
                                 </div>
@@ -193,6 +194,7 @@
                                         >
                                         <label class="form-check-label" :class="{ 'perm-forced': isReadForcedByWrite(perm, dashboardRoleService.id) || isWriteForcedByHigherPerm(perm, dashboardRoleService.id) || isUpdateForcedByDelete(perm, dashboardRoleService.id) }">
                                             <code>{{ perm }}</code>
+                                            <span v-if="dashboardPermissionLabels[perm]" class="perm-label">{{ dashboardPermissionLabels[perm] }}</span>
                                         </label>
                                     </div>
                                 </div>
@@ -224,8 +226,16 @@ const DASHBOARD_ROLE_SERVICE = {
         READ_SERVICE: "READ_SERVICE",
         WRITE_SERVICE: "WRITE_SERVICE",
         UPDATE_SERVICE: "UPDATE_SERVICE",
-        DELETE_SERVICE: "DELETE_SERVICE"
+        DELETE_SERVICE: "DELETE_SERVICE",
+        READ_BILLING: "READ_BILLING",
+        WRITE_BILLING: "WRITE_BILLING"
     }
+};
+
+// Readable names for dashboard permissions that need one; the rest show their code only
+const DASHBOARD_PERMISSION_LABELS = {
+    READ_BILLING: "View billing",
+    WRITE_BILLING: "Manage billing"
 };
 
 const PREDEFINED_ROLES = [
@@ -389,8 +399,11 @@ export default {
         dashboardRoleService() {
             return DASHBOARD_ROLE_SERVICE;
         },
+        dashboardPermissionLabels() {
+            return DASHBOARD_PERMISSION_LABELS;
+        },
         dashboardPermissions() {
-            return ['ALL', 'READ_SERVICE', 'WRITE_SERVICE', 'UPDATE_SERVICE', 'DELETE_SERVICE'];
+            return ['ALL', 'READ_SERVICE', 'WRITE_SERVICE', 'UPDATE_SERVICE', 'DELETE_SERVICE', 'READ_BILLING', 'WRITE_BILLING'];
         },
         categorizedServices() {
             const ssiServices = this.localAllServices.filter(s => s.id === config.SERVICE_TYPES.SSI_API);
@@ -990,6 +1003,12 @@ export default {
 }
 
 .perm-item code {
+    font-size: 12px;
+}
+
+.perm-label {
+    margin-left: 6px;
+    color: #64748b;
     font-size: 12px;
 }
 

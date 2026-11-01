@@ -28,6 +28,10 @@
           <OrganizationDetails />
         </section>
 
+        <section v-if="canViewBilling" v-show="activeMainTab === 'billing'">
+          <BillingDetails />
+        </section>
+
         <section v-show="activeMainTab === 'members'">
           <div class="sub-tabs" role="tablist" aria-label="Members and roles sections">
             <button
@@ -114,6 +118,7 @@ import { mapMutations, mapGetters } from "vuex";
 import OnlySSIApps from '../components/settings/OnlySSIApps.vue';
 import UserProfile from '../components/settings/UserProfile.vue';
 import OrganizationDetails from '../components/settings/OrganizationDetails.vue';
+import BillingDetails from '../components/settings/BillingDetails.vue';
 import { mapActions } from 'vuex/dist/vuex.common.js';
 import ApproveCustomerOnboarding from './sa/components/ApproveCustomerOnboarding.vue'
 import CreditRecharge from './sa/components/CreditRecharge.vue'
@@ -130,6 +135,7 @@ export default {
     MyInvitions,
     UserProfile,
     OrganizationDetails,
+    BillingDetails,
     OnlySSIApps,    
     ApproveCustomerOnboarding,
     CreditRecharge,
@@ -140,8 +146,11 @@ export default {
     isSuperAdminUser() {
       return this.getUserDetails?.role === "SUPER_ADMIN";
     },
+    canViewBilling() {
+      return this.$store.getters['mainStore/hasAccess']('DASHBOARD', 'READ_BILLING');
+    },
     visibleTabs() {
-      return this.tabs.filter(tab => !tab.superAdminOnly || this.isSuperAdminUser);
+      return this.tabs.filter(tab => (!tab.superAdminOnly || this.isSuperAdminUser) && (!tab.billing || this.canViewBilling));
     },
   },
   data() {
@@ -150,6 +159,7 @@ export default {
       tabs: [
         { value: 'profile', label: 'Profile' },
         { value: 'organization', label: 'Organization' },
+        { value: 'billing', label: 'Billing details', billing: true },
         { value: 'members', label: 'Members & roles' },
         { value: 'invitions', label: 'My invitations' },
         { value: 'ssi', label: 'SSI' },
