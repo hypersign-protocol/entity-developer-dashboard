@@ -172,6 +172,7 @@ export default {
         referral_source: (data.referralSource || '').startsWith('Other: ') ? 'Other' : data.referralSource || '',
         referral_source_other: (data.referralSource || '').startsWith('Other: ') ? data.referralSource.slice(7) : '',
         onboardingStatus: data.onboardingStatus || data.status || '',
+        processingActive: typeof data.processingActive === 'boolean' ? data.processingActive : undefined,
         service_types: this.determineServiceTypes(data),
       };
     },

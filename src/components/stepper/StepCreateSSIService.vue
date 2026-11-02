@@ -52,13 +52,27 @@
                 <time v-if="item.time" :datetime="item.time">{{ formatDate(item.time) }}</time>
               </div>
               <span v-if="item.state === 'failed'" class="status-label failed-label">Action required</span>
-              <span v-else class="status-label">{{ item.statusLabel }}</span>
+              <span
+                v-else-if="!(resumeAnchorKey === item.key && item.statusLabel === 'Not started')"
+                class="status-label"
+              >{{ item.statusLabel }}</span>
             </div>
 
-            <div v-if="item.failureReason" class="failure-row">
-              <span>{{ item.failureReason }}</span>
+            <div
+              v-if="item.failureReason || resumeAnchorKey === item.key"
+              class="failure-row"
+              :class="{ 'failure-row--retry-only': !item.failureReason }"
+            >
+              <span v-if="item.failureReason">{{ item.failureReason }}</span>
               <button
-                v-if="item.state === 'failed'"
+                v-if="item.state === 'failed' && company.processingActive === false"
+                type="button"
+                class="retry-button"
+                :disabled="isRetrying"
+                @click="$emit('retry-onboarding')"
+              >{{ isRetrying ? 'Retrying…' : 'Retry' }}</button>
+              <button
+                v-else-if="resumeAnchorKey === item.key"
                 type="button"
                 class="retry-button"
                 :disabled="isRetrying"
@@ -119,6 +133,18 @@ export default {
     },
     failedItems() {
       return this.timeline.filter(item => item.state === 'failed');
+    },
+    canResumeWithoutFailure() {
+      return this.company.processingActive === false
+        && this.normalizedStatus !== 'APPROVED'
+        && this.failedItems.length === 0;
+    },
+    resumeAnchorKey() {
+      if (!this.canResumeWithoutFailure || this.timeline.length === 0) return '';
+      const nextIncompleteItem = this.timeline.find(
+        item => item.state !== 'complete' && item.key !== 'CREDIT_KYC_SERVICE',
+      );
+      return nextIncompleteItem?.key || this.timeline[this.timeline.length - 1].key;
     },
     completedItems() {
       return this.timeline.filter(item => item.state === 'complete');
@@ -311,6 +337,7 @@ export default {
 .retry-button:hover:not(:disabled) { background: #f8fafc; }
 .retry-button:disabled { cursor: wait; opacity: .65; }
 .failure-row { display: flex; gap: 9px; align-items: center; margin-top: 6px; }
+.failure-row--retry-only { justify-content: flex-end; }
 .failure-row > span { min-width: 0; flex: 1; padding: 6px 9px; border-radius: 4px; background: #fff0f0; color: #d74848; font-size: 9px; line-height: 1.35; }
 .status-footer { display: flex; gap: 12px; align-items: center; justify-content: space-between; margin-top: 2px; }
 .progress-note { display: flex; min-width: 0; flex: 1; gap: 8px; align-items: center; min-height: 40px; padding: 9px 11px; border-radius: 4px; background: #f3f4f5; color: #626b73; font-size: 11px; line-height: 1.4; }
