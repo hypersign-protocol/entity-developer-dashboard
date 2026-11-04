@@ -18,7 +18,7 @@
 
       <div class="onboarding-layout" :class="{ 'is-preview-layout': currentStep === 3, 'is-status-layout': currentStep === 4 }">
         <main class="onboarding-main">
-          <StepCompanyDetails v-if="!isLoading && currentStep === 1" :company="company" @update:company="company = $event" @next-step="nextStep" />
+          <StepCompanyDetails v-if="!isLoading && currentStep === 1" :company="company" :server-errors="fieldErrors" @update:company="company = $event" @next-step="nextStep" />
           <StepIntendedUse v-else-if="!isLoading && currentStep === 2" :company="company" @update:company="company = $event" @prev-step="prevStep" @request-submit="openConfirmation" />
           <StepCompanyPreview v-else-if="!isLoading && currentStep === 3" :company="company" :read-only-review="true" @back-to-status="backToStatus" />
           <StepCreateSSIService
@@ -91,6 +91,15 @@ import StepIntendedUse from './StepIntendedUse.vue';
 import StepCompanyPreview from './StepCompanyPreview.vue';
 import StepCreateSSIService from './StepCreateSSIService.vue';
 import config from '../../config';
+import { toAcceptedCountryCode, OTHER_COUNTRY_CODE } from '../../utils/countries.js';
+import { toInternationalPhone, splitInternational, phoneErrorMessage } from '../../utils/phone.js';
+
+// A saved phone number -> the input and its dialling-code chip
+function savedPhone(phoneNumber, country) {
+  const split = splitInternational(phoneNumber);
+  if (split) return { phone_no: split.phone, phone_dial: split.dialCountry };
+  return { phone_no: phoneNumber || '', phone_dial: country === OTHER_COUNTRY_CODE ? '' : country };
+}
 
 export default {
   name: 'OnboardingStepper',
@@ -105,13 +114,15 @@ export default {
       company: {
         name: '', logo: '', domain: '', type: 'BUSINESS', service_types: [],
         contact_email: '', billing_address: '', twitterUrl: '', linkedinUrl: '',
-        telegramUrl: '', phone_no: '', country: '', registration_number: '',
+        telegramUrl: '', phone_no: '', phone_dial: '', country: '', registration_number: '',
         interests: [], interestedService: [], yearly_volume: '', fields: [], referral_source: '', referral_source_other: '', logs: [], onboardingStatus: '',
       },
       steps: [{ label: 'Organization' }, { label: 'Intended use' }],
       isProcessingCredit: false,
       isRefreshingStatus: false,
       creditErrorMessage: null,
+      // Field errors from the API, shown on the step that has the field
+      fieldErrors: {},
     };
   },
   computed: {
@@ -153,10 +164,11 @@ export default {
         name: data.companyName || '', logo: data.companyLogo || '',
         contact_email: data.customerEmail || '', domain: data.domain || '',
         type: data.type === 2 || data.type === 'COMMUNITY' ? 'COMMUNITY' : 'BUSINESS',
-        country: data.country || '', registration_number: data.registrationNumber || '',
+        // Older records hold alpha-3 ("IND"); the API takes alpha-2 only
+        country: toAcceptedCountryCode(data.country), registration_number: data.registrationNumber || '',
         billing_address: data.billingAddress || '', twitterUrl: data.twitterUrl || '',
         linkedinUrl: data.linkedinUrl || '', telegramUrl: data.telegramUrl || '',
-        phone_no: data.phoneNumber || '', interests: data.interestedService || [],
+        ...savedPhone(data.phoneNumber, toAcceptedCountryCode(data.country)), interests: data.interestedService || [],
         interestedService: data.interestedService || [],
         logs: data.logs || [], yearly_volume: data.yearlyVolume || '',
         fields: data.businessField || [],
@@ -173,7 +185,7 @@ export default {
       if (data.isKyb) services.push('KYB');
       return services;
     },
-    nextStep() { this.currentStep = 2; this.creditErrorMessage = null; this.scrollToTop(); },
+    nextStep() { this.currentStep = 2; this.creditErrorMessage = null; this.fieldErrors = {}; this.scrollToTop(); },
     prevStep() { this.currentStep = 1; this.creditErrorMessage = null; this.scrollToTop(); },
     openConfirmation() { this.creditErrorMessage = null; this.showConfirmation = true; },
     closeConfirmation() { if (!this.isProcessingCredit) this.showConfirmation = false; },
@@ -232,7 +244,22 @@ export default {
         if (this.redirectToDashboardIfApproved(refreshedOnboarding || result)) return;
         this.scrollToTop();
       } catch (error) {
-        this.creditErrorMessage = typeof error === 'string' ? error : error?.message || 'Unable to create your workspace. Please try again.';
+        const message = typeof error === 'string' ? error : error?.message || '';
+        // A three-letter code or a name reached the API: a form bug, not something the user can fix
+        if (/country must be one of the following values/.test(message)) {
+          console.error(`Onboarding sent an unaccepted country code: ${this.company.country}`, message);
+          this.creditErrorMessage = 'Something went wrong with the country you selected. Please choose it again and resubmit.';
+          return;
+        }
+        // "Invalid phone number format for country DE": back to the phone field
+        if (/Invalid phone number format for country/.test(message)) {
+          this.showConfirmation = false;
+          this.fieldErrors = { phone: phoneErrorMessage(this.company.phone_dial) };
+          this.currentStep = 1;
+          this.scrollToTop();
+          return;
+        }
+        this.creditErrorMessage = message || 'Unable to create your workspace. Please try again.';
       } finally {
         this.isProcessingCredit = false;
       }
@@ -244,10 +271,12 @@ export default {
       return {
         companyName: this.company.name, companyLogo: this.company.logo,
         customerEmail: this.company.contact_email, domain: this.company.domain,
-        type: this.company.type, country: this.company.country || '',
+        // ISO alpha-2, from the accepted list (checked by the API for businesses)
+        type: this.company.type, country: toAcceptedCountryCode(this.company.country),
         registrationNumber: this.company.registration_number || '', billingAddress: this.company.billing_address || '',
         twitterUrl: this.company.twitterUrl || '', linkedinUrl: this.company.linkedinUrl || '',
-        telegramUrl: this.company.telegramUrl || '', phoneNumber: this.company.phone_no || '',
+        // Full international number ("+4930 12345678"), or '' when left empty
+        telegramUrl: this.company.telegramUrl || '', phoneNumber: toInternationalPhone(this.company.phone_no, this.company.phone_dial),
         interestedService: this.company.interests || [], yearlyVolume: this.company.yearly_volume || '',
         businessField: this.company.fields || [],
         referralSource: this.company.referral_source === 'Other'

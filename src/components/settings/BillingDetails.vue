@@ -204,6 +204,7 @@ import { getBillingProfile, saveBillingProfile, updateAdminBillingProfile } from
 import { COUNTRY_OPTIONS, countryOptionLabel } from '../../utils/countries';
 import { TAX_ID_TYPES } from '../../utils/kybIdentifierTypes';
 import { GST_STATES, gstStateLabel } from '../../utils/gstStates';
+import { invalidatePromotions } from '../credit/promotion/promotionState';
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const INDIA_TAX_ID_TYPES = ['GSTIN', 'PAN'];
@@ -466,6 +467,8 @@ export default {
           ? await updateAdminBillingProfile(this.orgId, this.body())
           : await saveBillingProfile(this.body());
         this.setProfile(profile);
+        // A complete profile can make the free credits claimable
+        if (!this.admin) invalidatePromotions();
         this.$emit('saved', profile);
         this.notifySuccess(this.admin ? 'Customer billing details updated' : 'Billing details saved');
       } catch (error) {

@@ -196,6 +196,18 @@ export function cancelAdminPaymentLink(orderId, reason) {
   return request(`/admin/billing/payment-links/${encodeURIComponent(orderId)}/cancel`, { method: 'POST', body: { reason } });
 }
 
+// ---- Free-credit promotion: once per organisation and service. The server decides eligibility.
+
+// GET /billing/promotion?appId: { eligible, claimed, reason, missingFields, offer, invoiced, claim }
+export function getPromotion(appId) {
+  return request('/billing/promotion', { query: { appId } });
+}
+
+// POST /billing/promotion/claim: only appId; the server sets the credits and validity
+export function claimPromotion(appId) {
+  return request('/billing/promotion/claim', { method: 'POST', body: { appId } });
+}
+
 // GET /billing/payment-links: the customer's open, unexpired links (contract §7.6)
 export async function getPaymentLinks({ appId } = {}) {
   const json = await request('/billing/payment-links', { query: { appId } });

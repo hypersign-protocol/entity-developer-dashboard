@@ -1,4 +1,5 @@
 import isoCountries from 'i18n-iso-countries';
+import { SUPPORTED_COUNTRY_CODES } from './kybIdentifierTypes';
 
 // ISO 3166-1 alpha-3 code -> display name. Shared by onboarding and go-live flows.
 export const COUNTRY_OPTIONS = {
@@ -50,6 +51,55 @@ export function countryOptionLabel(alpha3, name) {
 
 export function countryName(code) {
   return COUNTRY_OPTIONS[code] || code || '';
+}
+
+// ---- ISO 3166-1 alpha-2: what the onboarding and company verification (KYB) APIs take.
+// The backend accepts only these codes (XX = any other country); the KYB list is the same one.
+
+export const OTHER_COUNTRY_CODE = 'XX';
+export const ACCEPTED_COUNTRY_CODES = SUPPORTED_COUNTRY_CODES;
+
+// "DE" -> "Germany", "XX" -> "Other"
+export function countryNameFromCode(alpha2) {
+  if (!alpha2) return '';
+  if (alpha2 === OTHER_COUNTRY_CODE) return COUNTRY_OPTIONS.XXX;
+  const alpha3 = isoCountries.alpha2ToAlpha3(alpha2);
+  return (alpha3 && COUNTRY_OPTIONS[alpha3]) || alpha2;
+}
+
+// Any stored value -> an accepted alpha-2 code, or '' when it isn't one.
+// Older onboarding records hold alpha-3 ("IND"); "UK" is sent as "GB".
+export function toAcceptedCountryCode(value) {
+  const code = String(value || '').trim().toUpperCase();
+  if (!code) return '';
+  let alpha2 = code;
+  if (code === 'UK') alpha2 = 'GB';
+  else if (code === 'XXX') alpha2 = OTHER_COUNTRY_CODE;
+  else if (code.length === 3) alpha2 = isoCountries.alpha3ToAlpha2(code) || '';
+  return ACCEPTED_COUNTRY_CODES.includes(alpha2) ? alpha2 : '';
+}
+
+// Picker options: the name (with its flag) is shown, the alpha-2 code is the value. "Other" last.
+export function acceptedCountryOptions() {
+  return ACCEPTED_COUNTRY_CODES
+    .map(value => {
+      const name = countryNameFromCode(value);
+      const alpha3 = value === OTHER_COUNTRY_CODE ? 'XXX' : isoCountries.alpha2ToAlpha3(value);
+      return { value, name, text: countryOptionLabel(alpha3, name) };
+    })
+    .sort((a, b) => (a.value === OTHER_COUNTRY_CODE) - (b.value === OTHER_COUNTRY_CODE) || a.name.localeCompare(b.name))
+    .map(({ value, text }) => ({ value, text }));
+}
+
+// "+91" for "IN"; '' when we don't list one
+export function callingCodeFor(alpha2) {
+  const alpha3 = alpha2 && isoCountries.alpha2ToAlpha3(alpha2);
+  return (alpha3 && CALLING_CODES[alpha3]) || '';
+}
+
+// Best-effort guess from the visitor's IP, as an accepted alpha-2 code ('' when unknown)
+export async function detectCountryCodeFromIp() {
+  return toAcceptedCountryCode(await detectCountryFromIp());
 }
 
 // Best-effort country guess from the visitor's IP. Resolves to a COUNTRY_OPTIONS

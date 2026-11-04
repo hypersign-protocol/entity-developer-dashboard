@@ -18,11 +18,11 @@
       <dl class="review-grid">
         <div><dt>Type</dt><dd>{{ typeLabel }}</dd></div>
         <div><dt>Name</dt><dd>{{ company.name || '—' }}</dd></div>
-        <div><dt>Country</dt><dd>{{ company.country || '—' }}</dd></div>
+        <div><dt>Country</dt><dd>{{ countryNameFromCode(company.country) || '—' }}</dd></div>
         <div><dt>Work email</dt><dd>{{ company.contact_email || '—' }}</dd></div>
         <div><dt>Domain</dt><dd>{{ company.domain || '—' }}</dd></div>
         <div v-if="company.type === 'BUSINESS'"><dt>Registration number</dt><dd>{{ company.registration_number || '—' }}</dd></div>
-        <div><dt>Contact phone</dt><dd>{{ company.phone_no || '—' }}</dd></div>
+        <div><dt>Contact phone</dt><dd>{{ toInternationalPhone(company.phone_no, company.phone_dial) || '—' }}</dd></div>
         <div class="logo-review">
           <dt>Organization logo</dt>
           <dd><img v-if="company.logo" :src="company.logo" alt="Organization logo" /></dd>
@@ -75,6 +75,9 @@
 </template>
 
 <script>
+import { countryNameFromCode } from '../../utils/countries.js';
+import { toInternationalPhone } from '../../utils/phone.js';
+
 export default {
   name: 'StepCompanyPreview',
   props: {
@@ -83,6 +86,7 @@ export default {
     errorMessage: { type: String, default: null },
     readOnlyReview: { type: Boolean, default: false },
   },
+  methods: { countryNameFromCode, toInternationalPhone },
   computed: {
     typeLabel() {
       return this.company.type === 'COMMUNITY' ? 'Community' : 'Business';

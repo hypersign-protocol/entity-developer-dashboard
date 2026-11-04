@@ -49,10 +49,26 @@
         <div class="optional-row">
           <div class="row-label"><i class="mdi mdi-phone-outline" aria-hidden="true"></i><span>Contact phone number</span></div>
           <div class="field-group optional-indent phone-field">
-            <div class="phone-control">
-              <span v-if="selectedCallingCode">{{ selectedCallingCode }}</span>
-              <input v-model.trim="localCompany.phone_no" type="tel" placeholder="9876543210" autocomplete="tel-national" />
+            <div class="phone-control" :class="{ 'has-error': errors.phone }">
+              <!-- Dialling code chip: follows the country, and can be changed here -->
+              <label class="dial-chip" :class="{ muted: typedInternational }" :title="typedInternational ? 'Using the country code in the number' : 'Dialling code'">
+                <span>{{ typedInternational ? '+' : (selectedCallingCode || 'Code') }}</span>
+                <i class="mdi mdi-chevron-down" aria-hidden="true"></i>
+                <select v-model="localCompany.phone_dial" aria-label="Dialling code" :disabled="typedInternational" @change="checkPhone">
+                  <option value="">No dialling code</option>
+                  <option v-for="option in dialOptions" :key="option.value" :value="option.value">{{ option.flag }} {{ option.name }} ({{ option.code }})</option>
+                </select>
+              </label>
+              <input
+                v-model.trim="localCompany.phone_no"
+                type="tel"
+                :placeholder="phonePlaceholder"
+                autocomplete="tel"
+                @input="clearPhoneError"
+                @blur="checkPhone"
+              />
             </div>
+            <small v-if="!errors.phone && !selectedCallingCode && !typedInternational">Start the number with + and the country code.</small>
             <span v-if="errors.phone" class="field-error">{{ errors.phone }}</span>
           </div>
         </div>
@@ -96,7 +112,8 @@
 <script>
 import { mapGetters } from 'vuex/dist/vuex.common.js';
 import LogoUploader from '../element/LogoUploader.vue';
-import { COUNTRY_OPTIONS, CALLING_CODES, countryOptionLabel, detectCountryFromIp } from '../../utils/countries.js';
+import { acceptedCountryOptions, detectCountryCodeFromIp, OTHER_COUNTRY_CODE } from '../../utils/countries.js';
+import { dialCodeFor, dialCodeOptions, examplePlaceholder, isValidPhone, toInternationalPhone, splitInternational, phoneErrorMessage } from '../../utils/phone.js';
 
 const CONSUMER_EMAIL_DOMAINS = new Set([
   'gmail.com', 'googlemail.com', 'yahoo.com', 'yahoo.co.in', 'hotmail.com', 'outlook.com',
@@ -106,24 +123,29 @@ const CONSUMER_EMAIL_DOMAINS = new Set([
 export default {
   name: 'StepCompanyDetails',
   components: { LogoUploader },
-  props: { company: { type: Object, required: true } },
+  props: {
+    company: { type: Object, required: true },
+    // Field errors from the onboarding API, e.g. { phone: '…' } after a rejected submit
+    serverErrors: { type: Object, default: () => ({}) },
+  },
   data() {
     return {
-      localCompany: { ...this.company, type: this.company.type || 'BUSINESS' },
-      errors: {},
-      additionalDetailsOpen: false,
+      localCompany: { phone_dial: '', ...this.company, type: this.company.type || 'BUSINESS' },
+      errors: { ...this.serverErrors },
+      additionalDetailsOpen: Boolean(this.serverErrors.phone),
+      dialOptions: dialCodeOptions(),
       isDetectingCountry: false,
       domainWasAutofilled: false,
     };
   },
   computed: {
     ...mapGetters('mainStore', ['getUserDetails']),
-    selectedCallingCode() { return CALLING_CODES[this.localCompany.country] || ''; },
-    countryOptions() {
-      return Object.entries(COUNTRY_OPTIONS)
-        .sort(([, left], [, right]) => left.localeCompare(right))
-        .map(([value, name]) => ({ value, text: countryOptionLabel(value, name) }));
-    },
+    selectedCallingCode() { return dialCodeFor(this.localCompany.phone_dial); },
+    // A number typed or pasted with + carries its own country code; the chip is ignored
+    typedInternational() { return (this.localCompany.phone_no || '').trim().startsWith('+'); },
+    phonePlaceholder() { return examplePlaceholder(this.typedInternational ? '' : this.localCompany.phone_dial); },
+    // Only the countries the onboarding API accepts: the name is shown, the alpha-2 code is sent
+    countryOptions() { return acceptedCountryOptions(); },
     emailDomain() {
       const parts = (this.localCompany.contact_email || '').trim().toLowerCase().split('@');
       return parts.length === 2 ? parts[1] : '';
@@ -133,6 +155,12 @@ export default {
   },
   watch: {
     'localCompany.contact_email'() { this.syncDomainFromEmail(); },
+    // The chip follows the country unless the user picked another dialling code; typed digits stay
+    'localCompany.country'(country, previous) {
+      const dial = this.localCompany.phone_dial;
+      if (!dial || dial === previous) this.localCompany.phone_dial = country === OTHER_COUNTRY_CODE ? '' : country;
+      if (this.localCompany.phone_no) this.checkPhone();
+    },
   },
   mounted() {
     const loginEmail = this.getUserDetails?.accessAccount?.email
@@ -141,6 +169,9 @@ export default {
       || '';
     if (!this.localCompany.contact_email && loginEmail) this.localCompany.contact_email = loginEmail;
     this.syncDomainFromEmail();
+    if (!this.localCompany.phone_dial && this.localCompany.country !== OTHER_COUNTRY_CODE) {
+      this.localCompany.phone_dial = this.localCompany.country || '';
+    }
     this.detectCountry();
   },
   methods: {
@@ -159,9 +190,32 @@ export default {
     async detectCountry() {
       if (this.localCompany.country) return;
       this.isDetectingCountry = true;
-      const detected = await detectCountryFromIp();
+      const detected = await detectCountryCodeFromIp();
       if (detected && !this.localCompany.country) this.localCompany.country = detected;
       this.isDetectingCountry = false;
+    },
+    // Same check as the API (libphonenumber), on the number we will send
+    phoneProblem() {
+      const company = this.localCompany;
+      if (!(company.phone_no || '').trim()) return '';
+      const international = toInternationalPhone(company.phone_no, company.phone_dial);
+      return isValidPhone(international, company.phone_dial) ? '' : phoneErrorMessage(company.phone_dial);
+    },
+    checkPhone() {
+      // A pasted +number: show its country on the chip and the rest in the input
+      const split = splitInternational(this.localCompany.phone_no);
+      if (split) Object.assign(this.localCompany, { phone_dial: split.dialCountry, phone_no: split.phone });
+      const problem = this.phoneProblem();
+      const errors = { ...this.errors };
+      if (problem) errors.phone = problem;
+      else delete errors.phone;
+      this.errors = errors;
+    },
+    clearPhoneError() {
+      if (!this.errors.phone) return;
+      const errors = { ...this.errors };
+      delete errors.phone;
+      this.errors = errors;
     },
     submitStep() {
       const company = this.localCompany;
@@ -170,7 +224,8 @@ export default {
       if (!company.country) errors.country = 'Select a country or region.';
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(company.contact_email || '')) errors.email = 'Enter a valid work email address.';
       if (!company.domain) errors.domain = 'Enter your organization website or domain.';
-      if (company.phone_no && !/^\+?[\d\s()-]{7,20}$/.test(company.phone_no.trim())) errors.phone = 'Enter a valid contact phone number.';
+      const phoneProblem = this.phoneProblem();
+      if (phoneProblem) errors.phone = phoneProblem;
       if (company.twitterUrl && !/^https?:\/\/(www\.)?(twitter\.com|x\.com)\/[A-Za-z0-9_]+\/?$/.test(company.twitterUrl.trim())) errors.twitter = 'Enter a valid Twitter/X profile URL.';
       if (company.telegramUrl && !/^https?:\/\/(t\.me|telegram\.me)\/[A-Za-z0-9_]+\/?$/.test(company.telegramUrl.trim())) errors.telegram = 'Enter a valid Telegram profile URL.';
       if (company.linkedinUrl && !/^https?:\/\/(www\.)?linkedin\.com\/(in|company)\/[A-Za-z0-9_-]+\/?$/.test(company.linkedinUrl.trim())) errors.linkedin = 'Enter a valid LinkedIn profile URL.';
@@ -220,7 +275,13 @@ em, .field-error, .form-error-summary { color: #e43d4f; font-style: normal; }
 .optional-indent { margin-left: 32px; }
 .phone-field { width: calc(50% - 8px); }
 .phone-control { display: flex; align-items: center; gap: 7px; }
-.phone-control span { color: #5d6b7e; font-size: 13px; }
+.phone-control.has-error { border-color: #dc2626; }
+/* The native select sits invisibly over the chip, so the chip shows "+49" and the list shows names */
+.dial-chip { position: relative; display: inline-flex; flex: 0 0 auto; align-items: center; gap: 2px; height: 26px; padding: 0 6px 0 8px; border-radius: 4px; background: #eef2f6; color: #344054; font-size: 12px; font-weight: 600; cursor: pointer; }
+.dial-chip.muted { color: #94a3b8; cursor: default; }
+.dial-chip i { font-size: 14px; }
+.phone-control .dial-chip select { position: absolute; inset: 0; width: 100%; height: 100%; padding: 0; border: 0; opacity: 0; cursor: pointer; }
+.phone-control .dial-chip select:disabled { cursor: default; }
 .phone-control input { height: 34px; padding: 0; border: 0; box-shadow: none !important; }
 .logo-upload-area { display: block; }
 .social-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }

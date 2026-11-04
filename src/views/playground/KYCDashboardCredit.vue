@@ -3,101 +3,107 @@
         <loadIng :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loadIng>
         <AccessDenied v-if="accessDenied" />
         <template v-if="!accessDenied">
-        <v-row align="center" class="mb-6 ">
-            <v-col cols="12" md="6">
-                <h4 class="font-weight-bold mb-0">Credits Management</h4>
-                <p class="text-subtitle-2 text-muted">Manage your API balance and subscription history</p>
-            </v-col>
-            <v-col cols="12" md="6" class="d-flex justify-end">
-                <div class="ml-auto">
-                    <hf-buttons name="Refresh" iconClass="arrow-clockwise" :bIcon="true" outlined
-                        @executeAction="reloadData()"></hf-buttons>
-                </div>
-            </v-col>
-        </v-row>
+        <!-- Same page header as Settings and App configuration -->
+        <div class="app-page-header">
+            <div>
+                <h1 class="app-page-title">Credits management</h1>
+                <p class="app-page-subtitle">Your credit balance, plans and invoices for this app.</p>
+            </div>
+            <hf-buttons name="Refresh" iconClass="arrow-clockwise" :bIcon="true" outlined
+                @executeAction="reloadData()"></hf-buttons>
+        </div>
+
+        <!-- Free-credit offer, when the organisation can claim it -->
+        <PromotionBanner :app-id="selectedAppId" />
 
         <v-row>
             <v-col cols="12" lg="5">
-                <div class="overview-container h-100">
-                    <div class="header-row">
-                        <h2 class="title">Credit Allocation</h2>
+                <section class="overview-container allocation-card h-100">
+                    <div class="credit-card-head">
+                        <div>
+                            <h2 class="section-title">Credit allocation</h2>
+                            <p class="card-subtitle">Used and remaining credits on your current plans.</p>
+                        </div>
+                        <span class="state-badge" :class="`is-${creditStatus.tone}`">{{ creditStatus.label }}</span>
                     </div>
-                    <div class="chart-wrapper mt-2">
-                        <canvas id="doughNutChat"></canvas>
+
+                    <!-- Centred in the space left, so the card matches Balance overview's height -->
+                    <div class="allocation-body">
+                    <!-- Nothing current to chart: no plan yet, or every plan used up or expired -->
+                    <div v-if="allocationEmpty" class="allocation-empty">
+                        <span class="allocation-empty-icon"><v-icon>{{ allocationEmpty.icon }}</v-icon></span>
+                        <strong>{{ allocationEmpty.title }}</strong>
+                        <span>{{ allocationEmpty.text }}</span>
                     </div>
-                    <div class="text-center mt-n4">
-                        <span class="badge" :class="timeRemaining === 'Expired' ? 'badge-expired' : 'badge-active'">
-                            {{ timeRemaining === 'Expired' ? 'Expired' : 'Subscription Active' }}
-                        </span>
+                    <div v-show="!allocationEmpty" class="allocation-chart">
+                        <div class="chart-wrapper">
+                            <canvas id="doughNutChat"></canvas>
+                        </div>
+                        <div class="chart-centre">
+                            <strong>{{ usedPercent }}%</strong>
+                            <span>used</span>
+                        </div>
                     </div>
-                </div>
+                    <div v-if="!allocationEmpty" class="chart-legend">
+                        <span><i class="legend-dot is-used"></i>Used <strong>{{ numberFormat(myKYCCredits.allUsedCredits) }}</strong></span>
+                        <span><i class="legend-dot is-remaining"></i>Remaining <strong>{{ numberFormat(myKYCCredits.allRemainingCredits) }}</strong></span>
+                    </div>
+                    </div>
+                </section>
             </v-col>
 
             <v-col cols="12" lg="7">
-                <div class="overview-container h-100">
-                    <div class="header-row">
-                        <h2 class="title">Balance Overview</h2>
+                <section class="overview-container h-100">
+                    <div class="credit-card-head">
+                        <div>
+                            <h2 class="section-title">Balance overview</h2>
+                            <p class="card-subtitle">Credits you can still use with this app.</p>
+                        </div>
                         <hf-buttons v-if="canTopUp" name="Top up" iconClass="mdi-wallet-plus-outline" variant="primary"
                             @executeAction="topUpOpen = true"></hf-buttons>
                     </div>
 
-                    <div class="d-flex flex-column justify-center">
-                        <div class="mb-4">
-                            <p class="text-muted mb-0 font-weight-medium">Remaining Balance</p>
-                            <div class="d-flex align-baseline">
-                                <h1 class="display-1 font-weight-bold color-blue mb-0">
-                                    {{ numberFormat(myKYCCredits.allRemainingCredits) }}
-                                </h1>
-                                <span class="ml-2 text-h6 text-muted">
-                                    / {{ numberFormat(myKYCCredits.allAvailableCredits) }} Credits
-                                </span>
-                            </div>
-                            <button type="button" class="calculator-callout mt-3" @click="calculatorOpen = true">
-                                <span class="calculator-callout-icon" aria-hidden="true">
-                                    <v-icon>{{ hasSavedCalculatorConfiguration ? 'mdi-chart-bar' : 'mdi-calculator-variant-outline' }}</v-icon>
-                                </span>
-                                <span class="calculator-callout-copy">
-                                    <template v-if="hasSavedCalculatorConfiguration">
-                                        <strong>{{ numberFormat(savedVerificationEstimate) }} verification flows available</strong>
-                                        <small>
-                                            Based on configurations you saved
-                                        </small>
-                                    </template>
-                                    <template v-else>
-                                        <strong>See how many verifications you can perform</strong>
-                                        <small>Select your verification flow to get an estimate.</small>
-                                    </template>
-                                </span>
-                                <span class="calculator-callout-action">
-                                    {{ hasSavedCalculatorConfiguration ? 'Edit configuration' : 'Calculate now' }}
-                                    <v-icon small>mdi-arrow-right</v-icon>
-                                </span>
-                            </button>
+                    <div class="balance">
+                        <div class="balance-value">
+                            <strong>{{ numberFormat(myKYCCredits.allRemainingCredits) }}</strong>
+                            <span>/ {{ numberFormat(myKYCCredits.allAvailableCredits) }} credits</span>
                         </div>
-
-                        <div>
-                            <v-divider class="mb-4"></v-divider>
-
-                            <v-row no-gutters>
-                                <v-col cols="6">
-                                    <p class="text-muted mb-1 small uppercase font-weight-bold">Status</p>
-                                    <p class="mb-0 font-weight-bold" :class="statusColorClass">
-                                        {{ timeRemaining === 'Expired' || timeRemaining === 'InActive' ? timeRemaining :
-                                        'Active' }}
-                                    </p>
-                                </v-col>
-                                <v-col cols="6" class="text-right">
-                                    <p class="text-muted mb-1 small uppercase font-weight-bold">Validity</p>
-                                    <p class="mb-0 font-weight-bold">
-                                        {{ timeRemaining === 'Expired' ? 'None' : timeRemaining }}
-                                    </p>
-                                </v-col>
-                            </v-row>
-                        </div>
-
-
                     </div>
-                </div>
+
+                    <!-- Only useful with credits to spend -->
+                    <button v-if="myKYCCredits.allRemainingCredits > 0" type="button" class="calculator-callout" @click="calculatorOpen = true">
+                        <span class="calculator-callout-icon" aria-hidden="true">
+                            <v-icon>{{ hasSavedCalculatorConfiguration ? 'mdi-chart-bar' : 'mdi-calculator-variant-outline' }}</v-icon>
+                        </span>
+                        <span class="calculator-callout-copy">
+                            <template v-if="hasSavedCalculatorConfiguration">
+                                <strong>{{ numberFormat(savedVerificationEstimate) }} verification flows available</strong>
+                                <small>Based on configurations you saved</small>
+                            </template>
+                            <template v-else>
+                                <strong>See how many verifications you can perform</strong>
+                                <small>Select your verification flow to get an estimate.</small>
+                            </template>
+                        </span>
+                        <span class="calculator-callout-action">
+                            {{ hasSavedCalculatorConfiguration ? 'Edit configuration' : 'Calculate now' }}
+                            <v-icon small>mdi-arrow-right</v-icon>
+                        </span>
+                    </button>
+
+                    <dl class="balance-facts">
+                        <div>
+                            <dt>Status</dt>
+                            <dd :class="`is-${creditStatus.tone}`">{{ creditStatus.label }}</dd>
+                            <small>{{ creditStatus.hint }}</small>
+                        </div>
+                        <div>
+                            <dt>Validity</dt>
+                            <dd>{{ validity.value }}</dd>
+                            <small v-if="validity.hint">{{ validity.hint }}</small>
+                        </div>
+                    </dl>
+                </section>
             </v-col>
         </v-row>
 
@@ -105,7 +111,7 @@
             <v-col cols="12">
                 <div class="overview-container">
                     <div class="header-row">
-                        <h2 class="title">Credit Purchase History</h2>
+                        <h2 class="section-title">Credit purchase history</h2>
                         <div class="header-tools">
                             <template v-if="paymentLinks.length">
                                 <span v-if="awaitingPaidLink" class="text-muted small">Payment received? It can take a few minutes to appear.</span>
@@ -179,13 +185,13 @@
                                         <div v-if="eachRow.used >= eachRow.totalCredits" class="text-muted small">
                                             <v-icon small color="grey">mdi-check-circle</v-icon> Fully Used
                                         </div>
-                                        <div v-else-if="Date.now() > new Date(eachRow.expiresAt)"
+                                        <div v-else-if="isPlanExpired(eachRow)"
                                             class="color-danger small">
                                             <v-icon small color="red">mdi-clock-alert</v-icon> Expired
                                         </div>
                                         <div v-else class="small font-weight-medium">
-                                            {{ isValidDate(eachRow.expiresAt) ? formatTimeRemaining(eachRow.expiresAt) :
-                                            'Pending Activation' }}
+                                            {{ hasExpiry(eachRow) ? formatTimeRemaining(eachRow.expiresAt) :
+                                            (isQueuedPlan(eachRow) ? 'Starts after current plan' : 'Not activated') }}
                                         </div>
                                     </td>
                                    <td :title="`Credit left: ${eachRow.totalCredits - eachRow.used}`">
@@ -233,12 +239,12 @@
 
                                     <td class="text-center">
                                         <div
-                                            v-if="eachRow.status === 'Active' && !(Date.now() > new Date(eachRow.expiresAt))">
+                                            v-if="eachRow.status === 'Active' && !isPlanExpired(eachRow)">
                                             <v-chip small color="green lighten-5" text-color="green"
                                                 class="font-weight-bold">ACTIVE</v-chip>
                                         </div>
                                         <hf-buttons
-                                            v-else-if="$can('CAVACH_API', 'WRITE_CREDIT') && eachRow.used < eachRow.totalCredits && !(Date.now() > new Date(eachRow.expiresAt))"
+                                            v-else-if="$can('CAVACH_API', 'WRITE_CREDIT') && eachRow.used < eachRow.totalCredits && !isPlanExpired(eachRow)"
                                             name="Activate" size="sm"
                                             @executeAction="activateThisCredit(eachRow)"></hf-buttons>
                                         <span v-else class="text-muted small">—</span>
@@ -274,6 +280,8 @@ import AccessDenied from '../AccessDenied.vue';
 import KycCreditCalculator from '../../components/credit/KycCreditCalculator.vue';
 import { downloadInvoiceDocument } from '../../components/credit/invoice/downloadInvoice';
 import CreditTopUpPopup from '../../components/credit/CreditTopUpPopup.vue';
+import PromotionBanner from '../../components/credit/promotion/PromotionBanner.vue';
+import EventBus from '../../eventbus';
 import { getCatalog, getAllInvoices, getInvoice, getPaymentLinks } from '../../utils/billingApi';
 import { formatMinor } from '../../utils/billingFormat';
 
@@ -294,11 +302,12 @@ const PAYMENT_METHOD_LABELS = {
 
 export default {
     name: "KYCDashboardCredit",
-    components: { HfButtons, AccessDenied, KycCreditCalculator, CreditTopUpPopup },
+    components: { HfButtons, AccessDenied, KycCreditCalculator, CreditTopUpPopup, PromotionBanner },
     mixins: [UtilsMixin],
     data() {
         return {
-            timeRemaining: '',
+            // Re-read every 30 s so the status and validity stay current
+            now: Date.now(),
             timer: null,
             doughNutChart: null,
             isLoading: false,
@@ -355,10 +364,58 @@ export default {
             return [...this.getKYCCredits].sort((a, b) => new Date(b.expiresAt) - new Date(a.expiresAt));
         },
 
-        statusColorClass() {
-            if (this.timeRemaining === 'Expired') return 'text-danger';
-            if (this.timeRemaining === 'InActive') return 'text-muted';
-            return 'color-green';
+        // What the customer's credits are doing now. "Expired" only when a plan really ran out of
+        // time; an app that never had a plan is "No credits yet".
+        creditStatus() {
+            const plans = Array.isArray(this.getKYCCredits) ? this.getKYCCredits : [];
+            const now = this.now;
+            const hasDate = plan => this.hasExpiry(plan);
+            const left = plan => plan.used < plan.totalCredits;
+            const usable = plans.filter(plan => left(plan) && (!hasDate(plan) || new Date(plan.expiresAt) > now));
+            if (!plans.length) {
+                return { key: 'none', label: 'No credits yet', tone: 'muted', hint: 'Top up to start verifying in Production.' };
+            }
+            if (usable.some(plan => plan.status === 'Active' && hasDate(plan))) {
+                return { key: 'active', label: 'Active', tone: 'success', hint: 'Credits are being used for verifications.' };
+            }
+            if (usable.length) {
+                return { key: 'pending', label: 'Not activated', tone: 'warning', hint: 'Activate a plan in the purchase history to use it.' };
+            }
+            if (plans.some(plan => left(plan) && hasDate(plan) && new Date(plan.expiresAt) <= now)) {
+                return { key: 'expired', label: 'Expired', tone: 'danger', hint: 'Your last plan ended before its credits were used.' };
+            }
+            return { key: 'used', label: 'Used up', tone: 'muted', hint: 'Every credit has been used.' };
+        },
+
+        allocationEmpty() {
+            return {
+                none: { icon: 'mdi-chart-donut', title: 'No credits yet', text: 'Credits you add or claim will show here.' },
+                used: { icon: 'mdi-check-circle-outline', title: 'All credits used', text: 'Top up to keep verifying.' },
+                expired: { icon: 'mdi-clock-alert-outline', title: 'Your credits expired', text: 'Top up to keep verifying.' },
+            }[this.creditStatus.key] || null;
+        },
+
+        usedPercent() {
+            const { allUsedCredits, allAvailableCredits } = this.myKYCCredits;
+            return allAvailableCredits ? Math.round((allUsedCredits / allAvailableCredits) * 100) : 0;
+        },
+
+        // The active plan's end, in days and hours (no ticking seconds)
+        validity() {
+            const status = this.creditStatus.key;
+            if (status === 'pending') return { value: 'Not started', hint: 'Starts when you activate a plan.' };
+            if (status !== 'active') return { value: '—', hint: '' };
+            const ends = new Date(this.myKYCCredits.expiresAt);
+            const minutes = Math.max(0, Math.floor((ends - this.now) / 60000));
+            const days = Math.floor(minutes / 1440);
+            const hours = Math.floor((minutes % 1440) / 60);
+            let left = `${minutes % 60} min left`;
+            if (days) left = `${days} day${days === 1 ? '' : 's'}${hours ? `, ${hours} hr` : ''} left`;
+            else if (hours) left = `${hours} hr ${minutes % 60} min left`;
+            return {
+                value: left,
+                hint: `Ends ${ends.toLocaleString(undefined, { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}`,
+            };
         },
 
         savedCalculatorConfiguration() {
@@ -410,14 +467,35 @@ export default {
     },
     async mounted() {
         document.addEventListener('visibilitychange', this.onVisibilityChange);
+        EventBus.$on('promotion-claimed', this.onPromotionClaimed);
         await this.reloadData();
     },
     beforeDestroy() {
         document.removeEventListener('visibilitychange', this.onVisibilityChange);
+        EventBus.$off('promotion-claimed', this.onPromotionClaimed);
         this.stopTimer();
     },
     methods: {
         ...mapActions('mainStore', ['fetchKYCCredits', 'activateCredit']),
+
+        // A plan gets expiresAt when it's activated; without one it hasn't started (new Date(null) is 1970)
+        hasExpiry(row) {
+            return Boolean(row.expiresAt) && this.isValidDate(row.expiresAt);
+        },
+
+        isPlanExpired(row) {
+            return this.hasExpiry(row) && Date.now() > new Date(row.expiresAt);
+        },
+
+        // An inactive plan while another one is active waits its turn
+        isQueuedPlan(row) {
+            return row.status === 'Inactive' && this.getKYCCredits.some(plan => plan._id !== row._id && plan.status === 'Active');
+        },
+
+        // A free-credit claim from any banner on this page: reload the history and balance
+        onPromotionClaimed({ appId }) {
+            if (appId === this.selectedAppId) this.reloadData();
+        },
 
         // Tag and settlement text (contract §4)
         invoiceStatus(invoice) {
@@ -561,7 +639,7 @@ export default {
             }
         },
         getProgressVariant(row) {
-                const isExpired = Date.now() > new Date(row.expiresAt);
+                const isExpired = this.isPlanExpired(row);
                 const isFull = row.used >= row.totalCredits;
 
                 if (isExpired) return 'secondary'; // Grey for expired
@@ -574,12 +652,14 @@ export default {
             },
 
         updateTimer() {
-            this.timeRemaining = this.formatTimeRemaining(this.myKYCCredits.expiresAt);
+            this.now = Date.now();
         },
 
+        // reloadData calls this on every refresh: keep a single interval
         startTimer() {
+            this.stopTimer();
             this.updateTimer();
-            this.timer = setInterval(this.updateTimer, 1000);
+            this.timer = setInterval(this.updateTimer, 30000);
         },
 
         stopTimer() {
@@ -595,9 +675,10 @@ export default {
             const dataToRender = (this.getKYCCredits.length === 0 || (used + remaining === 0))
                 ? [0, 1] : [used, remaining];
 
+            // Used in slate, remaining in the dashboard blue (the legend uses the same two)
             const colors = hasNoRemainingCredits
-                ? ['#cbd5e1', '#94a3b8']
-                : ['#94a3b8', '#3b82f6'];
+                ? ['#cbd5e1', '#e2e8f0']
+                : ['#94a3b8', '#2563dc'];
 
             this.doughNutChart?.destroy();
             const ctx = document.getElementById('doughNutChat');
@@ -610,7 +691,7 @@ export default {
                         backgroundColor: colors,
                         borderWidth: 0,
                         hoverOffset: 4,
-                        cutout: '70%',
+                        cutout: '78%',
                         circumference: 180,
                         rotation: 270,
                     }]
@@ -646,33 +727,129 @@ export default {
 .py-3 {
     width: 80vw !important;
 }
-/* Unified Dashboard Styles */
+/* Page header: same as Settings and App configuration */
+.app-page-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 24px; }
+.app-page-title { margin: 0 0 4px; color: #263244; font-size: 24px; font-weight: 700; letter-spacing: -.02em; line-height: 1.25; }
+.app-page-subtitle { margin: 0; color: #718198; font-size: 13px; line-height: 1.45; }
+
+/* Cards: the dashboard theme (same as Payment links and Super admin tools) */
 .overview-container {
-    padding:  1.5rem 1.5rem;
-    background-color: #f9fafb;
-    border-radius: 0.75rem;
-    border: 1px solid #e5e7eb;
-    margin-top: -0.85rem;
+    padding: 16px 18px;
+    border: 1px solid #e1e6ed;
+    border-radius: 10px;
+    background: #fff;
 }
 
 .header-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 1rem;
+    margin-bottom: 12px;
 }
 
-.title {
-    font-size: 1.125rem;
-    font-weight: 700;
-    color: #111827;
+/* Not .title: Vuetify's .title typography class sets its own size with !important */
+.section-title {
     margin: 0;
+    color: #263244;
+    font-size: 14px;
+    font-weight: 700;
 }
+
+/* Not .card-head: gblStyle.css gives that class a purple background */
+.credit-card-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+.card-subtitle { margin: 2px 0 0; color: #8793a5; font-size: 11px; }
+
+.state-badge {
+    flex: 0 0 auto;
+    padding: 2px 10px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.state-badge.is-success { background: #e7f6ec; color: #15803d; }
+.state-badge.is-warning { background: #fff4e5; color: #b45309; }
+.state-badge.is-danger { background: #fef3f2; color: #b42318; }
+.state-badge.is-muted { background: #f1f5f9; color: #64748b; }
+
+/* Credit allocation */
+.allocation-card { display: flex; flex-direction: column; }
+.allocation-body { display: flex; flex: 1 1 auto; flex-direction: column; justify-content: center; }
+.allocation-chart { position: relative; margin-top: 4px; }
 
 .chart-wrapper {
-    height: 180px;
+    height: 150px;
     position: relative;
 }
+
+/* Sits in the gauge's opening */
+.chart-centre {
+    position: absolute;
+    right: 0;
+    bottom: 4px;
+    left: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    pointer-events: none;
+}
+
+.chart-centre strong { color: #172554; font-size: 22px; font-weight: 700; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.chart-centre span { color: #8793a5; font-size: 11px; }
+
+.chart-legend { display: flex; justify-content: center; gap: 20px; margin-top: 14px; color: #52627a; font-size: 12px; }
+.chart-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.chart-legend strong { color: #263244; font-variant-numeric: tabular-nums; }
+.legend-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; }
+.legend-dot.is-used { background: #94a3b8; }
+.legend-dot.is-remaining { background: #2563dc; }
+
+.allocation-empty {
+    display: flex;
+    flex: 1 1 auto;
+    min-height: 186px;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 16px;
+    border: 1px dashed #d5dde7;
+    border-radius: 8px;
+    background: #f8fafc;
+    text-align: center;
+}
+
+.allocation-empty-icon {
+    display: inline-flex;
+    width: 36px;
+    height: 36px;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 6px;
+    border-radius: 10px;
+    background: #eef2f6;
+}
+
+.allocation-empty-icon .v-icon { color: #64748b; }
+.allocation-empty strong { color: #263244; font-size: 13px; }
+.allocation-empty span { color: #8793a5; font-size: 12px; }
+
+/* Balance overview */
+.balance { margin-bottom: 14px; }
+.balance-value { display: flex; align-items: baseline; gap: 8px; }
+.balance-value strong { color: #172554; font-size: 40px; font-weight: 700; letter-spacing: -.02em; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.balance-value span { color: #8793a5; font-size: 15px; }
+
+.balance-facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin: 14px 0 0; }
+.balance-facts > div { padding: 10px 12px; border: 1px solid #eef2f6; border-radius: 8px; background: #f8fafc; }
+.balance-facts dt { color: #8793a5; font-size: 10px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; }
+.balance-facts dd { margin: 2px 0 0; color: #263244; font-size: 14px; font-weight: 700; }
+.balance-facts dd.is-success { color: #15803d; }
+.balance-facts dd.is-warning { color: #b45309; }
+.balance-facts dd.is-danger { color: #b42318; }
+.balance-facts dd.is-muted { color: #52627a; }
+.balance-facts small { display: block; margin-top: 2px; color: #8793a5; font-size: 11px; }
 
 .usage-table-wrapper {
     background: white;

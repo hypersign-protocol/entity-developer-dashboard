@@ -131,7 +131,7 @@ export default {
   },
   computed: {
     visibleServiceOptions() {
-      return this.serviceOptions.filter(service => !service.indiaOnly || this.localCompany.country === 'IND');
+      return this.serviceOptions.filter(service => !service.indiaOnly || this.localCompany.country === 'IN');
     },
     filteredIndustries() {
       const query = this.industrySearch.toLowerCase();
@@ -139,7 +139,7 @@ export default {
     },
   },
   created() {
-    if (this.localCompany.country !== 'IND') {
+    if (this.localCompany.country !== 'IN') {
       this.localCompany.interests = this.localCompany.interests.filter(item => !INDIA_ONLY_SERVICES.includes(item));
     }
   },

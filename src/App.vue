@@ -717,6 +717,7 @@ color: #1a1a2e !important;
 <script>
 import UtilsMixin from "./mixins/utils";
 import EventBus from "./eventbus";
+import { resetPromotions } from "./components/credit/promotion/promotionState";
 import { mapActions, mapMutations, mapGetters, mapState } from "vuex";
 import { RequestHandler } from "./utils/utils";
 import config from "./config";
@@ -880,6 +881,7 @@ export default {
       return "https://api.dicebear.com/7.x/identicon/svg?seed=" + name;
     },
     logoutAll() {
+      resetPromotions();
       this.setIsLoggedOut(false);
       this.logout();
       if (this.$route.path !== "/login") this.$router.push("/login");
