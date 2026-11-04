@@ -7,7 +7,11 @@
     scrollable
     hide-footer
     modal-class="credit-topup-modal"
+    no-enforce-focus
+    :no-close-on-backdrop="payScreen"
+    :no-close-on-esc="payScreen"
     @show="open"
+    @hide="leavePayment"
     @change="$emit('input', $event)"
   >
     <template #modal-header="{ close }">
@@ -35,8 +39,46 @@
       <router-link v-else-if="blocker.action === 'onboarding'" class="topup-retry" to="/studio/onboarding">Complete onboarding</router-link>
     </div>
 
+    <!-- Payment in progress or finished: what the server's order status says (contract §6.3) -->
+    <div v-else-if="payScreen" class="pay-status" :class="`is-${payView.tone}`" aria-live="polite">
+      <span class="pay-status-icon">
+        <b-spinner v-if="payView.tone === 'busy'" small variant="secondary" />
+        <v-icon v-else>{{ { success: 'mdi-check-circle-outline', error: 'mdi-alert-circle-outline', info: 'mdi-information-outline' }[payView.tone] }}</v-icon>
+      </span>
+      <h3>{{ payView.title }}</h3>
+      <p v-if="payView.text">{{ payView.text }}</p>
+
+      <template v-if="payView.tone === 'success'">
+        <p v-if="pay.order.creditsActive === 'AFTER_CURRENT_PLAN'">They start when your current plan runs low.</p>
+        <p class="pay-status-meta">Order {{ pay.order.orderNumber }} · {{ formatMoney(pay.order.totalMinor) }}</p>
+        <div class="pay-status-actions">
+          <button v-if="pay.order.invoice" type="button" class="pay-action" :disabled="pay.downloading" @click="downloadPaidInvoice">
+            <v-icon x-small>mdi-tray-arrow-down</v-icon>
+            {{ pay.downloading ? 'Preparing…' : 'Download invoice' }}
+          </button>
+          <button type="button" class="pay-action primary" @click="$emit('input', false)">Done</button>
+        </div>
+        <small v-if="pay.downloadError" class="field-error">{{ pay.downloadError }}</small>
+      </template>
+
+      <p v-else-if="pay.order && payView.tone !== 'busy'" class="pay-status-meta">Order {{ pay.order.orderNumber }}</p>
+
+      <div v-if="payView.actions && payView.actions.length" class="pay-status-actions">
+        <button v-if="payView.actions.includes('checkAgain')" type="button" class="pay-action primary" @click="payCheckAgain">Check again</button>
+        <button v-if="payView.actions.includes('tryAgain')" type="button" class="pay-action primary" :disabled="pay.busy" @click="payTryAgain">Try again</button>
+        <button v-if="payView.actions.includes('startAgain')" type="button" class="pay-action primary" :disabled="pay.busy" @click="payStartAgain">Start again</button>
+        <button v-if="payView.actions.includes('cancel')" type="button" class="pay-action" :disabled="pay.busy" @click="payCancel">
+          {{ pay.busy ? 'Cancelling…' : 'Cancel' }}
+        </button>
+        <button v-if="payView.actions.includes('close')" type="button" class="pay-action" @click="$emit('input', false)">Close</button>
+      </div>
+    </div>
+
     <div v-else-if="catalog" class="topup-layout">
       <div class="topup-main">
+        <p v-if="lastPaymentNotice" class="last-payment" role="status">
+          <v-icon x-small>mdi-check-circle-outline</v-icon> {{ lastPaymentNotice }}
+        </p>
         <section class="topup-card">
           <header class="topup-card-header">
             <h3>Choose an amount</h3>
@@ -197,14 +239,17 @@
           </strong>
         </div>
 
-        <span class="pay-button-wrap" :title="payEnabled ? '' : 'Coming soon'">
-          <button type="button" class="pay-button" :disabled="!canPay" @click="checkout">
+        <span class="pay-button-wrap" :title="payDisabledReason">
+          <button type="button" class="pay-button" :disabled="!canPay" @click="onPayClick">
             <v-icon x-small>mdi-lock-outline</v-icon>
-            <span>{{ quote ? `Pay ${formatMoney(quote.totalMinor)}` : 'Pay' }}</span>
+            <span v-if="pay.stage === 'creating'">Starting payment…</span>
+            <span v-else>{{ quote ? `Pay ${formatMoney(quote.totalMinor)}` : 'Pay' }}</span>
             <v-icon x-small class="pay-arrow">mdi-arrow-right</v-icon>
           </button>
         </span>
         <p v-if="!payEnabled" class="pay-soon">Online payment is coming soon.</p>
+        <p v-else-if="payDisabledReason" class="pay-soon">{{ payDisabledReason }}</p>
+        <p v-if="pay.error" class="pay-error" role="alert">{{ pay.error }}</p>
 
         <p v-if="taxAtCheckout" class="tax-note">Tax is calculated on the secure payment page.</p>
 
@@ -298,7 +343,7 @@
       scrollable
       hide-footer
       modal-class="credit-topup-modal credit-billing-modal"
-      @change="billingFormOpen = $event"
+      @change="onBillingDialogChange"
     >
       <template #modal-header="{ close }">
         <div class="topup-header">
@@ -329,6 +374,7 @@
 <script>
 import KycCreditCalculator from './KycCreditCalculator.vue';
 import BillingDetails from '../settings/BillingDetails.vue';
+import payCheckoutMixin from './payCheckoutMixin';
 import { getCatalog, getCoupons, createQuote } from '../../utils/billingApi';
 import { formatMinor, formatBps, formatCount } from '../../utils/billingFormat';
 
@@ -351,6 +397,7 @@ const TAX_LABELS = { ZERO_RATED_EXPORT: 'Export (zero-rated)', SALES_TAX: 'Sales
 export default {
   name: 'CreditTopUpPopup',
   components: { KycCreditCalculator, BillingDetails },
+  mixins: [payCheckoutMixin],
   props: {
     value: { type: Boolean, default: false },
     // The ID Service app being topped up; coupons and quotes are per app
@@ -474,9 +521,6 @@ export default {
       if (!this.quote || !this.quote.tax || this.quote.tax.mode !== 'INCLUDED_IN_QUOTE') return [];
       return this.quote.tax.lines || [];
     },
-    canPay() {
-      return this.payEnabled && Boolean(this.quote) && !this.quoteLoading;
-    }
   },
   watch: {
     customInput() {
@@ -511,6 +555,7 @@ export default {
         addOnsOpen: false,
         catalogReloaded: false
       });
+      this.resetPayment();
       await this.loadCatalog();
     },
     async loadCatalog() {
@@ -681,10 +726,18 @@ export default {
         this.applyingCoupon = false;
       }
     },
-    // Saving can turn the single GST line into CGST + SGST or IGST, so price again
-    onBillingSaved() {
+    // Saving can turn the single GST line into CGST + SGST or IGST, so price again.
+    // If Pay opened the form, payment continues with the new quote.
+    async onBillingSaved() {
+      const wasWaiting = this.payAfterBilling;
       this.billingFormOpen = false;
-      this.requestQuote();
+      await this.requestQuote();
+      this.resumePayAfterBilling(wasWaiting);
+    },
+    // Closing the form without saving drops the pending Pay
+    onBillingDialogChange(visible) {
+      this.billingFormOpen = visible;
+      if (!visible) this.payAfterBilling = false;
     },
     // A coupon is applied to one amount: changing the plan or custom amount removes it,
     // and the customer applies it again if they want it
@@ -697,10 +750,6 @@ export default {
       this.couponCode = null;
       this.couponNotice = '';
       this.requestQuote();
-    },
-    checkout() {
-      if (!this.canPay) return;
-      this.$emit('checkout', { quoteId: this.quote.quoteId });
     },
     taxLabel(line) {
       return `${TAX_LABELS[line.type] || line.type} (${this.formatPercent(line.rateBps)})`;
@@ -1263,6 +1312,69 @@ export default {
 .billing-link button { display: inline-flex; align-items: center; gap: 4px; color: #2563dc; font-size: 11px; font-weight: 600; }
 .billing-link button:hover { text-decoration: underline; }
 .billing-link .v-icon { color: inherit; }
+
+.pay-error { margin: 8px 0 0; color: #b42318; font-size: 11px; font-weight: 600; line-height: 1.45; text-align: center; }
+
+.last-payment {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  padding: 8px 12px;
+  border: 1px solid #c6e9d6;
+  border-radius: 8px;
+  background: #eaf8f0;
+  color: #218459;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.last-payment .v-icon { color: inherit; }
+
+/* Payment status screen */
+.pay-status {
+  display: flex;
+  min-height: 260px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 24px;
+  border: 1px solid #e1e6ed;
+  border-radius: 10px;
+  background: #fff;
+  text-align: center;
+}
+
+.pay-status-icon { display: inline-flex; min-height: 32px; align-items: center; margin-bottom: 6px; }
+.pay-status-icon .v-icon { font-size: 32px !important; }
+.pay-status.is-success .pay-status-icon .v-icon { color: #218459; }
+.pay-status.is-error .pay-status-icon .v-icon { color: #d92d20; }
+.pay-status.is-info .pay-status-icon .v-icon { color: #2563dc; }
+.pay-status h3 { margin: 0; color: #172554; font-size: 16px; font-weight: 700; }
+.pay-status p { margin: 2px 0 0; color: #52627a; font-size: 13px; }
+.pay-status .pay-status-meta { margin-top: 6px; color: #8793a5; font-size: 11px; }
+.pay-status-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 16px; }
+
+.pay-action {
+  display: inline-flex;
+  height: 34px;
+  align-items: center;
+  gap: 5px;
+  padding: 0 14px;
+  border: 1px solid #d5dde7;
+  border-radius: 8px;
+  background: #fff;
+  color: #344054;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.pay-action .v-icon { color: inherit; }
+.pay-action:hover:not(:disabled) { border-color: #2f6fec; background: #f7faff; color: #2563dc; }
+.pay-action.primary { border-color: #6c757d; background: #6c757d; color: #fff; }
+.pay-action.primary:hover:not(:disabled) { border-color: #545b62; background: #5a6268; color: #fff; }
+.pay-action:disabled { cursor: progress; opacity: .6; }
 
 /* Loading and error states, in the popup and the coupon dialog */
 .topup-state {

@@ -101,12 +101,32 @@
             </v-col>
         </v-row>
 
-        <v-row v-if="getKYCCredits.length > 0">
+        <v-row v-if="getKYCCredits.length > 0 || paymentLinks.length > 0">
             <v-col cols="12">
                 <div class="overview-container">
                     <div class="header-row">
                         <h2 class="title">Credit Purchase History</h2>
-                        <span class="badge">{{ getKYCCredits.length }} Packages</span>
+                        <div class="header-tools">
+                            <template v-if="paymentLinks.length">
+                                <span v-if="awaitingPaidLink" class="text-muted small">Payment received? It can take a few minutes to appear.</span>
+                                <button type="button" class="invoice-btn" :disabled="refreshingLinks" @click="refreshAfterPayment">
+                                    <v-icon x-small>mdi-refresh</v-icon> {{ refreshingLinks ? 'Refreshing…' : 'Refresh' }}
+                                </button>
+                            </template>
+                            <span class="badge">{{ getKYCCredits.length }} Packages</span>
+                        </div>
+                    </div>
+
+                    <!-- Collect payment links from Hypersign (contract §7.6) -->
+                    <div v-if="paymentLinks.length" class="payment-request-banner">
+                        <v-icon small>mdi-receipt-text-clock-outline</v-icon>
+                        <span v-if="paymentLinks.length === 1">
+                            You have a payment request from Hypersign for {{ numberFormat(paymentLinks[0].credits) }} credits.
+                        </span>
+                        <span v-else>You have {{ paymentLinks.length }} payment requests from Hypersign.</span>
+                        <button v-if="paymentLinks.length === 1" type="button" class="pay-now-btn" @click="payNow(paymentLinks[0])">
+                            Pay now <v-icon x-small>mdi-open-in-new</v-icon>
+                        </button>
                     </div>
 
                     <div class="usage-table-wrapper">
@@ -122,6 +142,31 @@
                                 </tr>
                             </thead>
                             <tbody>
+                                <!-- No invoice exists until the link is paid: no number, no Download -->
+                                <tr v-for="link in paymentLinks" :key="link.orderId" class="awaiting-row">
+                                    <td>
+                                        <div class="font-weight-bold">{{ formatDate(link.createdAt) }}</div>
+                                        <code class="small text-muted">{{ link.orderNumber }}</code>
+                                    </td>
+                                    <td class="text-right">
+                                        <div class="font-weight-bold">{{ numberFormat(link.credits) }}</div>
+                                        <div class="small text-muted">credits · valid {{ link.validityDays }} days</div>
+                                    </td>
+                                    <td>
+                                        <span class="invoice-status is-due">Awaiting payment</span>
+                                        <div class="small text-muted mt-1">Due by {{ shortDate(link.expiresAt) }}</div>
+                                    </td>
+                                    <td>
+                                        <div class="font-weight-bold">{{ formatMinorAmount(link.totalMinor, link.currency) }}</div>
+                                        <div class="small text-muted">To pay, incl. GST</div>
+                                    </td>
+                                    <td class="invoice-cell"><span class="text-muted small">Issued after payment</span></td>
+                                    <td class="text-center">
+                                        <button type="button" class="pay-now-btn" @click="payNow(link)">
+                                            Pay now <v-icon x-small>mdi-open-in-new</v-icon>
+                                        </button>
+                                    </td>
+                                </tr>
                                 <tr v-for="eachRow in getSortedKYCCredits" :key="eachRow._id">
                                     <td>
                                         <div class="font-weight-bold">{{ formatDate(eachRow.createdAt) }}</div>
@@ -215,7 +260,7 @@
         <CreditTopUpPopup
             v-model="topUpOpen"
             :app-id="selectedAppId"
-            @checkout="startTopUpCheckout"
+            @paid="reloadData"
         />
     </b-container>
 </template>
@@ -229,15 +274,22 @@ import AccessDenied from '../AccessDenied.vue';
 import KycCreditCalculator from '../../components/credit/KycCreditCalculator.vue';
 import { downloadInvoiceDocument } from '../../components/credit/invoice/downloadInvoice';
 import CreditTopUpPopup from '../../components/credit/CreditTopUpPopup.vue';
-import { getCatalog, getAllInvoices, getInvoice } from '../../utils/billingApi';
+import { getCatalog, getAllInvoices, getInvoice, getPaymentLinks } from '../../utils/billingApi';
 import { formatMinor } from '../../utils/billingFormat';
 
+// Offline methods (super admin) and Razorpay's methods (self-serve, lower case)
 const PAYMENT_METHOD_LABELS = {
     BANK_TRANSFER: 'Bank transfer',
     UPI: 'UPI',
     CHEQUE: 'Cheque',
     CARD_OUTSIDE_DASHBOARD: 'Card',
-    OTHER_SYSTEM: 'Other system'
+    OTHER_SYSTEM: 'Other system',
+    upi: 'UPI',
+    card: 'Card',
+    netbanking: 'Netbanking',
+    wallet: 'Wallet',
+    emi: 'EMI',
+    paylater: 'Pay Later'
 };
 
 export default {
@@ -259,6 +311,11 @@ export default {
             downloadingInvoice: null,
             // InvoiceSummary list from GET /billing/invoices?appId; empty when it can't be loaded
             invoices: [],
+            // Open payment links from GET /billing/payment-links?appId; empty without READ_BILLING
+            paymentLinks: [],
+            // Links the customer opened with Pay now in this visit
+            openedLinks: [],
+            refreshingLinks: false,
             // Off only when the catalog refuses the account (billing disabled or no permission)
             billingAvailable: true,
         }
@@ -286,6 +343,11 @@ export default {
                 if (invoice.creditPlanId) byId[invoice.creditPlanId] = invoice;
                 return byId;
             }, {});
+        },
+
+        // A link the customer opened is still listed: the payment may not have been seen yet
+        awaitingPaidLink() {
+            return this.paymentLinks.some(link => this.openedLinks.includes(link.orderId));
         },
 
         getSortedKYCCredits() {
@@ -347,9 +409,11 @@ export default {
         }
     },
     async mounted() {
+        document.addEventListener('visibilitychange', this.onVisibilityChange);
         await this.reloadData();
     },
     beforeDestroy() {
+        document.removeEventListener('visibilitychange', this.onVisibilityChange);
         this.stopTimer();
     },
     methods: {
@@ -372,6 +436,60 @@ export default {
 
         formatInvoiceTotal(invoice) {
             return formatMinor(invoice.totalMinor, invoice.currency);
+        },
+
+        formatMinorAmount(minor, currency) {
+            return formatMinor(minor, currency);
+        },
+
+        shortDate(value) {
+            return new Date(value).toLocaleDateString(undefined, { day: '2-digit', month: 'short', year: 'numeric' });
+        },
+
+        // Always the url from the API; Razorpay's page opens in a new tab
+        payNow(link) {
+            if (!this.openedLinks.includes(link.orderId)) this.openedLinks.push(link.orderId);
+            window.open(link.url, '_blank', 'noopener');
+        },
+
+        // Open links are extra information, like invoices: a 403 (no READ_BILLING) or any other
+        // failure just hides the rows
+        async loadPaymentLinks() {
+            const appId = this.selectedAppId;
+            if (!appId || !this.canViewBilling) {
+                this.paymentLinks = [];
+                return;
+            }
+            try {
+                const links = await getPaymentLinks({ appId });
+                if (appId === this.selectedAppId) this.paymentLinks = links;
+            } catch (e) {
+                this.paymentLinks = [];
+                console.info(`Payment links not shown: ${e.code || e.status || ''} ${e.message}`);
+            }
+        },
+
+        // The customer pays in another tab, so the dashboard isn't told. Once the server has seen
+        // the payment the link leaves the list and its invoice and credit plan appear.
+        async refreshAfterPayment() {
+            if (this.refreshingLinks) return;
+            this.refreshingLinks = true;
+            try {
+                await Promise.all([this.loadPaymentLinks(), this.loadInvoices(), this.fetchKYCCredits()]);
+                this.updateTimer();
+                this.renderChart();
+            } catch (e) {
+                console.info(`Refresh after payment failed: ${e.message}`);
+            } finally {
+                this.refreshingLinks = false;
+            }
+        },
+
+        onVisibilityChange() {
+            if (document.visibilityState !== 'visible' || this.accessDenied) return;
+            // Only worth a full refresh while a payment request is open
+            if (this.paymentLinks.length) this.refreshAfterPayment();
+            else this.loadPaymentLinks();
         },
 
         // Invoices are rendered here from GET /billing/invoices/:id; nothing is stored as a file
@@ -404,11 +522,6 @@ export default {
             }
         },
 
-        // Pay stays disabled until features.pay is on; stage 2 creates the order here and redirects
-        startTopUpCheckout() {
-            this.notifySuccess('Online payment is coming soon');
-        },
-
         // Top up is hidden only when the catalog refuses the account: 503 BILLING_DISABLED for the
         // region, or 403 without READ_BILLING (contract §1.5). Other failures keep the button, and
         // the popup shows the error with a retry when opened.
@@ -430,6 +543,7 @@ export default {
                 this.checkBillingAvailable();
                 // In parallel with the credits; never blocks or fails the page
                 this.loadInvoices();
+                this.loadPaymentLinks();
                 await this.fetchKYCCredits();
 
                 this.startTimer();
@@ -763,6 +877,46 @@ export default {
 .invoice-btn:hover:not(:disabled) { border-color: #2f6fec; background: #f7faff; color: #2563dc; text-decoration: none; }
 .invoice-btn:disabled { cursor: progress; opacity: .6; }
 .invoice-btn .v-icon { color: inherit; }
+
+/* Collect payment: open links from Hypersign */
+.header-tools { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 10px; }
+
+.payment-request-banner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    border: 1px solid #fedf89;
+    border-radius: 8px;
+    background: #fffaeb;
+    color: #93370d;
+    font-size: 0.82rem;
+    font-weight: 600;
+}
+
+.payment-request-banner .v-icon { color: inherit; }
+.payment-request-banner .pay-now-btn { margin-left: auto; }
+
+.awaiting-row td { background: #fffcf5; }
+
+.pay-now-btn {
+    display: inline-flex;
+    height: 28px;
+    align-items: center;
+    gap: 4px;
+    padding: 0 12px;
+    border: 1px solid #2563dc;
+    border-radius: 6px;
+    background: #2563dc;
+    color: #fff;
+    font-size: 0.75rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.pay-now-btn:hover { background: #1d4ed8; }
+.pay-now-btn .v-icon { color: inherit; }
 
 /* Ensure the table cell doesn't squash the progress bar */
 .usage-table td {

@@ -1,15 +1,16 @@
 <template>
 
-    <v-container fluid pa-0>
+    <!-- Plain root, like PaymentLinksTable: v-container brings .container width and centring rules -->
+  <div>
 
         <load-ing :active.sync="isLoading" :can-cancel="true" :is-full-page="true"></load-ing>
 
 
-         <v-row  class="d-flex justify-start align-center" >
-            <v-col cols="12" >
+         <div class="search-card">
+            <div>
                 <div class="overview-container">
                     <div class="header-row">
-                        <h2 class="title">Retrieve Case File</h2>
+                        <h2 class="section-title">Retrieve case file</h2>
                     </div>
                     <div>
                         <p class="text-subtitle-2 text-muted mb-2">
@@ -62,16 +63,16 @@
                         </div>
                     </div>
                 </div>
-            </v-col>
-        </v-row>
+            </div>
+        </div>
 
         <!-- Global status alert - always visible for all operations -->
 
-        <v-row v-if="company">
+        <v-row v-if="company" class="company-grid">
             <v-col cols="12" lg="4">
                 <div class="overview-container mb-4">
                     <div class="header-row d-flex justify-space-between align-center">
-                        <h2 class="title mb-0">Company Profile</h2>
+                        <h2 class="section-title">Company profile</h2>
                         <v-chip x-small color="primary" outlined class="font-weight-bold">{{ company.status }}</v-chip>
                     </div>
 
@@ -105,7 +106,7 @@
 
                 <div class="overview-container">
                     <div class="header-row">
-                        <h2 class="title">Verification Documents</h2>
+                        <h2 class="section-title">Verification documents</h2>
                     </div>
 
                     <div v-for="doc in company.documents" :key="doc.id" class="step-item d-flex mb-3 align-center">
@@ -274,44 +275,39 @@
 
             </v-col>
         </v-row>
-    </v-container>
+    </div>
 </template>
 
 <style scoped>
+/* Card edges line up with the sub-tabs: the grid's gutters sit inside the page, not outside it */
+.search-card { margin-bottom: 4px; }
+.company-grid.row { margin: 0 -12px; }
+
 /* Inherited Theme Styles */
 
 .overview-container {
-
-    padding: 1.5rem;
-
-    background-color: #f9fafb;
-
-    border-radius: 0.75rem;
-
-    border: 1px solid #e5e7eb;
-
+  /* Same card as the Payment links tab */
+  padding: 16px 18px;
+  border: 1px solid #e1e6ed;
+  border-radius: 10px;
+  background: #fff;
+  color: #1e293b;
 }
 
 
 
 .header-row {
-    margin-bottom: 1.25rem;
+  margin-bottom: 12px;
 }
 
 
 
-.title {
-
-    font-size: 0.875rem;
-
-    font-weight: 700;
-
-    color: #111827;
-
-    text-transform: uppercase;
-
-    letter-spacing: 0.05em;
-
+/* Not .title: Vuetify's .title typography class sets its own size with !important */
+.section-title {
+  margin: 0;
+  color: #263244;
+  font-size: 14px;
+  font-weight: 700;
 }
 
 

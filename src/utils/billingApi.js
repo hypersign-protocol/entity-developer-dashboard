@@ -93,6 +93,31 @@ export function createQuote(body) {
   return request('/billing/quotes', { method: 'POST', body });
 }
 
+// ---- Checkout (contract §6). Amounts are never sent: the server prices the quote.
+
+// POST /billing/orders: Pay. One key per Pay click; reuse it only to retry that click.
+export function createOrder(quoteId, idempotencyKey) {
+  return request('/billing/orders', { method: 'POST', body: { quoteId }, headers: { 'Idempotency-Key': idempotencyKey } });
+}
+
+// GET /billing/orders/:orderId: the order's status (the server re-checks Razorpay while it's open)
+export function getOrder(orderId) {
+  return request(`/billing/orders/${encodeURIComponent(orderId)}`);
+}
+
+// POST /billing/orders/:orderId/confirm: Razorpay's handler values, renamed
+export function confirmOrder(orderId, { providerOrderId, paymentId, signature }) {
+  return request(`/billing/orders/${encodeURIComponent(orderId)}/confirm`, {
+    method: 'POST',
+    body: { providerOrderId, paymentId, signature }
+  });
+}
+
+// POST /billing/orders/:orderId/cancel: gives up on an unpaid order and frees its coupon
+export function cancelOrder(orderId) {
+  return request(`/billing/orders/${encodeURIComponent(orderId)}/cancel`, { method: 'POST' });
+}
+
 // GET /customer-onboarding/billing: the organisation's billing profile, prefilled if never saved (contract §2)
 export function getBillingProfile() {
   return request('/customer-onboarding/billing');
@@ -147,4 +172,32 @@ export function createAdminInvoice(body, idempotencyKey) {
 // GET /admin/billing/invoices/:invoiceId: InvoiceDocument plus org, for Download
 export function getAdminInvoice(invoiceId) {
   return request(`/admin/billing/invoices/${encodeURIComponent(invoiceId)}`);
+}
+
+// ---- Payment links (contract §7). Created by POST /admin/billing/invoices with isPaid: false.
+
+// GET /admin/billing/payment-links: a page of PaymentLink, newest first
+export function listAdminPaymentLinks({ appId, orgId, status, page = 1, limit = 10 } = {}) {
+  return request('/admin/billing/payment-links', { query: { appId, orgId, status, page, limit } });
+}
+
+// GET /admin/billing/payment-links/:orderId: the server asks Razorpay first while the link is open
+export function getAdminPaymentLink(orderId) {
+  return request(`/admin/billing/payment-links/${encodeURIComponent(orderId)}`);
+}
+
+// POST /admin/billing/payment-links/:orderId/resend: Razorpay emails the link again
+export function resendAdminPaymentLink(orderId) {
+  return request(`/admin/billing/payment-links/${encodeURIComponent(orderId)}/resend`, { method: 'POST' });
+}
+
+// POST /admin/billing/payment-links/:orderId/cancel: Void. The link can't be paid any more.
+export function cancelAdminPaymentLink(orderId, reason) {
+  return request(`/admin/billing/payment-links/${encodeURIComponent(orderId)}/cancel`, { method: 'POST', body: { reason } });
+}
+
+// GET /billing/payment-links: the customer's open, unexpired links (contract §7.6)
+export async function getPaymentLinks({ appId } = {}) {
+  const json = await request('/billing/payment-links', { query: { appId } });
+  return Array.isArray(json?.data) ? json.data : [];
 }

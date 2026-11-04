@@ -27,8 +27,17 @@ const V1_PAYMENT_METHODS = {
   UPI: 'UPI',
   CHEQUE: 'Cheque',
   CARD_OUTSIDE_DASHBOARD: 'Card (outside dashboard)',
-  OTHER_SYSTEM: 'Other system'
+  OTHER_SYSTEM: 'Other system',
+  // Razorpay's methods, on self-serve invoices
+  upi: 'UPI',
+  card: 'Card',
+  netbanking: 'Netbanking',
+  wallet: 'Wallet',
+  emi: 'EMI',
+  paylater: 'Pay Later'
 };
+
+const V1_PROVIDERS = { razorpay: 'Razorpay', stripe: 'Stripe' };
 
 const V1_TAX_LABELS = { ZERO_RATED_EXPORT: 'Export (zero-rated)', SALES_TAX: 'Sales tax' };
 
@@ -117,8 +126,9 @@ export function toInvoiceV1Model(doc) {
     payment: payment ? {
       method: V1_PAYMENT_METHODS[payment.method] || payment.method,
       reference: payment.reference,
-      provider: payment.provider,
-      paymentId: payment.paymentId,
+      provider: V1_PROVIDERS[payment.provider] || payment.provider,
+      // Gateway invoices carry the provider's payment id; the summary calls it reference
+      paymentId: payment.paymentId || payment.reference,
       paidAt: payment.paidAt || doc.paidAt
     } : null,
     paymentLink: doc.payNowUrl ? { url: doc.payNowUrl } : null,

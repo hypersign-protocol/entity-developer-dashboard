@@ -1,19 +1,20 @@
 <template>
-  <v-container fluid pa-0>
+  <!-- Plain root, like PaymentLinksTable: v-container brings .container width and centring rules -->
+  <div>
     <load-ing :active.sync="isLoading" :can-cancel="false" :is-full-page="false"></load-ing>
     <div class="overview-container">
       <div class="header-row">
-        <h2 class="title">Service Credit Recharge</h2>
+        <h4 class="section-title">Service credit recharge</h4>
+        <p class="header-subtitle">
+          {{ isIdService
+            ? 'Add credits to an ID Service app. Every recharge issues an invoice, or a payment link for Collect payment.'
+            : 'Allocate credits and set validity periods for your registered backend services.' }}
+        </p>
       </div>
 
       <AccessDenied v-if="accessDenied" />
 
-      <div v-else class="pa-2">
-        <p class="text-subtitle-2 text-muted mb-6">
-          {{ isIdService
-            ? 'Add credits to an ID Service app. Every recharge issues an invoice: free or already paid.'
-            : 'Allocate credits and set validity periods for your registered backend services.' }}
-        </p>
+      <div v-else>
 
         <label class="input-label">Service Type</label>
         <div class="service-type-row">
@@ -66,6 +67,45 @@
             <button type="button" class="ghost-btn" :disabled="downloading" @click="downloadCreatedInvoice">
               <v-icon x-small>mdi-tray-arrow-down</v-icon>
               {{ downloading ? 'Preparing…' : 'Download invoice' }}
+            </button>
+            <button type="button" class="ghost-btn" @click="startOver">
+              <v-icon x-small>mdi-plus</v-icon> Create another
+            </button>
+          </div>
+        </section>
+
+        <!-- Collect payment: POST /admin/billing/invoices answered with a PaymentLink and no invoice (contract §7.1) -->
+        <section v-else-if="isIdService && createdLink" class="result-card">
+          <div class="result-head">
+            <span class="result-icon"><v-icon small>mdi-link-variant</v-icon></span>
+            <div class="result-copy">
+              <strong>Payment link created</strong>
+              <small>{{ createdLink.sentTo ? `Sent to ${createdLink.sentTo}` : 'Copy the link and send it to the customer.' }}</small>
+            </div>
+            <span class="invoice-status is-due">Awaiting payment</span>
+          </div>
+
+          <dl class="result-grid">
+            <div><dt>Customer</dt><dd>{{ createdLink.org && createdLink.org.companyName }}</dd></div>
+            <div><dt>App</dt><dd>{{ createdLink.appName }}</dd></div>
+            <div><dt>Credits</dt><dd>{{ numberFormat(createdLink.credits) }} · {{ createdLink.validityDays }} days</dd></div>
+            <div><dt>Customer pays</dt><dd>{{ money(createdLink.totalMinor, createdLink.currency) }}</dd></div>
+          </dl>
+
+          <div v-if="createdLink.url" class="payment-link-row">
+            <v-icon x-small>mdi-link-variant</v-icon>
+            <input class="payment-link-url mono-text" :value="createdLink.url" readonly aria-label="Payment link" @focus="$event.target.select()" />
+            <button type="button" class="ghost-btn" @click="copyCreatedLink">
+              <v-icon x-small>mdi-content-copy</v-icon> Copy
+            </button>
+          </div>
+          <p class="field-hint text-muted mt-2 mb-0">
+            Valid until {{ dateTime(createdLink.expiresAt) }}. Credits are added when the customer pays; the invoice is issued then.
+          </p>
+
+          <div class="result-actions">
+            <button type="button" class="ghost-btn" @click="viewPaymentLinks">
+              <v-icon x-small>mdi-format-list-bulleted</v-icon> View payment links
             </button>
             <button type="button" class="ghost-btn" @click="startOver">
               <v-icon x-small>mdi-plus</v-icon> Create another
@@ -176,7 +216,7 @@
                   :class="{ selected: invoice.type === option.value, disabled: option.disabled }"
                   :aria-checked="invoice.type === option.value ? 'true' : 'false'"
                   :aria-disabled="option.disabled ? 'true' : 'false'"
-                  :title="option.disabled ? 'Needs a payment gateway. Coming soon.' : ''"
+                  :title="option.disabled ? option.disabledReason : ''"
                   @click="selectInvoiceType(option)"
                 >
                   <span class="invoice-type-icon"><v-icon small>{{ option.icon }}</v-icon></span>
@@ -185,8 +225,11 @@
                   <span class="invoice-type-check" aria-hidden="true"><v-icon x-small>mdi-check</v-icon></span>
                 </button>
               </div>
+              <div v-if="invoice.type === 'UNPAID' && collectBlockedReason" class="field-error mt-2">
+                {{ collectBlockedReason }} Choose Free credits or Already paid.
+              </div>
 
-              <v-row v-if="invoice.type === 'OFFLINE'" dense class="mt-3">
+              <v-row v-if="invoice.type === 'OFFLINE' || invoice.type === 'UNPAID'" dense class="mt-3">
                 <v-col cols="12" md="5">
                   <label class="input-label">Amount, excluding tax</label>
                   <v-text-field
@@ -203,6 +246,35 @@
                   <div v-if="priceProblem" class="field-error mt-1">{{ priceProblem }}</div>
                   <div v-else-if="serverError('amountMinor')" class="field-error mt-1">{{ serverError('amountMinor') }}</div>
                 </v-col>
+                <template v-if="invoice.type === 'UNPAID'">
+                  <v-col cols="12" md="7">
+                    <label class="input-label">Link valid for</label>
+                    <v-text-field v-model="invoice.linkExpiresInDays" type="number" min="1" max="30" step="1" suffix="days" outlined dense hide-details color="primary"></v-text-field>
+                    <div v-if="linkDaysProblem" class="field-error mt-1">{{ linkDaysProblem }}</div>
+                    <div v-else-if="serverError('linkExpiresInDays')" class="field-error mt-1">{{ serverError('linkExpiresInDays') }}</div>
+                  </v-col>
+                  <v-col cols="12">
+                    <v-checkbox v-model="invoice.notifyByEmail" dense hide-details color="primary" class="mt-0" label="Email the link to the customer"></v-checkbox>
+                    <div v-if="!invoice.notifyByEmail" class="field-hint text-muted">The link is only created. Copy it and send it yourself.</div>
+                  </v-col>
+                  <v-col v-if="invoice.notifyByEmail" cols="12" md="7">
+                    <label class="input-label">Send to <span class="optional">optional</span></label>
+                    <v-text-field
+                      v-model="invoice.notifyEmail"
+                      type="email"
+                      placeholder="Defaults to the billing email"
+                      maxlength="254"
+                      outlined
+                      dense
+                      hide-details
+                      color="primary"
+                      @input="notifyEmailTouched = true"
+                    ></v-text-field>
+                    <div v-if="notifyEmailProblem" class="field-error mt-1">{{ notifyEmailProblem }}</div>
+                    <div v-else-if="serverError('notifyEmail')" class="field-error mt-1">{{ serverError('notifyEmail') }}</div>
+                  </v-col>
+                </template>
+                <template v-else>
                 <v-col cols="12" md="7">
                   <label class="input-label">Payment method</label>
                   <v-select
@@ -235,6 +307,7 @@
                   <div v-if="paidOnInFuture" class="field-error mt-1">The payment date can't be in the future.</div>
                   <div v-else-if="serverError('payment.paidAt')" class="field-error mt-1">{{ serverError('payment.paidAt') }}</div>
                 </v-col>
+                </template>
               </v-row>
 
               <label class="input-label mt-4">Internal note <span class="optional">optional</span></label>
@@ -263,7 +336,7 @@
               </div>
             </dl>
             <div class="summary-total">
-              <span>Invoice total</span>
+              <span>{{ totalLabel }}</span>
               <strong>{{ currentPreview ? money(currentPreview.totalMinor, currentPreview.currency) : '—' }}</strong>
             </div>
 
@@ -310,7 +383,6 @@
           </aside>
         </div>
 
-
         <KycCreditCalculator
           v-if="isIdService"
           v-model="showCreditInfo"
@@ -339,12 +411,8 @@
           />
         </b-modal>
 
-        <hf-pop-up :id="confirmPopupId" :Header="isIdService ? 'Confirm recharge and invoice' : 'Confirm Credit Recharge'" size="md">
-          <p class="small text-muted mb-3">
-            {{ isIdService
-              ? 'Please review the details below. Invoices cannot be edited once issued.'
-              : 'Please review the details below. Credits cannot be taken back once recharged.' }}
-          </p>
+        <hf-pop-up :id="confirmPopupId" :Header="confirmHeader" size="md">
+          <p class="small text-muted mb-3">{{ confirmIntro }}</p>
           <table class="confirm-summary">
             <tbody>
               <tr>
@@ -384,15 +452,25 @@
                   <td>{{ money(line.amountMinor, currentPreview.currency) }}</td>
                 </tr>
                 <tr>
-                  <th>Invoice total</th>
+                  <th>{{ totalLabel }}</th>
                   <td><strong>{{ money(currentPreview.totalMinor, currentPreview.currency) }}</strong></td>
                 </tr>
+                <template v-if="invoice.type === 'UNPAID'">
+                  <tr>
+                    <th>Delivery</th>
+                    <td>{{ deliveryLabel }}</td>
+                  </tr>
+                  <tr>
+                    <th>Link valid for</th>
+                    <td>{{ linkExpiresInDays }} days</td>
+                  </tr>
+                </template>
                 <tr v-if="invoice.type === 'OFFLINE'">
                   <th>Payment</th>
                   <td>{{ paymentMethodLabel(invoice.paymentMethod) }} · <span class="mono-text">{{ invoice.paymentReference.trim() }}</span> · {{ invoice.paidOn }}</td>
                 </tr>
                 <tr>
-                  <th>Invoice</th>
+                  <th>{{ invoice.type === 'UNPAID' ? 'Status' : 'Invoice' }}</th>
                   <td>
                     <span v-if="summaryChip" class="invoice-status" :class="summaryChip.className">{{ summaryChip.label }}</span>
                     <div v-if="creditsActiveText" class="field-hint text-muted mt-1">{{ creditsActiveText }}</div>
@@ -413,27 +491,31 @@
         </hf-pop-up>
       </div>
     </div>
-  </v-container>
+  </div>
 </template>
 
 <style scoped>
 .overview-container {
-  padding: 1.0rem;
-  background-color: #f9fafb;
-  border-radius: 0.75rem;
-  border: 1px solid #e5e7eb;
+  /* Same card as the Payment links tab */
+  padding: 16px 18px;
+  border: 1px solid #e1e6ed;
+  border-radius: 10px;
+  background: #fff;
+  color: #1e293b;
 }
 
 .header-row {
-  margin-bottom: 0.5rem;
+  margin-bottom: 12px;
 }
 
-.title {
-  font-size: 0.875rem;
+.header-subtitle { margin: 2px 0 0; color: #8793a5; font-size: 11px; }
+
+/* Not .title: Vuetify's .title typography class sets its own size with !important */
+.section-title {
+  margin: 0;
+  color: #263244;
+  font-size: 14px;
   font-weight: 700;
-  color: #111827;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
 }
 
 .input-label {
@@ -755,7 +837,7 @@
 }
 
 .payment-link-row .v-icon { color: inherit; }
-.payment-link-url { flex: 1 1 auto; overflow: hidden; font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
+.payment-link-url { flex: 1 1 auto; min-width: 0; overflow: hidden; border: 0; outline: 0; background: transparent; color: #1e40af; font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
 
 .preview-note {
   display: flex;
@@ -815,7 +897,7 @@
 .incomplete-note { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 4px; margin-top: 6px; color: #b54708; font-size: 11px; font-weight: 600; }
 .incomplete-note .v-icon { color: inherit; }
 
-/* Collect payment: visible, not selectable until a payment gateway exists */
+/* Collect payment for a customer it isn't available to */
 .invoice-type.disabled { cursor: not-allowed; opacity: .5; }
 .invoice-type.disabled:hover { border-color: #d5dde7; }
 
@@ -857,6 +939,7 @@ import { downloadInvoiceDocument } from '../../../components/credit/invoice/down
 
 const DEBOUNCE_MS = 400;
 const BILLING_DETAILS_ITEM = 'Customer billing details';
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const defaultForm = () => ({
   serviceId: '',
@@ -879,6 +962,10 @@ const defaultInvoice = () => ({
   paymentMethod: 'BANK_TRANSFER',
   paymentReference: '',
   paidOn: todayIso(),
+  // Collect payment (contract §7.1)
+  notifyByEmail: true,
+  notifyEmail: '',
+  linkExpiresInDays: '15',
   note: '',
 });
 
@@ -893,10 +980,12 @@ function billedToError(error) {
   return 'Could not load the billing details. Check the app ID and try again.';
 }
 
-// The create call failed but may have issued the invoice: a network error, or the server's
-// "Invoice … was issued, but the credits could not be granted yet" 500. Retry with the same key.
+// The create call failed but may have issued the invoice or link: a network error, the server's
+// "Invoice … was issued, but the credits could not be granted yet" 500, or 503 PAYMENTS_UNAVAILABLE
+// when Razorpay didn't answer. Retry with the same key.
 function isRetryable(error) {
   if (!(error instanceof BillingError)) return true;
+  if (error.code === 'PAYMENTS_UNAVAILABLE') return true;
   return error.status >= 500 && /^Invoice .* was issued, but the credits could not be granted yet/.test(error.message);
 }
 
@@ -928,6 +1017,10 @@ export default {
       invoice: defaultInvoice(),
       // Validity is prefilled from the app's region until the admin edits it
       validityTouched: false,
+      // "Send to" is prefilled with the billing email until the admin edits it
+      notifyEmailTouched: false,
+      // A PAYMENTS_NOT_AVAILABLE answer for this app: Collect payment is off for it
+      paymentsRefused: false,
       // Step 1: GET /admin/billing/profiles
       billed: { loading: false, error: '', data: null },
       billedRequest: 0,
@@ -946,6 +1039,8 @@ export default {
       createdInvoice: null,
       createdCompany: '',
       createdCreditsActive: null,
+      // PaymentLink from a Collect payment create
+      createdLink: null,
       downloading: false,
       downloadError: '',
       today: todayIso(),
@@ -984,13 +1079,26 @@ export default {
         .find(p => p.type === 'currency');
       return part ? part.value : '';
     },
-    // The selection sets amountMinor / isPaid (contract §5). Collect payment needs a gateway (stage 2).
+    // Collect payment is India only for now (contract §7)
+    collectBlockedReason() {
+      if (this.paymentsRefused) return 'Collect payment isn\'t available for this customer yet.';
+      if (this.billed.data && this.billedProfile.region !== 'IN') return 'Available for Indian customers only for now.';
+      return '';
+    },
+    // The selection sets amountMinor / isPaid (contract §5 and §7)
     invoiceTypes() {
       const zero = this.currencySymbol ? `${this.currencySymbol}0 invoice` : 'Zero-amount invoice';
       return [
         { value: 'COMPLIMENTARY', label: 'Free credits', description: `No charge. ${zero}, credits active now.`, icon: 'mdi-gift-outline' },
         { value: 'OFFLINE', label: 'Already paid', description: 'Paid outside the dashboard. Credits active now.', icon: 'mdi-bank-check' },
-        { value: 'UNPAID', label: 'Collect payment', description: 'Send a payment link. Credits activate once paid.', icon: 'mdi-send-clock-outline', disabled: true },
+        {
+          value: 'UNPAID',
+          label: 'Collect payment',
+          description: 'Send a payment link. Credits are added once paid.',
+          icon: 'mdi-send-clock-outline',
+          disabled: Boolean(this.collectBlockedReason),
+          disabledReason: this.collectBlockedReason,
+        },
       ];
     },
     credits() {
@@ -1016,6 +1124,22 @@ export default {
     paidOnInFuture() {
       return Boolean(this.invoice.paidOn) && this.invoice.paidOn > this.today;
     },
+    // 1–30 whole days; null otherwise
+    linkExpiresInDays() {
+      const text = String(this.invoice.linkExpiresInDays).trim();
+      if (!/^\d+$/.test(text)) return null;
+      const days = Number(text);
+      return days >= 1 && days <= 30 ? days : null;
+    },
+    linkDaysProblem() {
+      return this.linkExpiresInDays === null ? 'Enter 1 to 30 days.' : '';
+    },
+    notifyEmail() {
+      return this.invoice.notifyByEmail ? this.invoice.notifyEmail.trim() : '';
+    },
+    notifyEmailProblem() {
+      return this.notifyEmail && !EMAIL_PATTERN.test(this.notifyEmail) ? 'Enter a valid email address.' : '';
+    },
     // What still blocks the button, in the agreed order and wording
     missingFields() {
       const missing = [];
@@ -1029,6 +1153,12 @@ export default {
       if (!this.credits) missing.push('Credits');
       if (!this.validityValid) missing.push('Validity');
       if (!this.invoice.type) missing.push('Invoice type');
+      if (this.invoice.type === 'UNPAID') {
+        if (this.collectBlockedReason) missing.push('Invoice type');
+        if (this.amountMinor === null) missing.push('Amount');
+        if (this.linkExpiresInDays === null) missing.push('Link valid for');
+        if (this.notifyEmailProblem) missing.push('Send to');
+      }
       if (this.invoice.type === 'OFFLINE') {
         if (this.amountMinor === null) missing.push('Amount');
         if (!this.invoice.paymentReference.trim()) missing.push('Payment reference');
@@ -1043,6 +1173,10 @@ export default {
       const body = { appId: this.billed.data.app.appId, credits: this.credits, validityDays: this.validityInDays };
       if (this.invoice.type === 'COMPLIMENTARY') {
         body.amountMinor = 0;
+      } else if (this.invoice.type === 'UNPAID') {
+        // Collect payment: the server works out GST; the link total includes it
+        body.amountMinor = this.amountMinor;
+        body.isPaid = false;
       } else {
         body.amountMinor = this.amountMinor;
         body.isPaid = true;
@@ -1054,14 +1188,21 @@ export default {
       }
       return body;
     },
-    // The note isn't priced, so typing it doesn't re-run the preview
+    // The note and the link's delivery aren't priced, so typing them doesn't re-run the preview
     invoiceBodyKey() {
       return this.invoiceBody ? JSON.stringify(this.invoiceBody) : '';
     },
     createBody() {
       if (!this.invoiceBody) return null;
+      const body = { ...this.invoiceBody };
+      if (this.invoice.type === 'UNPAID') {
+        body.notifyByEmail = this.invoice.notifyByEmail;
+        if (this.notifyEmail) body.notifyEmail = this.notifyEmail;
+        body.linkExpiresInDays = this.linkExpiresInDays;
+      }
       const note = this.invoice.note.trim();
-      return note ? { ...this.invoiceBody, note } : { ...this.invoiceBody };
+      if (note) body.note = note;
+      return body;
     },
     // The preview for the form as it is now; an older one never shows
     currentPreview() {
@@ -1071,10 +1212,18 @@ export default {
       return (this.currentPreview && this.currentPreview.tax && this.currentPreview.tax.lines) || [];
     },
     summaryChip() {
-      if (this.currentPreview) return this.settlementChip(this.currentPreview.willIssueAs.settlement);
+      if (this.currentPreview) return this.outcomeChip(this.currentPreview.willIssueAs);
       if (this.invoice.type === 'COMPLIMENTARY') return this.settlementChip('COMPLIMENTARY');
       if (this.invoice.type === 'OFFLINE') return this.settlementChip('OFFLINE');
+      if (this.invoice.type === 'UNPAID') return this.outcomeChip({ status: 'AWAITING_PAYMENT', settlement: 'GATEWAY' });
       return null;
+    },
+    totalLabel() {
+      return this.invoice.type === 'UNPAID' ? 'Customer pays' : 'Invoice total';
+    },
+    deliveryLabel() {
+      if (!this.invoice.notifyByEmail) return 'Not emailed. Copy the link and send it yourself.';
+      return `Emailed to ${this.notifyEmail || this.billedProfile.email || 'the billing email'}`;
     },
     creditsActiveText() {
       return this.creditsActiveLabel(this.currentPreview && this.currentPreview.creditsActive);
@@ -1083,11 +1232,27 @@ export default {
       return !this.missingFields.length && Boolean(this.currentPreview) && !this.preview.loading && !this.notConfigured && !this.loading;
     },
     submitLabel() {
-      return { COMPLIMENTARY: 'Add free credits', OFFLINE: 'Recharge and issue paid invoice' }[this.invoice.type] || 'Choose an invoice type';
+      return {
+        COMPLIMENTARY: 'Add free credits',
+        OFFLINE: 'Recharge and issue paid invoice',
+        UNPAID: 'Create payment link',
+      }[this.invoice.type] || 'Choose an invoice type';
     },
     confirmLabel() {
       if (!this.isIdService) return 'Confirm & Recharge';
-      return this.create.retryable ? 'Retry' : 'Confirm';
+      if (this.create.retryable) return 'Retry';
+      return this.invoice.type === 'UNPAID' ? 'Create payment link' : 'Confirm';
+    },
+    confirmHeader() {
+      if (!this.isIdService) return 'Confirm Credit Recharge';
+      return this.invoice.type === 'UNPAID' ? 'Confirm payment link' : 'Confirm recharge and invoice';
+    },
+    confirmIntro() {
+      if (!this.isIdService) return 'Please review the details below. Credits cannot be taken back once recharged.';
+      if (this.invoice.type === 'UNPAID') {
+        return 'Please review the details below. The customer pays on the link; the invoice is issued and the credits are added once they pay.';
+      }
+      return 'Please review the details below. Invoices cannot be edited once issued.';
     },
     resultTitle() {
       if (!this.createdInvoice) return '';
@@ -1171,7 +1336,17 @@ export default {
       if (settlement === 'COMPLIMENTARY') return { label: 'Complimentary', className: 'is-complimentary' };
       return { label: 'Paid', className: 'is-paid' };
     },
+    // The preview's willIssueAs: { status, settlement }
+    outcomeChip(willIssueAs) {
+      if (willIssueAs && willIssueAs.status === 'AWAITING_PAYMENT') return { label: 'Awaiting payment · Pay by link', className: 'is-due' };
+      return this.settlementChip(willIssueAs && willIssueAs.settlement);
+    },
+    dateTime(value) {
+      if (!value) return '';
+      return new Date(value).toLocaleString(undefined, { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+    },
     creditsActiveLabel(value) {
+      if (value === 'WHEN_PAID') return 'Credits are added when the customer pays.';
       if (value === 'IMMEDIATELY') return 'Credits become active immediately.';
       if (value === 'AFTER_CURRENT_PLAN') return 'Credits start after the app\'s current plan runs low or is activated.';
       return '';
@@ -1191,6 +1366,7 @@ export default {
       this.billedRequest++;
       this.billed = { loading: false, error: '', data: null };
       this.profileRefused = false;
+      this.paymentsRefused = false;
       if (!this.appId) return;
       this.billed.loading = true;
       this.billedTimer = setTimeout(() => this.loadBilledTo(), DEBOUNCE_MS);
@@ -1210,6 +1386,9 @@ export default {
           this.form.validityMonths = data.profile.region === 'IN' ? '1' : '6';
           this.form.validityDays = '0';
         }
+        if (firstLoad && !this.notifyEmailTouched) this.invoice.notifyEmail = data.profile.email || '';
+        // Collect payment is India only: don't keep it selected for another customer
+        if (firstLoad && this.invoice.type === 'UNPAID' && data.profile.region !== 'IN') this.invoice.type = null;
       } catch (error) {
         if (request !== this.billedRequest) return;
         this.billed = { loading: false, error: billedToError(error), data: null };
@@ -1264,7 +1443,9 @@ export default {
       } else if (['APP_NOT_FOUND', 'APP_NOT_BILLABLE', 'ONBOARDING_NOT_FOUND'].includes(error.code)) {
         this.billed = { loading: false, error: billedToError(error), data: null };
       } else if (error.code === 'PAYMENTS_NOT_AVAILABLE') {
-        show('Collect payment isn\'t available yet.');
+        // Not India, or payments are switched off. Free credits and Already paid still work.
+        this.paymentsRefused = true;
+        show('Collect payment isn\'t available for this customer yet.');
       } else if (error.status === 403) {
         this.accessDenied = true;
       } else {
@@ -1354,6 +1535,13 @@ export default {
       this.create = { ...this.create, inFlight: true, error: '', blocked: false };
       try {
         const result = await createAdminInvoice(attempt.body, attempt.key);
+        if (result.paymentLink) {
+          // Collect payment: no invoice until the customer pays
+          this.createdLink = result.paymentLink;
+          this.create = emptyCreate();
+          this.closeConfirm();
+          return;
+        }
         this.createdInvoice = result.invoice;
         this.createdCompany = this.billedProfile.legalName || (this.billed.data && this.billed.data.org.companyName) || '';
         this.createdCreditsActive = this.currentPreview ? this.currentPreview.creditsActive : null;
@@ -1361,9 +1549,14 @@ export default {
         this.closeConfirm();
       } catch (error) {
         if (isRetryable(error)) {
-          const message = error instanceof BillingError
-            ? error.message
-            : 'The server could not be reached. Retry sends the same request; it won\'t issue a second invoice.';
+          const link = attempt.body.isPaid === false;
+          let message = error instanceof BillingError ? error.message : '';
+          if (error.code === 'PAYMENTS_UNAVAILABLE') message = 'The payment link could not be created. Retry sends the same request.';
+          if (!(error instanceof BillingError)) {
+            message = link
+              ? 'The server could not be reached. Retry sends the same request; it won\'t create a second link.'
+              : 'The server could not be reached. Retry sends the same request; it won\'t issue a second invoice.';
+          }
           this.create = { ...this.create, inFlight: false, error: message, retryable: true };
           return;
         }
@@ -1383,7 +1576,7 @@ export default {
           inFlight: false,
           retryable: false,
           blocked: true,
-          error: message || 'The invoice could not be created. Close this dialog and check the highlighted items.',
+          error: message || `The ${attempt.body.isPaid === false ? 'payment link' : 'invoice'} could not be created. Close this dialog and check the highlighted items.`,
         };
       }
     },
@@ -1400,6 +1593,19 @@ export default {
         this.downloading = false;
       }
     },
+    async copyCreatedLink() {
+      try {
+        await navigator.clipboard.writeText(this.createdLink.url);
+        this.notifySuccess('Link copied');
+      } catch (e) {
+        this.notifyErr('Could not copy the link');
+      }
+    },
+    // The Payment links tab of Super admin tools (SettingConfig reads ?ref=)
+    viewPaymentLinks() {
+      if (this.$route.query.ref === 'payment-links') return;
+      this.$router.replace({ query: { ...this.$route.query, ref: 'payment-links' } }).catch(() => {});
+    },
     startOver() {
       clearTimeout(this.billedTimer);
       clearTimeout(this.previewTimer);
@@ -1409,14 +1615,17 @@ export default {
         form: defaultForm(),
         invoice: defaultInvoice(),
         validityTouched: false,
+        notifyEmailTouched: false,
         billed: { loading: false, error: '', data: null },
         profileRefused: false,
+        paymentsRefused: false,
         preview: { loading: false, error: '', data: null, key: '' },
         serverErrors: {},
         create: emptyCreate(),
         createdInvoice: null,
         createdCompany: '',
         createdCreditsActive: null,
+        createdLink: null,
         downloadError: '',
         today: todayIso(),
       });

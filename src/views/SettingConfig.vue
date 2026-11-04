@@ -71,6 +71,7 @@
           </div>
           <ApproveCustomerOnboarding v-show="activeSuperAdminSubTab === 'onboarding'" />
           <CreditRecharge v-show="activeSuperAdminSubTab === 'credit-recharge'" />
+          <PaymentLinksTable v-show="activeSuperAdminSubTab === 'payment-links'" ref="paymentLinks" />
           <ComplianceCheck v-show="activeSuperAdminSubTab === 'kyb-compliance'" />
         </section>
       </div>
@@ -122,6 +123,7 @@ import BillingDetails from '../components/settings/BillingDetails.vue';
 import { mapActions } from 'vuex/dist/vuex.common.js';
 import ApproveCustomerOnboarding from './sa/components/ApproveCustomerOnboarding.vue'
 import CreditRecharge from './sa/components/CreditRecharge.vue'
+import PaymentLinksTable from './sa/components/PaymentLinksTable.vue'
 import ComplianceCheck from './sa/components/ComplianceCheck.vue';
 
 
@@ -139,6 +141,7 @@ export default {
     OnlySSIApps,    
     ApproveCustomerOnboarding,
     CreditRecharge,
+    PaymentLinksTable,
     ComplianceCheck
   },
   computed: {
@@ -173,6 +176,7 @@ export default {
       superAdminSubTabs: [
         { value: 'onboarding', label: 'Approve onboarding' },
         { value: 'credit-recharge', label: 'Credit recharge' },
+        { value: 'payment-links', label: 'Payment links' },
         { value: 'kyb-compliance', label: 'KYB compliance' },
       ],
       activeMainTab: 'profile', // Default to Profile tab
@@ -184,6 +188,10 @@ export default {
   watch: {
     '$route.query.ref'(ref) {
       this.applyRouteRef(ref);
+    },
+    // Statuses change on the server (a payment, an expiry): reload each time the tab is opened
+    activeSuperAdminSubTab(sub, previous) {
+      if (sub === 'payment-links' && previous !== sub && this.$refs.paymentLinks) this.$refs.paymentLinks.load();
     }
   },
   methods: {
