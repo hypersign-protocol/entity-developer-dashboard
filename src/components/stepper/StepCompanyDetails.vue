@@ -38,6 +38,19 @@
         </div>
         <span v-if="errors.domain" class="field-error">{{ errors.domain }}</span>
       </div>
+      <div class="field-group">
+        <label for="contact-phone">Contact phone number <em>*</em></label>
+        <!-- The chip follows the country; the user can pick another dialling code -->
+        <PhoneInput
+          id="contact-phone"
+          v-model="localCompany.phone_no"
+          :dial.sync="localCompany.phone_dial"
+          :invalid="Boolean(errors.phone)"
+          @input="clearPhoneError"
+          @blur="checkPhone"
+        />
+        <span v-if="errors.phone" class="field-error">{{ errors.phone }}</span>
+      </div>
     </div>
 
     <section class="additional-details" :class="{ 'is-open': additionalDetailsOpen }">
@@ -46,32 +59,6 @@
         <i class="mdi mdi-chevron-up toggle-chevron" aria-hidden="true"></i>
       </button>
       <div v-show="additionalDetailsOpen" id="additional-details-fields" class="additional-content">
-        <div class="optional-row">
-          <div class="row-label"><i class="mdi mdi-phone-outline" aria-hidden="true"></i><span>Contact phone number</span></div>
-          <div class="field-group optional-indent phone-field">
-            <div class="phone-control" :class="{ 'has-error': errors.phone }">
-              <!-- Dialling code chip: follows the country, and can be changed here -->
-              <label class="dial-chip" :class="{ muted: typedInternational }" :title="typedInternational ? 'Using the country code in the number' : 'Dialling code'">
-                <span>{{ typedInternational ? '+' : (selectedCallingCode || 'Code') }}</span>
-                <i class="mdi mdi-chevron-down" aria-hidden="true"></i>
-                <select v-model="localCompany.phone_dial" aria-label="Dialling code" :disabled="typedInternational" @change="checkPhone">
-                  <option value="">No dialling code</option>
-                  <option v-for="option in dialOptions" :key="option.value" :value="option.value">{{ option.flag }} {{ option.name }} ({{ option.code }})</option>
-                </select>
-              </label>
-              <input
-                v-model.trim="localCompany.phone_no"
-                type="tel"
-                :placeholder="phonePlaceholder"
-                autocomplete="tel"
-                @input="clearPhoneError"
-                @blur="checkPhone"
-              />
-            </div>
-            <small v-if="!errors.phone && !selectedCallingCode && !typedInternational">Start the number with + and the country code.</small>
-            <span v-if="errors.phone" class="field-error">{{ errors.phone }}</span>
-          </div>
-        </div>
         <div class="optional-row">
           <div class="row-label"><i class="mdi mdi-camera-outline" aria-hidden="true"></i><span>Organization logo</span></div>
           <div class="logo-upload-area optional-indent">
@@ -112,8 +99,9 @@
 <script>
 import { mapGetters } from 'vuex/dist/vuex.common.js';
 import LogoUploader from '../element/LogoUploader.vue';
+import PhoneInput from '../element/PhoneInput.vue';
 import { acceptedCountryOptions, detectCountryCodeFromIp, OTHER_COUNTRY_CODE } from '../../utils/countries.js';
-import { dialCodeFor, dialCodeOptions, examplePlaceholder, isValidPhone, toInternationalPhone, splitInternational, phoneErrorMessage } from '../../utils/phone.js';
+import { phoneFieldProblem } from '../../utils/phone.js';
 
 const CONSUMER_EMAIL_DOMAINS = new Set([
   'gmail.com', 'googlemail.com', 'yahoo.com', 'yahoo.co.in', 'hotmail.com', 'outlook.com',
@@ -122,7 +110,7 @@ const CONSUMER_EMAIL_DOMAINS = new Set([
 
 export default {
   name: 'StepCompanyDetails',
-  components: { LogoUploader },
+  components: { LogoUploader, PhoneInput },
   props: {
     company: { type: Object, required: true },
     // Field errors from the onboarding API, e.g. { phone: '…' } after a rejected submit
@@ -132,18 +120,13 @@ export default {
     return {
       localCompany: { phone_dial: '', ...this.company, type: this.company.type || 'BUSINESS' },
       errors: { ...this.serverErrors },
-      additionalDetailsOpen: Boolean(this.serverErrors.phone),
-      dialOptions: dialCodeOptions(),
+      additionalDetailsOpen: false,
       isDetectingCountry: false,
       domainWasAutofilled: false,
     };
   },
   computed: {
     ...mapGetters('mainStore', ['getUserDetails']),
-    selectedCallingCode() { return dialCodeFor(this.localCompany.phone_dial); },
-    // A number typed or pasted with + carries its own country code; the chip is ignored
-    typedInternational() { return (this.localCompany.phone_no || '').trim().startsWith('+'); },
-    phonePlaceholder() { return examplePlaceholder(this.typedInternational ? '' : this.localCompany.phone_dial); },
     // Only the countries the onboarding API accepts: the name is shown, the alpha-2 code is sent
     countryOptions() { return acceptedCountryOptions(); },
     emailDomain() {
@@ -194,17 +177,11 @@ export default {
       if (detected && !this.localCompany.country) this.localCompany.country = detected;
       this.isDetectingCountry = false;
     },
-    // Same check as the API (libphonenumber), on the number we will send
+    // Required, and the same check as the API (libphonenumber) on the number we will send
     phoneProblem() {
-      const company = this.localCompany;
-      if (!(company.phone_no || '').trim()) return '';
-      const international = toInternationalPhone(company.phone_no, company.phone_dial);
-      return isValidPhone(international, company.phone_dial) ? '' : phoneErrorMessage(company.phone_dial);
+      return phoneFieldProblem(this.localCompany.phone_no, this.localCompany.phone_dial);
     },
     checkPhone() {
-      // A pasted +number: show its country on the chip and the rest in the input
-      const split = splitInternational(this.localCompany.phone_no);
-      if (split) Object.assign(this.localCompany, { phone_dial: split.dialCountry, phone_no: split.phone });
       const problem = this.phoneProblem();
       const errors = { ...this.errors };
       if (problem) errors.phone = problem;
@@ -231,7 +208,7 @@ export default {
       if (company.linkedinUrl && !/^https?:\/\/(www\.)?linkedin\.com\/(in|company)\/[A-Za-z0-9_-]+\/?$/.test(company.linkedinUrl.trim())) errors.linkedin = 'Enter a valid LinkedIn profile URL.';
       this.errors = errors;
       if (Object.keys(errors).length) {
-        if (errors.phone || errors.twitter || errors.telegram || errors.linkedin) this.additionalDetailsOpen = true;
+        if (errors.twitter || errors.telegram || errors.linkedin) this.additionalDetailsOpen = true;
         return;
       }
       this.$emit('update:company', { ...company });
@@ -249,8 +226,8 @@ export default {
 .field-group { display: flex; min-width: 0; flex-direction: column; }
 label { margin-bottom: 7px; color: #253454; font-size: 12px; font-weight: 700; }
 em, .field-error, .form-error-summary { color: #e43d4f; font-style: normal; }
-.field-group input, .field-group select, .phone-control { width: 100%; height: 40px; padding: 0 11px; border: 1px solid #d5dde7; border-radius: 5px; background: #fff; color: #1e293b; font-size: 13px; outline: none; }
-.field-group input:focus, .field-group select:focus, .phone-control:focus-within { border-color: #6c757d; box-shadow: 0 0 0 2px rgba(108,117,125,.14); }
+.field-group input, .field-group select { width: 100%; height: 40px; padding: 0 11px; border: 1px solid #d5dde7; border-radius: 5px; background: #fff; color: #1e293b; font-size: 13px; outline: none; }
+.field-group input:focus, .field-group select:focus { border-color: #6c757d; box-shadow: 0 0 0 2px rgba(108,117,125,.14); }
 .select-control { position: relative; }
 .select-control select { padding-right: 40px; appearance: none; cursor: pointer; }
 .select-control > i { position: absolute; top: 50%; right: 12px; color: #64748b; font-size: 18px; pointer-events: none; transform: translateY(-50%); }
@@ -273,16 +250,6 @@ em, .field-error, .form-error-summary { color: #e43d4f; font-style: normal; }
 .row-label { display: flex; align-items: center; gap: 8px; margin-bottom: 9px; color: #253454; font-size: 12px; font-weight: 700; }
 .row-label > i { display: inline-flex; width: 24px; height: 24px; align-items: center; justify-content: center; border-radius: 50%; background: #eceeef; color: #6c757d; }
 .optional-indent { margin-left: 32px; }
-.phone-field { width: calc(50% - 8px); }
-.phone-control { display: flex; align-items: center; gap: 7px; }
-.phone-control.has-error { border-color: #dc2626; }
-/* The native select sits invisibly over the chip, so the chip shows "+49" and the list shows names */
-.dial-chip { position: relative; display: inline-flex; flex: 0 0 auto; align-items: center; gap: 2px; height: 26px; padding: 0 6px 0 8px; border-radius: 4px; background: #eef2f6; color: #344054; font-size: 12px; font-weight: 600; cursor: pointer; }
-.dial-chip.muted { color: #94a3b8; cursor: default; }
-.dial-chip i { font-size: 14px; }
-.phone-control .dial-chip select { position: absolute; inset: 0; width: 100%; height: 100%; padding: 0; border: 0; opacity: 0; cursor: pointer; }
-.phone-control .dial-chip select:disabled { cursor: default; }
-.phone-control input { height: 34px; padding: 0; border: 0; box-shadow: none !important; }
 .logo-upload-area { display: block; }
 .social-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
 .social-grid label { display: flex; min-height: 18px; align-items: center; gap: 6px; margin-bottom: 7px; color: #50688e; font-size: 10px; line-height: 18px; }
@@ -296,7 +263,6 @@ em, .field-error, .form-error-summary { color: #e43d4f; font-style: normal; }
 @media (max-width: 650px) {
   .form-card { padding: 18px; }
   .field-grid, .social-grid { grid-template-columns: 1fr; }
-  .phone-field { width: auto; }
-  .optional-indent { margin-left: 0; }
+    .optional-indent { margin-left: 0; }
 }
 </style>

@@ -94,3 +94,23 @@ export function phoneErrorMessage(dialCountry) {
   if (!dialCountry || dialCountry === OTHER_COUNTRY_CODE) return 'Choose a dialling code, or enter the number with + and the country code.';
   return `Enter a valid phone number for ${countryNameFromCode(dialCountry)}.`;
 }
+
+/**
+ * The check every phone field runs (on blur and on submit), on the number it will send:
+ * '' when fine, otherwise the message to show under the field.
+ */
+export function phoneFieldProblem(phone, dialCountry, { required = true } = {}) {
+  if (!String(phone || '').trim()) return required ? 'Enter a phone number.' : '';
+  return isValidPhone(toInternationalPhone(phone, dialCountry), dialCountry) ? '' : phoneErrorMessage(dialCountry);
+}
+
+/**
+ * Onboarding's phoneNumber -> international form ("030 12345678" with DE -> "+493012345678"),
+ * read in onboarding's country. '' when it doesn't parse. Used to suggest a billing phone.
+ */
+export function phoneFromOnboarding(phoneNumber, country) {
+  const text = String(phoneNumber || '').trim();
+  if (!text) return '';
+  const parsed = parsePhoneNumberFromString(text, text.startsWith('+') ? undefined : region(country));
+  return parsed && parsed.isValid() ? parsed.number : '';
+}

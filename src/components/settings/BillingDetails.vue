@@ -40,6 +40,7 @@
         <dl>
           <div><dt>Legal name</dt><dd>{{ profile.legalName }}</dd></div>
           <div><dt>Billing email</dt><dd>{{ profile.email }}</dd></div>
+          <div><dt>Phone</dt><dd>{{ profile.phone || '—' }}</dd></div>
           <div><dt>Address</dt><dd>{{ addressText }}</dd></div>
           <div v-if="isIndia"><dt>GST state</dt><dd>{{ stateText }}</dd></div>
           <div>
@@ -79,6 +80,21 @@
             <small v-else class="field-help">Invoices are sent to this address.</small>
           </label>
 
+          <!-- A div, not a label: the dialling-code chip is a control of its own -->
+          <div class="field full" :class="fieldClass('phone')">
+            <span>Phone</span>
+            <PhoneInput
+              v-model="form.phone"
+              :dial.sync="form.phoneDial"
+              :invalid="Boolean(errorFor('phone'))"
+              :disabled="!canWrite"
+              @blur="checkPhone"
+            />
+            <small v-if="errorFor('phone')" class="field-error">{{ errorFor('phone') }}</small>
+            <small v-else-if="phoneIsSuggestion" class="field-help">From your onboarding details. Check it, then save to keep it.</small>
+            <small v-else class="field-help">Needed to pay online from outside India.</small>
+          </div>
+
           <label class="field full" :class="fieldClass('address.street')">
             <span>Street address</span>
             <input v-model.trim="form.address.street" type="text" maxlength="300" autocomplete="street-address" :disabled="!canWrite" />
@@ -105,7 +121,7 @@
 
           <label class="field" :class="fieldClass('address.country')">
             <span>Country</span>
-            <select v-model="form.address.country" :disabled="!canWrite">
+            <select v-model="form.address.country" @change="onCountryChange" :disabled="!canWrite">
               <option value="" disabled>Select a country</option>
               <option v-for="country in countryOptions" :key="country.value" :value="country.value">{{ country.label }}</option>
             </select>
@@ -205,6 +221,9 @@ import { COUNTRY_OPTIONS, countryOptionLabel } from '../../utils/countries';
 import { TAX_ID_TYPES } from '../../utils/kybIdentifierTypes';
 import { GST_STATES, gstStateLabel } from '../../utils/gstStates';
 import { invalidatePromotions } from '../credit/promotion/promotionState';
+import PhoneInput from '../element/PhoneInput.vue';
+import { phoneFieldProblem, toInternationalPhone, splitInternational, phoneFromOnboarding } from '../../utils/phone';
+import { toAcceptedCountryCode } from '../../utils/countries';
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const INDIA_TAX_ID_TYPES = ['GSTIN', 'PAN'];
@@ -213,6 +232,9 @@ const OTHER_TAX_ID = 'OTHER';
 const emptyForm = () => ({
   legalName: '',
   email: '',
+  // What was typed, and the alpha-2 country of its dialling-code chip
+  phone: '',
+  phoneDial: '',
   address: { street: '', city: '', province: '', postalCode: '', country: '' },
   gstStateCode: '',
   taxIds: [],
@@ -240,6 +262,7 @@ function taxIdNumberProblem({ type, number }) {
 
 export default {
   name: 'BillingDetails',
+  components: { PhoneInput },
   mixins: [UtilsMixin],
   props: {
     // Inside the top-up popup or a dialog: no section header
@@ -262,6 +285,10 @@ export default {
       fieldErrors: {},
       // Field path → its value when the error was set; editing the field clears the error
       errorValues: {},
+      // The country the dialling code last followed
+      lastCountry: '',
+      // Onboarding's phone, in international form, offered when no billing phone is saved
+      suggestedPhone: '',
       saveError: '',
       saving: false,
       gstStates: GST_STATES,
@@ -272,6 +299,11 @@ export default {
     // Super admin routes are checked by the server's super-admin guard instead
     canRead() {
       return this.admin || this.$store.getters['mainStore/hasAccess']('DASHBOARD', 'READ_BILLING');
+    },
+    // The phone shown is the onboarding suggestion, not yet saved
+    phoneIsSuggestion() {
+      if (!this.profile || this.profile.phone || !this.suggestedPhone) return false;
+      return toInternationalPhone(this.form.phone, this.form.phoneDial) === this.suggestedPhone;
     },
     canWrite() {
       return this.admin || this.$store.getters['mainStore/hasAccess']('DASHBOARD', 'WRITE_BILLING');
@@ -319,6 +351,7 @@ export default {
     adminProfile(profile) {
       if (this.admin && profile) this.setProfile(profile);
     },
+
     form: {
       deep: true,
       handler() {
@@ -344,7 +377,10 @@ export default {
       this.loadError = '';
       this.notOnboarded = false;
       try {
-        this.setProfile(await getBillingProfile());
+        const profile = await getBillingProfile();
+        // The server doesn't prefill the phone: suggest the onboarding one for the customer to confirm
+        if (!profile.phone) this.suggestedPhone = await this.onboardingPhone();
+        this.setProfile(profile);
       } catch (error) {
         if (error.code === 'ONBOARDING_NOT_FOUND') this.notOnboarded = true;
         else if (error.status === 403) this.loadError = 'You don\'t have permission to view billing details.';
@@ -359,14 +395,23 @@ export default {
       this.editing = this.admin || profile.source !== 'SAVED';
       this.resetForm();
       // Highlight what the server says is missing until the customer fills it
-      this.setErrors(Object.fromEntries((profile.missingFields || []).map(path => [path, 'Required'])));
+      // (a phone filled in from onboarding isn't missing: its hint asks the customer to confirm it)
+      const missing = (profile.missingFields || []).filter(path => path !== 'phone' || !this.form.phone);
+      this.setErrors(Object.fromEntries(missing.map(path => [path, 'Required'])));
     },
     resetForm() {
       const p = this.profile;
       const address = p.address || {};
+      const country = address.country || (p.region === 'IN' ? 'IN' : '');
+      // A saved "+493012345678" opens as the +49 chip and "30 12345678"
+      const phone = splitInternational(p.phone || this.suggestedPhone);
+      this.lastCountry = country;
       this.form = {
         legalName: p.legalName || '',
         email: p.email || '',
+        phone: phone ? phone.phone : (p.phone || ''),
+        // Only stored when the customer saves the form
+        phoneDial: phone ? phone.dialCountry : (country === 'XX' ? '' : country),
         address: {
           street: address.street || '',
           city: address.city || '',
@@ -415,6 +460,32 @@ export default {
       return path.replace(/\[(\d+)\]/g, '.$1').split('.')
         .reduce((value, key) => (value == null ? undefined : value[key]), this.form);
     },
+    // Onboarding's phone as +493012345678, or '' (none, it doesn't parse, or it can't be loaded)
+    async onboardingPhone() {
+      try {
+        const onboarding = await this.$store.dispatch('mainStore/checkIfAlreadyExistOnBoarding');
+        if (!onboarding || !onboarding.phoneNumber) return '';
+        return phoneFromOnboarding(onboarding.phoneNumber, toAcceptedCountryCode(onboarding.country));
+      } catch (e) {
+        return '';
+      }
+    },
+    // The user picked another country: the dialling code follows it unless they chose one
+    // themselves, and the typed digits are checked again
+    onCountryChange() {
+      const country = this.form.address.country;
+      if (!this.form.phoneDial || this.form.phoneDial === this.lastCountry) this.form.phoneDial = country === 'XX' ? '' : country;
+      this.lastCountry = country;
+      if (this.form.phone) this.checkPhone();
+    },
+    // On blur: show a phone problem straight away (the other fields are checked on save)
+    checkPhone() {
+      const problem = phoneFieldProblem(this.form.phone, this.form.phoneDial);
+      const errors = { ...this.fieldErrors };
+      if (problem) errors.phone = problem;
+      else delete errors.phone;
+      this.setErrors(errors);
+    },
     errorFor(path) {
       return this.fieldErrors[path] || '';
     },
@@ -427,6 +498,8 @@ export default {
       if (!f.legalName) errors.legalName = 'Enter the legal name';
       if (!f.email) errors.email = 'Enter the billing email';
       else if (!EMAIL_PATTERN.test(f.email)) errors.email = 'Enter a valid email address';
+      const phoneProblem = phoneFieldProblem(f.phone, f.phoneDial);
+      if (phoneProblem) errors.phone = phoneProblem;
       ['street', 'city', 'province', 'postalCode'].forEach(field => {
         if (!f.address[field]) errors[`address.${field}`] = 'Required';
       });
@@ -445,6 +518,8 @@ export default {
       const body = {
         legalName: f.legalName,
         email: f.email,
+        // Always sent: a save without it would remove the saved phone (full save, contract §2)
+        phone: toInternationalPhone(f.phone, f.phoneDial),
         address: { ...f.address },
         taxIds: f.taxIds.map(({ type, number }) => ({ type, number }))
       };

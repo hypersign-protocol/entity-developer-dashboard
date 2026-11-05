@@ -93,11 +93,12 @@
                     <small v-if="fieldErrors.customerEmail" class="field-error">{{ fieldErrors.customerEmail }}</small>
                   </div>
                   <div class="field" :class="{ 'has-error': fieldErrors.phoneNumber }" data-field="phoneNumber">
-                    <label>Phone number</label>
-                    <div class="phone-control">
-                      <span v-if="callingCode">{{ callingCode }}</span>
-                      <input v-model.trim="form.basic.phoneNumber" type="tel" placeholder="9876543210" autocomplete="tel-national" />
-                    </div>
+                    <label>Phone number <span class="required-marker">*</span></label>
+                    <PhoneInput
+                      v-model="form.basic.phoneNumber"
+                      :dial.sync="form.basic.phoneDial"
+                      :invalid="Boolean(fieldErrors.phoneNumber)"
+                    />
                     <small v-if="fieldErrors.phoneNumber" class="field-error">{{ fieldErrors.phoneNumber }}</small>
                   </div>
                   <div class="field" :class="{ 'has-error': fieldErrors.country }" data-field="country">
@@ -321,7 +322,9 @@ import HfPopUp from '../element/hfPopup.vue';
 import UtilsMixin from '../../mixins/utils';
 import countries from 'i18n-iso-countries';
 import enLocale from 'i18n-iso-countries/langs/en.json';
-import { COUNTRY_OPTIONS, CALLING_CODES, countryName, countryOptionLabel, detectCountryFromIp } from '../../utils/countries.js';
+import { COUNTRY_OPTIONS, countryName, countryOptionLabel, detectCountryFromIp } from '../../utils/countries.js';
+import PhoneInput from '../element/PhoneInput.vue';
+import { phoneFieldProblem, toInternationalPhone, splitInternational } from '../../utils/phone.js';
 import {
   OTHER_COUNTRY,
   OTHER_TYPE,
@@ -359,10 +362,9 @@ const ACCEPTED_TYPES = ['application/pdf', 'image/png', 'image/jpeg'];
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 // Same rule as the onboarding company details step
-const PHONE_PATTERN = /^\+?[\d\s()-]{7,20}$/;
 
 const emptyForm = () => ({
-  basic: { companyName: '', domain: '', customerEmail: '', phoneNumber: '', country: '' },
+  basic: { companyName: '', domain: '', customerEmail: '', phoneNumber: '', phoneDial: '', country: '' },
   registrationNumber: '',
   address: { line1: '', line2: '', city: '', state: '', postalCode: '' },
   taxApplicable: true,
@@ -372,7 +374,7 @@ const emptyForm = () => ({
 
 export default {
   name: 'CompanyVerificationPopup',
-  components: { HfPopUp },
+  components: { HfPopUp, PhoneInput },
   mixins: [UtilsMixin],
   props: {
     value: { type: Boolean, default: false },
@@ -439,12 +441,9 @@ export default {
     isEmailValid() {
       return EMAIL_PATTERN.test(this.form.basic.customerEmail);
     },
-    callingCode() {
-      return CALLING_CODES[this.form.basic.country] || '';
-    },
+    // Wrong format only; a missing number is in requiredErrors
     phoneError() {
-      const phone = this.form.basic.phoneNumber;
-      return phone && !PHONE_PATTERN.test(phone) ? 'Enter a valid phone number.' : '';
+      return phoneFieldProblem(this.form.basic.phoneNumber, this.form.basic.phoneDial, { required: false });
     },
     registrationRule() {
       return getIdentifierRule('registration', this.countryCode);
@@ -508,6 +507,7 @@ export default {
         companyName: [basic.companyName, 'Enter your legal company name.'],
         domain: [basic.domain, 'Enter your website domain.'],
         customerEmail: [basic.customerEmail, 'Enter a contact email.'],
+        phoneNumber: [basic.phoneNumber, 'Enter a phone number.'],
         country: [basic.country, 'Select your country of registration.'],
         line1: [address.line1, 'Enter your street address.'],
         city: [address.city, 'Enter your city.'],
@@ -567,6 +567,12 @@ export default {
     verifiedDomain() {
       this.applyVerifiedDomain();
     },
+    // The dialling code follows the country of registration unless one was picked
+    'form.basic.country'(country, previous) {
+      const dial = this.form.basic.phoneDial;
+      const code = this.toCountryCode(country);
+      if (!dial || dial === this.toCountryCode(previous)) this.form.basic.phoneDial = code === 'XX' ? '' : code;
+    },
     value: {
       immediate: true,
       handler(open) {
@@ -604,7 +610,7 @@ export default {
         companyName: this.onboarding.companyName || '',
         domain: this.onboarding.domain || this.domain || '',
         customerEmail: this.onboarding.customerEmail || '',
-        phoneNumber: this.onboarding.phoneNumber || '',
+        ...this.phoneFromOnboarding(this.onboarding.phoneNumber, onboardingCountry),
         country: onboardingCountry,
       };
       this.form.registrationNumber = this.onboarding.registrationNumber || '';
@@ -623,6 +629,12 @@ export default {
     // Whatever onboarding or a previous submission saved, a verified domain wins
     applyVerifiedDomain() {
       if (this.verifiedDomain) this.form.basic.domain = this.verifiedDomain;
+    },
+    // The onboarding phone ("+919876543210") -> the input and its dialling-code chip
+    phoneFromOnboarding(phoneNumber, alpha3Country) {
+      const split = splitInternational(phoneNumber);
+      if (split) return { phoneNumber: split.phone, phoneDial: split.dialCountry };
+      return { phoneNumber: phoneNumber || '', phoneDial: this.toCountryCode(alpha3Country) === 'XX' ? '' : this.toCountryCode(alpha3Country) };
     },
     normalizeCountry(country) {
       return country?.length === 2 ? countries.alpha2ToAlpha3(country) : country || '';
@@ -788,7 +800,7 @@ export default {
       ].filter(({ doc }) => doc?.data);
       const formData = new FormData();
       formData.append('onboardingID', this.onboarding._id);
-      formData.append('phoneNumber', this.form.basic.phoneNumber || '');
+      formData.append('phoneNumber', toInternationalPhone(this.form.basic.phoneNumber, this.form.basic.phoneDial));
       formData.append('company', JSON.stringify(company));
       formData.append('documents', JSON.stringify(documentEntries.map(({ type }) => ({ type }))));
       documentEntries.forEach(({ doc }, index) => {
@@ -887,7 +899,6 @@ export default {
 .form-fieldset:disabled .segmented button { cursor: default; }
 .field select:disabled { background: #f8fafc; color: #657287; cursor: default; }
 .field input[type="email"]:disabled, .field input[type="tel"]:disabled { background: #f8fafc; color: #657287; }
-.form-fieldset:disabled .phone-control { background: #f8fafc; }
 .empty-file { margin: 0; padding: 10px 12px; border: 1px dashed #d5dde7; border-radius: 8px; background: #f8fafc; color: #8793a5; font-size: 12px; }
 .notice-success { border: 1px solid #b7e2cb; background: #f0faf4; color: #1f6b47; }
 .notice-success > .v-icon { color: #218459 !important; }
@@ -996,7 +1007,6 @@ export default {
 .field.has-error input[type="email"],
 .field.has-error input[type="tel"],
 .field.has-error select,
-.field.has-error .phone-control,
 .field.has-error .dropzone { border-color: #f04438; }
 
 /* Same dropdown affordance as the onboarding country field */
@@ -1054,20 +1064,7 @@ export default {
 
 .tip > .v-icon { margin-top: 2px; color: #4a6fa5 !important; }
 
-.phone-control {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  height: 38px;
-  padding: 0 11px;
-  border: 1px solid #d5dde7;
-  border-radius: 6px;
-  background: #fff;
-}
 
-.phone-control:focus-within { border-color: #2f6fec; box-shadow: 0 0 0 2px rgba(47,111,236,.12); }
-.phone-control span { color: #5d6b7e; font-size: 13px; }
-.field .phone-control input { height: 34px; padding: 0; border: 0; box-shadow: none; }
 .field input[type="text"]:disabled { background: #f8fafc; color: #657287; }
 .required-marker { color: #dc3545; }
 

@@ -108,6 +108,7 @@ The company details printed on invoices. They are stored on the organisation's o
   "orgId": "69832fafec5bf58b25caff2b",
   "legalName": "Acme Technologies Private Limited",
   "email": "billing@acme.example",
+  "phone": "+919876543210",
   "address": {
     "street": "12 MG Road",
     "city": "Bengaluru",
@@ -129,6 +130,7 @@ The company details printed on invoices. They are stored on the organisation's o
 
 | Field | Notes |
 |---|---|
+| `phone` | International form, stored without spaces (`+493012345678`); `null` if not given. Optional, and not part of `complete`, but **Global customers need it to pay online** (Razorpay asks for it on international payments): checkout and payment links answer `422 BILLING_PROFILE_INCOMPLETE` with `missingFields: ["phone"]` without it |
 | `address.country` | ISO 3166-1 alpha-2 code |
 | `gstStateCode` | India only, 2 digits. The server works it out from a GSTIN. Without a GSTIN, the UI sends it from a state dropdown |
 | `taxIds[].type` | `GSTIN`, `PAN`, `VAT`, … (the existing `TaxIdTypes`). The server validates the number against the type |
@@ -152,6 +154,7 @@ Saves the profile. Needs `WRITE_BILLING`.
 {
   "legalName": "Acme Technologies Private Limited",
   "email": "billing@acme.example",
+  "phone": "+91 98765 43210",
   "address": { "street": "12 MG Road", "city": "Bengaluru", "province": "Karnataka", "postalCode": "560001", "country": "IN" },
   "gstStateCode": "29",
   "taxIds": [{ "type": "GSTIN", "number": "29ABCDE1234F1Z5" }]
@@ -159,7 +162,8 @@ Saves the profile. Needs `WRITE_BILLING`.
 ```
 
 - **200:** the saved `BillingProfile`, with `source: "SAVED"`.
-- **400 `VALIDATION_FAILED`:** for example, an invalid GSTIN appears as `details.fields["taxIds[0].number"]`.
+- **400 `VALIDATION_FAILED`:** for example, an invalid GSTIN appears as `details.fields["taxIds[0].number"]`, and a phone without its country code as `details.fields.phone`.
+- `phone` must start with `+` and the country code; spaces and dashes are fine. This is a full save: leaving `phone` out (or `""`) removes a saved one, so always send the current value.
 - **409 `BILLING_PROFILE_LOCKED`:** the request changed the tax IDs of a locked profile.
 
 ---
@@ -447,6 +451,7 @@ India, **Already paid**, customer in Maharashtra:
   "validityDays": 30,
   "payment": { "method": "BANK_TRANSFER", "reference": "UTR0012345678", "provider": null, "paymentId": null, "paidAt": "2026-10-30T00:00:00.000Z" },
   "payNowUrl": null,
+  "fx": null,
   "voidedAt": null,
   "voidReason": null
 }
@@ -469,6 +474,14 @@ Rendering rules:
 - **`taxNote`, `placeOfSupply`, `supplier.cin` and `supplier.lutArn`:** print them when not `null`.
 - **The line's sub-text** ("40,000 credits · valid 30 days · Acme KYC") comes from `credits`, `validityDays` and `app.appName`.
 - **File name:** the invoice number with `/` replaced by `-`, for example `HS-IN-2026-27-000123.pdf`.
+
+`fx` (USD invoices paid online): the INR value at the rate Razorpay converted the payment at, for GST and export reporting. `null` for INR invoices, and for USD invoices not paid through Razorpay.
+
+```json
+"fx": { "inrPerUnit": 84.05, "totalInrMinor": 1003557, "rateDate": "2026-11-05T10:00:00.000Z", "source": "PROVIDER" }
+```
+
+Print it as "INR equivalent: ₹10,035.57 (1 USD = ₹84.05, Razorpay rate on 5 Nov 2026)".
 
 #### `GET /api/v1/billing/invoices/:invoiceId`
 
@@ -637,6 +650,8 @@ There are no gateway webhooks yet. The server asks Razorpay for the payment stat
 
 ### 6. Checkout
 
+India pays in INR and Global in USD, both through Razorpay Standard Checkout; `checkout.currency` says which. Global orders carry no tax. `checkout.prefill.contact` is the billing phone, when there is one.
+
 ```mermaid
 sequenceDiagram
   actor U as Customer
@@ -681,7 +696,7 @@ Returned by every endpoint in this section.
     "currency": "INR",
     "name": "Hypersign",
     "description": "2,499 credits for Acme KYC",
-    "prefill": { "name": "Acme Private Limited", "email": "billing@acme.example" }
+    "prefill": { "name": "Acme Private Limited", "email": "billing@acme.example", "contact": "+919876543210" }
   },
   "payment": null,
   "lastPaymentError": null,
@@ -747,7 +762,7 @@ rzp.open();
 | 409 | `QUOTE_EXPIRED` | Request a new quote. If the total changed, ask the user to confirm; otherwise retry Pay with a new key. `details.reason`: `QUOTE_EXPIRED`, `PRICES_CHANGED`, `TAX_CHANGED`, `REGION_CHANGED` |
 | 409 | `IDEMPOTENCY_KEY_REUSED` | The key was used for another quote: a dashboard bug; use a new key |
 | 422 | `COUPON_INVALID` | Remove the coupon, re-quote, show the new total and ask the user to confirm |
-| 422 | `BILLING_PROFILE_INCOMPLETE` | Show the billing details form (`details.missingFields`) |
+| 422 | `BILLING_PROFILE_INCOMPLETE` | Show the billing details form (`details.missingFields`; `["phone"]` for a Global customer without a phone) |
 | 503 | `PAYMENTS_UNAVAILABLE` | "Payments are temporarily unavailable", with a retry (same key) |
 | 503 | `BILLING_NOT_CONFIGURED` | As above. Our invoice settings are missing; nothing is charged |
 
@@ -800,7 +815,7 @@ The customer gives up on an unpaid order: frees the coupon straight away. No bod
 
 The super admin's third option on **Recharge Service Credits**. It creates a Razorpay payment link for the amount with tax. Razorpay can email it to the customer, and the super admin can copy it and send it any way they like. **No invoice exists until the customer pays.** Then the server issues the invoice (`source: "ADMIN"`, `settlement: "GATEWAY"`) and grants the credits, exactly as for **Already paid**. An expired or voided link leaves nothing behind.
 
-Payment status comes from Razorpay's API (no webhooks yet): the server checks open links every 15 minutes, and whenever a link is opened with `GET`. India only for now.
+Payment status comes from Razorpay's API (no webhooks yet): the server checks open links every 15 minutes, and whenever a link is opened with `GET`. India (INR) and Global (USD). A Global customer needs a phone in their billing details first.
 
 #### `PaymentLink` object
 
@@ -939,6 +954,77 @@ The organisation's open links, for "Awaiting payment" rows in Credit Purchase Hi
 
 Show each one as "{credits} credits · Awaiting payment · Due by {expiresAt}" with **Pay now**, which opens `url` in a new tab. Once paid, the row disappears from this list and the invoice and plan appear as usual.
 
+### 8. Free-credit promotion
+
+Onboarding no longer grants starter credits. Instead the dashboard shows a banner, and the customer claims the free credits themselves. Each organisation can claim **once per service** (SSI, ID Service). The claim is recorded on the organisation, so deleting an app and creating a new one does not allow a second claim. Free credits granted before this existed count as claimed: any `PROMOTION` plan on the organisation's apps, and for ID Service the old onboarding starter credits (`CUSTOMER_ONBOARDING`).
+
+**Before claiming, the organisation must save complete billing details, for every service.** Details pre-filled from KYB count only once the customer has saved them. Company verification (KYB) is not waited for, as with going live.
+
+An ID Service claim is always issued as a ₹0 invoice (`source: PROMOTION`, `settlement: COMPLIMENTARY`) before the credits are granted, whatever `BILLING_INVOICED_GRANTS` says. That needs complete billing details and the `BILLING_SUPPLIER_*` settings. SSI claims are not invoiced, like other SSI credits.
+
+#### 8.1 `GET /api/v1/billing/promotion?appId=…`
+
+Whether to show the banner for this app. Only the app's owner sees it; another owner's app returns `404 APP_NOT_FOUND`.
+
+```json
+{
+  "appId": "98f0815cf8c2096a2b54ea1746f5b9538a72",
+  "serviceId": "CAVACH_API",
+  "eligible": false,
+  "claimed": false,
+  "reason": "BILLING_PROFILE_INCOMPLETE",
+  "missingFields": ["address.postalCode"],
+  "offer": { "credits": 5000, "validityDays": 15 },
+  "invoiced": true,
+  "claim": null
+}
+```
+
+| `reason` | Meaning | Banner |
+| --- | --- | --- |
+| `null` (`eligible: true`) | Can claim now | Show **Claim free credits** |
+| `BILLING_PROFILE_INCOMPLETE` | Billing details not saved or incomplete (`missingFields`) | Show it with **Add billing details** instead of Claim |
+| `ALREADY_CLAIMED` | The organisation has claimed for this service (`claim` says on which app and when) | Hide |
+| `ONBOARDING_NOT_APPROVED` | Onboarding isn't approved yet | Hide |
+| `SERVICE_NOT_ELIGIBLE` | Not an SSI or ID Service app | Hide |
+| `BILLING_NOT_CONFIGURED` | Invoicing settings missing on the server | Hide |
+
+`claim` (when present): `{ status: "CLAIMING" | "GRANTED", appId, credits, validityDays, claimedAt, grantedAt, creditPlanId, invoiceId, invoiceNumber }`. `CLAIMING` with `eligible: true` is an interrupted claim; claiming again finishes it.
+
+#### 8.2 `POST /api/v1/billing/promotion/claim`
+
+Body `{ "appId": "…" }`; the server sets the amount and validity. Needs `WRITE_BILLING`. `201`:
+
+```json
+{
+  "message": "Free credits granted.",
+  "claim": {
+    "status": "GRANTED",
+    "appId": "98f0815cf8c2096a2b54ea1746f5b9538a72",
+    "credits": 5000,
+    "validityDays": 15,
+    "claimedAt": "2026-11-04T10:00:00.000Z",
+    "grantedAt": "2026-11-04T10:00:01.000Z",
+    "creditPlanId": "6728a1…",
+    "invoiceId": "6728a2…",
+    "invoiceNumber": "HS/IN/2026-27/0007"
+  },
+  "creditsActive": "IMMEDIATELY"
+}
+```
+
+`creditsActive` is `AFTER_CURRENT_PLAN` when another plan is active. `invoiceId` and `invoiceNumber` are `null` when the claim isn't invoiced.
+
+| Status | `code` | When |
+| --- | --- | --- |
+| 409 | `PROMOTION_ALREADY_CLAIMED` | Already claimed for this service by the organisation; `details.claim` has the claim |
+| 409 | `PROMOTION_CLAIM_IN_PROGRESS` | Another claim for the organisation is running; check §8.1 again after a few seconds |
+| 422 | `PROMOTION_NOT_ELIGIBLE` | `details.reason` is one of the §8.1 reasons, with `missingFields` for `BILLING_PROFILE_INCOMPLETE` |
+| 404 | `APP_NOT_FOUND` | Not the caller's app |
+| 500 | | Granting failed after the claim was recorded; retry, which finishes it without granting twice |
+
+`POST /api/v1/app/:appId/credits` is super-admin only again, and refuses `source: PROMOTION` with 400: free credits are granted only through this claim, so that it's recorded on the organisation.
+
 ---
 
 ## Changelog
@@ -952,5 +1038,7 @@ Show each one as "{credits} credits · Awaiting payment · Due by {expiresAt}" w
 | 2026-11-01 | Invoices: PDFs are rendered by the dashboard. `GET /billing/invoices/:id/download` and `GET /admin/billing/invoices/:id/download` are replaced by `GET /billing/invoices/:id` and `GET /admin/billing/invoices/:id`, which return the new `InvoiceDocument` object (§4). `POST /billing/invoices/:id/email` is deferred. |
 | 2026-10-31 | Global charges no tax: `taxMode` and `tax.mode` are `NONE` with `tax.amountMinor: 0` (was `CALCULATED_AT_CHECKOUT` with `null`). India unchanged: a single "GST 18%" line until the customer's state is known. |
 | 2026-10-31 | §2 and §3.3 implemented: `GET`/`PUT /customer-onboarding/billing` and `POST /billing/quotes`. §2: `complete` also requires a saved profile. §3.3: added `429 RATE_LIMITED` for repeated rejected coupon codes. |
+| 2026-11-04 | Global payments: §6 checkout and §7 payment links in USD through Razorpay. `BillingProfile` gains `phone` (international form), needed for Global customers to pay (`BILLING_PROFILE_INCOMPLETE` with `missingFields: ["phone"]`). `checkout.prefill.contact`. `InvoiceDocument` gains `fx`, the INR value at Razorpay's conversion rate. |
 | 2026-11-03 | §6 agreed for phase 1 (India, Razorpay Standard Checkout, no webhooks): `POST /billing/orders` returns `checkout` options instead of `checkoutUrl`; new `POST /billing/orders/:id/confirm`; the `Order` object gains `validityDays`, `checkout`, `payment`, `lastPaymentError`, `creditPlanId`, `creditsActive`; cancel is 6.4. New codes `IDEMPOTENCY_KEY_REUSED`, `PAYMENT_VERIFICATION_FAILED`, `ORDER_NOT_FOUND`, `ORDER_NOT_PAYABLE`, `ORDER_NOT_CANCELLABLE`. §7 stays provisional (phase 2). |
+| 2026-11-04 | §8 added: free-credit promotion. New `GET /billing/promotion` and `POST /billing/promotion/claim`, which replaces customers calling `POST /app/:appId/credits` `{ source: PROMOTION }`; that endpoint is super-admin only again and refuses `PROMOTION`. A claim is once per organisation and service, answers `409 PROMOTION_ALREADY_CLAIMED` on a repeat (was a 200), and always issues a ₹0 `PROMOTION` invoice for ID Service (not tied to `BILLING_INVOICED_GRANTS`); SSI is not invoiced. Claims need saved, complete billing details for every service (`BILLING_PROFILE_INCOMPLETE`); KYB approval is not required. Invoice `source` gains `PROMOTION`. |
 | 2026-11-03 | §7 agreed: Collect payment creates a Razorpay payment link (`POST /admin/billing/invoices` with `isPaid: false` returns `{ invoice: null, paymentLink }`). The invoice is issued only when the link is paid (Q11: no unpaid invoices). `recipients` is replaced by `notifyByEmail`, `notifyEmail` and `linkExpiresInDays`. New `GET /admin/billing/payment-links`, `GET …/:id`, `POST …/:id/resend`, `POST …/:id/cancel`, and customer `GET /billing/payment-links`. `mark-paid` is dropped: void the link and use Already paid. Preview: `willIssueAs.status: AWAITING_PAYMENT`, `creditsActive: WHEN_PAID`. |

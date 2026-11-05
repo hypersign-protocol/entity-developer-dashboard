@@ -96,11 +96,8 @@
               @click="selectPlan(plan.code)"
             >
               <span class="plan-amount">{{ formatMoney(plan.priceMinor) }}</span>
-              <span v-if="plan.discountBps" class="plan-save">Save {{ formatPercent(plan.discountBps) }}</span>
-              <span class="plan-meta">
-                <span>{{ formatMoney(plan.totalBeforeTaxMinor) }}</span>
-                <span>{{ formatCount(plan.credits) }} credits</span>
-              </span>
+              <!-- No discount keeps the chip's space, so every card's rows line up -->
+              <span class="plan-save" :class="{ empty: !plan.discountBps }">{{ plan.discountBps ? `Save ${formatPercent(plan.discountBps)}` : '\u00a0' }}</span>
               <span class="plan-check" aria-hidden="true"><v-icon x-small>mdi-check</v-icon></span>
             </button>
           </div>
@@ -441,6 +438,9 @@ export default {
     };
   },
   computed: {
+    isGlobal() {
+      return Boolean(this.catalog && this.catalog.region === 'GLOBAL');
+    },
     currency() {
       return this.catalog ? this.catalog.currency : 'INR';
     },
@@ -895,6 +895,7 @@ export default {
 }
 
 .plan-option.selected .plan-save { background: #e6efff; color: #2563dc; }
+.plan-save.empty, .plan-option.selected .plan-save.empty { visibility: hidden; }
 
 .plan-check {
   position: absolute;

@@ -55,6 +55,23 @@ function v1AddressLines(address) {
   return [address.street, cityLine, v1CountryName(address.country)].filter(Boolean);
 }
 
+// invoice-v1's INR line for a USD invoice paid online. Its wording and format are part of
+// invoice-v1: "INR equivalent: ₹10,035.57 (1 USD = ₹84.05, Razorpay rate on 5 Nov 2026)".
+// A different line would be invoice-v2. null when the invoice has no fx (every invoice issued
+// before Global payments, and INR invoices).
+function v1FxLine(doc) {
+  const fx = doc.fx;
+  if (!fx) return null;
+  const inr = (value, digits) => new Intl.NumberFormat('en-IN', {
+    style: 'currency', currency: 'INR', minimumFractionDigits: 2, maximumFractionDigits: digits,
+  }).format(Number(value) || 0);
+  // The supplier is Indian: the rate date is the date in India, whoever opens the PDF
+  const date = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Asia/Kolkata' })
+    .format(new Date(fx.rateDate));
+  const provider = (doc.payment && V1_PROVIDERS[doc.payment.provider]) || 'Razorpay';
+  return `INR equivalent: ${inr((fx.totalInrMinor || 0) / 100, 2)} (1 ${doc.currency} = ${inr(fx.inrPerUnit, 4)}, ${provider} rate on ${date})`;
+}
+
 function v1Discounts(discounts) {
   const rows = [];
   const plan = discounts && discounts.plan;
@@ -132,6 +149,7 @@ export function toInvoiceV1Model(doc) {
       paidAt: payment.paidAt || doc.paidAt
     } : null,
     paymentLink: doc.payNowUrl ? { url: doc.payNowUrl } : null,
+    fxLine: v1FxLine(doc),
     notes: [
       `Credits are valid for ${doc.validityDays} days from activation and cannot be carried forward.`,
       doc.status === 'UNPAID' ? 'Credits on this invoice are activated once the payment is confirmed.' : null,

@@ -316,7 +316,14 @@ export function buildInvoiceDocument(invoice, { logo } = {}) {
               paymentPanel(invoice)
             ]
           },
-          { width: 200, ...totalsTable(invoice) }
+          {
+            width: 200,
+            stack: [
+              totalsTable(invoice),
+              // USD invoices paid online: the INR value at the gateway's rate (printed only when set)
+              invoice.fxLine ? { text: invoice.fxLine, fontSize: 7.5, color: COLORS.muted, margin: [0, 6, 0, 0] } : null
+            ].filter(Boolean)
+          }
         ],
         columnGap: 28,
         margin: [0, 16, 0, 0]
