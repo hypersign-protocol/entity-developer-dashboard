@@ -330,6 +330,17 @@
           </li>
         </ul>
       </template>
+
+      <!-- Some offers need an approved business verification; the server leaves them out until then -->
+      <div v-if="!couponsLoading && couponVerifyNotice" class="coupon-verify" role="note">
+        <v-icon small>mdi-shield-check-outline</v-icon>
+        <div>
+          <span>{{ couponVerifyNotice.text }}</span>
+          <button v-if="couponVerifyNotice.action" type="button" class="topup-retry" @click="goToVerification">
+            {{ couponVerifyNotice.action }}
+          </button>
+        </div>
+      </div>
     </b-modal>
 
     <b-modal
@@ -374,6 +385,7 @@ import BillingDetails from '../settings/BillingDetails.vue';
 import payCheckoutMixin from './payCheckoutMixin';
 import { getCatalog, getCoupons, createQuote } from '../../utils/billingApi';
 import { formatMinor, formatBps, formatCount } from '../../utils/billingFormat';
+import { COMPANY_REVIEW, companyReviewStatus } from '../production/companyReview.js';
 
 const QUOTE_DEBOUNCE_MS = 400;
 const COUPON_INVALID_MESSAGE = 'This coupon code is not valid.';
@@ -433,11 +445,27 @@ export default {
       couponError: '',
       couponNotice: '',
       applyingCoupon: false,
+      // COMPANY_REVIEW value; null until looked up, which happens when the coupon dialog opens
+      companyStatus: null,
       calculatorOpen: false,
       addOnsOpen: false
     };
   },
   computed: {
+    // Why some offers may be missing from the coupon dialog, and where to fix it
+    couponVerifyNotice() {
+      switch (this.companyStatus) {
+        case COMPANY_REVIEW.NOT_SUBMITTED:
+          return { text: 'More offers unlock once your business is verified.', action: 'Verify your business' };
+        case COMPANY_REVIEW.REJECTED:
+          return { text: 'Your business verification was not approved. Update it to unlock more offers.', action: 'Review verification' };
+        case COMPANY_REVIEW.PROCESSING:
+        case COMPANY_REVIEW.UNDER_REVIEW:
+          return { text: 'More offers unlock once your business verification is approved.' };
+        default:
+          return null;
+      }
+    },
     isGlobal() {
       return Boolean(this.catalog && this.catalog.region === 'GLOBAL');
     },
@@ -705,6 +733,24 @@ export default {
       this.couponNotice = '';
       this.couponDialogOpen = true;
       this.loadCoupons();
+      // Once verified it stays verified; otherwise check again, as approval happens on the server
+      if (this.companyStatus !== COMPANY_REVIEW.VERIFIED) this.loadCompanyStatus();
+    },
+    async loadCompanyStatus() {
+      try {
+        const onboarding = await this.$store.dispatch('mainStore/checkIfAlreadyExistOnBoarding');
+        this.companyStatus = companyReviewStatus(onboarding);
+      } catch (error) {
+        // Never tell a possibly verified customer to verify: show no notice
+        console.error('Could not check company verification:', (error && error.message) || error);
+        this.companyStatus = null;
+      }
+    },
+    // Business verification lives on the app's Go Live tab
+    goToVerification() {
+      this.couponDialogOpen = false;
+      this.$emit('input', false);
+      this.$router.push(`/studio/service-config/${this.appId}?tab=go-live`).catch(() => {});
     },
     focusCouponInput() {
       if (this.$refs.couponInput) this.$refs.couponInput.focus();
@@ -1230,6 +1276,23 @@ export default {
 .coupon-offer-main small.coupon-saving { color: #2563dc; font-weight: 600; }
 
 .coupon-apply { flex: 0 0 auto; height: 32px; padding: 0 12px; font-size: 12px; }
+
+.coupon-verify {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-top: 16px;
+  padding: 10px 12px;
+  border: 1px solid #dbe6fb;
+  border-radius: 8px;
+  background: #f7faff;
+  color: #475467;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.coupon-verify .v-icon { margin-top: 1px; color: #2563dc; }
+.coupon-verify button { margin-left: 4px; font-size: 12px; }
 
 /* "Understand your credits": deliberately quiet */
 .credits-help {
