@@ -24,8 +24,14 @@
           <StepCreateSSIService
             v-else-if="!isLoading && currentStep === 4"
             :company="company"
-            :is-refreshing="isRefreshingStatus"
-            @refresh-status="refreshOnboardingStatus"
+            :is-checking="isCheckingStatus"
+            :is-check-disabled="isCheckStatusDisabled"
+            :is-retrying="isRetrying"
+            :is-retry-disabled="isRetryDisabled"
+            :retry-forbidden="retryForbidden"
+            :notice="onboardingNotice"
+            @check-status="checkOnboardingStatus"
+            @retry="retryOnboardingSetup(company._id)"
           />
         </main>
 
@@ -91,6 +97,7 @@ import StepIntendedUse from './StepIntendedUse.vue';
 import StepCompanyPreview from './StepCompanyPreview.vue';
 import StepCreateSSIService from './StepCreateSSIService.vue';
 import config from '../../config';
+import onboardingActions from '../../mixins/onboardingActions';
 import { toAcceptedCountryCode, OTHER_COUNTRY_CODE } from '../../utils/countries.js';
 import { toInternationalPhone, splitInternational, phoneErrorMessage } from '../../utils/phone.js';
 
@@ -104,6 +111,7 @@ function savedPhone(phoneNumber, country) {
 export default {
   name: 'OnboardingStepper',
   components: { StepCompanyDetails, StepIntendedUse, StepCompanyPreview, StepCreateSSIService },
+  mixins: [onboardingActions],
   data() {
     return {
       isLoading: true,
@@ -119,7 +127,6 @@ export default {
       },
       steps: [{ label: 'Organization' }, { label: 'Intended use' }],
       isProcessingCredit: false,
-      isRefreshingStatus: false,
       creditErrorMessage: null,
       // Field errors from the API, shown on the step that has the field
       fieldErrors: {},
@@ -148,7 +155,7 @@ export default {
           this.populateCompanyFromOnboarding(existing);
           if (this.redirectToDashboardIfApproved(existing)) return;
           const status = (existing.onboardingStatus || existing.status || '').toUpperCase();
-          if (['INITIATED', 'FAILED'].includes(status)) {
+          if (['INITIATED', 'PROCESSING', 'FAILED'].includes(status)) {
             this.hasSubmitted = true;
             this.currentStep = 4;
           }
@@ -161,6 +168,7 @@ export default {
     },
     populateCompanyFromOnboarding(data) {
       this.company = {
+        _id: data._id, processingActive: data.processingActive,
         name: data.companyName || '', logo: data.companyLogo || '',
         contact_email: data.customerEmail || '', domain: data.domain || '',
         type: data.type === 2 || data.type === 'COMMUNITY' ? 'COMMUNITY' : 'BUSINESS',
@@ -206,20 +214,9 @@ export default {
       if (this.$route.path !== '/studio/dashboard') this.$router.push('/studio/dashboard');
       return true;
     },
-    async refreshOnboardingStatus() {
-      if (this.isRefreshingStatus) return;
-      this.isRefreshingStatus = true;
-      try {
-        const existing = await this.$store.dispatch('mainStore/checkIfAlreadyExistOnBoarding');
-        if (existing && existing._id) {
-          this.populateCompanyFromOnboarding(existing);
-          this.redirectToDashboardIfApproved(existing);
-        }
-      } catch (error) {
-        console.error(error?.message || error);
-      } finally {
-        this.isRefreshingStatus = false;
-      }
+    applyOnboardingRecord(record) {
+      this.populateCompanyFromOnboarding(record);
+      this.redirectToDashboardIfApproved(record);
     },
     async processCreditRequest() {
       if (this.isProcessingCredit || this.hasSubmitted) return;
@@ -227,7 +224,7 @@ export default {
       this.creditErrorMessage = null;
       try {
         const result = await this.$store.dispatch('mainStore/onboardCustomer', this.buildCreditRequestPayload());
-        this.company = { ...this.company, onboardingStatus: result?.onboardingStatus || result?.status || 'INITIATED', logs: result?.logs || this.company.logs || [] };
+        this.company = { ...this.company, _id: result?._id, processingActive: result?.processingActive, onboardingStatus: result?.onboardingStatus || result?.status || 'INITIATED', logs: result?.logs || this.company.logs || [] };
         this.showConfirmation = false;
         this.hasSubmitted = true;
         this.currentStep = 4;

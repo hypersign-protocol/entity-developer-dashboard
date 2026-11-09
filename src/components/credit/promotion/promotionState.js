@@ -146,10 +146,10 @@ async function handleClaimError(appId, error, onNotice) {
     return { ok: false };
   }
   if (code === 'PROMOTION_NOT_ELIGIBLE') {
-    // Billing details missing: the banner switches to Add billing details
+    // Billing details missing: the banner switches to the step the customer needs next
     if (reason === 'BILLING_PROFILE_INCOMPLETE') {
       patchStatus(appId, { eligible: false, reason, missingFields: (error.details && error.details.missingFields) || [] });
-      return { ok: false, error: 'Please add your billing details to claim the free credits.' };
+      return { ok: false, error: 'Please complete the step shown to claim the free credits.' };
     }
     patchStatus(appId, { eligible: false, reason: reason || 'NOT_ELIGIBLE' });
     return { ok: false, error: error.message };

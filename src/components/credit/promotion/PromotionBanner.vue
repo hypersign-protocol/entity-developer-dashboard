@@ -17,9 +17,13 @@
           {{ claiming ? 'Claiming…' : 'Claim free credits' }}
         </button>
       </template>
+      <template v-else-if="view.kind === 'verify'">
+        <span v-if="!canClaim" class="promo-note">Ask your account owner to verify your company.</span>
+        <button v-else type="button" class="promo-btn" @click="goToVerification">Verify your company</button>
+      </template>
       <template v-else-if="view.kind === 'billing'">
-        <span v-if="!canClaim" class="promo-note">Ask your account owner to add them.</span>
-        <button v-else type="button" class="promo-btn" @click="billingOpen = true">Add billing details</button>
+        <span v-if="!canClaim" class="promo-note">Ask your account owner to confirm them.</span>
+        <button v-else type="button" class="promo-btn" @click="billingOpen = true">Confirm billing details</button>
       </template>
 
       <button type="button" class="promo-close" aria-label="Hide" :disabled="claiming" @click="dismiss">
@@ -35,8 +39,10 @@
 </template>
 
 <script>
+import EventBus from '../../../eventbus';
 import UtilsMixin from '../../../mixins/utils';
 import BillingDetails from '../../settings/BillingDetails.vue';
+import { COMPANY_REVIEW, companyReviewStatus } from '../../production/companyReview.js';
 import {
   promotionState,
   loadPromotion,
@@ -45,9 +51,12 @@ import {
   dismissPromotion,
 } from './promotionState';
 
+const COMPANY_STATUS_UNKNOWN = 'UNKNOWN';
+const COMPANY_RECHECK_MS = 30 * 1000;
+
 /**
  * Free-credit offer, shown only when GET /billing/promotion says the app's organisation can claim
- * it (or could, once its billing details are saved). One component on every page that shows
+ * it (or could, once its business is verified and billing details saved). One component on every page that shows
  * the offer; their state is shared, so a claim anywhere updates all of them.
  */
 export default {
@@ -61,6 +70,8 @@ export default {
   data() {
     return {
       billingOpen: false,
+      // COMPANY_REVIEW value; null until known, only looked up when billing details are missing
+      companyStatus: null,
       // Hidden by × for this browser session
       dismissed: false,
     };
@@ -87,6 +98,13 @@ export default {
     canClaim() {
       return this.$store.getters['mainStore/hasAccess']('DASHBOARD', 'WRITE_BILLING');
     },
+    needsBillingDetails() {
+      const status = this.status;
+      return Boolean(status && !status.claimed && status.reason === 'BILLING_PROFILE_INCOMPLETE');
+    },
+    needsVerification() {
+      return [COMPANY_REVIEW.NOT_SUBMITTED, COMPANY_REVIEW.REJECTED].includes(this.companyStatus);
+    },
     view() {
       if (this.dismissed || !this.entry) return null;
       if (this.entry.result) {
@@ -100,12 +118,21 @@ export default {
       }
       const status = this.status;
       if (!status || status.claimed) return null;
-      // Claiming needs saved billing details (company verification isn't waited for)
+      // Business verification comes first and prefills billing, but the server only
+      // accepts billing details the customer has saved, so those are confirmed afterwards
       if (status.reason === 'BILLING_PROFILE_INCOMPLETE') {
+        if (!this.companyStatus) return null;
+        if (this.needsVerification) {
+          return {
+            kind: 'verify',
+            title: 'Free credits are waiting for you',
+            text: 'You need to verify your business to unlock them. There\'s nothing to pay.',
+          };
+        }
         return {
           kind: 'billing',
           title: 'Free credits are waiting for you',
-          text: 'Add your billing details to unlock them. It takes a minute and there\'s nothing to pay.',
+          text: 'Confirm your billing details to unlock them. It takes a minute and there\'s nothing to pay.',
         };
       }
       // eligible with claim.status CLAIMING is an interrupted claim: claiming again finishes it
@@ -125,8 +152,46 @@ export default {
         if (appId) loadPromotion(appId);
       },
     },
+    needsBillingDetails: {
+      immediate: true,
+      handler(needed) {
+        if (needed && !this.companyStatus) this.loadCompanyStatus();
+      },
+    },
+  },
+  created() {
+    EventBus.$on('company-submitted', this.loadCompanyStatus);
+    document.addEventListener('visibilitychange', this.onVisibilityChange);
+  },
+  beforeDestroy() {
+    EventBus.$off('company-submitted', this.loadCompanyStatus);
+    document.removeEventListener('visibilitychange', this.onVisibilityChange);
   },
   methods: {
+    async loadCompanyStatus() {
+      this.companyCheckedAt = Date.now();
+      try {
+        const onboarding = await this.$store.dispatch('mainStore/checkIfAlreadyExistOnBoarding');
+        this.companyStatus = companyReviewStatus(onboarding);
+      } catch (error) {
+        console.error('Could not check company verification:', (error && error.message) || error);
+        // Never tell a possibly verified customer to verify. Billing details are what the
+        // server requires, so that step can still lead to the claim.
+        this.companyStatus = this.companyStatus || COMPANY_STATUS_UNKNOWN;
+      }
+    },
+    // Approval happens on the server, so a page left open can go stale. Rechecks are
+    // spaced out because the onboarding routes share a limit of 10 requests a minute.
+    onVisibilityChange() {
+      if (document.visibilityState !== 'visible' || !this.needsVerification) return;
+      if (Date.now() - this.companyCheckedAt >= COMPANY_RECHECK_MS) this.loadCompanyStatus();
+    },
+    async goToVerification() {
+      await this.loadCompanyStatus();
+      // Already verified: the banner has switched to the next step, so stay here
+      if (this.needsVerification) this.$router.push(
+      `/studio/service-config/${this.appId}?tab=go-live`).catch(() => {});
+    },
     async claim() {
       if (this.claiming) return;
       const outcome = await claimFreeCredits(this.resolvedAppId, { onNotice: text => this.notifyWarn(text) });

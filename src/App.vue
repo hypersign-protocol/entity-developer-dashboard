@@ -674,6 +674,7 @@ color: #1a1a2e !important;
     <div
       :class="[isSidebarCollapsed ? 'container-collapsed-not' : 'container-collapsed']"
     >
+      <onboarding-attention-banner v-if="showOnboardingBanner" class="container" />
       <router-view
         :key="$route.params.appId || $route.name"
         class="container containerData"
@@ -723,8 +724,9 @@ import { RequestHandler } from "./utils/utils";
 import config from "./config";
 import * as EN from "./language/en";
 import AppLogo from "./components/element/AppLogo.vue";
+import OnboardingAttentionBanner from "./components/stepper/OnboardingAttentionBanner.vue";
 export default {
-  components: { AppLogo },
+  components: { AppLogo, OnboardingAttentionBanner },
   computed: {
     ...mapGetters("playgroundStore", ["getSelectedOrg"]),
     ...mapGetters("mainStore", [
@@ -737,6 +739,11 @@ export default {
       "isMFAEnabled",
       "getAppsWithKYCServices",
     ]),
+    // Lives in the shell because admins go straight from the dashboard to their service.
+    // Leaving the status page remounts it, which picks up the record a retry just changed.
+    showOnboardingBanner() {
+      return this.$route.meta.requiresAuth && this.$route.path !== '/studio/onboarding';
+    },
     displayName() {
       const details = this.userDetails || {};
       return details.name || (details.email ? details.email.split('@')[0] : '') || 'User';

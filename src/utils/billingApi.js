@@ -49,7 +49,7 @@ function refreshSession() {
 }
 
 // The session is in the accessToken cookie, so no Authorization header is sent (contract §1.1)
-async function request(path, { method = 'GET', query, body, headers = {}, retry = true } = {}) {
+export async function request(path, { method = 'GET', query, body, headers = {}, retry = true } = {}) {
   const options = { method, credentials: 'include', headers: { ...headers } };
   if (body !== undefined) {
     options.headers['Content-Type'] = 'application/json';

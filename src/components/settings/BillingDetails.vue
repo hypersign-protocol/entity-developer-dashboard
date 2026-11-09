@@ -166,6 +166,8 @@
           >
             <v-icon x-small>mdi-plus</v-icon> Add tax ID
           </button>
+          <p><small v-if="errorFor('taxIds')" class="field-error">{{errorFor('taxIds')}}</small></p>
+          
         </section>
 
         <!-- India without a GSTIN: the customer picks the state; with one, the server reads it from the GSTIN -->
@@ -309,8 +311,9 @@ export default {
       return this.admin || this.$store.getters['mainStore/hasAccess']('DASHBOARD', 'WRITE_BILLING');
     },
     isIndia() {
-      if (this.admin) return this.form.region === 'IN';
-      return Boolean(this.profile && this.profile.region === 'IN');
+      console.log({region: this.form.region, countery: this.form.address.country})
+      if (this.admin) return this.form.address.country === 'IN';
+      return Boolean(this.profile && this.form.address.country === 'IN');
     },
     // Unlike the customer, a super admin may change tax IDs on a locked profile
     taxIdsReadOnly() {
@@ -504,6 +507,7 @@ export default {
         if (!f.address[field]) errors[`address.${field}`] = 'Required';
       });
       if (!f.address.country) errors['address.country'] = 'Select a country';
+      if (this.isIndia && f.taxIds.length == 0) errors['taxIds']= 'Enter tax ID'
       f.taxIds.forEach((taxId, index) => {
         const problem = taxIdNumberProblem(taxId);
         if (problem) errors[`taxIds[${index}].number`] = problem;

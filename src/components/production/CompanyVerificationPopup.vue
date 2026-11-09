@@ -320,6 +320,7 @@
 <script>
 import HfPopUp from '../element/hfPopup.vue';
 import UtilsMixin from '../../mixins/utils';
+import EventBus from '../../eventbus';
 import countries from 'i18n-iso-countries';
 import enLocale from 'i18n-iso-countries/langs/en.json';
 import { COUNTRY_OPTIONS, countryName, countryOptionLabel, detectCountryFromIp } from '../../utils/countries.js';
@@ -823,6 +824,8 @@ export default {
         else this.close();
         this.notifySuccess('Company details submitted for review.');
         this.$emit('submitted', updated);
+        // The free-credit banner moves on to its next step
+        EventBus.$emit('company-submitted');
       } catch (error) {
         this.notifyErr(error.message || 'Could not submit your details. Please try again.');
       } finally {
