@@ -92,7 +92,7 @@
 </template>
 
 <script>
-import StepCompanyDetails from './StepCompanyDetails.vue';
+import StepCompanyDetails, { DOMAIN_ERROR } from './StepCompanyDetails.vue';
 import StepIntendedUse from './StepIntendedUse.vue';
 import StepCompanyPreview from './StepCompanyPreview.vue';
 import StepCreateSSIService from './StepCreateSSIService.vue';
@@ -252,6 +252,14 @@ export default {
         if (/Invalid phone number format for country/.test(message)) {
           this.showConfirmation = false;
           this.fieldErrors = { phone: phoneErrorMessage(this.company.phone_dial) };
+          this.currentStep = 1;
+          this.scrollToTop();
+          return;
+        }
+        // "domain must be a valid domain name": back to the domain field
+        if (/domain must be a valid domain name/.test(message)) {
+          this.showConfirmation = false;
+          this.fieldErrors = { domain: DOMAIN_ERROR };
           this.currentStep = 1;
           this.scrollToTop();
           return;

@@ -31,7 +31,7 @@
       </div>
       <div class="field-group">
         <label for="organization-domain">Website or domain <em>*</em></label>
-        <input id="organization-domain" v-model.trim="localCompany.domain" type="text" placeholder="example.com" autocomplete="url" @input="domainWasAutofilled = false" />
+        <input id="organization-domain" v-model.trim="localCompany.domain" type="text" placeholder="example.com" autocomplete="url" :aria-invalid="errors.domain ? 'true' : 'false'" @input="onDomainInput" @blur="checkDomain" />
         <div v-if="isGmailAddress" class="personal-email-note">
           <i class="mdi mdi-information-outline" aria-hidden="true"></i>
           <span>Using a personal email? Please enter your company, project, or GitHub website to initialize your workspace.</span>
@@ -107,6 +107,14 @@ const CONSUMER_EMAIL_DOMAINS = new Set([
   'gmail.com', 'googlemail.com', 'yahoo.com', 'yahoo.co.in', 'hotmail.com', 'outlook.com',
   'live.com', 'icloud.com', 'me.com', 'aol.com', 'proton.me', 'protonmail.com', 'mail.com',
 ]);
+// What the onboarding API accepts: a bare domain, no scheme or path
+const DOMAIN_PATTERN = /^([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}$/;
+export const DOMAIN_ERROR = 'Enter a valid domain, like example.com or app.example.io.';
+
+// "https://www.Acme.com/about" → "www.acme.com": keep only the host of a pasted URL
+function toDomain(value) {
+  return (value || '').trim().replace(/^[a-z][a-z0-9+.-]*:\/\//i, '').split(/[/?#]/)[0].replace(/:\d+$/, '').replace(/\.$/, '').toLowerCase();
+}
 
 export default {
   name: 'StepCompanyDetails',
@@ -188,6 +196,19 @@ export default {
       else delete errors.phone;
       this.errors = errors;
     },
+    onDomainInput() {
+      this.domainWasAutofilled = false;
+      if (!this.errors.domain) return;
+      const errors = { ...this.errors };
+      delete errors.domain;
+      this.errors = errors;
+    },
+    // On blur: tidy a pasted URL to its domain, then say at once if it still isn't one
+    checkDomain() {
+      if (!this.localCompany.domain) return;
+      this.localCompany.domain = toDomain(this.localCompany.domain);
+      if (!DOMAIN_PATTERN.test(this.localCompany.domain)) this.errors = { ...this.errors, domain: DOMAIN_ERROR };
+    },
     clearPhoneError() {
       if (!this.errors.phone) return;
       const errors = { ...this.errors };
@@ -200,7 +221,9 @@ export default {
       if (!company.name?.trim()) errors.name = 'Enter your organization name.';
       if (!company.country) errors.country = 'Select a country or region.';
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(company.contact_email || '')) errors.email = 'Enter a valid work email address.';
+      company.domain = toDomain(company.domain);
       if (!company.domain) errors.domain = 'Enter your organization website or domain.';
+      else if (!DOMAIN_PATTERN.test(company.domain)) errors.domain = DOMAIN_ERROR;
       const phoneProblem = this.phoneProblem();
       if (phoneProblem) errors.phone = phoneProblem;
       if (company.twitterUrl && !/^https?:\/\/(www\.)?(twitter\.com|x\.com)\/[A-Za-z0-9_]+\/?$/.test(company.twitterUrl.trim())) errors.twitter = 'Enter a valid Twitter/X profile URL.';
