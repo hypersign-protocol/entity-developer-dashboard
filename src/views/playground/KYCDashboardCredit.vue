@@ -361,7 +361,9 @@ export default {
 
         getSortedKYCCredits() {
             if (!Array.isArray(this.getKYCCredits)) return [];
-            return [...this.getKYCCredits].sort((a, b) => new Date(b.expiresAt) - new Date(a.expiresAt));
+            // Newest purchase first, by the date the table shows; queued plans have no expiresAt yet
+            const time = row => new Date(row.createdAt).getTime() || 0;
+            return [...this.getKYCCredits].sort((a, b) => time(b) - time(a));
         },
 
         // What the customer's credits are doing now. "Expired" only when a plan really ran out of
