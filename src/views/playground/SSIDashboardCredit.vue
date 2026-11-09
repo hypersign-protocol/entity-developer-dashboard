@@ -160,9 +160,6 @@ h5 span {
             </v-col>
         </v-row>
 
-        <!-- Free-credit offer, when the organisation can claim it -->
-        <PromotionBanner />
-
         <v-row class="credit-overview-row">
             <v-col cols="12" md="6">
                 <div class="overview-container h-100">
@@ -438,7 +435,6 @@ import { mapActions, mapGetters } from "vuex";
 import UtilsMixin from '../../mixins/utils';
 import AccessDenied from '../AccessDenied.vue';
 import { isAccessDeniedError } from '../../utils/accessDenied';
-import PromotionBanner from '../../components/credit/promotion/PromotionBanner.vue';
 import EventBus from '../../eventbus';
 
 export default {
@@ -446,8 +442,7 @@ export default {
     components: {
         // CChart,
         HfPopUp,
-        AccessDenied,
-        PromotionBanner
+        AccessDenied
     },
     computed: {
         ...mapGetters('mainStore', ['getSsiCredits']),
