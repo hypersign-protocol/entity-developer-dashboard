@@ -1079,10 +1079,9 @@ export default {
         .find(p => p.type === 'currency');
       return part ? part.value : '';
     },
-    // Collect payment is India only for now (contract §7)
+    // India and Global both collect; the server answers PAYMENTS_NOT_AVAILABLE where payments are off (contract §7)
     collectBlockedReason() {
       if (this.paymentsRefused) return 'Collect payment isn\'t available for this customer yet.';
-      if (this.billed.data && this.billedProfile.region !== 'IN') return 'Available for Indian customers only for now.';
       return '';
     },
     // The selection sets amountMinor / isPaid (contract §5 and §7)
@@ -1174,7 +1173,7 @@ export default {
       if (this.invoice.type === 'COMPLIMENTARY') {
         body.amountMinor = 0;
       } else if (this.invoice.type === 'UNPAID') {
-        // Collect payment: the server works out GST; the link total includes it
+        // Collect payment: the server works out tax (GST for India, none for Global); the link total includes it
         body.amountMinor = this.amountMinor;
         body.isPaid = false;
       } else {
@@ -1387,8 +1386,6 @@ export default {
           this.form.validityDays = '0';
         }
         if (firstLoad && !this.notifyEmailTouched) this.invoice.notifyEmail = data.profile.email || '';
-        // Collect payment is India only: don't keep it selected for another customer
-        if (firstLoad && this.invoice.type === 'UNPAID' && data.profile.region !== 'IN') this.invoice.type = null;
       } catch (error) {
         if (request !== this.billedRequest) return;
         this.billed = { loading: false, error: billedToError(error), data: null };
@@ -1443,7 +1440,7 @@ export default {
       } else if (['APP_NOT_FOUND', 'APP_NOT_BILLABLE', 'ONBOARDING_NOT_FOUND'].includes(error.code)) {
         this.billed = { loading: false, error: billedToError(error), data: null };
       } else if (error.code === 'PAYMENTS_NOT_AVAILABLE') {
-        // Not India, or payments are switched off. Free credits and Already paid still work.
+        // Payments are switched off or not set up for this region. Free credits and Already paid still work.
         this.paymentsRefused = true;
         show('Collect payment isn\'t available for this customer yet.');
       } else if (error.status === 403) {

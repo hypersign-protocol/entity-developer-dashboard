@@ -5,7 +5,7 @@ The request and response formats for the billing APIs in `entity-developer-dashb
 | Part | Status | Build the UI now? |
 |---|---|---|
 | [Stage 1: invoicing](#stage-1-invoicing) | **Agreed** | Yes |
-| [Stage 2: payments](#stage-2-payments) | **Agreed** for India with Razorpay: §6 checkout, §7 Collect payment (payment links) | Yes, behind `features.pay` (customer) and `BILLING_PAY_ENABLED` (super admin) |
+| [Stage 2: payments](#stage-2-payments) | **Agreed** for India (INR) and Global (USD) with Razorpay: §6 checkout, §7 Collect payment (payment links) | Yes, behind `features.pay` (customer) and `BILLING_PAY_ENABLED` (super admin) |
 
 Any change to an agreed endpoint is recorded in the [changelog](#changelog) at the end.
 
@@ -615,7 +615,7 @@ The result card shows `invoice.invoiceNumber`, the customer and the total, with 
 | HTTP | `code` | Notes |
 |---|---|---|
 | 422 | `BILLING_PROFILE_INCOMPLETE` | `details.missingFields` holds the missing field paths |
-| 422 | `PAYMENTS_NOT_AVAILABLE` | Collect payment for a region without payments (today: anything but India), or payments are switched off |
+| 422 | `PAYMENTS_NOT_AVAILABLE` | Collect payment for a region without a configured payment provider, or payments are switched off |
 | 409 | `IDEMPOTENCY_KEY_REUSED` | The same key was used with a different body. Generate a new key |
 | 422 | `APP_NOT_BILLABLE` | An SSI app. Use the existing SSI recharge |
 | 422 | `ONBOARDING_NOT_FOUND` | The app's owner has no organisation |
@@ -644,7 +644,7 @@ The same `InvoiceDocument` as the customer endpoint (§4), for any organisation,
 
 ## Stage 2: payments
 
-**Phase 1:** Indian customers top up themselves, paying through Razorpay Standard Checkout (a popup on our page). Global payments and super-admin payment links come in phase 2. `features.pay` in the catalog is `true` only where Pay works (today: `IN`, once switched on).
+Customers top up themselves, paying through Razorpay Standard Checkout (a popup on our page): India in INR, Global in USD. Super admins can also send payment links (§7). `features.pay` in the catalog is `true` only where Pay works (`IN` and `GLOBAL`, once switched on).
 
 There are no gateway webhooks yet. The server asks Razorpay for the payment status itself: when the popup reports success, when the dashboard polls, and in a background job every 5 minutes. Credits are granted only after the server has seen a captured payment of the right amount.
 
@@ -892,7 +892,7 @@ The result card shows the amount, "Link sent to {sentTo}" (or "Copy the link and
 
 | HTTP | `code` | UI behaviour |
 |---|---|---|
-| 422 | `PAYMENTS_NOT_AVAILABLE` | "Collect payment isn't available for this customer yet" (not India, or payments are off) |
+| 422 | `PAYMENTS_NOT_AVAILABLE` | "Collect payment isn't available for this customer yet" (no provider for the region, or payments are off) |
 | 503 | `PAYMENTS_UNAVAILABLE` | "The payment link could not be created." **Retry** resends the same request with the same key |
 | 409 | `IDEMPOTENCY_KEY_REUSED` | The same key with a different body. Use a new key |
 
