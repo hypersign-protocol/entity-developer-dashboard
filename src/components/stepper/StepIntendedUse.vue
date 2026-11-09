@@ -87,6 +87,19 @@
 
 <script>
 const INDIA_ONLY_SERVICES = ['Aadhaar Verification', 'PAN Verification', 'Bank Verification'];
+// India sees these first, in this order; the rest follow in the usual order
+const INDIA_FIRST_SERVICES = [
+  ...INDIA_ONLY_SERVICES,
+  'Biometric Verification & Liveness Detection',
+  'Deepfake Detection',
+  'Know Your Customer (KYC)',
+  'Know Your Business (KYB)',
+  'Proof Of Address',
+];
+const indiaRank = value => {
+  const index = INDIA_FIRST_SERVICES.indexOf(value);
+  return index === -1 ? INDIA_FIRST_SERVICES.length : index;
+};
 
 export default {
   name: 'StepIntendedUse',
@@ -131,7 +144,9 @@ export default {
   },
   computed: {
     visibleServiceOptions() {
-      return this.serviceOptions.filter(service => !service.indiaOnly || this.localCompany.country === 'IN');
+      if (this.localCompany.country !== 'IN') return this.serviceOptions.filter(service => !service.indiaOnly);
+      // Array sort is stable, so services outside the India list keep their usual order
+      return [...this.serviceOptions].sort((a, b) => indiaRank(a.value) - indiaRank(b.value));
     },
     filteredIndustries() {
       const query = this.industrySearch.toLowerCase();
