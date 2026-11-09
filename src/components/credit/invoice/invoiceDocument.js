@@ -116,9 +116,7 @@ function detailRows(invoice) {
   ];
   if (invoice.status === 'UNPAID') rows.push(['Due date', formatDate(invoice.dueAt)]);
   if (invoice.status === 'PAID' && invoice.payment) rows.push(['Paid on', formatDate(invoice.payment.paidAt)]);
-  if (invoice.placeOfSupply) rows.push(['Place of supply', invoice.placeOfSupply]);
   if (invoice.orderNumber) rows.push(['Order no.', invoice.orderNumber]);
-  rows.push(['App', invoice.app.name]);
   return {
     stack: [
       label('Invoice details'),
@@ -163,7 +161,7 @@ function itemsTable(invoice) {
     { text: item.included ? '' : item.sac || '', fontSize: 9, color: COLORS.text },
     { text: item.included ? '' : String(item.quantity || 1), fontSize: 9, alignment: 'right', color: COLORS.text },
     item.included
-      ? { text: 'Included', fontSize: 8.5, alignment: 'right', color: COLORS.accent }
+      ? { text: item.value || 'Included', fontSize: 8.5, alignment: 'right', color: COLORS.accent }
       : { text: formatMinor(item.amountMinor, invoice.currency), fontSize: 9.5, alignment: 'right', color: COLORS.ink }
   ]);
   return {

@@ -86,10 +86,11 @@ function v1Discounts(discounts) {
   return rows;
 }
 
+const V1_CREDITS_DESCRIPTION = 'Prepaid identity verification credits';
+
 /** InvoiceDocument → the layout model of template invoice-v1. */
 export function toInvoiceV1Model(doc) {
   const { supplier, customer, payment } = doc;
-  const appName = (doc.app && doc.app.appName) || '';
   const count = new Intl.NumberFormat(doc.currency === 'INR' ? 'en-IN' : 'en-US').format(doc.credits || 0);
   return {
     invoiceNumber: doc.invoiceNumber,
@@ -104,7 +105,7 @@ export function toInvoiceV1Model(doc) {
       legalName: supplier.legalName,
       email: supplier.email,
       address: v1AddressLines(supplier.address),
-      ids: [['GSTIN', supplier.gstin], ['PAN', supplier.pan], ['CIN', supplier.cin], ['LUT ARN', supplier.lutArn]]
+      ids: [['GSTIN', supplier.gstin], ['CIN', supplier.cin], ['LUT ARN', supplier.lutArn]]
         .filter(([, value]) => value)
     },
     customer: {
@@ -113,18 +114,24 @@ export function toInvoiceV1Model(doc) {
       address: v1AddressLines(customer.address),
       ids: (customer.taxIds || []).map(taxId => [taxId.type, taxId.number])
     },
-    placeOfSupply: doc.placeOfSupply ? `${doc.placeOfSupply.name} (${doc.placeOfSupply.code})` : null,
     orderNumber: doc.orderNumber,
-    app: { name: appName },
     items: [
       ...(doc.lines || []).map(line => ({
-        description: line.description,
-        detail: [`${count} credits`, `valid ${doc.validityDays} days`, appName].filter(Boolean).join(' · '),
+        description: V1_CREDITS_DESCRIPTION,
+        detail: `${count} credits`,
         sac: line.sac,
         quantity: line.quantity,
         amountMinor: line.unitPriceMinor
       })),
-      ...(doc.addOnLines || []).map(addOn => ({ description: addOn.title, included: true }))
+      // Validity shows its period where the other add-ons say "Included"
+      ...(doc.addOnLines || []).map(addOn => (addOn.code === 'VALIDITY'
+        ? {
+          description: addOn.title,
+          detail: 'Counted from the day the credits are activated',
+          included: true,
+          value: `${doc.validityDays} days`
+        }
+        : { description: addOn.title, included: true }))
     ],
     discounts: v1Discounts(doc.discounts),
     tax: (doc.tax || []).map(line => ({
