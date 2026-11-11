@@ -117,8 +117,9 @@ export function toInvoiceV1Model(doc) {
     orderNumber: doc.orderNumber,
     items: [
       ...(doc.lines || []).map(line => ({
-        description: V1_CREDITS_DESCRIPTION,
-        detail: `${count} credits`,
+        // Printed as the backend sends it; the constant only covers documents without one
+        description: line.description || V1_CREDITS_DESCRIPTION,
+        detail: line.detail || `${count} credits`,
         sac: line.sac,
         quantity: line.quantity,
         amountMinor: line.unitPriceMinor

@@ -262,6 +262,83 @@ function paymentPanel(invoice) {
   };
 }
 
+// ---- Terms & conditions summary (text from the business team, printed as given)
+
+const TERMS_URL = 'https://hypersign.id/terms/business';
+
+const TERMS_INTRO = "By purchasing or using Hypersign services, the Client agrees to Hypersign's Business Terms & Conditions, including the Service Level Agreement (SLA) and Data Processing Agreement (DPA).";
+
+// Each section: a title and its paragraphs; an array in place of a paragraph is a bullet list
+const TERMS_SECTIONS = [
+  ['1. Service Availability & SLA', [
+    'Services are provided on an "AS IS" and "AS AVAILABLE" basis. SLA commitments apply only to Hypersign-controlled infrastructure. They exclude third-party failures, government API outages and other events beyond Hypersign\'s reasonable control. Processing times that depend on external systems are not guaranteed.'
+  ]],
+  ['2. Verification Disclaimer', [
+    "Verification results support the Client's decision-making. Hypersign does not guarantee identity authenticity, verification accuracy, fraud prevention or successful verification outcomes. Final decisions remain the Client's responsibility."
+  ]],
+  ['3. Credits, Payments & Taxes', [
+    "Credits are valid for the period stated in the applicable Order Form or pricing plan and expire unused at the end of that period. Credits are non-transferable and cannot be exchanged for cash. Payments are final, and Credits are non-refundable except as expressly provided in the Agreement or Order Form. Prices exclude taxes, which are the Client's responsibility. Overdue amounts may accrue interest."
+  ]],
+  ['4. Data Protection & Client Responsibilities', [
+    'The Client is responsible for giving end users the required notices, obtaining their consents, establishing a lawful basis for processing, and complying with applicable laws. Personal data processing is governed by the DPA.'
+  ]],
+  ['5. Platform Usage & Restrictions', [
+    "The Client receives a limited, non-exclusive, non-transferable right to use Hypersign's APIs and platform for its own business purposes. The Client may not resell, sublicense or otherwise make the Services available to third parties without a separate written agreement with Hypersign. Reverse engineering, decompiling, creating derivative works, unauthorized load or security testing, injecting malicious code, circumventing verification flows or rate limits, and other abusive use are prohibited."
+  ]],
+  ['6. Suspension & Termination', [
+    'Hypersign may suspend or terminate access, without prior notice where warranted, in the following cases:',
+    [
+      'non-payment',
+      'failed customer background verification',
+      'misuse or abuse of the platform, including free-plan abuse',
+      'unauthorized security testing',
+      'attacks on or threats to the Services',
+      'other breaches of the Agreement including Point 4'
+    ],
+    'If termination is for cause attributable to the Client, unused Credits are forfeited.'
+  ]],
+  ['7. Liability', [
+    "Hypersign's total liability is limited to the fees paid by the Client in the 12 months preceding the claim, subject to the exclusions in the Agreement and applicable law."
+  ]],
+  ['8. Standard Support', [
+    'Chat support is available Monday–Friday, 9:00 AM–6:00 PM CET, excluding public holidays. 24×7 support, including weekends and holidays, is available under a custom support proposal through your account manager.'
+  ]]
+];
+
+const TERMS_DISCLAIMER = 'This summary is for information only. It does not replace, amend or override the Agreement.';
+
+// Starts on its own page, after the invoice
+function termsSection() {
+  const paragraph = text => ({ text, fontSize: 7.5, color: COLORS.text, lineHeight: 1.3, margin: [0, 0, 0, 3] });
+  const sections = TERMS_SECTIONS.map(([title, paragraphs]) => ({
+    stack: [
+      { text: title, bold: true, fontSize: 8.5, color: COLORS.ink, margin: [0, 0, 0, 3] },
+      ...paragraphs.map(item => (Array.isArray(item)
+        ? { ul: item, fontSize: 7.5, color: COLORS.text, lineHeight: 1.3, margin: [6, 0, 0, 3] }
+        : paragraph(item)))
+    ],
+    margin: [0, 0, 0, 8],
+    unbreakable: true
+  }));
+  return {
+    pageBreak: 'before',
+    stack: [
+      { text: 'SUMMARY OF BUSINESS TERMS & CONDITIONS', bold: true, fontSize: 11, color: COLORS.ink, characterSpacing: 0.6, margin: [0, 0, 0, 8] },
+      { ...paragraph(TERMS_INTRO), margin: [0, 0, 0, 12] },
+      ...sections,
+      { canvas: [{ type: 'line', x1: 0, y1: 0, x2: 515, y2: 0, lineWidth: 0.6, lineColor: COLORS.line }], margin: [0, 4, 0, 8] },
+      { text: TERMS_DISCLAIMER, fontSize: 7.5, italics: true, color: COLORS.muted, margin: [0, 0, 0, 4] },
+      {
+        text: [
+          { text: 'Full Business Terms & Conditions (including SLA and DPA): ', bold: true, color: COLORS.ink },
+          { text: TERMS_URL, link: TERMS_URL, color: COLORS.accent, decoration: 'underline' }
+        ],
+        fontSize: 7.5
+      }
+    ]
+  };
+}
+
 /**
  * @param {object} invoice  Layout model (see toInvoiceV1Model in invoiceTemplates.js)
  * @param {object} [options]
@@ -329,7 +406,8 @@ export function buildInvoiceDocument(invoice, { logo } = {}) {
       invoice.notes && invoice.notes.length ? {
         stack: [label('Notes'), ...invoice.notes.map(note => ({ text: `•  ${note}`, fontSize: 8, color: COLORS.muted, margin: [0, 0, 0, 2] }))],
         margin: [0, 22, 0, 0]
-      } : null
+      } : null,
+      termsSection()
     ].filter(Boolean)
   };
 }
