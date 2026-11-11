@@ -323,7 +323,7 @@ function termsSection() {
   return {
     pageBreak: 'before',
     stack: [
-      { text: 'SUMMARY OF BUSINESS TERMS & CONDITIONS', bold: true, fontSize: 11, color: COLORS.ink, characterSpacing: 0.6, margin: [0, 0, 0, 8] },
+      { text: 'TERMS & CONDITIONS', bold: true, fontSize: 11, color: COLORS.ink, characterSpacing: 0.6, margin: [0, 0, 0, 8] },
       { ...paragraph(TERMS_INTRO), margin: [0, 0, 0, 12] },
       ...sections,
       { canvas: [{ type: 'line', x1: 0, y1: 0, x2: 515, y2: 0, lineWidth: 0.6, lineColor: COLORS.line }], margin: [0, 4, 0, 8] },
