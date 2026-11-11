@@ -1,6 +1,31 @@
 # Changelog
 
 ## [Unreleased]
+
+### Added
+
+- Customers can now buy credits themselves from the KYC credits page through a new credit top-up popup. It offers plans per billing region (India in INR, Global in USD), a custom amount, coupons and a link to the Credit Calculator, and payment runs through Razorpay checkout.
+- Added invoices: every top-up or recharge creates an invoice, and the invoice PDF can be downloaded from the dashboard.
+- Added a Billing Details section in Settings for billing address, GST details and phone number.
+- Added a free-credit promotion banner on the KYC credits page. Eligible customers can claim free credits from it.
+- Super admin Credit Recharge for ID Service apps now creates an invoice. It can grant free credits, record a payment already received, or create a payment link that adds the credits once the customer pays.
+- Added a Payment Links tab in Super Admin tools.
+- Added an API Transactions page (`/studio/developer/transactions/:appId`).
+- Added PAN verification to the credit calculator.
+- Added a 2-step onboarding approval for super admins, and organisation details in Settings.
+- Added a phone number input with country codes in onboarding, company verification and billing forms.
+- Added an onboarding banner that shows pending onboarding steps.
+
+### Changed
+
+- Services in onboarding are now ordered by region.
+- Redesigned Super Admin tools.
+- Removed the free-credit banner from the SSI credits dashboard.
+
+### Fixed
+
+- Fixed payment links for Global customers.
+- Fixed invoice details and the credit history table.
 ## [3.17.0] - 2026-10-15
 ### Changed
 
