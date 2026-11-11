@@ -159,9 +159,7 @@ export function toInvoiceV1Model(doc) {
     paymentLink: doc.payNowUrl ? { url: doc.payNowUrl } : null,
     fxLine: v1FxLine(doc),
     notes: [
-      `Credits are valid for ${doc.validityDays} days from activation and cannot be carried forward.`,
-      doc.status === 'UNPAID' ? 'Credits on this invoice are activated once the payment is confirmed.' : null,
-      doc.taxNote
+      doc.status === 'UNPAID' ? 'Credits on this invoice are activated once the payment is confirmed.' : null
     ].filter(Boolean)
   };
 }
