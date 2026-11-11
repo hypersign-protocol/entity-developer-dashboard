@@ -1,6 +1,7 @@
 # Changelog
 
-## [Unreleased]
+
+## [3.18.0] - 2026-11-11
 
 ### Added
 
