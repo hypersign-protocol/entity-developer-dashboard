@@ -1,6 +1,5 @@
 
 import { sanitizeUrl } from './utils/common'
-const hsdk = require('lds-sdk')
 
 
 const BUSINESS_TYPE = {
@@ -89,13 +88,7 @@ const config = {
 }
 const websocketUrl = process.env.VUE_APP_STUDIO_SERVER_BASE_WS
 const webWalletAddress = process.env.VUE_APP_WEB_WALLET_ADDRESS;//"http://localhost:4999/chrome/popup/popup#"
-const options = { nodeUrl: config.nodeServer.BASE_URL, didScheme: "did:hs" }
-const hypersignSDK = {
-    did: hsdk.did(options),
-    credential: hsdk.credential(options)
-}
 config['appName'] = 'Studio'
-config['hypersignSDK'] = hypersignSDK
 config['websocketUrl'] = websocketUrl
 config['webWalletAddress'] = webWalletAddress
 

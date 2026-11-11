@@ -14,8 +14,6 @@
     "build-stage": "vue-cli-service build --mode staging",
     "lint": "vue-cli-service lint",
     "test:unit": "vue-cli-service test:unit",
-    "predeploy": "npm run build",
-    "deploy": "gh-pages -d dist",
     "test": "node run-test.js"
   },
   "selenium-side-runner": {
@@ -47,12 +45,9 @@
     "dotenv": "^16.0.1",
     "echarts": "^6.0.0",
     "fs": "^0.0.1-security",
-    "gh-pages": "^1.2.0",
-    "hs-ssi-sdk": "^7.0.1",
     "html2canvas": "^1.4.1",
     "i18n-iso-countries": "^7.14.0",
     "jsonld": "^8.3.2",
-    "lds-sdk": "^4.0.1",
     "leaflet": "^1.9.4",
     "libphonenumber-js": "1.12.23",
     "marked": "4.3.0",
