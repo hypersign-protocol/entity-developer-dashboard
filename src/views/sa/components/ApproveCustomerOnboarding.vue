@@ -1,5 +1,6 @@
 <template>
-  <v-container fluid pa-0>
+  <!-- Plain root, like PaymentLinksTable: v-container brings .container width and centring rules -->
+  <div>
     <load-ing :active.sync="isLoading" :can-cancel="false" :is-full-page="false"></load-ing>
 
     <div class="overview-container">
@@ -17,7 +18,7 @@
       <!-- Step 1: fetch and review the onboarding record -->
       <div v-if="step === 1">
         <div class="header-row">
-          <h2 class="title">Record Identification</h2>
+          <h2 class="section-title">Record identification</h2>
         </div>
 
         <form class="record-search" @submit.prevent="fetchRecord">
@@ -188,25 +189,26 @@
         </footer>
       </div>
     </div>
-  </v-container>
+  </div>
 </template>
 
 <style scoped>
 /* Inherited Theme */
 .overview-container {
-  padding: 2rem;
-  background-color: #f9fafb;
-  border-radius: 0.75rem;
-  border: 1px solid #e5e7eb;
+  /* Same card as the Payment links tab */
+  padding: 16px 18px;
+  border: 1px solid #e1e6ed;
+  border-radius: 10px;
+  background: #fff;
   color: #1e293b;
 }
 
-.title {
-  font-size: 0.85rem;
+/* Not .title: Vuetify's .title typography class sets its own size with !important */
+.section-title {
+  margin: 0;
+  color: #263244;
+  font-size: 14px;
   font-weight: 700;
-  color: #111827;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
 }
 
 .input-label {
@@ -219,7 +221,7 @@
 }
 
 /* Step indicator */
-.approval-steps { display: flex; align-items: center; gap: 12px; margin: 0 0 1.5rem; padding: 0; list-style: none; color: #64748b; font-size: 0.8rem; font-weight: 600; }
+.approval-steps { display: flex; align-items: center; gap: 12px; margin: 0 0 16px; padding: 0; list-style: none; color: #64748b; font-size: 0.8rem; font-weight: 600; }
 .approval-steps li { display: inline-flex; align-items: center; gap: 8px; }
 .approval-steps .is-active, .approval-steps .is-complete { color: #1e293b; }
 .step-number { display: inline-flex; width: 24px; height: 24px; align-items: center; justify-content: center; border-radius: 50%; background: #eceeef; color: #6c757d; font-size: 0.7rem; }
@@ -319,7 +321,7 @@
   .detail-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (max-width: 600px) {
-  .overview-container { padding: 1.25rem; }
+  .overview-container { padding: 14px; }
   .record-search { flex-direction: column; align-items: stretch; }
   .detail-grid { grid-template-columns: 1fr; }
 }

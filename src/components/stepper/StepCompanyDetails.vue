@@ -31,12 +31,25 @@
       </div>
       <div class="field-group">
         <label for="organization-domain">Website or domain <em>*</em></label>
-        <input id="organization-domain" v-model.trim="localCompany.domain" type="text" placeholder="example.com" autocomplete="url" @input="domainWasAutofilled = false" />
+        <input id="organization-domain" v-model.trim="localCompany.domain" type="text" placeholder="example.com" autocomplete="url" :aria-invalid="errors.domain ? 'true' : 'false'" @input="onDomainInput" @blur="checkDomain" />
         <div v-if="isGmailAddress" class="personal-email-note">
           <i class="mdi mdi-information-outline" aria-hidden="true"></i>
           <span>Using a personal email? Please enter your company, project, or GitHub website to initialize your workspace.</span>
         </div>
         <span v-if="errors.domain" class="field-error">{{ errors.domain }}</span>
+      </div>
+      <div class="field-group">
+        <label for="contact-phone">Contact phone number <em>*</em></label>
+        <!-- The chip follows the country; the user can pick another dialling code -->
+        <PhoneInput
+          id="contact-phone"
+          v-model="localCompany.phone_no"
+          :dial.sync="localCompany.phone_dial"
+          :invalid="Boolean(errors.phone)"
+          @input="clearPhoneError"
+          @blur="checkPhone"
+        />
+        <span v-if="errors.phone" class="field-error">{{ errors.phone }}</span>
       </div>
     </div>
 
@@ -46,16 +59,6 @@
         <i class="mdi mdi-chevron-up toggle-chevron" aria-hidden="true"></i>
       </button>
       <div v-show="additionalDetailsOpen" id="additional-details-fields" class="additional-content">
-        <div class="optional-row">
-          <div class="row-label"><i class="mdi mdi-phone-outline" aria-hidden="true"></i><span>Contact phone number</span></div>
-          <div class="field-group optional-indent phone-field">
-            <div class="phone-control">
-              <span v-if="selectedCallingCode">{{ selectedCallingCode }}</span>
-              <input v-model.trim="localCompany.phone_no" type="tel" placeholder="9876543210" autocomplete="tel-national" />
-            </div>
-            <span v-if="errors.phone" class="field-error">{{ errors.phone }}</span>
-          </div>
-        </div>
         <div class="optional-row">
           <div class="row-label"><i class="mdi mdi-camera-outline" aria-hidden="true"></i><span>Organization logo</span></div>
           <div class="logo-upload-area optional-indent">
@@ -96,21 +99,35 @@
 <script>
 import { mapGetters } from 'vuex/dist/vuex.common.js';
 import LogoUploader from '../element/LogoUploader.vue';
-import { COUNTRY_OPTIONS, CALLING_CODES, countryOptionLabel, detectCountryFromIp } from '../../utils/countries.js';
+import PhoneInput from '../element/PhoneInput.vue';
+import { acceptedCountryOptions, detectCountryCodeFromIp, OTHER_COUNTRY_CODE } from '../../utils/countries.js';
+import { phoneFieldProblem } from '../../utils/phone.js';
 
 const CONSUMER_EMAIL_DOMAINS = new Set([
   'gmail.com', 'googlemail.com', 'yahoo.com', 'yahoo.co.in', 'hotmail.com', 'outlook.com',
   'live.com', 'icloud.com', 'me.com', 'aol.com', 'proton.me', 'protonmail.com', 'mail.com',
 ]);
+// What the onboarding API accepts: a bare domain, no scheme or path
+const DOMAIN_PATTERN = /^([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}$/;
+export const DOMAIN_ERROR = 'Enter a valid domain, like example.com or app.example.io.';
+
+// "https://www.Acme.com/about" → "www.acme.com": keep only the host of a pasted URL
+function toDomain(value) {
+  return (value || '').trim().replace(/^[a-z][a-z0-9+.-]*:\/\//i, '').split(/[/?#]/)[0].replace(/:\d+$/, '').replace(/\.$/, '').toLowerCase();
+}
 
 export default {
   name: 'StepCompanyDetails',
-  components: { LogoUploader },
-  props: { company: { type: Object, required: true } },
+  components: { LogoUploader, PhoneInput },
+  props: {
+    company: { type: Object, required: true },
+    // Field errors from the onboarding API, e.g. { phone: '…' } after a rejected submit
+    serverErrors: { type: Object, default: () => ({}) },
+  },
   data() {
     return {
-      localCompany: { ...this.company, type: this.company.type || 'BUSINESS' },
-      errors: {},
+      localCompany: { phone_dial: '', ...this.company, type: this.company.type || 'BUSINESS' },
+      errors: { ...this.serverErrors },
       additionalDetailsOpen: false,
       isDetectingCountry: false,
       domainWasAutofilled: false,
@@ -118,12 +135,8 @@ export default {
   },
   computed: {
     ...mapGetters('mainStore', ['getUserDetails']),
-    selectedCallingCode() { return CALLING_CODES[this.localCompany.country] || ''; },
-    countryOptions() {
-      return Object.entries(COUNTRY_OPTIONS)
-        .sort(([, left], [, right]) => left.localeCompare(right))
-        .map(([value, name]) => ({ value, text: countryOptionLabel(value, name) }));
-    },
+    // Only the countries the onboarding API accepts: the name is shown, the alpha-2 code is sent
+    countryOptions() { return acceptedCountryOptions(); },
     emailDomain() {
       const parts = (this.localCompany.contact_email || '').trim().toLowerCase().split('@');
       return parts.length === 2 ? parts[1] : '';
@@ -133,6 +146,12 @@ export default {
   },
   watch: {
     'localCompany.contact_email'() { this.syncDomainFromEmail(); },
+    // The chip follows the country unless the user picked another dialling code; typed digits stay
+    'localCompany.country'(country, previous) {
+      const dial = this.localCompany.phone_dial;
+      if (!dial || dial === previous) this.localCompany.phone_dial = country === OTHER_COUNTRY_CODE ? '' : country;
+      if (this.localCompany.phone_no) this.checkPhone();
+    },
   },
   mounted() {
     const loginEmail = this.getUserDetails?.accessAccount?.email
@@ -141,6 +160,9 @@ export default {
       || '';
     if (!this.localCompany.contact_email && loginEmail) this.localCompany.contact_email = loginEmail;
     this.syncDomainFromEmail();
+    if (!this.localCompany.phone_dial && this.localCompany.country !== OTHER_COUNTRY_CODE) {
+      this.localCompany.phone_dial = this.localCompany.country || '';
+    }
     this.detectCountry();
   },
   methods: {
@@ -159,9 +181,39 @@ export default {
     async detectCountry() {
       if (this.localCompany.country) return;
       this.isDetectingCountry = true;
-      const detected = await detectCountryFromIp();
+      const detected = await detectCountryCodeFromIp();
       if (detected && !this.localCompany.country) this.localCompany.country = detected;
       this.isDetectingCountry = false;
+    },
+    // Required, and the same check as the API (libphonenumber) on the number we will send
+    phoneProblem() {
+      return phoneFieldProblem(this.localCompany.phone_no, this.localCompany.phone_dial);
+    },
+    checkPhone() {
+      const problem = this.phoneProblem();
+      const errors = { ...this.errors };
+      if (problem) errors.phone = problem;
+      else delete errors.phone;
+      this.errors = errors;
+    },
+    onDomainInput() {
+      this.domainWasAutofilled = false;
+      if (!this.errors.domain) return;
+      const errors = { ...this.errors };
+      delete errors.domain;
+      this.errors = errors;
+    },
+    // On blur: tidy a pasted URL to its domain, then say at once if it still isn't one
+    checkDomain() {
+      if (!this.localCompany.domain) return;
+      this.localCompany.domain = toDomain(this.localCompany.domain);
+      if (!DOMAIN_PATTERN.test(this.localCompany.domain)) this.errors = { ...this.errors, domain: DOMAIN_ERROR };
+    },
+    clearPhoneError() {
+      if (!this.errors.phone) return;
+      const errors = { ...this.errors };
+      delete errors.phone;
+      this.errors = errors;
     },
     submitStep() {
       const company = this.localCompany;
@@ -169,14 +221,17 @@ export default {
       if (!company.name?.trim()) errors.name = 'Enter your organization name.';
       if (!company.country) errors.country = 'Select a country or region.';
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(company.contact_email || '')) errors.email = 'Enter a valid work email address.';
+      company.domain = toDomain(company.domain);
       if (!company.domain) errors.domain = 'Enter your organization website or domain.';
-      if (company.phone_no && !/^\+?[\d\s()-]{7,20}$/.test(company.phone_no.trim())) errors.phone = 'Enter a valid contact phone number.';
+      else if (!DOMAIN_PATTERN.test(company.domain)) errors.domain = DOMAIN_ERROR;
+      const phoneProblem = this.phoneProblem();
+      if (phoneProblem) errors.phone = phoneProblem;
       if (company.twitterUrl && !/^https?:\/\/(www\.)?(twitter\.com|x\.com)\/[A-Za-z0-9_]+\/?$/.test(company.twitterUrl.trim())) errors.twitter = 'Enter a valid Twitter/X profile URL.';
       if (company.telegramUrl && !/^https?:\/\/(t\.me|telegram\.me)\/[A-Za-z0-9_]+\/?$/.test(company.telegramUrl.trim())) errors.telegram = 'Enter a valid Telegram profile URL.';
       if (company.linkedinUrl && !/^https?:\/\/(www\.)?linkedin\.com\/(in|company)\/[A-Za-z0-9_-]+\/?$/.test(company.linkedinUrl.trim())) errors.linkedin = 'Enter a valid LinkedIn profile URL.';
       this.errors = errors;
       if (Object.keys(errors).length) {
-        if (errors.phone || errors.twitter || errors.telegram || errors.linkedin) this.additionalDetailsOpen = true;
+        if (errors.twitter || errors.telegram || errors.linkedin) this.additionalDetailsOpen = true;
         return;
       }
       this.$emit('update:company', { ...company });
@@ -194,8 +249,8 @@ export default {
 .field-group { display: flex; min-width: 0; flex-direction: column; }
 label { margin-bottom: 7px; color: #253454; font-size: 12px; font-weight: 700; }
 em, .field-error, .form-error-summary { color: #e43d4f; font-style: normal; }
-.field-group input, .field-group select, .phone-control { width: 100%; height: 40px; padding: 0 11px; border: 1px solid #d5dde7; border-radius: 5px; background: #fff; color: #1e293b; font-size: 13px; outline: none; }
-.field-group input:focus, .field-group select:focus, .phone-control:focus-within { border-color: #6c757d; box-shadow: 0 0 0 2px rgba(108,117,125,.14); }
+.field-group input, .field-group select { width: 100%; height: 40px; padding: 0 11px; border: 1px solid #d5dde7; border-radius: 5px; background: #fff; color: #1e293b; font-size: 13px; outline: none; }
+.field-group input:focus, .field-group select:focus { border-color: #6c757d; box-shadow: 0 0 0 2px rgba(108,117,125,.14); }
 .select-control { position: relative; }
 .select-control select { padding-right: 40px; appearance: none; cursor: pointer; }
 .select-control > i { position: absolute; top: 50%; right: 12px; color: #64748b; font-size: 18px; pointer-events: none; transform: translateY(-50%); }
@@ -218,10 +273,6 @@ em, .field-error, .form-error-summary { color: #e43d4f; font-style: normal; }
 .row-label { display: flex; align-items: center; gap: 8px; margin-bottom: 9px; color: #253454; font-size: 12px; font-weight: 700; }
 .row-label > i { display: inline-flex; width: 24px; height: 24px; align-items: center; justify-content: center; border-radius: 50%; background: #eceeef; color: #6c757d; }
 .optional-indent { margin-left: 32px; }
-.phone-field { width: calc(50% - 8px); }
-.phone-control { display: flex; align-items: center; gap: 7px; }
-.phone-control span { color: #5d6b7e; font-size: 13px; }
-.phone-control input { height: 34px; padding: 0; border: 0; box-shadow: none !important; }
 .logo-upload-area { display: block; }
 .social-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
 .social-grid label { display: flex; min-height: 18px; align-items: center; gap: 6px; margin-bottom: 7px; color: #50688e; font-size: 10px; line-height: 18px; }
@@ -235,7 +286,6 @@ em, .field-error, .form-error-summary { color: #e43d4f; font-style: normal; }
 @media (max-width: 650px) {
   .form-card { padding: 18px; }
   .field-grid, .social-grid { grid-template-columns: 1fr; }
-  .phone-field { width: auto; }
-  .optional-indent { margin-left: 0; }
+    .optional-indent { margin-left: 0; }
 }
 </style>

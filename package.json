@@ -54,6 +54,7 @@
     "jsonld": "^8.3.2",
     "lds-sdk": "^4.0.1",
     "leaflet": "^1.9.4",
+    "libphonenumber-js": "1.12.23",
     "marked": "4.3.0",
     "mdbvue": "^6.7.1",
     "node-fetch": "^2.6.0",

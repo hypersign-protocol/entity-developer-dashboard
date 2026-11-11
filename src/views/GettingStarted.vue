@@ -10,6 +10,9 @@
       </v-col>
     </v-row>
 
+    <!-- Free credits for going live, when the organisation can claim them -->
+    <PromotionBanner :app-id="appId()" />
+
     <v-row>
       <!-- Main Content / Stepper Roadmap -->
       <v-col cols="12" lg="8">
@@ -156,9 +159,11 @@
 <script>
 import { mapMutations, mapGetters } from "vuex";
 import config from "../config";
+import PromotionBanner from "../components/credit/promotion/PromotionBanner.vue";
 
 export default {
   name: "GettingStarted",
+  components: { PromotionBanner },
   data() {
     return {
       guideItems: [

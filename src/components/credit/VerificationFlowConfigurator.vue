@@ -15,11 +15,17 @@
           :disabled="isFlowLocked(flow.id)"
           @click="toggleFlow(flow.id)"
         >
-          <span class="flow-icon"><v-icon>{{ flow.icon }}</v-icon></span>
-          <span class="flow-checkbox" aria-hidden="true"><v-icon small>mdi-check</v-icon></span>
-          <strong>{{ flow.title }}</strong>
-          <small>{{ flow.description }}</small>
-          <em v-if="isFlowLocked(flow.id)">{{ flow.lockedMessage || lockedFlowMessage }}</em>
+          <span class="flow-icon"><v-icon small>{{ flow.icon }}</v-icon></span>
+          <span class="flow-copy">
+            <strong>{{ flow.title }}</strong>
+            <small>{{ flow.description }}</small>
+            <span v-if="flow.countries && flow.countries.length" class="flow-countries">
+              <v-icon x-small>mdi-map-marker-outline</v-icon>
+              Supported countries: {{ flow.countries.join(', ') }}
+            </span>
+            <em v-if="isFlowLocked(flow.id)">{{ flow.lockedMessage || lockedFlowMessage }}</em>
+          </span>
+          <span class="flow-checkbox" aria-hidden="true"><v-icon x-small>mdi-check</v-icon></span>
         </button>
       </div>
     </section>
@@ -31,7 +37,7 @@
       <div v-if="selectedFlows.length" class="selected-flow-services">
         <section v-for="flow in selectedFlows" :key="flow.id" class="service-group">
           <div class="service-group-heading">
-            <v-icon small>{{ flow.icon }}</v-icon>
+            <v-icon x-small>{{ flow.icon }}</v-icon>
             <strong>{{ flow.title }}</strong>
           </div>
           <div class="service-list">
@@ -51,9 +57,9 @@
                   @click.stop
                   @change="toggleService(service)"
                 >
-                <span class="service-check" aria-hidden="true"><v-icon small>mdi-check</v-icon></span>
+                <span class="service-check" aria-hidden="true"><v-icon x-small>mdi-check</v-icon></span>
               </span>
-              <span class="service-icon"><v-icon>{{ service.icon }}</v-icon></span>
+              <span class="service-icon"><v-icon small>{{ service.icon }}</v-icon></span>
               <span class="service-copy">
                 <strong>
                   {{ service.title }}
@@ -102,7 +108,7 @@
       </div>
 
       <div v-else class="service-placeholder">
-        <v-icon>mdi-cursor-default-click-outline</v-icon>
+        <v-icon small>mdi-cursor-default-click-outline</v-icon>
         {{ emptyText }}
       </div>
     </section>
@@ -309,140 +315,258 @@ export default {
 </script>
 
 <style scoped>
-.configurator-step { padding: 14px 0 20px; }
-.configurator-step h3 { margin: 0; color: #12213d; font-size: 1rem; font-weight: 700; }
-.configurator-step > p { margin: 3px 0 0; color: #64748b; font-size: 0.84rem; }
+.configurator-step { padding: 0 0 18px; }
+.configurator-step h3 { margin: 0; color: #263244; font-size: 14px; font-weight: 700; }
+.configurator-step > p { margin: 2px 0 0; color: #8793a5; font-size: 11px; }
 
+/* Flows: compact cards, as many per row as fit */
 .flow-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-  margin-top: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 8px;
+  margin-top: 12px;
 }
 
 .flow-card {
   position: relative;
   display: flex;
-  min-height: 176px;
-  flex-direction: column;
   align-items: flex-start;
-  padding: 18px;
-  border: 1px solid #dbe3ef;
-  border-radius: 10px;
+  gap: 10px;
+  padding: 12px 36px 12px 12px;
+  border: 1px solid #d5dde7;
+  border-radius: 8px;
   background: #fff;
   text-align: left;
   transition: border-color .15s ease, background-color .15s ease, box-shadow .15s ease;
 }
 
-.flow-card:hover { border-color: #b7c9dc; }
-.flow-card.selected { border-color: #9fb8d1; background: #f4f8fc; box-shadow: 0 0 0 1px rgba(159, 184, 209, .2); }
+.flow-card:hover { border-color: #a9b8cc; }
+.flow-card.selected { border-color: #2f6fec; background: #f7faff; box-shadow: 0 0 0 3px rgba(47, 111, 236, .12); }
 .flow-card:disabled { cursor: not-allowed; opacity: 1; }
-.flow-card.locked { border-color: #b7c9dc; background: #f4f8fc; }
+.flow-card.locked { border-color: #b9cdf5; background: #f7faff; }
 
 .flow-icon,
 .service-icon {
   display: inline-flex;
+  flex: 0 0 32px;
+  width: 32px;
+  height: 32px;
   align-items: center;
   justify-content: center;
-  border-radius: 50%;
+  border-radius: 8px;
 }
 
-.flow-icon { width: 42px; height: 42px; margin-bottom: 14px; background: #eaf2f9; }
-.flow-icon .v-icon { color: #6688ab; }
-.flow-card strong { padding-right: 12px; font-size: 0.93rem; line-height: 1.25; }
-.flow-card small { margin-top: 4px; color: #64748b; font-size: 0.77rem; line-height: 1.35; }
-.flow-card em { margin-top: 7px; color: #6688ab; font-size: 0.67rem; font-style: normal; font-weight: 700; }
+.flow-icon { background: #f1f6ff; }
+.flow-icon .v-icon { color: #2563dc; }
+
+.flow-copy { display: flex; min-width: 0; flex-direction: column; }
+.flow-card strong { color: #172554; font-size: 13px; font-weight: 700; line-height: 1.3; }
+.flow-card small { margin-top: 2px; color: #8793a5; font-size: 11px; line-height: 1.4; }
+.flow-countries {
+  display: flex;
+  align-items: flex-start;
+  gap: 3px;
+  margin-top: 6px;
+  color: #52627a;
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.flow-countries .v-icon { color: #2563dc; }
+.flow-card em { margin-top: 4px; color: #2563dc; font-size: 10px; font-style: normal; font-weight: 700; }
 
 .flow-checkbox {
   position: absolute;
-  top: 16px;
-  right: 16px;
+  top: 12px;
+  right: 12px;
+  display: inline-flex;
+  width: 16px;
+  height: 16px;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px solid #a9b8cc;
+  border-radius: 50%;
+  background: #fff;
+}
+
+.flow-checkbox .v-icon { opacity: 0; color: #fff; font-size: 11px !important; }
+.flow-card.selected .flow-checkbox { border-color: #2563dc; background: #2563dc; }
+.flow-card.selected .flow-checkbox .v-icon { opacity: 1; }
+.flow-card.locked .flow-checkbox { border-color: #b9cdf5; background: #dbe7fb; }
+.flow-card.locked .flow-checkbox .v-icon { opacity: 1; color: #2563dc; }
+
+/* Services */
+.service-step { padding-top: 18px; border-top: 1px solid #e8edf3; }
+.selected-flow-services { display: grid; gap: 14px; margin-top: 12px; }
+.service-group { min-width: 0; }
+
+.service-group-heading {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+  color: #718198;
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.service-group-heading .v-icon { color: #2563dc; }
+.service-list { display: grid; gap: 6px; }
+
+.service-row {
+  display: grid;
+  width: 100%;
+  grid-template-columns: 18px 32px minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  margin: 0;
+  padding: 9px 12px;
+  border: 1px solid #e1e6ed;
+  border-radius: 8px;
+  background: #fff;
+  color: #273448;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color .15s ease, background-color .15s ease;
+}
+
+@media (min-width: 641px) {
+  .service-row { grid-template-columns: 18px 32px minmax(0, 1fr) 184px; }
+  .service-actions { width: 184px; justify-self: end; }
+}
+
+.service-row:not(.required):hover { border-color: #a9b8cc; }
+.service-row.selected { border-color: #b9cdf5; background: #f7faff; }
+.service-row.required { cursor: not-allowed; }
+
+.service-toggle { position: relative; display: inline-flex; width: 18px; height: 18px; }
+.service-toggle input { position: absolute; z-index: 1; inset: 0; width: 18px; height: 18px; margin: 0; cursor: pointer; opacity: 0; }
+.service-toggle input:disabled { cursor: not-allowed; }
+.service-toggle input:focus-visible + .service-check { outline: 3px solid rgba(47, 111, 236, .2); outline-offset: 1px; }
+
+.service-check {
   display: inline-flex;
   width: 18px;
   height: 18px;
   align-items: center;
   justify-content: center;
-  border: 2px solid #94a3b8;
-  border-radius: 4px;
-}
-
-.flow-checkbox .v-icon { opacity: 0; color: #fff; }
-.flow-card.selected .flow-checkbox { border-color: #7898b8; background: #7898b8; }
-.flow-card.selected .flow-checkbox .v-icon { opacity: 1; }
-.flow-card.locked .flow-checkbox { border-color: #c4d4e4; background: #e6eef6; }
-.flow-card.locked .flow-checkbox .v-icon { color: #91a8be; }
-
-.service-step { border-top: 1px solid #e2e8f0; }
-.selected-flow-services { display: grid; gap: 18px; margin-top: 16px; }
-.service-group { min-width: 0; }
-.service-group-heading { display: flex; align-items: center; gap: 7px; margin-bottom: 8px; color: #344563; font-size: 0.78rem; }
-.service-group-heading .v-icon { color: #6688ab; }
-.service-list { display: grid; gap: 8px; }
-
-.service-row {
-  display: grid;
-  width: 100%;
-  min-height: 68px;
-  grid-template-columns: 22px 38px minmax(0, 1fr) auto;
-  gap: 12px;
-  align-items: center;
-  margin: 0;
-  padding: 10px 14px;
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
+  border: 1.5px solid #a9b8cc;
+  border-radius: 5px;
   background: #fff;
-  color: #12213d;
-  cursor: pointer;
-  text-align: left;
 }
 
-@media (min-width: 641px) {
-  .service-row { grid-template-columns: 22px 38px minmax(0, 1fr) 204px; }
-  .service-actions { width: 204px; justify-self: end; }
-}
-
-.service-row:not(.required):hover { border-color: #b7c9dc; }
-.service-row.selected { border-color: #a9bfd5; background: #f4f8fc; }
-.service-row.required { cursor: not-allowed; }
-.service-toggle { position: relative; display: inline-flex; width: 21px; height: 21px; }
-.service-toggle input { position: absolute; z-index: 1; inset: 0; width: 21px; height: 21px; margin: 0; cursor: pointer; opacity: 0; }
-.service-toggle input:disabled { cursor: not-allowed; }
-.service-toggle input:focus-visible + .service-check { outline: 3px solid rgba(120, 152, 184, .25); outline-offset: 1px; }
-
-.service-check { display: inline-flex; width: 21px; height: 21px; align-items: center; justify-content: center; border: 1px solid #94a3b8; border-radius: 4px; background: #fff; }
-.service-check .v-icon { opacity: 0; color: #fff; }
-.service-row.selected .service-check { border-color: #7898b8; background: #7898b8; }
+.service-check .v-icon { opacity: 0; color: #fff; font-size: 12px !important; }
+.service-row.selected .service-check { border-color: #2563dc; background: #2563dc; }
 .service-row.selected .service-check .v-icon { opacity: 1; }
-.service-row.required .service-check { border-color: #c4d4e4; background: #e6eef6; }
-.service-row.required .service-check .v-icon { opacity: 1; color: #91a8be; }
+.service-row.required .service-check { border-color: #b9cdf5; background: #dbe7fb; }
+.service-row.required .service-check .v-icon { opacity: 1; color: #2563dc; }
 
-.service-icon { width: 38px; height: 38px; background: #f1f5f9; }
-.service-icon .v-icon { color: #344563; }
+.service-icon { background: #f1f5f9; }
+.service-icon .v-icon { color: #52627a; }
+.service-row.selected .service-icon { background: #f1f6ff; }
+.service-row.selected .service-icon .v-icon { color: #2563dc; }
+
 .service-copy { display: flex; min-width: 0; flex-direction: column; }
-.service-copy strong { font-size: 0.86rem; }
-.service-copy small { color: #64748b; font-size: 0.75rem; line-height: 1.3; }
-.service-copy em { margin-top: 5px; color: #52627b; cursor: default; font-size: 0.69rem; font-style: normal; }
-.service-copy em .v-icon { margin-right: 4px; color: inherit; }
+.service-copy strong { color: #263244; font-size: 13px; font-weight: 600; }
+.service-copy small { color: #8793a5; font-size: 11px; line-height: 1.35; }
+.service-copy em { margin-top: 3px; color: #718198; cursor: default; font-size: 10px; font-style: normal; }
+.service-copy em .v-icon { margin-right: 3px; color: inherit; }
 
-.required-label { display: inline-block; margin-left: 5px; padding: 2px 6px; border-radius: 999px; background: #e2e8f0; color: #52627b; font-size: 0.58rem; font-weight: 700; letter-spacing: .03em; text-transform: uppercase; vertical-align: middle; }
+.required-label {
+  display: inline-block;
+  margin-left: 5px;
+  padding: 1px 6px;
+  border-radius: 10px;
+  background: #f1f5f9;
+  color: #64748b;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  vertical-align: middle;
+}
+
 .service-actions { display: inline-flex; align-items: center; justify-content: flex-end; gap: 8px; }
-.service-actions.has-quantity { display: grid; width: 204px; grid-template-columns: 100px 96px; }
-.quantity-stepper { display: inline-flex; width: 100px; height: 30px; align-items: center; overflow: hidden; border: 1px solid #b7c9dc; border-radius: 6px; background: #fff; box-sizing: border-box; }
-.quantity-stepper button { width: 28px; height: 28px; flex: 0 0 28px; border: 0; background: #f4f8fc; color: #405b78; font-size: 16px; font-weight: 700; line-height: 1; }
-.quantity-stepper button:hover:not(:disabled) { background: #e6eef6; }
-.quantity-stepper button:disabled { cursor: not-allowed; color: #b5c2cf; }
-.quantity-input { width: 42px; height: 28px; flex: 0 0 42px; border: 0; outline: 0; background: #fff; color: #344563; font: inherit; font-size: 0.75rem; font-variant-numeric: tabular-nums; font-weight: 700; text-align: center; appearance: textfield; }
+.service-actions.has-quantity { display: grid; width: 184px; grid-template-columns: 92px 84px; }
+
+.quantity-stepper {
+  display: inline-flex;
+  width: 92px;
+  height: 28px;
+  align-items: center;
+  overflow: hidden;
+  border: 1px solid #d5dde7;
+  border-radius: 6px;
+  background: #fff;
+  box-sizing: border-box;
+}
+
+.quantity-stepper button { width: 26px; height: 26px; flex: 0 0 26px; border: 0; background: #f8fafc; color: #52627a; font-size: 15px; font-weight: 700; line-height: 1; }
+.quantity-stepper button:hover:not(:disabled) { background: #f1f6ff; color: #2563dc; }
+.quantity-stepper button:disabled { cursor: not-allowed; color: #c3cedc; }
+
+.quantity-input {
+  width: 38px;
+  height: 26px;
+  flex: 0 0 38px;
+  border: 0;
+  outline: 0;
+  background: #fff;
+  color: #263244;
+  font: inherit;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  text-align: center;
+  appearance: textfield;
+}
+
 .quantity-input::-webkit-inner-spin-button,
 .quantity-input::-webkit-outer-spin-button { margin: 0; appearance: none; }
-.quantity-input:focus { box-shadow: inset 0 0 0 2px rgba(120, 152, 184, .35); }
-.credit-pill { display: inline-flex; width: 96px; height: 28px; align-items: center; justify-content: center; overflow: hidden; padding: 0 7px; border: 0; border-radius: 999px; background: #eaf2f9; box-sizing: border-box; color: #5b7896; font-size: 0.74rem; font-variant-numeric: tabular-nums; font-weight: 700; text-align: center; text-overflow: ellipsis; white-space: nowrap; }
+.quantity-input:focus { box-shadow: inset 0 0 0 2px rgba(47, 111, 236, .25); }
+
+.credit-pill {
+  display: inline-flex;
+  width: 84px;
+  height: 24px;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: 0 7px;
+  border-radius: 10px;
+  background: #f1f5f9;
+  box-sizing: border-box;
+  color: #52627a;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.service-row.selected .credit-pill { background: #e6efff; color: #2563dc; }
 .service-actions.has-quantity .credit-pill { justify-self: end; }
-.service-placeholder { display: flex; min-height: 120px; align-items: center; justify-content: center; gap: 8px; margin-top: 14px; border: 1px dashed #cbd5e1; border-radius: 10px; color: #64748b; font-size: 0.84rem; }
+
+.service-placeholder {
+  display: flex;
+  min-height: 64px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 12px;
+  border: 1px dashed #c3cedc;
+  border-radius: 8px;
+  background: #fff;
+  color: #8793a5;
+  font-size: 12px;
+}
+
+.service-placeholder .v-icon { color: inherit; }
 
 @media (max-width: 640px) {
-  .flow-grid { grid-template-columns: 1fr; }
-  .flow-card { min-height: 128px; }
-  .service-row { grid-template-columns: 22px 34px minmax(0, 1fr); }
+  .service-row { grid-template-columns: 18px 32px minmax(0, 1fr); }
   .service-actions { width: auto; grid-column: 3; justify-self: start; flex-wrap: wrap; justify-content: flex-start; }
   .service-actions.has-quantity { max-width: 100%; }
 }

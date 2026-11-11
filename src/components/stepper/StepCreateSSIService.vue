@@ -40,7 +40,7 @@
           <div class="timeline-rail" aria-hidden="true">
             <span class="timeline-marker">
               <i v-if="item.state === 'complete'" class="mdi mdi-check"></i>
-              <span v-else-if="item.state === 'failed'">!</span>
+              <span v-else-if="item.failureMessage">!</span>
             </span>
           </div>
 
@@ -54,21 +54,26 @@
               <span class="status-label">{{ item.statusLabel }}</span>
             </div>
 
-            <div v-if="item.failureReason" class="failure-row">
-              <span>{{ item.failureReason }}</span>
+            <div v-if="item.failureMessage" class="failure-row">
+              <span>{{ item.failureMessage }}</span>
             </div>
           </div>
         </div>
       </div>
+
+      <div v-if="notice" class="status-notice" role="alert">{{ notice }}</div>
 
       <footer class="status-footer">
         <div class="progress-note">
           <i class="mdi mdi-information-outline" aria-hidden="true"></i>
           <span>You can leave this page and return anytime. Progress is saved and available whenever you return.</span>
         </div>
-        <button type="button" class="secondary-button refresh-button" :disabled="isRefreshing" @click="$emit('refresh-status')">
-          <i class="mdi mdi-refresh" :class="{ 'is-spinning': isRefreshing }" aria-hidden="true"></i>
-          {{ isRefreshing ? 'Refreshing…' : 'Refresh status' }}
+        <button v-if="showCheckStatus" type="button" class="secondary-button refresh-button" :disabled="isCheckDisabled" @click="$emit('check-status')">
+          <i class="mdi mdi-refresh" :class="{ 'is-spinning': isChecking }" aria-hidden="true"></i>
+          {{ isChecking ? 'Checking…' : 'Check status' }}
+        </button>
+        <button v-if="showRetry" type="button" class="retry-button" :disabled="isRetryDisabled" @click="$emit('retry')">
+          {{ isRetrying ? 'Retrying…' : 'Retry' }}
         </button>
       </footer>
     </section>
@@ -94,147 +99,88 @@
 
 <script>
 import config from '../../config';
+import { buildTimeline, isApproved, shouldShowCheckStatus, shouldShowRetry } from '../../utils/onboardingProgress';
 
 export default {
   name: 'StepCreateSSIService',
   props: {
     company: { type: Object, required: true },
-    isRefreshing: { type: Boolean, default: false },
+    isChecking: { type: Boolean, default: false },
+    isCheckDisabled: { type: Boolean, default: false },
+    isRetrying: { type: Boolean, default: false },
+    isRetryDisabled: { type: Boolean, default: false },
+    retryForbidden: { type: Boolean, default: false },
+    notice: { type: String, default: '' },
   },
   computed: {
     supportMailto() {
       return `mailto:${config.app.supportEmails}`;
     },
-    normalizedStatus() {
-      return (this.company.onboardingStatus || 'INITIATED').toUpperCase();
+    // The form keeps interests until the first GET fills interestedService
+    record() {
+      return {
+        onboardingStatus: this.company.onboardingStatus,
+        logs: this.company.logs,
+        processingActive: this.company.processingActive,
+        interestedService: [...(this.company.interestedService || []), ...(this.company.interests || [])],
+      };
+    },
+    timeline() {
+      return buildTimeline(this.record);
     },
     failedItems() {
       return this.timeline.filter(item => item.state === 'failed');
     },
+    warningItems() {
+      return this.timeline.filter(item => item.state === 'warning');
+    },
     completedItems() {
       return this.timeline.filter(item => item.state === 'complete');
     },
+    showCheckStatus() {
+      return shouldShowCheckStatus(this.record);
+    },
+    showRetry() {
+      return !this.retryForbidden && shouldShowRetry(this.record);
+    },
     progressPercentage() {
-      if (this.normalizedStatus === 'APPROVED') return 100;
-      if (!this.timeline.length) return 0;
       return Math.round((this.completedItems.length / this.timeline.length) * 100);
     },
     progressLabel() {
-      if (this.normalizedStatus === 'APPROVED' && !this.timeline.length) return 'Workspace setup completed';
       return `${this.completedItems.length} of ${this.timeline.length} tasks completed`;
     },
     summaryState() {
+      if (this.record.processingActive === true) return 'is-progress';
       if (this.failedItems.length) return 'is-failed';
-      if (this.normalizedStatus === 'APPROVED' || this.completedItems.length === this.timeline.length) return 'is-complete';
+      if (this.warningItems.length) return 'is-warning';
+      if (isApproved(this.record) || this.completedItems.length === this.timeline.length) return 'is-complete';
+      // Nothing failed, but the run stopped before finishing
+      if (shouldShowRetry(this.record)) return 'is-failed';
       return 'is-progress';
     },
     summaryIcon() {
-      if (this.summaryState === 'is-failed') return 'mdi mdi-alert-outline';
+      if (this.summaryState === 'is-failed' || this.summaryState === 'is-warning') return 'mdi mdi-alert-outline';
       if (this.summaryState === 'is-complete') return 'mdi mdi-check';
       return 'mdi mdi-clock-outline';
     },
     summaryBadge() {
       if (this.summaryState === 'is-failed') return 'Action required';
+      if (this.summaryState === 'is-warning') return 'Needs attention';
       if (this.summaryState === 'is-complete') return 'Completed';
       return 'In progress';
     },
     summaryMessage() {
-      if (this.failedItems.length === 1) return 'One setup task needs attention. Refresh the status after it has been resolved.';
-      if (this.failedItems.length > 1) return `${this.failedItems.length} setup tasks need attention. Refresh the status after they have been resolved.`;
+      if (this.summaryState === 'is-failed' || this.summaryState === 'is-warning') {
+        const count = this.failedItems.length + this.warningItems.length;
+        if (count === 1) return 'One setup task couldn’t be completed. Please retry.';
+        if (count > 1) return `${count} setup tasks couldn’t be completed. Please retry.`;
+        return 'Setup stopped before it finished. Please retry to continue.';
+      }
       if (this.summaryState === 'is-complete') return 'Your verification workspace is ready.';
-      return 'Your verification workspace is being prepared. Progress will update automatically.';
+      return 'Your verification workspace is being prepared. Use Check status to see the latest progress.';
     },
-    hasKybInterest() {
-      const serviceTypes = (this.company.service_types || []).map(type => String(type).toUpperCase());
-      const interests = [
-        ...(this.company.interestedService || []),
-        ...(this.company.interests || []),
-      ].map(interest => String(interest).trim().toUpperCase());
-      return serviceTypes.includes('KYB') || interests.includes('KNOW YOUR BUSINESS (KYB)');
-    },
-    visibleOnboardingSteps() {
-      return this.onboardingSteps.filter(step => step.serviceType !== 'KYB' || this.hasKybInterest);
-    },
-    timeline() {
-      const stepMap = new Map(this.visibleOnboardingSteps.map(step => [step.key, step]));
-      const normalizedLogs = (this.company.logs || [])
-        .map((log, responseIndex) => ({
-          ...log,
-          step: typeof log.step === 'string' ? log.step.trim().toUpperCase() : '',
-          responseIndex,
-          normalizedTime: log.time?.$date || log.time || '',
-        }))
-        .filter(log => stepMap.has(log.step));
-      const latestLogByStep = normalizedLogs.reduce((map, log) => {
-        const stepKey = log.step;
-        const existing = map.get(stepKey);
-        if (!existing) {
-          map.set(stepKey, { ...log, step: stepKey });
-          return map;
-        }
-        const existingTime = new Date(existing.normalizedTime).getTime();
-        const candidateTime = new Date(log.normalizedTime).getTime();
-        const existingHasTime = Number.isFinite(existingTime);
-        const candidateHasTime = Number.isFinite(candidateTime);
-        const isNewer = candidateHasTime && (!existingHasTime || candidateTime >= existingTime);
-        const shouldUseLaterResponse = !candidateHasTime && !existingHasTime && log.responseIndex > existing.responseIndex;
-        if (isNewer || shouldUseLaterResponse) map.set(stepKey, { ...log, step: stepKey });
-        return map;
-      }, new Map());
-      const isApproved = this.normalizedStatus === 'APPROVED';
-      return this.visibleOnboardingSteps.reduce((items, step) => {
-        const log = latestLogByStep.get(step.key);
-        if (!log) {
-          if (!isApproved) {
-            items.push({ ...step, state: 'pending', statusLabel: 'Not started', time: '', failureReason: '' });
-          }
-          return items;
-        }
-        const status = (log.status || 'NOT STARTED').replace(/_/g, ' ').toUpperCase();
-        const state = isApproved ? 'complete' : this.getTimelineState(status);
-        items.push({
-          ...step,
-          state,
-          statusLabel: isApproved ? 'Completed' : this.getStatusLabel(status, state),
-          time: log.normalizedTime,
-          failureReason: isApproved ? '' : log.failureReason || '',
-        });
-        return items;
-      }, []);
-    },
-  },
-  data() {
-    return {
-      onboardingSteps: [
-        { key: 'GIVE_DASHBOARD_ACCESS', title: 'Dashboard access', description: 'Grant access to the identity-verification dashboard.' },
-        { key: 'CREATE_TEAM_ROLE', title: 'Team and roles setup', description: 'Create the default workspace team and access roles.' },
-        { key: 'CREATE_SSI_SERVICE', title: 'SSI service creation', description: 'Create the organization’s SSI service.' },
-        { key: 'CREDIT_SSI_SERVICE', title: 'SSI credit allocation', description: 'Allocate the approved SSI service credits.' },
-        { key: 'CREATE_DID', title: 'Business identity creation', description: 'Create the organization’s decentralized identity.' },
-        { key: 'REGISTER_DID', title: 'Blockchain registration', description: 'Register the business identity on the blockchain.' },
-        { key: 'CREATE_KYC_SERVICE', title: 'ID service creation', description: 'Create the requested identity-verification service.', serviceType: 'KYC' },
-        { key: 'CREDIT_KYC_SERVICE', title: 'ID service credit allocation', description: 'Allocate the approved identity-service credits.', serviceType: 'KYC' },
-        { key: 'SETUP_KYC_WIDGET', title: 'KYC widget setup', description: 'Prepare the default verification widget.', serviceType: 'KYC' },
-        { key: 'SETUP_KYB_WIDGET', title: 'KYB widget setup', description: 'Prepare the default business-verification widget.', serviceType: 'KYB' },
-        { key: 'CONFIGURE_KYC_VERIFIER_PAGE', title: 'KYC verifier page configuration', description: 'Configure the default identity-verification experience.', serviceType: 'KYC' },
-        { key: 'CONFIGURE_KYB_VERIFIER_PAGE', title: 'KYB verifier page configuration', description: 'Configure the default business-verification experience.', serviceType: 'KYB' },
-        { key: 'COMPLETED', title: 'Workspace activation', description: 'Finish workspace activation and make the services available.' },
-      ],
-    };
   },
   methods: {
-    getTimelineState(status) {
-      if (status === 'SUCCESS') return 'complete';
-      if (status === 'FAILED') return 'failed';
-      if (status === 'PENDING') return 'active';
-      return 'pending';
-    },
-    getStatusLabel(status, state) {
-      if (state === 'complete') return 'Completed';
-      if (state === 'failed') return 'Action required';
-      if (status === 'PENDING' || state === 'active') return 'In progress';
-      return 'Not started';
-    },
     formatDate(value) {
       const date = new Date(value);
       if (Number.isNaN(date.getTime())) return '';
@@ -257,6 +203,9 @@ export default {
 .summary-icon { display: inline-flex; flex: 0 0 30px; width: 30px; height: 30px; align-items: center; justify-content: center; border: 2px solid #6c757d; border-radius: 50%; color: #6c757d; font-size: 17px; }
 .is-failed .summary-icon { border-color: #e64b4b; color: #e64b4b; }
 .is-complete .summary-icon { border-color: #2eb67d; background: #2eb67d; color: #fff; }
+.setup-summary-banner.is-warning { background: #fffbeb; }
+.is-warning .summary-icon { border-color: #d97706; color: #d97706; }
+.is-warning .summary-badge { background: #fef3c7; color: #b45309; }
 .summary-copy { min-width: 0; flex: 1; }
 .summary-title-row { display: flex; align-items: center; gap: 10px; }
 .summary-title-row h2 { margin: 0; color: #17213d; font-size: 16px; font-weight: 750; }
@@ -285,6 +234,7 @@ export default {
 .timeline-marker { position: relative; z-index: 1; display: flex; width: 16px; height: 16px; align-items: center; justify-content: center; margin-top: 2px; border: 1.5px solid #cbd5e1; border-radius: 50%; background: #fff; color: #fff; font-size: 9px; font-weight: 800; }
 .complete .timeline-marker { border-color: #bfdbfe; background: #bfdbfe; color: #fff; }
 .failed .timeline-marker { border-color: #fecaca; background: #fecaca; color: #fff; }
+.warning .timeline-marker { border-color: #fde68a; background: #fde68a; color: #92400e; }
 .active .timeline-marker { border: 4px solid #cbd5e1; }
 .timeline-marker i { font-size: 11px; }
 .timeline-content { min-width: 0; flex: 1; padding: 0 0 16px; }
@@ -296,8 +246,14 @@ export default {
 .complete .status-label { background: #e3f8ed; color: #159a68; }
 .active .status-label { background: #e2e4e6; color: #5a6268; }
 .failed .status-label { background: #ffe1e1; color: #dc3c3c; }
+.warning .status-label { background: #fef3c7; color: #b45309; }
 .failure-row { display: flex; gap: 12px; align-items: center; margin-top: 6px; }
 .failure-row > span { min-width: 0; flex: 1; padding: 7px 10px; border-radius: 4px; background: #fff0f0; color: #d74848; font-size: 11px; line-height: 1.35; }
+.warning .failure-row > span { background: #fffbeb; color: #b45309; }
+.status-notice { margin-bottom: 10px; padding: 9px 11px; border-radius: 4px; background: #fffbeb; color: #b45309; font-size: 11px; font-weight: 700; line-height: 1.4; }
+.retry-button { display: inline-flex; flex: 0 0 auto; height: 40px; align-items: center; justify-content: center; padding: 0 18px; border: 1px solid #6c757d; border-radius: 5px; background: #6c757d; color: #fff; font-size: 11px; font-weight: 700; white-space: nowrap; }
+.retry-button:hover:not(:disabled) { border-color: #545b62; background: #5a6268; }
+.retry-button:disabled { cursor: wait; opacity: .65; }
 .status-footer { display: flex; gap: 12px; align-items: center; justify-content: space-between; margin-top: 2px; }
 .progress-note { display: flex; min-width: 0; flex: 1; gap: 8px; align-items: center; min-height: 40px; padding: 9px 11px; border-radius: 4px; background: #f3f4f5; color: #626b73; font-size: 11px; line-height: 1.4; }
 .progress-note i { flex: 0 0 auto; color: #6c757d; font-size: 14px; }

@@ -1,5 +1,8 @@
 <template>
   <div class="go-live-panel">
+    <!-- Free credits for Production, when the organisation can claim them -->
+    <PromotionBanner :app-id="app.appId" />
+
     <section class="panel-card">
       <header class="panel-card-header">
         <div>
@@ -78,13 +81,14 @@ import UtilsMixin from '../../mixins/utils';
 import DomainVerificationPopup from './DomainVerificationPopup.vue';
 import CompanyVerificationPopup from './CompanyVerificationPopup.vue';
 import { COMPANY_REVIEW, companyReviewStatus, companyAllowsProduction } from './companyReview.js';
+import PromotionBanner from '../credit/promotion/PromotionBanner.vue';
 
 // Self-contained go-live checklist for one app. Needs only the app object, so it can
 // live in the app configuration page or on a standalone page. Emits `updated` with the
 // saved app whenever it changes the app (domain, verification, environment).
 export default {
   name: 'GoLivePanel',
-  components: { DomainVerificationPopup, CompanyVerificationPopup },
+  components: { DomainVerificationPopup, CompanyVerificationPopup, PromotionBanner },
   mixins: [UtilsMixin],
   props: {
     app: { type: Object, required: true },

@@ -674,6 +674,7 @@ color: #1a1a2e !important;
     <div
       :class="[isSidebarCollapsed ? 'container-collapsed-not' : 'container-collapsed']"
     >
+      <onboarding-attention-banner v-if="showOnboardingBanner" class="container" />
       <router-view
         :key="$route.params.appId || $route.name"
         class="container containerData"
@@ -717,13 +718,15 @@ color: #1a1a2e !important;
 <script>
 import UtilsMixin from "./mixins/utils";
 import EventBus from "./eventbus";
+import { resetPromotions } from "./components/credit/promotion/promotionState";
 import { mapActions, mapMutations, mapGetters, mapState } from "vuex";
 import { RequestHandler } from "./utils/utils";
 import config from "./config";
 import * as EN from "./language/en";
 import AppLogo from "./components/element/AppLogo.vue";
+import OnboardingAttentionBanner from "./components/stepper/OnboardingAttentionBanner.vue";
 export default {
-  components: { AppLogo },
+  components: { AppLogo, OnboardingAttentionBanner },
   computed: {
     ...mapGetters("playgroundStore", ["getSelectedOrg"]),
     ...mapGetters("mainStore", [
@@ -736,6 +739,11 @@ export default {
       "isMFAEnabled",
       "getAppsWithKYCServices",
     ]),
+    // Lives in the shell because admins go straight from the dashboard to their service.
+    // Leaving the status page remounts it, which picks up the record a retry just changed.
+    showOnboardingBanner() {
+      return this.$route.meta.requiresAuth && this.$route.path !== '/studio/onboarding';
+    },
     displayName() {
       const details = this.userDetails || {};
       return details.name || (details.email ? details.email.split('@')[0] : '') || 'User';
@@ -880,6 +888,7 @@ export default {
       return "https://api.dicebear.com/7.x/identicon/svg?seed=" + name;
     },
     logoutAll() {
+      resetPromotions();
       this.setIsLoggedOut(false);
       this.logout();
       if (this.$route.path !== "/login") this.$router.push("/login");

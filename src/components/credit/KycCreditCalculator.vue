@@ -1,18 +1,32 @@
 <template>
-  <hf-pop-up
+  <b-modal
     :id="popupId"
-    Header="Credit Calculator"
-    size="xl"
-    @hidden="isOpen = false"
+    :visible="value"
+    centered
+    hide-footer
+    modal-class="credit-calculator-modal"
+    @change="isOpen = $event"
   >
+    <template #modal-header="{ close }">
+      <div class="calculator-header">
+        <span class="calculator-header-icon"><v-icon small>mdi-calculator-variant-outline</v-icon></span>
+        <div class="calculator-header-text">
+          <h2>Credit Calculator</h2>
+          <p>{{ copy.subtitle }}</p>
+        </div>
+        <button type="button" class="calculator-close" aria-label="Close" @click="close()">
+          <v-icon small>mdi-close</v-icon>
+        </button>
+      </div>
+    </template>
+
     <section class="calculator-modal">
-      <p class="calculator-subtitle">{{ copy.subtitle }}</p>
 
       <div class="calculator-layout">
         <VerificationFlowConfigurator
           class="configuration-panel"
           :value="selection"
-          :flows="flows"
+          :flows="availableFlows"
           :service-cost="serviceCost"
           :service-cost-multiplier="serviceQuantityMultiplier"
           :can-increase-service-quantity="canIncreaseServiceQuantity"
@@ -21,17 +35,17 @@
 
         <aside class="estimate-panel" aria-live="polite">
           <div class="summary-card credits-card">
-            <span class="summary-icon"><v-icon>mdi-database-outline</v-icon></span>
+            <span class="summary-icon"><v-icon small>mdi-database-outline</v-icon></span>
             <div>
               <span>{{ copy.creditsLabel }}</span>
-              <template v-if="isAllocateMode">
+              <template v-if="hasEditableCredits">
                 <input
                   v-model="creditsInput"
                   class="credits-input"
                   type="number"
                   min="0"
                   step="1"
-                  aria-label="Credits to allocate"
+                  :aria-label="copy.creditsLabel"
                   @input="updateCredits"
                 />
                 <small>credits</small>
@@ -43,10 +57,10 @@
             </div>
           </div>
 
-          <v-icon class="estimate-arrow">mdi-arrow-down</v-icon>
+          <v-icon small class="estimate-arrow">mdi-arrow-down</v-icon>
 
           <div class="summary-card estimate-card" :class="{ empty: creditsPerVerification === 0 }">
-            <span class="summary-icon"><v-icon>mdi-chart-bar</v-icon></span>
+            <span class="summary-icon"><v-icon small>mdi-chart-bar</v-icon></span>
             <div>
               <span>Estimated verifications</span>
               <strong>{{ creditsPerVerification ? numberFormat(estimatedVerifications) : '—' }}</strong>
@@ -55,7 +69,7 @@
             </div>
           </div>
 
-          <div v-if="!isAllocateMode" class="estimate-actions">
+          <div v-if="mode === 'customer' || backLabel" class="estimate-actions">
             <!--
             <div class="configuration-summary" :class="{ empty: !creditsPerVerification }">
               <span class="configuration-summary-icon">
@@ -69,44 +83,48 @@
             </div>
             -->
 
-            <button class="got-it-button" type="button" @click="saveConfiguration">
+            <button v-if="mode === 'customer'" class="got-it-button" type="button" @click="saveConfiguration">
               <v-icon small>mdi-content-save-outline</v-icon>
               Save config locally
+            </button>
+            <button v-if="backLabel" class="back-button" type="button" @click="goBack">
+              <v-icon small>mdi-arrow-left</v-icon>
+              {{ backLabel }}
             </button>
           </div>
         </aside>
       </div>
 
     </section>
-  </hf-pop-up>
+  </b-modal>
 </template>
 
 <script>
 import creditCatalog from '../../catalogs/catalog.kyc.json';
 import VerificationFlowConfigurator from './VerificationFlowConfigurator.vue';
-import HfPopUp from '../element/hfPopup.vue';
 
 const flows = [
   {
     id: 'india',
-    title: 'India Identity Verification',
-    description: 'Verify individuals in India using Aadhaar and PAN services.',
+    title: 'Non-Doc ID Verification',
+    description: 'Aadhaar and PAN checks, no ID document needed.',
+    countries: ['India'],
     icon: 'mdi-account-outline',
     services: [
-      {
-        id: 'aadhaar-face-match',
-        title: 'Aadhaar Face Match',
-        description: "Match the user's selfie against their Aadhaar photo.",
-        icon: 'mdi-face-recognition',
-        routes: ['/api/v1/aadhaar/face/match'],
-        defaultSelected: true
-      },
       {
         id: 'aadhaar-verification',
         title: 'Aadhaar Verification',
         description: 'Verify Aadhaar using OTP or QR.',
         icon: 'mdi-card-account-details-outline',
         routes: ['/api/v1/aadhaar/otp/generate', '/api/v1/aadhaar/otp/verify'],
+        defaultSelected: true
+      },
+      {
+        id: 'aadhaar-face-match',
+        title: 'Aadhaar Face Match',
+        description: "Match the user's selfie against their Aadhaar photo.",
+        icon: 'mdi-face-recognition',
+        routes: ['/api/v1/aadhaar/face/match'],
         defaultSelected: true
       },
       {
@@ -132,7 +150,7 @@ const flows = [
     title: 'Global Identity Verification',
     description: 'Verify individuals internationally using identity documents and biometrics.',
     icon: 'mdi-earth',
-    lockedMessage: 'Required by UBO Verification',
+    lockedMessage: 'Required for UBO Verification',
     services: [
       {
         id: 'verification-session',
@@ -217,19 +235,26 @@ const flows = [
 
 export default {
   name: 'KycCreditCalculator',
-  components: { VerificationFlowConfigurator, HfPopUp },
+  components: { VerificationFlowConfigurator },
   props: {
     value: { type: Boolean, default: false },
     remainingCredits: { type: Number, default: 0 },
     totalCredits: { type: Number, default: 0 },
     // 'customer': estimate against the user's own remaining credits, with a saved config.
     // 'allocate': super admin previewing what a credit amount they are about to give covers.
-    mode: { type: String, default: 'customer', validator: (v) => ['customer', 'allocate'].includes(v) }
+    // 'topup': customer previewing what the credits in a top-up cover. The credits field is
+    // editable for what-ifs and starts from the top-up's credits; nothing is saved.
+    mode: { type: String, default: 'customer', validator: (v) => ['customer', 'allocate', 'topup'].includes(v) },
+    // Limit the flows on offer (e.g. by billing region); null shows every flow
+    visibleFlowIds: { type: Array, default: null },
+    // Opened from another popup or page: shows a "Back to …" button that closes the calculator
+    backLabel: { type: String, default: '' }
   },
   data() {
     return {
       flows,
-      popupId: 'kyc-credit-calculator-popup',
+      // One id per mode: the dashboard and the top-up popup each mount a calculator
+      popupId: this.mode === 'customer' ? 'kyc-credit-calculator-popup' : `kyc-credit-calculator-popup-${this.mode}`,
       creditsInput: String(this.remainingCredits),
       selectedFlowIds: [],
       selectedServiceIds: [],
@@ -240,7 +265,24 @@ export default {
     isAllocateMode() {
       return this.mode === 'allocate';
     },
+    isTopUpMode() {
+      return this.mode === 'topup';
+    },
+    hasEditableCredits() {
+      return this.isAllocateMode || this.isTopUpMode;
+    },
+    // Top-up mode edits a local copy; the other modes estimate against the prop
+    estimateCredits() {
+      if (this.isTopUpMode) return Math.max(Math.floor(Number(this.creditsInput) || 0), 0);
+      return Math.max(Number(this.remainingCredits) || 0, 0);
+    },
     copy() {
+      if (this.isTopUpMode) {
+        return {
+          subtitle: 'See how many verifications a credit amount will cover. Starts with the credits in this top-up.',
+          creditsLabel: 'Credits'
+        };
+      }
       return this.isAllocateMode
         ? {
           subtitle: 'See how many verifications this credit amount will cover.',
@@ -262,8 +304,12 @@ export default {
         serviceQuantities: this.serviceQuantities
       };
     },
+    availableFlows() {
+      if (!this.visibleFlowIds) return this.flows;
+      return this.flows.filter(flow => this.visibleFlowIds.includes(flow.id));
+    },
     selectedFlows() {
-      return this.flows.filter(flow => this.selectedFlowIds.includes(flow.id));
+      return this.availableFlows.filter(flow => this.selectedFlowIds.includes(flow.id));
     },
     selectedServices() {
       return this.selectedFlows.reduce((services, flow) => {
@@ -286,7 +332,7 @@ export default {
     },
     estimatedVerifications() {
       if (!this.creditsPerVerification) return 0;
-      return Math.floor(Math.max(this.remainingCredits, 0) / this.creditsPerVerification);
+      return Math.floor(this.estimateCredits / this.creditsPerVerification);
     },
     uboQuantity() {
       if (!this.selectedServiceIds.includes('ubo-verification')) return 0;
@@ -341,9 +387,7 @@ export default {
       immediate: true,
       handler(isOpen) {
         if (isOpen && !this.isAllocateMode) this.loadSavedConfiguration();
-        this.$nextTick(() => {
-          this.$root.$emit(isOpen ? 'bv::show::modal' : 'bv::hide::modal', this.popupId);
-        });
+        if (isOpen && this.isTopUpMode) this.creditsInput = String(this.remainingCredits);
       }
     }
   },
@@ -392,7 +436,7 @@ export default {
       const additionalUbos = Math.max(Math.floor(Number(nextQuantity) || 1) - currentQuantity, 0);
       const projectedCost = this.creditsPerVerification + (costPerAdditionalUbo * additionalUbos);
 
-      return projectedCost <= Math.max(Number(this.remainingCredits) || 0, 0);
+      return projectedCost <= this.estimateCredits;
     },
     numberFormat(value) {
       return new Intl.NumberFormat().format(Number(value || 0));
@@ -406,14 +450,14 @@ export default {
       const savedQuantities = saved && saved.serviceQuantities && typeof saved.serviceQuantities === 'object'
         ? saved.serviceQuantities
         : {};
-      const validFlowIds = this.flows.map(flow => flow.id);
+      const validFlowIds = this.availableFlows.map(flow => flow.id);
       const restoredFlowIds = savedFlowIds.filter(id => validFlowIds.includes(id));
 
-      if (savedServiceIds.includes('ubo-verification') && !restoredFlowIds.includes('global')) {
+      if (savedServiceIds.includes('ubo-verification') && validFlowIds.includes('global') && !restoredFlowIds.includes('global')) {
         restoredFlowIds.push('global');
       }
 
-      this.selectedFlowIds = this.flows
+      this.selectedFlowIds = this.availableFlows
         .filter(flow => restoredFlowIds.includes(flow.id))
         .map(flow => flow.id);
 
@@ -449,35 +493,81 @@ export default {
     },
     close() {
       this.isOpen = false;
+    },
+    goBack() {
+      this.$emit('back');
+      this.close();
     }
   }
 };
 </script>
 
-<style scoped>
-.calculator-modal {
-  position: relative;
-  display: flex;
-  width: 100%;
-  height: min(640px, calc(100vh - 180px));
-  flex-direction: column;
+<style>
+/* Modal chrome: same light header/body as the credit top-up popup */
+.credit-calculator-modal .modal-dialog { max-width: 960px; }
+
+.credit-calculator-modal .modal-content {
   overflow: hidden;
-  color: #12213d;
+  border: 1px solid #dbe3ef;
+  border-radius: 14px;
+  box-shadow: 0 24px 60px -12px rgba(23, 37, 84, .22);
+  font-size: 13px;
 }
 
-.calculator-subtitle { flex: 0 0 auto; margin: 0 0 16px; color: #64748b; }
+.credit-calculator-modal .modal-header { padding: 16px 20px; border-bottom: 1px solid #edf1f6; background: #fff; }
+.credit-calculator-modal .modal-body { padding: 0; background: #f8fafc; }
+</style>
 
+<style scoped>
+.calculator-header { display: flex; align-items: center; gap: 12px; width: 100%; }
+
+.calculator-header-icon {
+  display: inline-flex;
+  flex: 0 0 36px;
+  width: 36px;
+  height: 36px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #dbe7fb;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #f1f6ff, #e6efff);
+}
+
+.calculator-header-icon .v-icon { color: #2563dc; }
+.calculator-header-text { flex: 1 1 auto; min-width: 0; }
+.calculator-header-text h2 { margin: 0; color: #172554; font-size: 16px; font-weight: 700; letter-spacing: -0.01em; }
+.calculator-header-text p { margin: 2px 0 0; color: #8793a5; font-size: 12px; }
+
+.calculator-close {
+  display: inline-flex;
+  width: 32px;
+  height: 32px;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #8793a5;
+}
+
+.calculator-close:hover { background: #f1f5f9; }
+.calculator-close .v-icon { color: inherit; }
+
+.calculator-modal { color: #273448; }
+
+/* Grows with its content up to the viewport; past that only the left panel scrolls.
+   The cap sits on the panel itself: a grid row grows to fit its content, so a max-height
+   on the grid would let the popup outgrow the screen and scroll the page instead. */
 .calculator-layout {
   display: grid;
-  grid-template-columns: minmax(0, 1.7fr) minmax(300px, 1fr);
-  min-height: 0;
-  flex: 1 1 auto;
+  grid-template-columns: minmax(0, 1fr) 300px;
 }
 
 .configuration-panel {
-  min-height: 0;
+  max-height: min(600px, calc(100vh - 160px));
   overflow-y: auto;
-  padding-right: 24px;
+  overscroll-behavior: contain;
+  padding: 20px;
   scrollbar-color: #cbd5e1 transparent;
   scrollbar-width: thin;
 }
@@ -485,131 +575,160 @@ export default {
 .configuration-panel::-webkit-scrollbar { width: 6px; }
 .configuration-panel::-webkit-scrollbar-thumb { border-radius: 999px; background: #cbd5e1; }
 
-.summary-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-}
-
 .estimate-panel {
   display: flex;
   min-height: 0;
   flex-direction: column;
-  padding: 14px 0 0 24px;
-  border-left: 1px solid #e2e8f0;
+  padding: 20px;
+  border-left: 1px solid #e8edf3;
+  background: #fff;
 }
 
 .summary-card {
   display: flex;
-  min-height: 138px;
   align-items: center;
-  gap: 16px;
-  padding: 20px;
-  border-radius: 12px;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid #e1e6ed;
+  border-radius: 10px;
 }
 
-.summary-card .summary-icon { flex: 0 0 48px; width: 48px; height: 48px; }
-.summary-card > div { min-width: 0; }
-.summary-card > div > span { display: block; color: #52627b; font-size: 0.85rem; font-weight: 700; }
-.summary-card strong { display: inline-block; margin-top: 6px; font-size: clamp(2rem, 4vw, 3rem); line-height: 1; }
-.summary-card small { margin-left: 6px; color: #52627b; font-size: 0.76rem; font-weight: 600; }
-
-.credits-card { background: #f8fafc; }
-.credits-input {
-  width: 100%;
-  max-width: 200px;
-  margin-top: 6px;
-  padding: 4px 10px;
-  border: 1px solid #cbd5e1;
+.summary-icon {
+  display: inline-flex;
+  flex: 0 0 32px;
+  width: 32px;
+  height: 32px;
+  align-items: center;
+  justify-content: center;
   border-radius: 8px;
-  background: #fff;
-  color: #495057;
-  font-size: clamp(1.5rem, 3vw, 2.25rem);
-  font-weight: 700;
-  line-height: 1.2;
 }
-.credits-input:focus { outline: none; border-color: #405b78; }
-.credits-input + small { display: block; margin: 6px 0 0; }
+
+.summary-card > div { min-width: 0; }
+
+.summary-card > div > span {
+  display: block;
+  color: #718198;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.summary-card strong {
+  display: inline-block;
+  margin-top: 4px;
+  font-size: 24px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+.summary-card small { margin-left: 4px; color: #718198; font-size: 12px; font-weight: 600; }
+
+.credits-card { background: #fff; }
 .credits-card .summary-icon { background: #f1f5f9; }
 .credits-card .summary-icon .v-icon,
-.credits-card strong { color: #495057; }
+.credits-card strong { color: #263244; }
 
-.estimate-card { background: #eff6ff; }
-.estimate-card .summary-icon { background: #dbeafe; }
-.estimate-card .summary-icon .v-icon,
-.estimate-card strong { color: #405b78; }
-.estimate-card.empty { background: #eff6ff; }
-.estimate-card.empty strong { color: #94a3b8; }
-.estimate-card small { display: block; margin: 8px 0 0; }
-
-.estimate-arrow { align-self: center; margin: 14px 0; color: #52627b; }
-
-.estimate-actions {
-  display: grid;
-  gap: 12px;
-  margin-top: auto;
+.credits-input {
+  width: 100%;
+  max-width: 170px;
+  height: 38px;
+  margin-top: 6px;
+  padding: 0 10px;
+  border: 1px solid #d5dde7;
+  border-radius: 6px;
+  background: #fff;
+  color: #172554;
+  font-size: 18px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
 }
+
+.credits-input:focus { outline: none; border-color: #2f6fec; box-shadow: 0 0 0 2px rgba(47, 111, 236, .12); }
+.credits-input + small { display: block; margin: 4px 0 0; }
+
+.estimate-card { border-color: #dbe7fb; background: linear-gradient(135deg, #f5f9ff 0%, #eaf1ff 100%); }
+.estimate-card .summary-icon { background: #fff; }
+.estimate-card .summary-icon .v-icon,
+.estimate-card strong { color: #2563dc; }
+.estimate-card.empty strong { color: #a9b8cc; }
+.estimate-card small { display: block; margin: 4px 0 0; font-size: 11px; font-weight: 500; }
+
+.estimate-arrow { align-self: center; margin: 8px 0; color: #a9b8cc !important; }
+
+.estimate-actions { display: grid; gap: 12px; margin-top: auto; padding-top: 16px; }
 
 .configuration-summary {
   display: flex;
   align-items: flex-start;
   gap: 10px;
-  padding: 14px;
-  border: 1px solid #dbe6f0;
+  padding: 12px;
+  border: 1px solid #e1e6ed;
   border-radius: 10px;
   background: #f8fafc;
 }
 
 .configuration-summary-icon {
   display: inline-flex;
-  width: 32px;
-  height: 32px;
-  flex: 0 0 32px;
+  width: 28px;
+  height: 28px;
+  flex: 0 0 28px;
   align-items: center;
   justify-content: center;
-  border-radius: 50%;
-  background: #eaf2f9;
+  border-radius: 8px;
+  background: #f1f6ff;
 }
 
-.configuration-summary-icon .v-icon { color: #5b7896; }
+.configuration-summary-icon .v-icon { color: #2563dc; }
 .configuration-summary > div { display: flex; min-width: 0; flex-direction: column; }
-.configuration-summary span { color: #64748b; font-size: 0.72rem; font-weight: 700; }
-.configuration-summary strong { margin-top: 3px; color: #344563; font-size: 0.88rem; line-height: 1.3; }
-.configuration-summary small { margin-top: 4px; color: #64748b; font-size: 0.73rem; line-height: 1.35; }
+.configuration-summary span { color: #718198; font-size: 11px; font-weight: 700; }
+.configuration-summary strong { margin-top: 2px; color: #344054; font-size: 13px; line-height: 1.3; }
+.configuration-summary small { margin-top: 2px; color: #8793a5; font-size: 11px; line-height: 1.35; }
 .configuration-summary.empty { border-style: dashed; }
 
+/* Same filled action as the dashboard's other primary buttons */
 .got-it-button {
   display: inline-flex;
   width: 100%;
-  min-height: 48px;
-  flex: 0 0 48px;
+  min-height: 40px;
   align-items: center;
   justify-content: center;
-  border: 0;
+  gap: 6px;
+  border: 1px solid #6c757d;
   border-radius: 8px;
   background: #6c757d;
   color: #fff;
-  font-weight: 700;
+  font-size: 13px;
+  font-weight: 600;
 }
 
-.got-it-button .v-icon { margin-right: 6px; color: #fff; }
-.got-it-button:hover { background: #5a6268; }
+.got-it-button .v-icon { color: #fff; }
+.got-it-button:hover { border-color: #545b62; background: #5a6268; }
+
+.back-button {
+  display: inline-flex;
+  width: 100%;
+  min-height: 40px;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: #fff;
+  color: #1f2937;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.back-button .v-icon { color: inherit; transition: transform .15s ease; }
+.back-button:hover { border-color: #94a3b8; background: #f8fafc; }
+.back-button:hover .v-icon { transform: translateX(-2px); }
 
 @media (max-width: 900px) {
-  .calculator-layout {
-    display: block;
-    overflow-y: auto;
-    padding-bottom: 20px;
-    scrollbar-color: #cbd5e1 transparent;
-    scrollbar-width: thin;
-  }
-  .configuration-panel { min-height: auto; overflow: visible; padding-right: 0; }
-  .estimate-panel { min-height: auto; padding: 22px 0 0; border-top: 1px solid #e2e8f0; border-left: 0; }
-  .estimate-actions { margin-top: 20px; }
-}
-
-@media (max-width: 640px) {
-  .summary-card { min-height: 120px; }
+  .calculator-layout { display: block; max-height: calc(100vh - 160px); overflow-y: auto; overscroll-behavior: contain; }
+  .configuration-panel { max-height: none; overflow: visible; }
+  .estimate-panel { border-top: 1px solid #e8edf3; border-left: 0; }
 }
 </style>

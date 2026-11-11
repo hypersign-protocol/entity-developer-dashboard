@@ -316,13 +316,14 @@ h5 span {
                                     <i class="far fa-copy" title="Copy Plan Id"
                                         @click="copyToClip(eachRow._id, 'Plan Id')"></i>
                                 </div>
+                                <div v-if="eachRow.source === 'PROMOTION'" class="plan-source">Free credits (promotion)</div>
                             </td>
                             <td class="font-weight-bold date-cell">{{ formatDate(eachRow.createdAt) }}</td>
                             <td class="expiry-cell">
                                 <span v-if="eachRow.used >= eachRow.totalCredits" class="text-muted small">Credit Limit Reached</span>
                                 <span v-else-if="Date.now() > new Date(eachRow.expiresAt)" class="text-danger small">Expired</span>
                                 <span v-else class="small font-weight-medium">
-                                    {{ isValidDate(eachRow.expiresAt) ? formatCompactTimeRemaining(eachRow.expiresAt) : 'Not Activated' }}
+                                    {{ isValidDate(eachRow.expiresAt) ? formatCompactTimeRemaining(eachRow.expiresAt) : (isQueuedPlan(eachRow) ? 'Starts after current plan' : 'Not Activated') }}
                                 </span>
                             </td>
                             <td :title="`Credit left: ${eachRow.totalCredits - eachRow.used}`">
@@ -434,6 +435,7 @@ import { mapActions, mapGetters } from "vuex";
 import UtilsMixin from '../../mixins/utils';
 import AccessDenied from '../AccessDenied.vue';
 import { isAccessDeniedError } from '../../utils/accessDenied';
+import EventBus from '../../eventbus';
 
 export default {
     name: "SSIDashboardCredit",
@@ -554,9 +556,11 @@ export default {
 
     },
     async mounted() {
+      EventBus.$on('promotion-claimed', this.onPromotionClaimed);
       await this.reloadData()
     },
     beforeDestroy() {
+        EventBus.$off('promotion-claimed', this.onPromotionClaimed);
         this.stopTimer();
     },
     watch: {
@@ -653,6 +657,14 @@ export default {
         }
     },
     methods: {
+        // An inactive plan while another one is active waits its turn
+        isQueuedPlan(row) {
+            return row.status === 'Inactive' && (this.getSsiCredits || []).some(plan => plan._id !== row._id && plan.status === 'Active');
+        },
+        // A free-credit claim from the banner: reload the history and balance
+        onPromotionClaimed() {
+            this.reloadData();
+        },
         ...mapActions('mainStore', ['ssiDashboardTxStats', 'ssiDashboardAllowanceStats', 'fetchSSICredits', 'ssiDashboardGrantsStats','activateSSICredit']),
 
         handleApiError(error, method = 'GET') {
@@ -1149,5 +1161,17 @@ export default {
     .summary-value {
         font-size: 1.75rem;
     }
+}
+
+/* Plans granted by the free-credit promotion */
+.plan-source {
+    display: inline-block;
+    margin-top: 4px;
+    padding: 1px 8px;
+    border-radius: 10px;
+    background: #e7f6ec;
+    color: #15803d;
+    font-size: 0.65rem;
+    font-weight: 700;
 }
 </style>
