@@ -401,7 +401,7 @@ h5 span {
           </pre>
         </hf-pop-up>
         <loadIng :active.sync="isLoading" :can-cancel="true" :is-full-page="false"></loadIng>
-        <hf-pop-up Header="Send Credential">
+        <hf-pop-up id="send-credential-popup" Header="Send Credential">
           <Info
             message="Scan QR code or Copy the link and send it to the credential owner so that they can accept in their wallet" />
           <div class="d-flex justify-content-center">
@@ -1151,7 +1151,7 @@ export default {
       const res = await fetch(URL, options);
       const resp = await res.json();
       this.credUrl = resp.data.url;
-      this.$root.$emit("modal-show");
+      this.$root.$emit("bv::show::modal", "send-credential-popup");
       this.notifySuccess("Credential URL Generated Successfully");
     },
     openWallet(url) {

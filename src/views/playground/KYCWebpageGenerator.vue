@@ -124,26 +124,7 @@
   margin-bottom: 12px;
 }
 
-.form-control {
-  width: 100%;
-  padding: 6px 8px;
-  border: 1px solid #ced4da;
-  border-radius: 4px;
-  font-size: 13px;
-  height: 32px;
-}
-
-.form-control:focus {
-  border-color: #667eea;
-  outline: none;
-  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.25);
-}
-
-textarea.form-control {
-  height: auto;
-  min-height: 50px;
-  resize: vertical;
-}
+/* .form-control is styled globally (src/assets/css/gblStyle.css) */
 
 .form-check {
   margin-bottom: 6px;

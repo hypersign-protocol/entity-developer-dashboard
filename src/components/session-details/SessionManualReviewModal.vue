@@ -220,17 +220,6 @@ body.manual-review-modal-open .sticky-top {
   margin-bottom: 0;
 }
 
-#manual-review-decision-modal .form-control {
-  border-color: #cbd5e1;
-  border-radius: 6px;
-  color: #26375f;
-  padding: 10px 12px;
-}
-
-#manual-review-decision-modal .form-control:focus {
-  border-color: #94a3b8;
-  box-shadow: 0 0 0 3px rgba(148, 163, 184, 0.18);
-}
 
 .manual-review-submit-disabled {
   opacity: 0.65;

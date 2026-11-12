@@ -74,7 +74,6 @@ export default {
         ...mapActions('mainStore', ['fetchAppsOnChainConfigs']),
         close() {
             this.resetAll();
-            this.$root.$emit('modal-close')
             this.fetchAppsOnChainConfigs();
             this.$root.$emit("bv::toggle::collapse", "sidebar-right");
         }

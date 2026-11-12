@@ -137,7 +137,7 @@ background-color: #905ab0;
         
     </div>
 
-    <hf-pop-up  Header="Credentials Verification Report" >
+    <hf-pop-up id="credentials-verification-report-popup" Header="Credentials Verification Report">
         <div style="max-height: 600px; overflow-y: scroll;">
         <div class="card" v-for="eachcredential in verfiableCredentials" style="margin-bottom: 3%;">
             <div class="card-header">
@@ -328,7 +328,7 @@ export default {
                         const { data } = json;
                         if(data){
                             this.verfiableCredentials = data.verifiableCredential; 
-                            this.$root.$emit('modal-show');
+                            this.$root.$emit('bv::show::modal', 'credentials-verification-report-popup');
                             this.cleanQR()
                         } else {
                             // console.log('data not present')

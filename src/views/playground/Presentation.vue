@@ -208,7 +208,7 @@
       </div>
       <!-- </div> -->
     </div>
-    <hf-pop-up Header="Delete Presentation Template">
+    <hf-pop-up id="delete-presentation-template-popup" Header="Delete Presentation Template">
       <div class="row g-3 align-items-center  mt-4">
         <div class="col-lg-3 col-md-3 text-left">
           <label for="DeleteId" class="col-form-label">Template Id :</label>
@@ -384,7 +384,7 @@ export default {
     clickRowToDelete(temp) {
       this.deleteId = ''
       this.tempToDelete = temp._id;
-      this.$root.$emit('modal-show');
+      this.$root.$emit('bv::show::modal', 'delete-presentation-template-popup');
     },
     async deleteTemp() {
       try {
@@ -408,7 +408,7 @@ export default {
               const id = json.data._id
               this.$store.commit('playgroundStore/deleteTemplate', id)
               this.notifySuccess(`Template with ${id} id deleted successfully`)
-              this.$root.$emit('modal-close')
+              this.$root.$emit('bv::hide::modal', 'delete-presentation-template-popup')
               this.$store.commit('playgroundStore/DecreaseOrgTemplateCount', 'templatesCount')
             }
           } else {

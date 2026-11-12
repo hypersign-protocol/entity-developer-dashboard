@@ -980,9 +980,9 @@ export default {
 
           // Identity Verification
           const ivChildren = [
-            { href: "/studio/sessions/" + appId, title: EN.NAV.IDENTITY_VERIFICATION.USERS, icon: "fa fa-users", alias: "/studio/sessions/:appId/:sessionId" },
-            { href: "/studio/user-analytics/" + appId, title: EN.NAV.IDENTITY_VERIFICATION.USER_ANALYTICS, icon: "fa fa-chart-line" },
-            { href: "/studio/widget-config/" + appId, title: EN.NAV.IDENTITY_VERIFICATION.KYC_WIDGET, icon: "fa fa-puzzle-piece", alias: ["/studio/widget-config/:appId/new", "/studio/widget-config/:appId/:widgetConfigId"] },
+            { href: "/studio/sessions/" + appId, title: EN.NAV.IDENTITY_VERIFICATION.USERS, icon: "mdi mdi-account-group-outline", alias: "/studio/sessions/:appId/:sessionId" },
+            { href: "/studio/user-analytics/" + appId, title: EN.NAV.IDENTITY_VERIFICATION.USER_ANALYTICS, icon: "mdi mdi-chart-line" },
+            { href: "/studio/widget-config/" + appId, title: EN.NAV.IDENTITY_VERIFICATION.KYC_WIDGET, icon: "mdi mdi-puzzle-outline", alias: ["/studio/widget-config/:appId/new", "/studio/widget-config/:appId/:widgetConfigId"] },
           ];
           menu.push({ href: "", title: EN.NAV.IDENTITY_VERIFICATION.TITLE, icon: "mdi mdi-account-check-outline", child: ivChildren });
 

@@ -125,15 +125,14 @@
                 </div>
               </header>
               <label class="input-label">Application ID</label>
-              <v-text-field
-                v-model="form.serviceId"
+              <input
+                v-model.trim="form.serviceId"
+                class="hf-input hf-mono"
+                type="text"
+                autocomplete="off"
+                aria-label="Application ID"
                 placeholder="e.g. 69afa3d8a4976d9c9e4671a7"
-                outlined
-                dense
-                hide-details
-                color="primary"
-                class="mono-text"
-              ></v-text-field>
+              />
 
               <template v-if="isIdService">
                 <div v-if="billed.loading" class="field-hint text-muted mt-1 d-flex align-center" style="gap: 6px;">
@@ -177,7 +176,7 @@
               <v-row dense>
                 <v-col cols="12" md="5">
                   <label class="input-label"># Of Credits</label>
-                  <v-text-field v-model="form.amount" type="number" min="1" step="1" outlined dense hide-details color="primary"></v-text-field>
+                  <input v-model="form.amount" class="hf-input" type="number" min="1" step="1" inputmode="numeric" aria-label="Number of credits" />
                   <div v-if="serverError('credits')" class="field-error mt-1">{{ serverError('credits') }}</div>
                   <v-btn v-if="isIdService" text x-small color="primary" class="px-0 mt-1 text-none" @click="showCreditInfo = true">
                     Understand Credit?
@@ -186,8 +185,14 @@
                 <v-col cols="12" md="7">
                   <label class="input-label">Validity</label>
                   <div class="d-flex" style="gap: 8px;">
-                    <v-text-field v-model="form.validityMonths" type="number" min="0" step="1" suffix="months" outlined dense hide-details color="primary" @input="validityTouched = true"></v-text-field>
-                    <v-text-field v-model="form.validityDays" type="number" min="0" step="1" suffix="days" outlined dense hide-details color="primary" @input="validityTouched = true"></v-text-field>
+                    <div class="hf-input-group">
+                      <input v-model="form.validityMonths" type="number" min="0" step="1" inputmode="numeric" aria-label="Validity in months" @input="validityTouched = true" />
+                      <span class="hf-affix">months</span>
+                    </div>
+                    <div class="hf-input-group">
+                      <input v-model="form.validityDays" type="number" min="0" step="1" inputmode="numeric" aria-label="Validity in days" @input="validityTouched = true" />
+                      <span class="hf-affix">days</span>
+                    </div>
                   </div>
                   <div v-if="validityInDays > 0" class="field-hint text-muted mt-1">
                     = <strong>{{ validityInDays }} days</strong><template v-if="!isIdService">, expires on {{ validityExpiryDate }}</template>
@@ -232,24 +237,20 @@
               <v-row v-if="invoice.type === 'OFFLINE' || invoice.type === 'UNPAID'" dense class="mt-3">
                 <v-col cols="12" md="5">
                   <label class="input-label">Amount, excluding tax</label>
-                  <v-text-field
-                    v-model="invoice.price"
-                    type="number"
-                    min="0.01"
-                    step="0.01"
-                    :prefix="currencySymbol"
-                    outlined
-                    dense
-                    hide-details
-                    color="primary"
-                  ></v-text-field>
+                  <div class="hf-input-group">
+                    <span class="hf-affix">{{ currencySymbol }}</span>
+                    <input v-model="invoice.price" type="number" min="0.01" step="0.01" inputmode="decimal" aria-label="Amount, excluding tax" />
+                  </div>
                   <div v-if="priceProblem" class="field-error mt-1">{{ priceProblem }}</div>
                   <div v-else-if="serverError('amountMinor')" class="field-error mt-1">{{ serverError('amountMinor') }}</div>
                 </v-col>
                 <template v-if="invoice.type === 'UNPAID'">
                   <v-col cols="12" md="7">
                     <label class="input-label">Link valid for</label>
-                    <v-text-field v-model="invoice.linkExpiresInDays" type="number" min="1" max="30" step="1" suffix="days" outlined dense hide-details color="primary"></v-text-field>
+                    <div class="hf-input-group">
+                      <input v-model="invoice.linkExpiresInDays" type="number" min="1" max="30" step="1" inputmode="numeric" aria-label="Link valid for" />
+                      <span class="hf-affix">days</span>
+                    </div>
                     <div v-if="linkDaysProblem" class="field-error mt-1">{{ linkDaysProblem }}</div>
                     <div v-else-if="serverError('linkExpiresInDays')" class="field-error mt-1">{{ serverError('linkExpiresInDays') }}</div>
                   </v-col>
@@ -259,17 +260,16 @@
                   </v-col>
                   <v-col v-if="invoice.notifyByEmail" cols="12" md="7">
                     <label class="input-label">Send to <span class="optional">optional</span></label>
-                    <v-text-field
+                    <input
                       v-model="invoice.notifyEmail"
+                      class="hf-input"
                       type="email"
-                      placeholder="Defaults to the billing email"
+                      autocomplete="email"
                       maxlength="254"
-                      outlined
-                      dense
-                      hide-details
-                      color="primary"
+                      aria-label="Send the link to"
+                      placeholder="Defaults to the billing email"
                       @input="notifyEmailTouched = true"
-                    ></v-text-field>
+                    />
                     <div v-if="notifyEmailProblem" class="field-error mt-1">{{ notifyEmailProblem }}</div>
                     <div v-else-if="serverError('notifyEmail')" class="field-error mt-1">{{ serverError('notifyEmail') }}</div>
                   </v-col>
@@ -277,33 +277,27 @@
                 <template v-else>
                 <v-col cols="12" md="7">
                   <label class="input-label">Payment method</label>
-                  <v-select
-                    v-model="invoice.paymentMethod"
-                    :items="paymentMethods"
-                    outlined
-                    dense
-                    hide-details
-                    color="primary"
-                  ></v-select>
+                  <select v-model="invoice.paymentMethod" class="hf-input" aria-label="Payment method">
+                    <option v-for="method in paymentMethods" :key="method.value" :value="method.value">{{ method.text }}</option>
+                  </select>
                   <div v-if="serverError('payment.method')" class="field-error mt-1">{{ serverError('payment.method') }}</div>
                 </v-col>
                 <v-col cols="12" md="7">
                   <label class="input-label">Payment reference</label>
-                  <v-text-field
-                    v-model="invoice.paymentReference"
-                    placeholder="UTR, cheque no. or receipt ID"
+                  <input
+                    v-model.trim="invoice.paymentReference"
+                    class="hf-input hf-mono"
+                    type="text"
+                    autocomplete="off"
                     maxlength="100"
-                    outlined
-                    dense
-                    hide-details
-                    color="primary"
-                    class="mono-text"
-                  ></v-text-field>
+                    aria-label="Payment reference"
+                    placeholder="UTR, cheque no. or receipt ID"
+                  />
                   <div v-if="serverError('payment.reference')" class="field-error mt-1">{{ serverError('payment.reference') }}</div>
                 </v-col>
                 <v-col cols="12" md="5">
                   <label class="input-label">Paid on</label>
-                  <v-text-field v-model="invoice.paidOn" type="date" :max="today" outlined dense hide-details color="primary"></v-text-field>
+                  <input v-model="invoice.paidOn" class="hf-input" type="date" :max="today" aria-label="Paid on" />
                   <div v-if="paidOnInFuture" class="field-error mt-1">The payment date can't be in the future.</div>
                   <div v-else-if="serverError('payment.paidAt')" class="field-error mt-1">{{ serverError('payment.paidAt') }}</div>
                 </v-col>
@@ -311,15 +305,14 @@
               </v-row>
 
               <label class="input-label mt-4">Internal note <span class="optional">optional</span></label>
-              <v-text-field
+              <input
                 v-model="invoice.note"
-                placeholder="Why this recharge? Not printed on the invoice."
+                class="hf-input"
+                type="text"
                 maxlength="500"
-                outlined
-                dense
-                hide-details
-                color="primary"
-              ></v-text-field>
+                aria-label="Internal note"
+                placeholder="Why this recharge? Not printed on the invoice."
+              />
               <div v-if="serverError('note')" class="field-error mt-1">{{ serverError('note') }}</div>
             </section>
           </div>

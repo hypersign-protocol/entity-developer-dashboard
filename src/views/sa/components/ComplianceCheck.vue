@@ -17,16 +17,14 @@
                             Enter the <strong>Application ID</strong> and authenticate to continue.
                         </p>
                         <div class="auth-row mb-4">
-                            <v-text-field
-                                v-model="serviceId"
-                                placeholder="e.g. 69afa3d8a4976d9c9e4671a7"
-                                outlined
-                                dense
-                                hide-details
-                                color="primary"
-                                class="mono-text auth-input"
-                                @keyup.enter="authenticateService"
-                            ></v-text-field>
+                            <input
+                                    v-model.trim="serviceId"
+                                    class="hf-input hf-mono auth-input"
+                                    type="text"
+                                    autocomplete="off"
+                                    placeholder="e.g. 69afa3d8a4976d9c9e4671a7"
+                                    @keyup.enter="authenticateService"
+                            />
 
                             <div class="auth-actions">
                                 <v-btn depressed height="40" color="#111827" class="auth-btn" @click="authenticateService">
@@ -44,16 +42,14 @@
                             Enter a valid <strong>Company ID</strong> to initiate the KYB verification workflow.
                         </p>
                         <div class="auth-row mb-4" v-if="accessToken != ''">
-                                    <v-text-field
-                                v-model="companyId"
-                                placeholder="e.g. 69afa3d8a4976d9c9e4671a7"
-                                outlined
-                                dense
-                                hide-details
-                                color="primary"
-                                class="mono-text auth-input"
-                                @keyup.enter="fetchCompany"
-                            ></v-text-field>
+                                    <input
+                                    v-model.trim="companyId"
+                                    class="hf-input hf-mono auth-input"
+                                    type="text"
+                                    autocomplete="off"
+                                    placeholder="e.g. 69afa3d8a4976d9c9e4671a7"
+                                    @keyup.enter="fetchCompany"
+                            />
 
                             
                             <div class="auth-actions">
@@ -148,16 +144,29 @@
                                 <p class="small text-muted mb-2">Manual lookup required for <strong>{{
                                     company.countryOfRegistration }}</strong> in official registry.</p>
 
-                                <v-select v-model="form.registry.status" :items="[{text: 'success', value: 'Success'}, {text: 'Fail', value: 'Failed'}]"
-                                    label="Status" outlined dense class="mb-4"></v-select>
+                                <label class="hf-field mb-4">
+                                    <span>Status</span>
+                                    <select class="hf-input" v-model="form.registry.status">
+                                        <option value="" disabled>Select a status</option>
+                                        <option value="Success">Success</option>
+                                        <option value="Failed">Fail</option>
+                                    </select>
+                                    </label>
 
                                 <div v-if="form.registry.status === 'Failed'">
-                                    <v-select v-model="form.registry.reason" :items="registryReasons" item-text="text" item-value="value"
-                                        label="Reason" outlined dense class="mb-4"></v-select>
+                                    <label class="hf-field mb-4">
+                                        <span>Reason</span>
+                                        <select v-model="form.registry.reason" class="hf-input">
+                                            <option value="" disabled>Select a reason</option>
+                                            <option v-for="option in registryReasons" :key="option.value" :value="option.value">{{ option.text }}</option>
+                                        </select>
+                                    </label>
 
-                                    <v-textarea v-model="form.registry.reasonDetail" label="Registry Verification Remarks"
-                                        placeholder="Enter detailed findings from the official registry lookup..." outlined
-                                        dense class="mono-text"></v-textarea>
+                                    <label class="hf-field">
+                                        <span>Registry verification remarks</span>
+                                        <textarea v-model="form.registry.reasonDetail" class="hf-input hf-mono" rows="5"
+                                            placeholder="Enter detailed findings from the official registry lookup..."></textarea>
+                                    </label>
                                 </div>
 
 
@@ -187,16 +196,24 @@
                                     </div>
                                     <pre class="prompt-preview">{{ adversePrompt }}</pre>
                                 </div>
-                                                <v-select v-model="form.adverse.status" :items="[{text: 'success', value: 'Success'}, {text: 'Fail', value: 'Failed'}]"
-                                label="Status" outlined dense class="mb-4" @change="handleStatusChange('adverse', $event)"></v-select>
+                                                <label class="hf-field mb-4">
+                                <span>Status</span>
+                                <select class="hf-input" v-model="form.adverse.status" @change="handleStatusChange('adverse', $event.target.value)">
+                                    <option value="" disabled>Select a status</option>
+                                    <option value="Success">Success</option>
+                                    <option value="Failed">Fail</option>
+                                </select>
+                                </label>
 
                                 <div v-if="form.adverse.status === 'Failed'">
                                     <!-- <v-select v-model="form.adverse.reason" :items="adverseReasons" item-text="text" item-value="value"
                                         label="Reason" outlined dense class="mb-4"></v-select> -->
 
-                                    <v-textarea v-model="form.adverse.reasonDetail" label="Adverse Media Results"
-                                        placeholder="Paste the Markdown output from the AI here..." outlined
-                                        dense class="mono-text"></v-textarea>
+                                    <label class="hf-field">
+                                        <span>Adverse media results</span>
+                                        <textarea v-model="form.adverse.reasonDetail" class="hf-input hf-mono" rows="5"
+                                            placeholder="Paste the Markdown output from the AI here..."></textarea>
+                                    </label>
                                 </div>
                                 <div class="d-flex justify-end">
                                     <hf-buttons name="Submit Adverse Check"
@@ -233,17 +250,24 @@
                                 </div>
 
 
-                            <v-select v-model="form.sanction.status" :items="[{text: 'success', value: 'Success'}, {text: 'Fail', value: 'Failed'}]"
-                                label="Status" outlined dense class="mb-4"
-                                @change="handleStatusChange('sanction', $event)"></v-select>
+                            <label class="hf-field mb-4">
+                                <span>Status</span>
+                                <select class="hf-input" v-model="form.sanction.status" @change="handleStatusChange('sanction', $event.target.value)">
+                                    <option value="" disabled>Select a status</option>
+                                    <option value="Success">Success</option>
+                                    <option value="Failed">Fail</option>
+                                </select>
+                                </label>
 
                                 <div v-if="form.sanction.status === 'Failed'">
                                     <!-- <v-select v-model="form.sanction.reason" :items="sanctionReasons" item-text="text" item-value="value"
                                         label="Reason" outlined dense class="mb-4"></v-select> -->
 
-                                    <v-textarea v-model="form.sanction.reasonDetail" label="Sanction List JSON Detail"
-                                        placeholder="Paste the JSON 'detail' field from the AI here..." outlined
-                                        dense class="mono-text"></v-textarea>
+                                    <label class="hf-field">
+                                        <span>Sanction list JSON detail</span>
+                                        <textarea v-model="form.sanction.reasonDetail" class="hf-input hf-mono" rows="5"
+                                            placeholder="Paste the JSON 'detail' field from the AI here..."></textarea>
+                                    </label>
                                 </div>      
 
 

@@ -357,7 +357,7 @@
         <div class="topup-header">
           <span class="topup-header-icon"><v-icon small>mdi-card-account-details-outline</v-icon></span>
           <div class="topup-header-text">
-            <h2>Billing details</h2>
+            <h2>Billing</h2>
             <p>Printed on your invoices.</p>
           </div>
           <button type="button" class="topup-close" aria-label="Close" @click="close()">

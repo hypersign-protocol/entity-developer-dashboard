@@ -43,14 +43,20 @@
             <h2 class="title">Endpoint Settings</h2>
           </div>
 
-          <div class="mb-6">
-            <label class="input-label">Destination URL <span class="text-danger">*</span></label>
-            <v-text-field v-model="webhookUrl" placeholder="https://your-api.com/webhooks/verification" outlined dense
-              hide-details background-color="white" class="custom-field"></v-text-field>
-            <p class="small text-muted mt-2">
+          <label class="hf-field mb-6">
+            <span>Destination URL</span>
+            <input
+              v-model.trim="webhookUrl"
+              class="hf-input"
+              type="url"
+              inputmode="url"
+              autocomplete="url"
+              placeholder="https://your-api.com/webhooks/verification"
+            />
+            <small class="hf-field-help">
               User and business verification events are sent to this URL. Use the payload type to identify the event.
-            </p>
-          </div>
+            </small>
+          </label>
 
           <v-divider class="mb-6"></v-divider>
 
@@ -63,10 +69,7 @@
 
           <div class="d-flex justify-content-between align-items-center mb-2">
             <h2 class="title mb-0">Custom Headers</h2>
-            <v-btn text small color="primary" @click="addHeader" class="font-weight-bold pr-0">
-              <v-icon left small>mdi-plus-circle</v-icon>
-              Add Header
-            </v-btn>
+            <hf-buttons name="Add header" variant="link" size="sm" iconClass="mdi-plus" @executeAction="addHeader" />
           </div>
 
           <p class="small text-muted mb-2">
@@ -75,21 +78,25 @@
 
 
           <div v-if="headers.length > 0" class="headers-wrapper p-2 mb-2">
-            <v-row v-for="(header, index) in headers" :key="index" class="mb-2" align="center" no-gutters>
-              <v-col cols="5" class="pr-2">
-                <v-text-field v-model="header.key" placeholder="Header Key (e.g. X-API-Token)" outlined dense
-                  hide-details background-color="white"></v-text-field>
-              </v-col>
-              <v-col cols="6" class="pr-2">
-                <v-text-field v-model="header.value" placeholder="Value" outlined dense hide-details
-                  background-color="white"></v-text-field>
-              </v-col>
-              <v-col cols="1" class="text-center">
-                <v-btn icon small color="error" @click="removeHeader(index)">
-                  <v-icon small>mdi-minus-circle-outline</v-icon>
-                </v-btn>
-              </v-col>
-            </v-row>
+            <div v-for="(header, index) in headers" :key="index" class="header-fields">
+              <input
+                v-model.trim="header.key"
+                class="hf-input"
+                type="text"
+                aria-label="Header name"
+                autocomplete="off"
+                placeholder="Header name (e.g. X-API-Token)"
+              />
+              <input
+                v-model="header.value"
+                class="hf-input"
+                type="text"
+                aria-label="Header value"
+                autocomplete="off"
+                placeholder="Value"
+              />
+              <hf-buttons title="Remove header" variant="ghost" size="sm" iconClass="mdi-close" @executeAction="removeHeader(index)" />
+            </div>
           </div>
 
           <div v-else class="text-center pa-8 border-dashed rounded-lg">
@@ -128,20 +135,6 @@
   letter-spacing: 0.05em;
 }
 
-/* Custom Field Styling */
-.input-label {
-  display: block;
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: #64748b;
-  text-transform: uppercase;
-  margin-bottom: 6px;
-}
-
-.custom-field :deep(.v-input__control) {
-  background: white !important;
-}
-
 /* Headers Area */
 .headers-wrapper {
   background: #f1f5f9;
@@ -149,12 +142,18 @@
   border: 1px solid #e2e8f0;
 }
 
-.border-dashed {
-  border: 2px dashed #e2e8f0;
+/* One header per row: name, value, remove */
+.header-fields {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 6fr) auto;
+  gap: 8px;
+  align-items: center;
 }
 
-.text-danger {
-  color: #ef4444;
+.header-fields + .header-fields { margin-top: 8px; }
+
+.border-dashed {
+  border: 2px dashed #e2e8f0;
 }
 
 /* Fix for Button Alignment */

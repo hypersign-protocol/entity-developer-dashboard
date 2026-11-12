@@ -6,25 +6,17 @@
         <p>Collect payment links, newest first. A payment shows here within about 15 minutes, or straight away with Refresh.</p>
       </div>
       <div class="links-tools">
-        <v-text-field
+        <input
           v-model="appFilter"
+          class="hf-input hf-mono app-filter"
+          type="search"
+          autocomplete="off"
+          aria-label="Filter by app ID"
           placeholder="Filter by app ID"
-          clearable
-          outlined
-          dense
-          hide-details
-          color="primary"
-          class="app-filter mono-text"
-        ></v-text-field>
-        <v-select
-          v-model="statusFilter"
-          :items="statusOptions"
-          outlined
-          dense
-          hide-details
-          color="primary"
-          class="status-filter"
-        ></v-select>
+        />
+        <select v-model="statusFilter" class="hf-input status-filter" aria-label="Filter by status">
+          <option v-for="option in statusOptions" :key="option.value" :value="option.value">{{ option.text }}</option>
+        </select>
         <button type="button" class="ghost-btn" :disabled="loading" @click="load()">
           <v-icon x-small>mdi-refresh</v-icon> {{ loading ? 'Loading…' : 'Refresh' }}
         </button>
@@ -146,17 +138,15 @@
           The customer won't be able to pay this link any more. If they paid another way, for example by bank
           transfer, void the link and then use Already paid.
         </p>
-        <label class="input-label">Reason</label>
-        <v-textarea
+        <label class="input-label" for="void-reason">Reason</label>
+        <textarea
+          id="void-reason"
           v-model="voiding.reason"
-          rows="2"
+          class="hf-input"
+          rows="3"
           maxlength="500"
-          outlined
-          dense
-          hide-details
-          color="primary"
           placeholder="e.g. Customer paid by bank transfer instead"
-        ></v-textarea>
+        ></textarea>
         <div v-if="voiding.error" class="confirm-error" role="alert">
           {{ voiding.error }}
         </div>
@@ -425,10 +415,8 @@ export default {
 .links-tools { display: flex; align-items: center; gap: 8px; }
 .status-filter { width: 170px; }
 .app-filter { width: 230px; }
-/* Filters in the table's type size; Refresh as tall as the dense fields */
-.links-tools ::v-deep .v-input input,
-.links-tools ::v-deep .v-select__selection { font-size: 12px; }
-.links-tools .ghost-btn { height: 40px; }
+/* Refresh as tall as the filter fields */
+.links-tools .ghost-btn { height: 38px; }
 
 .links-table-wrapper { overflow-x: auto; }
 .links-table { width: 100%; border-collapse: collapse; font-size: 12px; }

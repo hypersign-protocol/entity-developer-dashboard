@@ -77,34 +77,39 @@ export default {
 </script>
 
 <style scoped>
+/* Same box as the shared .hf-input (src/assets/css/gblStyle.css), around a chip and an input */
 .phone-input {
   display: flex;
   width: 100%;
-  height: 40px;
+  height: 38px;
   align-items: center;
   gap: 7px;
-  padding: 0 11px 0 7px;
+  padding: 0 11px 0 6px;
   border: 1px solid #d5dde7;
-  border-radius: 5px;
+  border-radius: 6px;
   background: #fff;
 }
 
-.phone-input:focus-within { border-color: #6c757d; box-shadow: 0 0 0 2px rgba(108, 117, 125, .14); }
-.phone-input.has-error { border-color: #dc2626; }
-.phone-input.disabled { background: #f8fafc; }
+.phone-input:focus-within { border-color: #2f6fec; box-shadow: 0 0 0 2px rgba(47, 111, 236, .12); }
+.phone-input.has-error { border-color: #f04438; }
+.phone-input.disabled { background: #f8fafc; cursor: not-allowed; }
 
 .phone-input input {
   min-width: 0;
   flex: 1 1 auto;
-  height: 34px;
+  height: 36px;
   padding: 0;
   border: 0;
   outline: none;
   background: transparent;
   box-shadow: none;
-  color: #1e293b;
+  color: #27364a;
+  font-family: inherit;
   font-size: 13px;
 }
+
+.phone-input input::placeholder { color: #8793a5; opacity: 1; }
+.phone-input input:disabled { color: #667085; cursor: not-allowed; }
 
 .dial-chip {
   position: relative;

@@ -66,22 +66,22 @@
           <p>{{ saveError }}</p>
         </div>
 
-        <div class="field-grid">
-          <label class="field full" :class="fieldClass('legalName')">
+        <div class="hf-field-grid">
+          <label class="hf-field full" :class="fieldClass('legalName')">
             <span>Legal name</span>
-            <input v-model.trim="form.legalName" type="text" maxlength="200" autocomplete="organization" :disabled="!canWrite" />
-            <small v-if="errorFor('legalName')" class="field-error">{{ errorFor('legalName') }}</small>
+            <input class="hf-input" v-model.trim="form.legalName" type="text" maxlength="200" autocomplete="organization" :disabled="!canWrite" />
+            <small v-if="errorFor('legalName')" class="hf-field-error">{{ errorFor('legalName') }}</small>
           </label>
 
-          <label class="field full" :class="fieldClass('email')">
+          <label class="hf-field full" :class="fieldClass('email')">
             <span>Billing email</span>
-            <input v-model.trim="form.email" type="email" autocomplete="email" :disabled="!canWrite" />
-            <small v-if="errorFor('email')" class="field-error">{{ errorFor('email') }}</small>
-            <small v-else class="field-help">Invoices are sent to this address.</small>
+            <input class="hf-input" v-model.trim="form.email" type="email" autocomplete="email" :disabled="!canWrite" />
+            <small v-if="errorFor('email')" class="hf-field-error">{{ errorFor('email') }}</small>
+            <small v-else class="hf-field-help">Invoices are sent to this address.</small>
           </label>
 
           <!-- A div, not a label: the dialling-code chip is a control of its own -->
-          <div class="field full" :class="fieldClass('phone')">
+          <div class="hf-field full" :class="fieldClass('phone')">
             <span>Phone</span>
             <PhoneInput
               v-model="form.phone"
@@ -90,28 +90,28 @@
               :disabled="!canWrite"
               @blur="checkPhone"
             />
-            <small v-if="errorFor('phone')" class="field-error">{{ errorFor('phone') }}</small>
-            <small v-else-if="phoneIsSuggestion" class="field-help">From your onboarding details. Check it, then save to keep it.</small>
-            <small v-else class="field-help">Needed to pay online from outside India.</small>
+            <small v-if="errorFor('phone')" class="hf-field-error">{{ errorFor('phone') }}</small>
+            <small v-else-if="phoneIsSuggestion" class="hf-field-help">From your onboarding details. Check it, then save to keep it.</small>
+            <small v-else class="hf-field-help">Needed to pay online from outside India.</small>
           </div>
 
-          <label class="field full" :class="fieldClass('address.street')">
+          <label class="hf-field full" :class="fieldClass('address.street')">
             <span>Street address</span>
-            <input v-model.trim="form.address.street" type="text" maxlength="300" autocomplete="street-address" :disabled="!canWrite" />
-            <small v-if="errorFor('address.street')" class="field-error">{{ errorFor('address.street') }}</small>
+            <input class="hf-input" v-model.trim="form.address.street" type="text" maxlength="300" autocomplete="street-address" :disabled="!canWrite" />
+            <small v-if="errorFor('address.street')" class="hf-field-error">{{ errorFor('address.street') }}</small>
           </label>
 
-          <label class="field" :class="fieldClass('address.city')">
+          <label class="hf-field" :class="fieldClass('address.city')">
             <span>City</span>
-            <input v-model.trim="form.address.city" type="text" maxlength="100" autocomplete="address-level2" :disabled="!canWrite" />
-            <small v-if="errorFor('address.city')" class="field-error">{{ errorFor('address.city') }}</small>
+            <input class="hf-input" v-model.trim="form.address.city" type="text" maxlength="100" autocomplete="address-level2" :disabled="!canWrite" />
+            <small v-if="errorFor('address.city')" class="hf-field-error">{{ errorFor('address.city') }}</small>
           </label>
 
-          <label class="field" :class="fieldClass('address.province')">
+          <label class="hf-field" :class="fieldClass('address.province')">
             <span>State / province</span>
             <!-- India: a list of GST states, which also sets the GST state code (CGST + SGST or IGST).
                  A GSTIN fixes the state. Elsewhere: free text. -->
-            <select
+            <select class="hf-input"
               v-if="isIndia"
               :value="form.gstStateCode"
               autocomplete="address-level1"
@@ -121,24 +121,24 @@
               <option value="" disabled>Select a state</option>
               <option v-for="state in gstStates" :key="state.code" :value="state.code">{{ state.label }}</option>
             </select>
-            <input v-else v-model.trim="form.address.province" type="text" maxlength="100" autocomplete="address-level1" :disabled="!canWrite" />
-            <small v-if="errorFor('address.province')" class="field-error">{{ errorFor('address.province') }}</small>
-            <small v-else-if="gstinStateCode" class="field-help">From {{ admin ? 'the' : 'your' }} GSTIN.</small>
+            <input class="hf-input" v-else v-model.trim="form.address.province" type="text" maxlength="100" autocomplete="address-level1" :disabled="!canWrite" />
+            <small v-if="errorFor('address.province')" class="hf-field-error">{{ errorFor('address.province') }}</small>
+            <small v-else-if="gstinStateCode" class="hf-field-help">From {{ admin ? 'the' : 'your' }} GSTIN.</small>
           </label>
 
-          <label class="field" :class="fieldClass('address.postalCode')">
+          <label class="hf-field" :class="fieldClass('address.postalCode')">
             <span>Postal code</span>
-            <input v-model.trim="form.address.postalCode" type="text" maxlength="20" autocomplete="postal-code" :disabled="!canWrite" />
-            <small v-if="errorFor('address.postalCode')" class="field-error">{{ errorFor('address.postalCode') }}</small>
+            <input class="hf-input" v-model.trim="form.address.postalCode" type="text" maxlength="20" autocomplete="postal-code" :disabled="!canWrite" />
+            <small v-if="errorFor('address.postalCode')" class="hf-field-error">{{ errorFor('address.postalCode') }}</small>
           </label>
 
-          <label class="field" :class="fieldClass('address.country')">
+          <label class="hf-field" :class="fieldClass('address.country')">
             <span>Country</span>
-            <select v-model="form.address.country" @change="onCountryChange" :disabled="!canWrite">
+            <select class="hf-input" v-model="form.address.country" @change="onCountryChange" :disabled="!canWrite">
               <option value="" disabled>Select a country</option>
               <option v-for="country in countryOptions" :key="country.value" :value="country.value">{{ country.label }}</option>
             </select>
-            <small v-if="errorFor('address.country')" class="field-error">{{ errorFor('address.country') }}</small>
+            <small v-if="errorFor('address.country')" class="hf-field-error">{{ errorFor('address.country') }}</small>
           </label>
         </div>
 
@@ -154,16 +154,18 @@
                so it is shown masked and can't be edited here -->
           <p v-if="profile.personalTaxId" class="personal-tax-id">
             <span class="tax-id">{{ personalTaxIdText }}</span>
-            <small class="field-help">From company verification. Only the last 4 characters are kept.</small>
+            <small class="hf-field-help">From company verification. Only the last 4 characters are kept.</small>
           </p>
 
-          <p v-if="!taxIdTypes.length && !form.taxIds.length && !profile.personalTaxId" class="field-help">No tax ID is needed for this country.</p>
+          <p v-if="!taxIdTypes.length && !form.taxIds.length && !profile.personalTaxId" class="hf-field-help">No tax ID is needed for this country.</p>
 
-          <div v-for="(taxId, index) in form.taxIds" :key="index" class="tax-row" :class="{ invalid: errorFor(`taxIds[${index}].number`) }">
-            <select v-model="taxId.type" :disabled="taxIdsReadOnly" aria-label="Tax ID type">
+          <div v-for="(taxId, index) in form.taxIds" :key="index" class="tax-row">
+            <select class="hf-input" v-model="taxId.type" :disabled="taxIdsReadOnly" aria-label="Tax ID type">
               <option v-for="type in taxIdTypesFor(taxId)" :key="type.code" :value="type.code">{{ type.code }} · {{ type.label }}</option>
             </select>
             <input
+              class="hf-input tax-number"
+              :class="{ 'is-invalid': errorFor(`taxIds[${index}].number`) }"
               :value="taxId.number"
               type="text"
               maxlength="50"
@@ -175,7 +177,7 @@
             <button v-if="!taxIdsReadOnly" type="button" class="icon-button" aria-label="Remove tax ID" @click="form.taxIds.splice(index, 1)">
               <v-icon small>mdi-close</v-icon>
             </button>
-            <small v-if="errorFor(`taxIds[${index}].number`)" class="field-error">{{ errorFor(`taxIds[${index}].number`) }}</small>
+            <small v-if="errorFor(`taxIds[${index}].number`)" class="hf-field-error">{{ errorFor(`taxIds[${index}].number`) }}</small>
           </div>
 
           <button
@@ -186,29 +188,29 @@
           >
             <v-icon x-small>mdi-plus</v-icon> Add tax ID
           </button>
-          <p><small v-if="errorFor('taxIds')" class="field-error">{{errorFor('taxIds')}}</small></p>
+          <p><small v-if="errorFor('taxIds')" class="hf-field-error">{{errorFor('taxIds')}}</small></p>
           
         </section>
 
         <!-- Super admin only: region, unlocking the tax details, and the audit reason -->
         <section v-if="admin" class="admin-section">
-          <label class="field region-field">
+          <label class="hf-field region-field">
             <span>Billing region</span>
-            <select v-model="form.region">
+            <select class="hf-input" v-model="form.region">
               <option value="IN">India · INR</option>
               <option value="GLOBAL">Global · USD</option>
             </select>
-            <small class="field-help">Follows the country. Change it only to override.</small>
+            <small class="hf-field-help">Follows the country. Change it only to override.</small>
           </label>
           <label v-if="profile.locked" class="check-field">
             <input v-model="form.unlock" type="checkbox" />
             <span>Unlock tax details</span>
           </label>
-          <label class="field full" :class="fieldClass('reason')">
+          <label class="hf-field full" :class="fieldClass('reason')">
             <span>Reason</span>
-            <input v-model.trim="form.reason" type="text" maxlength="300" placeholder="e.g. Details confirmed with the customer by email" />
-            <small v-if="errorFor('reason')" class="field-error">{{ errorFor('reason') }}</small>
-            <small v-else class="field-help">Recorded in the audit log with your name.</small>
+            <input class="hf-input" v-model.trim="form.reason" type="text" maxlength="300" placeholder="e.g. Details confirmed with the customer by email" />
+            <small v-if="errorFor('reason')" class="hf-field-error">{{ errorFor('reason') }}</small>
+            <small v-else class="hf-field-help">Recorded in the audit log with your name.</small>
           </label>
         </section>
         <!-- The billing country decides the region and currency (contract §2) -->
@@ -219,14 +221,14 @@
             New orders will be priced and taxed in {{ formRegion === 'IN' ? 'INR, with GST' : 'USD' }}.
           </p>
         </div>
-        <p v-else class="field-help">{{ regionHelp }}</p>
+        <p v-else class="hf-field-help">{{ regionHelp }}</p>
 
         <div v-if="canWrite" class="form-actions">
           <button type="submit" class="primary-button" :disabled="saving">{{ saving ? 'Saving…' : 'Save billing details' }}</button>
           <button v-if="admin" type="button" class="secondary-button" :disabled="saving" @click="$emit('cancel')">Cancel</button>
           <button v-else-if="profile.source === 'SAVED'" type="button" class="secondary-button" :disabled="saving" @click="cancelEdit">Cancel</button>
         </div>
-        <p v-else class="field-help">You can view these details but not change them.</p>
+        <p v-else class="hf-field-help">You can view these details but not change them.</p>
       </form>
     </template>
   </div>
@@ -679,36 +681,8 @@ export default {
 .billing-summary dd { margin: 0; color: #263244; font-weight: 600; }
 .tax-id { display: inline-block; margin-right: 10px; font-variant-numeric: tabular-nums; }
 
+/* Fields use the shared .hf-field / .hf-input classes (src/assets/css/gblStyle.css) */
 .billing-form { max-width: 640px; }
-.field-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 16px; }
-.field { display: flex; flex-direction: column; gap: 5px; margin: 0; }
-.field.full { grid-column: 1 / -1; }
-.field > span { color: #475467; font-size: 12px; font-weight: 600; }
-.field input,
-.field select,
-.tax-row input,
-.tax-row select {
-  height: 38px;
-  padding: 0 11px;
-  border: 1px solid #d5dde7;
-  border-radius: 6px;
-  background: #fff;
-  color: #27364a;
-  font-size: 13px;
-}
-.field input:focus,
-.field select:focus,
-.tax-row input:focus,
-.tax-row select:focus { border-color: #2f6fec; outline: none; box-shadow: 0 0 0 2px rgba(47, 111, 236, .12); }
-.field input:disabled,
-.field select:disabled,
-.tax-row input:disabled,
-.tax-row select:disabled { background: #f8fafc; color: #667085; cursor: not-allowed; }
-.field.invalid input,
-.field.invalid select,
-.tax-row.invalid input { border-color: #f04438; }
-.field-error { color: #b42318; font-size: 11px; }
-.field-help { margin: 0; color: #8793a5; font-size: 11px; }
 
 .tax-section { margin-top: 20px; }
 .tax-heading { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
@@ -716,11 +690,11 @@ export default {
 .locked-note { display: inline-flex; align-items: center; gap: 3px; color: #718198; font-size: 11px; }
 .locked-note .v-icon { color: inherit; }
 .tax-row { display: grid; grid-template-columns: minmax(0, 220px) minmax(0, 1fr) auto; gap: 8px; align-items: center; margin-bottom: 8px; }
-.tax-row input { font-variant-numeric: tabular-nums; letter-spacing: .02em; text-transform: uppercase; }
-.tax-row .field-error { grid-column: 1 / -1; }
+.tax-number { font-variant-numeric: tabular-nums; letter-spacing: .02em; text-transform: uppercase; }
+.tax-row .hf-field-error { grid-column: 1 / -1; }
 .region-notice { margin: 16px 0 0; }
 .personal-tax-id { display: flex; flex-direction: column; gap: 2px; margin: 0 0 10px; font-size: 13px; font-weight: 600; }
-.billing-form > .field-help { margin-top: 12px; }
+.billing-form > .hf-field-help { margin-top: 12px; }
 
 .icon-button { display: inline-flex; width: 32px; height: 32px; align-items: center; justify-content: center; border-radius: 6px; color: #8793a5; }
 .icon-button:hover { background: #f1f5f9; }
@@ -745,7 +719,6 @@ export default {
 
 @media (max-width: 650px) {
   .billing-header { flex-direction: column; }
-  .field-grid { grid-template-columns: 1fr; }
   .tax-row { grid-template-columns: 1fr auto; }
   .tax-row select { grid-column: 1 / -1; }
 }

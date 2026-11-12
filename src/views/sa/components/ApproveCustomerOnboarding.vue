@@ -24,16 +24,14 @@
         <form class="record-search" @submit.prevent="fetchRecord">
           <div class="record-search-input">
             <label class="input-label" for="onboarding-record-id">Onboarding Record ID</label>
-            <v-text-field
+            <input
               id="onboarding-record-id"
               v-model.trim="recordId"
+              class="hf-input hf-mono"
+              type="text"
+              autocomplete="off"
               placeholder="e.g. 693d6fa1c15303a8e72a04b9"
-              outlined
-              dense
-              hide-details
-              color="primary"
-              class="mono-text bg-white"
-            ></v-text-field>
+            />
           </div>
           <button type="submit" class="primary-button" :disabled="isLoading || !recordId">
             <i class="mdi mdi-magnify mr-1" aria-hidden="true"></i>Fetch Details
@@ -138,17 +136,19 @@
 
               <div class="mb-3">
                 <label class="input-label">Amount (uHID)</label>
-                <v-text-field v-model.number="form.ssiCreditDetail.amount" type="number" outlined dense hide-details class="bg-white"></v-text-field>
+                <input v-model.number="form.ssiCreditDetail.amount" class="hf-input" type="number" min="0" inputmode="numeric" />
               </div>
 
               <v-row dense>
                 <v-col cols="7">
                   <label class="input-label">Validity Period</label>
-                  <v-text-field v-model.number="form.ssiCreditDetail.validityPeriod" type="number" outlined dense hide-details class="bg-white"></v-text-field>
+                  <input v-model.number="form.ssiCreditDetail.validityPeriod" class="hf-input" type="number" min="0" inputmode="numeric" />
                 </v-col>
                 <v-col cols="5">
                   <label class="input-label">Unit</label>
-                  <v-select :items="units" v-model="form.ssiCreditDetail.validityPeriodUnit" outlined dense hide-details class="bg-white"></v-select>
+                  <select v-model="form.ssiCreditDetail.validityPeriodUnit" class="hf-input">
+                    <option v-for="unit in units" :key="unit.value" :value="unit.value">{{ unit.text }}</option>
+                  </select>
                 </v-col>
               </v-row>
             </div>
@@ -163,17 +163,19 @@
 
               <div class="mb-3">
                 <label class="input-label">Amount (uHID)</label>
-                <v-text-field v-model.number="form.kycCreditDetail.amount" type="number" outlined dense hide-details class="bg-white"></v-text-field>
+                <input v-model.number="form.kycCreditDetail.amount" class="hf-input" type="number" min="0" inputmode="numeric" />
               </div>
 
               <v-row dense>
                 <v-col cols="7">
                   <label class="input-label">Validity Period</label>
-                  <v-text-field v-model.number="form.kycCreditDetail.validityPeriod" type="number" outlined dense hide-details class="bg-white"></v-text-field>
+                  <input v-model.number="form.kycCreditDetail.validityPeriod" class="hf-input" type="number" min="0" inputmode="numeric" />
                 </v-col>
                 <v-col cols="5">
                   <label class="input-label">Unit</label>
-                  <v-select :items="units" v-model="form.kycCreditDetail.validityPeriodUnit" outlined dense hide-details class="bg-white"></v-select>
+                  <select v-model="form.kycCreditDetail.validityPeriodUnit" class="hf-input">
+                    <option v-for="unit in units" :key="unit.value" :value="unit.value">{{ unit.text }}</option>
+                  </select>
                 </v-col>
               </v-row>
             </div>
@@ -292,10 +294,6 @@
   border: 1px solid #e2e8f0;
   border-radius: 12px;
   padding: 1.25rem;
-}
-
-.bg-white >>> .v-input__control {
-  background: white !important;
 }
 
 .mono-text {
