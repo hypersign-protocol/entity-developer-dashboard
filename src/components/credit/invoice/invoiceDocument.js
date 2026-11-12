@@ -266,15 +266,15 @@ function paymentPanel(invoice) {
 
 const TERMS_URL = 'https://hypersign.id/terms/business';
 
-const TERMS_INTRO = "By purchasing or using Hypersign services, the Client agrees to Hypersign's Business Terms & Conditions, including the Service Level Agreement (SLA) and Data Processing Agreement (DPA).";
+const TERMS_INTRO = "By purchasing or using Hypermine services, the Client agrees to Hypermine's Business Terms & Conditions, including the Service Level Agreement (SLA) and Data Processing Agreement (DPA).";
 
 // Each section: a title and its paragraphs; an array in place of a paragraph is a bullet list
 const TERMS_SECTIONS = [
   ['1. Service Availability & SLA', [
-    'Services are provided on an "AS IS" and "AS AVAILABLE" basis. SLA commitments apply only to Hypersign-controlled infrastructure. They exclude third-party failures, government API outages and other events beyond Hypersign\'s reasonable control. Processing times that depend on external systems are not guaranteed.'
+    'Services are provided on an "AS IS" and "AS AVAILABLE" basis. SLA commitments apply only to Hypermine-controlled infrastructure. They exclude third-party failures, government API outages and other events beyond Hypermine\'s reasonable control. Processing times that depend on external systems are not guaranteed.'
   ]],
   ['2. Verification Disclaimer', [
-    "Verification results support the Client's decision-making. Hypersign does not guarantee identity authenticity, verification accuracy, fraud prevention or successful verification outcomes. Final decisions remain the Client's responsibility."
+    "Verification results support the Client's decision-making. Hypermine does not guarantee identity authenticity, verification accuracy, fraud prevention or successful verification outcomes. Final decisions remain the Client's responsibility."
   ]],
   ['3. Credits, Payments & Taxes', [
     "Credits are valid for the period stated in the applicable Order Form or pricing plan and expire unused at the end of that period. Credits are non-transferable and cannot be exchanged for cash. Payments are final, and Credits are non-refundable except as expressly provided in the Agreement or Order Form. Prices exclude taxes, which are the Client's responsibility. Overdue amounts may accrue interest."
@@ -283,10 +283,10 @@ const TERMS_SECTIONS = [
     'The Client is responsible for giving end users the required notices, obtaining their consents, establishing a lawful basis for processing, and complying with applicable laws. Personal data processing is governed by the DPA.'
   ]],
   ['5. Platform Usage & Restrictions', [
-    "The Client receives a limited, non-exclusive, non-transferable right to use Hypersign's APIs and platform for its own business purposes. The Client may not resell, sublicense or otherwise make the Services available to third parties without a separate written agreement with Hypersign. Reverse engineering, decompiling, creating derivative works, unauthorized load or security testing, injecting malicious code, circumventing verification flows or rate limits, and other abusive use are prohibited."
+    "The Client receives a limited, non-exclusive, non-transferable right to use Hypermine's APIs and platform for its own business purposes. The Client may not resell, sublicense or otherwise make the Services available to third parties without a separate written agreement with Hypermine. Reverse engineering, decompiling, creating derivative works, unauthorized load or security testing, injecting malicious code, circumventing verification flows or rate limits, and other abusive use are prohibited."
   ]],
   ['6. Suspension & Termination', [
-    'Hypersign may suspend or terminate access, without prior notice where warranted, in the following cases:',
+    'Hypermine may suspend or terminate access, without prior notice where warranted, in the following cases:',
     [
       'non-payment',
       'failed customer background verification',
@@ -298,7 +298,7 @@ const TERMS_SECTIONS = [
     'If termination is for cause attributable to the Client, unused Credits are forfeited.'
   ]],
   ['7. Liability', [
-    "Hypersign's total liability is limited to the fees paid by the Client in the 12 months preceding the claim, subject to the exclusions in the Agreement and applicable law."
+    "Hypermine's total liability is limited to the fees paid by the Client in the 12 months preceding the claim, subject to the exclusions in the Agreement and applicable law."
   ]],
   ['8. Standard Support', [
     'Chat support is available Monday–Friday, 9:00 AM–6:00 PM CET, excluding public holidays. 24×7 support, including weekends and holidays, is available under a custom support proposal through your account manager.'
@@ -342,7 +342,7 @@ function termsSection() {
 /**
  * @param {object} invoice  Layout model (see toInvoiceV1Model in invoiceTemplates.js)
  * @param {object} [options]
- * @param {string} [options.logo]  Hypersign logo as a data URL
+ * @param {string} [options.logo]  Hypermine logo as a data URL
  */
 export function buildInvoiceDocument(invoice, { logo } = {}) {
   const title = invoice.documentTitle || 'Tax Invoice';
@@ -363,7 +363,7 @@ export function buildInvoiceDocument(invoice, { logo } = {}) {
         columns: [
           logo
             ? { image: logo, width: 130, margin: [0, 4, 0, 0] }
-            : { text: 'HYPERSIGN', width: 130, bold: true, fontSize: 16, color: COLORS.ink },
+            : { text: 'HYPERMINE', width: 130, bold: true, fontSize: 16, color: COLORS.ink },
           {
             width: '*',
             stack: [

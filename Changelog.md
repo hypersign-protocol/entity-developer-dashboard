@@ -29,6 +29,7 @@
 - Text boxes, text areas and dropdowns now look the same across the dashboard, matching Billing details: Webhook Configuration, Super Admin tools (onboarding approval, credit recharge, payment links, KYB compliance), the KYC and KYB webpage generators, and every Bootstrap form field.
 - Phone number fields now match the other fields.
 - Dropdowns in Billing details and in the App configuration Issuer configuration tab show their arrow again.
+- Invoices now carry the Hypermine logo. The support add-on line no longer says 24×7, and the email support line shows support@hypersign.id. The terms on the invoice now name Hypermine. Invoices no longer print the billing email; the footer gives support@hypersign.id for questions.
 - Searchable and multi-select dropdowns now share one design with search and a checked list (chips when several can be picked): Target Countries in KYC widget restrictions, DID key types and verification relationships, presentation template schemas, and Verification Configuration in the ID Verifier page configuration.
 
 ### Fixed

@@ -88,6 +88,12 @@ function v1Discounts(discounts) {
 
 const V1_CREDITS_DESCRIPTION = 'Prepaid identity verification credits';
 
+// invoice-v1's wording for add-on lines, by code. The invoice doesn't promise round-the-clock
+// support, and the email line names the support address. Other codes print the server's title.
+const V1_SUPPORT_EMAIL = 'support@hypersign.id';
+const V1_ADD_ON_TITLES = { HUMAN_SUPPORT_24X7: 'Human support' };
+const V1_ADD_ON_DETAILS = { EMAIL_SUPPORT: V1_SUPPORT_EMAIL };
+
 /** InvoiceDocument → the layout model of template invoice-v1. */
 export function toInvoiceV1Model(doc) {
   const { supplier, customer, payment } = doc;
@@ -103,7 +109,10 @@ export function toInvoiceV1Model(doc) {
     voidReason: doc.voidReason,
     supplier: {
       legalName: supplier.legalName,
-      email: supplier.email,
+      // invoice-v1 doesn't print the supplier's billing email: the support address is the
+      // only contact, in the footer
+      email: null,
+      supportEmail: V1_SUPPORT_EMAIL,
       address: v1AddressLines(supplier.address),
       ids: [['GSTIN', supplier.gstin], ['CIN', supplier.cin], ['LUT ARN', supplier.lutArn]]
         .filter(([, value]) => value)
@@ -132,7 +141,11 @@ export function toInvoiceV1Model(doc) {
           included: true,
           value: `${doc.validityDays} days`
         }
-        : { description: addOn.title, included: true }))
+        : {
+          description: V1_ADD_ON_TITLES[addOn.code] || addOn.title,
+          detail: V1_ADD_ON_DETAILS[addOn.code],
+          included: true
+        }))
     ],
     discounts: v1Discounts(doc.discounts),
     tax: (doc.tax || []).map(line => ({
@@ -170,7 +183,7 @@ const TEMPLATES = {
 
 /**
  * @param {object} doc  InvoiceDocument from GET /billing/invoices/:id or /admin/billing/invoices/:id
- * @param {object} [options]  { logo }: the Hypersign logo as a data URL
+ * @param {object} [options]  { logo }: the Hypermine logo as a data URL
  * @throws {UnknownInvoiceTemplateError} when this dashboard build doesn't have the template
  */
 export function buildInvoicePdfDefinition(doc, options = {}) {

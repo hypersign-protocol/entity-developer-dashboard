@@ -410,7 +410,7 @@ India, **Already paid**, customer in Maharashtra:
   "currency": "INR",
   "supplier": {
     "legalName": "Hypermine Technologies Private Limited",
-    "email": "billing@hypersign.id",
+    "email": "billing@hypermine.in",
     "address": { "street": "1st Floor, 12 MG Road", "city": "Bengaluru", "province": "Karnataka", "postalCode": "560001", "country": "IN" },
     "gstin": "29AAAAA0000A1Z5",
     "pan": "AAAAA0000A",

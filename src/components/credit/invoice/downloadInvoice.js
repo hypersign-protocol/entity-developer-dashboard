@@ -3,7 +3,8 @@
 // chosen by its templateVersion in invoiceTemplates.js.
 import pdfMake from 'pdfmake';
 import pdfFonts from 'pdfmake/build/vfs_fonts';
-import logoSrc from '@/assets/Entity_full.png';
+// Invoices are issued by Hypermine Technologies, so they carry the Hypermine logo, not Hypersign's
+import logoSrc from '@/assets/hypermine_full.png';
 import { buildInvoicePdfDefinition, invoiceDocumentFileName } from './invoiceTemplates';
 
 let fontsReady = false;
