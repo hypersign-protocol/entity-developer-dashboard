@@ -3,7 +3,7 @@
     <template v-if="isFeatureImplemented">
       <header class="app-page-header">
         <h1 class="app-page-title">Settings</h1>
-        <p class="app-page-subtitle">Manage your profile, organization, team members, invitations and workspace access.</p>
+        <p class="app-page-subtitle">Manage your profile, billing details, team members, invitations and workspace access.</p>
       </header>
 
       <nav class="config-tabs" aria-label="Settings sections">
@@ -22,10 +22,6 @@
         <!-- v-show keeps every section mounted, as the previous b-tabs did -->
         <section v-show="activeMainTab === 'profile'">
           <UserProfile />
-        </section>
-
-        <section v-show="activeMainTab === 'organization'">
-          <OrganizationDetails />
         </section>
 
         <section v-if="canViewBilling" v-show="activeMainTab === 'billing'">
@@ -118,7 +114,6 @@ import LiveAccessStatus from '../components/teams/LiveAccessStatus.vue';
 import { mapMutations, mapGetters } from "vuex";
 import OnlySSIApps from '../components/settings/OnlySSIApps.vue';
 import UserProfile from '../components/settings/UserProfile.vue';
-import OrganizationDetails from '../components/settings/OrganizationDetails.vue';
 import BillingDetails from '../components/settings/BillingDetails.vue';
 import { mapActions } from 'vuex/dist/vuex.common.js';
 import ApproveCustomerOnboarding from './sa/components/ApproveCustomerOnboarding.vue'
@@ -136,7 +131,6 @@ export default {
     LiveAccessStatus,
     MyInvitions,
     UserProfile,
-    OrganizationDetails,
     BillingDetails,
     OnlySSIApps,    
     ApproveCustomerOnboarding,
@@ -161,7 +155,6 @@ export default {
       isFeatureImplemented: true,
       tabs: [
         { value: 'profile', label: 'Profile' },
-        { value: 'organization', label: 'Organization' },
         { value: 'billing', label: 'Billing details', billing: true },
         { value: 'members', label: 'Members & roles' },
         { value: 'invitions', label: 'My invitations' },

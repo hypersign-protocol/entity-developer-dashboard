@@ -337,7 +337,7 @@ import {
   validateIdentifier,
   validatePostalCode,
 } from '../../utils/companyIdentifiers.js';
-import { COMPANY_REVIEW, companyAllowsProduction, companyReviewStatus } from './companyReview.js';
+import { COMPANY_REVIEW, companyCanBeEdited, companyReviewStatus } from './companyReview.js';
 
 // Fields checked on each form step
 const STEP_FIELDS = {
@@ -462,9 +462,10 @@ export default {
     taxIdError() {
       return validateIdentifier(this.taxIdKind, this.countryCode, this.form.taxId);
     },
-    // Already with compliance (or approved); a rejected submission can be resent
+    // Sent and not rejected (under verification, under review or approved): locked,
+    // as on the server. Only a first submission or a rejected one can be (re)sent.
     alreadySubmitted() {
-      return companyAllowsProduction(this.onboarding);
+      return !companyCanBeEdited(this.onboarding);
     },
     // Inline view of details already with compliance (or verified): shown, not editable
     readOnly() {
@@ -828,6 +829,9 @@ export default {
         EventBus.$emit('company-submitted');
       } catch (error) {
         this.notifyErr(error.message || 'Could not submit your details. Please try again.');
+        // The status may have moved on (review started, another tab submitted): reload it,
+        // so a company that is now locked shows as submitted. No payload = refetch.
+        this.$emit('submitted');
       } finally {
         this.submitting = false;
         this.resetSubmitProgress();

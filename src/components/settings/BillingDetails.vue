@@ -46,8 +46,9 @@
           <div>
             <dt>Tax IDs</dt>
             <dd>
-              <span v-if="!profile.taxIds.length">None</span>
+              <span v-if="!profile.taxIds.length && !profile.personalTaxId">None</span>
               <span v-for="taxId in profile.taxIds" :key="taxId.type + taxId.number" class="tax-id">{{ taxId.type }} {{ taxId.number }}</span>
+              <span v-if="profile.personalTaxId" class="tax-id">{{ personalTaxIdText }}</span>
             </dd>
           </div>
           <div><dt>Billing region</dt><dd>{{ regionText }}</dd></div>
@@ -137,7 +138,14 @@
             </span>
           </div>
 
-          <p v-if="!taxIdTypes.length && !form.taxIds.length" class="field-help">No tax ID is needed for this country.</p>
+          <!-- A personal tax ID from company verification: only its last 4 characters are stored,
+               so it is shown masked and can't be edited here -->
+          <p v-if="profile.personalTaxId" class="personal-tax-id">
+            <span class="tax-id">{{ personalTaxIdText }}</span>
+            <small class="field-help">From company verification. Only the last 4 characters are kept.</small>
+          </p>
+
+          <p v-if="!taxIdTypes.length && !form.taxIds.length && !profile.personalTaxId" class="field-help">No tax ID is needed for this country.</p>
 
           <div v-for="(taxId, index) in form.taxIds" :key="index" class="tax-row" :class="{ invalid: errorFor(`taxIds[${index}].number`) }">
             <select v-model="taxId.type" :disabled="taxIdsReadOnly" aria-label="Tax ID type">
@@ -190,6 +198,7 @@
               <option value="IN">India · INR</option>
               <option value="GLOBAL">Global · USD</option>
             </select>
+            <small class="field-help">Follows the country. Change it only to override.</small>
           </label>
           <label v-if="profile.locked" class="check-field">
             <input v-model="form.unlock" type="checkbox" />
@@ -202,7 +211,15 @@
             <small v-else class="field-help">Recorded in the audit log with your name.</small>
           </label>
         </section>
-        <p v-else class="field-help">Billing region: {{ regionText }}. Contact support to change it.</p>
+        <!-- The billing country decides the region and currency (contract §2) -->
+        <div v-else-if="regionChanges" class="notice notice-info region-notice">
+          <v-icon small>mdi-swap-horizontal</v-icon>
+          <p>
+            Saving moves your billing region from {{ regionLabel(profile.region) }} to {{ regionLabel(formRegion) }}.
+            New orders will be priced and taxed in {{ formRegion === 'IN' ? 'INR, with GST' : 'USD' }}.
+          </p>
+        </div>
+        <p v-else class="field-help">{{ regionHelp }}</p>
 
         <div v-if="canWrite" class="form-actions">
           <button type="submit" class="primary-button" :disabled="saving">{{ saving ? 'Saving…' : 'Save billing details' }}</button>
@@ -230,6 +247,9 @@ import { toAcceptedCountryCode } from '../../utils/countries';
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const INDIA_TAX_ID_TYPES = ['GSTIN', 'PAN'];
 const OTHER_TAX_ID = 'OTHER';
+
+// Same rule as the server: India is IN, every other country is GLOBAL
+const regionForCountry = country => (country === 'IN' ? 'IN' : 'GLOBAL');
 
 const emptyForm = () => ({
   legalName: '',
@@ -310,8 +330,23 @@ export default {
     canWrite() {
       return this.admin || this.$store.getters['mainStore/hasAccess']('DASHBOARD', 'WRITE_BILLING');
     },
+    // The region a save would store: from the country, or a super admin's choice
+    formRegion() {
+      if (this.admin) return this.form.region;
+      return regionForCountry(this.form.address.country);
+    },
+    // The customer picked a country in another region (allowed until the first invoice)
+    regionChanges() {
+      return Boolean(!this.admin && this.profile && this.form.address.country && this.formRegion !== this.profile.region);
+    },
+    regionHelp() {
+      if (this.profile && this.profile.locked) {
+        return `Billing region: ${this.regionLabel(this.profile.region)}. It's fixed by your first invoice. Contact support to move to a country in another region.`;
+      }
+      if (!this.form.address.country) return 'Your billing region and currency follow the country you select.';
+      return `Billing region: ${this.regionLabel(this.formRegion)}, from the country above.`;
+    },
     isIndia() {
-      console.log({region: this.form.region, countery: this.form.address.country})
       if (this.admin) return this.form.address.country === 'IN';
       return Boolean(this.profile && this.form.address.country === 'IN');
     },
@@ -341,6 +376,12 @@ export default {
     addressText() {
       const a = this.profile.address || {};
       return [a.street, a.city, a.province, a.postalCode, a.country].filter(Boolean).join(', ') || '—';
+    },
+    // The server sends it masked already: { type: 'PAN', number: 'XXXXXX234F' }
+    personalTaxIdText() {
+      const personal = this.profile && this.profile.personalTaxId;
+      if (!personal) return '';
+      return `${personal.type === 'OTHER' ? 'Tax ID' : personal.type} ${personal.number} (personal)`;
     },
     stateText() {
       return this.profile.gstStateCode ? gstStateLabel(this.profile.gstStateCode) : '—';
@@ -440,6 +481,9 @@ export default {
       this.setErrors({});
       this.editing = false;
     },
+    regionLabel(region) {
+      return region === 'IN' ? 'India · INR' : 'Global · USD';
+    },
     // A row keeps its saved type even if the country no longer lists it
     taxIdTypesFor(taxId) {
       if (this.taxIdTypes.some(t => t.code === taxId.type)) return this.taxIdTypes;
@@ -477,6 +521,8 @@ export default {
     // themselves, and the typed digits are checked again
     onCountryChange() {
       const country = this.form.address.country;
+      // A super admin's region follows the country too, and can then be overridden
+      if (this.admin) this.form.region = regionForCountry(country);
       if (!this.form.phoneDial || this.form.phoneDial === this.lastCountry) this.form.phoneDial = country === 'XX' ? '' : country;
       this.lastCountry = country;
       if (this.form.phone) this.checkPhone();
@@ -507,9 +553,17 @@ export default {
         if (!f.address[field]) errors[`address.${field}`] = 'Required';
       });
       if (!f.address.country) errors['address.country'] = 'Select a country';
-      if (this.isIndia && f.taxIds.length == 0) errors['taxIds']= 'Enter tax ID'
+      // A business not registered for tax has its personal tax ID instead
+      if (this.isIndia && f.taxIds.length == 0 && !(this.profile && this.profile.personalTaxId)) errors['taxIds']= 'Enter tax ID'
+      // A locked profile keeps its region: only a country in the same region is accepted
+      if (!this.admin && this.profile && this.profile.locked && f.address.country && this.regionChanges) {
+        errors['address.country'] = 'This country is in another billing region, which is fixed by your first invoice. Contact support to change it.';
+      }
       f.taxIds.forEach((taxId, index) => {
-        const problem = taxIdNumberProblem(taxId);
+        const problem = taxIdNumberProblem(taxId) ||
+          (taxId.type === 'GSTIN' && f.address.country && this.formRegion !== 'IN'
+            ? 'A GSTIN can only be used with a billing address in India'
+            : '');
         if (problem) errors[`taxIds[${index}].number`] = problem;
       });
       if (this.needsStateSelect && !f.gstStateCode) errors.gstStateCode = 'Select your state, or add a GSTIN';
@@ -556,6 +610,10 @@ export default {
           this.saveError = 'Please fix the highlighted fields.';
         } else if (error.code === 'BILLING_PROFILE_LOCKED') {
           this.saveError = error.message;
+        } else if (error.code === 'REGION_CHANGE_BLOCKED') {
+          // An open order was priced in the old region: finish or cancel it first
+          const orders = (error.details && error.details.orders) || [];
+          this.saveError = orders.length ? `${error.message} Open: ${orders.join(', ')}.` : error.message;
         } else if (error.code === 'ONBOARDING_NOT_FOUND') {
           if (this.admin) this.saveError = 'The app\'s owner hasn\'t completed onboarding.';
           else this.notOnboarded = true;
@@ -641,6 +699,8 @@ export default {
 .tax-row input { font-variant-numeric: tabular-nums; letter-spacing: .02em; text-transform: uppercase; }
 .tax-row .field-error { grid-column: 1 / -1; }
 .state-field { max-width: 312px; margin-top: 16px; }
+.region-notice { margin: 16px 0 0; }
+.personal-tax-id { display: flex; flex-direction: column; gap: 2px; margin: 0 0 10px; font-size: 13px; font-weight: 600; }
 .billing-form > .field-help { margin-top: 12px; }
 
 .icon-button { display: inline-flex; width: 32px; height: 32px; align-items: center; justify-content: center; border-radius: 6px; color: #8793a5; }
