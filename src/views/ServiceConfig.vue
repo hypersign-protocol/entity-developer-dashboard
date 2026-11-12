@@ -44,7 +44,7 @@
             <div class="details-grid">
               <div class="detail-field">
                 <label>Application name <span class="required-marker" aria-hidden="true">*</span></label>
-                <input v-if="isEditing && editingSection === 'details'" v-model.trim="formData.appName" type="text" required />
+                <input v-if="isEditing && editingSection === 'details'" v-model.trim="formData.appName" class="hf-input" type="text" required />
                 <p v-else>{{ formData.appName || '—' }}</p>
               </div>
               <div class="detail-field">
@@ -58,7 +58,7 @@
               </div>
               <div class="detail-field">
                 <label>Description</label>
-                <textarea v-if="isEditing && editingSection === 'details'" v-model.trim="formData.description" rows="3"></textarea>
+                <textarea v-if="isEditing && editingSection === 'details'" v-model.trim="formData.description" class="hf-input" rows="3"></textarea>
                 <p v-else>{{ formData.description || '—' }}</p>
               </div>
               <div class="detail-field">
@@ -123,8 +123,8 @@
             <div class="identity-fields">
               <div class="detail-field">
                 <label>Issuer DID <span class="required-marker" aria-hidden="true">*</span></label>
-                <select v-if="isEditing && editingSection === 'issuer'" v-model="formData.issuerDid" required @change="resolveDid($event)">
-                  <option value="">Select a DID</option>
+                <select v-if="isEditing && editingSection === 'issuer'" v-model="formData.issuerDid" class="hf-input hf-mono" required @change="resolveDid($event)">
+                  <option value="" disabled>Select a DID</option>
                   <option v-for="did in associatedSSIServiceDIDs" :key="did" :value="did">{{ did }}</option>
                 </select>
                 <div v-else class="copy-value read-only-value">
@@ -137,8 +137,8 @@
 
               <div class="detail-field">
                 <label>Verification Method ID <span class="required-marker" aria-hidden="true">*</span></label>
-                <select v-if="isEditing && editingSection === 'issuer'" v-model="formData.issuerVerificationMethodId" :disabled="!formData.issuerDid" required>
-                  <option value="">{{ formData.issuerDid ? 'Select a verification method' : 'Select a DID first' }}</option>
+                <select v-if="isEditing && editingSection === 'issuer'" v-model="formData.issuerVerificationMethodId" class="hf-input hf-mono" :disabled="!formData.issuerDid" required>
+                  <option value="" disabled>{{ formData.issuerDid ? 'Select a verification method' : 'Select a DID first' }}</option>
                   <option v-for="vm in issuerVerificationMethodIds" :key="vm.id" :value="vm.id">{{ vm.id }} ({{ vm.type }})</option>
                 </select>
                 <div v-else class="copy-value read-only-value">
@@ -235,7 +235,7 @@
     <hf-pop-up id="entity-delete-service-confirmation-popup" Header="Delete Confirmation">
       <div>
         <p class="modal-error">This permanently removes the application metadata and data vault. Enter the exact Application ID to continue.</p>
-        <input id="appId" v-model="appIdToGenerateSecret" type="text" class="form-control" :placeholder="formData.appId" />
+        <input id="appId" v-model="appIdToGenerateSecret" type="text" class="hf-input hf-mono" aria-label="Application ID" :placeholder="formData.appId" />
         <div class="text-center mt-3"><hf-buttons name="Delete" customClass="btn btn-danger" iconClass="fa fa-trash-alt" @executeAction="deleteOrg" /></div>
       </div>
     </hf-pop-up>
@@ -285,10 +285,7 @@
 .detail-field { min-width: 0; }
 .detail-field label, .origins-editor > label { display: block; margin-bottom: 9px; color: #718096; font-size: 11px; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; }
 .detail-field > p { margin: 0; color: #344054; font-size: 13px; line-height: 1.45; }
-.detail-field input, .detail-field textarea, .detail-field select { width: 100%; border: 1px solid #d5dde7; border-radius: 6px; background: #fff; color: #27364a; font-size: 13px; outline: none; }
-.detail-field input, .detail-field select { height: 38px; padding: 0 11px; }
-.detail-field textarea { padding: 10px 11px; resize: vertical; }
-.detail-field input:focus, .detail-field textarea:focus, .detail-field select:focus { border-color: #2f6fec; box-shadow: 0 0 0 2px rgba(47,111,236,.12); }
+/* Fields use the shared .hf-input / .hf-mono classes (src/assets/css/gblStyle.css) */
 .detail-field small { display: block; margin-top: 6px; color: #8793a5; font-size: 11px; }
 .copy-value { display: flex; min-width: 0; align-items: center; gap: 10px; }
 .copy-value code { overflow: hidden; color: #3e4b5e; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
@@ -479,6 +476,8 @@ export default {
     async resolveDid(event) {
       try {
         const did = typeof event === 'string' ? event : event.target.value;
+        // A new DID picked by the user: the old verification method belongs to the previous DID
+        if (typeof event !== 'string') this.formData.issuerVerificationMethodId = '';
         if (!did) {
           this.issuerVerificationMethodIds = [];
           return;

@@ -144,46 +144,6 @@
   color: #dc3545;
 }
 
-.widget-config-load-more {
-  align-items: center;
-  color: #64748b;
-  display: flex;
-  font-size: 13px;
-  gap: 8px;
-  justify-content: center;
-  min-height: 42px;
-  padding: 8px 16px;
-}
-
-::v-deep(.widget-configuration-select.v-text-field--outlined > .v-input__control > .v-input__slot) {
-  border-radius: 4px;
-  height: 32px;
-  min-height: 32px;
-}
-
-::v-deep(.widget-configuration-select.v-text-field--outlined:not(.v-input--is-focused) fieldset) {
-  border-color: #ced4da;
-}
-
-::v-deep(.widget-configuration-select.v-text-field--outlined.v-input--is-focused > .v-input__control > .v-input__slot) {
-  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.25);
-}
-
-::v-deep(.widget-configuration-select.v-text-field--outlined.v-input--is-focused fieldset) {
-  border-color: #667eea;
-  border-width: 1px;
-}
-
-::v-deep(.widget-configuration-select .v-input__append-inner) {
-  align-self: center;
-  margin-top: 0;
-}
-
-::v-deep(.widget-configuration-select .v-select__selection),
-::v-deep(.widget-configuration-select input) {
-  font-size: 13px;
-}
-
 /* Simple Expiry Selection */
 .expiry-select {
   margin-top: 8px;
@@ -1167,27 +1127,16 @@
             <li class="list-group-item">
               <div class="form-group">
                 <label for="widgetConfiguration">Verification Configuration<span class="mandatory">*</span></label>
-                <v-select
+                <hf-select
                   id="widgetConfiguration"
-                  class="widget-configuration-select"
                   v-model="selectedWidgetConfigId"
-                  :items="widgetConfigurationOptions"
+                  :options="widgetConfigurationOptions"
                   :loading="isLoadingWidgetConfigurations"
-                  item-text="text"
-                  item-value="value"
-                  placeholder="Identity Verification Flow"
-                  outlined
-                  dense
-                  hide-details
-                  :menu-props="{ maxHeight: 300 }"
-                >
-                  <template v-if="hasMoreWidgetConfigurations" #append-item>
-                    <div v-intersect="onWidgetConfigurationScrollEnd" class="widget-config-load-more">
-                      <v-progress-circular v-if="isLoadingWidgetConfigurations" indeterminate size="18" width="2" color="primary" />
-                      <span>{{ isLoadingWidgetConfigurations ? 'Loading configurations...' : 'Scroll to load more' }}</span>
-                    </div>
-                  </template>
-                </v-select>
+                  :has-more="hasMoreWidgetConfigurations"
+                  placeholder="Select a verification configuration"
+                  empty-text="No verification configurations"
+                  @load-more="loadMoreWidgetConfigurations"
+                />
               </div>
             </li>
 
@@ -1352,6 +1301,7 @@
 import UtilsMixin from '../../mixins/utils';
 import { mapGetters, mapActions, mapMutations, mapState } from "vuex";
 import HfButtons from '../../components/element/HfButtons.vue';
+import HfSelect from '../../components/element/HfSelect.vue';
 import AccessDenied from '../AccessDenied.vue';
 
 export default {
@@ -1359,6 +1309,7 @@ export default {
   mixins: [UtilsMixin],
   components: {
     HfButtons,
+    HfSelect,
     AccessDenied
   },
   computed: {
@@ -1468,8 +1419,8 @@ export default {
       }
     },
 
-    async onWidgetConfigurationScrollEnd(entries) {
-      if (!entries[0]?.isIntersecting || !this.hasMoreWidgetConfigurations || this.isLoadingWidgetConfigurations) return
+    async loadMoreWidgetConfigurations() {
+      if (!this.hasMoreWidgetConfigurations || this.isLoadingWidgetConfigurations) return
       try {
         await this.loadWidgetConfigurations(this.widgetConfigPage + 1)
       } catch (error) {

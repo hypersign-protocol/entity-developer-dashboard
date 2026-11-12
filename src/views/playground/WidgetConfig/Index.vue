@@ -274,115 +274,10 @@ ul {
   line-height: 1.35;
 }
 
-.country-chip-row {
-  display: flex;
-  flex-wrap: nowrap;
-  gap: 12px;
-  margin-bottom: 12px;
-  min-height: 58px;
-  overflow-x: auto;
-  padding: 1px 0 8px;
-  scrollbar-width: thin;
-  width: 100%;
-}
-
-.country-chip {
-  align-items: center;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  color: #374151;
-  display: inline-flex;
+/* vue-country-flag sizes the small sprite itself (scale + negative margins) */
+.country-flag {
   flex: 0 0 auto;
-  font-weight: 600;
-  min-height: 44px;
-  padding: 10px 12px;
-}
-
-.country-chip-flag {
-  margin-right: 10px;
-}
-
-.country-dropdown-flag {
-  margin-right: 8px;
   vertical-align: middle;
-}
-
-.country-chip-remove {
-  color: #374151;
-  cursor: pointer;
-  font-size: 1.2rem;
-  line-height: 1;
-  margin-left: 18px;
-}
-
-.country-dropdown-item {
-  align-items: center;
-  display: flex;
-  justify-content: space-between;
-  width: 100%;
-}
-
-.jurisdiction-country-search-wrap {
-  position: relative;
-}
-
-.jurisdiction-country-search-hint {
-  color: #7c8798;
-  font-size: 10px;
-  left: 44px;
-  line-height: 1;
-  pointer-events: none;
-  position: absolute;
-  top: 7px;
-  z-index: 2;
-}
-
-::v-deep(.jurisdiction-country-select.v-text-field--outlined > .v-input__control > .v-input__slot) {
-  background: #f8fafc;
-  border-radius: 8px;
-  min-height: 44px;
-  transition: background-color 0.15s ease, box-shadow 0.15s ease;
-}
-
-::v-deep(.jurisdiction-country-select.v-text-field--outlined:not(.v-input--is-focused) fieldset) {
-  border-color: #e2e8f0;
-}
-
-::v-deep(.jurisdiction-country-select.v-text-field--outlined.v-input--is-focused fieldset) {
-  border-color: #94a3b8;
-  border-width: 1px;
-}
-
-::v-deep(.jurisdiction-country-select.v-input--is-focused > .v-input__control > .v-input__slot) {
-  background: #fff;
-  box-shadow: 0 0 0 3px rgba(148, 163, 184, 0.14);
-}
-
-::v-deep(.jurisdiction-country-select:not(.v-input--is-focused):hover fieldset) {
-  border-color: #cbd5e1;
-}
-
-::v-deep(.jurisdiction-country-select .v-input__prepend-inner),
-::v-deep(.jurisdiction-country-select .v-input__append-inner) {
-  align-self: center;
-  margin-top: 0;
-}
-
-::v-deep(.jurisdiction-country-select .v-input__prepend-inner) {
-  padding-left: 2px;
-  padding-right: 10px;
-}
-
-::v-deep(.jurisdiction-country-select input) {
-  color: #374151;
-  font-size: 13px;
-  line-height: 20px;
-  margin-top: 11px;
-  max-height: 32px;
-}
-
-::v-deep(.jurisdiction-country-select .v-icon) {
-  color: #7c8798 !important;
 }
 
 .jurisdiction-action-column {
@@ -727,63 +622,25 @@ ul {
               </div>
 
               <div class="jurisdiction-column">
-                <div class="jurisdiction-label">
-                  Target Countries<span v-if="selectedJurisdictionCountries.length > 0"> ({{ selectedJurisdictionCountries.length }})</span>
-                </div>
-                <div class="country-chip-row" v-if="selectedJurisdictionCountries.length > 0">
-                  <span
-                    v-for="country in selectedJurisdictionCountries"
-                    :key="country.value"
-                    class="country-chip"
-                  >
-                    <country-flag :country="country.alpha2" size="small" class="country-chip-flag" />
-                    <span>{{ country.text }} ({{ country.value }})</span>
-                    <span
-                      class="country-chip-remove"
-                      title="Remove country"
-                      @click="removeJurisdictionCountry(country.value)"
-                    >
-                      ×
-                    </span>
-                  </span>
-                </div>
-                <div class="jurisdiction-country-search-wrap">
-                  <span class="jurisdiction-country-search-hint">
-                    Select or search country...
-                  </span>
-                  <v-autocomplete
-                    class="jurisdiction-country-select"
-                    v-model="widgetConfigTemp.jurisdictionRules.countries"
-                    :items="countryOptions"
-                    item-text="displayText"
-                    item-value="value"
-                    multiple
-                    outlined
-                    dense
-                    hide-details
-                    :menu-props="{ maxHeight: 320, offsetY: true, closeOnContentClick: false }"
-                  >
-                    <template v-slot:prepend-inner>
-                      <v-icon small color="grey">mdi-magnify</v-icon>
-                    </template>
-                    <template v-slot:selection></template>
-                    <template v-slot:item="{ item }">
-                      <div class="country-dropdown-item">
-                        <span>
-                          <country-flag :country="item.alpha2" size="small" class="country-dropdown-flag" />
-                          <span>{{ item.text }} ({{ item.value }})</span>
-                        </span>
-                        <v-icon
-                          v-if="isJurisdictionCountrySelected(item.value)"
-                          color="primary"
-                          small
-                        >
-                          mdi-check
-                        </v-icon>
-                      </div>
-                    </template>
-                  </v-autocomplete>
-                </div>
+                <label for="jurisdiction-countries" class="jurisdiction-label">
+                  Target Countries<span v-if="jurisdictionCountryCount > 0"> ({{ jurisdictionCountryCount }})</span>
+                </label>
+                <hf-select multiple
+                  id="jurisdiction-countries"
+                  v-model="widgetConfigTemp.jurisdictionRules.countries"
+                  :options="countryOptions"
+                  placeholder="Search countries"
+                  empty-text="No countries"
+                >
+                  <template #chip="{ option }">
+                    <country-flag v-if="option.alpha2" :country="option.alpha2" size="small" class="country-flag" />
+                    <span>{{ option.text }}</span>
+                  </template>
+                  <template #option="{ option }">
+                    <country-flag :country="option.alpha2" size="small" class="country-flag" />
+                    <span>{{ option.text }} ({{ option.value }})</span>
+                  </template>
+                </hf-select>
               </div>
 
               <div class="jurisdiction-column jurisdiction-action-column">
@@ -850,6 +707,7 @@ import config from '../../../config';
 import countries from 'i18n-iso-countries';
 import enLocale from 'i18n-iso-countries/langs/en.json';
 import CountryFlag from 'vue-country-flag';
+import HfSelect from '../../../components/element/HfSelect.vue';
 
 countries.registerLocale(enLocale);
 
@@ -860,6 +718,7 @@ export default {
     HfButtons,
     MarketplaceList,
     CountryFlag,
+    HfSelect,
     HFBeta,
     AccessDenied
     // TrustedIssuer
@@ -989,17 +848,8 @@ export default {
         .filter(country => !!country.value)
         .sort((a, b) => a.text.localeCompare(b.text))
     },
-    selectedJurisdictionCountries() {
-      const selected = this.widgetConfigTemp.jurisdictionRules?.countries || []
-      return selected.map(code => {
-        const option = this.countryOptions.find(country => country.value === code)
-        return option || {
-          value: code,
-          text: code,
-          displayText: code,
-          alpha2: countries.alpha3ToAlpha2(code),
-        }
-      })
+    jurisdictionCountryCount() {
+      return (this.widgetConfigTemp.jurisdictionRules?.countries || []).length
     },
     selectedJurisdictionActionDescription() {
       const action = this.widgetConfigTemp.jurisdictionRules?.actionOnRestriction
@@ -1345,13 +1195,6 @@ export default {
       existingRules.actionOnRestriction = ['HARD_REJECT', 'MANUAL_REVIEW'].includes(existingRules.actionOnRestriction)
         ? existingRules.actionOnRestriction
         : defaults.actionOnRestriction
-    },
-    removeJurisdictionCountry(countryCode) {
-      const selectedCountries = this.widgetConfigTemp.jurisdictionRules.countries || []
-      this.widgetConfigTemp.jurisdictionRules.countries = selectedCountries.filter(country => country !== countryCode)
-    },
-    isJurisdictionCountrySelected(countryCode) {
-      return (this.widgetConfigTemp.jurisdictionRules.countries || []).includes(countryCode)
     },
     validateJurisdictionRules() {
       this.ensureJurisdictionRules()

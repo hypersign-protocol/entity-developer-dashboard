@@ -25,15 +25,19 @@
 - Redesigned popups with a lighter header, rounded corners and an optional footer for actions.
 - Sidebar icons for Users, User analytics and KYC widget now match the rest of the menu.
 - Removed the unused MDI Light icon font.
+- Removed the unused vue-multiselect package.
 - Text boxes, text areas and dropdowns now look the same across the dashboard, matching Billing details: Webhook Configuration, Super Admin tools (onboarding approval, credit recharge, payment links, KYB compliance), the KYC and KYB webpage generators, and every Bootstrap form field.
 - Phone number fields now match the other fields.
-- Dropdowns in Billing details show their arrow again.
+- Dropdowns in Billing details and in the App configuration Issuer configuration tab show their arrow again.
+- Searchable and multi-select dropdowns now share one design with search and a checked list (chips when several can be picked): Target Countries in KYC widget restrictions, DID key types and verification relationships, presentation template schemas, and Verification Configuration in the ID Verifier page configuration.
 
 ### Fixed
 
 - Fixed payment links for Global customers.
 - Fixed invoice details and the credit history table.
 - Fixed popups on the Credentials page, where opening Send Credential also opened the other popups.
+- Fixed the schema picker in the presentation template form, which did not show up.
+- Changing the Issuer DID in App configuration now clears the verification method, so a method from the previous DID can't be saved with the new one.
 ## [3.17.0] - 2026-10-15
 ### Changed
 

@@ -76,7 +76,7 @@ Status colors (text / background / border):
     **Events:** `hide`, `hidden`. **Slots:** default (body), `footer` (actions).
   - **Chrome:** it already provides the light header with an icon tile, 14px radius, `#f8fafc` body and white footer. Don't restyle `.modal-*` per feature.
   - `CreditTopUpPopup.vue` still uses its own `b-modal` with the same look. It's due to move to `hf-pop-up`, so don't copy it.
-- **Forms:** see §3b.
+- **Forms:** see §3b. **Dropdowns:** see §3c.
 - **Notices:** `.notice.notice-{error|info|muted}`: radius `8px`, padding `12px 14px`, `12px` text, a leading `<v-icon small>`.
   Errors also get `role="alert"`.
 - **Status pills:** `.status-pill.is-{success|muted|…}`: radius `10px`, `11px` / `700`, status colors from §1.
@@ -148,14 +148,14 @@ in `src/assets/css/gblStyle.css`. **Use the classes. Don't restyle fields in a c
 </div>
 ```
 
-- **Controls:** native `<input>`, `<textarea>` and `<select>`, each with `class="hf-input"`. Never use `v-text-field`, `v-textarea`,
+- **Controls:** native `<input>`, `<textarea>` and `<select>`, each with `class="hf-input"` (for dropdowns, see §3c). Never use `v-text-field`, `v-textarea`,
   `v-select`, `b-form-input`, `b-form-textarea`, `b-form-select`, `hf-select-drop-down` or Bootstrap `form-control` in new code,
   and don't mix `form-control` with `hf-input`.
 - **What the classes give you:**
   - Text box: `38px` high, padding `0 11px`, border `#d5dde7`, radius `6px`, white background, text `#27364a` at `13px`, placeholder `#8793a5`.
   - Text area: the same border and colors, padding `9px 11px`, `min-height: 76px` (3 rows), `line-height: 1.45`, vertical resize only.
     Set the height with `rows`, not CSS.
-  - Select: the same as a text box plus a gray chevron (Vuetify's reset removes the native arrow).
+  - Select: the same as a text box plus a gray chevron. Dropdowns have their own rules in §3c.
   - Focus: border `#2f6fec` and a 2px ring of `rgba(47,111,236,.12)`.
   - Disabled: background `#f8fafc`, text `#667085`, cursor `not-allowed`. Read-only: background `#f8fafc`.
   - Invalid: border `#f04438`, from `.hf-field.invalid` or `.hf-input.is-invalid`.
@@ -183,11 +183,71 @@ in `src/assets/css/gblStyle.css`. **Use the classes. Don't restyle fields in a c
 - **Legacy fields:** Bootstrap `.form-control` / `.custom-select` (and therefore `b-form-input`, `b-form-textarea`, `b-form-select`,
   `hf-select-drop-down`) are restyled globally in `gblStyle.css` to look like `.hf-input`. That's only a bridge for old screens:
   when you touch one, move its fields to `hf-input`. Never add scoped or `::v-deep` overrides of `.form-control` or `.custom-select`.
-- **No multi-select yet:** there's no shared multi-select or searchable select. The only Vuetify fields left are the chip
-  multi-selects in `DID.vue` and `WidgetConfig/Index.vue`, the country `v-autocomplete` in `WidgetConfig/Index.vue`, and the
-  infinite-scroll select in `KYCWebpageGenerator.vue`. Don't add new ones. Ask before building a shared multi-select component.
 - **References:** `BillingDetails.vue` (full form, tax-ID rows, `PhoneInput`), `WebhookConfig.vue` (repeated key/value rows),
   `sa/components/CreditRecharge.vue` (`.hf-input-group` with currency and units).
+
+## 3c. Dropdowns
+Every dropdown is the same `38px` box as a text box, with a gray chevron on the right. There are two controls. Pick by what the list needs:
+
+| The list… | Use |
+|---|---|
+| is one choice from a short, fixed or already-loaded list (up to about 15 options) | native `<select class="hf-input">` |
+| needs search (long lists: countries, DIDs, schemas once there are many) | `<hf-select>` |
+| allows several values | `<hf-select multiple>` |
+| loads more options as you scroll (paged API) | `<hf-select :has-more @load-more>` |
+
+**Native select** (`select.hf-input`), the default:
+```html
+<label class="hf-field">
+  <span>Verification method</span>
+  <select v-model="form.methodId" class="hf-input hf-mono" :disabled="!form.did">
+    <option value="" disabled>{{ form.did ? 'Select a verification method' : 'Select a DID first' }}</option>
+    <option v-for="vm in methods" :key="vm.id" :value="vm.id">{{ vm.id }} ({{ vm.type }})</option>
+  </select>
+</label>
+```
+- **Look** (from `gblStyle.css`; never restyle it): `38px` high, padding `0 32px 0 11px`, border `#d5dde7`, radius `6px`,
+  text `#27364a` at `13px`, chevron `16px` in `#8793a5` at `right 10px`. Vuetify's reset strips the browser arrow from every
+  `<select>`, so a select **without** `hf-input` has no arrow at all. Focus, disabled and invalid states are the same as a text box.
+- **Placeholder:** the first option is `<option value="" disabled>Select a …</option>`, so it shows until a choice is made and
+  can't be picked back. The model starts as `''`, not `null`. Use sentence case: "Select a country", not "-- SELECT --".
+- **Dependent dropdowns:** disable the second one until the first has a value, and say why in its placeholder ("Select a DID first").
+  Clear the second value when the first changes.
+- **IDs as options** (DIDs, verification methods, app IDs): add `hf-mono`.
+- Option text is plain text; a native option can't hold icons, flags or two-line content. If you need those, use `<hf-select>`.
+
+**`<hf-select>`** (`components/element/HfSelect.vue`, import it locally): the same box with a search input, a floating list and keyboard
+support (arrows, Enter, Escape; Backspace removes the last chip).
+```html
+<label for="target-countries" class="hf-label">Target countries</label>
+<hf-select id="target-countries" multiple v-model="form.countries" :options="countryOptions" placeholder="Search countries">
+  <template #option="{ option }"><country-flag :country="option.alpha2" size="small" /> {{ option.text }}</template>
+</hf-select>
+
+<hf-select id="widget-config" v-model="configId" :options="configOptions" :loading="loadingConfigs"
+  :has-more="hasMoreConfigs" placeholder="Select a verification configuration" @load-more="loadMoreConfigs" />
+```
+- **Look:**
+  - Box: as above. With `multiple`, chips sit inside it and the box grows as they wrap; a clear-all × sits before the chevron.
+  - Chip: `26px` high, radius `6px`, background `#f1f5f9`, border `#e1e6ed`, text `#273448` at `12px` / `600`, a gray `x-small` `mdi-close` to remove.
+  - List: opens `4px` below the box, radius `8px`, border `#d7e0ea`, white, shadow `0 12px 28px -8px rgba(23,37,84,.18)`, max height `280px`.
+  - Option: `34px` min height, padding `6px 10px`, radius `6px`, `13px`. Hover or keyboard focus: background `#f1f5f9`.
+    Selected: text `#2563dc` / `600` with a `mdi-check` on the right.
+  - Notes ("No matches", "Loading…"): `12px` in `#8793a5`. "Load more": `12px` / `600` in `#2563dc`.
+  - The chevron turns upside down while the list is open.
+- **API:** `v-model` is one value, or an array with `multiple`. `options` are strings or `{ value, text, … }`; extra fields reach the
+  `option` and `chip` slots (flags, codes). A selected value missing from `options` shows its raw value. Other props:
+  `placeholder`, `searchable` (default `true`; `false` for short fixed lists), `disabled`, `invalid`, `loading`, `hasMore`,
+  `emptyText`, `id` (goes on the search input, so `<label for>` works), `ariaLabel`. Events: `input`, `change`, `blur`, `load-more`.
+- **Paging:** pass `has-more` and `loading`, and fetch the next page on `@load-more`. It fires near the end of the list, and a
+  "Load more" row is there as a fallback.
+
+**Never use** `v-select`, `v-autocomplete`, `b-form-select`, `hf-select-drop-down`, `vue-multiselect`, a `<select>` without `hf-input`,
+scoped select styles, or hand-built chip rows and menus.
+
+**References:** Issuer configuration in `ServiceConfig.vue` (native, dependent, `hf-mono`), `BillingDetails.vue` (native),
+Target Countries in `WidgetConfig/Index.vue` (multiple, flags), `DID.vue` (multiple, no search), Verification Configuration in
+`KYCWebpageGenerator.vue` (single, paged).
 
 ## 4. Data & API Calls
 - Put new endpoints in a feature API module (one exported function per endpoint) built on `request()` from
@@ -208,7 +268,7 @@ in `src/assets/css/gblStyle.css`. **Use the classes. Don't restyle fields in a c
 - Don't use `v-html` for messages or labels. Render text. Use it only for sanitized markdown.
 - Don't use Vuetify components other than `<v-icon>`. Don't use `mdbvue`.
 - Don't use Font Awesome, `<b-icon>`, emoji or Vuetify `color=` names for icons (see §3a).
-- Don't build fields with `v-text-field`, `v-textarea`, `b-form-input`, `b-form-textarea` or `form-control`, and don't restyle fields per component (see §3b).
+- Don't build fields with `v-text-field`, `v-textarea`, `v-select`, `v-autocomplete`, `vue-multiselect`, `b-form-input`, `b-form-textarea` or `form-control`, and don't restyle fields per component (see §3b).
 - Don't use `!important`, inline `style="…"`, unscoped styles (except modal chrome keyed on `modal-class`), or class names copied from other sites.
 - Don't use `console.log`, `document.getElementById`, or file-level `/* eslint-disable */`.
 - Don't write components over about 600 lines. Split into a container, presentational children and an API module.

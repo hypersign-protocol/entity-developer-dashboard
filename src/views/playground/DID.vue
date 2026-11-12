@@ -157,34 +157,29 @@ h5 span {
             </div>
             <div class="">
               <tool-tip infoMessage="Select one or more key type"></tool-tip>
-              <label for="schemaName"><strong>Key Type<span
+              <label for="didKeyTypes"><strong>Key Type<span
                     style="color: red">*</span>:</strong></label>
-                <v-select
+                <hf-select multiple
+                  id="didKeyTypes"
                   v-model="selectedKeyTypes"
-                  :items="keyTypeOptions"
-                  multiple
-                  chips
-                  attach
-                  dense
-                  outlined
+                  :options="keyTypeOptions"
+                  :searchable="false"
+                  placeholder="Select key types"
                   :disabled="isEditing"
-                ></v-select>
+                />
             </div>
             <div class="">
               <tool-tip infoMessage="Select one or more verification relationships"></tool-tip>
-              <label for="schemaName"><strong>Verification Relationships<span
+              <label for="didVerificationRelationships"><strong>Verification Relationships<span
                     style="color: red">*</span>:</strong></label>
-              
-                <v-select
+                <hf-select multiple
+                  id="didVerificationRelationships"
                   v-model="selectedVerificationRelationships"
-                  :items="verificationRelationshipsOptions"
-                  multiple
-                  chips
-                  attach
-                  dense
-                  outlined
+                  :options="verificationRelationshipsOptions"
+                  :searchable="false"
+                  placeholder="Select verification relationships"
                   :disabled="isEditing"
-                ></v-select>
+                />
             </div>
             <div class="">
               <v-checkbox
@@ -305,6 +300,7 @@ import UtilsMixin from '../../mixins/utils';
 import HfPopUp from "../../components/element/hfPopup.vue";
 import StudioSideBar from "../../components/element/StudioSideBar.vue";
 import HfButtons from "../../components/element/HfButtons.vue"
+import HfSelect from "../../components/element/HfSelect.vue"
 import ToolTip from "../../components/element/ToolTip.vue"
 import DomainLinkage from '@hypersign-protocol/domain-linkage-verifier'
 import { mapState, mapGetters, mapActions, mapMutations } from "vuex";
@@ -313,7 +309,7 @@ import AccessDenied from '../AccessDenied.vue';
 import { isAccessDeniedError } from '../../utils/accessDenied';
 export default {
   name: "DIDs",
-  components: { HfPopUp, StudioSideBar, HfButtons, ToolTip, LogoUploader, AccessDenied },
+  components: { HfPopUp, StudioSideBar, HfButtons, HfSelect, ToolTip, LogoUploader, AccessDenied },
   watch: {
   selectedDid: {
     handler(newValue) {

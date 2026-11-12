@@ -33,19 +33,6 @@
   cursor: pointer;
 }
 </style>
-
-<style scoped>
-.multiselect__tags {
-  border-radius: 0.25rem;
-  border: 1px solid #ced4da;
-  background: #fff;
-  font-weight: 400;
-}
-
-.multiselect__tag {
-  background: var(--button-bg-color)
-}
-</style>
 <template>
   <div :class="isContainerShift ? 'homeShift' : 'home'">
     <loadIng :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loadIng>
@@ -104,10 +91,9 @@
                       ></hf-select-drop-down> -->
 
 
-                  <multiSelect v-model="selectedSchemIdsInMultiSelect" placeholder="Search or select schema (s)"
-                    label="text" track-by="value" :options="selectOptions" :multiple="true" :taggable="false"
-                    :close-on-select="false" :clear-on-select="false" @input="onInputTag">
-                  </multiselect>
+                  <hf-select multiple id="forselectschema" v-model="selectedSchemIdsInMultiSelect"
+                    :options="selectOptions" placeholder="Search or select schemas" empty-text="No schemas"
+                    @input="onInputTag" />
 
                   <div v-if="selectOptions.length === 1">
                     <span class="goschema" @click="gotosubpage('playgroundSchema')">Create Schema</span>
@@ -232,6 +218,7 @@ import fetch from "node-fetch";
 import UtilsMixin from '../../mixins/utils';
 import StudioSideBar from "../../components/element/StudioSideBar.vue";
 import HfButtons from "../../components/element/HfButtons.vue"
+import HfSelect from "../../components/element/HfSelect.vue"
 import conf from '../../config';
 const { hypersignSDK } = conf;
 import EventBus from "../../eventbus"
@@ -241,7 +228,7 @@ import { isEmpty, isValidURL, isValidDid } from '../../mixins/fieldValidation'
 import { mapGetters, mapState, mapActions } from "vuex";
 export default {
   name: "Presentation",
-  components: {  StudioSideBar, HfButtons, ToolTip, HfPopUp },
+  components: {  StudioSideBar, HfButtons, HfSelect, ToolTip, HfPopUp },
   computed: {
     ...mapGetters('playgroundStore', ['listOfAllSchemaOptions', 'getSelectedOrg']),
     ...mapState({
@@ -339,7 +326,7 @@ export default {
     ...mapActions('playgroundStore', ['fetchSchemasForOrg']),
     onInputTag() {
       if (this.selectedSchemIdsInMultiSelect.length > 0) {
-        this.presentationTemplate.schemaId = this.selectedSchemIdsInMultiSelect.map(x => x.value)
+        this.presentationTemplate.schemaId = [...this.selectedSchemIdsInMultiSelect]
       } else {
         this.presentationTemplate.schemaId = [];
       }
@@ -362,18 +349,13 @@ export default {
 
       if (Array.isArray(temp.schemaId)) {
         this.presentationTemplate.schemaId = temp.schemaId
-        this.selectOptions.forEach(eachOpt => {
-          if (temp.schemaId.find(x => x == eachOpt.value)) {
-            this.selectedSchemIdsInMultiSelect.push(eachOpt)
-          }
-        });
+        this.selectedSchemIdsInMultiSelect = [...temp.schemaId]
 
 
       } else {
         this.presentationTemplate.schemaId = [temp.schemaId]
 
-        const t = this.selectOptions.find(x => x.value === temp.schemaId)
-        this.selectedSchemIdsInMultiSelect.push(t)
+        this.selectedSchemIdsInMultiSelect = [temp.schemaId]
       }
 
       this.presentationTemplate.reason = temp.reason
