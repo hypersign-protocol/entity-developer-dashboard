@@ -44,3 +44,24 @@ export function gstStateLabel(code) {
   const state = GST_STATES.find(s => s.code === code);
   return state ? `${state.label} (${code})` : code || '';
 }
+
+// "Jammu & Kashmir", "JAMMU AND KASHMIR" → "jammuandkashmir"
+const stateKey = name => String(name || '').toLowerCase().replace(/&/g, 'and').replace(/[^a-z]/g, '');
+
+// Older or common spellings, as the dashboard service also accepts
+const STATE_ALIASES = { orissa: '21', pondicherry: '34', uttaranchal: '05', newdelhi: '07', nctofdelhi: '07', andamanandnicobar: '35' };
+
+// The code of a typed state name ("WEST BENGAL" → '19'), or '' when it isn't one.
+// "Other Territory" is never matched by name: it has to be picked.
+export function gstStateFromName(name) {
+  const key = stateKey(name);
+  if (!key) return '';
+  if (STATE_ALIASES[key]) return STATE_ALIASES[key];
+  const state = GST_STATES.find(s => s.code !== '97' && stateKey(s.label) === key);
+  return state ? state.code : '';
+}
+
+export function gstStateName(code) {
+  const state = GST_STATES.find(s => s.code === code);
+  return state ? state.label : '';
+}
