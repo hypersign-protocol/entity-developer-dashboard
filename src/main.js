@@ -9,7 +9,6 @@ import 'vue-sidebar-menu/dist/vue-sidebar-menu.css'
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
 import "@mdi/font/css/materialdesignicons.css";
-import "@mdi/light-font/css/materialdesignicons-light.css";
 import './assets/css/gblStyle.css';
 import store from './store';
 import HfButtons from './components/element/HfButtons.vue'

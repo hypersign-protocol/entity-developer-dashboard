@@ -2033,11 +2033,6 @@
   resolved "https://registry.npmjs.org/@mdi/font/-/font-7.4.47.tgz"
   integrity sha512-43MtGpd585SNzHZPcYowu/84Vz2a2g31TvPMTm9uTiCSWzaheQySUcSyUH/46fPnuPQWof2yd0pGBtzee/IQWw==
 
-"@mdi/light-font@^0.2.63":
-  version "0.2.63"
-  resolved "https://registry.npmjs.org/@mdi/light-font/-/light-font-0.2.63.tgz"
-  integrity sha512-6JaP/rHo2ik6G26zeWmuVNa7iEqsC4Rwry25DfO7BjLxiLckAMvYmQIGlzn1I7Y6PblHAwNlcPjL1vFIg366Og==
-
 "@nibiruchain/nibijs@^5.0.2":
   version "5.0.3"
   resolved "https://registry.npmjs.org/@nibiruchain/nibijs/-/nibijs-5.0.3.tgz"

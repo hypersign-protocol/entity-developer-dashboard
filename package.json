@@ -33,7 +33,6 @@
     "@hypersign-protocol/domain-linkage-verifier": "git+https://github.com/hypersign-protocol/Domain-linkage-verifier.git",
     "@hypersign-protocol/hypersign-kyc-chains-metadata": "git+https://github.com/hypersign-protocol/hypersign-kyc-chains-metadata.git",
     "@mdi/font": "^7.0.96",
-    "@mdi/light-font": "^0.2.63",
     "@nibiruchain/nibijs": "^5.0.2",
     "aes-js": "^3.1.2",
     "axios": "^1.4.0",
