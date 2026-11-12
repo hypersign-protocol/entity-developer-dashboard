@@ -88,10 +88,8 @@ function v1Discounts(discounts) {
 
 const V1_CREDITS_DESCRIPTION = 'Prepaid identity verification credits';
 
-// invoice-v1's wording for add-on lines, by code. The invoice doesn't promise round-the-clock
-// support, and the email line names the support address. Other codes print the server's title.
+// invoice-v1's only contact address, printed in the footer and under the email support add-on
 const V1_SUPPORT_EMAIL = 'support@hypersign.id';
-const V1_ADD_ON_TITLES = { HUMAN_SUPPORT_24X7: 'Human support' };
 const V1_ADD_ON_DETAILS = { EMAIL_SUPPORT: V1_SUPPORT_EMAIL };
 
 /** InvoiceDocument → the layout model of template invoice-v1. */
@@ -142,7 +140,7 @@ export function toInvoiceV1Model(doc) {
           value: `${doc.validityDays} days`
         }
         : {
-          description: V1_ADD_ON_TITLES[addOn.code] || addOn.title,
+          description: addOn.title,
           detail: V1_ADD_ON_DETAILS[addOn.code],
           included: true
         }))
