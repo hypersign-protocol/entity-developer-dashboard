@@ -42,7 +42,6 @@
           <div><dt>Billing email</dt><dd>{{ profile.email }}</dd></div>
           <div><dt>Phone</dt><dd>{{ profile.phone || '—' }}</dd></div>
           <div><dt>Address</dt><dd>{{ addressText }}</dd></div>
-          <div v-if="isIndia"><dt>GST state</dt><dd>{{ stateText }}</dd></div>
           <div>
             <dt>Tax IDs</dt>
             <dd>
@@ -110,8 +109,21 @@
 
           <label class="field" :class="fieldClass('address.province')">
             <span>State / province</span>
-            <input v-model.trim="form.address.province" type="text" maxlength="100" autocomplete="address-level1" :disabled="!canWrite" />
+            <!-- India: a list of GST states, which also sets the GST state code (CGST + SGST or IGST).
+                 A GSTIN fixes the state. Elsewhere: free text. -->
+            <select
+              v-if="isIndia"
+              :value="form.gstStateCode"
+              autocomplete="address-level1"
+              :disabled="!canWrite || Boolean(gstinStateCode)"
+              @change="setIndianState($event.target.value)"
+            >
+              <option value="" disabled>Select a state</option>
+              <option v-for="state in gstStates" :key="state.code" :value="state.code">{{ state.label }}</option>
+            </select>
+            <input v-else v-model.trim="form.address.province" type="text" maxlength="100" autocomplete="address-level1" :disabled="!canWrite" />
             <small v-if="errorFor('address.province')" class="field-error">{{ errorFor('address.province') }}</small>
+            <small v-else-if="gstinStateCode" class="field-help">From {{ admin ? 'the' : 'your' }} GSTIN.</small>
           </label>
 
           <label class="field" :class="fieldClass('address.postalCode')">
@@ -178,18 +190,6 @@
           
         </section>
 
-        <!-- India without a GSTIN: the customer picks the state; with one, the server reads it from the GSTIN -->
-        <label v-if="needsStateSelect" class="field state-field" :class="fieldClass('gstStateCode')">
-          <span>GST state</span>
-          <select v-model="form.gstStateCode" :disabled="!canWrite">
-            <option value="" disabled>Select a state</option>
-            <option v-for="state in gstStates" :key="state.code" :value="state.code">{{ state.label }} ({{ state.code }})</option>
-          </select>
-          <small v-if="errorFor('gstStateCode')" class="field-error">{{ errorFor('gstStateCode') }}</small>
-          <small v-else class="field-help">Decides whether CGST + SGST or IGST applies.</small>
-        </label>
-        <p v-else-if="isIndia && gstinState" class="field-help">GST state: {{ gstinState }}, from {{ admin ? 'the' : 'your' }} GSTIN.</p>
-
         <!-- Super admin only: region, unlocking the tax details, and the audit reason -->
         <section v-if="admin" class="admin-section">
           <label class="field region-field">
@@ -238,7 +238,7 @@ import UtilsMixin from '../../mixins/utils';
 import { getBillingProfile, saveBillingProfile, updateAdminBillingProfile } from '../../utils/billingApi';
 import { COUNTRY_OPTIONS, countryOptionLabel } from '../../utils/countries';
 import { TAX_ID_TYPES } from '../../utils/kybIdentifierTypes';
-import { GST_STATES, gstStateLabel } from '../../utils/gstStates';
+import { GST_STATES, gstStateFromName, gstStateName } from '../../utils/gstStates';
 import { invalidatePromotions } from '../credit/promotion/promotionState';
 import PhoneInput from '../element/PhoneInput.vue';
 import { phoneFieldProblem, toInternationalPhone, splitInternational, phoneFromOnboarding } from '../../utils/phone';
@@ -367,11 +367,10 @@ export default {
       const row = this.form.taxIds.find(t => t.type === 'GSTIN' && t.number);
       return row ? row.number : '';
     },
-    gstinState() {
-      return this.gstin ? gstStateLabel(this.gstin.slice(0, 2)) : '';
-    },
-    needsStateSelect() {
-      return this.isIndia && !this.gstin;
+    // The state of a GSTIN (its first two digits), once they are a known state
+    gstinStateCode() {
+      const code = this.gstin.slice(0, 2);
+      return this.isIndia && gstStateName(code) ? code : '';
     },
     addressText() {
       const a = this.profile.address || {};
@@ -383,9 +382,6 @@ export default {
       if (!personal) return '';
       return `${personal.type === 'OTHER' ? 'Tax ID' : personal.type} ${personal.number} (personal)`;
     },
-    stateText() {
-      return this.profile.gstStateCode ? gstStateLabel(this.profile.gstStateCode) : '—';
-    },
     regionText() {
       if (!this.profile) return '';
       return `${this.profile.region === 'IN' ? 'India' : 'Global'} · ${this.profile.currency}`;
@@ -394,6 +390,10 @@ export default {
   watch: {
     adminProfile(profile) {
       if (this.admin && profile) this.setProfile(profile);
+    },
+    // A GSTIN is registered in one state: the state list follows it
+    gstinStateCode(code) {
+      if (code) this.setIndianState(code);
     },
 
     form: {
@@ -439,8 +439,11 @@ export default {
       this.editing = this.admin || profile.source !== 'SAVED';
       this.resetForm();
       // Highlight what the server says is missing until the customer fills it
-      // (a phone filled in from onboarding isn't missing: its hint asks the customer to confirm it)
-      const missing = (profile.missingFields || []).filter(path => path !== 'phone' || !this.form.phone);
+      // (a phone filled in from onboarding isn't missing: its hint asks the customer to confirm it).
+      // The GST state is picked in State / province.
+      const missing = (profile.missingFields || [])
+        .filter(path => path !== 'phone' || !this.form.phone)
+        .map(path => (path === 'gstStateCode' ? 'address.province' : path));
       this.setErrors(Object.fromEntries(missing.map(path => [path, 'Required'])));
     },
     resetForm() {
@@ -463,12 +466,15 @@ export default {
           postalCode: address.postalCode || '',
           country: address.country || (p.region === 'IN' ? 'IN' : '')
         },
-        gstStateCode: p.gstStateCode || '',
+        // India: the state picked in State / province. Older details may only have a typed name.
+        gstStateCode: country === 'IN' ? (p.gstStateCode || gstStateFromName(address.province)) : '',
         taxIds: (p.taxIds || []).map(({ type, number }) => ({ type, number })),
         region: p.region || 'GLOBAL',
         unlock: false,
         reason: ''
       };
+      // Show the state as it appears on the list ("WEST BENGAL" → "West Bengal")
+      if (this.form.gstStateCode) this.setIndianState(this.form.gstStateCode);
       this.saveError = '';
     },
     startEdit() {
@@ -523,9 +529,17 @@ export default {
       const country = this.form.address.country;
       // A super admin's region follows the country too, and can then be overridden
       if (this.admin) this.form.region = regionForCountry(country);
+      // India picks from the state list: keep a typed state that is on it
+      this.form.gstStateCode = country === 'IN' ? gstStateFromName(this.form.address.province) : '';
+      if (this.form.gstStateCode) this.setIndianState(this.form.gstStateCode);
       if (!this.form.phoneDial || this.form.phoneDial === this.lastCountry) this.form.phoneDial = country === 'XX' ? '' : country;
       this.lastCountry = country;
       if (this.form.phone) this.checkPhone();
+    },
+    // India: one choice sets both the address's state name and its GST state code
+    setIndianState(code) {
+      this.form.gstStateCode = code;
+      this.form.address.province = gstStateName(code);
     },
     // On blur: show a phone problem straight away (the other fields are checked on save)
     checkPhone() {
@@ -552,6 +566,7 @@ export default {
       ['street', 'city', 'province', 'postalCode'].forEach(field => {
         if (!f.address[field]) errors[`address.${field}`] = 'Required';
       });
+      if (this.isIndia && !f.gstStateCode) errors['address.province'] = 'Select your state';
       if (!f.address.country) errors['address.country'] = 'Select a country';
       // A business not registered for tax has its personal tax ID instead
       if (this.isIndia && f.taxIds.length == 0 && !(this.profile && this.profile.personalTaxId)) errors['taxIds']= 'Enter tax ID'
@@ -566,7 +581,6 @@ export default {
             : '');
         if (problem) errors[`taxIds[${index}].number`] = problem;
       });
-      if (this.needsStateSelect && !f.gstStateCode) errors.gstStateCode = 'Select your state, or add a GSTIN';
       if (this.admin && !f.reason) errors.reason = 'Enter the reason for this change';
       return errors;
     },
@@ -581,7 +595,11 @@ export default {
         address: { ...f.address },
         taxIds: f.taxIds.map(({ type, number }) => ({ type, number }))
       };
-      if (this.needsStateSelect) body.gstStateCode = f.gstStateCode;
+      // India: the picked state, sent by name in the address and as its code
+      if (this.isIndia && f.gstStateCode) {
+        body.gstStateCode = f.gstStateCode;
+        body.address.province = gstStateName(f.gstStateCode);
+      }
       if (this.admin) {
         body.region = f.region;
         if (f.unlock) body.unlock = true;
@@ -606,7 +624,9 @@ export default {
         this.notifySuccess(this.admin ? 'Customer billing details updated' : 'Billing details saved');
       } catch (error) {
         if (error.code === 'VALIDATION_FAILED' && error.details && error.details.fields) {
-          this.setErrors({ ...error.details.fields });
+          // The GST state is picked in State / province
+          const { gstStateCode, ...fields } = error.details.fields;
+          this.setErrors(gstStateCode ? { ...fields, 'address.province': gstStateCode } : fields);
           this.saveError = 'Please fix the highlighted fields.';
         } else if (error.code === 'BILLING_PROFILE_LOCKED') {
           this.saveError = error.message;
@@ -698,7 +718,6 @@ export default {
 .tax-row { display: grid; grid-template-columns: minmax(0, 220px) minmax(0, 1fr) auto; gap: 8px; align-items: center; margin-bottom: 8px; }
 .tax-row input { font-variant-numeric: tabular-nums; letter-spacing: .02em; text-transform: uppercase; }
 .tax-row .field-error { grid-column: 1 / -1; }
-.state-field { max-width: 312px; margin-top: 16px; }
 .region-notice { margin: 16px 0 0; }
 .personal-tax-id { display: flex; flex-direction: column; gap: 2px; margin: 0 0 10px; font-size: 13px; font-weight: 600; }
 .billing-form > .field-help { margin-top: 12px; }
