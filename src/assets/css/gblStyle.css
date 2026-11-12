@@ -46,12 +46,96 @@
     background:#905ab029;
     border:0;
 }
-.form-control:focus {
-    border-color:rgba(46, 102, 93, 1) !important;
+/* Bootstrap fields (.form-control, b-form-input, b-form-textarea, b-form-select, hf-select-drop-down) get the
+   same look as the shared .hf-input below, so legacy screens match Billing details without markup changes.
+   New code uses .hf-input directly (vue2-ui-design-system skill). */
+.form-control,
+.custom-select {
+    height: 38px;
+    padding: 0 11px;
+    border: 1px solid #d5dde7;
+    border-radius: 6px;
+    background-color: #fff;
+    color: #27364a;
+    font-family: inherit;
+    font-size: 13px;
+    line-height: 1.4;
+    box-shadow: none;
 }
+textarea.form-control {
+    height: auto;
+    padding: 9px 11px;
+    line-height: 1.45;
+    resize: vertical;
+}
+select.form-control,
+.custom-select {
+    padding-right: 32px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24'%3E%3Cpath fill='%238793a5' d='M7.41 8.58 12 13.17l4.59-4.59L18 10l-6 6-6-6z'/%3E%3C/svg%3E");
+    background-position: right 10px center;
+    background-repeat: no-repeat;
+    background-size: 16px;
+    cursor: pointer;
+}
+select.form-control[multiple],
+select.form-control[size]:not([size="1"]),
+.custom-select[multiple],
+.custom-select[size]:not([size="1"]) {
+    height: auto;
+    padding: 6px 11px;
+    background-image: none;
+}
+.form-control-sm,
+.custom-select-sm {
+    height: 32px;
+    font-size: 12px;
+}
+.form-control::placeholder { color: #8793a5; opacity: 1; }
+.form-control:focus,
 .custom-select:focus {
-    border-color: rgba(46, 102, 93, 1) !important;
+    border-color: #2f6fec;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(47, 111, 236, .12);
+    color: #27364a;
 }
+.form-control:disabled,
+.custom-select:disabled {
+    background-color: #f8fafc;
+    color: #667085;
+    cursor: not-allowed;
+    opacity: 1;
+}
+.form-control[readonly] { background-color: #f8fafc; }
+/* Validation states: border color only. Bootstrap's status icons are dropped, and selects keep their chevron. */
+.form-control.is-invalid,
+.custom-select.is-invalid { border-color: #f04438; }
+.form-control.is-valid,
+.custom-select.is-valid { border-color: #2daf78; }
+input.form-control.is-invalid,
+input.form-control.is-valid,
+textarea.form-control.is-invalid,
+textarea.form-control.is-valid {
+    padding-right: 11px;
+    background-image: none;
+}
+select.form-control.is-invalid,
+select.form-control.is-valid,
+.custom-select.is-invalid,
+.custom-select.is-valid {
+    padding-right: 32px;
+    background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24'%3E%3Cpath fill='%238793a5' d='M7.41 8.58 12 13.17l4.59-4.59L18 10l-6 6-6-6z'/%3E%3C/svg%3E") no-repeat right 10px center / 16px;
+}
+.form-control.is-invalid:focus,
+.custom-select.is-invalid:focus {
+    border-color: #f04438;
+    box-shadow: 0 0 0 2px rgba(240, 68, 56, .12);
+}
+.form-control.is-valid:focus,
+.custom-select.is-valid:focus {
+    border-color: #2daf78;
+    box-shadow: 0 0 0 2px rgba(45, 175, 120, .12);
+}
+.invalid-feedback { color: #b42318; font-size: 11px; }
 .home{
     margin-left: auto;
     margin-right: auto;
@@ -287,4 +371,137 @@ a {
   background-color: #dbeafe;
   color: #1e40af;
   border-radius: 9999px;
+}
+
+/* ---- Form fields (shared). Same look as Settings > Billing details. ----
+   <div class="hf-field-grid">
+     <label class="hf-field">            (div.hf-field for composite controls)
+       <span>Label</span>
+       <input class="hf-input" />        (also <textarea class="hf-input">, <select class="hf-input">)
+       <small class="hf-field-error">…</small> or <small class="hf-field-help">…</small>
+     </label>
+   </div>
+   Invalid: add .invalid to .hf-field (or .is-invalid to the control). Rules: vue2-ui-design-system skill. */
+.hf-field-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px 16px;
+}
+
+.hf-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin: 0;
+}
+
+.hf-field.full { grid-column: 1 / -1; }
+
+.hf-field > span,
+.hf-label {
+  color: #475467;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.hf-field > span .hf-optional { color: #8793a5; font-weight: 400; }
+
+.hf-input {
+  width: 100%;
+  height: 38px;
+  padding: 0 11px;
+  border: 1px solid #d5dde7;
+  border-radius: 6px;
+  background-color: #fff;
+  color: #27364a;
+  font-family: inherit;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+textarea.hf-input {
+  height: auto;
+  min-height: 76px;
+  padding: 9px 11px;
+  line-height: 1.45;
+  resize: vertical;
+}
+
+/* Vuetify's reset removes the native arrow from every <select>: draw one */
+select.hf-input {
+  padding-right: 32px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24'%3E%3Cpath fill='%238793a5' d='M7.41 8.58 12 13.17l4.59-4.59L18 10l-6 6-6-6z'/%3E%3C/svg%3E");
+  background-position: right 10px center;
+  background-repeat: no-repeat;
+  background-size: 16px;
+  cursor: pointer;
+}
+
+.hf-input::placeholder { color: #8793a5; opacity: 1; }
+
+.hf-input:focus {
+  border-color: #2f6fec;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(47, 111, 236, .12);
+}
+
+.hf-input[readonly] { background-color: #f8fafc; }
+
+.hf-input:disabled {
+  background-color: #f8fafc;
+  color: #667085;
+  cursor: not-allowed;
+}
+
+.hf-field.invalid .hf-input,
+.hf-input.is-invalid { border-color: #f04438; }
+
+/* IDs, keys and references typed by the user */
+.hf-input.hf-mono,
+.hf-input-group.hf-mono input { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; }
+
+/* A field with fixed text before or after the value ("₹", "days"): same box as .hf-input
+   <div class="hf-input-group"><span class="hf-affix">₹</span><input … /><span class="hf-affix">days</span></div> */
+.hf-input-group {
+  display: flex;
+  width: 100%;
+  height: 38px;
+  align-items: center;
+  gap: 6px;
+  padding: 0 11px;
+  border: 1px solid #d5dde7;
+  border-radius: 6px;
+  background-color: #fff;
+}
+
+.hf-input-group:focus-within {
+  border-color: #2f6fec;
+  box-shadow: 0 0 0 2px rgba(47, 111, 236, .12);
+}
+
+.hf-input-group input {
+  min-width: 0;
+  flex: 1 1 auto;
+  height: 36px;
+  padding: 0;
+  border: 0;
+  outline: none;
+  background: transparent;
+  box-shadow: none;
+  color: #27364a;
+  font-family: inherit;
+  font-size: 13px;
+}
+
+.hf-input-group input::placeholder { color: #8793a5; opacity: 1; }
+.hf-input-group .hf-affix { flex: 0 0 auto; color: #8793a5; font-size: 13px; white-space: nowrap; }
+.hf-field.invalid .hf-input-group,
+.hf-input-group.is-invalid { border-color: #f04438; }
+.hf-input-group.is-disabled { background-color: #f8fafc; cursor: not-allowed; }
+
+.hf-field-error { color: #b42318; font-size: 11px; }
+.hf-field-help { margin: 0; color: #8793a5; font-size: 11px; line-height: 1.45; }
+
+@media (max-width: 650px) {
+  .hf-field-grid { grid-template-columns: 1fr; }
 }
