@@ -2856,11 +2856,6 @@ const mainStore = {
         async approveOrRejectVerification({ getters, dispatch }, payload) {
             return new Promise((resolve, reject) => {
                 const { companyId, reason, status } = payload;
-                if (reason) {
-                    // For future use, currently not sent to backend
-                    // console.log('Reason for rejection:', reason);
-                }
-
 
                 if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
                     return reject(new Error('Tenant url is null or empty, service is not selected'))
@@ -2874,14 +2869,16 @@ const mainStore = {
                     return reject(new Error('Invalid status'))
                 }
 
-                let url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyb/verification/company/${companyId}`;
-                // let url = `http://localhost:3001/api/v1/e-kyb/verification/company/${companyId}`;
+                // Status has its own route, gated by UPDATE_COMPANY_STATUS. PATCH :id is
+                // for company details only and will stop accepting status.
+                let url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/e-kyb/verification/company/${companyId}/status`;
+                // let url = `http://localhost:3001/api/v1/e-kyb/verification/company/${companyId}/status`;
                 dispatch('getValidToken', {
                     serviceId: getters.getSelectedService.appId,
                     grant_type: config.GRANT_TYPES_ENUM.CAVACH_KYB_API,
                     tokenStorageKey: "kyb_access_token"
                 }).then((token) => {
-                    let headers = UtilsMixin.methods.getKycServiceHeader(token);
+                    const headers = UtilsMixin.methods.getKycServiceHeader(token);
 
                     const requestBody = {
                         status,
@@ -2890,21 +2887,16 @@ const mainStore = {
                         })
                     };
 
-                    const dependentServiceId = getters.getSelectedService.dependentServices[0];
-                    const ssiService = getters.getAppsWithSSIServices.find(s => s.appId === dependentServiceId);
-                    const ssiServiceAccessToken = ssiService.access_token
-                    headers = {
-                        ...headers,
-                        "X-Ssi-Access-Token": ssiServiceAccessToken
-                    }
-
                     return fetch(url, {
                         method: 'PATCH',
                         headers: {
                             ...headers,
                             'Content-Type': 'application/json'
                         },
-                        body: JSON.stringify(requestBody)
+                        body: JSON.stringify(requestBody),
+                        // Sends the dashboard cookie so a super admin's decision is
+                        // recorded under them (otherwise under the app owner).
+                        credentials: 'include'
                     })
                 })
                     .then(response => response.json()).then(json => {
