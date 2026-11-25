@@ -1,5 +1,12 @@
 # Changelog
 
+## [Unreleased]
+## [3.18.1] - 2026-11-25
+
+### Fixed
+- Company approve and reject actions now use the dedicated `PATCH /api/v1/e-kyb/verification/company/:id/status` endpoint, include rejection reasons and dashboard credentials, and no longer send the SSI access token.
+- Team role presets and permission groups now expose `READ_SESSION`, `WRITE_SESSION_DECISION`, and `DELETE_WIDGET_CONFIG`, so the applicable session decision and widget configuration permissions can be assigned.
+
 
 ## [3.18.0] - 2026-11-11
 
