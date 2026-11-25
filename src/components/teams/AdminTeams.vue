@@ -282,7 +282,7 @@ const PREDEFINED_ROLES = [
         description: "Can review KYC/KYB cases, verify documents, and access compliance data.",
         badge: "KYC/KYB review",
         recommendedFor: "Compliance or operations team",
-        permissions: ["READ_VERIFIED_USER", "READ_ANALYTICS", "READ_USAGE", "READ_COMPANY", "UPDATE_COMPANY_STATUS", "READ_COMPANY_EXECUTIVES", "READ_DOCUMENT", "VERIFY_DOCUMENT", "READ_COMPLIANCE", DASHBOARD_ROLE_SERVICE.accessList.READ_SERVICE]
+        permissions: ["READ_VERIFIED_USER", "READ_SESSION", "WRITE_SESSION_DECISION", "READ_ANALYTICS", "READ_USAGE", "READ_COMPANY", "UPDATE_COMPANY_STATUS", "READ_COMPANY_EXECUTIVES", "READ_DOCUMENT", "VERIFY_DOCUMENT", "READ_COMPLIANCE", DASHBOARD_ROLE_SERVICE.accessList.READ_SERVICE]
     },
     {
         key: "admin",
@@ -291,7 +291,7 @@ const PREDEFINED_ROLES = [
         description: "Full access to manage team, settings, verification, billing, and company account.",
         badge: "Full access",
         recommendedFor: "Organization owners / super admins",
-        permissions: ["READ_VERIFIED_USER", "READ_WIDGET_CONFIG", "WRITE_WIDGET_CONFIG", "UPDATE_WIDGET_CONFIG", "READ_WEBHOOK_CONFIG", "WRITE_WEBHOOK_CONFIG", "UPDATE_WEBHOOK_CONFIG", "DELETE_WEBHOOK_CONFIG", "READ_ANALYTICS", "READ_USAGE", "READ_CREDIT", "READ_COMPANY", "DELETE_COMPANY", "UPDATE_COMPANY_STATUS", "READ_COMPANY_EXECUTIVES", "READ_DOCUMENT", "VERIFY_DOCUMENT", "READ_COMPLIANCE", "READ_SERVICE", "WRITE_SERVICE", "UPDATE_SERVICE", "DELETE_SERVICE"]
+        permissions: ["READ_VERIFIED_USER", "READ_SESSION", "WRITE_SESSION_DECISION", "READ_WIDGET_CONFIG", "WRITE_WIDGET_CONFIG", "UPDATE_WIDGET_CONFIG", "DELETE_WIDGET_CONFIG", "READ_WEBHOOK_CONFIG", "WRITE_WEBHOOK_CONFIG", "UPDATE_WEBHOOK_CONFIG", "DELETE_WEBHOOK_CONFIG", "READ_ANALYTICS", "READ_USAGE", "READ_CREDIT", "READ_COMPANY", "DELETE_COMPANY", "UPDATE_COMPANY_STATUS", "READ_COMPANY_EXECUTIVES", "READ_DOCUMENT", "VERIFY_DOCUMENT", "READ_COMPLIANCE", "READ_SERVICE", "WRITE_SERVICE", "UPDATE_SERVICE", "DELETE_SERVICE"]
     },
     {
         key: "custom",
@@ -500,8 +500,8 @@ export default {
             ];
             const ID_GROUPS = [
                 { label: 'General',               icon: 'mdi-star-outline',             iconColor: '#6366f1', keys: ['ALL'] },
-                { label: 'Session & Users',        icon: 'mdi-account-multiple-outline', iconColor: '#3b82f6', keys: ['READ_VERIFIED_USER'] },
-                { label: 'Widget Config',          icon: 'mdi-widgets-outline',          iconColor: '#059669', keys: ['READ_WIDGET_CONFIG', 'WRITE_WIDGET_CONFIG', 'UPDATE_WIDGET_CONFIG'] },
+                { label: 'Session & Users',        icon: 'mdi-account-multiple-outline', iconColor: '#3b82f6', keys: ['READ_VERIFIED_USER', 'READ_SESSION', 'WRITE_SESSION_DECISION'] },
+                { label: 'Widget Config',          icon: 'mdi-widgets-outline',          iconColor: '#059669', keys: ['READ_WIDGET_CONFIG', 'WRITE_WIDGET_CONFIG', 'UPDATE_WIDGET_CONFIG', 'DELETE_WIDGET_CONFIG'] },
                 { label: 'Webhook Config',         icon: 'mdi-webhook',                  iconColor: '#0891b2', keys: ['WRITE_WEBHOOK_CONFIG', 'READ_WEBHOOK_CONFIG', 'UPDATE_WEBHOOK_CONFIG', 'DELETE_WEBHOOK_CONFIG'] },
                 { label: 'Analytics & Usage',      icon: 'mdi-chart-bar',                iconColor: '#d97706', keys: ['READ_ANALYTICS', 'READ_USAGE'] },
                 { label: 'Credit',                 icon: 'mdi-credit-card-outline',      iconColor: '#dc2626', keys: ['READ_CREDIT'] },
