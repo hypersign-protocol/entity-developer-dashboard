@@ -2751,12 +2751,13 @@ const mainStore = {
 
         async downloadKybUploadedFile({ getters, dispatch }, payload) {
             const { fileId } = payload
-            if (!getters.getSelectedService || !getters.getSelectedService.tenantUrl) {
-                throw new Error('Tenant url is null or empty, service is not selected')
-            }
-            const url = `${sanitizeUrl(getters.getSelectedService.tenantUrl)}/api/v1/document/download/${fileId}`;
+            const serviceId = payload.serviceId || getters.getSelectedService?.appId
+              if ( !serviceId) {
+                    throw new Error('Service ID is required');
+                }
+            const url = `${sanitizeUrl(config.KYC_SERVER_BASE_URL)}/api/v1/document/download/${fileId}`;
             const token = await dispatch('getValidToken', {
-                serviceId: getters.getSelectedService.appId,
+                serviceId,
                 grant_type: config.GRANT_TYPES_ENUM.CAVACH_KYB_API,
                 tokenStorageKey: 'kyb_access_token'
             });

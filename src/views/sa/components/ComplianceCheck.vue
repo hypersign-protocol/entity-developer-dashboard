@@ -621,7 +621,7 @@ If no matches, return exactly:
         async downloadDoc(doc) {
             this.downloadingDocId = doc.id;
             try {
-                const blob = await this.downloadKybUploadedFile({ fileId: doc.id });
+                const blob = await this.downloadKybUploadedFile({ fileId: doc.id, serviceId: this.serviceId });
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
